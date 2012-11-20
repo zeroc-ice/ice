@@ -42,6 +42,12 @@ class InitialI : InitialDisp_
         return _derivedPrinter;
     }
     
+    public override Printer updatePrinterMessage(Printer printer, Ice.Current current)
+    {
+	printer.message = "a modified message 4 u";
+        return printer;
+    }
+
     public override void throwDerivedPrinter(Ice.Current current)
     {
         DerivedPrinterException ex = new DerivedPrinterException();

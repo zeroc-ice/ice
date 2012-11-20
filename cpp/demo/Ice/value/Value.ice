@@ -17,6 +17,7 @@ class Simple
     string message;
 };
 
+["preserve-slice"]
 class Printer
 {
     string message;
@@ -29,6 +30,10 @@ class Printer
     void printUppercase();
 };
 
+["cpp:virtual"]class ClientPrinter extends Printer
+{
+};
+
 exception DerivedPrinterException
 {
     DerivedPrinter derived;
@@ -39,6 +44,7 @@ interface Initial
     Simple getSimple();
     void getPrinter(out Printer impl, out Printer* proxy);
     ["format:sliced"] Printer getDerivedPrinter();
+    ["format:sliced"] Printer updatePrinterMessage(Printer impl);
     void throwDerivedPrinter() throws DerivedPrinterException;
     void shutdown();
 };

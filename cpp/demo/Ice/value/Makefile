@@ -15,10 +15,10 @@ SERVER		= server
 TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Value.o \
-		  ValueI.o
+		  ValueI.o \
+		  ObjectFactory.o
 
 COBJS		= Client.o \
-		  ObjectFactory.o
 
 SOBJS		= Server.o
 

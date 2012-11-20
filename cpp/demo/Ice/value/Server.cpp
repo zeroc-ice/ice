@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <ValueI.h>
+#include <ObjectFactory.h>
 
 using namespace std;
 
@@ -34,6 +35,9 @@ ValueServer::run(int argc, char* argv[])
         cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
+
+    Ice::ObjectFactoryPtr factory = new ObjectFactory;
+    communicator()->addObjectFactory(factory, Demo::Printer::ice_staticId());
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Value");
     Demo::InitialPtr initial = new InitialI(adapter);

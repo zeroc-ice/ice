@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import Demo, string
+import Demo, string, Ice
 
 class PrinterI(Demo.Printer):
     def printBackwards(self, current=None):
@@ -17,3 +17,23 @@ class PrinterI(Demo.Printer):
 class DerivedPrinterI(Demo.DerivedPrinter, PrinterI):
     def printUppercase(self, current=None):
         print(self.derivedMessage.upper())
+
+class ClientPrinterI(Demo.ClientPrinter, PrinterI):
+    pass
+
+class ObjectFactory(Ice.ObjectFactory):
+    def create(self, type):
+        if type == Demo.Printer.ice_staticId():
+            return PrinterI()
+
+        if type == Demo.DerivedPrinter.ice_staticId():
+            return DerivedPrinterI()
+
+        if type == Demo.ClientPrinter.ice_staticId():
+            return ClientPrinterI()
+
+        assert(False)
+
+    def destroy(self):
+        # Nothing to do
+        pass

@@ -15,10 +15,10 @@ SERVER		= server.exe
 TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Value.obj \
-		  ValueI.obj
-
-COBJS		= Client.obj \
+		  ValueI.obj \
 		  ObjectFactory.obj
+
+COBJS		= Client.obj
 
 SOBJS		= Server.obj
 

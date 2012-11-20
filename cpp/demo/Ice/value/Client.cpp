@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Value.h>
+#include <ValueI.h>
 #include <ObjectFactory.h>
 
 using namespace std;
@@ -154,6 +155,24 @@ ValueClient::run(int argc, char* argv[])
     cout << "==> " << derived->derivedMessage << endl;
     cout << "==> ";
     derived->printUppercase();
+
+    cout << '\n'
+    	 << "Now let's make sure that slice is preserved with [\"preserve-slice\"]\n"
+	 << "metadata. We create a derived type on the client and pass it to the\n"
+	 << "server, which does not have a factory for the derived type. We do a\n"
+	 << "dynamic_cast<> to make sure we can still access the derived type when\n"
+	 << "it has been returned from the server.\n"
+         << "[press enter]\n";
+    cin.getline(c, 2);
+
+    ClientPrinterPtr clientp = new ClientPrinterI;
+    clientp->message = "a message 4 u";
+    communicator()->addObjectFactory(factory, Demo::ClientPrinter::ice_staticId());
+
+    derivedAsBase = initial->updatePrinterMessage(clientp);
+    clientp = ClientPrinterPtr::dynamicCast(derivedAsBase);
+    assert(clientp);
+    cout << "==> " << clientp->message << endl;
 
     cout << '\n'
          << "Finally, we try the same again, but instead of returning the\n"

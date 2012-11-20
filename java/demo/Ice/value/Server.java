@@ -18,6 +18,9 @@ public class Server extends Ice.Application
             return 1;
         }
 
+	Ice.ObjectFactory factory = new ObjectFactory();
+	communicator().addObjectFactory(factory, Demo.Printer.ice_staticId());
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Value");
         Ice.Object object = new InitialI(adapter);
         adapter.add(object, communicator().stringToIdentity("initial"));

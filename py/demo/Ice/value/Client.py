@@ -13,20 +13,6 @@ import sys, traceback, Ice
 Ice.loadSlice('Value.ice')
 import Demo, Printer
 
-class ObjectFactory(Ice.ObjectFactory):
-    def create(self, type):
-        if type == Demo.Printer.ice_staticId():
-            return Printer.PrinterI()
-
-        if type == Demo.DerivedPrinter.ice_staticId():
-            return Printer.DerivedPrinterI()
-
-        assert(False)
-
-    def destroy(self):
-        # Nothing to do
-        pass
-
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
@@ -69,7 +55,7 @@ class Client(Ice.Application):
               "[press enter]")
         sys.stdin.readline()
 
-        factory = ObjectFactory()
+        factory = Printer.ObjectFactory()
         self.communicator().addObjectFactory(factory, Demo.Printer.ice_staticId())
 
         printer, printerProxy = initial.getPrinter()
@@ -126,6 +112,22 @@ class Client(Ice.Application):
         sys.stdout.write("==> ")
         sys.stdout.flush()
         derived.printUppercase()
+
+
+        print('\n'\
+              "Now let's make sure that slice is preserved with [\"preserve-slice\"]\n"\
+              "metadata. We create a derived type on the client and pass it to the\n"\
+              "server, which does not have a factory for the derived type.\n"\
+              "[press enter]\n")
+        sys.stdin.readline()
+
+    	clientp = Printer.ClientPrinterI()
+    	clientp.message = "a message 4 u"
+    	self.communicator().addObjectFactory(factory, Demo.ClientPrinter.ice_staticId())
+
+    	derivedAsBase = initial.updatePrinterMessage(clientp)
+	assert(derivedAsBase.ice_id() == Demo.ClientPrinter.ice_staticId())
+    	print("==> " + derivedAsBase.message)
 
         print('\n'\
               "Finally, we try the same again, but instead of returning the\n"\

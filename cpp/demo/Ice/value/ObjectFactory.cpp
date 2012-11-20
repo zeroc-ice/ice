@@ -26,6 +26,11 @@ ObjectFactory::create(const string& type)
         return new DerivedPrinterI;
     }
 
+    if(type == Demo::ClientPrinter::ice_staticId())
+    {
+        return new ClientPrinterI;
+    }
+
     assert(false);
     return 0;
 }

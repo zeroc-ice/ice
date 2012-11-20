@@ -21,6 +21,10 @@ Public Class ObjectFactory
             Return New DerivedPrinterI
         End If
 
+        If type.Equals("::Demo::ClientPrinter") Then
+            Return New ClientPrinterI
+        End If
+
         ' Debug.Assert(False)   ' Bug in VB 7.1: Diagnostics.Debug is not found
         Return Nothing
     End Function

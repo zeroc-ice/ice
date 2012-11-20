@@ -44,6 +44,13 @@ InitialI::getDerivedPrinter(const Ice::Current&)
     return _derivedPrinter;
 }
 
+PrinterPtr
+InitialI::updatePrinterMessage(const PrinterPtr& printer, const Ice::Current&)
+{
+    printer->message = "a modified message 4 u";
+    return printer;
+}
+
 void
 InitialI::throwDerivedPrinter(const Ice::Current&)
 {

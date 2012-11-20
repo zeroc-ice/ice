@@ -32,10 +32,17 @@ class DerivedPrinterI < Demo::DerivedPrinter
     end
 end
 
+class ClientPrinterI < Demo::ClientPrinter
+end
+
 class ObjectFactory
     def create(type)
         if type == Demo::DerivedPrinter::ice_staticId()
             return DerivedPrinterI.new
+        end
+
+        if type == Demo::ClientPrinter::ice_staticId()
+            return ClientPrinterI.new
         end
 
         fail "unknown type"
@@ -163,6 +170,22 @@ class Ice::Application
         puts "==> " + derived.derivedMessage
         print "==> "
         derived.printUppercase()
+
+	puts "\n"\
+	     "Now let's make sure that slice is preserved with [\"preserve-slice\"]\n"\
+	     "metadata. We create a derived type on the client and pass it to the\n"\
+	     "server, which does not have a factory for the derived type.\n"\
+	     "[press enter]\n"
+	STDOUT.flush
+        STDIN.readline
+
+	clientp = ClientPrinterI.new
+	clientp.message = "a message 4 u"
+        Ice::Application::communicator().addObjectFactory(ObjectFactory.new, Demo::ClientPrinter::ice_staticId())
+
+	derivedAsBase = initial.updatePrinterMessage(clientp)
+        fail unless derivedAsBase.ice_id() == "::Demo::ClientPrinter"
+	puts "==> " + derivedAsBase.message
 
         puts "\n"\
              "Finally, we try the same again, but instead of returning the\n"\

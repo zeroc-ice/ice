@@ -34,6 +34,14 @@ class DerivedPrinterI extends Demo\DerivedPrinter
     }
 }
 
+class ClientPrinterI extends Demo\ClientPrinter
+{
+    function printBackwards()
+    {
+        echo strrev($this->message),"\n";
+    }
+}
+
 class ObjectFactory implements Ice\ObjectFactory
 {
     function create($type)
@@ -156,6 +164,21 @@ try
     echo "==> ",$derived->derivedMessage,"\n";
     echo "==> ";
     $derived->printUppercase();
+
+    echo "\n";
+    echo "Now let's make sure that slice is preserved with [\"preserve-slice\"]\n";
+    echo "metadata. We create a derived type on the client and pass it to the\n";
+    echo "server, which does not have a factory for the derived type.\n";
+    echo "[press enter]\n";
+    fgets(STDIN);
+
+    $clientp = new ClientPrinterI()
+    $clientp->message = "a message 4 u"
+    $ICE->addObjectFactory($factory, Demo\ClientPrinter::ice_staticId());
+
+    $derivedAsBase = $initial->updatePrinterMessage($clientp);
+    assert($derivedAsBase instanceof Demo\ClientPrinter);
+    echo "==> ",$derivedAsBase->message,"\n";
 
     echo "\n";
     echo "Finally, we try the same again, but instead of returning the\n";

@@ -165,6 +165,23 @@ public class Client extends Ice.Application
         derived.printUppercase();
 
         System.out.println();
+        System.out.println("Now let's make sure that slice is preserved with [\"preserve-slice\"]");
+        System.out.println("metadata. We create a derived type on the client and pass it to the");
+        System.out.println("server, which does not have a factory for the derived type. We do a");
+        System.out.println("class cast to make sure we can still access the derived type when");
+        System.out.println("it has been returned from the server.");
+        System.out.println("[press enter]");
+        readline(in);
+
+    	ClientPrinter clientp = new ClientPrinterI();
+    	clientp.message = "a message 4 u";
+    	communicator().addObjectFactory(factory, Demo.ClientPrinter.ice_staticId());
+
+    	derivedAsBase = initial.updatePrinterMessage(clientp);
+    	clientp = (Demo.ClientPrinter)derivedAsBase;
+        System.out.println("==> " + clientp.message);
+
+        System.out.println();
         System.out.println("Finally, we try the same again, but instead of returning the");
         System.out.println("derived object, we throw an exception containing the derived");
         System.out.println("object.");

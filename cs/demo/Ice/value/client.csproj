@@ -93,6 +93,9 @@
     <Compile Include="Client.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ClientPrinterI.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DerivedPrinterI.cs">
       <SubType>Code</SubType>
     </Compile>

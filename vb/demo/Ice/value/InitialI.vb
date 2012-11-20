@@ -39,6 +39,11 @@ Public Class InitialI
         Return _derivedPrinter
     End Function
 
+    Public Overloads Overrides Function updatePrinterMessage(ByVal printer As Printer, ByVal current As Ice.Current) As Printer
+	printer.message = "a modified message 4 u"
+        Return printer
+    End Function
+
     Public Overloads Overrides Sub throwDerivedPrinter(ByVal current As Ice.Current)
         Dim ex As DerivedPrinterException = New DerivedPrinterException
         ex.derived = _derivedPrinter

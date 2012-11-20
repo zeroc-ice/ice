@@ -90,6 +90,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientPrinterI.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DerivedPrinterI.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,6 +100,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="InitialI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectFactory.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PrinterI.cs">

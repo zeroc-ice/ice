@@ -23,6 +23,11 @@ class ObjectFactory : Ice.ObjectFactory
             return new DerivedPrinterI();
         }
         
+        if(type.Equals("::Demo::ClientPrinter"))
+        {
+            return new ClientPrinterI();
+        }
+        
         Debug.Assert(false);
         return null;
     }

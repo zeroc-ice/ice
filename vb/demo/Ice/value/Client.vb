@@ -122,6 +122,21 @@ Module ValueC
             Console.Out.Write("==> ")
             derived.printUppercase()
 
+	    Console.Out.WriteLine()
+            Console.Out.WriteLine("Finally, we try the same again, but instead of returning the")
+            Console.Out.WriteLine("derived object, we throw an exception containing the derived")
+            Console.Out.WriteLine("object.")
+            Console.Out.WriteLine("[press enter]")
+            Console.In.ReadLine()
+
+            Dim clientp As ClientPrinter = New ClientPrinterI
+	    clientp.message = "a message 4 u"
+            communicator().addObjectFactory(factory, Demo.ClientPrinter.ice_staticId())
+
+	    derivedAsBase = initial.updatePrinterMessage(clientp)
+	    clientp = CType(derivedAsBase, ClientPrinter)
+            Console.Out.WriteLine("==> " & clientp.message)
+
             Console.Out.WriteLine()
             Console.Out.WriteLine("Finally, we try the same again, but instead of returning the")
             Console.Out.WriteLine("derived object, we throw an exception containing the derived")

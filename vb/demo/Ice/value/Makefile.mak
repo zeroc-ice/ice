@@ -11,8 +11,8 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.vb DerivedPrinterI.vb ObjectFactory.vb PrinterI.vb
-S_SRCS		= DerivedPrinterI.vb InitialI.vb PrinterI.vb Server.vb
+C_SRCS		= Client.vb ClientPrinterI.vb DerivedPrinterI.vb ObjectFactory.vb PrinterI.vb
+S_SRCS		= ClientPrinterI.vb DerivedPrinterI.vb InitialI.vb ObjectFactory.vb PrinterI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Value.cs
 

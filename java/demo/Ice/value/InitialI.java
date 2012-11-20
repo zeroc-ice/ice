@@ -42,6 +42,13 @@ class InitialI extends _InitialDisp
         return _derivedPrinter;
     }
 
+    public Printer
+    updatePrinterMessage(Printer printer, Ice.Current current)
+    {
+    	printer.message = "a modified message 4 u";
+        return printer;
+    }
+
     public void
     throwDerivedPrinter(Ice.Current current)
         throws DerivedPrinterException

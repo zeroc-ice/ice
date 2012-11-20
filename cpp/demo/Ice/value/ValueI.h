@@ -21,6 +21,7 @@ public:
     virtual Demo::SimplePtr getSimple(const Ice::Current&);
     virtual void getPrinter(::Demo::PrinterPtr&, Demo::PrinterPrx&, const Ice::Current&);
     virtual Demo::PrinterPtr getDerivedPrinter(const Ice::Current&);
+    virtual Demo::PrinterPtr updatePrinterMessage(const Demo::PrinterPtr&, const Ice::Current&);
     virtual void throwDerivedPrinter(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
@@ -44,6 +45,10 @@ class DerivedPrinterI : virtual public Demo::DerivedPrinter, virtual public Prin
 public:
 
     virtual void printUppercase(const Ice::Current&);
+};
+
+class ClientPrinterI : virtual public Demo::ClientPrinter, virtual public PrinterI
+{
 };
 
 #endif

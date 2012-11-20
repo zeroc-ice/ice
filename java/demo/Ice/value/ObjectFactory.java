@@ -22,6 +22,11 @@ class ObjectFactory implements Ice.ObjectFactory
             return new DerivedPrinterI();
         }
 
+        if(type.equals("::Demo::ClientPrinter"))
+        {
+            return new ClientPrinterI();
+        }
+
         assert(false);
         return null;
     }

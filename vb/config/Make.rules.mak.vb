@@ -45,7 +45,7 @@ slice_translator = slice2cs.exe
 !endif
 
 !if "$(ice_src_dist)" != ""
-csbindir		= $(ice_dir)\cs\bin
+csbindir		= $(ice_dir)\cs\Assemblies
 !else
 csbindir		= $(ice_dir)\bin
 !endif
