@@ -150,7 +150,7 @@ public class Client
 
 	    derivedAsBase = initial.updatePrinterMessage(clientp);
 	    clientp = (ClientPrinter)derivedAsBase;
-            Console.Out.WriteLine("==> " + derived.derivedMessage);
+            Console.Out.WriteLine("==> " + clientp.message);
 
             Console.Out.WriteLine();
             Console.Out.WriteLine("Finally, we try the same again, but instead of returning the");
