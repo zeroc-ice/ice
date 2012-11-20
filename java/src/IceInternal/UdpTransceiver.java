@@ -115,6 +115,7 @@ final class UdpTransceiver implements Transceiver
         return true;
     }
     
+    @SuppressWarnings("deprecation")
     public boolean
     read(Buffer buf, Ice.BooleanHolder moreData)
     {
