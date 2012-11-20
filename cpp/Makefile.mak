@@ -30,8 +30,8 @@ SUBDIRS		= src include test
 
 SDK_FULL_PATH	= $(MAKEDIR)\$(SDK_BASE_PATH)
 SDK_FULL_PATH	= $(SDK_FULL_PATH:\.\=\)
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITEW6432)" == "AMD64"
-SDK_KEY 	= HKLM\SOFTWARE\Wow6432\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
+SDK_KEY 	= HKLM\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
 !else
 SDK_KEY 	= HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKs\$(SDK_NAME)\$(SDK_VERSION)
 !endif

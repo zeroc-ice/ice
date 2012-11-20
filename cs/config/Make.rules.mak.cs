@@ -210,9 +210,25 @@ UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.Core.dll"
 #MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
 !elseif "$(SILVERLIGHT)" == "yes"
+
+#
+# Silverlight 5.0
+#
 !if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(PROGRAMFILES)\Microsoft Silverlight\5.0.61118.0")
 SILVERLIGHT_VERSION	= 5.0.61118.0
 !endif
+!endif
+
+#
+# Silverlight 5.1
+#
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(PROGRAMFILES)\Microsoft Silverlight\5.1.10411.0")
+SILVERLIGHT_VERSION	= 5.1.10411.0
+!endif
+!endif
+
 SILVERLIGHT_HOME	= $(PROGRAMFILES)\Microsoft Silverlight\$(SILVERLIGHT_VERSION)
 
 SILVERLIGHT_REFS		= "/r:$(SILVERLIGHT_HOME)\mscorlib.dll" \

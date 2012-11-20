@@ -99,9 +99,7 @@ install::
 		copy ..\templates\vs\newslice.ice "$(VSINSTALLDIR)\VC#\CSharpProjectItems\"
 		copy ..\templates\vs\newslice.ico "$(VSINSTALLDIR)\VC#\CSharpProjectItems\"
 		copy ..\templates\vs\slice.vsdir "$(VSINSTALLDIR)\VC#\CSharpProjectItems\"
-!endif
 
-!if "$(VS)" == "VS2010"
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Code\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Code\1033\"
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033" \

@@ -62,13 +62,13 @@ EVERYTHING      = all install clean
 #
 # Registry keywords required by Visual Studio and Ice Visual Studio Add-in.
 #
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITEW6432)" == "AMD64"
-INSTALL_KEY 				= HKLM\Software\Wow6432\ZeroC\Ice $(VERSION)
-DOTNET_ASSEMBLEIS_KEY		= HKLM\Software\Wow6432\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
-POCKETPC_ASSEMBLEIS_KEY		= HKLM\Software\Wow6432\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
-SMARTPHONE_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
-WINDOWSCE_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
-SILVERLIGH_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432\Microsoft\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
+INSTALL_KEY 				= HKLM\Software\Wow6432Node\ZeroC\Ice $(VERSION)
+DOTNET_ASSEMBLEIS_KEY		= HKLM\Software\Wow6432Node\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
+POCKETPC_ASSEMBLEIS_KEY		= HKLM\Software\Wow6432Node\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
+SMARTPHONE_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432Node\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
+WINDOWSCE_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432Node\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
+SILVERLIGH_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432Node\Microsoft\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
 !else
 INSTALL_KEY 				= HKLM\Software\ZeroC\Ice $(VERSION)
 DOTNET_ASSEMBLEIS_KEY		= HKLM\Software\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
