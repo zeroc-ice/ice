@@ -20,7 +20,10 @@ module Ice
  * is sent or received. Applications must provide their own {@link Stats}
  * by implementing this interface and installing it in a communicator.
  *
+ * <p class="Deprecated">This local interface is deprecated as of Ice 3.5.
+ *
  **/
+["deprecate:Stats is deprecated; you should use instead Ice Metrics or Ice Instrumentation"]
 local interface Stats
 {
     /**

@@ -85,6 +85,7 @@ final class TcpTransceiver implements Transceiver
         }
     }
     
+    @SuppressWarnings("deprecation") 
     public boolean
     write(Buffer buf)
     {
@@ -158,6 +159,7 @@ final class TcpTransceiver implements Transceiver
         return true;
     }
 
+    @SuppressWarnings("deprecation") 
     public boolean
     read(Buffer buf, Ice.BooleanHolder moreData)
     {
@@ -252,6 +254,7 @@ final class TcpTransceiver implements Transceiver
     //
     // Only for use by TcpConnector, TcpAcceptor
     //
+    @SuppressWarnings("deprecation") 
     TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd, boolean connected,
                    java.net.InetSocketAddress connectAddr)
     {
@@ -300,6 +303,8 @@ final class TcpTransceiver implements Transceiver
     private java.net.InetSocketAddress _connectAddr;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
+    
+    @SuppressWarnings("deprecation")
     private Ice.Stats _stats;
     private String _desc;
     private int _state;

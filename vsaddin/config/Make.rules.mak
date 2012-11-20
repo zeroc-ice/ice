@@ -105,7 +105,7 @@ VSSDK_HOME		= $(VSSDK90INSTALL)
 !endif
 
 !if "$(VSSDK_HOME)" == ""
-!error Neither VSSDK110INSTALL, VSSDK100INSTALL not VSSDK90INSTALL is set, seems that Visual Studio SDK isn't properly installed
+!message The Visual Studio SDK does not appear to be installed: VSSDK110INSTALL, VSSDK100INSTALL and VSSDK90INSTALL are all unset.
 !endif
 
 VSTARGET                = $(VS)

@@ -66,6 +66,7 @@ public final class InitializationData implements Cloneable
     /**
      * The <Stats> instance for the communicator.
      **/
+    @SuppressWarnings("deprecation")
     public Stats stats;
 
     /**

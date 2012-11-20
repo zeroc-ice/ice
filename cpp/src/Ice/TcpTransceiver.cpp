@@ -12,9 +12,11 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Stats.h>
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
+
+#include <IceUtil/DisableWarnings.h>
+#include <Ice/Stats.h>
 
 using namespace std;
 using namespace Ice;

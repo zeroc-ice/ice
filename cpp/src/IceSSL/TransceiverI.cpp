@@ -13,10 +13,12 @@
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Stats.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
+
+#include <IceUtil/DisableWarnings.h>
+#include <Ice/Stats.h>
 
 #include <openssl/err.h>
 #include <openssl/bio.h>

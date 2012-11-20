@@ -172,6 +172,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     public boolean
     read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
@@ -305,6 +306,7 @@ final class TransceiverI implements IceInternal.Transceiver
     //
     // Only for use by ConnectorI, AcceptorI.
     //
+    @SuppressWarnings("deprecation")
     TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd,
                  String host, boolean connected, boolean incoming, String adapterName,
                  java.net.InetSocketAddress connectAddr)
@@ -579,6 +581,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
+    @SuppressWarnings("deprecation")
     private int
     writeNonBlocking(ByteBuffer buf)
     {
@@ -813,6 +816,8 @@ final class TransceiverI implements IceInternal.Transceiver
     private java.net.InetSocketAddress _connectAddr;
     private int _state;
     private Ice.Logger _logger;
+
+    @SuppressWarnings("deprecation")
     private Ice.Stats _stats;
     private String _desc;
     private int _maxPacketSize;

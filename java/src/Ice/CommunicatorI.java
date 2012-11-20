@@ -133,6 +133,7 @@ public final class CommunicatorI implements Communicator
         return _instance.initializationData().logger;
     }
 
+    @SuppressWarnings("deprecation")
     public Stats
     getStats()
     {

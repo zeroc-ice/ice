@@ -12,11 +12,13 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Stats.h>
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
+
+#include <IceUtil/DisableWarnings.h>
+#include <Ice/Stats.h>
 
 #ifdef ICE_OS_WINRT
 #   include <ppltasks.h> // For Concurrency::task

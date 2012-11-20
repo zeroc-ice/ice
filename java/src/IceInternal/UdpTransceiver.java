@@ -48,6 +48,7 @@ final class UdpTransceiver implements Transceiver
         _fd = null;
     }
 
+    @SuppressWarnings("deprecation") 
     public boolean
     write(Buffer buf)
     {
@@ -113,7 +114,7 @@ final class UdpTransceiver implements Transceiver
         assert(ret == buf.b.limit());
         return true;
     }
-
+    
     public boolean
     read(Buffer buf, Ice.BooleanHolder moreData)
     {
@@ -287,6 +288,7 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
+    @SuppressWarnings("deprecation")
     UdpTransceiver(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl)
     {
         _traceLevels = instance.traceLevels();
@@ -327,6 +329,7 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
+    @SuppressWarnings("deprecation")
     UdpTransceiver(Instance instance, String host, int port, String mcastInterface, boolean connect)
     {
         _traceLevels = instance.traceLevels();
@@ -725,6 +728,8 @@ final class UdpTransceiver implements Transceiver
 
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
+
+    @SuppressWarnings("deprecation")
     private Ice.Stats _stats;
     private int _state;
     private int _rcvSize;
