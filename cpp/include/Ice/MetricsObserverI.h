@@ -411,7 +411,7 @@ private:
 
     EntrySeqType _objects;
     IceUtilInternal::StopWatch _watch;
-    long _previousDelay;
+    IceUtil::Int64 _previousDelay;
 };
 
 template<typename ObserverImplType> 
