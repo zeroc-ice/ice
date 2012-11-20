@@ -84,10 +84,16 @@
     <Import Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClientPrinterI.vb">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DerivedPrinterI.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="InitialI.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectFactory.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PrinterI.vb">

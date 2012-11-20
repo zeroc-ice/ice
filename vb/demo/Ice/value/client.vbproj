@@ -87,6 +87,9 @@
     <Compile Include="Client.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ClientPrinterI.vb">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DerivedPrinterI.vb">
       <SubType>Code</SubType>
     </Compile>
