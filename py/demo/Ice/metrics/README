@@ -2,14 +2,14 @@ This demo illustrates how to retrieve metrics information from Ice
 applications.
 
 The Metrics.py script provided with this demo connects to an Ice
-application running the Ice adminstrative facility to provide the
+application running the Ice administrative facility to provide the
 following functionality:
 
-- dump one or all configured metrics views.
-- disable or enable one or all configured metrics views.
+- dump one or all configured metrics views
+- disable or enable one or all configured metrics views
 
 To use Metrics.py, you first need to configure your application to run
-the adminstrative facility and setup some metrics views. See the two
+the administrative facility and setup some metrics views. See the two
 sections below for either enabling IceMX with the Ice demos or with
 your application.
 
@@ -37,8 +37,8 @@ monitor.
 Enable IceMX with the Ice demos
 -------------------------------
 
-The following Ice demos provide out-of-the box but disabled IceMX
-configuration in their configuration files:
+The following Ice demos include IceMX support in their configuration
+files that is disabled by default:
 
 - Ice/hello
 - Ice/latency
@@ -52,6 +52,7 @@ configuration file of the demo application you wish to monitor:
  Ice.Admin.Endpoints
 
 Once this property is enabled, restart the client or server.
+
 
 Enable IceMX with your application
 ----------------------------------
@@ -67,7 +68,7 @@ For example:
   Ice.Admin.Endpoints=tcp -p 10002 -h localhost
   Ice.Admin.InstanceName=server
 
-Note that enabling the Ice adminstrative facility can have security
+Note that enabling the Ice administrative facility can have security
 implications if your network is not secured. See the Ice manual for
 more information on this.
 
@@ -77,7 +78,7 @@ following properties to enable two metrics views:
   IceMX.Metrics.Debug.GroupBy=id
   IceMX.Metrics.ByParent.GroupBy=parent
 
-The Debug metrics view will provide detailed metrics information while
-the ByParent metrics view will group metrics by parent (the parent is
-usually either the Ice communicator or object adapter depending on the
-object monitored).
+The Debug metrics view provides detailed metrics information while the
+ByParent metrics view groups metrics by parent (the parent is usually
+either the Ice communicator or object adapter depending on the object
+monitored).
