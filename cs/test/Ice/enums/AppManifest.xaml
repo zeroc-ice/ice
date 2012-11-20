@@ -1,11 +1,4 @@
 ﻿<Deployment xmlns="http://schemas.microsoft.com/client/2007/deployment" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" EntryPointAssembly="enums" EntryPointType="enums.App" RuntimeVersion="5.0.61118.0">
-  <Deployment.InBrowserSettings>
-    <InBrowserSettings>
-      <InBrowserSettings.SecuritySettings>
-        <SecuritySettings ElevatedPermissions="NotRequired" />
-      </InBrowserSettings.SecuritySettings>
-    </InBrowserSettings>
-  </Deployment.InBrowserSettings>
   <Deployment.OutOfBrowserSettings>
     <OutOfBrowserSettings ShortName="Enums Test" EnableGPUAcceleration="False" ShowInstallMenuItem="True">
       <OutOfBrowserSettings.Blurb>Enums Test</OutOfBrowserSettings.Blurb>
