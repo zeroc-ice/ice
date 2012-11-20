@@ -491,7 +491,6 @@ public class AllTests : TestCommon.TestApp
         test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
         test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
         test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.Length + 4));
-        test((sm2.sentBytes - sm1.sentBytes) == replySz);
         if(sm2.sentBytes - sm1.sentBytes != replySz)
         {
             // On some platforms, it's necessary to wait a little before obtaining the server metrics
@@ -501,6 +500,7 @@ public class AllTests : TestCommon.TestApp
             System.Threading.Thread.Sleep(100);
             sm2 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
         }
+        test((sm2.sentBytes - sm1.sentBytes) == replySz);
     
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
         updateProps(clientProps, serverProps, update, props, "Connection");
