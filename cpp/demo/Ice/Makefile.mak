@@ -27,7 +27,8 @@ SUBDIRS		= minimal \
 		  nrvo \
 		  plugin \
 		  interleaved \
-		  properties
+		  properties \
+		  optional
 
 
 !if "$(CPP_COMPILER)" != "VC100_EXPRESS" && "$(CPP_COMPILER)" != "VC110_EXPRESS"

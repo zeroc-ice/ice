@@ -27,7 +27,8 @@ SUBDIRS		= minimal \
 		  nrvo \
 		  plugin \
 		  interleaved \
-		  properties
+		  properties \
+		  optional
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

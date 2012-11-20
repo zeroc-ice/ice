@@ -1,0 +1,10 @@
+#
+# The client reads this property to create the reference to the
+# "ContactDB" object in the server.
+#
+ContactDB.Proxy=contactdb:default -p 10000 -h localhost
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
