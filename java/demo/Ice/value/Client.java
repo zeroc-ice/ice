@@ -150,7 +150,7 @@ public class Client extends Ice.Application
         derivedAsBase = initial.getDerivedPrinter();
         DerivedPrinter derived = (Demo.DerivedPrinter)derivedAsBase;
 
-        System.out.println("==> class cast to derived object succeded");
+        System.out.println("==> class cast to derived object succeeded");
         System.out.println("==> The type ID of the received object is \"" + derived.ice_id() + "\"");
 
         System.out.println();

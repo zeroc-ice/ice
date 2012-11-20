@@ -108,7 +108,7 @@ Module ValueC
             derivedAsBase = initial.getDerivedPrinter()
             Dim derived As DerivedPrinter = CType(derivedAsBase, DerivedPrinter)
 
-            Console.Out.WriteLine("==> class cast to derived object succeded")
+            Console.Out.WriteLine("==> class cast to derived object succeeded")
             Console.Out.WriteLine("==> The type ID of the received object is """ & derived.ice_id() & """")
 
             Console.Out.WriteLine()
@@ -123,9 +123,11 @@ Module ValueC
             derived.printUppercase()
 
 	    Console.Out.WriteLine()
-            Console.Out.WriteLine("Finally, we try the same again, but instead of returning the")
-            Console.Out.WriteLine("derived object, we throw an exception containing the derived")
-            Console.Out.WriteLine("object.")
+	    Console.Out.WriteLine("Now let's make sure that slice is preserved with [\"preserve-slice\"]")
+            Console.Out.WriteLine("metadata. We create a derived type on the client and pass it to the")
+            Console.Out.WriteLine("server, which does not have a factory for the derived type. We do a")
+            Console.Out.WriteLine("class cast to make sure we can still access the derived type when")
+            Console.Out.WriteLine("it has been returned from the server.")
             Console.Out.WriteLine("[press enter]")
             Console.In.ReadLine()
 

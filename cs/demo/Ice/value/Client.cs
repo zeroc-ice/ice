@@ -121,7 +121,7 @@ public class Client
             derivedAsBase = initial.getDerivedPrinter();
             DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
 
-            Console.Out.WriteLine("==> class cast to derived object succeded");
+            Console.Out.WriteLine("==> class cast to derived object succeeded");
             Console.Out.WriteLine("==> The type ID of the received object is \"" + derived.ice_id() + "\"");
 
             Console.Out.WriteLine();
