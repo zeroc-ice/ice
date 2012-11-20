@@ -406,7 +406,7 @@ public:
             {
                 try
                 {
-                    os << _proxy << " [" << _operation << ']';
+                    os << _proxy->ice_endpoints(Ice::EndpointSeq()) << " [" << _operation << ']';
                 }
                 catch(const FixedProxyException&)
                 {

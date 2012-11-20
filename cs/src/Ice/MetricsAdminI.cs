@@ -591,7 +591,8 @@ namespace IceInternal
             }
             
             IMetricsMap m;
-            if(_maps.TryGetValue(mapName, out m) && m.getProperties().Equals(mapProps))
+            if(_maps.TryGetValue(mapName, out m) && 
+               IceUtilInternal.Collections.DictionaryEquals(m.getProperties(), mapProps))
             {
                 return false; // The map configuration didn't change, no need to re-create.
             }
@@ -806,6 +807,7 @@ namespace IceInternal
                         }
                     }
                 }
+
                 Dictionary<string, MetricsViewI> tmp = _views;
                 _views = views;
                 views = tmp;

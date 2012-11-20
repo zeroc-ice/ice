@@ -992,15 +992,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     checkFailure(clientMetrics, "Invocation", im1->id, "Ice::ConnectionLostException", 3);
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op);
-    testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                  "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 [op]", op);
+    testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op);
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op);
-    testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
+    testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy", 
                   "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010", op);
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op);

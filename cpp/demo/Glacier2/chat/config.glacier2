@@ -59,3 +59,11 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 # client certificates (such as a Metro Style App client for example).
 #
 #IceSSL.VerifyPeer=0
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10004
+Ice.Admin.InstanceName=glacier2router
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

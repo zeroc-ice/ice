@@ -969,8 +969,7 @@ public class AllTests : TestCommon.TestApp
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ConnectionLostException", 3);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 [op]", op);
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op);

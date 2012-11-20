@@ -305,20 +305,23 @@ public:
     typedef typename IceInternal::MetricsMapT<MetricsType>::EntryTPtr EntryPtrType;
     typedef std::vector<EntryPtrType> EntrySeqType;
 
-    ObserverT()
+    ObserverT() : _previousDelay(0)
     {
     }
     
     virtual void 
     attach()
     {
-        _watch.start();
+        if(!_watch.isStarted())
+        {
+            _watch.start();
+        }
     }
 
     virtual void 
     detach()
     {
-        ::Ice::Long lifetime = _watch.stop();
+        ::Ice::Long lifetime = _previousDelay + _watch.stop();
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             (*p)->detach(lifetime);
@@ -353,6 +356,8 @@ public:
             return;
         }
 
+        _previousDelay = previous->_previousDelay + previous->_watch.delay();
+
         //
         // Detach entries from previous observer which are no longer
         // attached to this new observer.
@@ -361,7 +366,7 @@ public:
         {
             if(find(_objects.begin(), _objects.end(), *p) == _objects.end())
             {
-                (*p)->detach(_watch.delay());
+                (*p)->detach(_previousDelay);
             }
         }
     }
@@ -406,6 +411,7 @@ private:
 
     EntrySeqType _objects;
     IceUtilInternal::StopWatch _watch;
+    long _previousDelay;
 };
 
 template<typename ObserverImplType> 

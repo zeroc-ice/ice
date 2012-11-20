@@ -371,7 +371,7 @@ namespace IceInternal
                     StringBuilder os = new StringBuilder();
                     try
                     {
-                        os.Append(_proxy).Append(" [").Append(_operation).Append(']');
+                        os.Append(_proxy.ice_endpoints(emptyEndpoints)).Append(" [").Append(_operation).Append(']');
                     }
                     catch(Ice.FixedProxyException)
                     {
@@ -424,6 +424,8 @@ namespace IceInternal
         readonly private string _operation;
         readonly private Dictionary<string, string> _context;
         private string _id;
+
+        readonly static private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
     };
     
     class ThreadHelper : MetricsHelper<ThreadMetrics>

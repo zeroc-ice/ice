@@ -988,8 +988,7 @@ public class AllTests
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ConnectionLostException", 3, out);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, out);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 [op]", op, out);
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op, out);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, out);

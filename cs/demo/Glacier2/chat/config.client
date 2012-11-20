@@ -37,3 +37,11 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.ImportCert.CurrentUser.Root=cacert.pem
 IceSSL.CertFile=c_rsa1024.pfx
 IceSSL.Password=password
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10003
+Ice.Admin.InstanceName=client
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

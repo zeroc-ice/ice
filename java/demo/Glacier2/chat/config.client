@@ -36,3 +36,11 @@ Ice.Plugin.IceSSL=IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=client.jks
 IceSSL.Password=password
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10003
+Ice.Admin.InstanceName=client
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

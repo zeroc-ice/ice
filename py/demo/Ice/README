@@ -38,6 +38,11 @@ Demos in this directory:
 
   This demo illustrates a minimal Ice application.
 
+- metrics
+
+  This demo illustrates how to retrieve metrics information from an
+  Ice application.
+
 - properties
 
   Shows how to access a server's PropertiesAdmin facet in order to

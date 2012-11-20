@@ -18,3 +18,11 @@ IceStorm.TopicManager.Proxy=DemoIceStorm/TopicManager:default -h localhost -p 10
 # 3 = like 2, but also trace data transfer
 #
 #Ice.Trace.Network=1
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10002
+Ice.Admin.InstanceName=subscriber
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent

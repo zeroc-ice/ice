@@ -265,8 +265,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         if(_observer != null)
         {
             _observer.attach();
-            _writeStreamPos = -1;
-            _readStreamPos = -1;
         }
     }
 
@@ -1550,7 +1548,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _batchMarker = 0;
         _readStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _readHeader = false;
+        _readStreamPos = -1;
         _writeStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
+        _writeStreamPos = -1;
         _dispatchCount = 0;
         _state = StateNotInitialized;
 
@@ -1844,8 +1844,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 if(_observer != null)
                 {
                     _observer.attach();
-                    _writeStreamPos = -1;
-                    _readStreamPos = -1;
                 }
             }
             if(_observer != null && state == StateClosed && _exception != null)

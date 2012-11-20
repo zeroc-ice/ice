@@ -21,13 +21,16 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
     public void
     attach()
     {
-        start();
+        if(!isStarted())
+        {
+            start();
+        }
     }
 
     public void
     detach()
     {
-        long lifetime = stop();
+        long lifetime = _previousDelay + stop();
         for(MetricsMap<T>.Entry e : _objects)
         {
             e.detach(lifetime);
@@ -61,6 +64,8 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         {
             return;
         }
+        
+        _previousDelay = previous._previousDelay + previous.delay();
 
         //
         // Detach entries from previous observer which are no longer
@@ -70,7 +75,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         {
             if(!_objects.contains(p))
             {
-                p.detach(delay());
+                p.detach(_previousDelay);
             }
         }
     }
@@ -124,4 +129,5 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
     }
     
     private java.util.List<MetricsMap<T>.Entry> _objects;
+    private long _previousDelay = 0;
 };

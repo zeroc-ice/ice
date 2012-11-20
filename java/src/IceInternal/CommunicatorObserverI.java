@@ -384,7 +384,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     StringBuilder os = new StringBuilder();
                     try
                     {
-                        os.append(_proxy).append(" [").append(_operation).append(']');
+                        os.append(_proxy.ice_endpoints(emptyEndpoints)).append(" [").append(_operation).append(']');
                     }
                     catch(Ice.FixedProxyException ex)
                     {
@@ -442,6 +442,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         final private String _operation;
         final private java.util.Map<String, String> _context;
         private String _id;
+
+        static final private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
     };
     
     static public final class ThreadHelper extends MetricsHelper<ThreadMetrics>

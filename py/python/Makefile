@@ -113,6 +113,9 @@ Ice_Metrics_ice.py: $(slicedir)/Ice/Metrics.ice $(SLICE2PY) $(SLICEPARSERLIB)
 Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix Glacier2_ --no-package --checksum $(SLICE2PYFLAGS) $<
 
+Glacier2_Metrics_ice.py: $(slicedir)/Glacier2/Metrics.ice $(SLICE2PY) $(SLICEPARSERLIB)
+	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
+
 IceBox_%_ice.py: $(slicedir)/IceBox/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) --prefix IceBox_ --checksum $(SLICE2PYFLAGS) $<
 

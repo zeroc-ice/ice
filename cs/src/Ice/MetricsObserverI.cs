@@ -222,7 +222,7 @@ namespace IceMX
         public void detach()
         {
             Stop();
-            long lifetime = (long)(ElapsedTicks / (Frequency / 1000000.0));
+            long lifetime = _previousDelay + (long)(ElapsedTicks / (Frequency / 1000000.0));
             foreach(MetricsMap<T>.Entry e in _objects)
             {
                 e.detach(lifetime);
@@ -253,13 +253,13 @@ namespace IceMX
             {
                 return;
             }
-
-            long delay = (long)(ElapsedTicks / (Frequency / 1000000.0));
+            
+            _previousDelay = previous._previousDelay + (long)(previous.ElapsedTicks / (Frequency / 1000000.0));
             foreach(MetricsMap<T>.Entry e in previous._objects)
             {
                 if(!_objects.Contains(e))
                 {
-                    e.detach(delay);
+                    e.detach(_previousDelay);
                 }
             }
         }
@@ -313,6 +313,7 @@ namespace IceMX
         }
     
         private List<MetricsMap<T>.Entry> _objects;
+        private long _previousDelay = 0;
     };
 
     public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
