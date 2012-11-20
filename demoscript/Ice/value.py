@@ -39,6 +39,8 @@ def run(client, server, ruby = False):
     client.sendline('')
     client.expect('==> a derived message 4 u\n==> A DERIVED MESSAGE 4 U.*press enter')
     client.sendline('')
+    client.expect('==> a modified message 4 u.*press enter')
+    client.sendline('')
     client.expect('==> a derived message 4 u\n==> A DERIVED MESSAGE 4 U')
     print("ok")
 
