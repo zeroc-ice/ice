@@ -107,7 +107,7 @@ install::
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033\"
 		@echo Adding key "$(SILVERLIGH_ASSEMBLEIS_KEY)" in Windows registry
-		@reg ADD "$(SILVERLIGH_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\Silverlight" /f || \
+		@reg ADD "$(SILVERLIGH_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\sl" /f || \
 		echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLEIS_KEY)" && exit 1
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"

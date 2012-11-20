@@ -561,6 +561,12 @@ namespace IceInternal
             _fd = fd;
             _addr = addr;
 
+            _traceLevels = instance.traceLevels();
+            _logger = instance.initializationData().logger;
+            _stats = instance.initializationData().stats;
+            _state = connected ? StateConnected : StateNeedConnect;
+            _desc = connected ? Network.fdToString(_fd) : "<not connected>";
+            
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.RemoteEndPoint = _addr;
@@ -569,21 +575,19 @@ namespace IceInternal
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.RemoteEndPoint = _addr;
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-
 #if SILVERLIGHT
-            if(instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol").Equals("Http"))
+            String policy = instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol");
+            if(policy.Equals("Http"))
             {
                 _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
                 _writeEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
             }
+            else if(!String.IsNullOrEmpty(policy))
+            {
+                _logger.warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
+            }
 #endif
 #endif
-
-            _traceLevels = instance.traceLevels();
-            _logger = instance.initializationData().logger;
-            _stats = instance.initializationData().stats;
-            _state = connected ? StateConnected : StateNeedConnect;
-            _desc = connected ? Network.fdToString(_fd) : "<not connected>";
 
             _maxSendPacketSize = Network.getSendBufferSize(fd);
             if(_maxSendPacketSize < 512)

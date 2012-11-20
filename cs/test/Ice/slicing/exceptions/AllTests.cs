@@ -823,6 +823,10 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        //
+        // No server side in Silverlight
+        //
+#if !SILVERLIGHT
         Write("preserved exceptions... ");
         Flush();
         {
@@ -933,6 +937,7 @@ public class AllTests : TestCommon.TestApp
             adapter.destroy();
         }
         WriteLine("ok");
+#endif
 
 #if SILVERLIGHT
         testPrx.shutdown();

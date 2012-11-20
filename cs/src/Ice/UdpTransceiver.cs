@@ -767,6 +767,18 @@ namespace IceInternal
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.RemoteEndPoint = _addr;
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+#if SILVERLIGHT
+            String policy = instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol");
+            if(policy.Equals("Http"))
+            {
+                _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
+                _writeEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
+            }
+            else if(!String.IsNullOrEmpty(policy))
+            {
+                _logger.warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
+            }
+#endif
 #endif
 
             _mcastInterface = mcastInterface;

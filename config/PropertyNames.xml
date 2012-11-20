@@ -310,6 +310,7 @@ generated from the section label.
         <property name="BackgroundLocatorCacheUpdates"/>
         <property name="BatchAutoFlush" />
         <property name="ChangeUser" />
+        <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" />
         <property name="Config" />
         <property name="ConsoleListener" />

@@ -1,23 +1,75 @@
-This demo illustrates how to invoke ordinary (twoway) operations, 
-as well as how to make oneway, and batched invocations.
+This demo illustrates how to invoke ordinary (twoway) operations,
+as well as how to make oneway and batched invocations.
 
-1) You can use a server from any Ice language mapping, before starting
-   the server, you must edit the server endpoints to use a port in the
-   range allowed by Silverlight.
+1) You can use a server from any Ice language mapping. Before starting
+   the server, you must edit the server's endpoints to use a port in
+   the range allowed by Silverlight.
 
-   Edit the config.server file from the server hello demo directory
-   and update the property Hello.Endpoints as follow:
+   Edit the config.server file in the server's demo directory and
+   update the property Hello.Endpoints as follows:
 
-      Hello.Endpoints=tcp -p 4502
+     Hello.Endpoints=tcp -p 4502
 
-2) start the hello server following the instructions in the demo
+2) Start the hello server according to the instructions in the demo
    README file.
 
-3) In a command window, start the policy server.
+3) In a command window, change to this demo directory and start the
+   policy server:
 
-   > cd <Ice installation directory>\bin
-   > policyserver 127.0.0.1 ..\config\PolicyResponse.xml
+   > <Ice installation directory>\bin\policyserver 127.0.0.1 clientaccesspolicy.xml
 
-4) From Visual Studio open the `hello.Web' project and start the hello
-   Silverlight application using the "Debug > Start new instance"
+4) In Visual Studio, open the `hello.Web' project and start the
+   Silverlight client using the "Debug > Start new instance"
    command.
+
+5) In the browser window, open helloTestPage.html
+
+
+==========================================================================
+Using a web server as a policy server
+==========================================================================
+
+If you do not want to deploy a policy server, you can use a web server
+instead.
+
+IIS instructions:
+
+1) Copy clientaccesspolicy.xml to your web server document root
+   directory:
+
+   > cd <Ice Silverlight directory>\demo\Ice\sl\hello\
+   > xcopy clientaccesspolicy.xml C:\inetpub\wwwroot\
+
+2) Verify that the policy file is accessible at the following URL:
+
+   http://localhost/clientaccesspolicy.xml
+
+3) In MainPage.xaml.cs, uncomment the line that sets the policy
+   protocol:
+
+   //initData.properties.setProperty("Ice.ClientAccessPolicyProtocol", "Http");
+
+4) Rebuild the demo. You must rebuild both hello and hello.web projects.
+
+5) Copy required files. In a commmand window, execute the following
+   commands:
+
+   > mkdir C:\inetpub\wwwroot\hello
+   > cd <Ice Silverlight directory>\demo\Ice\sl\hello\
+   > xcopy hello.web\helloTestPage.html C:\inetpub\wwwroot\hello
+   > xcopy hello.web\Silverlight.js C:\inetpub\wwwroot\hello
+   > xcopy hello.Web\ClientBin C:\inetpub\wwwroot\hello\ClientBin /s /i
+
+6) The hello client should now be accessible at the following URL:
+
+   http://localhost/hello/helloTestPage.html
+
+
+Notes:
+
+* The web server should serve the policy file on standard port 80.
+
+* If you do not have IIS installed on Windows 7, follow the instructions
+  on this page:
+
+  http://technet.microsoft.com/en-us/library/cc731911.aspx

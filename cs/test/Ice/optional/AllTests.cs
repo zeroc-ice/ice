@@ -17,6 +17,14 @@ using System.Windows.Controls;
 public class AllTests : TestCommon.TestApp
 {
 #if SILVERLIGHT
+    public override Ice.InitializationData initData()
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.FactoryAssemblies", "optional,version=1.0.0.0");
+        return initData;
+    }
+
     override
     public void run(Ice.Communicator communicator)
 #else
