@@ -427,7 +427,7 @@ public class AllTests
         test(view.get("Thread").length > 3);
         test(view.get("Connection").length == 2);
         test(view.get("Dispatch").length == 1);
-        test(view.get("Dispatch")[0].current == 0 && view.get("Dispatch")[0].total == 5);
+        test(view.get("Dispatch")[0].current <= 1 && view.get("Dispatch")[0].total == 5);
         test(view.get("Dispatch")[0].id.indexOf("[ice_ping]") > 0);
 
         metrics.ice_getConnection().close(false);

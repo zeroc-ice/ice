@@ -430,7 +430,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(view["Thread"].size() > 4);
     test(view["Connection"].size() == 2);
     test(view["Dispatch"].size() == 1);
-    test(view["Dispatch"][0]->current == 0 && view["Dispatch"][0]->total == 5);
+    test(view["Dispatch"][0]->current <= 1 && view["Dispatch"][0]->total == 5);
     test(view["Dispatch"][0]->id.find("[ice_ping]") > 0);
 
     metrics->ice_getConnection()->close(false);

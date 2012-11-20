@@ -1027,7 +1027,7 @@ public class AllTests
 
         ctl.holdAdapter(); // Hold to block in request send.
 
-        byte[] seq = new byte[512 * 1024];
+        byte[] seq = new byte[1024 * 1024];
         (new System.Random()).NextBytes(seq);
         OpAMICallback cbWP = new OpAMICallback();
         while(backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,

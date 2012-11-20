@@ -416,7 +416,7 @@ public class AllTests : TestCommon.TestApp
         //test(view["Thread"].Length > 4);
         test(view["Connection"].Length == 2);
         test(view["Dispatch"].Length == 1);
-        test(view["Dispatch"][0].current == 0 && view["Dispatch"][0].total == 5);
+        test(view["Dispatch"][0].current <= 1 && view["Dispatch"][0].total == 5);
         test(view["Dispatch"][0].id.IndexOf("[ice_ping]") > 0);
 
         metrics.ice_getConnection().close(false);
