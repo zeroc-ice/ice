@@ -2,12 +2,12 @@
 Introduction
 ======================================================================
 
-This file describes the Ice source distribution for WinRT, including 
-information about compiler requirements, and instructions for building 
+This file describes the Ice source distribution for WinRT, including
+information about compiler requirements and instructions for building
 and testing the distribution.
 
-For information about Ice for Windows see INSTALL.WINDOWS in this 
-directory
+For information about Ice for Windows see INSTALL.WINDOWS in this
+directory.
 
 If you prefer, you can download a Windows installer that contains
 pre-compiled debug and release libraries, executables, and everything
@@ -28,6 +28,7 @@ Ice for WinRT has been extensively tested on:
 
  - Windows 8 (x86 & x64)
 
+
 C++ compiler
 ------------
 
@@ -44,15 +45,14 @@ Compilation and Testing
 Building Ice for WinRT
 ----------------------
 
-Using your favorite Zip tool, unzip the Ice source archive anywhere 
+Using your favorite Zip tool, unzip the Ice source archive anywhere
 you like.
 
-To build Ice for WinRT you first need to build Ice for Windows: refer
+To build Ice for WinRT you first need to build Ice for Windows. Refer
 to INSTALL.WINDOWS for instructions on how to build Ice for Windows.
 
 Open a command prompt that is configured for your target architecture.
-For example, when using Visual Studio 2012, you have several 
-alternatives:
+For example, Visual Studio 2012 gives you several alternatives:
 
  - Visual Studio Command Prompt
  - Visual Studio x64 Win64 Command Prompt
@@ -73,63 +73,64 @@ Change the working directory to Ice-@ver@. For example:
 > cd C:\Ice-@ver@\cpp
 
 Edit config\Make.rules.mak to establish your build configuration. The
-comments in the file provide more information. In particular, you
-must set CPP_COMPILER to the appropriate compiler, for WinRT the supported
+comments in the file provide more information. In particular, you must
+set CPP_COMPILER to the appropriate compiler; for WinRT the supported
 values are VC110 and VC110_EXPRESS.
 
-You should also set WINRT=yes
+You must also set WINRT=yes.
 
 Now you're ready to build Ice for WinRT:
 
 > nmake /f Makefile.mak
 
-
-After build has completed you must register Ice SDK in Windows registry
+After the build has completed, you must register the Ice SDK in the
+Windows registry:
 
 > nmake /f Makefile.mak register-sdk
 
-* This command must be executed for a command prompt that has administrative
-  privileges; as it require write access to windows registry.
+Note that this command must be executed in a command prompt that has
+administrative privileges because it requires write access to the
+registry.
 
 
 Running the Test Suite
 ----------------------
 
-The WinRT test suite is composed of a set of dynamic libraries (one for each
-client/server test) and a Visual Studio project GUI application that load
-and run the tests in the dynamic libraries.
+The WinRT test suite is composed of a set of dynamic libraries (one
+for each client/server test) and a GUI application that loads and runs
+the tests in the dynamic libraries.
 
-You need to first build the dynamic libraries,
-
-Change the working directory to Ice-@ver@. For example:
+You need to build the dynamic libraries first. Change the working
+directory to Ice-@ver@:
 
 > cd C:\Ice-@ver@\cpp\test
 
-Edit config\Make.rules.mak to establish configuration.
+Run nmake to build the test libraries:
 
 > nmake /f Makefile.mak
 
-From Visual Studio 2012 open the project "cpp/test/WinRT/TestSuite.sln"
-you must select the configuration according to the configuration used to
-build the dynamic libraries.
+In Visual Studio 2012, open this project file:
 
-If you have build the test libraries for x86 and debug, you must select 
-Win32 Debug.
+cpp/test/WinRT/TestSuite.sln
 
-After set the appropriate configuration build the solution, using 
-"Build Solution" command in "Build" menu. 
+You must select the configuration that matches your settings in
+config\Make.rules.mak.cs used to build the dynamic libraries. For
+example, if you built the test libraries for x86 and debug, you must
+select Win32 Debug.
 
-After build completes you can deploy the application using 
-"Deploy Solution" command in "Build" menu, once deploy complete you can
-start the application from WinRT Desktop; just click "Ice Test Suite" icon.
+After selecting the appropriate configuration, build the solution
+by choosing "Build Solution" in the "Build" menu.
+
+After the build completes, you can deploy the application using
+"Deploy Solution" in the "Build" menu. Once deployed, you can start
+the application from the WinRT Desktop by clicking the "Ice Test
+Suite" icon.
 
 
 ======================================================================
 Installation
 ======================================================================
 
-Simply run "nmake /f Makefile.mak install". This will install Ice SDK
-in the directory specified by the "prefix" variable in
-config\Make.rules.mak.
-
-
+Simply run "nmake /f Makefile.mak install". This will install the Ice
+SDK in the directory specified by the "prefix" variable in
+config\Make.rules.mak.cs.

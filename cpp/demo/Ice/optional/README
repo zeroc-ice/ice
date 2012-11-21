@@ -1,5 +1,5 @@
-This demo illustrates optional class members and the use of the optional
-keyword for in/out and return values in method invocations.
+This demo illustrates the use of optional class members and
+parameters.
 
 To run the demo, first start the server:
 
