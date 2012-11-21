@@ -293,7 +293,7 @@ link below:
 
 The Ice manual provides usage instructions for the plug-in:
 
-  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+  http://doc.zeroc.com/display/Ice35/Eclipse+Plug-in
 
 
 ======================================================================
@@ -321,7 +321,7 @@ The sample projects are configured to locate the Ice run time JAR file
 (Ice.jar) via the ICE_HOME classpath variable, as described in the Ice
 manual:
 
-  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+  http://doc.zeroc.com/display/Ice35/Eclipse+Plug-in
 
 If you installed Ice.jar in a different location, you will need to add
 it as an external JAR file in each sample project:

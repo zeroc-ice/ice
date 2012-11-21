@@ -215,7 +215,7 @@ if it detects a bzip2.dll format mismatch during start-up.)
 
 
 .NET Compact Framework
-------------------------
+----------------------
 
 The default configuration in config\Make.rules.mak.cs produces Ice
 assemblies for use with .NET. If you wish to use Ice with the .NET
@@ -290,6 +290,16 @@ and demo\demosl.sln to build the tests and demos.
 
     To run the demos, open the solution demo\demosl.sln and follow
     the instructions in the README.txt file of each demo.
+
+
+Unity
+-----
+
+Ice for .NET can also be compiled to target the Unity 3 API. To build
+Ice for the Unity API, open config\Make.rules.mak.cs and set
+UNITY=yes. Run nmake as before:
+
+ > nmake /f Makefile.mak
 
 
 Binary compatibility of patch releases
