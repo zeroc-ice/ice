@@ -10,7 +10,7 @@ If you prefer, you can download a Windows installer that contains
 pre-compiled debug and release libraries, executables, and everything
 else necessary to build Ice applications on Windows at the link below:
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 
 ======================================================================
@@ -24,19 +24,15 @@ Windows version
 Ice has been extensively tested on:
 
  - Windows XP with Service Pack 3 (x86)
- - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
- - Windows Server 2008 Standard with Service Pack 2 (x86 & x64)
- - Windows Server 2008 Standard R2 (x64)
+ - Windows Server 2008 Standard R2 (x86 & x64)
  - Windows Vista with Service Pack 2 (x86 & x64)
  - Windows 7 (x86 & x64)
+ - Windows 8 (x87 & x64)
 
-Ice does not work on Windows 2000. However, porting Ice to Windows
-2000 should be fairly simple if you do not require UDP multicast or
-IPv6.
 
 The Ice binary distribution for Windows can be downloaded from:
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 The distribution includes everything necessary to build Ice 
 applications and requires one of the Windows platforms listed above.
@@ -47,17 +43,9 @@ C++ compiler
 
 The following C++ compilers are supported:
 
-- Microsoft Visual C++ 2010 (Professional and Express editions)
+- Microsoft Visual C++ 2010 SP1 (Professional and Express editions)
 
-  Visual C++ 2010 Express is available for download from:
-
-  http://www.microsoft.com/express/downloads/
-
-- Microsoft Visual C++ 2008 SP1 (Professional and Express editions)
-
-  Visual C++ 2008 Express is available for download from:
-
-  http://www.microsoft.com/express/downloads/
+- Microsoft Visual C++ 2012 (Professional and Express editions)
 
 
 Third-party libraries
@@ -65,12 +53,11 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.8.30
+- Berkeley DB 5.3
 - expat 2.0
-- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- OpenSSL 0.9.7 or later (OpenSSL 1.0 or later recommended)
 - bzip2 1.0
 - mcpp 2.7.2 (with patches)
-- QT 4.5.3 (optional)
 
 You do not need to build these packages yourself, as ZeroC supplies a
 Windows installer that contains release and debug libraries for all of
@@ -79,7 +66,7 @@ the third-party dependencies.
 If you intend to build the third-party dependencies from source, we
 recommend downloading the Ice third-party source archive from
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 This archive contains the source distributions for each of the
 third-party dependencies, as well as required source patches and 
@@ -93,8 +80,6 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
-STLport        http://www.stlport.org
-QT             http://qt.nokia.com
 
 
 Monotonic clock
@@ -177,10 +162,10 @@ Ice DLLs and executables.
 x64 Platform
 ======================================================================
 
-Building Ice on x64 with the Visual Studio 2008 or Visual Studio 2010
+Building Ice on x64 with the Visual Studio 2010 or Visual Studio 2012
 C++ compiler is like building Ice on x86. You just need need to
 perform the build in a "Visual Studio x64 Win64 Command Prompt", and
-not in a regular "Visual Studio 2008/2010 Command Prompt".
+not in a regular "Visual Studio 2010/2012 Command Prompt".
 
 You can also use the "Visual Studio x64 Cross Tools Command Prompt" if
 you set the following environment variable:
@@ -202,10 +187,7 @@ config\Make.rules.mak.
 After installation, if you plan to use the Visual Studio IDE for your
 Ice project, make sure to add the bin directory to the Visual C++
 "Executable files", the include directory to the "Include files" and
-the lib directory to the "Library files" in the IDE:
-
-  * Visual C++ 2008: Tools->Options->Projects and Solutions->
-                                                    VC++ Directories
+the lib directory to the "Library files" in the IDE.
 
 If you built Ice on x64, the binaries are installed in the bin\x64
 directory and the libraries are installed in the lib\x64 directory.

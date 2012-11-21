@@ -27,14 +27,6 @@ Ice has dependencies on a number of third-party libraries:
 - bzip2 1.0.6 (from pkg.oracle.com)
 - mcpp 2.7.2 (with patches)
 
-We recommend downloading the Ice third-party source archive from
-
-  http://www.zeroc.com/download.html
-
-This archive contains the source distributions for each of the
-third-party dependencies, as well as required source patches and 
-configuration instructions.
-
 For more information about these dependencies, please refer to
 the links below:
 
@@ -68,11 +60,6 @@ Edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. Pay particular
 attention to the variables that define the locations of the third-
 party libraries.
-
-If you want to build with Sun CC instead of g++, edit the file
-config/Make.rules.SunOS and change or uncomment the CXX = <compiler>
-line (at the top of the file). The default value for CXX with GNU make
-is g++.
 
 Now you're ready to build Ice:
 
