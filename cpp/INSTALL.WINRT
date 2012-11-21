@@ -47,12 +47,12 @@ Building Ice for WinRT
 Using your favorite Zip tool, unzip the Ice source archive anywhere 
 you like.
 
-To build Ice for WinRT you first need to build Ice for Windows, refer
-to INSTALL.WINDOWS file for instructions on how to build Ice for Windows.
+To build Ice for WinRT you first need to build Ice for Windows: refer
+to INSTALL.WINDOWS for instructions on how to build Ice for Windows.
 
 Open a command prompt that is configured for your target architecture.
-For example, when using Visual Studio 2012, you
-have several alternatives:
+For example, when using Visual Studio 2012, you have several 
+alternatives:
 
  - Visual Studio Command Prompt
  - Visual Studio x64 Win64 Command Prompt
