@@ -9,6 +9,7 @@ Operating System
 Ice is supported on:
  - Solaris 11 for SPARC.
 
+
 C++ compiler
 ------------
 
@@ -35,6 +36,7 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
+
 
 GNU Make 3.81
 -------------

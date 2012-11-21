@@ -2,7 +2,9 @@ This demo shows how to use bidirectional connections for callbacks.
 
 This feature is typically used if the server cannot open a connection
 to the client to send callbacks, for example, because firewalls block
-incoming connections to the client.
+incoming connections to the client. In the case of Silverlight, the
+Ice run time does not support server-side functionality, but you can
+use a bidirectional connection to receive callbacks.
 
 1) You can use a bidir server from any Ice language mapping. Before
    starting the server, you must edit the server's endpoints to use a
@@ -22,8 +24,7 @@ incoming connections to the client.
    > <Ice installation directory>\bin\policyserver 127.0.0.1 clientaccesspolicy.xml
 
 4) In Visual Studio, open the `bidir.Web' project and start the
-   Silverlight client using the "Debug > Start new instance"
-   command.
+   Silverlight client using the "Debug > Start new instance" command.
 
 5) In the browser window, open bidirTestPage.html
 
@@ -56,7 +57,6 @@ IIS instructions:
 1) Copy clientaccesspolicy.xml to your web server document root
    directory:
 
-   > cd <Ice Silverlight directory>\demo\Ice\sl\bidir\
    > xcopy clientaccesspolicy.xml C:\inetpub\wwwroot\
 
 2) Verify that the policy file is accessible at the following URL:
@@ -68,13 +68,13 @@ IIS instructions:
 
    //initData.properties.setProperty("Ice.ClientAccessPolicyProtocol", "Http");
 
-4) Rebuild the demo. You must rebuild both hello and hello.web projects.
+4) Rebuild the demo. You must rebuild both bidir and bidir.web
+   projects.
 
-5) Copy required files. In a commmand window, execute the following
+5) Copy required files. In a command window, execute the following
    commands:
 
    > mkdir C:\inetpub\wwwroot\bidir
-   > cd <Ice Silverlight directory>\demo\Ice\sl\bidir\
    > xcopy bidir.web\bidirTestPage.html C:\inetpub\wwwroot\bidir
    > xcopy bidir.web\Silverlight.js C:\inetpub\wwwroot\bidir
    > xcopy bidir.Web\ClientBin C:\inetpub\wwwroot\bidir\ClientBin /s /i
