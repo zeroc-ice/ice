@@ -3,49 +3,16 @@ Requirements
 ======================================================================
 
 
-Visual Studio and Windows Versions
-----------------------------------
+Windows Version
+---------------
 
-The Ice Visual Studio Add-in is supported in the following 
-environments:
+The Ice Visual Studio Add-in is supported on:
 
- - Windows XP SP3 (x86) with Visual Studio 2008 SP1
-
- - Windows Server 2003 Standard SP2 (x86 & x64) with Visual Studio 
-   2008 SP1
-
- - Windows Server 2008 Standard SP2 (x86 & x64) with Visual Studio 
-   2008 SP1
-
- - Windows Vista SP2 with Visual Studio 2008 SP1 
-
- - Windows 7 (x86 & x64) with Visual Studio 2008 SP1
-
- - Windows XP SP3 with Visual Studio 2010 SP1
-
- - Windows Vista SP2 with Visual Studio 2010 SP1 
-
- - Windows 7 (x86 & x64) with Visual Studio 2010 SP1
-
- - Windows 8 (x86 & x64) with Visual Studio 2010 SP1
-
- - Windows Server 2008 R2 (x86 & x64) with Visual Studio 2010 SP1
-
- - Windows Server 2012 (x86 & x64) with Visual Studio 2010 SP1
-
- - Windows 7 (x86 & x64) with Visual Studio 2012
-
- - Windows 8 (x86 & x64) with Visual Studio 2012
-
- - Windows Server 2008 R2 (x86 & x64) with Visual Studio 2012
-
- - Windows Server 2012 (x86 & x64) with Visual Studio 2012
-
-
-Visual Studio 2008 is now only supported for build .NET Compact 
-Framework applications
-
-Visual Studio Express is not supported.
+ - Windows XP with Service Pack 3 
+ - Windows Vista with Service Pack 2
+ - Windows 7 
+ - Windows 8
+ - Windows Server 2008 Standard R2
 
 
 Compilers
@@ -63,6 +30,10 @@ or
 
 - Microsoft Visual Studio 2012 and Visual Studio 2012 SDK
   
+
+Visual Studio 2008 is only supported for building .NET Compact 
+Framework applications.
+
 
 ======================================================================
 Compilation
