@@ -3,13 +3,13 @@ Build instructions
 
 Ice for .NET has been built and tested with:
 
-- Microsoft Visual Studio 2008 SP1 and .NET Framework Version 3.5 SP1
-
 - Microsoft Visual Studio 2010 SP1 and .NET Framework Version 4.0
 
-- Microsoft Visual Studio 2008 SP1 and .NET Compact Framework Version 3.5 SP1
-
 - Microsoft Visual Studio 2010 SP1 and .NET Silverlight 5.0
+
+- Microsoft Visual Studio 2012 and .NET Framework Version 4.5
+
+- Microsoft Visual Studio 2008 SP1 and .NET Compact Framework Version 3.5 SP1
 
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
@@ -20,7 +20,7 @@ from the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 Follow these steps to build the source:
 
@@ -45,7 +45,7 @@ Follow these steps to build the source:
 The tests and sample programs are built automatically. If you modify
 the source code of a sample program, you can rebuild it using nmake.
 
-You can also build the demos using the Visual Studio solution located 
+You can also build the demos using the Visual Studio solution located
 in demo\demo.sln. Note that the demo projects require the Ice Visual
 Studio Add-In. The add-in is installed automatically when you
 use the Ice installer, or you can install the add-in manually by
@@ -125,7 +125,7 @@ case of a failure, the tests abort with "failed".
 Running the demos
 -----------------
 
-To run the demos, you need to have the cpp\bin directory in your PATH 
+To run the demos, you need to have the cpp\bin directory in your PATH
 and the cs\bin directory in your DEVPATH. See the README file in each
 demo directory for a description of the demo.
 
@@ -188,13 +188,13 @@ PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
 shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice
 (assuming C:\WINDOWS is your system root). Doing a directory listing
-there, you will find a directory named @dotnetver@__<UUID>, for 
+there, you will find a directory named @dotnetver@__<UUID>, for
 example:
 
   @dotnetver@__1f998c50fec78381
 
 Change to that directory (making sure that you use the correct version
-number for this release of Ice). In this directory, you will see the 
+number for this release of Ice). In this directory, you will see the
 Ice.dll you installed into the GAC in the preceding step. Now copy the
 Ice.pdb file into this directory:
 
@@ -217,90 +217,88 @@ if it detects a bzip2.dll format mismatch during start-up.)
 .NET Compact Framework
 ------------------------
 
-The default configuration in config\Make.rules.mak.cs produces an
-Ice assemblies for use with .NET. If you wish to use Ice with the .NET
+The default configuration in config\Make.rules.mak.cs produces Ice
+assemblies for use with .NET. If you wish to use Ice with the .NET
 Compact Framework, you must re-build the sources.
 
 To build Ice for .NET Compact Framework, open config\Make.rules.mak.cs
 and set COMPACT=yes. Run nmake as before:
 
  > nmake /f Makefile.mak
- 
-The .NET Compact Framework assemblies and binaries are generated into 
-Assemblies\cf and bin\cf diretories respectively.
 
-To build Ice for .NET Compact Framework, open config\Make.rules.mak.cs
-and set  COMPACT=yes. Run nmake as before:
+The .NET Compact Framework assemblies and binaries are generated into
+the Assemblies\cf and bin\cf directories, respectively.
 
- > nmake /f Makefile.mak
+To build the demos, you must first install the Ice for Visual Studio
+Add-in. You can install the Ice Visual Studio Add-in using the Windows
+MSI installer; for manual installation instructions, refer to the file
+..\vsaddin\INSTALL.txt.
 
-To build the demos, you must first install the Ice for Visual Studio Add-in.
-You can install the Ice Visual Studio Add-in using the Windows msi installer,
-for manual installation instructions refer to ..\vsaddin\INSTALL.txt file.
-
-To build the demos you must use the Visual Studio solution located in
-demo\democf.sln.
+You must use the Visual Studio solution located in demo\democf.sln to
+build the demos.
 
 
 Silverlight
----------
+-----------
 
-The default configuration in config\Make.rules.mak.cs produces an
-Ice assemblies for use with .NET. If you wish to use Ice with Silverlight,
+The default configuration in config\Make.rules.mak.cs produces Ice
+assemblies for use with .NET. If you wish to use Ice with Silverlight,
 you must re-build the sources.
 
-The Silverlight assemblies and binaries are generated into Assemblies\sl and
-Assemblies\bin directories respectively.
+The Silverlight assemblies are generated into the Assemblies\sl
+directory.
 
-To build Ice for Silverlight, open config\Make.rules.mak.cs and set 
+To build Ice for Silverlight, open config\Make.rules.mak.cs and set
 SILVERLIGHT=yes. Run nmake as before:
 
  > nmake /f Makefile.mak
 
-To install Ice for Silverlight simply run "nmake /f Makefile.mak install"
-This will install Ice for .NET in the directory specified by the "prefix" 
-variable in config\Make.rules.mak.cs. The Ice Silverlight assemblies will be
-located in <prefix>\Assemblies\sl directory.
+To install Ice for Silverlight simply run
 
-To build the tests and demos, you must first install the Ice for Visual Studio 
-Add-in. You can install the Ice Visual Studio Add-in using the Windows msi 
-installer, for manual installation instructions refer to ..\vsaddin\INSTALL.txt 
-file.
+ > nmake /f Makefile.mak install
 
-To build the tests and demos you must use the Visual Studio solutions 
-located in test\testsl.sln and demo\demosl.sln. 
+This will install Ice for Silverlight in the directory specified by
+the "prefix" variable in config\Make.rules.mak.cs. The Ice assemblies
+will be located in the <prefix>\Assemblies\sl directory.
+
+To build the tests and demos, you must first install the Ice for
+Visual Studio Add-in. You can install the Ice Visual Studio Add-in
+using the Windows MSI installer; for manual installation instructions,
+refer to the file ..\vsaddin\INSTALL.txt.
+
+You must use the Visual Studio solutions located in test\testsl.sln
+and demo\demosl.sln to build the tests and demos.
 
   * Running the tests
 
-     Silverlight has no server side support, you must use a server from
-     another language mapping:
+    Silverlight has no server-side support, you must use a server
+    from another language mapping.
 
-     To run a test, open a command window and change to the test
-     directory. At the command prompt, execute:
+    To run a test, open a command window and change to the test
+    directory. At the command prompt, execute:
 
-     > server
+    > server
 
-     Open test\testsl.sln in Visual Studio and start the corresponding
-     test, using the "Debug > Start new instance" command. In the test
-     application, click "Run"
+    Open test\testsl.sln in Visual Studio and start the corresponding
+    test using the "Debug > Start new instance" command. In the test
+    application, click "Run".
 
-     If everything worked out, you should see lots of "ok" messages. In
-     case of a failure, the tests abort with "failed".
-
+    If everything worked out, you should see lots of "ok" messages.
+    In case of a failure, the tests abort with "failed".
 
   * Running the demos
 
-     To run the demos, open demo\demosl.sln Solution and follow the
-     instructions in the README.txt files of each demo.
+    To run the demos, open the solution demo\demosl.sln and follow
+    the instructions in the README.txt file of each demo.
 
 
 Binary compatibility of patch releases
-------------------------------------
+--------------------------------------
 
-Ice patch releases are binary compatible. For example, Ice version 
-@mmver@.1 is compatible with @mmver@.0: you can run an application built 
+Ice patch releases are binary compatible. For example, Ice version
+@mmver@.1 is compatible with @mmver@.0: you can run an application built
 against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
 recompile or relink this application.
 
-Please refer to the Ice @ver@ Release Notes for detailed upgrade 
+Please refer to the Ice @ver@ Release Notes for detailed upgrade
 instructions.

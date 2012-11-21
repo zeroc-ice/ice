@@ -128,26 +128,31 @@ $ rpm -i ice-@ver@-1.src.rpm
 If you have not already done so, install the RPM prerequisites listed
 in step 3 above. The following additional steps are also necessary:
 
- - Install the JGoodies Looks 2.4.1 JAR file as
+ - Install the JGoodies Looks 2.5.2 JAR file as
 
-   /usr/share/java/jgoodies-looks-2.4.1.jar
+   /usr/share/java/jgoodies-looks-2.5.2.jar
 
- - Install the JGoodies Forms 1.4.1 JAR file as
+ - Install the JGoodies Forms 1.6.0 JAR file as
 
-   /usr/share/java/jgoodies-forms-1.4.1.jar
+   /usr/share/java/jgoodies-forms-1.6.0.jar
 
- - Install the JGoodies Common 1.2.0 JAR file as
+ - Install the JGoodies Common 1.4.0 JAR file as
 
-   /usr/share/java/jgoodies-common-1.2.0.jar
+   /usr/share/java/jgoodies-common-1.4.0.jar
 
- - Install the ProGuard 4.6 JAR file as
+ - Install the ProGuard 4.8 JAR file as
 
    /usr/share/java/proguard.jar
 
- - Install the Java Development Kit version 1.5.0 or 1.6.0 and verify
-   that the 'javac' command is present in your PATH
+ - Install the Java Development Kit version 1.7 and verify that the
+   'javac' command is present in your PATH
 
- - Install Apache Ant 1.7.0 or later and verify that the 'ant'
+   Note: JDK 1.7 with JavaFX is necessary for compiling the IceGrid
+   Admin GUI client. Java7 is required to run this client, but the
+   other Ice JAR files (Ice.jar, Glacier2.jar, etc.) are compiled to
+   be compatible with Java6.
+
+ - Install Apache Ant 1.7 or later and verify that the 'ant'
    command is present in your PATH, such as by running
 
    $ ant -version
@@ -158,9 +163,9 @@ in step 3 above. The following additional steps are also necessary:
 You can run the 'find-jar' program to verify that the JAR files are
 installed correctly. For example:
 
-$ find-jar jgoodies-looks-2.4.1.jar
-$ find-jar jgoodies-forms-1.4.1.jar
-$ find-jar jgoodies-common-1.2.0.jar
+$ find-jar jgoodies-looks-2.5.2.jar
+$ find-jar jgoodies-forms-1.6.0.jar
+$ find-jar jgoodies-common-1.4.0.jar
 $ find-jar proguard.jar
 
 Finally, build the RPMs as a non-root user.

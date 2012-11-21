@@ -15,7 +15,7 @@ not need to build these packages yourself, as ZeroC supplies a Windows
 installer that contains release and debug libraries for all of the
 third-party dependencies. The installer is available at
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 If you prefer to compile the third-party packages from source code, we
 recommend that you use the same Visual C++ version to build all of the
