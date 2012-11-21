@@ -680,7 +680,7 @@ sslConfigTree = {
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "cs" : {
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
+            "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
             " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s",
             "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
             "server" : " --IceSSL.CertFile=s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem",
@@ -814,6 +814,7 @@ def getCommandLineProperties(exe, config):
     if config.protocol == "ssl":
         sslenv = {}
         sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
+        sslenv["icesslcs"] = quoteArgument("\\\"" + os.path.join(getIceDir("cs"), "Assemblies", "IceSSL.dll") + "\\\"")
         if winrt:
             sslenv["verifyPeer"] = "0"
         else:
