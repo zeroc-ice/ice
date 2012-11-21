@@ -227,7 +227,7 @@ Java Changes
 - Fixed an IceSSL bug in which the IceSSL.Alias property was not
   working correctly.
 
-- The mapping for Slice classes and structures now defines a
+- The mapping for Slice classes, exceptions and structures now defines a
   serialVersionUID member. You can override the default UID using the
   metadata [java:serialVersionUID:<value>].
 
