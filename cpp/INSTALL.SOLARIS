@@ -21,11 +21,14 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 5.1.25 (from pkg.oracle.com)
-- expat 2.0.1 (from pkg.oracle.com)
-- OpenSSL 1.0.0 (from pkg.oracle.com)
-- bzip2 1.0.6 (from pkg.oracle.com)
+- Berkeley DB 5.1 or 5.3
+- expat 2.0
+- OpenSSL 1.0
+- bzip2 1.0
 - mcpp 2.7.2 (with patches)
+
+All these libraries, with the exception of mcpp, are available from
+pkg.oracle.com.
 
 For more information about these dependencies, please refer to
 the links below:
@@ -97,7 +100,7 @@ $ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
 To build Ice in 64-bit mode, you need to do the following:
 
 - Obtain or build all the third-party dependencies, and put the 64-bit
-  libraries in the appropriate lib subdirectory (lib/sparcv9 on SPARC,
+  libraries in the appropriate lib subdirectory (lib/64 on SPARC,
   lib/amd64 on x86).
 
 - Set the environment variable LP64 to yes, as shown below:
@@ -121,6 +124,6 @@ When compiling Ice programs, you must pass the location of the
 location of the <prefix>/lib directory with the -L option.
 
 If you built in 64-bit mode, the libraries are installed in
-<prefix>/lib/sparcv9 or <prefix>/lib/amd64, depending on your system's
+<prefix>/lib/64 or <prefix>/lib/amd64, depending on your system's
 architecture. Executables are installed in <prefix>/bin/sparcv9 or
 <prefix>/bin/amd64. No other changes are necessary.
