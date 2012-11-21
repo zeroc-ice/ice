@@ -133,4 +133,8 @@ Installation
 
 Simply run "nmake /f Makefile.mak install". This will install the Ice
 SDK in the directory specified by the "prefix" variable in
-config\Make.rules.mak.cs.
+config\Make.rules.mak.
+
+Note that this command must be executed in a command prompt that has
+administrative privileges because it requires write access to the
+registry.

@@ -175,10 +175,10 @@ result:
   > gacutil /i <library.dll>
 
 The gacutil tool is included with your Visual C# installation. For
-example, if you have installed Visual C# 9.0 in C:\Program Files, the
+example, if you have installed Visual C# 10.0 in C:\Program Files, the
 path to gacutil is
 
-  C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\gacutil.exe
+  C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\gacutil.exe
 
 Once installed in the cache, the assemblies will always be located
 correctly without having to set environment variables or copy them
