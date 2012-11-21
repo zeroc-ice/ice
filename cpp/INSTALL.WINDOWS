@@ -27,7 +27,7 @@ Ice has been extensively tested on:
  - Windows Server 2008 Standard R2 (x86 & x64)
  - Windows Vista with Service Pack 2 (x86 & x64)
  - Windows 7 (x86 & x64)
- - Windows 8 (x87 & x64)
+ - Windows 8 (x86 & x64)
 
 
 The Ice binary distribution for Windows can be downloaded from:
