@@ -244,15 +244,7 @@ these libraries are named as follows:
   libSlice
   libbz2
 
-On Windows with VC6, the DLLs have the following names:
-
-  icevc60_@libver@.dll
-  iceutilvc60_@libver@.dll
-  slicevc60_@libver@.dll
-  bzip2_vc6.dll
-  stlport_vc646.dll
-
-On Windows with VC9, these DLLs are required:
+On Windows, these DLLs are required:
 
   ice@libver@.dll
   iceutil@libver@.dll

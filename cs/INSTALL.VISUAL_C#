@@ -126,8 +126,8 @@ Running the demos
 -----------------
 
 To run the demos, you need to have the cpp\bin directory in your PATH
-and the cs\bin directory in your DEVPATH. See the README file in each
-demo directory for a description of the demo.
+and the cs\Assemblies directory in your DEVPATH. See the README file
+in each demo directory for a description of the demo.
 
 Note that for demos that use IceSSL, the IceSSL plug-in configuration
 does not contain the fully-qualified name (FQN) for the IceSSL
@@ -155,8 +155,9 @@ Installation
 
 Simply run "nmake /f Makefile.mak install". This will install Ice for
 .NET in the directory specified by the "prefix" variable in
-config\Make.rules.mak.cs. After installation, make sure that the
-<prefix>\bin directory is in your PATH.
+config\Make.rules.mak.cs. After installation, the <prefix>\bin
+directory contains executables (such as iceboxnet.exe), and the
+<prefix>\Assemblies directory contains the .NET assemblies.
 
 
 GAC Installation
@@ -165,8 +166,8 @@ GAC Installation
 You can add the assemblies to the Global Assembly Cache (GAC). To do
 this, open Windows Explorer and navigate to the directory
 C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-assemblies from Ice-@ver@\bin into the right-hand pane to install
-them in the cache.
+assemblies from Ice-@ver@\Assemblies into the right-hand pane to
+install them in the cache.
 
 You can also use gacutil from the command line to achieve the same
 result:
