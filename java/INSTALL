@@ -4,7 +4,7 @@ code.
 If you prefer, you can download binary distributions for supported
 platforms at the link below:
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 
 ======================================================================
@@ -16,8 +16,8 @@ Operating systems
 -----------------
 
 Ice for Java has been tested under Linux, Solaris, MacOS X, and
-Windows XP/Server 2003/Vista/7, but due to the portability of Java, it
-is very likely that it will also work on other platforms for which a
+Windows 7/8/Server 2008, but due to the portability of Java, it is
+very likely that it will also work on other platforms for which a
 suitable Java implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
@@ -31,11 +31,12 @@ generated Java files to your target platform.
 Java version
 ------------
 
-Ice for Java requires J2SE 1.5.0 or later.
+Ice for Java requires J2SE 1.6.0 or later.
 
-The graphical IceGrid administrative tool requires J2SE 7u6 or later.
+The graphical IceGrid administrative tool requires J2SE 7u6 or later
+with JavaFX support.
 
-You can download Java5 and Java6 for Solaris, Windows, and Linux from:
+You can download Java for Solaris, Windows, and Linux from:
 
   http://www.oracle.com/technetwork/java/index.html
 
@@ -54,9 +55,9 @@ command-line option shown below:
 
   java -Djava.security.egd=file:/dev/urandom MyClass ...
 
-On systems with IPv6 enabled, you may experience occasional hangs 
-the first time an Ice object adapter is activated within a JVM. A 
-work-around is to disable IPv6 support by setting the Java property 
+On systems with IPv6 enabled, you may experience occasional hangs
+the first time an Ice object adapter is activated within a JVM. A
+work-around is to disable IPv6 support by setting the Java property
 java.net.preferIPv4Stack to true. For example:
 
   java -Djava.net.preferIPv4Stack=true MyClass ...
@@ -75,7 +76,7 @@ web site, or you can build Ice for C++ yourself.
 
 Binary distributions for supported platforms are available at
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 
 Berkeley DB
@@ -86,11 +87,11 @@ facility for Ice applications. Freeze uses Berkeley DB as its
 underlying database and currently requires Berkeley DB 4.8.30.
 
 ZeroC provides Berkeley DB binary distributions (with Java support)
-for many platforms: 
+for many platforms:
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
-Alternatively, you can build Berkeley DB yourself; the Berkeley DB 
+Alternatively, you can build Berkeley DB yourself; the Berkeley DB
 source distribution is available at
 
   http://www.oracle.com/database/berkeley-db/index.html
@@ -163,8 +164,8 @@ Android
 -------
 
 The Ice run time (lib/Ice.jar) is fully compatible with Android 2.1 or
-later. The IceSSL plug-in included in (lib/Ice.jar) requires Android 
-2.2 or later (see the release notes for more information on SSL in 
+later. The IceSSL plug-in included in (lib/Ice.jar) requires Android
+2.2 or later (see the release notes for more information on SSL in
 Android).
 
 Refer to the sections "Eclipse Development" and "Using Ice in Android"
@@ -188,7 +189,7 @@ This source distribution cannot be compiled successfully without the
 Berkeley DB run time for Java (db.jar). On Unix platforms, the build
 system searches for this file in two locations:
 
-  * /usr/share/java/db-4.8.30.jar
+  * /usr/share/java/db-5.3.21.jar
   * /opt/Ice-@ver@/lib/db.jar
 
 If neither of these files is present on your system, or if you are not
@@ -229,7 +230,7 @@ To build only the Ice run time (Ice.jar), use the following command:
   ant ice-jar
 
 To build the Ice run time along with Freeze, IceBox, IceGrid, IceStorm,
-IcePatch2 services  and the IceGrid administrative console, use 
+IcePatch2 services  and the IceGrid administrative console, use
 this command:
 
   ant jar
@@ -268,10 +269,10 @@ specified by the "prefix" variable in config/build.properties.
 It is not necessary to rebuild Ice for Java after changing the
 value of the prefix variable.
 
-After installation add Ice.jar to your CLASSPATH, if you plan to use 
-other Ice services you must also add the service corresponding jar 
-files Freeze.jar, Glacier2.jar, IceBox.jar, IceStorm.jar, IcePatch2.jar
-and IceGrid.jar.
+After installation, add Ice.jar to your CLASSPATH. If you plan to use
+other Ice services, you must also add the appropriate JAR files to
+your CLASSPATH: Freeze.jar, Glacier2.jar, IceBox.jar, IceStorm.jar,
+IcePatch2.jar and IceGrid.jar.
 
 
 ======================================================================
@@ -371,12 +372,12 @@ CLASSPATH.
 If you want to try out any of the demos, make sure to add lib/Ice.jar
 and "classes" to your CLASSPATH.
 
-For demos that use Ice services you must also add the service 
-corresponding jar files Freeze.jar, Glacier2.jar, IceBox.jar, 
+For demos that use Ice services you must also add the service
+corresponding jar files Freeze.jar, Glacier2.jar, IceBox.jar,
 IceStorm.jar and IceGrid.jar to your CLASSPATH.
 
 Then change to the desired demo directory and follow the instructions
-in the README file. If no README file is present, the demo can be run 
+in the README file. If no README file is present, the demo can be run
 by entering the following command to start the server:
 
   $ java Server

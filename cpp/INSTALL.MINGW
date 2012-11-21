@@ -50,7 +50,7 @@ Windows installer that contains all of the third-party dependencies.
 If you intend to build the third-party dependencies from source, we
 recommend downloading the Ice third-party source archive from
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 This archive contains the source distributions for each of the
 third-party dependencies, as well as required source patches and 

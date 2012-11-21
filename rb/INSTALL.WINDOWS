@@ -27,10 +27,10 @@ your build environment:
 1. You have installed the Ice @ver@ distribution using the installer
    available at the link below:
 
-   http://www.zeroc.com/download.html
+   http://www.zeroc.com/download_beta.html
 
    The default installation directory is the following:
-   
+
    C:\Program Files\ZeroC\Ice-@ver@
 
 2. You have installed Ruby 1.9.3 using the Windows installer available
@@ -44,7 +44,6 @@ your build environment:
    RubyInstaller:
 
    http://rubyinstaller.org/downloads/
-   
 
 If you selected different installation directories, you will need to
 modify the relevant path names in the steps below to match your

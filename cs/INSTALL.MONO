@@ -13,7 +13,7 @@ Ice for .NET is expected to build and run properly on any recent Linux
 distribution for x86 and x86_64. However, Ice is officially supported
 only on:
 
- - Novell SuSE Linux Enterprise Server 11 for i586 or x86_64 (SLES 11)
+ - SuSE Linux Enterprise Server 11 SP2 for i586 or x86_64 (SLES 11)
 
 You need to install the mono-core and the mono-devel RPMs to build Ice 
 for .NET on Linux.
@@ -31,7 +31,7 @@ the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-  http://www.zeroc.com/download.html
+  http://www.zeroc.com/download_beta.html
 
 To build Ice for .NET, run
 
