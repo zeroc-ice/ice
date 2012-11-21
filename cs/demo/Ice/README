@@ -87,3 +87,7 @@ Demos in this directory:
 
   A Windows Presentation Foundation (WPF) application that shows how
   to use Asynchronous Method Invocation (AMI) in a graphical client.
+
+- optional
+
+  This demo shows the use of the optional keyword.
