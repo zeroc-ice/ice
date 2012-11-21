@@ -67,9 +67,11 @@ def isSolaris():
     return sys.platform == "sunos5"
 
 def isSparc():
-    p = os.popen("uname -m")
-    l = p.readline().strip()
-    p.close()
+    p = subprocess.Popen("uname -m", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not process or not process.stdout:
+        print("unable to get system information!")
+        sys.exit(1)
+    l = p.stdout.readline().decode("utf-8").strip()
     if l == "sun4u":
         return True
     else:
@@ -569,31 +571,28 @@ def getIceSoVersion():
         return '%d' % (majorVersion * 10 + minorVersion)
 
 def getIceSSLVersion():
-    javaPipeIn, javaPipeOut = os.popen4("java IceSSL.Util")
-    if not javaPipeIn or not javaPipeOut:
+    process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not process or not process.stdout:
         print("unable to get IceSSL version!")
         sys.exit(1)
-    version = javaPipeOut.readline()
+    version = process.stdout.readline()
     if not version:
         print("unable to get IceSSL version!")
         sys.exit(1)
-    javaPipeIn.close()
-    javaPipeOut.close()
+    version = version.decode("utf-8")
     return version.strip()
 
 def getJdkVersion():
-    javaPipeIn, javaPipeOut = os.popen4("java -version")
-    if not javaPipeIn or not javaPipeOut:
+    process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not process or not process.stdout:
         print("unable to get Java version!")
         sys.exit(1)
     global jdkVersion
-    jdkVersion = javaPipeOut.readline()
+    jdkVersion = process.stdout.readline()
     if not jdkVersion:
         print("unable to get Java version!")
         sys.exit(1)
-    javaPipeIn.close()
-    javaPipeOut.close()
-    return jdkVersion
+    return jdkVersion.decode("utf-8")
 
 def getIceBox():
     #
