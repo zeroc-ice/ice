@@ -447,7 +447,8 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
                         DataWriterStoreOperation^ operation = writer->StoreAsync();
 
-                        if(operation->Status == Windows::Foundation::AsyncStatus::Completed)
+                        Windows::Foundation::AsyncStatus status = operation->Status;
+                        if(status == Windows::Foundation::AsyncStatus::Completed)
                         {
                             //
                             // NOTE: unlike other methods, it's important to modify _write.count
@@ -457,11 +458,22 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                             // completed callback.
                             //
                             _write.count = operation->GetResults();
+                            _completedHandler(SocketOperationWrite);
                         }
-
-                        if(!checkIfErrorOrCompleted(SocketOperationWrite, operation))
+                        else if(status == Windows::Foundation::AsyncStatus::Started)
                         {
                             operation->Completed = _writeOperationCompletedHandler;
+                        }
+                        else
+                        {
+                            if(_state < StateConnected)
+                            {
+                                checkConnectErrorCode(__FILE__, __LINE__, operation->ErrorCode.Value, _addr.host);
+                            }
+                            else 
+                            {
+                                checkErrorCode(__FILE__, __LINE__, operation->ErrorCode.Value);
+                            }
                         }
                     }
                     catch(Platform::Exception^ pex)
