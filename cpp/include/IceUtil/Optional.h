@@ -41,16 +41,13 @@ public:
     {
     }
 
-    Optional(const T& p) : _value(p), _isSet(true)
-    {
-    }
-    
     template<typename Y>
-    Optional(const Optional<Y>& r) : _value(r._value), _isSet(r._isSet)
+    Optional(Y p) : _value(p), _isSet(true)
     {
     }
 
-    Optional(const Optional& r) : _value(r._value), _isSet(r._isSet)
+    template<typename Y>
+    Optional(const Optional<Y>& r) : _value(r._value), _isSet(r._isSet)
     {
     }
     
@@ -65,7 +62,8 @@ public:
         return *this;
     }
 
-    Optional& operator=(const T& p)
+    template<typename Y>
+    Optional& operator=(Y p)
     {
         _value = p;
         _isSet = true;
@@ -172,10 +170,10 @@ inline bool operator==(const Optional<T>& lhs, const Optional<U>& rhs)
     {
         return *lhs == *rhs;
     }
-
-    // Note: don't use if { } else { }. This causes lots warnings when
-    // compiling with GCC and optimization enabled. See bug 2330.
-    return !lhs && !rhs;
+    else
+    {
+        return !lhs && !rhs;
+    }
 }
 
 template<typename T, typename U>
@@ -191,10 +189,10 @@ inline bool operator<(const Optional<T>& lhs, const Optional<U>& rhs)
     {
         return *lhs < *rhs;
     }
-
-    // Note: don't use if { } else { }. This causes lots warnings when
-    // compiling with GCC and optimization enabled. See bug 2330.
-    return !lhs && rhs;
+    else
+    {
+        return !lhs && rhs;
+    }
 }
 
 template<typename T, typename U>
@@ -220,75 +218,103 @@ inline bool operator>=(const Optional<T>& lhs, const Optional<U>& rhs)
 template<typename T, typename Y>
 inline bool operator==(const Optional<T>& lhs, const Y& rhs)
 {
-    return operator==(lhs, Optional<Y>(rhs));
+    if(!lhs)
+    {
+        return false;
+    }
+    else 
+    {
+        return *lhs == rhs;
+    }
 }
 
 template<typename T, typename Y>
 inline bool operator!=(const Optional<T>& lhs, const Y& rhs)
 {
-    return !operator==(lhs, Optional<Y>(rhs));
+    return !operator==(lhs, rhs);
 }
 
 template<typename T, typename Y>
 inline bool operator<(const Optional<T>& lhs, const Y& rhs)
 {
-    return operator<(lhs, Optional<Y>(rhs));
+    if(lhs)
+    {
+        return *lhs < rhs;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 template<typename T, typename Y>
 inline bool operator<=(const Optional<T>& lhs, const Y& rhs)
 {
-    return operator<=(lhs, Optional<Y>(rhs));
+    return lhs < rhs || lhs == rhs;
 }
 
 template<typename T, typename Y>
 inline bool operator>(const Optional<T>& lhs, const Y& rhs)
 {
-    return operator>(lhs, Optional<Y>(rhs));
+    return !(lhs < rhs || lhs == rhs);
 }
 
 template<typename T, typename Y>
 inline bool operator>=(const Optional<T>& lhs, const Y& rhs)
 {
-    return operator>=(lhs, Optional<Y>(rhs));
+    return !(lhs < rhs);
 }
 
 // Y vs Optional<T>
 
 template<typename T, typename Y>
-inline bool operator==(const Y& lhs, const Optional<Y>& rhs)
+inline bool operator==(const Y& lhs, const Optional<T>& rhs)
 {
-    return operator==(Optional<Y>(lhs), rhs);
+    if(!rhs)
+    {
+        return false;
+    }
+    else 
+    {
+        return lhs == *rhs;
+    }
 }
 
 template<typename T, typename Y>
-inline bool operator!=(const Y& lhs, const Optional<Y>& rhs)
+inline bool operator!=(const Y& lhs, const Optional<T>& rhs)
 {
-    return !operator==(Optional<Y>(lhs), rhs);
+    return !operator==(lhs, rhs);
 }
 
 template<typename T, typename Y>
-inline bool operator<(const Y& lhs, const Optional<Y>& rhs)
+inline bool operator<(const Y& lhs, const Optional<T>& rhs)
 {
-    return operator<(Optional<Y>(lhs), rhs);
+    if(rhs)
+    {
+        return lhs < *rhs;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 template<typename T, typename Y>
-inline bool operator<=(const Y& lhs, const Optional<Y>& rhs)
+inline bool operator<=(const Y& lhs, const Optional<T>& rhs)
 {
-    return operator<=(Optional<Y>(lhs), rhs);
+    return lhs < rhs || lhs == rhs;
 }
 
 template<typename T, typename Y>
-inline bool operator>(const Y& lhs, const Optional<Y>& rhs)
+inline bool operator>(const Y& lhs, const Optional<T>& rhs)
 {
-    return operator>(Optional<Y>(lhs), rhs);
+    return !(lhs < rhs || lhs == rhs);
 }
 
 template<typename T, typename Y>
-inline bool operator>=(const Y& lhs, const Optional<Y>& rhs)
+inline bool operator>=(const Y& lhs, const Optional<T>& rhs)
 {
-    return operator>=(Optional<Y>(lhs), rhs);
+    return !(lhs < rhs);
 }
 
 }

@@ -310,7 +310,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(mo3->e == 99);
     test(mo3->f == 5.5f);
     test(mo3->g == 1.0);
-    test(mo3->h == string("test"));
+    test(mo3->h == "test");
     test(mo3->i == Test::MyEnumMember);
     test(mo3->j == MultiOptionalPrx::uncheckedCast(communicator->stringToProxy("test")));
     test(mo3->k == mo1);
@@ -337,6 +337,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(mo3->bos == mo1->bos);
 
     cout << "ok" << endl;
+
+    cout << "testing comparison operators... " << flush;
+
+    test(mo1->a == 15 && 15 == mo1->a && mo1->a != 16 && 16 != mo1->a);
+    test(mo1->a < 16 && mo1->a > 14 && mo1->a <= 15 && mo1->a >= 15 && mo1->a <= 16 && mo1->a >= 14);
+    test(mo1->a > IceUtil::Optional<int>() && IceUtil::Optional<int>() < mo1->a);
+    test(14 > IceUtil::Optional<int>() && IceUtil::Optional<int>() < 14);
+
+    test(mo1->h == "test" && "test" == mo1->h && mo1->h != "testa" && "testa" != mo1->h);
+    test(mo1->h < "test1" && mo1->h > "tesa" && mo1->h <= "test");
+    test(mo1->h >= "test" && mo1->h <= "test1" && mo1->h >= "tesa");
+    test(mo1->h > IceUtil::Optional<string>() && IceUtil::Optional<string>() < mo1->h);
+    test("test1" > IceUtil::Optional<string>() && IceUtil::Optional<string>() < "test1");
+
+    cout << "ok" << endl;
+
 
     cout << "testing marshalling... " << flush;
     OneOptionalPtr oo4 = OneOptionalPtr::dynamicCast(initial->pingPong(new OneOptional()));
@@ -773,9 +789,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         IceUtil::Optional<string> p2 = initial->opString(p1, p3);
         test(!p2 && !p3);
 
-        p1 = string("test");
-        p2 = initial->opString(p1, p3);
-        test(p2 == string("test") && p3 == string("test"));
+        p1 = "test";
+        p2 = initial->opString("test", p3);
+        test(p2 == "test" && p3 == "test");
 
         out = Ice::createOutputStream(communicator);
         out->startEncapsulation();
@@ -788,7 +804,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         in->read(1, p2);
         in->read(3, p3);
         in->endEncapsulation();
-        test(p2 == string("test") && p3 == string("test"));
+        test(p2 == "test" && p3 == "test");
 
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();
@@ -1097,12 +1113,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         try
         {
-            initial->opOptionalException(30, string("test"), OneOptionalPtr(new OneOptional(53)));
+            initial->opOptionalException(30, "test", new OneOptional(53));
         }
         catch(const OptionalException& ex)
         {
             test(ex.a == 30);
-            test(ex.b == string("test"));
+            test(ex.b == "test");
             test((*ex.o)->a = 53);
         }
 
@@ -1112,7 +1128,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             // Use the 1.0 encoding with an exception whose only class members are optional.
             //
             initial->ice_encodingVersion(Ice::Encoding_1_0)->
-                opOptionalException(30, string("test"), OneOptionalPtr(new OneOptional(53)));
+                opOptionalException(30, "test", new OneOptional(53));
         }
         catch(const OptionalException& ex)
         {
