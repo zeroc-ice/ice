@@ -1416,7 +1416,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
         << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()), encoding(), true, false);";
     int iter = 0;
     writeMarshalUnmarshalCode(out, "", dataMember->type(), OptionalNone, false, 0, valueS, true, iter, false);
-    if(type->usesClasses())
+    if(dataMember->type()->usesClasses())
     {
         out << nl << "__os.writePendingObjects();";
     }

@@ -219,6 +219,11 @@ C# Changes
 Java Changes
 ============
 
+- Fixed a Freeze map indice marhsaling bug. The encoding of the key
+  would write an additional byte if the map value used classes. This
+  bug fix requires that you recreate your indices if your Freeze map
+  value uses classes.
+
 - Fixed a bug in IceSSL that could cause delays due to DNS lookups.
 
 - Fixed a bug in the generated code for a Slice exception with no
