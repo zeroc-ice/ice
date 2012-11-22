@@ -58,5 +58,5 @@ Running the demos
 -----------------
 
 To run the demos, you need to have the cpp\bin directory in your PATH
-and the cs\bin directory in your DEVPATH. See the README file in each
-demo directory for a description of the demo.
+and the cs\Assemblies directory in your DEVPATH. See the README file in
+each demo directory for a description of the demo.
