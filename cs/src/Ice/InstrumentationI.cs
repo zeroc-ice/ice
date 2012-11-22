@@ -373,8 +373,9 @@ namespace IceInternal
                     {
                         os.Append(_proxy.ice_endpoints(emptyEndpoints)).Append(" [").Append(_operation).Append(']');
                     }
-                    catch(Ice.FixedProxyException)
+                    catch(Ice.Exception)
                     {
+                        // Either a fixed proxy or the the communicator is destroyed.
                         os.Append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.Append(" [").Append(_operation).Append(']');
                     }

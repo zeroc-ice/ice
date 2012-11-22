@@ -386,8 +386,9 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     {
                         os.append(_proxy.ice_endpoints(emptyEndpoints)).append(" [").append(_operation).append(']');
                     }
-                    catch(Ice.FixedProxyException ex)
+                    catch(Exception ex)
                     {
+                        // Either a fixed proxy or the the communicator is destroyed.
                         os.append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }

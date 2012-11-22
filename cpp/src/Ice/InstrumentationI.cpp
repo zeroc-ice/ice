@@ -408,8 +408,9 @@ public:
                 {
                     os << _proxy->ice_endpoints(Ice::EndpointSeq()) << " [" << _operation << ']';
                 }
-                catch(const FixedProxyException&)
+                catch(const Exception&)
                 {
+                    // Either a fixed proxy or the the communicator is destroyed.
                     os << _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
                     os << " [" << _operation << ']';
                 }
