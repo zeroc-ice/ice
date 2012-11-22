@@ -371,7 +371,6 @@ License agreement for MCPP:
  */
 
 
-
 License agreement for JGoodies Common:
 --------------------------------------
 
