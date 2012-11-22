@@ -277,34 +277,35 @@ struct TestCase
     const char* server;
     const char* serverAMD;
     const char* collocated;
+    bool sslSupport,
 };
 
 }
 static const TestCase allTest[] =
 {
-    {"Ice\\adapterDeactivation", "Ice_adapterDeactivation_", "client.dll", "server.dll", 0, "collocated.dll" },
-    {"Ice\\ami", "Ice_ami_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\binding", "Ice_binding_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\dispatcher", "Ice_dispatcher_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\exceptions", "Ice_exceptions_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll" },
-    {"Ice\\facets", "Ice_facets_", "client.dll", "server.dll", 0, "collocated.dll" },
-    {"Ice\\hold", "Ice_hold_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\info", "Ice_info_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\inheritance", "Ice_inheritance_", "client.dll", "server.dll", 0, "collocated.dll" },
-    {"Ice\\invoke", "Ice_invoke_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\location", "Ice_location_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\objects", "Ice_objects_", "client.dll", "server.dll", 0, "collocated.dll" },
-    {"Ice\\operations", "Ice_operations_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll" },
-    {"Ice\\proxy", "Ice_proxy_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll" },
-    {"Ice\\retry", "Ice_retry_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\stream", "Ice_stream_", "client.dll", 0, 0, 0},
-    {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0},
-    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0},
-    {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0},
-    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0},
-    {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0}
+    {"Ice\\adapterDeactivation", "Ice_adapterDeactivation_", "client.dll", "server.dll", 0, "collocated.dll", true},
+    {"Ice\\ami", "Ice_ami_", "client.dll", "server.dll", 0, 0, true },
+    {"Ice\\binding", "Ice_binding_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\dispatcher", "Ice_dispatcher_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\exceptions", "Ice_exceptions_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true},
+    {"Ice\\facets", "Ice_facets_", "client.dll", "server.dll", 0, "collocated.dll", true},
+    {"Ice\\hold", "Ice_hold_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\info", "Ice_info_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\inheritance", "Ice_inheritance_", "client.dll", "server.dll", 0, "collocated.dll", true},
+    {"Ice\\invoke", "Ice_invoke_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\location", "Ice_location_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\objects", "Ice_objects_", "client.dll", "server.dll", 0, "collocated.dll", true},
+    {"Ice\\operations", "Ice_operations_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true},
+    {"Ice\\proxy", "Ice_proxy_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true},
+    {"Ice\\retry", "Ice_retry_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\stream", "Ice_stream_", "client.dll", 0, 0, 0, true},
+    {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0, false},
+    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0, true},
+    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0, true},
+    {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0, true},
+    {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0, true}
 };
 
 class TestRunner : public IceUtil::Thread
@@ -320,32 +321,43 @@ public:
     {
         try
         {
-            if(_test.server)
+            if(_config.ssl && !_test.sslSupport)
             {
-                printLineToConsoleOutput("*** running test " + _test.name);
-                runClientServerTest(_test.server, _test.client);        
-                printLineToConsoleOutput("");
+                printLineToConsoleOutput("**** test " + _test.name + " not supported with SSL");   
+            }
+            else if(_config.ssl && _config.ipv6)
+            {
+                printLineToConsoleOutput("**** test " + _test.name + " not supported with IPv6 SSL");
             }
             else
             {
-                assert(_test.client);
-                printLineToConsoleOutput("**** running test " + _test.name);
-                runClientTest(_test.client, false);
-                printLineToConsoleOutput("");
-            }
+                if(_test.server)
+                {
+                    printLineToConsoleOutput("**** running test " + _test.name);
+                    runClientServerTest(_test.server, _test.client);        
+                    printLineToConsoleOutput("");
+                }
+                else
+                {
+                    assert(_test.client);
+                    printLineToConsoleOutput("**** running test " + _test.name);
+                    runClientTest(_test.client, false);
+                    printLineToConsoleOutput("");
+                }
 
-            if(_test.serverAMD)
-            {
-                printLineToConsoleOutput("*** running test with AMD server " + _test.name);
-                runClientServerTest(_test.server, _test.client);
-                printLineToConsoleOutput("");
-            }
+                if(_test.serverAMD)
+                {
+                    printLineToConsoleOutput("*** running test with AMD server " + _test.name);
+                    runClientServerTest(_test.server, _test.client);
+                    printLineToConsoleOutput("");
+                }
 
-            if(_test.collocated)
-            {
-                printLineToConsoleOutput("*** running collocated test " + _test.name);
-                runClientTest(_test.collocated, true);
-                printLineToConsoleOutput("");
+                if(_test.collocated)
+                {
+                    printLineToConsoleOutput("*** running collocated test " + _test.name);
+                    runClientTest(_test.collocated, true);
+                    printLineToConsoleOutput("");
+                }
             }
 
             page->completed();
@@ -515,5 +527,5 @@ MainPage::runSelectedTest()
 
     TestRunnerPtr t = new TestRunner(allTest[TestList->SelectedIndex], config);
     t->start();
-        t->getThreadControl().detach();
+    t->getThreadControl().detach();
 }
