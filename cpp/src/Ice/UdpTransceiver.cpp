@@ -420,7 +420,10 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 {
                     _write.count = 0;
                     _writer = ref new DataWriter(operation->GetResults());
-                    setMcastGroup(_fd, _mcastAddr, "");
+                    if(_mcastAddr.host != nullptr)
+                    {
+                        setMcastGroup(_fd, _mcastAddr, "");
+                    }
                 }
             }
         }
@@ -446,6 +449,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         if(checkIfErrorOrCompleted(SocketOperationWrite, operation))
                         {
                             _write.count = operation->GetResults();
+                            _completedHandler(SocketOperationWrite);
                         }
                         else
                         {

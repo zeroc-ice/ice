@@ -25,7 +25,8 @@ IceInternal::Buffer::Container::Container(size_type maxCapacity) :
     _buf(0),
     _size(0),
     _capacity(0),
-    _maxCapacity(maxCapacity)
+    _maxCapacity(maxCapacity),
+    _shrinkCounter(0)
 {
 }
 
