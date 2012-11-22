@@ -108,7 +108,7 @@ you like.
 Add the "bin" directory of the third-party libraries to your PATH.
 
 Open a command prompt that is configured for your target architecture.
-For example, when using Visual Studio 2008 or Visual Studio 2010, you
+For example, when using Visual Studio 2010 or Visual Studio 2012, you
 have several alternatives:
 
  - Visual Studio Command Prompt

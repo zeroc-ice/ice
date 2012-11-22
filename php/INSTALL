@@ -246,10 +246,10 @@ these libraries are named as follows:
 
 On Windows, these DLLs are required:
 
-  ice@libver@.dll
-  iceutil@libver@.dll
-  slice@libver@.dll
-  bzip2.dll
+  icevc90_@libver@.dll
+  iceutilvc90_@libver@.dll
+  slicevc90_@libver@.dll
+  bzip2_vc90.dll
 
 In general, these libraries must reside in a directory of the user's
 PATH. For Web servers, the libraries may need to reside in a system
