@@ -15,10 +15,10 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux, Solaris, MacOS X, and
-Windows 7/8/Server 2008, but due to the portability of Java, it is
-very likely that it will also work on other platforms for which a
-suitable Java implementation is available.
+Ice for Java has been tested under Linux, Solaris, OS X, and Windows 
+7/8/Server 2008, but due to the portability of Java, it is very likely
+that it will also work on other platforms for which a suitable Java 
+implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
 below). ZeroC provides translator binaries for supported platforms.
@@ -36,7 +36,7 @@ Ice for Java requires J2SE 1.6.0 or later.
 The graphical IceGrid administrative tool requires J2SE 7u6 or later
 with JavaFX support.
 
-You can download Java for Solaris, Windows, and Linux from:
+You can download Java for Solaris, Windows, OS X and Linux from:
 
   http://www.oracle.com/technetwork/java/index.html
 
@@ -84,33 +84,27 @@ Berkeley DB
 
 "Freeze" is an optional Ice component that provides a persistence
 facility for Ice applications. Freeze uses Berkeley DB as its
-underlying database and currently requires Berkeley DB 4.8.30.
+underlying database and currently requires Berkeley DB version 5.1
+or 5.3 (the recommended version is 5.3.21). 
 
-ZeroC provides Berkeley DB binary distributions (with Java support)
-for many platforms:
+ZeroC includes a Berkeley DB binary distribution with Java support
+in the Ice distribution on all platforms except Solaris 11:
 
   http://www.zeroc.com/download_beta.html
 
-Alternatively, you can build Berkeley DB yourself; the Berkeley DB
-source distribution is available at
 
-  http://www.oracle.com/database/berkeley-db/index.html
+The corresponding source distribution and build instructions is 
+available at:
 
-This source distribution is also available at
+  http://www.zeroc.com/download_beta.html#src_third_party
 
-  http://www.zeroc.com/download.html#src_third_party
-
-When you build Berkeley DB, make sure to configure Berkeley DB with
-Java support. For Linux, this is done by specifying the --enable-java
-option when running the configure script. On Windows, you must select
-the project "db_java -- Win32 Release".
 
 In order to run an application that uses Freeze, you must add db.jar
 to your CLASSPATH and verify that the Berkeley DB shared libraries are
 in your java.library.path. On Linux, this can be achieved by adding
 <Berkeley DB home>/lib to your LD_LIBRARY_PATH, for example:
 
-  $ export LD_LIBRARY_PATH=/opt/db48/lib:$LD_LIBRARY_PATH
+  $ export LD_LIBRARY_PATH=/opt/db53/lib:$LD_LIBRARY_PATH
 
 
 bzip2
