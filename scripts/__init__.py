@@ -7,4 +7,4 @@
 #
 # **********************************************************************
 
-__all__ = [ "Expect", "IceGridAdmin", "IceStormUtil", "TestUtil", "subprocess" ]
+__all__ = [ "Expect", "IceGridAdmin", "IceStormUtil", "TestUtil"]
