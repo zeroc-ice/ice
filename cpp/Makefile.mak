@@ -48,7 +48,7 @@ unregister-sdk:
 	@reg DELETE "$(SDK_KEY)" /f || \
 	@echo "Registry Keyword $(SDK_KEY) not exists"
 	
-install:: install-common
+install:: install-common all
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \
 		@echo "Creating %i..." && \
