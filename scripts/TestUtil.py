@@ -1260,7 +1260,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
         print("ok")
-        
+
         if not serverOnly:
             if clientLang == lang:
                 sys.stdout.write("starting %s... " % clientDesc)
@@ -1591,6 +1591,8 @@ def processCmdLine():
     if args:
         usage()
 
+    global serverOnly
+    global winrt
     for o, a in opts:
         if o == "--ice-home":
             global iceHome
