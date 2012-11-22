@@ -34,18 +34,18 @@ create_runpath_symlink	?= no
 
 #
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The
-# default is platform-dependent. This property has no effect in Mac
-# OS X. In Mac OS X use CXXARCHFLAGS bellow to establish the build 
+# default is platform-dependent. This property has no effect on Mac
+# OS X. On Mac OS X use CXXARCHFLAGS bellow to establish the build 
 # architectures.
 #
 #LP64			?= yes
 
 #
-# The build architectures for gcc/llvm based builds. The format of these
-# build flags are OS dependent. For example, under Mac OS X to build
-# binaries which support both i386 and x86_64 you would use "-arch
-# i386 -arch x86_64".  The default is OS version dependent. Be aware
-# that this value may conflict with the setting of LP64 above.
+# The build architectures for gcc/llvm based builds. The format of
+# these build flags are OS dependent. For example, under Mac OS X to
+# build binaries which support both i386 and x86_64 you would use
+# "-arch i386 -arch x86_64".  The default is OS version dependent. Be
+# aware that this value may conflict with the setting of LP64 above.
 #
 #CXXARCHFLAGS		     = -arch i386 -arch x86_64
 
@@ -66,7 +66,6 @@ create_runpath_symlink	?= no
 # licensed Ice under a commercial (non-GPL) license, you should ponder
 # the licensing implications of using readline.
 # 
-
 USE_READLINE		?= no
 
 #
@@ -75,7 +74,6 @@ USE_READLINE		?= no
 # directory.
 #
 #BZIP2_HOME		?= /opt/bzip2
-
 
 #
 # If Berkeley DB is not installed in a standard location where the
@@ -130,10 +128,10 @@ USE_READLINE		?= no
 #GENPIC			?= yes
 
 #
-# If building with MinGW and third party libraries are not
-# installed in the default location and THIRDPARTY_HOME is not set in
-# your environment variables then change the following setting to
-# reflect the installation location.
+# If building with MinGW and third party libraries are not installed
+# in the default location and THIRDPARTY_HOME is not set in your
+# environment variables, change the following setting to reflect the
+# installation location.
 #
 THIRDPARTY_HOME	?= "C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty"
 
