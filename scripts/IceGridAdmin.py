@@ -107,7 +107,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
         driverConfig = TestUtil.DriverConfig("server")
         driverConfig.lang = "cpp"
-        proc = TestUtil.startServer(iceGrid, cmd, driverConfig, count = 4)
+        proc = TestUtil.startServer(iceGrid, cmd, driverConfig, count = 5)
         procs.append(proc)
         print("ok")
 
