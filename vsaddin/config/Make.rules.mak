@@ -84,24 +84,24 @@ SILVERLIGH_ASSEMBLEIS_KEY	= HKLM\Software\Microsoft\Microsoft SDKs\Silverlight\v
 
 !if "$(VS)" == "" && "$(VSSDK110INSTALL)" != ""
 VS = VS2012
-ADDIN_PREFIX = $(ALLUSERSPROFILE)\Microsoft\VisualStudio\11.0\Addins
 !message VS2012 will be used!
 !elseif "$(VS)" == "" && "$(VSSDK100INSTALL)" != ""
 VS = VS2010
-ADDIN_PREFIX = $(ALLUSERSPROFILE)\Microsoft\VisualStudio\10.0\Addins
 !message VS2010 will be used!
 !elseif "$(VS)" == "" && "$(VSSDK90INSTALL)" != ""
 VS = VS2008
-ADDIN_PREFIX = $(ALLUSERSPROFILE)\Microsoft\VisualStudio\9.0\Addins
 !message VS was not set VS2008 will be used!
 !endif
 
 !if "$(VS)" == "VS2012" 
-VSSDK_HOME              = $(VSSDK110INSTALL)
+VSSDK_HOME   		= $(VSSDK110INSTALL)
+ADDIN_PREFIX 		= $(ALLUSERSPROFILE)\Microsoft\VisualStudio\11.0\Addins
 !elseif "$(VS)" == "VS2010" 
-VSSDK_HOME              = $(VSSDK100INSTALL)
+VSSDK_HOME   		= $(VSSDK100INSTALL)
+ADDIN_PREFIX 		= $(ALLUSERSPROFILE)\Microsoft\VisualStudio\10.0\Addins
 !elseif "$(VS)" == "VS2008"
-VSSDK_HOME		= $(VSSDK90INSTALL)
+VSSDK_HOME   		= $(VSSDK90INSTALL)
+ADDIN_PREFIX		= $(ALLUSERSPROFILE)\Microsoft\VisualStudio\9.0\Addins
 !endif
 
 !if "$(VSSDK_HOME)" == ""
