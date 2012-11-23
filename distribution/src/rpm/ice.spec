@@ -136,7 +136,7 @@ The Ice run time for .NET (mono).
 %package java
 Summary: The Ice run time for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db48-java
+Requires: ice = %{version}-%{release}, db53-java
 %description java
 The Ice run time for Java.
 %endif
@@ -148,7 +148,7 @@ The Ice run time for Java.
 %package libs
 Summary: The Ice run time for C++
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db48
+Requires: ice = %{version}-%{release}, db53
 %description libs
 The Ice run time for C++
 

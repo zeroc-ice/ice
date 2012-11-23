@@ -208,8 +208,7 @@ Notes
 Limitations
 -----------
 
-Ruby's lack of support for native threads makes it impractical for
-ZeroC to implement server-side functionality, therefore Ice for Ruby
-can only be used in client applications. If you have a need for this
-feature and wish to sponsor its development, please contact us at
-info@zeroc.com.
+Ruby currently does not implement server-side functionality, therefore
+Ice for Ruby can only be used in client applications. If you have a
+need for this feature and wish to sponsor its development, please
+contact us at info@zeroc.com.

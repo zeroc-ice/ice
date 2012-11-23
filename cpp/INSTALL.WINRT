@@ -126,16 +126,17 @@ After the build completes, you can deploy the application using
 the application from the WinRT Desktop by clicking the "Ice Test
 Suite" icon.
 
-If you want to run the tests with SSL enabled you must use the servers
-from other language mapping as WinRT doesn't support server side SSL.
+If you want to run the tests with SSL enabled, you must use servers
+from another language mapping as WinRT does not support server-side
+SSL.
 
 To run a test with SSL, open a command window and change to the test
 directory. At the command prompt, execute:
 
-    > python run.py --winrt --protocol=ssl
+> python run.py --winrt --protocol=ssl
 
-Then open the "Ice Test Suite" metro style application, check the
-"Enable SSL" checkbox, and click "Run" button.
+Then open the "Ice Test Suite" Metro-style application, check "Enable
+SSL", and click the "Run" button.
 
 
 ======================================================================

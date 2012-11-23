@@ -15,9 +15,9 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux, Solaris, OS X, and Windows 
+Ice for Java has been tested under Linux, Solaris, OS X, and Windows
 7/8/Server 2008, but due to the portability of Java, it is very likely
-that it will also work on other platforms for which a suitable Java 
+that it will also work on other platforms for which a suitable Java
 implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
@@ -85,19 +85,17 @@ Berkeley DB
 "Freeze" is an optional Ice component that provides a persistence
 facility for Ice applications. Freeze uses Berkeley DB as its
 underlying database and currently requires Berkeley DB version 5.1
-or 5.3 (the recommended version is 5.3.21). 
+or 5.3 (the recommended version is 5.3.21).
 
 ZeroC includes a Berkeley DB binary distribution with Java support
 in the Ice distribution on all platforms except Solaris 11:
 
   http://www.zeroc.com/download_beta.html
 
-
-The corresponding source distribution and build instructions is 
+The corresponding source distribution with build instructions is
 available at:
 
   http://www.zeroc.com/download_beta.html#src_third_party
-
 
 In order to run an application that uses Freeze, you must add db.jar
 to your CLASSPATH and verify that the Berkeley DB shared libraries are
