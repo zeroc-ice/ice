@@ -44,7 +44,8 @@ IceGridAdmin.registryOptions += \
                              r' --IceGrid.Registry.AdminSessionFilters' + \
                              r' --IceGrid.Registry.PermissionsVerifier="ClientPermissionsVerifier"' + \
                              r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier:tcp -p 12002"'+ \
-                             r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"'
+                             r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"' + \
+                             r' --IceGrid.Registry.AdminSSLPermissionsVerifier="SSLPermissionsVerifier"'
 
 IceGridAdmin.iceGridTest("application.xml",
     '--IceBinDir="%s" --TestDir="%s"' % (TestUtil.getCppBinDir(), os.getcwd()),
