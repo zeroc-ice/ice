@@ -286,7 +286,8 @@ namespace IceInternal
             //
             int hr = (int)ex.GetType().GetProperty("HResult",
                 System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.NonPublic).GetValue(ex, null);
+                System.Reflection.BindingFlags.NonPublic |
+                System.Reflection.BindingFlags.Public).GetValue(ex, null);
 
             //
             // This value corresponds to the following errors:
