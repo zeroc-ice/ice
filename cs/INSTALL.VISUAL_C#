@@ -230,6 +230,11 @@ and set COMPACT=yes. Run nmake as before:
 The .NET Compact Framework assemblies and binaries are generated into
 the Assemblies\cf and bin\cf directories, respectively.
 
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
+
+  > python allTests.py --compact
+
 To build the demos, you must first install the Ice for Visual Studio
 Add-in. You can install the Ice Visual Studio Add-in using the Windows
 MSI installer; for manual installation instructions, refer to the file
