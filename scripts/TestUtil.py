@@ -673,14 +673,14 @@ sslConfigTree = {
             },
         "java" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory --Ice.Default.Protocol=ssl " +
-            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Password=password",
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Password=password --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.Keystore=client.jks",
             "server" : " --IceSSL.Keystore=server.jks",
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "cs" : {
             "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
-            " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s",
+            " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
             "server" : " --IceSSL.CertFile=s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem",
             "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem --IceSSL.CheckCertName=0"
