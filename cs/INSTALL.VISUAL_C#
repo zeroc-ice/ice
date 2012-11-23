@@ -277,17 +277,16 @@ and demo\demosl.sln to build the tests and demos.
 
   * Running the tests
 
-    Silverlight has no server-side support, you must use a server
-    from another language mapping.
+    Silverlight has no server-side support, you must build the servers
+    from .NET.
 
-    To run a test, open a command window and change to the test
+    > cd Ice-@ver@\cs
+    > nmake /f Makefile.mak SILVERLIGHT=no
+
+    To run the tests, open a command window and change to the top-level
     directory. At the command prompt, execute:
 
-    > server
-
-    Open test\testsl.sln in Visual Studio and start the corresponding
-    test using the "Debug > Start new instance" command. In the test
-    application, click "Run".
+    > python allTests.py --silverlight
 
     If everything worked out, you should see lots of "ok" messages.
     In case of a failure, the tests abort with "failed".
