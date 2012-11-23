@@ -33,12 +33,12 @@ berkeleydb = { \
 }
 
 berkeleydbjar = { \
-    'Linux' : '/usr/share/java/db-4.8.30.jar', \
+    'Linux' : '/usr/share/java/db-5.3.21.jar', \
 }
 
 expat = { \
     'SunOS' : '/usr/sfw', \
-    'Darwin' : '/opt/expat', \
+    'Darwin' : '/usr', \
 }
 
 openssl = { \
@@ -60,21 +60,21 @@ iconv = { \
 }
 
 jgoodies_looks = { \
-    'SunOS' : '/usr/share/java/jgoodies-looks-2.4.1.jar', \
-    'Darwin' : '/opt/jgoodies-looks-2.4.1/jgoodies-looks-2.4.1.jar', \
-    'Linux' : '/opt/jgoodies-looks-2.4.1/jgoodies-looks-2.4.1.jar', \
+    'SunOS' : '/usr/share/java/jgoodies-looks-2.5.2.jar', \
+    'Darwin' : '/opt/jgoodies-looks-2.5.2/jgoodies-looks-2.5.2.jar', \
+    'Linux' : '/opt/jgoodies-looks-2.5.2/jgoodies-looks-2.5.2.jar', \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/usr/share/java/jgoodies-forms-1.4.1.jar', \
-    'Darwin' : '/opt/jgoodies-forms-1.4.1/jgoodies-forms-1.4.1.jar', \
-    'Linux' : '/opt/jgoodies-forms-1.4.1/jgoodies-forms-1.4.1.jar', \
+    'SunOS' : '/usr/share/java/jgoodies-forms-1.6.0.jar', \
+    'Darwin' : '/opt/jgoodies-forms-1.6.0/jgoodies-forms-1.6.0.jar', \
+    'Linux' : '/opt/jgoodies-forms-1.6.0/jgoodies-forms-1.6.0.jar', \
 }
 
 jgoodies_common = { \
-    'SunOS' : '/usr/share/java/jgoodies-common-1.2.0.jar', \
-    'Darwin' : '/opt/jgoodies-common-1.2.0/jgoodies-common-1.2.0.jar', \
-    'Linux' : '/opt/jgoodies-common-1.2.0/jgoodies-common-1.2.0.jar', \
+    'SunOS' : '/usr/share/java/jgoodies-common-1.4.0.jar', \
+    'Darwin' : '/opt/jgoodies-common-1.4.0/jgoodies-common-1.4.0.jar', \
+    'Linux' : '/opt/jgoodies-common-1.4.0/jgoodies-common-1.4.0.jar', \
 }
 
 proguard = { \
