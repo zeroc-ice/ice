@@ -129,7 +129,7 @@ Console") uses JGoodies Common, JGoodies Forms, and JGoodies Looks.
 
 The libraries are available here:
 
-  http://www.jgoodies.com/downloads/libraries.html
+  http://www.jgoodies.com/downloads/libraries/
 
 The IceGrid administrative tool has been tested with the following
 versions:
