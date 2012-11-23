@@ -175,8 +175,8 @@ result:
   > gacutil /i <library.dll>
 
 The gacutil tool is included with your Visual C# installation. For
-example, if you have installed Visual C# 10.0 in C:\Program Files, the
-path to gacutil is
+example, if you have installed Visual Studio 2010 in C:\Program Files,
+the path to gacutil is
 
   C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\gacutil.exe
 
@@ -303,13 +303,3 @@ UNITY=yes. Run nmake as before:
  > nmake /f Makefile.mak
 
 
-Binary compatibility of patch releases
---------------------------------------
-
-Ice patch releases are binary compatible. For example, Ice version
-@mmver@.1 is compatible with @mmver@.0: you can run an application built
-against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
-recompile or relink this application.
-
-Please refer to the Ice @ver@ Release Notes for detailed upgrade
-instructions.

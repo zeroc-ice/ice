@@ -156,13 +156,3 @@ Finally, you could also copy the necessary libraries into the
 directory that contains the .exe for your application.
 
 
-Binary compatibility
---------------------
-
-Ice patch releases are binary compatible. For example, Ice version 
-@mmver@.1 is compatible with @mmver@.0: you can run an application built
-against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
-recompile or relink this application.
-
-Please refer to the Ice @ver@ Release Notes for detailed upgrade 
-instructions.

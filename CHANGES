@@ -145,6 +145,12 @@ General Changes
 C++ Changes
 ===========
 
+- Added support for WinRT.
+
+- Added new AMI mapping with support for C++11 lambda functions. This
+  mapping is only available on platforms supporting the new C++11
+  features.
+
 - Fixed a Windows bug where a connection failure would be reported
   with Ice::SocketException instead of Ice:ConnectFailedException.
 

@@ -8,11 +8,11 @@ libbz2 must be installed and in your %PATH% or $LD_LIBRARY_PATH. If
 libbz2 cannot be found at run time, Ice automatically disables
 protocol compression. You can download bzip2 at
 
-    http://sources.redhat.com/bzip2
+    http://www.bzip.org
 
 Supported environments:
 
-- Visual C#, .NET 2.0 and 3.5 (Windows)
+- Visual C# (Windows)
 - Mono (Linux)
 
 See INSTALL.VISUAL_C# or INSTALL.MONO for installation information.

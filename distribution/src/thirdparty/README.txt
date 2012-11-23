@@ -30,10 +30,10 @@ link below:
 For more information about the third-party dependencies, please refer
 to the links below:
 
-Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+Berkeley DB    http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
-bzip2          http://sources.redhat.com/bzip2
+bzip2          http://www.bzip.org
 mcpp           http://mcpp.sourceforge.net
 
 

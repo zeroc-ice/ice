@@ -34,7 +34,7 @@ Ice has dependencies on a number of third-party libraries:
 
 - Berkeley DB 5.3
 - expat 2.0
-- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
+- OpenSSL 0.9.8 or later
 - bzip2 1.0
 - mcpp 2.7.2 (with patches)
 
@@ -55,10 +55,10 @@ AMZN and SLES 11.
 For more information about these dependencies, please refer to
 the links below:
 
-Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+Berkeley DB    http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
-bzip2          http://sources.redhat.com/bzip2
+bzip2          http://www.bzip.org
 mcpp           http://mcpp.sourceforge.net
 
 
@@ -141,12 +141,17 @@ Simply run "make install". This will install Ice in the directory
 specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
-your PATH, and the <prefix>/lib directory is in your LD_LIBRARY_PATH.
-If you built Berkeley DB yourself, please ensure that its installation
-lib directory is also in your LD_LIBRARY_PATH. When compiling Ice
-programs, you must pass the location of the <prefix>/include directory
-to the compiler with the -I option, and the location of the
-<prefix>/lib directory with the -L option.  
+your PATH.
+
+If you choose to not embed a runpath into executables at build time
+(see your build settings in cpp/config/Make.rules) or didn't create a
+symbolic link from the runpath directory to the installation
+directory, you also need to add the <prefix>/lib directory to your
+LD_LIBRARY_PATH.
+
+When compiling Ice programs, you must pass the location of the
+<prefix>/include directory to the compiler with the -I option, and the
+location of the <prefix>/lib directory with the -L option.
 
 On a x86_64 system, the libraries are installed in <prefix>/lib64
 unless LP64 is set to no. No other changes are necessary.

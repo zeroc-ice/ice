@@ -55,7 +55,7 @@ Ice has dependencies on a number of third-party libraries:
 
 - Berkeley DB 5.3
 - expat 2.0
-- OpenSSL 0.9.7 or later (OpenSSL 1.0 or later recommended)
+- OpenSSL 0.9.8 or later (OpenSSL 1.0 or later recommended)
 - bzip2 1.0
 - mcpp 2.7.2 (with patches)
 
@@ -75,10 +75,10 @@ configuration instructions.
 For more information about these dependencies, please refer to
 the links below:
 
-Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+Berkeley DB    http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
-bzip2          http://sources.redhat.com/bzip2
+bzip2          http://www.bzip.org
 mcpp           http://mcpp.sourceforge.net
 
 

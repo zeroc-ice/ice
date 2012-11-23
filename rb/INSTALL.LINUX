@@ -191,11 +191,10 @@ Notes
 Limitations
 -----------
 
-Ruby's lack of support for native threads makes it impractical for
-ZeroC to implement server-side functionality, therefore Ice for Ruby
-can only be used in client applications. If you have a need for this
-feature and wish to sponsor its development, please contact us at
-info@zeroc.com.
+Ruby currently doesn't implement server-side functionality, therefore
+Ice for Ruby can only be used in client applications. If you have a
+need for this feature and wish to sponsor its development, please
+contact us at info@zeroc.com.
 
 
 SELinux Issue on Red Hat Enterprise Linux
@@ -223,4 +222,4 @@ There are two ways to solve this problem:
 For more information on SELinux in Red Hat Enterprise Linux, refer to
 the link below:
 
-  http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/5/html/Deployment_Guide/selg-overview.html
+  https://access.redhat.com/knowledge/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/index.html

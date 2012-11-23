@@ -2,9 +2,9 @@
 Introduction
 ======================================================================
 
-This file describes the Ice source distribution for WinRT, including
-information about compiler requirements and instructions for building
-and testing the distribution.
+This file describes the Ice source distribution, including information
+about compiler requirements and instructions for building and testing
+the distribution.
 
 For information about Ice for Windows see INSTALL.WINDOWS in this
 directory.
