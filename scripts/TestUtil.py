@@ -895,7 +895,7 @@ def getCommandLine(exe, config, options = ""):
     elif config.lang == "rb" and config.type == "client":
         output.write("ruby '" + exe + "' ")
     elif config.silverlight and config.lang == "cs" and config.type == "client":
-        xap = "%s.xap" % os.path.basename(os.getcwd())
+        xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
         if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":	
             output.write('"%s (x86)\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
         else:
