@@ -7,7 +7,7 @@
     <!--
     http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
     -->
-	<uses-sdk android:minSdkVersion="8" 
+	<uses-sdk android:minSdkVersion="7" 
               android:targetSdkVersion="17"/>
     <application android:icon="@raw/icon" android:label="@string/app_name" android:name="TestApp"
         		 android:allowBackup="false">
