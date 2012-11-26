@@ -28,7 +28,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
               r' --IceGrid.Node.ThreadPool.SizeWarn=0' + \
-              r' --IceGrid.Node.PrintServersReady=node' + \
+              r' --IceGrid.Node.PrintServersReady=node1' + \
               r' --Ice.NullHandleAbort' + \
               r' --Ice.ThreadPool.Server.Size=0' + \
               r' --Ice.ServerIdleTime=0'
@@ -179,7 +179,7 @@ def startIceGridNode(testdir):
 
     driverConfig = TestUtil.DriverConfig("server")
     driverConfig.lang = "cpp"
-    proc = TestUtil.startServer(iceGrid, command, driverConfig, adapter='node')
+    proc = TestUtil.startServer(iceGrid, command, driverConfig, adapter='node1')
         
     print("ok")
 
