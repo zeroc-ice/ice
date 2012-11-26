@@ -65,9 +65,18 @@ class Instance
                 {
                     l.add("SSLv3");
                 }
-                else if(s.equals("tls") || s.equals("tls1") || s.equals("tlsv1"))
+                else if(s.equals("tls") || s.equals("tls1") || s.equals("tlsv1") || s.equals("tls1_0") ||
+                        s.equals("tlsv1_0"))
                 {
                     l.add("TLSv1");
+                }
+                else if(s.equals("tls1_1") || s.equals("tlsv1_1"))
+                {
+                    l.add("TLSv1.1");
+                }
+                else if(s.equals("tls1_2") || s.equals("tlsv1_2"))
+                {
+                    l.add("TLSv1.2");
                 }
                 else
                 {

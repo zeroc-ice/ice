@@ -65,7 +65,12 @@ public:
 
 private:
 
-    void parseProtocols(const Ice::StringSeq&);
+    enum Protocols { SSLv3 = 0x01, TLSv1_0 = 0x02, TLSv1_1 = 0x04, TLSv1_2 = 0x08 };
+    static int parseProtocols(const Ice::StringSeq&);
+
+    static SSL_METHOD* getMethod(int);
+
+    void setOptions(int);
 
     Ice::LoggerPtr _logger;
     bool _initOpenSSL;

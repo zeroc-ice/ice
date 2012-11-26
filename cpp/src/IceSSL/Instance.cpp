@@ -375,11 +375,16 @@ IceSSL::Instance::initialize()
         _verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
 
         //
+        // Protocols selects which protocols to enable.
+        //
+        const int protocols = parseProtocols(properties->getPropertyAsList(propPrefix + "Protocols"));
+
+        //
         // Create an SSL context if the application hasn't supplied one.
         //
         if(!_ctx)
         {
-            _ctx = SSL_CTX_new(SSLv23_method());
+            _ctx = SSL_CTX_new(getMethod(protocols));
             if(!_ctx)
             {
                 PluginInitializationException ex(__FILE__, __LINE__);
@@ -684,10 +689,9 @@ IceSSL::Instance::initialize()
         //
         // Select protocols.
         //
-        StringSeq protocols = properties->getPropertyAsList(propPrefix + "Protocols");
-        if(!protocols.empty())
+        if(protocols != 0)
         {
-            parseProtocols(protocols);
+            setOptions(protocols);
         }
 
         //
@@ -1119,21 +1123,30 @@ IceSSL::Instance::traceConnection(SSL* ssl, bool incoming)
     out << IceInternal::fdToString(SSL_get_fd(ssl));
 }
 
-void
+int
 IceSSL::Instance::parseProtocols(const StringSeq& protocols)
 {
-    bool sslv3 = false, tlsv1 = false;
+    int v = 0;
+
     for(Ice::StringSeq::const_iterator p = protocols.begin(); p != protocols.end(); ++p)
     {
         string prot = *p;
 
         if(prot == "ssl3" || prot == "sslv3")
         {
-            sslv3 = true;
+            v |= SSLv3;
         }
-        else if(prot == "tls" || prot == "tls1" || prot == "tlsv1")
+        else if(prot == "tls" || prot == "tls1" || prot == "tlsv1" || prot == "tls1_0" || prot == "tlsv1_0")
         {
-            tlsv1 = true;
+            v |= TLSv1_0;
+        }
+        else if(prot == "tls1_1" || prot == "tlsv1_1")
+        {
+            v |= TLSv1_1;
+        }
+        else if(prot == "tls1_2" || prot == "tlsv1_2")
+        {
+            v |= TLSv1_2;
         }
         else
         {
@@ -1143,14 +1156,60 @@ IceSSL::Instance::parseProtocols(const StringSeq& protocols)
         }
     }
 
+    return v;
+}
+
+SSL_METHOD*
+IceSSL::Instance::getMethod(int protocols)
+{
+    //
+    // Despite its name, the SSLv23 method can negotiate SSL3, TLS1.0, TLS1.1, and TLS1.2.
+    // We use the const_cast for backward compatibility with older OpenSSL releases.
+    //
+    SSL_METHOD* meth = const_cast<SSL_METHOD*>(SSLv23_method());
+
+    /*
+     * Early versions of OpenSSL 1.0.1 would not negotiate a TLS1.2 connection using
+     * the SSLv23 method. You can enable the code below to override the method.
+    if(protocols & TLSv1_2)
+    {
+        meth = const_cast<SSL_METHOD*>(TLSv1_2_method());
+    }
+    */
+
+    return meth;
+}
+
+void
+IceSSL::Instance::setOptions(int protocols)
+{
     long opts = SSL_OP_NO_SSLv2; // SSLv2 is not supported.
-    if(!sslv3)
+    if(!(protocols & SSLv3))
     {
         opts |= SSL_OP_NO_SSLv3;
     }
-    if(!tlsv1)
+    if(!(protocols & TLSv1_0))
     {
         opts |= SSL_OP_NO_TLSv1;
     }
+#ifdef SSL_OP_NO_TLSv1_1
+    if(!(protocols & TLSv1_1))
+    {
+        opts |= SSL_OP_NO_TLSv1_1;
+        //
+        // The value of SSL_OP_NO_TLSv1_1 changed between 1.0.1a and 1.0.1b.
+        //
+        if(SSL_OP_NO_TLSv1_1 == 0x00000400L)
+        {
+            opts |= 0x10000000L; // New value of SSL_OP_NO_TLSv1_1.
+        }
+    }
+#endif
+#ifdef SSL_OP_NO_TLSv1_2
+    if(!(protocols & TLSv1_2))
+    {
+        opts |= SSL_OP_NO_TLSv1_2;
+    }
+#endif
     SSL_CTX_set_options(_ctx, opts);
 }
