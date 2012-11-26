@@ -27,6 +27,8 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Added support for TLS 1.1 and TLS 1.2 in IceSSL for C++ and Java.
+
 - IceGrid now supports a new proxy-options attribute on the <adapter>
   <replica-group>, <object> and <allocatable> XML descriptor
   elements. This attribute allows to specify the proxy options to use
