@@ -155,10 +155,8 @@ Ice for Java has been tested with ProGuard 4.8.
 Android
 -------
 
-The Ice run time (lib/Ice.jar) is fully compatible with Android 2.1 or
-later. The IceSSL plug-in included in (lib/Ice.jar) requires Android
-2.2 or later (see the release notes for more information on SSL in
-Android).
+The Ice run time (lib/Ice.jar) is fully compatible with Android 2.3 or
+later.
 
 Refer to the sections "Eclipse Development" and "Using Ice in Android"
 below for additional details.
@@ -292,7 +290,7 @@ The Ice manual provides usage instructions for the plug-in:
 Using Ice in Android
 ======================================================================
 
-Ice requires Android 2.1 or later. Aside from that, there are no other
+Ice requires Android 2.3 or later. Aside from that, there are no other
 special requirements for using Ice in an Android application. We
 strongly recommend installing our Slice2Java plug-in for Eclipse to
 automate the compilation of your Slice definitions.
