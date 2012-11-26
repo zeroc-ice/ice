@@ -267,7 +267,7 @@ def run(tests, root = False):
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
           --silverlight           Ice for .NET uses Silverlight.
-          --winrt                 Run server with configuration suite for Metro Style apps.
+          --winrt                 Run server with configuration suited for WinRT client.
           --server                Run only the server.
           --mx                    Enable IceMX when running the tests.
         """)
@@ -1573,7 +1573,7 @@ def processCmdLine():
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
           --silverlight           Ice for .NET uses Silverlight.
-          --winrt                 Run server with configuration suite for Metro Style apps.
+          --winrt                 Run server with configuration suited for WinRT client.
           --server                Run only the server.
           --mx                    Enable IceMX when running the tests.
         """)

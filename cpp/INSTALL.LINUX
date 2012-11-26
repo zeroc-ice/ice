@@ -20,8 +20,8 @@ only on:
 C++ compiler
 ------------
 
-Ice is expected to build properly with GCC 3.3 or later. However, only
-the following compilers are officially supported:
+Ice is expected to build properly with recent GCC versions. However,
+only the following compilers are officially supported:
 
  - GCC 4.4.4 on RHEL 6 and AMZN
  - GCC 4.3.2 on SLES 11

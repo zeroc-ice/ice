@@ -5,11 +5,15 @@ Ice for .NET has been built and tested with:
 
 - Microsoft Visual Studio 2010 SP1 and .NET Framework Version 4.0
 
-- Microsoft Visual Studio 2010 SP1 and .NET Silverlight 5.0
-
 - Microsoft Visual Studio 2012 and .NET Framework Version 4.5
 
+Ice for .NET Compact Framework has been built and tested with:
+
 - Microsoft Visual Studio 2008 SP1 and .NET Compact Framework Version 3.5 SP1
+
+Ice for Silverlight has been built and tested with:
+
+- Microsoft Visual Studio 2010 SP1 and .NET Silverlight 5.0
 
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
@@ -218,6 +222,9 @@ if it detects a bzip2.dll format mismatch during start-up.)
 .NET Compact Framework
 ----------------------
 
+Ice for .NET Compact Framework requires Microsoft Visual Studio 2008
+SP1 and the .NET Compact Framework Version 3.5 SP1.
+
 The default configuration in config\Make.rules.mak.cs produces Ice
 assemblies for use with .NET. If you wish to use Ice with the .NET
 Compact Framework, you must re-build the sources.
@@ -246,6 +253,17 @@ build the demos.
 
 Silverlight
 -----------
+
+Ice for Silverlight requires Microsoft Visual Studio 2010 SP1 and .NET
+Silverlight 5.0.
+
+The Microsoft Silverlight 5.0 SDK is available for download from:
+
+  http://www.microsoft.com/download/en/details.aspx?id=28359
+
+The Microsoft Silverlight 5 Tools are available for download from:
+
+  http://www.microsoft.com/download/en/details.aspx?id=28358
 
 The default configuration in config\Make.rules.mak.cs produces Ice
 assemblies for use with .NET. If you wish to use Ice with Silverlight,

@@ -135,7 +135,7 @@ directory. At the command prompt, execute:
 
 > python run.py --winrt --protocol=ssl
 
-Then open the "Ice Test Suite" Metro-style application, check "Enable
+Then open the "Ice Test Suite" Windows Store application, check "Enable
 SSL", and click the "Run" button.
 
 
