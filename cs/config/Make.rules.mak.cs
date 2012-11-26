@@ -151,7 +151,7 @@ refdir    = $(refdir )\cf
 
 !endif
 
-!if "$(VERSION_PATCH)" != "0" && "$(VERSION_PATCH)" != "51"
+!if "$(PATCH_VERSION)" != "0" && "$(PATCH_VERSION)" != "51"
 generate_policies   = yes
 !endif
 
