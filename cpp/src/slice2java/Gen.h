@@ -32,11 +32,11 @@ protected:
     //
     // Compose the parameter lists for an operation.
     //
-    std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool = false);
-    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool = false);
-    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool);
-    std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool);
-    std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&, bool);
+    std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool, bool);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool);
+    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool, bool);
+    std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool, bool);
+    std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&, bool, bool);
 
     //
     // Compose the argument lists for an operation.
@@ -224,6 +224,8 @@ private:
 
     private:
 
+        void writeOperation(const ClassDefPtr&, const std::string&, const OperationPtr&, bool);
+
         bool _stream;
     };
 
@@ -254,6 +256,10 @@ private:
         DelegateMVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+
+        void writeOperation(const ClassDefPtr&, const std::string&, const OperationPtr&, bool);
     };
 
     class DelegateDVisitor : public JavaVisitor
@@ -263,6 +269,10 @@ private:
         DelegateDVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+
+        void writeOperation(const ClassDefPtr&, const std::string&, const OperationPtr&, bool);
     };
 
     class DispatcherVisitor : public JavaVisitor

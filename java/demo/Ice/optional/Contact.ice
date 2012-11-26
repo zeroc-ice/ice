@@ -29,8 +29,8 @@ class Contact
 
 interface ContactDB
 {
-    ["java:optional"] void addContact(string name, optional(1) NumberType type, optional(2) string number, optional(3) int dialGroup);
-    ["java:optional"] void updateContact(string name, optional(1) NumberType type, optional(2) string number, optional(3) int dialGroup);
+    void addContact(string name, optional(1) NumberType type, optional(2) string number, optional(3) int dialGroup);
+    void updateContact(string name, optional(1) NumberType type, optional(2) string number, optional(3) int dialGroup);
 
     Contact query(string name);
     ["java:optional"] optional(1) string queryNumber(string name);

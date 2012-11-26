@@ -604,6 +604,7 @@ public:
     bool sendsClasses(bool) const;
     bool returnsClasses(bool) const;
     bool returnsData() const;
+    bool sendsOptionals() const;
     int attributes() const;
     FormatType format() const;
     virtual std::string kindOf() const;

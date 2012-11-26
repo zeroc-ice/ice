@@ -15,79 +15,79 @@ public class ContactDBI extends _ContactDBDisp
 
     public final void
     addContact(String name, Ice.Optional<NumberType> type, Ice.Optional<String> number, Ice.IntOptional dialGroup,
-    	Ice.Current current)
+               Ice.Current current)
     {
-	Contact contact = new Contact();
-	contact.name = name;
-	if(type.isSet())
-	{
-	    contact.setType(type.get());
-	}
-	if(number.isSet())
-	{
-	    contact.setNumber(number.get());
-	}
-	if(dialGroup.isSet())
-	{
-	    contact.setDialGroup(dialGroup.get());
-	}
-	_contacts.put(name, contact);
+        Contact contact = new Contact();
+        contact.name = name;
+        if(type.isSet())
+        {
+            contact.setType(type.get());
+        }
+        if(number.isSet())
+        {
+            contact.setNumber(number.get());
+        }
+        if(dialGroup.isSet())
+        {
+            contact.setDialGroup(dialGroup.get());
+        }
+        _contacts.put(name, contact);
     }
 
     public final void
     updateContact(String name, Ice.Optional<NumberType> type, Ice.Optional<String> number, Ice.IntOptional dialGroup,
-    	Ice.Current current)
+                  Ice.Current current)
     {
-	Contact c = _contacts.get(name);
-	if(c != null)
-	{
-	    if(type.isSet())
-	    {
-	    	c.setType(type.get());
-	    }
-	    if(number.isSet())
-	    {
-		c.setNumber(number.get());
-	    }
-	    if(dialGroup.isSet())
-	    {
-		c.setDialGroup(dialGroup.get());
-	    }
-	}
+        Contact c = _contacts.get(name);
+        if(c != null)
+        {
+            if(type.isSet())
+            {
+                c.setType(type.get());
+            }
+            if(number.isSet())
+            {
+                c.setNumber(number.get());
+            }
+            if(dialGroup.isSet())
+            {
+                c.setDialGroup(dialGroup.get());
+            }
+        }
     }
 
     public final Contact
     query(String name, Ice.Current current)
     {
-    	return _contacts.get(name);
+        return _contacts.get(name);
     }
 
     public final void
     queryDialgroup(String name, Ice.IntOptional dialGroup, Ice.Current current)
     {
-	Contact c = _contacts.get(name);
-	if(c != null && c.hasDialGroup())
-	{
-	    dialGroup.set(c.getDialGroup());
-	}
+        Contact c = _contacts.get(name);
+        if(c != null)
+        {
+            dialGroup.set(c.optionalDialGroup());
+        }
     }
 
     public final Ice.Optional<String>
     queryNumber(String name, Ice.Current current)
-    { 
-	Ice.Optional<String> ret = new Ice.Optional<String>();
-	Contact c = _contacts.get(name);
-	if(c != null && c.hasNumber())
-	{
-	    ret.set(c.getNumber());
-	}
-	return ret;
+    {
+        Ice.Optional<String> ret = null;
+        Contact c = _contacts.get(name);
+        if(c != null)
+        {
+            ret = c.optionalNumber();
+        }
+        return ret;
     }
 
     public void
     shutdown(Ice.Current current)
     {
-	System.out.println("Shutting down...");
-	current.adapter.getCommunicator().shutdown();
+        System.out.println("Shutting down...");
+        current.adapter.getCommunicator().shutdown();
     }
 }

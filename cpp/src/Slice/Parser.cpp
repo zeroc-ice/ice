@@ -5186,6 +5186,20 @@ Slice::Operation::returnsData() const
     return false;
 }
 
+bool
+Slice::Operation::sendsOptionals() const
+{
+    ParamDeclList pdl = parameters();
+    for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    {
+        if(!(*i)->isOutParam() && (*i)->optional())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int
 Slice::Operation::attributes() const
 {

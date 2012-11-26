@@ -169,15 +169,12 @@ class Initial
 
     Object pingPong(Object o);
 
-    ["java:optional"]
     void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
 
-    ["java:optional"]
     void opDerivedException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
 
-    ["java:optional"]
     void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
 
@@ -283,7 +280,6 @@ class Initial
 
     void opClassAndUnknownOptional(A p);
 
-    ["java:optional"]
     void sendOptionalClass(bool req, optional(1) OneOptional o);
 
     ["java:optional"]
