@@ -514,7 +514,17 @@ MetricsAdminI::getMetricsViewNames(Ice::StringSeq& disabledViews, const Current&
     {
         enabledViews.push_back(p->first);
     }
+
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+    for(set<string>::const_iterator p = _disabledViews.begin(); p != _disabledViews.end(); ++p)
+    {
+        disabledViews.push_back(*p);
+    }
+
+#else
     disabledViews.insert(disabledViews.end(), _disabledViews.begin(), _disabledViews.end());
+#endif    
+
     return enabledViews;
 }
 
