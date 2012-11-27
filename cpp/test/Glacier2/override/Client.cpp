@@ -132,7 +132,7 @@ CallbackClient::run(int argc, char* argv[])
             oneway->initiateCallbackWithPayload(onewayR, ctx);
             oneway->initiateCallbackWithPayload(onewayR, ctx);
             oneway->initiateCallback(twowayR, 0);
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200 + nRetry * 200));
             callbackReceiverImpl->activate();
             test(callbackReceiverImpl->callbackOK(1, 0) == 0);
             count = callbackReceiverImpl->callbackWithPayloadOK(0);
