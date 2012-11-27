@@ -2047,7 +2047,12 @@ public class SessionKeeper
                                 {
                                     inf.setPassword(_directPassword.getPassword());
                                     inf.setStorePassword(true);
-                                }                               
+                                }
+                                else
+                                {
+                                    inf.setPassword(null);
+                                    inf.setStorePassword(false);
+                                }                  
                             }
 
                             if(_x509CertificateYesButton.isSelected())
@@ -2057,6 +2062,11 @@ public class SessionKeeper
                                 {
                                     inf.setKeyPassword(_directCertificatePassword.getPassword());
                                     inf.setStoreKeyPassword(true);
+                                }
+                                else
+                                {
+                                    inf.setKeyPassword(null);
+                                    inf.setStoreKeyPassword(false);
                                 }
                             }
 
@@ -2133,7 +2143,12 @@ public class SessionKeeper
                                 {
                                     inf.setPassword(_routedPassword.getPassword());
                                     inf.setStorePassword(true);
-                                }                               
+                                }
+                                else
+                                {
+                                    inf.setPassword(null);
+                                    inf.setStorePassword(false);
+                                }                            
                             }
 
                             if(_x509CertificateYesButton.isSelected())
@@ -2143,6 +2158,11 @@ public class SessionKeeper
                                 {
                                     inf.setKeyPassword(_routedCertificatePassword.getPassword());
                                     inf.setStoreKeyPassword(true);
+                                }
+                                else
+                                {
+                                    inf.setKeyPassword(null);
+                                    inf.setStoreKeyPassword(false);
                                 }
                             }
 
