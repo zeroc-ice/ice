@@ -1846,6 +1846,19 @@ public class SessionKeeper
                                     _cardLayout.show(_cardPanel, WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
+                                if(_conf == null)
+                                {
+                                    if(_directDefaultEndpointSSL.isSelected())
+                                    {
+                                        _x509CertificateYesButton.setSelected(true);
+                                        _certificateAuthButton.setSelected(true);
+                                    }
+                                    else
+                                    {
+                                        _x509CertificateNoButton.setSelected(true);
+                                        _usernamePasswordAuthButton.setSelected(true);
+                                    }
+                                }
                                 break;
                             }
                             case RoutedDefaultEndpointStep:
@@ -1859,6 +1872,19 @@ public class SessionKeeper
                                 {
                                     _cardLayout.show(_cardPanel, WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
+                                }
+                                if(_conf == null)
+                                {
+                                    if(_routedDefaultEndpointSSL.isSelected())
+                                    {
+                                        _x509CertificateYesButton.setSelected(true);
+                                        _certificateAuthButton.setSelected(true);
+                                    }
+                                    else
+                                    {
+                                        _x509CertificateNoButton.setSelected(true);
+                                        _usernamePasswordAuthButton.setSelected(true);
+                                    }
                                 }
                                 break;
                             }
@@ -1902,6 +1928,19 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
+                                if(_conf == null)
+                                {
+                                    if(hasSecureEndpoints(_directCustomEndpointValue.getText()))
+                                    {
+                                        _x509CertificateYesButton.setSelected(true);
+                                        _certificateAuthButton.setSelected(true);
+                                    }
+                                    else
+                                    {
+                                        _x509CertificateNoButton.setSelected(true);
+                                        _usernamePasswordAuthButton.setSelected(true);
+                                    }
+                                }
                                 break;
                             }
                             case RoutedCustomEnpointStep:
@@ -1943,6 +1982,19 @@ public class SessionKeeper
                                         "Error parsing endpoint",
                                         JOptionPane.ERROR_MESSAGE);
                                     return;
+                                }
+                                if(_conf == null)
+                                {
+                                    if(hasSecureEndpoints(_routedCustomEndpointValue.getText()))
+                                    {
+                                        _x509CertificateYesButton.setSelected(true);
+                                        _certificateAuthButton.setSelected(true);
+                                    }
+                                    else
+                                    {
+                                        _x509CertificateNoButton.setSelected(true);
+                                        _usernamePasswordAuthButton.setSelected(true);
+                                    }
                                 }
                                 break;
                             }
@@ -2471,39 +2523,12 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                         }
                     }
-
-                    if(_conf == null && validated)
-                    {
-                        if(_directDefaultEndpointSSL.isSelected())
-                        {
-                            _x509CertificateYesButton.setSelected(true);
-                            _certificateAuthButton.setSelected(true);
-                        }
-                        else
-                        {
-                            _x509CertificateNoButton.setSelected(true);
-                            _usernamePasswordAuthButton.setSelected(true);
-                        }
-                    }
                     break;
                 }
                 case DirectCustomEnpointStep:
                 {
                     validated = _directCustomEndpointValue.getText() != null && 
                                 _directCustomEndpointValue.getText().length() > 0;
-                    if(_conf == null && validated)
-                    {
-                        if(hasSecureEndpoints(_directCustomEndpointValue.getText()))
-                        {
-                            _x509CertificateYesButton.setSelected(true);
-                            _certificateAuthButton.setSelected(true);
-                        }
-                        else
-                        {
-                            _x509CertificateNoButton.setSelected(true);
-                            _usernamePasswordAuthButton.setSelected(true);
-                        }
-                    }
                     break;
                 }
                 case RoutedInstanceStep:
@@ -2532,38 +2557,12 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    if(_conf == null && validated)
-                    {
-                        if(_routedDefaultEndpointSSL.isSelected())
-                        {
-                            _x509CertificateYesButton.setSelected(true);
-                            _certificateAuthButton.setSelected(true);
-                        }
-                        else
-                        {
-                            _x509CertificateNoButton.setSelected(true);
-                            _usernamePasswordAuthButton.setSelected(true);
-                        }
-                    }
                     break;
                 }
                 case RoutedCustomEnpointStep:
                 {
                     validated = _routedCustomEndpointValue.getText() != null && 
                                 _routedCustomEndpointValue.getText().length() > 0;
-                    if(_conf == null && validated)
-                    {
-                        if(hasSecureEndpoints(_routedCustomEndpointValue.getText()))
-                        {
-                            _x509CertificateYesButton.setSelected(true);
-                            _certificateAuthButton.setSelected(true);
-                        }
-                        else
-                        {
-                            _x509CertificateNoButton.setSelected(true);
-                            _usernamePasswordAuthButton.setSelected(true);
-                        }
-                    }
                     break;
                 }
                 case DirectX509CredentialsStep:
