@@ -36,12 +36,10 @@ berkeleydbjar = { \
 }
 
 expat = { \
-    'Darwin' : '/usr', \
 }
 
 iconv = {\
 }
-
 
 mcpp = { 
     'SunOS' : '/opt/mcpp', \
