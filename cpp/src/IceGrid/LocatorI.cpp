@@ -688,7 +688,9 @@ private:
             {
                 try
                 {
-                    _locator->findAdapterById_async(_amdCB, _id, Ice::Current()); 
+                    Ice::Current current;
+                    current.encoding = _encoding;
+                    _locator->findAdapterById_async(_amdCB, _id, current); 
                 }
                 catch(const Ice::Exception& ex)
                 {
@@ -753,7 +755,8 @@ public:
                 
     FindAdapterByIdCallback(const LocatorIPtr& locator, 
                             const Ice::AMD_Locator_findAdapterByIdPtr& cb, 
-                            const string& id) : _locator(locator), _cb(cb), _id(id)
+                            const string& id,
+                            const Ice::Current& current) : _locator(locator), _cb(cb), _id(id), _current(current)
     {
     }
 
@@ -762,7 +765,7 @@ public:
     {
         try
         {
-            _locator->findAdapterById_async(_cb, _id, Ice::Current());
+            _locator->findAdapterById_async(_cb, _id, _current);
         }
         catch(const Ice::Exception& ex)
         {
@@ -797,6 +800,7 @@ private:
     const LocatorIPtr _locator;
     const Ice::AMD_Locator_findAdapterByIdPtr _cb;
     const string _id;
+    const Ice::Current _current;
 };
 
 };
@@ -864,7 +868,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
             }
             catch(const SynchronizationException&)
             {
-                if(_database->addAdapterSyncCallback(id, new FindAdapterByIdCallback(self, cb, id)))
+                if(_database->addAdapterSyncCallback(id, new FindAdapterByIdCallback(self, cb, id, current)))
                 {
                     return;
                 }
