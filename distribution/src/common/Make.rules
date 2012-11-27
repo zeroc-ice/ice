@@ -102,6 +102,7 @@ SLICE2CPP	= $(ice_dir)/$(binsubdir)/slice2cpp
 SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
 
 EVERYTHING		= all clean
+EVERYTHING_EXCEPT_ALL   = clean
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
