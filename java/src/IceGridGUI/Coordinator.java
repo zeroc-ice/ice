@@ -2862,7 +2862,7 @@ public class Coordinator
         _discardUpdates.setEnabled(false);
         _discardUpdates.putValue(Action.SHORT_DESCRIPTION, "Discard updates and reload application");
 
-        _certificateManager = new AbstractAction("Certificate Manager")
+        _certificateManager = new AbstractAction("Certificate Manager...")
             {
                 public void actionPerformed(ActionEvent e)
                 {
