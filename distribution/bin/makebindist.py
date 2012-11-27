@@ -183,7 +183,10 @@ for l in buildLanguages:
     if l != "java":
 
         makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
-        buildCmd = "gmake -C src " + makeOptions
+        if l != "py":
+            buildCmd = "gmake -C src " + makeOptions
+        else:
+            buildCmd = "gmake -C modules " + makeOptions
         installCmd = "gmake " + makeOptions + " install"
 
         print "Building with " + buildCmd
