@@ -36,9 +36,13 @@ Ice for Java requires J2SE 1.6.0 or later.
 The graphical IceGrid administrative tool requires J2SE 7u6 or later
 with JavaFX support.
 
+
 You can download Java for Solaris, Windows, OS X and Linux from:
 
   http://www.oracle.com/technetwork/java/index.html
+
+We do not support the IceGrid administrative tool on Solaris because
+of the lack of JavaFX support on this platform.
 
 Make sure to add javac and java to your PATH.
 

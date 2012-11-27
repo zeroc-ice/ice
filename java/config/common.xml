@@ -82,7 +82,6 @@
 
     <!-- Do we build the IceGridAdmin GUI? -->
     <condition property="build-icegridadmin">
-
       <equals arg1="${java.specification.version}" arg2="1.7"/>
     </condition>
 
