@@ -28,7 +28,6 @@ bzip2 = { \
 }
 
 berkeleydb = { \
-    'SunOS' : '/opt/db', \
     'Darwin' : '/opt/db', \
 }
 
@@ -37,48 +36,41 @@ berkeleydbjar = { \
 }
 
 expat = { \
-    'SunOS' : '/usr/sfw', \
     'Darwin' : '/usr', \
 }
 
-openssl = { \
-    'SunOS' : '/usr/sfw', \
+iconv = {\
 }
+
 
 mcpp = { 
     'SunOS' : '/opt/mcpp', \
     'Darwin' : '/opt/mcpp' 
 }
 
-qt = { \
-    'SunOS' : '/opt/qt', \
-    'Darwin' : '/Library/Frameworks', \
-}
-
-iconv = { \
-    'SunOS' : '/usr/sfw' \
+openssl = { \
 }
 
 jgoodies_looks = { \
-    'SunOS' : '/usr/share/java/jgoodies-looks-2.5.2.jar', \
+    'SunOS' : '/opt/jgoodies/jgoodies-looks-2.5.2.jar', \
     'Darwin' : '/opt/jgoodies-looks-2.5.2/jgoodies-looks-2.5.2.jar', \
     'Linux' : '/opt/jgoodies-looks-2.5.2/jgoodies-looks-2.5.2.jar', \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/usr/share/java/jgoodies-forms-1.6.0.jar', \
+    'SunOS' : '/opt/jgoodies/jgoodies-forms-1.6.0.jar', \
     'Darwin' : '/opt/jgoodies-forms-1.6.0/jgoodies-forms-1.6.0.jar', \
     'Linux' : '/opt/jgoodies-forms-1.6.0/jgoodies-forms-1.6.0.jar', \
 }
 
 jgoodies_common = { \
-    'SunOS' : '/usr/share/java/jgoodies-common-1.4.0.jar', \
+    'SunOS' : '/opt/jgoodies/jgoodies-common-1.4.0.jar', \
     'Darwin' : '/opt/jgoodies-common-1.4.0/jgoodies-common-1.4.0.jar', \
     'Linux' : '/opt/jgoodies-common-1.4.0/jgoodies-common-1.4.0.jar', \
 }
 
 proguard = { \
-    'SunOS' : '/usr/share/java/proguard.jar', \
+    'SunOS' : '/opt/proguard/lib/proguard.jar', \
     'Darwin' : '/opt/proguard/lib/proguard.jar', \
     'Linux' : '/opt/proguard/lib/proguard.jar', \
 }
@@ -741,6 +733,9 @@ class Platform:
 	print "Unable to find JGoodiesLooks"
 	sys.exit(1)
 
+    def getMakeOptions(self):
+        return ""
+
 class Darwin(Platform):
     def __init__(self, uname, arch, languages):
         Platform.__init__(self, uname, "macosx", None, languages, "", "dylib")
@@ -765,6 +760,9 @@ class Darwin(Platform):
         if not os.environ.has_key("CXXARCHFLAGS"):
             envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
         return envs
+
+    def getMakeOptions(self):
+        return "-j 8"
 
     def completeDistribution(self, buildDir, version):
 
@@ -814,6 +812,9 @@ class SunOS(Platform):
             Platform.__init__(self, uname, "solaris", "x86", languages, "amd64", "so")
         else:
             Platform.__init__(self, uname, "solaris", "sparc", languages, "sparcv9", "so")
+
+    def getMakeOptions(self):
+        return "-j 40"
 
 #
 # Third-party helper classes 

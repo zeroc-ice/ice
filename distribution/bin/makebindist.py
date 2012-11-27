@@ -54,7 +54,6 @@ thirdParties = [
     "Expat", \
     "OpenSSL", \
     "Mcpp", \
-    "Qt", \
     "Iconv", \
     "JGoodiesCommon", \
     "JGoodiesLooks", \
@@ -183,12 +182,25 @@ for l in buildLanguages:
 
     if l != "java":
 
-        makeCmd = "gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install"
+        makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
+        buildCmd = "gmake -C src " + makeOptions
+        installCmd = "gmake " + makeOptions + " install"
 
-        if os.system(makeCmd) != 0:
+        print "Building with " + buildCmd
+
+        if os.system(buildCmd) != 0:
             print sys.argv[0] + ": `" + l + "' build failed"
             os.chdir(cwd)
             sys.exit(1)
+
+        print "Installing with " + installCmd
+         
+        if os.system(installCmd) != 0:
+            print sys.argv[0] + ": `" + l + "' build-install failed"
+            os.chdir(cwd)
+            sys.exit(1)
+
+
     else:
         antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
 
