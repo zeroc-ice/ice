@@ -80,10 +80,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ice, Version=3.5.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="IceSSL, Version=3.5.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -96,7 +96,9 @@
     <Compile Include="CallbackSenderI.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="generated\server\Callback.cs" />
+    <Compile Include="generated\server\Callback.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Server.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -115,7 +117,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_OutputDir=".\generated\server" ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" />
+      <UserProperties ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" ZerocIce_OutputDir=".\generated\server" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
