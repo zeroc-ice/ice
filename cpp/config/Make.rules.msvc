@@ -162,9 +162,8 @@ $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
   DisplayName = "$(SDK_NAME) SDK"
   ProductFamiliyName = "ZeroC SDKs"
   MinVSVersion = "11.0"
-  AppliesTo = "WindowsAppContainer +(VisualC | VB | CSharp)"
+  AppliesTo = "WindowsAppContainer + VisualC"
   SupportedArchitecture = "x86;x64"
-  TargetFramework = ".NET for Metro Style, version=v4.5;"
   SupportsMultipleVersion = "Error"
   MoreInfo = "http://doc.zeroc.com">
 </FileList>
