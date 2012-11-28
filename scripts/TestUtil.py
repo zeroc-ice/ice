@@ -1381,6 +1381,8 @@ def createConfig(path, lines, enc=None):
 def getCppBinDir(lang = None):
     binDir = os.path.join(getIceDir("cpp"), "bin")
     if iceHome:
+        if lang == None:
+            lang = getDefaultMapping()
         if lang == "cpp" and isVS2012():
             binDir = os.path.join(binDir, "vc110")
         if x64:

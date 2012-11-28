@@ -70,11 +70,7 @@ def getDefaultLocatorProperty():
 
 def startIceGridRegistry(testdir, dynamicRegistration = False):
 
-    iceGrid = ""
-    if TestUtil.isVC90():
-        iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridregistry")
-    else:
-        iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridregistry")
+    iceGrid = TestUtil.getIceGridRegistry()
 
     command = ' --nowarn ' + registryOptions
     if dynamicRegistration:
@@ -155,12 +151,7 @@ def iceGridNodePropertiesOverride():
 
 def startIceGridNode(testdir):
 
-    iceGrid = ""
-    if TestUtil.isVC90():
-        iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridnode")
-    else:
-        iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridnode")
-
+    iceGrid = TestUtil.getIceGridNode()
     dataDir = os.path.join(testdir, "db", "node")
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
