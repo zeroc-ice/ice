@@ -37,6 +37,7 @@ x64 = False
 preferIPv4 = False
 serviceDir = None
 demoErrors = []
+tracefile = None
 
 #
 # Default value of --Ice.Default.Host
@@ -94,8 +95,8 @@ def configurePaths():
         compiler = ""
         if os.environ.get("CPP_COMPILER", "") != "":
             compiler = os.environ["CPP_COMPILER"]
-        if compiler == "VC100" or compiler == "VC100_EXPRESS":
-            binDir = os.path.join(binDir, "vc100")
+        if compiler == "VC110" or compiler == "VC110_EXPRESS":
+            binDir = os.path.join(binDir, "vc110")
 
     shlibVar = None
     libDir = None
@@ -193,7 +194,7 @@ def getMirrorDir(mapping = None):
     return os.path.join(pref, mappingDir, *scriptPath)
 
 def getIceDir(subdir = None):
-    """Get the top level directory of the ice distribution.  If ICE_HOME
+    """Get the top level directory of the ice distribution. If ICE_HOME
        is set we're running the test against a binary
        distribution. Otherwise, we're running the test against a
        source distribution."""
@@ -256,7 +257,7 @@ def isNoServices():
 def getMapping():
     """Determine the current mapping based on the cwd."""
     here = os.path.abspath(os.getcwd())
-    assert here[:len(toplevel)] == toplevel
+    assert os.path.normcase(here[:len(toplevel)]) == os.path.normcase(toplevel)
     dir = here[len(toplevel)+1:].split(os.sep)[0]
 
     if sourcedist:
@@ -535,9 +536,10 @@ def spawn(command, cwd = None, mapping = None):
     for arg in tokens[1:len(tokens)]:
         args += " " + arg
 
-    if defaultHost:
-        command = '%s %s' % (command, defaultHost)
-        args = '%s %s' % (args, defaultHost)
+    global host
+    if host != "":
+        command = '%s --Ice.Default.Host=%s' % (command, host)
+        args = '%s --Ice.Default.Host=%s' % (args, host)
 
     # magic
     knownCommands = [ "icegridnode", "icegridregistry", "icebox", "iceboxd", "icegridadmin", "icestormadmin",
@@ -617,7 +619,6 @@ def processCmdLine():
         usage()
 
     global fast
-    global defaultHost
     global tracefile
     global buildmode
     global x64
@@ -664,11 +665,6 @@ def processCmdLine():
             if buildmode != 'debug' and buildmode != 'release':
                 usage()
 
-    if host != "":
-        defaultHost = " --Ice.Default.Host=%s" % (host)
-    else:
-        defaultHost = None
-
     if not iceHome and os.environ.get("USE_BIN_DIST", "no") == "yes" or os.environ.get("ICE_HOME", "") != "":
         if os.environ.get("ICE_HOME", "") != "":
             iceHome = os.environ["ICE_HOME"]
@@ -689,7 +685,10 @@ def processCmdLine():
 
 import inspect
 frame = inspect.currentframe().f_back
-if frame and os.path.split(frame.f_code.co_filename)[1] == "expect.py":
+# Move to the top-most frame in the callback.
+while frame.f_back is not None:
+    frame = frame.f_back
+if os.path.split(frame.f_code.co_filename)[1] == "expect.py":
     # If we're not in the demo directory, chdir to the correct
     # location.
     if not os.path.isabs(sys.argv[0]):
