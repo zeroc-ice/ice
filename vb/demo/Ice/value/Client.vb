@@ -123,7 +123,7 @@ Module ValueC
             derived.printUppercase()
 
 	    Console.Out.WriteLine()
-	    Console.Out.WriteLine("Now let's make sure that slice is preserved with [\"preserve-slice\"]")
+	    Console.Out.WriteLine("Now let's make sure that slice is preserved with [""preserve-slice""]")
             Console.Out.WriteLine("metadata. We create a derived type on the client and pass it to the")
             Console.Out.WriteLine("server, which does not have a factory for the derived type. We do a")
             Console.Out.WriteLine("class cast to make sure we can still access the derived type when")
