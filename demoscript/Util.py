@@ -38,6 +38,7 @@ preferIPv4 = False
 serviceDir = None
 demoErrors = []
 tracefile = None
+defaultHost = None
 
 #
 # Default value of --Ice.Default.Host
@@ -536,10 +537,10 @@ def spawn(command, cwd = None, mapping = None):
     for arg in tokens[1:len(tokens)]:
         args += " " + arg
 
-    global host
-    if host != "":
-        command = '%s --Ice.Default.Host=%s' % (command, host)
-        args = '%s --Ice.Default.Host=%s' % (args, host)
+    global defaultHost
+    if defaultHost:
+        command = '%s %s' % (command, defaultHost)
+        args = '%s %s' % (args, defaultHost)
 
     # magic
     knownCommands = [ "icegridnode", "icegridregistry", "icebox", "iceboxd", "icegridadmin", "icestormadmin",
@@ -625,6 +626,7 @@ def processCmdLine():
     global preferIPv4
     global debug
     global host
+    global defaultHost
     global iceHome
     global serviceDir
 
@@ -664,6 +666,9 @@ def processCmdLine():
             buildmode = a
             if buildmode != 'debug' and buildmode != 'release':
                 usage()
+
+    if host != "":
+        defaultHost = " --Ice.Default.Host=%s" % (host)
 
     if not iceHome and os.environ.get("USE_BIN_DIST", "no") == "yes" or os.environ.get("ICE_HOME", "") != "":
         if os.environ.get("ICE_HOME", "") != "":
