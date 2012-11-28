@@ -28,5 +28,3 @@ client = Util.spawn('./client')
 client.expect('.*==>')
 
 nrvo.run(client, server)
-
-server.waitTestSuccess()

@@ -20,6 +20,9 @@ def run(client, server):
     client.sendline('3')
     client.expect('==> ', timeout=2000)
     client.sendline('s')
+    server.waitTestSuccess()
+
     client.expect('==> ', timeout=2000)
     client.sendline('x')
+    client.waitTestSuccess()
     print("ok")
