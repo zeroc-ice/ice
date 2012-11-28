@@ -587,7 +587,7 @@ public class BasicStream
             _readEncapsStack.decoder.readPendingObjects();
             _readEncapsStack.decoder = null;
         }
-        else if(_readEncapsStack != null && _readEncapsStack.encoding_1_0 || _encoding.equals(Ice.Util.Encoding_1_0))
+        else if(_readEncapsStack != null ? _readEncapsStack.encoding_1_0 : _encoding.equals(Ice.Util.Encoding_1_0))
         {
             //
             // If using the 1.0 encoding and no objects were read, we
@@ -610,7 +610,7 @@ public class BasicStream
             _writeEncapsStack.encoder.writePendingObjects();
             _writeEncapsStack.encoder = null;
         }
-        else if(_writeEncapsStack != null && _writeEncapsStack.encoding_1_0 || _encoding.equals(Ice.Util.Encoding_1_0))
+        else if(_writeEncapsStack != null ? _writeEncapsStack.encoding_1_0 : _encoding.equals(Ice.Util.Encoding_1_0))
         {
             //
             // If using the 1.0 encoding and no objects were written, we
