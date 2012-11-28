@@ -70,4 +70,4 @@ all::
 
 !endif
 
-!include .depend
+!include .depend.mak
