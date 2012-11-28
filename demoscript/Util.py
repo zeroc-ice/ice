@@ -111,7 +111,7 @@ def configurePaths():
             binDir = os.path.join(binDir, "x64")
         elif isSolaris():
             if isSparc():
-                libDir = os.path.join(libDir, "sparcv9")
+                libDir = os.path.join(libDir, "64")
                 binDir = os.path.join(binDir, "sparcv9")
             else:
                 libDir = os.path.join(libDir, "amd64")
@@ -216,9 +216,9 @@ def isSolaris():
     return sys.platform == "sunos5"
 
 def isSparc():
-    p = os.popen("uname -m")
+    p = os.popen("uname -p")
     l = p.readline().strip()
-    if l == "sun4u":
+    if l == "sparc":
         return True
     else:
         return False

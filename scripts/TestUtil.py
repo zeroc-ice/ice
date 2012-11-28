@@ -67,12 +67,12 @@ def isSolaris():
     return sys.platform == "sunos5"
 
 def isSparc():
-    p = subprocess.Popen("uname -m", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-    if not process or not process.stdout:
+    p = subprocess.Popen("uname -p", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    if not p or not p.stdout:
         print("unable to get system information!")
         sys.exit(1)
     l = p.stdout.readline().decode("utf-8").strip()
-    if l == "sun4u":
+    if l == "sparc":
         return True
     else:
         return False
@@ -1436,7 +1436,7 @@ def getTestEnv(lang, testdir):
         if iceHome and x64:
             if isSolaris():
                 if isSparc():
-                    libDir = os.path.join(libDir, "sparcv9")
+                    libDir = os.path.join(libDir, "64")
                 else:
                     libDir = os.path.join(libDir, "amd64")
             elif not isDarwin():
