@@ -13,20 +13,20 @@ from demoscript import *
 from scripts import Expect
 
 def runtests(client, server):
-    print "testing setProperties...",
+    sys.stdout.write("testing setProperties...")
     sys.stdout.flush()
     client.sendline('1')
     client.expect('Demo.Prop1 is now 1.*Demo.Prop2 is now 2.*Demo.Prop3 is now 3')
     client.sendline('1')
     client.expect('None')
-    print "ok"
-    print "testing resetProperties...",
+    print("ok")
+    sys.stdout.write("testing resetProperties...")
     sys.stdout.flush()
     client.sendline('2')
     client.expect('Demo.Prop1 is now 10.*Demo.Prop2 was removed.*Demo.Prop3 is now 30')
     client.sendline('2')
     client.expect('None')
-    print "ok"
+    print("ok")
 
 def run(client, server):
     runtests(client, server)
