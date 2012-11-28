@@ -32,9 +32,9 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
-    <ROW Directory="Addins_3_DIR" Directory_Parent="__1_DIR" DefaultDir="Addins"/>
-    <ROW Directory="Addins_4_DIR" Directory_Parent="__DIR" DefaultDir="Addins"/>
-    <ROW Directory="Addins_Dir" Directory_Parent="__Dir" DefaultDir="Addins"/>
+    <ROW Directory="Addins_3_DIR" Directory_Parent="__1_DIR" DefaultDir="Addins" DirectoryOptions="3"/>
+    <ROW Directory="Addins_4_DIR" Directory_Parent="__DIR" DefaultDir="Addins" DirectoryOptions="3"/>
+    <ROW Directory="Addins_Dir" Directory_Parent="__Dir" DefaultDir="Addins" DirectoryOptions="3"/>
     <ROW Directory="Assemblies_Dir" Directory_Parent="Ice_DIR" DefaultDir="Assemb~1|Assemblies"/>
     <ROW Directory="Assets_1_Dir" Directory_Parent="bidir_1_Dir" DefaultDir="Assets"/>
     <ROW Directory="Assets_2_Dir" Directory_Parent="hello_1_Dir" DefaultDir="Assets"/>
@@ -2731,9 +2731,9 @@
     <ROW File="IceUtil.h_1" Component_="AbstractMutex.h_1" FileName="IceUtil.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\CommonConfiguration\Neutral\include\IceUtil\IceUtil.h" SelfReg="false" NextFile="InputUtil.h_1"/>
     <ROW File="IceUtil.workqueue.vcxproj" Component_="depend.mak_47" FileName="IceUti~1.vcx|IceUtil.workqueue.vcxproj" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b-demos\demo\IceUtil\workqueue\IceUtil.workqueue.vcxproj" SelfReg="false" NextFile="IceUtil.workqueue.vcxproj.filters"/>
     <ROW File="IceUtil.workqueue.vcxproj.filters" Component_="depend.mak_47" FileName="IceUti~1.fil|IceUtil.workqueue.vcxproj.filters" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b-demos\demo\IceUtil\workqueue\IceUtil.workqueue.vcxproj.filters" SelfReg="false" NextFile="Makefile.mak_59"/>
-    <ROW File="IceVS2008.AddIn" Component_="IceVS2008.AddIn" FileName="Ice-VS~1.Add|Ice-VS2008.AddIn" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b\vsaddin\config\Ice-VS2008.AddIn" SelfReg="false" NextFile="SOURCES.txt"/>
-    <ROW File="IceVS2010.AddIn" Component_="IceVS2010.AddIn" FileName="Ice-VS~1.Add|Ice-VS2010.AddIn" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b\vsaddin\config\Ice-VS2010.AddIn" SelfReg="false" NextFile="IceVS2012.AddIn"/>
-    <ROW File="IceVS2012.AddIn" Component_="IceVS2012.AddIn" FileName="Ice-VS~1.Add|Ice-VS2012.AddIn" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b\vsaddin\config\Ice-VS2012.AddIn" SelfReg="false" NextFile="dumpdb.exe"/>
+    <ROW File="IceVS2008.AddIn" Component_="IceVS2008.AddIn" FileName="Ice-VS~1.Add|Ice-VS2008.AddIn" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b\vsaddin\config\Ice-VS2008.AddIn" SelfReg="false" NextFile="SOURCES.txt"/>
+    <ROW File="IceVS2010.AddIn" Component_="IceVS2010.AddIn" FileName="Ice-VS~1.Add|Ice-VS2010.AddIn" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b\vsaddin\config\Ice-VS2010.AddIn" SelfReg="false" NextFile="IceVS2012.AddIn"/>
+    <ROW File="IceVS2012.AddIn" Component_="IceVS2012.AddIn" FileName="Ice-VS~1.Add|Ice-VS2012.AddIn" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b\vsaddin\config\Ice-VS2012.AddIn" SelfReg="false" NextFile="dumpdb.exe"/>
     <ROW File="IceVisualStudioAddinVS2008.dll" Component_="IceVisualStudioAddinVS2008.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2008.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC90\Ice-3.5b\vsaddin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" NextFile="freeze.lib" DigSign="true"/>
     <ROW File="IceVisualStudioAddinVS2010.dll" Component_="IceVisualStudioAddinVS2010.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2010.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\vsaddin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" NextFile="Metrics.php" DigSign="true"/>
     <ROW File="IceVisualStudioAddinVS2012.dll" Component_="IceVisualStudioAddinVS2012.dll" FileName="IceVis~3.dll|IceVisualStudioAddin-VS2012.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\vsaddin\IceVisualStudioAddin-VS2012.dll" SelfReg="false" NextFile="convertssl.py" DigSign="true"/>
