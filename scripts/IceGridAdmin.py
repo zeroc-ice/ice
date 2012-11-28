@@ -145,7 +145,11 @@ def iceGridNodePropertiesOverride():
           if(value.find(' ') == -1):
              overrideOptions += ("%s=%s ") % (key, value)
           else:
-             overrideOptions += ("%s=\\\"%s\\\" ") % (key, value)
+             #
+             # NOTE: We need 2 backslash before the quote to run the
+             # C# test/IceGrid/simple test with SSL.
+             #
+             overrideOptions += ("%s=\\\"%s\\\" ") % (key, value.replace('"', '\\\\\\"'))
 
     return overrideOptions
 
