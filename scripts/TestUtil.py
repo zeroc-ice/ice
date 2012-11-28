@@ -107,11 +107,11 @@ def isVC90():
         return False
     return getCppCompiler() == "VC90"
 
-def isVS2010():
+def isVS2012():
     if not isWin32():
         return False
     compiler = getCppCompiler()
-    return compiler == "VC100" or compiler == "VC100_EXPRESS"
+    return compiler == "VC110" or compiler == "VC110_EXPRESS"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -610,11 +610,11 @@ def getIceBox():
             build = open(os.path.join(os.getcwd(), "build.txt"), "r")
             type = build.read().strip()
             if type == "debug":
-                iceBox = os.path.join(getCppBinDir(), "iceboxd.exe")
+                iceBox = os.path.join(getCppBinDir(lang), "iceboxd.exe")
             elif type == "release":
-                iceBox = os.path.join(getCppBinDir(), "icebox.exe")
+                iceBox = os.path.join(getCppBinDir(lang), "icebox.exe")
         else:
-            iceBox = os.path.join(getCppBinDir(), "icebox")
+            iceBox = os.path.join(getCppBinDir(lang), "icebox")
 
         if not os.path.exists(iceBox):
             print("couldn't find icebox executable to run the test")
@@ -1205,7 +1205,11 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
-        serverenv = getTestEnv(lang, serverdir)
+        if lang in ["rb", "php"]:
+            serverenv = getTestEnv("cpp", serverdir)
+        else:
+            serverenv = getTestEnv(lang, serverdir)
+            
 
     global cross
     if len(cross) == 0:
@@ -1374,11 +1378,11 @@ def createConfig(path, lines, enc=None):
         config.write("%s\n" % l)
     config.close()
 
-def getCppBinDir(testdir = None):
-    binDir = os.path.join(getIceDir("cpp", testdir), "bin")
+def getCppBinDir(lang = None):
+    binDir = os.path.join(getIceDir("cpp"), "bin")
     if iceHome:
-        if isVS2010():
-            binDir = os.path.join(binDir, "vc100")
+        if lang == "cpp" and isVS2012():
+            binDir = os.path.join(binDir, "vc110")
         if x64:
             if isSolaris():
                 if isSparc():
@@ -1426,7 +1430,7 @@ def getTestEnv(lang, testdir):
         return env # That's it, we're done!
 
     if isWin32():
-        libDir = getCppBinDir()
+        libDir = getCppBinDir(lang)
     else:
         libDir = os.path.join(getIceDir("cpp", testdir), "lib")
         if iceHome and x64:
