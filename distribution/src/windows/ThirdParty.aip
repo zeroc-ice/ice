@@ -5,7 +5,7 @@
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="32767" Description="File sequence number for the last file for this media." Options="0" ColumnType="2" ColumnIndex="1" ColumnSize="2" MsiKey="Media#LastSequence"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
-    <ROW Property="AI_PRODUCTNAME_ARP" Value=" Ice 3.5b Third Party Packages"/>
+    <ROW Property="AI_PRODUCTNAME_ARP" Value="Ice 3.5b Third Party Packages"/>
     <ROW Property="AI_ThemeStyle" Value="default" MsiKey="AI_ThemeStyle"/>
     <ROW Property="AI_UNINSTALLER" Value="msiexec.exe"/>
     <ROW Property="AI_UPGRADE" Value="No"/>
