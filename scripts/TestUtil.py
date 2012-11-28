@@ -1052,6 +1052,7 @@ def _spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
 
     if debug:
         sys.stdout.write("(%s) " % cmd)
+        sys.stdout.flush()
     if printenv:
         dumpenv(env, lang)
 

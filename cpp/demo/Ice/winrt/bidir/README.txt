@@ -3,12 +3,10 @@ This is typically used if the server cannot open a connection to the
 client to send callbacks, for example, because firewalls block
 incoming connections to the client.
 
-First follow the instructions in the C++ Ice bidir demo README 
-to start the server.
+First follow the instructions from the C++ Ice bidir demo README to
+start the server.
 
-To start the client first build the demo using "Build bidir" command
-in "Build" menu.
+Build and deploy the demo using "Deploy bidir" from the "Build" menu.
 
-Deploy the demo using "Deploy bidir" command in "Build" menu.
-
-Then start the "Ice Bidir Demo" application from Windows Start menu.
+Start the "Ice Bidir Demo" application from the Windows Start screen
+or right click on the project and select Debug -> Start new instance.
