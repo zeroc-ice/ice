@@ -335,11 +335,12 @@ class Expect (object):
             #
             # universal_newlines = True is necessary for Python 3 on Windows
             #
-            # We set shell=True to make sure executables are correctly searched
-            # in directories specified by the PATH environment variable.
+            # We can't use shell=True because terminate() wouldn't
+            # work. This means the PATH isn't searched for the
+            # command.
             #
             CREATE_NEW_PROCESS_GROUP = 512
-            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=True, bufsize=0, stdin=subprocess.PIPE,
+            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                       creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
         else:
