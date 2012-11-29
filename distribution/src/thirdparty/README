@@ -6,19 +6,21 @@ Introduction
 ------------
 
 This archive contains the source code distributions, including any
-source patches, for the third-party packages required to build Ice.
+source patches, for the third-party packages required to build Ice on
+Linux, OS X and Solaris.
+
+Note: this archive does not contain third-party packages that Ice 
+depends on but that are usually included on these systems, such as bzip2
+and OpenSSL. 
 
 This document provides instructions for applying patches and for
-configuring the third-party packages on each of the supported
+configuring these third-party packages on each of the supported
 platforms.
 
-For more information about the third-party dependencies, please refer
-to the links below:
+For more information about the third-party packaged in this archive, 
+please refer to the links below:
 
 Berkeley DB    http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
-expat          http://expat.sourceforge.net
-OpenSSL        http://www.openssl.org
-bzip2          http://www.bzip.org
 mcpp           http://mcpp.sourceforge.net
 
 
@@ -63,10 +65,6 @@ building mcpp
 2. Instructions for Linux
 ======================================================================
 
-If a third-party package is not listed below, there are no special
-requirements for configuring or building that package.
-
-
 Berkeley DB
 -----------
 
@@ -94,10 +92,6 @@ library installation directory from $(prefix)/lib to $(prefix>/lib64.
 ======================================================================
 3. Instructions for Mac OS X
 ======================================================================
-
-If a third-party package is not listed below, there are no special
-requirements for configuring or building that package.
-
 
 Berkeley DB
 -----------
@@ -143,8 +137,11 @@ For builds with support for both i386 and x86_64 architectures, use:
 4. Instructions for Solaris
 ======================================================================
 
-If a third-party package is not listed below, there are no special
-requirements for configuring or building that package.
+Berkeley DB
+-----------
+
+You can use the Berkeley DB package provided by Solaris 11 (the package
+name is database/berkeleydb-5).
 
 mcpp
 ----
