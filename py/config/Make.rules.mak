@@ -91,8 +91,6 @@ slicedir                = $(ice_dir)\slice
 PYTHON_CPPFLAGS		= -I"$(PYTHON_HOME)\include"
 PYTHON_LDFLAGS		= /LIBPATH:"$(PYTHON_HOME)\libs"
 
-install_libdir		= $(prefix)\python
-
 ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
