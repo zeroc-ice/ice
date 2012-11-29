@@ -26,4 +26,4 @@ server = Util.spawn('server.exe --Ice.PrintAdapterReady --Ice.Warn.Connections=0
 server.expect('.* ready')
 client = Util.spawn('client.exe --Ice.Warn.Connections=0')
 
-hello.run(client, server)
+optional.run(client, server)
