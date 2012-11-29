@@ -31,7 +31,8 @@ SRCS		= $(SOBJS:.obj=.cpp) \
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
-    "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+    "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
+    "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 LD_EXEFLAGS  = /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" $(LD_EXEFLAGS)
 !endif
 

@@ -101,8 +101,8 @@ SETARGV			= setargv.obj
 # Compiler specific definitions
 #
 !if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
-        "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
-        "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+    "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
+    "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
