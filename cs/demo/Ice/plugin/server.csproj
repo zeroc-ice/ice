@@ -108,7 +108,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" ZerocIce_OutputDir="." />
+      <UserProperties ZerocIce_OutputDir="." ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
