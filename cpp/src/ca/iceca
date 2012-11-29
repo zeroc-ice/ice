@@ -21,14 +21,14 @@ if home is None:
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
     if sys.platform == "win32" or sys.platform[:6] == "cygwin":
-	home = os.path.dirname(sys.argv[0])
-	home = os.path.join(home, "..", "config")
+        home = os.path.dirname(sys.argv[0])
+        home = os.path.join(home, "..", "config")
     else:
-	home = os.getenv('HOME')
-	if home is None:
-	    print "Environment variable HOME is not set."
-	    sys.exit(1)
-	home = os.path.join(home, ".iceca")
+        home = os.getenv('HOME')
+        if home is None:
+            print("Environment variable HOME is not set.")
+            sys.exit(1)
+        home = os.path.join(home, ".iceca")
 home = os.path.normpath(home)
 os.putenv("ICE_CA_HOME", home)
 
@@ -48,7 +48,7 @@ caroot = os.path.join(home, "ca")
 cadb = os.path.join(caroot, "db")
 
 def usage():
-    print "usage: " + sys.argv[0] + " [--verbose --keep] import sign request init"
+    print("usage: " + sys.argv[0] + " [--verbose --keep] import sign request init")
     sys.exit(1)
 
 if len(sys.argv) == 1:
@@ -74,19 +74,19 @@ verbose = False
 keep = False
 for o, a in opts:
     if o == "--verbose":
-	verbose = True
+        verbose = True
     if o == "--keep":
-	keep = True
+        keep = True
 
 if sys.argv[script] == "import":
     def usage():
-	print "usage: " + sys.argv[script] + " [--overwrite] [--key-pass password] [--store-pass password] [--java alias cert key keystore ] [--cs cert key out-file]"
-	sys.exit(1)
+        print("usage: " + sys.argv[script] + " [--overwrite] [--key-pass password] [--store-pass password] [--java alias cert key keystore ] [--cs cert key out-file]")
+        sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "key-pass=", "store-pass=", "java", "cs"])
+        opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "key-pass=", "store-pass=", "java", "cs"])
     except getopt.GetoptError:
-	usage()
+        usage()
 
     java = False
     cs = False
@@ -94,20 +94,20 @@ if sys.argv[script] == "import":
     storePass = None
     overwrite = False
     for o, a in opts:
-	if o == "--overwrite":
-	    overwrite = True
-	if o == "--key-pass":
-	    keyPass = a
-	if o == "--store-pass":
-	    storePass = a
-	if o == "--java":
-	    java = True
-	if o == "--cs":
-	    cs = True
+        if o == "--overwrite":
+            overwrite = True
+        if o == "--key-pass":
+            keyPass = a
+        if o == "--store-pass":
+            storePass = a
+        if o == "--java":
+            java = True
+        if o == "--cs":
+            cs = True
 
     if not java and not cs:
-	print sys.argv[script] + ": one of --java or --cs must be provided"
-	usage()
+        print(sys.argv[script] + ": one of --java or --cs must be provided")
+        usage()
 
     if java:
         #
@@ -115,203 +115,207 @@ if sys.argv[script] == "import":
         # non-RPM install uses ${prefix}/lib (that is the location of the
         # script ../lib). For development purposes we also check ".".
         #
-        checkLocations = [".", os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
+        checkLocations = [".", 
+                          os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
+                          os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "..", "lib")),
                           "/usr/share/Ice-3.5b"]
         for bindir in checkLocations:
             bindir = os.path.normpath(bindir)
             if os.path.exists(os.path.join(bindir, "ImportKey.class")):
                 break
         else:
-            print "Error: cannot locate ImportKey.class any of the following locations:\n%s" % str(checkLocations)
+            print("Error: cannot locate ImportKey.class any of the following locations:\n%s" % str(checkLocations))
             sys.exit(1)
 
-	if len(args) != 4:
-	    usage()
+        if len(args) != 4:
+            usage()
 
-	alias = args[0]
-	cert = args[1]
-	key = args[2]
-	store = args[3]
+        alias = args[0]
+        cert = args[1]
+        key = args[2]
+        store = args[3]
 
-	if keyPass is None:
-	    keyPass = getpass.getpass("Enter private key passphrase:")
+        if keyPass is None:
+            keyPass = getpass.getpass("Enter private key passphrase:")
 
-	while storePass is None or len(storePass) == 0:
-	    storePass = getpass.getpass("Enter keystore password:")
+        while storePass is None or len(storePass) == 0:
+            storePass = getpass.getpass("Enter keystore password:")
 
-	#
-	# We use secure temporary files to transfer the password to openssl
-	# and the ImportKey java tool. Its necessary to create 2 files for the
-	# key password because openssl craps out if you use the same password
-	# file twice.
-	#
-	keypassfile1 = None
-	keypassfile2 = None
+        #
+        # We use secure temporary files to transfer the password to openssl
+        # and the ImportKey java tool. Its necessary to create 2 files for the
+        # key password because openssl craps out if you use the same password
+        # file twice.
+        #
+        keypassfile1 = None
+        keypassfile2 = None
 
-	if len(keyPass) > 0:
-	    temp, keypassfile1 = tempfile.mkstemp("keypass1")
-	    os.write(temp, keyPass)
-	    os.close(temp)
+        if len(keyPass) > 0:
+            temp, keypassfile1 = tempfile.mkstemp("keypass1")
+            os.write(temp, keyPass.encode("utf-8"))
+            os.close(temp)
 
-	    temp, keypassfile2 = tempfile.mkstemp("keypass2")
-	    os.write(temp, keyPass)
-	    os.close(temp)
-	else:
-	    # Java can't deal with unencrypted keystores, so we use a
-	    # temporary one.
-	    temp, keypassfile1 = tempfile.mkstemp("keypass1")
-	    os.write(temp, "password")
-	    os.close(temp)
+            temp, keypassfile2 = tempfile.mkstemp("keypass2")
+            os.write(temp, keyPass.encode("utf-8"))
+            os.close(temp)
+        else:
+            # Java can't deal with unencrypted keystores, so we use a
+            # temporary one.
+            temp, keypassfile1 = tempfile.mkstemp("keypass1")
+            os.write(temp, "password".encode("utf-8"))
+            os.close(temp)
 
-	    # We create a file with an empty password to store the results
-	    # in the keystore.
-	    temp, keypassfile2 = tempfile.mkstemp("keypass2")
-	    os.close(temp)
+            # We create a file with an empty password to store the results
+            # in the keystore.
+            temp, keypassfile2 = tempfile.mkstemp("keypass2")
+            os.close(temp)
 
-	temp, storepassfile = tempfile.mkstemp("storepass3")
-	os.write(temp, storePass)
-	os.close(temp)
+        temp, storepassfile = tempfile.mkstemp("storepass3")
+        os.write(temp, storePass.encode("utf-8"))
+        os.close(temp)
 
-	temp, pkcs12cert = tempfile.mkstemp(".p12", "pkcs12")
-	os.close(temp)
+        temp, pkcs12cert = tempfile.mkstemp(".p12", "pkcs12")
+        os.close(temp)
 
-	if len(keyPass) > 0:
-	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
-	    	alias + " -passin file:" + keypassfile1 + " -passout file:" + keypassfile2 + ' -certfile "' + \
-		os.path.join(home, "ca_cert.pem") + '"'
-	else:
-	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
-	    	alias + " -passout file:" + keypassfile1 + ' -certfile "' + os.path.join(home, "ca_cert.pem") + '"'
-	print "converting to pkcs12 format... ",
+        if len(keyPass) > 0:
+            cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
+                alias + " -passin file:" + keypassfile1 + " -passout file:" + keypassfile2 + ' -certfile "' + \
+                os.path.join(home, "ca_cert.pem") + '"'
+        else:
+            cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + " -name " + \
+                alias + " -passout file:" + keypassfile1 + ' -certfile "' + os.path.join(home, "ca_cert.pem") + '"'
+        sys.stdout.write("converting to pkcs12 format... ")
         sys.stdout.flush()
-	if verbose: print cmd
-	status = os.system(cmd)
-	if status != 0:
-	    print "openssl command failed"
-	    if not keep: os.remove(keypassfile1)
-	    if not keep: os.remove(keypassfile2)
-	    if not keep: os.remove(storepassfile)
-	    sys.exit(1)
-	print "ok"
+        if verbose: print(cmd)
+        status = os.system(cmd)
+        if status != 0:
+            print("openssl command failed")
+            if not keep: os.remove(keypassfile1)
+            if not keep: os.remove(keypassfile2)
+            if not keep: os.remove(storepassfile)
+            sys.exit(1)
+        print("ok")
 
-	# Use java to import the cert into the keystore.
-	cmd = "java -classpath " + bindir + " ImportKey " + pkcs12cert + " " + alias + " " \
-		  + os.path.join(home, "ca_cert.pem") + " " + store + " " + storepassfile + " " + keypassfile1
-	if len(keyPass) == 0:
-	    cmd = cmd + " " + keypassfile2
+        # Use java to import the cert into the keystore.
+        cmd = "java -classpath \"" + bindir + "\" ImportKey " + pkcs12cert + " " + alias + " " \
+                  + os.path.join(home, "ca_cert.pem") + " " + store + " " + storepassfile + " " + keypassfile1
+        if len(keyPass) == 0:
+            cmd = cmd + " " + keypassfile2
 
-	#print cmd
-	print "importing into the keystore...", 
+        #print(cmd)
+        sys.stdout.write("importing into the keystore...")
         sys.stdout.flush()
-	if verbose: print cmd
-	status = os.system(cmd)
-	if status != 0:
-	    print "java command failed"
-	else:
-	    print "ok"
+        if verbose: print(cmd)
+        status = os.system(cmd)
+        if status != 0:
+            print("java command failed")
+        else:
+            print("ok")
 
-	# Cleanup.
-	if not keep: os.remove(pkcs12cert)
-	if not keep: os.remove(keypassfile1)
-	if not keep: os.remove(keypassfile2)
-	if not keep: os.remove(storepassfile)
+        # Cleanup.
+        if not keep: os.remove(pkcs12cert)
+        if not keep: os.remove(keypassfile1)
+        if not keep: os.remove(keypassfile2)
+        if not keep: os.remove(storepassfile)
 
     if cs:
-	if len(args) != 3:
-	    usage()
-	if storePass is not None:
-	    print 'Usage: %s:  "--store-pass" is only supported with --java' % sys.argv[script]
-	    sys.exit(1)
+        if len(args) != 3:
+            usage()
+        if storePass is not None:
+            print('Usage: %s:  "--store-pass" is only supported with --java' % sys.argv[script])
+            sys.exit(1)
 
-	cert = args[0]
-	key = args[1]
-	pkcs12cert = args[2]
-	if not overwrite and os.path.exists(pkcs12cert):
-	    print pkcs12cert + ": file exists"
-	    sys.exit(1)
+        cert = args[0]
+        key = args[1]
+        pkcs12cert = args[2]
+        if not overwrite and os.path.exists(pkcs12cert):
+            print(pkcs12cert + ": file exists")
+            sys.exit(1)
 
-	if keyPass is None:
-	    keyPass = getpass.getpass("Enter private key passphrase:")
+        if keyPass is None:
+            keyPass = getpass.getpass("Enter private key passphrase:")
 
-	#
-	# We use secure temporary files to transfer the password to
-	# openssl Its necessary to create 2 files for the key password
-	# because openssl craps out if you use the same password file
-	# twice.
-	#
-	keypassfile1 = None
-	keypassfile2 = None
+        #
+        # We use secure temporary files to transfer the password to
+        # openssl Its necessary to create 2 files for the key password
+        # because openssl craps out if you use the same password file
+        # twice.
+        #
+        keypassfile1 = None
+        keypassfile2 = None
 
-	if len(keyPass) > 0:
-	    temp, keypassfile1 = tempfile.mkstemp("keypass1")
-	    os.write(temp, keyPass)
-	    os.close(temp)
+        if len(keyPass) > 0:
+            temp, keypassfile1 = tempfile.mkstemp("keypass1")
+            os.write(temp, keyPass.encode("utf-8"))
+            os.close(temp)
 
-	    temp, keypassfile2 = tempfile.mkstemp("keypass2")
-	    os.write(temp, keyPass)
-	    os.close(temp)
+            temp, keypassfile2 = tempfile.mkstemp("keypass2")
+            os.write(temp, keyPass.encode("utf-8"))
+            os.close(temp)
 
-	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
-		" -passin file:" + keypassfile1 + " -passout file:" + keypassfile2
-	else:
-	    cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
+            cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
+                " -passin file:" + keypassfile1 + " -passout file:" + keypassfile2
+        else:
+            cmd = opensslCmd + " pkcs12 -in " + cert + " -inkey " + key + " -export -out " + pkcs12cert + \
                 " -passout pass:"
-	print "converting to pkcs12 format...",
+        sys.stdout.write("converting to pkcs12 format...")
         sys.stdout.flush()
-	if verbose: print cmd
-	status = os.system(cmd)
-	if keypassfile1 != None:
-	    if not keep: os.remove(keypassfile1)
-	if keypassfile2 != None:
-	    if not keep: os.remove(keypassfile2)
-	if status != 0:
-	    print "openssl command failed"
-	    sys.exit(1)
-	print "ok"
+        if verbose: print(cmd)
+        status = os.system(cmd)
+        if keypassfile1 != None:
+            if not keep: os.remove(keypassfile1)
+        if keypassfile2 != None:
+            if not keep: os.remove(keypassfile2)
+        if status != 0:
+            print("openssl command failed")
+            sys.exit(1)
+        print("ok")
 
     sys.exit(0)
 
 if sys.argv[script] == "init":
     def usage():
-	print "usage: " + sys.argv[script] + " [--no-password] [--overwrite]"
-	sys.exit(1)
+        print("usage: " + sys.argv[script] + " [--no-password] [--overwrite]")
+        sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "no-password", "overwrite"])
+        opts, args = getopt.getopt(sys.argv[script+1:], "", [ "no-password", "overwrite"])
     except getopt.GetoptError:
-	usage()
+        usage()
 
     if args:
-	usage()
+        usage()
 
-    print "This script will initialize your organization's Certificate Authority (CA)."
-    print 'The CA database will be created in "%s"' % caroot
+    print("This script will initialize your organization's Certificate Authority (CA).")
+    print('The CA database will be created in "%s"' % caroot)
 
     nopassphrase = False
     for o, a in opts:
-	if o == "--no-password":
-	    nopassphrase = True
-	if o == "--overwrite":
-	    # If the CA exists then destroy it.
-	    if os.path.exists(caroot):
-		print "Warning: running this command will destroy your existing CA setup!"
-		choice = raw_input("Do you want to continue? (y/n)").strip()
-		if choice != 'y' and choice != 'Y':
-		    sys.exit(1)
-		shutil.rmtree(caroot)
+        if o == "--no-password":
+            nopassphrase = True
+        if o == "--overwrite":
+            # If the CA exists then destroy it.
+            if os.path.exists(caroot):
+                print("Warning: running this command will destroy your existing CA setup!")
+                sys.stdout.write("Do you want to continue? (y/n)")
+                sys.stdout.flush()
+                choice = sys.stdin.readline().strip()
+                if choice != 'y' and choice != 'Y':
+                    sys.exit(1)
+                shutil.rmtree(caroot)
 
     #
     # Check that the caroot isn't already populated.
     #
     if os.path.exists(os.path.join(cadb, "ca_key.pem")):
-	print cadb + ": CA has already been initialized."
-	print "Use the --overwrite option to re-initialize the database."
-	sys.exit(1)
+        print(cadb + ": CA has already been initialized.")
+        print("Use the --overwrite option to re-initialize the database.")
+        sys.exit(1)
 
     try:
-	os.makedirs(cadb)
+        os.makedirs(cadb)
     except OSError:
-	pass
+        pass
 
     #
     # Initialize the CA serial and index.
@@ -322,41 +326,46 @@ if sys.argv[script] == "init":
 
     index = open(os.path.join(cadb, "index.txt"), "w")
     index.close()
-	
+        
     # Construct the DN for the CA certificate.
     DNelements = { \
-	'C':['countryName', "Country name", "", 'match'], \
-	'ST':['stateOrProvinceName', "State or province name", "", 'match'], \
-	'L':['localityName', "Locality", "", 'match'], \
-	'O':['organizationName', "Organization name", "GridCA-" + socket.gethostname(), 'match'], \
-	'OU':['organizationalUnitName', "Organizational unit name", "", 'optional'], \
-	'CN':['commonName', "Common name", "Grid CA", 'supplied'] \
+        'C':['countryName', "Country name", "", 'match'], \
+        'ST':['stateOrProvinceName', "State or province name", "", 'match'], \
+        'L':['localityName', "Locality", "", 'match'], \
+        'O':['organizationName', "Organization name", "GridCA-" + socket.gethostname(), 'match'], \
+        'OU':['organizationalUnitName', "Organizational unit name", "", 'optional'], \
+        'CN':['commonName', "Common name", "Grid CA", 'supplied'] \
     }
 
     while True:
-	print "The subject name for your CA will be "
+        print("The subject name for your CA will be ")
 
-	first = True
-	for k,v in DNelements.iteritems():
-	    if len(v[2]) > 0:
-		if not first:
-		    print ", ",
-		print k + "=" + v[2],
-		first = False
-	print
+        first = True
+        for k,v in DNelements.items():
+            if len(v[2]) > 0:
+                if not first:
+                    sys.stdout.write(", ")
+                sys.stdout.write(k + "=" + v[2])
+                first = False
+        print("")
 
-	input = raw_input("Do you want to keep this as the CA subject name? (y/n) [y]").strip()
-	if input == 'n':
-	    for v in DNelements.values():
-		v[2] = raw_input(v[1] + ":").strip()
-	else:
-	    break
+        sys.stdout.write("Do you want to keep this as the CA subject name? (y/n) [y]")
+        sys.stdout.flush()
+        input = sys.stdin.readline().strip()
+        if input == 'n':
+            for v in DNelements.values():
+                sys.stdout.write(v[1] + ":")
+                sys.stdout.flush()
+                v[2] = sys.stdin.readline().strip()
+        else:
+            break
 
     while True:
-	DNelements['emailAddress'] = ['emailAddress', '', raw_input("Enter the email address of the CA: ").strip(),
-                                      'optional']
-	if DNelements['emailAddress'][2] and len(DNelements['emailAddress'][2]) > 0:
-	    break
+        sys.stdout.write("Enter the email address of the CA: ")
+        sys.stdout.flush()
+        DNelements['emailAddress'] = ['emailAddress', '', sys.stdin.readline().strip(), 'optional']
+        if DNelements['emailAddress'][2] and len(DNelements['emailAddress'][2]) > 0:
+            break
 
     #
     # Static configuration file data. This avoids locating template files
@@ -485,26 +494,26 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
     # It is necessary to generate configuration files because the
     # openssl configuration files do not permit empty values.
     #
-    print "Generating configuration files... ",
+    sys.stdout.write("Generating configuration files... ")
 
-    print "ca.cnf",
+    sys.stdout.write("ca.cnf")
     sys.stdout.flush()
     temp, cacnfname = tempfile.mkstemp(".cnf", "ca")
-    os.write(temp, config["ca.cnf"])
-    for k,v in DNelements.iteritems():
-	if len(v[2]) > 0:
-	    os.write(temp, v[0] + "=" + v[2] + "\n")
+    os.write(temp, config["ca.cnf"].encode("utf-8"))
+    for k,v in DNelements.items():
+        if len(v[2]) > 0:
+            os.write(temp, (v[0] + "=" + v[2] + "\n").encode("utf-8"))
     os.close(temp)
 
     file = 'sign.cnf'
-    print " " + file,
+    sys.stdout.write(" " + file)
     sys.stdout.flush()
     cnf = open(os.path.join(caroot, file), "w")
     cnf.write(config[file])
     cnf.write("[ ca_policy ]\n");
-    for k,v in DNelements.iteritems():
-	if len(v[2]) > 0:
-	    cnf.write(v[0] + "=" + v[3] + "\n")
+    for k,v in DNelements.items():
+        if len(v[2]) > 0:
+            cnf.write(v[0] + "=" + v[3] + "\n")
     cnf.close()
 
     # Don't want these RDNs in req.cnf
@@ -512,76 +521,76 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n\
     del DNelements['CN']
 
     file = "req.cnf"
-    print file,
+    sys.stdout.write(file)
     sys.stdout.flush()
     cnf = open(os.path.join(home, file), "w")
     cnf.write(config[file])
-    for k,v in DNelements.iteritems():
-	if len(v[2]) > 0:
-	    cnf.write(v[0] + "=" + v[2] + "\n")
+    for k,v in DNelements.items():
+        if len(v[2]) > 0:
+            cnf.write(v[0] + "=" + v[2] + "\n")
     cnf.close()
 
-    print "ok"
+    print("ok")
 
     cmd = opensslCmd + ' req -config "' + cacnfname + '" -x509 -days 1825 -newkey rsa:2048 -out "' + \
-	    os.path.join(cadb, "ca_cert.pem") + '" -outform PEM'
+            os.path.join(cadb, "ca_cert.pem") + '" -outform PEM'
     if nopassphrase:
-	cmd += " -nodes"
+        cmd += " -nodes"
 
-    #print cmd
-    if verbose: print cmd
+    #print(cmd)
+    if verbose: print(cmd)
     status = os.system(cmd)
     if not keep: os.remove(cacnfname)
     if status != 0:
-	print "openssl command failed"
-	sys.exit(1)
+        print("openssl command failed")
+        sys.exit(1)
 
     # Copy in the new ca certificate and private key.
     shutil.copy(os.path.join(cadb, "ca_cert.pem"), os.path.join(home))
 
-    print
-    print "The CA is initialized."
-    print
-    print "You need to distribute the following files to all machines that can"
-    print "request certificates:"
-    print
-    print os.path.join(home, "req.cnf")
-    print os.path.join(home, "ca_cert.pem")
-    print
-    print "These files should be placed in the user's home directory in"
-    print "~/.iceca. On Windows, place these files in <ice-install>/config."
+    print("")
+    print("The CA is initialized.")
+    print("")
+    print("You need to distribute the following files to all machines that can")
+    print("request certificates:")
+    print("")
+    print(os.path.join(home, "req.cnf"))
+    print(os.path.join(home, "ca_cert.pem"))
+    print("")
+    print("These files should be placed in the user's home directory in")
+    print("~/.iceca. On Windows, place these files in <ice-install>/config.")
 
     sys.exit(0)
 
 if sys.argv[script] == "request":
     def usage():
-	print "usage: " + sys.argv[script] + " [--overwrite] [--no-password] file common-name [email]"
-	sys.exit(1)
+        print("usage: " + sys.argv[script] + " [--overwrite] [--no-password] file common-name [email]")
+        sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "no-password" ])
+        opts, args = getopt.getopt(sys.argv[script+1:], "", [ "overwrite", "no-password" ])
     except getopt.GetoptError:
-	usage()
+        usage()
 
     nopassphrase = False
     overwrite = False
     for o, a in opts:
-	if o == "--overwrite":
-	    overwrite = True
-	elif o == "--no-password":
-	    nopassphrase = True
+        if o == "--overwrite":
+            overwrite = True
+        elif o == "--no-password":
+            nopassphrase = True
 
     if len(args) < 2 or len(args) > 3:
-	usage()
+        usage()
 
     keyfile = args[0] + "_key.pem"
     reqfile = args[0] + "_req.pem"
     if not overwrite:
         if os.path.exists(keyfile):
-            print keyfile + ": exists"
+            print(keyfile + ": exists")
             sys.exit(1)
         if os.path.exists(reqfile):
-            print reqfile + ": exists"
+            print(reqfile + ": exists")
             sys.exit(1)
 
     commonName = args[1]
@@ -596,97 +605,97 @@ if sys.argv[script] == "request":
     #
     template = open(os.path.join(home, "req.cnf"), "r")
     if not template:
-	print "cannot open " + os.path.join(home, "req.cnf")
-	sys.exit(1)
+        print("cannot open " + os.path.join(home, "req.cnf"))
+        sys.exit(1)
 
     data = template.read()
     template.close()
     temp, tempname = tempfile.mkstemp(".cnf", "req")
-    os.write(temp, data)
-    os.write(temp, "commonName=" + commonName + "\n")
+    os.write(temp, data.encode("utf-8"))
+    os.write(temp, ("commonName=" + commonName + "\n").encode("utf-8"))
     if email:
-	os.write(temp, "emailAddress=" + email + "\n")
+        os.write(temp, ("emailAddress=" + email + "\n").encode("utf-8"))
     os.close(temp)
 
     cmd = opensslCmd + ' req -config "' + tempname + '" -new -keyout "' + keyfile + '" -out "' + reqfile + '"'
     if nopassphrase:
-	cmd += " -nodes"
+        cmd += " -nodes"
 
-    if verbose: print cmd
+    if verbose: print(cmd)
     status = os.system(cmd)
     if not keep: os.remove(tempname)
     if status != 0:
-	print "openssl command failed"
-	sys.exit(1)
+        print("openssl command failed")
+        sys.exit(1)
 
-    print
-    print "Created key: " + keyfile
-    print "Created certificate request: " + reqfile
-    print
-    print "The certificate request must be signed by the CA. Send the certificate"
-    print "request file to the CA at the following email address:"
+    print("")
+    print("Created key: " + keyfile)
+    print("Created certificate request: " + reqfile)
+    print("")
+    print("The certificate request must be signed by the CA. Send the certificate")
+    print("request file to the CA at the following email address:")
     cmd = opensslCmd + ' x509 -in "' + os.path.join(home, "ca_cert.pem") + '" -email -noout'
-    if verbose: print cmd
+    if verbose: print(cmd)
     os.system(cmd)
 
     sys.exit(0)
 
 if sys.argv[script] == "sign":
     def usage():
-	print "usage: " + sys.argv[script] + " --in <req> --out <cert> [--ip <ip> --dns <dns>]"
-	sys.exit(1)
+        print("usage: " + sys.argv[script] + " --in <req> --out <cert> [--ip <ip> --dns <dns>]")
+        sys.exit(1)
 
     try:
-	opts, args = getopt.getopt(sys.argv[script+1:], "", [ "in=", "out=", "ip=", "dns=" ])
+        opts, args = getopt.getopt(sys.argv[script+1:], "", [ "in=", "out=", "ip=", "dns=" ])
     except getopt.GetoptError:
-	usage()
+        usage()
 
     if args:
-	usage()
+        usage()
 
     infile = None
     outfile = None
     subjectAltName = ""
     for o, a in opts:
-	if o == "--in":
-	    infile = a
-	elif o == "--out":
-	    outfile = a
-	elif o == "--ip":
-	    if len(subjectAltName) > 0:
-		subjectAltName += ","
-	    subjectAltName += "IP:" + a
-	elif o == "--dns":
-	    if len(subjectAltName) > 0:
-		subjectAltName += ","
-	    subjectAltName += "DNS:" + a
+        if o == "--in":
+            infile = a
+        elif o == "--out":
+            outfile = a
+        elif o == "--ip":
+            if len(subjectAltName) > 0:
+                subjectAltName += ","
+            subjectAltName += "IP:" + a
+        elif o == "--dns":
+            if len(subjectAltName) > 0:
+                subjectAltName += ","
+            subjectAltName += "DNS:" + a
 
     if infile == None or outfile == None:
-	usage()
+        usage()
 
     #
     # Create a temporary configuration file.
     #
     template = open(os.path.join(caroot, "sign.cnf"), "r")
     if not template:
-	print "cannot open " + os.path.join(caroot, "sign.cnf")
-	sys.exit(1)
+        print("cannot open " + os.path.join(caroot, "sign.cnf"))
+        sys.exit(1)
 
     data = template.read()
     template.close()
     temp, tempname = tempfile.mkstemp(".cnf", "sign")
-    os.write(temp, data)
+    os.write(temp, data.encode("utf-8"))
     if len(subjectAltName) > 0:
-	os.write(temp, "\n[certificate_extensions]\nsubjectAltName=" + subjectAltName + "\n")
+        os.write(temp, ("\n[certificate_extensions]\nsubjectAltName=" + subjectAltName + "\n").encode("utf-8"))
     os.close(temp)
 
     cmd = opensslCmd + ' ca -config "' + tempname + '" -in "' + infile + '" -out "' + outfile + '"'
-    if verbose: print cmd
+    if verbose: print(cmd)
     status = os.system(cmd)
     if not keep: os.remove(tempname)
     if status != 0:
-	print "openssl command failed"
-	sys.exit(1)
+        print("openssl command failed")
+        sys.exit(1)
 
     sys.exit(0)
 
