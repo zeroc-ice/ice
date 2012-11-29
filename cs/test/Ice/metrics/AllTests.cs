@@ -668,15 +668,19 @@ public class AllTests : TestCommon.TestApp
 
         prx.ice_getConnection().close(false);
 
-        string exceptionName = null;
+        bool dnsException = false;
         try
         {
             communicator.stringToProxy("test:tcp -p 12010 -h unknownfoo.zeroc.com").ice_ping();
             test(false);
         }
-        catch(Ice.LocalException ex)
+        catch(Ice.DNSException)
         {
-            exceptionName = ex.ice_name();
+            dnsException = true;
+        }
+        catch(Ice.LocalException)
+        {
+            // Some DNS servers don't fail on unknown DNS names.
         }
         test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
         m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
@@ -684,9 +688,12 @@ public class AllTests : TestCommon.TestApp
         {
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
         }
-        test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
-    
-        checkFailure(clientMetrics, "EndpointLookup", m1.id, exceptionName, 2);
+        test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && 
+             (!dnsException || m1.failures == 2));
+        if(dnsException)
+        {
+            checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2);
+        }
 
         c = () => { connect(prx); };
 
