@@ -692,17 +692,15 @@ public class AllTests
 
         prx.ice_getConnection().close(false);
 
+        String exceptionName = null;
         try
         {
             communicator.stringToProxy("test:tcp -p 12010 -h unknownfoo.zeroc.com").ice_ping();
             test(false);
         }
-        catch(Ice.DNSException ex)
-        {
-        }
         catch(Ice.LocalException ex)
         {
-            test(false);
+            exceptionName = ex.ice_name();
         }
         test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 2);
         m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
@@ -712,7 +710,7 @@ public class AllTests
         }
         test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
     
-        checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2, out);
+        checkFailure(clientMetrics, "EndpointLookup", m1.id, exceptionName, 2, out);
 
         c = new Connect(prx);
 

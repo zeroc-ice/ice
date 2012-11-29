@@ -668,17 +668,15 @@ public class AllTests : TestCommon.TestApp
 
         prx.ice_getConnection().close(false);
 
+        string exceptionName = null;
         try
         {
             communicator.stringToProxy("test:tcp -p 12010 -h unknownfoo.zeroc.com").ice_ping();
             test(false);
         }
-        catch(Ice.DNSException)
+        catch(Ice.LocalException ex)
         {
-        }
-        catch(Ice.LocalException)
-        {
-            test(false);
+            exceptionName = ex.ice_name();
         }
         test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
         m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
@@ -688,7 +686,7 @@ public class AllTests : TestCommon.TestApp
         }
         test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
     
-        checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2);
+        checkFailure(clientMetrics, "EndpointLookup", m1.id, exceptionName, 2);
 
         c = () => { connect(prx); };
 
