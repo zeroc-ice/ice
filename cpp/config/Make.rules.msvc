@@ -113,7 +113,11 @@ SDK_VERSION		= $(SHORT_VERSION)
 SDK_NAME		= Ice
 SDK_REG_FILE		= $(SDK_NAME).reg
 SDK_MANIFEST		= SDKManifest.xml
+!if "$(ice_src_dist)" != ""
 SDK_BASE_PATH		= $(top_srcdir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
+!else
+SDK_BASE_PATH		= $(ice_dir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
+!endif
 SDK_INCLUDE_PATH	= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral\include
 SDK_LIBRARY_PATH	= $(SDK_BASE_PATH)\DesignTime\$(CONFIG)\$(ARCH)
 SDK_REFERENCES_PATH	= $(SDK_BASE_PATH)\References\$(CONFIG)\$(ARCH)

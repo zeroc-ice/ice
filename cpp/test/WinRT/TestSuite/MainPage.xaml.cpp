@@ -277,7 +277,7 @@ struct TestCase
     const char* server;
     const char* serverAMD;
     const char* collocated;
-    bool sslSupport,
+    bool sslSupport;
 };
 
 }
