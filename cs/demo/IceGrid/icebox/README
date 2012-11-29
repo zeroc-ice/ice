@@ -37,10 +37,6 @@ In order to run this demo under 64 bit Windows you must add
 <ice-install-dir>\bin to your PATH, since that is where iceboxnet.exe
 is located.
 
-Note for Visual Studio 2010 / .NET 4.0 users:
-
-You need to configure iceboxnet.exe to use the .NET 4.0 runtime. See
-the release notes for details.
 
 Setup
 -----
