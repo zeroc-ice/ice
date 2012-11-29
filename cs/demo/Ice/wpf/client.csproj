@@ -90,9 +90,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hello.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="generated\Hello.cs" />
     <Compile Include="HelloWindow.xaml.cs">
       <DependentUpon>HelloWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -158,7 +156,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" />
+      <UserProperties ZerocIce_OutputDir=".\generated" ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

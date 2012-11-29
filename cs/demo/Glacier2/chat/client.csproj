@@ -99,9 +99,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Chat.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ChatWindow.xaml.cs">
       <DependentUpon>ChatWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -112,6 +109,7 @@
       <DependentUpon>CancelDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChatCommands.cs" />
+    <Compile Include="generated\Chat.cs" />
     <Compile Include="LoginDialog.xaml.cs">
       <DependentUpon>LoginDialog.xaml</DependentUpon>
     </Compile>
@@ -152,7 +150,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" />
+      <UserProperties ZerocIce_OutputDir=".\generated" ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
