@@ -78,8 +78,17 @@ iceboxnetconfig:
             <assemblyIdentity name="Ice"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
             <codeBase version="3.5.51.0" href="$(assembliesRelativeDir)\Ice.dll"/>
          </dependentAssembly>
-	 <dependentAssembly>
+         <dependentAssembly>
             <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+            <codeBase version="3.5.51.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
+         </dependentAssembly>
+         <!-- 
+           That allows iceboxnet to load IceSSL plug-in using an Strong name. We omit the
+           optional attributes culture and publicKeyToken so they can be also omited in IceSSL
+           entry point 
+      	 -->
+         <dependentAssembly>
+            <assemblyIdentity name="IceSSL"/>
             <codeBase version="3.5.51.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
          </dependentAssembly>
       </assemblyBinding>
