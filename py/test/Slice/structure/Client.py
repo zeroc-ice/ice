@@ -33,8 +33,7 @@ def allTests(communicator):
     #
     # Define some default values.
     #
-    def_s2 = Test.S2(True, 98, 99, 100, 101, 1.0, 2.0, "string", ("one", "two", "three"), {"abc":"def"}, \
-                     Test.S1("name"), Test.C(5), communicator.stringToProxy("test"))
+    def_s2 = Test.S2(True, 98, 99, 100, 101, "string", (1, 2, 3), Test.S1("name"))
 
     #
     # Compare default-constructed structures.
@@ -68,14 +67,6 @@ def allTests(communicator):
     test(v != def_s2)
 
     v = copy.copy(def_s2)
-    v.f = v.f - 1
-    test(v != def_s2)
-
-    v = copy.copy(def_s2)
-    v.d = v.d - 1
-    test(v != def_s2)
-
-    v = copy.copy(def_s2)
     v.str = ""
     test(v != def_s2)
 
@@ -106,46 +97,25 @@ def allTests(communicator):
     # Sequence member
     #
     v1 = copy.copy(def_s2)
-    v1.ss = copy.copy(def_s2.ss)
+    v1.seq = copy.copy(def_s2.seq)
     test(v1 == def_s2)
 
     v1 = copy.copy(def_s2)
-    v1.ss = []
+    v1.seq = ()
     test(v1 != def_s2)
 
     v1 = copy.copy(def_s2)
-    v1.ss = ("one", "two", "three")
+    v1.seq = (1, 2, 3)
     test(v1 == def_s2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v1.ss = None
+    v1.seq = None
     test(v1 != v2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v2.ss = None
-    test(v1 != v2)
-
-    #
-    # Dictionary member
-    #
-    v1 = copy.copy(def_s2)
-    v1.sd = {"abc":"def"}
-    test(v1 == def_s2)
-
-    v1 = copy.copy(def_s2)
-    v1.sd = {}
-    test(v1 != def_s2)
-
-    v1 = copy.copy(def_s2)
-    v2 = copy.copy(def_s2)
-    v1.sd = None
-    test(v1 != v2)
-
-    v1 = copy.copy(def_s2)
-    v2 = copy.copy(def_s2)
-    v2.sd = None
+    v2.seq = None
     test(v1 != v2)
 
     #
@@ -171,44 +141,6 @@ def allTests(communicator):
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
     v2.s = None
-    test(v1 != v2)
-
-    #
-    # Class member
-    #
-    v1 = copy.copy(def_s2)
-    v1.cls = copy.copy(def_s2.cls)
-    test(v1 != def_s2)
-
-    v1 = copy.copy(def_s2)
-    v2 = copy.copy(def_s2)
-    v1.cls = None
-    test(v1 != v2)
-
-    v1 = copy.copy(def_s2)
-    v2 = copy.copy(def_s2)
-    v2.cls = None
-    test(v1 != v2)
-
-    #
-    # Proxy member
-    #
-    v1 = copy.copy(def_s2)
-    v1.prx = communicator.stringToProxy("test")
-    test(v1 == def_s2)
-
-    v1 = copy.copy(def_s2)
-    v1.prx = communicator.stringToProxy("test2")
-    test(v1 != def_s2)
-
-    v1 = copy.copy(def_s2)
-    v2 = copy.copy(def_s2)
-    v1.prx = None
-    test(v1 != v2)
-
-    v1 = copy.copy(def_s2)
-    v2 = copy.copy(def_s2)
-    v2.prx = None
     test(v1 != v2)
 
     print("ok")

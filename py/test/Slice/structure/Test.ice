@@ -12,13 +12,7 @@
 module Test
 {
 
-sequence<string> StringSeq;
-dictionary<string, string> StringDict;
-
-class C
-{
-    int i;
-};
+sequence<int> IntSeq;
 
 struct S1
 {
@@ -32,14 +26,9 @@ struct S2
     short sh;
     int i;
     long l;
-    float f;
-    double d;
     string str;
-    StringSeq ss;
-    StringDict sd;
+    IntSeq seq;
     S1 s;
-    C cls;
-    Object* prx;
 };
 
 };

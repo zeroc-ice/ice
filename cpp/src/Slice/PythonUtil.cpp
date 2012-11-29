@@ -1211,126 +1211,147 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     }
     _out.dec();
 
-    _out << sp << nl << "def __hash__(self):";
-    _out.inc();
-    _out << nl << "_h = 0";
-    int iter = 0;
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
-    {
-        string s = "self." + r->fixedName;
-        writeHash(s, r->dataMember->type(), iter);
-    }
-    _out << nl << "return _h % 0x7fffffff";
-    _out.dec();
-
     //
-    // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
+    // Only generate __hash__ and the comparison operators if this structure type
+    // is a legal dictionary key type.
     //
-
-    _out << sp << nl << "def __compare(self, other):";
-    _out.inc();
-    _out << nl << "if other is None:";
-    _out.inc();
-    _out << nl << "return 1";
-    _out.dec();
-    _out << nl << "elif not isinstance(other, _M_" << abs << "):";
-    _out.inc();
-    _out << nl << "return NotImplemented";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    bool containsSequence = false;
+    if(Dictionary::legalKeyType(p, containsSequence))
     {
-        _out << nl << "if self." << r->fixedName << " < other." << r->fixedName << ':';
+        _out << sp << nl << "def __hash__(self):";
         _out.inc();
-        _out << nl << "return -1";
+        _out << nl << "_h = 0";
+        int iter = 0;
+        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            string s = "self." + r->fixedName;
+            writeHash(s, r->dataMember->type(), iter);
+        }
+        _out << nl << "return _h % 0x7fffffff";
         _out.dec();
-        _out << nl << "elif self." << r->fixedName << " > other." << r->fixedName << ':';
+
+        //
+        // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
+        //
+
+        _out << sp << nl << "def __compare(self, other):";
+        _out.inc();
+        _out << nl << "if other is None:";
         _out.inc();
         _out << nl << "return 1";
         _out.dec();
+        _out << nl << "elif not isinstance(other, _M_" << abs << "):";
+        _out.inc();
+        _out << nl << "return NotImplemented";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            //
+            // The None value is not orderable in Python 3.
+            //
+            _out << nl << "if self." << r->fixedName << " is None or other." << r->fixedName << " is None:";
+            _out.inc();
+            _out << nl << "if self." << r->fixedName << " != other." << r->fixedName << ':';
+            _out.inc();
+            _out << nl << "return (-1 if self." << r->fixedName << " is None else 1)";
+            _out.dec();
+            _out.dec();
+            _out << nl << "else:";
+            _out.inc();
+            _out << nl << "if self." << r->fixedName << " < other." << r->fixedName << ':';
+            _out.inc();
+            _out << nl << "return -1";
+            _out.dec();
+            _out << nl << "elif self." << r->fixedName << " > other." << r->fixedName << ':';
+            _out.inc();
+            _out << nl << "return 1";
+            _out.dec();
+            _out.dec();
+        }
+        _out << nl << "return 0";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __lt__(self, other):";
+        _out.inc();
+        _out << nl << "r = self.__compare(other)";
+        _out << nl << "if r is NotImplemented:";
+        _out.inc();
+        _out << nl << "return r";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "return r < 0";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __le__(self, other):";
+        _out.inc();
+        _out << nl << "r = self.__compare(other)";
+        _out << nl << "if r is NotImplemented:";
+        _out.inc();
+        _out << nl << "return r";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "return r <= 0";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __gt__(self, other):";
+        _out.inc();
+        _out << nl << "r = self.__compare(other)";
+        _out << nl << "if r is NotImplemented:";
+        _out.inc();
+        _out << nl << "return r";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "return r > 0";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __ge__(self, other):";
+        _out.inc();
+        _out << nl << "r = self.__compare(other)";
+        _out << nl << "if r is NotImplemented:";
+        _out.inc();
+        _out << nl << "return r";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "return r >= 0";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __eq__(self, other):";
+        _out.inc();
+        _out << nl << "r = self.__compare(other)";
+        _out << nl << "if r is NotImplemented:";
+        _out.inc();
+        _out << nl << "return r";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "return r == 0";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __ne__(self, other):";
+        _out.inc();
+        _out << nl << "r = self.__compare(other)";
+        _out << nl << "if r is NotImplemented:";
+        _out.inc();
+        _out << nl << "return r";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "return r != 0";
+        _out.dec();
+        _out.dec();
     }
-    _out << nl << "return 0";
-    _out.dec();
-    _out.dec();
-
-    _out << sp << nl << "def __lt__(self, other):";
-    _out.inc();
-    _out << nl << "r = self.__compare(other)";
-    _out << nl << "if r is NotImplemented:";
-    _out.inc();
-    _out << nl << "return r";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return r < 0";
-    _out.dec();
-    _out.dec();
-
-    _out << sp << nl << "def __le__(self, other):";
-    _out.inc();
-    _out << nl << "r = self.__compare(other)";
-    _out << nl << "if r is NotImplemented:";
-    _out.inc();
-    _out << nl << "return r";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return r <= 0";
-    _out.dec();
-    _out.dec();
-
-    _out << sp << nl << "def __gt__(self, other):";
-    _out.inc();
-    _out << nl << "r = self.__compare(other)";
-    _out << nl << "if r is NotImplemented:";
-    _out.inc();
-    _out << nl << "return r";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return r > 0";
-    _out.dec();
-    _out.dec();
-
-    _out << sp << nl << "def __ge__(self, other):";
-    _out.inc();
-    _out << nl << "r = self.__compare(other)";
-    _out << nl << "if r is NotImplemented:";
-    _out.inc();
-    _out << nl << "return r";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return r >= 0";
-    _out.dec();
-    _out.dec();
-
-    _out << sp << nl << "def __eq__(self, other):";
-    _out.inc();
-    _out << nl << "r = self.__compare(other)";
-    _out << nl << "if r is NotImplemented:";
-    _out.inc();
-    _out << nl << "return r";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return r == 0";
-    _out.dec();
-    _out.dec();
-
-    _out << sp << nl << "def __ne__(self, other):";
-    _out.inc();
-    _out << nl << "r = self.__compare(other)";
-    _out << nl << "if r is NotImplemented:";
-    _out.inc();
-    _out << nl << "return r";
-    _out.dec();
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return r != 0";
-    _out.dec();
-    _out.dec();
 
     //
     // __str__
