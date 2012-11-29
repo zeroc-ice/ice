@@ -249,7 +249,7 @@ SessionHelperI::destroy(const IceUtil::ThreadPtr& destroyInternal)
     // Run the destroyInternal in a thread. This is because it
     // destroyInternal makes remote invocations.
     //
-    destroyInternal->start();
+    destroyInternal->start().detach();
 }
 
 Ice::CommunicatorPtr
@@ -633,12 +633,12 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
     {
         _destroy = true;
         IceUtil::ThreadPtr thread = new DispatchCallThread(this, new ConnectFailed(_callback, this, ex), 0);
-        thread->start();
+        thread->start().detach();
         return;
     }
 
     IceUtil::ThreadPtr connectThread = new ConnectThread(_callback, this, factory, _communicator);
-    connectThread->start();
+    connectThread->start().detach();
 }
 
 namespace
@@ -698,7 +698,7 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
             // destroyInternal makes remote invocations.
             //
             IceUtil::ThreadPtr thread = new DestroyInternal(this, _callback);
-            thread->start();
+            thread->start().detach();
             return;
         }
 
