@@ -154,6 +154,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
                                                 }
                                                 else if(!sentSynchronously)
                                                 {
+                                                    hello->IsEnabled = true;
                                                     print("Ready.");
                                                 }
                                             });
@@ -164,6 +165,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
             }
             else if(deliveryMode > 1)
             {
+                hello->IsEnabled = true;
                 print("Ready");
             }
         }

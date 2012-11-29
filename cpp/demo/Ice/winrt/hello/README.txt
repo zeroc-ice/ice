@@ -2,8 +2,11 @@ This demo illustrates how to invoke ordinary (twoway) operations,
 as well as how to make oneway, datagram, secure, and batched
 invocations.
 
-First follow the instructions from the C++ Ice hello demo README
-to start the server.
+First follow the instructions from the C++ Ice hello demo README to
+start the server. Since the WinRT SSL transport doesn't support client
+side SSL authentication, you also need to edit the hello server
+config.server configuration file to uncomment the IceSSL.VerifyPeer=0
+property.
 
 Build and deploy the demo using "Deploy hello" from the "Build" menu.
 

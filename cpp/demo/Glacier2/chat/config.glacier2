@@ -56,7 +56,8 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 #
 # Verify the client certificate by default. Uncomment this property
 # setting if you run the demo with a client which doesn't support
-# client certificates (such as a Metro Style App client for example).
+# client certificates (such as a Windows Store App clients for
+# example).
 #
 #IceSSL.VerifyPeer=0
 
