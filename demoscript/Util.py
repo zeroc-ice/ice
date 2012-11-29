@@ -86,7 +86,12 @@ def configurePaths():
     if iceHome == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
         addenv("CLASSPATH", os.path.join(javaDir, "Ice.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "Glacier2.jar"))
         addenv("CLASSPATH", os.path.join(javaDir, "Freeze.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceBox.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceStorm.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "IceGrid.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "IcePatch2.jar"))
         addenv("CLASSPATH", "classes")
         return # That's it, we're done!
 
@@ -133,7 +138,12 @@ def configurePaths():
     javaDir = getIceDir("java")
 
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Glacier2.jar"))
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceBox.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceStorm.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IceGrid.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "IcePatch2.jar"))
     if not iceHome:
         addenv("CLASSPATH", os.path.join(javaDir, "lib"))
     addenv("CLASSPATH", os.path.join("classes"))
