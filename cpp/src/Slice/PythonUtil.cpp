@@ -1352,6 +1352,43 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out.dec();
     }
+    else
+    {
+        //
+        // Only generate the rich equality operators __eq__ and __ne__.
+        //
+
+        _out << sp << nl << "def __eq__(self, other):";
+        _out.inc();
+        _out << nl << "if other is None:";
+        _out.inc();
+        _out << nl << "return False";
+        _out.dec();
+        _out << nl << "elif not isinstance(other, _M_" << abs << "):";
+        _out.inc();
+        _out << nl << "return NotImplemented";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            //
+            // The None value is not orderable in Python 3.
+            //
+            _out << nl << "if self." << r->fixedName << " != other." << r->fixedName << ':';
+            _out.inc();
+            _out << nl << "return False";
+            _out.dec();
+        }
+        _out << nl << "return True";
+        _out.dec();
+        _out.dec();
+
+        _out << sp << nl << "def __ne__(self, other):";
+        _out.inc();
+        _out << nl << "return not self.__eq__(other)";
+        _out.dec();
+    }
 
     //
     // __str__

@@ -41,7 +41,7 @@ def allTests(communicator):
     test(Test.S2() == Test.S2())
 
     #
-    # Change one primitive member at a time.
+    # Change one member at a time.
     #
     v = copy.copy(def_s2)
     test(v == def_s2)
@@ -142,6 +142,48 @@ def allTests(communicator):
     v2 = copy.copy(def_s2)
     v2.s = None
     test(v1 != v2)
+
+    #
+    # Define some default values.
+    #
+    def_s3 = Test.S3(Test.C("name"), {"1":"2"}, communicator.stringToProxy("test"))
+
+    #
+    # Compare default-constructed structures.
+    #
+    test(Test.S3() == Test.S3())
+
+    #
+    # Change one member at a time.
+    #
+    v1 = copy.copy(def_s3)
+    test(v1 == def_s3)
+
+    v1.obj = None
+    test(v1 != def_s3)
+
+    v1.obj = Test.C("name")
+    test(v1 != def_s3)
+
+    v1 = copy.copy(def_s3)
+    v1.sd = copy.copy(def_s3.sd)
+    test(v1 == def_s3)
+
+    v1.sd = None
+    test(v1 != def_s3)
+
+    v1.sd = {"1":"3"}
+    test(v1 != def_s3)
+
+    v1 = copy.copy(def_s3)
+    v1.prx = None
+    test(v1 != def_s3)
+
+    v1.prx = communicator.stringToProxy("test")
+    test(v1 == def_s3)
+
+    v1.prx = communicator.stringToProxy("test2")
+    test(v1 != def_s3)
 
     print("ok")
 
