@@ -1274,7 +1274,10 @@ public class Coordinator
                 parent.setCursor(oldCursor);
                 return;
             }
-            initData.properties.setProperty("IceSSL.Password", new String(info.getKeyPassword()));
+            if(info.getKeyPassword() != null)
+            {
+                initData.properties.setProperty("IceSSL.Password", new String(info.getKeyPassword()));
+            }
             initData.properties.setProperty("IceSSL.Alias", info.getAlias());
         }
 
@@ -1783,7 +1786,9 @@ public class Coordinator
                             else
                             {
                                 router = Glacier2.RouterPrxHelper.uncheckedCast(router.ice_preferSecure(true));
-                                s = router.createSession(info.getUsername(), new String(info.getPassword()));
+
+                                s = router.createSession(info.getUsername(), info.getPassword() != null ? 
+                                                                                new String(info.getPassword()) : "");
 
                                 if(s == null)
                                 {
@@ -2052,7 +2057,7 @@ public class Coordinator
                                                                             cb.getRegistry().ice_preferSecure(true)));
 
                                         cb.setSession(cb.getRegistry().createAdminSession(info.getUsername(), 
-                                                                                    new String(info.getPassword())));
+                                                    info.getPassword() != null ? new String(info.getPassword()) : ""));
                                         assert cb.getSession() != null;
                                     }
                                     cb.setKeepAlivePeriod(cb.getRegistry().getSessionTimeout() * 1000 / 2);

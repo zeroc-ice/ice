@@ -604,7 +604,7 @@ public class SessionKeeper
                 _prefs.putBoolean("storePassword", _storePassword);
                 if(_storePassword)
                 {
-                    _prefs.put("password", new String(getPassword()));
+                    _prefs.put("password", getPassword() != null ? new String(getPassword()) : null);
                 }
                 if(_useX509Certificate)
                 {
@@ -618,7 +618,7 @@ public class SessionKeeper
                 _prefs.putBoolean("storeKeyPassword", _storeKeyPassword);
                 if(_storeKeyPassword)
                 {
-                    _prefs.put("keyPassword", new String(getKeyPassword()));
+                    _prefs.put("keyPassword", getKeyPassword() != null ? new String(getKeyPassword()) : null);
                 }
                 _prefs.putBoolean("useX509Certificate", true);
             }
@@ -1041,6 +1041,7 @@ public class SessionKeeper
         ConnectionWizardDialog(JDialog parent)
         {
             super(parent, true);
+            _x509CertificateDefault = true;
             initialize("New Connection - IceGrid Admin", parent);
             _connectNow = true;
         }
@@ -1049,6 +1050,7 @@ public class SessionKeeper
         {
             super(parent, true);
             _conf = inf;
+            _x509CertificateDefault = false;
             initialize("Edit Connection - IceGrid Admin", parent);
             _connectNow = false;
             _nextButton.requestFocusInWindow();
@@ -1487,6 +1489,8 @@ public class SessionKeeper
                     {
                         public void actionPerformed(ActionEvent e)
                         {
+                            _x509CertificateDefault = false;
+                            _usernamePasswordAuthButton.setSelected(true);
                             validatePanel();
                         }
                     });
@@ -1496,6 +1500,7 @@ public class SessionKeeper
                     {
                         public void actionPerformed(ActionEvent e)
                         {
+                            _x509CertificateDefault = false;
                             validatePanel();
                         }
                     });
@@ -1846,7 +1851,7 @@ public class SessionKeeper
                                     _cardLayout.show(_cardPanel, WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
-                                if(_conf == null)
+                                if(_x509CertificateDefault)
                                 {
                                     if(_directDefaultEndpointSSL.isSelected())
                                     {
@@ -1873,7 +1878,7 @@ public class SessionKeeper
                                     _cardLayout.show(_cardPanel, WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                 }
-                                if(_conf == null)
+                                if(_x509CertificateDefault)
                                 {
                                     if(_routedDefaultEndpointSSL.isSelected())
                                     {
@@ -1928,7 +1933,7 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
-                                if(_conf == null)
+                                if(_x509CertificateDefault)
                                 {
                                     if(hasSecureEndpoints(_directCustomEndpointValue.getText()))
                                     {
@@ -1983,7 +1988,7 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
-                                if(_conf == null)
+                                if(_x509CertificateDefault)
                                 {
                                     if(hasSecureEndpoints(_routedCustomEndpointValue.getText()))
                                     {
@@ -2206,7 +2211,8 @@ public class SessionKeeper
                             if(_x509CertificateYesButton.isSelected())
                             {
                                 inf.setAlias((String)_routedCertificateAliases.getSelectedItem());
-                                if(_routedCertificatePassword.getPassword() != null && _routedCertificatePassword.getPassword().length > 0)
+                                if(_routedCertificatePassword.getPassword() != null &&
+                                   _routedCertificatePassword.getPassword().length > 0)
                                 {
                                     inf.setKeyPassword(_routedCertificatePassword.getPassword());
                                     inf.setStoreKeyPassword(true);
@@ -2918,6 +2924,7 @@ public class SessionKeeper
         java.util.Stack<WizardStep> _wizardSteps = new java.util.Stack<WizardStep>();
 
         ConnectionInfo _conf;
+        private boolean _x509CertificateDefault;
     }
 
     private boolean hasSecureEndpoints(String str)
