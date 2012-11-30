@@ -425,12 +425,11 @@ class Expect (object):
         if self.logfile:
             self.logfile.write('%s: sendline: "%s"\n' % (self.desc, escape(data)))
             self.logfile.flush()
+        data = data + "\n"
         if win32 or sys.version_info[0] == 2:
             self.p.stdin.write(data)
-            self.p.stdin.write("\n")
         else:
             self.p.stdin.write(data.encode("utf-8"))
-            self.p.stdin.write("\n".encode("utf-8"))
 
     def wait(self, timeout = None):
         """Wait for the application to terminate for up to timeout seconds, or
