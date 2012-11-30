@@ -82,20 +82,15 @@ connection:
 
   * Enter "DemoIceGrid" for the IceGrid instance name and click Next.
 
-  * In "Endpoint Configuration", select "connect with a hostname and
-    port number" and click Next.
+  * In "Endpoint Configuration", select "A hostname and port number?"
+    and click Next.
 
   * Enter "localhost" for the Hostname. You can leave the port empty
-    as the demo uses the default port. Click Next.
+    as the demo uses the default port. Change the protocol to "SSL"
+    and click Next.
 
-  * In "Authentication Type", select "Use Username and Password
-    Authentication" and click Next.
-
-  * In the next step, select "Yes" to provide an SSL X509 Certificate,
-    and click Finish.
-
-  * In the Login dialog, enter any username and password combination
-    (the password is not validated).
+  * In the next step, select "Yes" to provide an SSL X509 Certificate.
+    and click Next.
 
   * If "Key Alias" list is empty, click "New Alias" to open the
     "Certificate Manager". With "My Certificates" tab selected, click
@@ -114,50 +109,56 @@ connection:
   * "ca_cert" must now be selected in the "Key Alias" field. Enter
     "password" in the "Key password" field and click Ok to log in.
 
+  * In "Authentication Type", select "Log in with a username and 
+    password" and click Next.
+
+  * Enter any username and password combination (the password is not
+    validated). Click Finish.
+
 
 - Configure routed connection to IceGrid through Glacier2:
 
   * Select Login... from the File menu.
 
-  * In the "Saved Connections" dialog click "New Connection" to open
+  * In the "Saved Connections" dialog, click "New Connection" to open
     the "New Connection" wizard.
 
   * Select "Routed Connection" and click Next.
 
-  * Enter "DemoGlacier2" for the Glacier2 instance name and click
-    Next.
+  * Enter "DemoGlacier2" for the Glacier2 instance name and click Next.
 
-  * In "Endpoint Configuration", select "connect with a hostname and
-    port number" and click Next.
+  * In "Endpoint Configuration", select "A hostname and port number?"
+    and click Next.
 
   * Enter "localhost" for the Hostname. You can leave the port empty
-    as the demo uses the default port. Click Next.
+    as the demo uses the default port. Change the protocol to "SSL"
+    and click Next.
 
-  * In "Authentication Type", select "Use Username and Password
-    Authentication" and click Next.
+  * In the next step, select "Yes" to provide an SSL X509 Certificate.
+    and click Next.
 
-  * In the next step, select "Yes" to provide an SSL X509 Certificate,
-    and click Finish.
-
-  * In the Login dialog, enter any username and password combination
-    (the password is not validated).
-
-  * If the "Key Alias" list is empty, click "New Alias" to open the
-    "Certificate Manager". With the "My Certificates" tab selected,
-    click the "Import" button.
+  * If "Key Alias" list is empty, click "New Alias" to open the
+    "Certificate Manager". With "My Certificates" tab selected, click
+    the "Import" button.
 
   * In the "Open file" dialog, navigate to the "certs" subdirectory of
     the demo. In the "Files of Type" field, select
     "Java Key Store Files (*.jks)" and select the certs.jks file.
 
-  * When asked for the password for "ca_cert", enter "password" and
+  * When asked for the password for "ca_cert" type "password" and
     click Ok.
 
   * Close the "Certificate Manager" dialog by clicking the Close
     button.
 
   * "ca_cert" must now be selected in the "Key Alias" field. Enter
-    "password" in the "Key password" field and click "Ok" to log in.
+    "password" in the "Key password" field and click Ok to log in.
+
+  * In "Authentication Type", select "Log in with a username and 
+    password" and click Next.
+
+  * Enter any username and password combination (the password is not
+    validated). Click Finish.
 
 The IceGrid registry and Glacier2 router are configured to use the
 "null permissions verifier" so you can use any username/password to

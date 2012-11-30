@@ -77,14 +77,24 @@ the application you deployed above:
 
   - Select Login... from the File menu.
 
-  - Enter any username and password combination (the password is not
-    validated).
+  - In the "Saved Connections" dialog, click "New Connection" to open
+    the "New Connection" wizard.
 
-  - Enter "DemoIceGrid" for the IceGrid instance name.
+  - Select "Direct Connection" and click Next.
 
-  - Enter "tcp -h localhost -p 4061" for the endpoints.
+  - Enter "DemoIceGrid" for the IceGrid instance name and click next.
 
-  - Click OK to log in.
+  - In "Endpoint Configuration", select "A hostname and port number?"
+    and click Next.
+
+  - Enter "localhost" for the Hostname. You can leave the port empty
+    as the demo uses the default port. Click Next.
+
+  - Enter any username and password combination and click Finish
+    to log in.
+
+  - Next time you want to connect, the connection will appear in the
+    "Saved Connections" dialog, just select it and click Connect.
 
 
 Running the Client

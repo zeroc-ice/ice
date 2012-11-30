@@ -56,15 +56,14 @@ the application you deployed above:
 
   - Enter "DemoIceGrid" for the IceGrid instance name and click next.
 
-  - In "Endpoint Configuration", select "connect with a hostname and
-    port number" and click Next.
+  - In "Endpoint Configuration", select "A hostname and port number?"
+    and click Next.
 
   - Enter "localhost" for the Hostname. You can leave the port empty
-    as the demo uses the default port. Change the protocol to "TCP"
-    and click Finish.
+    as the demo uses the default port. Click Next.
 
-  - In the Login dialog, enter any username and password combination
-    (the password is not validated) and click Ok to log in.
+  - Enter any username and password combination and click Finish
+    to log in.
 
   - Next time you want to connect, the connection will appear in the
     "Saved Connections" dialog, just select it and click Connect.
