@@ -454,7 +454,7 @@ class Expect (object):
             self.exitstatus = self.p.wait()
 
             # A Windows application killed with CTRL_BREAK. Fudge the exit status.
-            if win32 and self.killed is not None:
+            if win32 and self.exitstatus != 0 and self.killed is not None:
                 self.exitstatus = -self.killed
             self.p = None
             self.r.join()
