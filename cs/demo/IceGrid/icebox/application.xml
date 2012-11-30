@@ -15,7 +15,7 @@
          <service name="${name}" entry="helloservice.dll:HelloServiceI">
             <description>A very simple service named after ${name}</description>
             <properties>
-               <properties id="mx"/>
+               <properties refid="mx"/>
                <property name="Hello.Identity" value="hello"/>
             </properties>
             <adapter name="Hello-${name}" endpoints="default" id="Hello-${name}" replica-group="HelloGroup" server-lifetime="false"/>
@@ -29,7 +29,7 @@
          <parameter name="session-timeout" default="0"/>
          <server id="${instance-name}" activation="manual" exe="glacier2router">
             <properties>
-               <properties id="mx"/>
+               <properties refid="mx"/>
                <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
                <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
                <property name="Glacier2.InstanceName" value="${instance-name}"/>
@@ -57,7 +57,7 @@
          <icebox id="IceBox" activation="on-demand" exe="iceboxnet.exe">
             <description>A sample IceBox server</description>
             <properties>
-               <properties id="mx"/>
+               <properties refid="mx"/>
                <property name="IceBox.Trace.ServiceObserver" value="1"/>
             </properties>
             <service-instance template="HelloService" name="Homer"/>

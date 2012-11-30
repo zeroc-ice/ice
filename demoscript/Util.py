@@ -53,7 +53,7 @@ debug = False
 origenv = {}
 def dumpenv():
     print("the following environment variables have been set:")
-    for k, v in origenv.iteritems():
+    for k, v in origenv.items():
         added = os.environ[k][:len(os.environ[k])-len(v)]
         if len(v) > 0:
             if isWin32():
