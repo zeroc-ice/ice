@@ -233,8 +233,8 @@ InvokeClient::run(int argc, char* argv[])
                 c->s.name = "blue";
                 c->s.value = Demo::blue;
                 out->write(c);
-                out->endEncapsulation();
                 out->writePendingObjects();
+                out->endEncapsulation();
                 out->finished(inParams);
 
                 //
@@ -266,6 +266,7 @@ InvokeClient::run(int argc, char* argv[])
                 in->read(c);
                 string str;
                 in->read(str);
+                in->readPendingObjects();
                 in->endEncapsulation();
                 cout << "Got string `" << str << "' and class: s.name=" << c->s.name
                      << ", s.value=" << c->s.value << endl;
@@ -296,6 +297,7 @@ InvokeClient::run(int argc, char* argv[])
                 {
                     cout << "Unknown user exception" << endl;
                 }
+                in->endEncapsulation();
             }
             else if(ch == 's')
             {

@@ -59,7 +59,9 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         outStream.writeString("The streaming API works!")
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -74,8 +76,10 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         Dim arr As String() = {"The", "streaming", "API", "works!"}
                         StringSeqHelper.write(outStream, arr)
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -90,10 +94,12 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         Dim dict As Dictionary(Of String, String) = New Dictionary(Of String, String)()
                         dict("The") = "streaming"
                         dict("API") = "works!"
                         StringDictHelper.write(outStream, dict)
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -108,7 +114,9 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         ColorHelper.write(outStream, Color.green)
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -123,10 +131,12 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         Dim s As [Structure] = New [Structure]
                         s.name = "red"
                         s.value = Color.red
                         s.ice_write(outStream)
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -141,6 +151,7 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         Dim arr As [Structure]() = New [Structure](2) {}
                         arr(0) = New [Structure]
                         arr(0).name = "red"
@@ -152,6 +163,7 @@ Module InvokeC
                         arr(2).name = "blue"
                         arr(2).value = Color.blue
                         StructureSeqHelper.write(outStream, arr)
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -167,12 +179,14 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+                        outStream.startEncapsulation()
                         Dim C As C = New C
                         C.s = New [Structure]
                         C.s.name = "blue"
                         C.s.value = Color.blue
                         CHelper.write(outStream, C)
                         outStream.writePendingObjects()
+                        outStream.endEncapsulation()
 
                         '
                         ' Invoke operation.
@@ -195,10 +209,12 @@ Module InvokeC
                         ' Unmarshal the results.
                         '
                         Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
+                        inStream.startEncapsulation()
                         Dim ch As CHelper = New CHelper(inStream)
                         ch.read()
                         Dim str As String = inStream.readString()
                         inStream.readPendingObjects()
+                        inStream.endEncapsulation()
                         inStream.destroy()
                         Dim C As C = ch.value
                         Console.Error.WriteLine("Got string `" & str & "' and class: s.name=" & C.s.name & _
@@ -213,6 +229,7 @@ Module InvokeC
                         End If
 
                         Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
+                        inStream.startEncapsulation()
                         Try
                             inStream.throwException()
                         Catch ex As PrintFailure
@@ -220,6 +237,7 @@ Module InvokeC
                         Catch ex As Ice.UserException
                             Console.Error.WriteLine("Unknown user exception", ex)
                         End Try
+                        inStream.endEncapsulation()
                         inStream.destroy()
                     ElseIf line.Equals("s") Then
                         obj.ice_invoke("shutdown", Ice.OperationMode.Normal, Nothing, outParams)

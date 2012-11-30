@@ -229,6 +229,7 @@ public class Client extends Ice.Application
                     c.s.name = "blue";
                     c.s.value = Demo.Color.blue;
                     Demo.CHelper.write(out, c);
+                    out.writePendingObjects();
                     out.endEncapsulation();
 
                     //
@@ -261,6 +262,7 @@ public class Client extends Ice.Application
                     Demo.CHolder c = new Demo.CHolder();
                     Demo.CHelper.read(in, c);
                     String str = in.readString();
+                    in.readPendingObjects();
                     in.endEncapsulation();
                     in.destroy();
                     System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +

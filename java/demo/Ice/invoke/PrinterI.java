@@ -99,6 +99,7 @@ public class PrinterI extends Ice.Blobject
         {
             Demo.CHolder c = new Demo.CHolder();
             Demo.CHelper.read(in, c);
+            in.readPendingObjects();
             in.endEncapsulation();
             in.destroy();
             System.out.println("Printing class: s.name=" + c.value.s.name + ", s.value=" + c.value.s.value);

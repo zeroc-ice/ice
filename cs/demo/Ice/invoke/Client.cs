@@ -73,7 +73,9 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         outStream.writeString("The streaming API works!");
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -92,8 +94,10 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         string[] arr = { "The", "streaming", "API", "works!" };
                         Demo.StringSeqHelper.write(outStream, arr);
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -112,10 +116,12 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         Dictionary<string, string> dict = new Dictionary<string, string>();
                         dict["The"] = "streaming";
                         dict["API"] = "works!";
                         Demo.StringDictHelper.write(outStream, dict);
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -134,7 +140,9 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         Demo.ColorHelper.write(outStream, Demo.Color.green);
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -152,10 +160,12 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         Demo.Structure s = new Demo.Structure();
                         s.name = "red";
                         s.value = Demo.Color.red;
                         s.ice_write(outStream);
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -174,6 +184,7 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         Demo.Structure[] arr = new Demo.Structure[3];
                         arr[0] = new Demo.Structure();
                         arr[0].name = "red";
@@ -185,6 +196,7 @@ public class Client
                         arr[2].name = "blue";
                         arr[2].value = Demo.Color.blue;
                         Demo.StructureSeqHelper.write(outStream, arr);
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -203,12 +215,14 @@ public class Client
                         // Marshal the in parameter.
                         //
                         Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
+                        outStream.startEncapsulation();
                         Demo.C c = new Demo.C();
                         c.s = new Demo.Structure();
                         c.s.name = "blue";
                         c.s.value = Demo.Color.blue;
                         Demo.CHelper.write(outStream, c);
                         outStream.writePendingObjects();
+                        outStream.endEncapsulation();
 
                         //
                         // Invoke operation.
@@ -235,6 +249,7 @@ public class Client
                         // Unmarshal the results.
                         //
                         Ice.InputStream inStream = Ice.Util.createInputStream(communicator(), outParams);
+                        inStream.startEncapsulation();
                         Demo.CHelper ch = new Demo.CHelper(inStream);
                         ch.read();
                         String str = inStream.readString();
@@ -256,6 +271,7 @@ public class Client
                         }
 
                         Ice.InputStream inStream = Ice.Util.createInputStream(communicator(), outParams);
+                        inStream.startEncapsulation();
                         try
                         {
                             inStream.throwException();
@@ -268,6 +284,7 @@ public class Client
                         {
                             Console.Error.WriteLine("Unknown user exception");
                         }
+                        inStream.endEncapsulation();
                         inStream.destroy();
                     }
                     else if(line.Equals("s"))

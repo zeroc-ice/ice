@@ -23,15 +23,18 @@ Public Class PrinterI
         Dim inStream As Ice.InputStream = Nothing
         If inparams.Length > 0 Then
             inStream = Ice.Util.createInputStream(communicator, inparams)
+            inStream.startEncapsulation()
         End If
 
         If current.operation.Equals("printString") Then
             Dim message As String = inStream.readString()
+            inStream.endEncapsulation()
             inStream.destroy()
             Console.WriteLine("Printing string `" & message & "'")
             Return True
         ElseIf current.operation.Equals("printStringSequence") Then
             Dim seq As String() = StringSeqHelper.read(inStream)
+            inStream.endEncapsulation()
             inStream.destroy()
             Console.Write("Printing string sequence {")
             For i As Integer = 0 To seq.Length - 1
@@ -44,6 +47,7 @@ Public Class PrinterI
             Return True
         ElseIf current.operation.Equals("printDictionary") Then
             Dim dict As Dictionary(Of String, String) = StringDictHelper.read(inStream)
+            inStream.endEncapsulation()
             inStream.destroy()
             Console.Write("Printing dictionary {")
             Dim first As Boolean = True
@@ -58,17 +62,20 @@ Public Class PrinterI
             Return True
         ElseIf current.operation.Equals("printEnum") Then
             Dim c As Color = ColorHelper.read(inStream)
+            inStream.endEncapsulation()
             inStream.destroy()
             Console.WriteLine("Printing enum " & c)
             Return True
         ElseIf current.operation.Equals("printStruct") Then
             Dim s As [Structure] = New [Structure]
             s.ice_read(inStream)
+            inStream.endEncapsulation()
             inStream.destroy()
             Console.WriteLine("Printing struct: name=" & s.name & ", value=" & s.value)
             Return True
         ElseIf current.operation.Equals("printStructSequence") Then
             Dim seq As [Structure]() = StructureSeqHelper.read(inStream)
+            inStream.endEncapsulation()
             inStream.destroy()
             Console.Write("Printing struct sequence: {")
             For i As Integer = 0 To seq.Length - 1
@@ -82,6 +89,7 @@ Public Class PrinterI
         ElseIf current.operation.Equals("printClass") Then
             Dim ch As CHelper = New CHelper(inStream)
             ch.read()
+            inStream.endEncapsulation()
             inStream.readPendingObjects()
             inStream.destroy()
             Dim c As InvokeDemo.C = ch.value
@@ -93,9 +101,11 @@ Public Class PrinterI
             c.s.name = "green"
             c.s.value = Color.green
             Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+            outStream.startEncapsulation()
             CHelper.write(outStream, c)
             outStream.writeString("hello")
             outStream.writePendingObjects()
+            outStream.endEncapsulation()
             outParams = outStream.finished()
             Return True
         ElseIf current.operation.Equals("throwPrintFailure") Then
@@ -103,7 +113,9 @@ Public Class PrinterI
             Dim ex As PrintFailure = New PrintFailure
             ex.reason = "paper tray empty"
             Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
+            outStream.startEncapsulation()
             outStream.writeException(ex)
+            outStream.endEncapsulation()
             outParams = outStream.finished()
             Return False
         ElseIf current.operation.Equals("shutdown") Then
