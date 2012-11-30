@@ -552,10 +552,7 @@ class Expect (object):
         if self.mapping == "java":
             if self.killed is not None:
                 if win32:
-                    if self.killed == signal.SIGINT:
-                        test(self.exitstatus, 1)
-                    else:
-                        test(self.exitstatus, self.killed)
+                    test(self.exitstatus, -self.killed)
                 else:
                     if self.killed == signal.SIGINT:
                         test(130, self.exitstatus)
