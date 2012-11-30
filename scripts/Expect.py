@@ -453,9 +453,8 @@ class Expect (object):
 
             self.exitstatus = self.p.wait()
 
-            # A Windows application with a negative exit status means
-            # killed by CTRL_BREAK. Fudge the exit status.
-            if win32 and self.exitstatus < 0 and self.killed is not None:
+            # A Windows application killed with CTRL_BREAK. Fudge the exit status.
+            if win32 and self.killed is not None:
                 self.exitstatus = -self.killed
             self.p = None
             self.r.join()
