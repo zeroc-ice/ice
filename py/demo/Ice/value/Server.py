@@ -37,7 +37,7 @@ class InitialI(Demo.Initial):
         return self._derivedPrinter
 
     def updatePrinterMessage(self, printer, current=None):
-	printer.message = "a modified message 4 u"
+        printer.message = "a modified message 4 u"
         return printer
 
     def throwDerivedPrinter(self, current=None):
@@ -54,7 +54,7 @@ class Server(Ice.Application):
             print(self.appName() + ": too many arguments")
             return 1
 
-	factory = Printer.ObjectFactory()
+        factory = Printer.ObjectFactory()
         self.communicator().addObjectFactory(factory, Demo.Printer.ice_staticId())
 
         adapter = self.communicator().createObjectAdapter("Value")

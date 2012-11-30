@@ -121,13 +121,13 @@ class Client(Ice.Application):
               "[press enter]\n")
         sys.stdin.readline()
 
-    	clientp = Printer.ClientPrinterI()
-    	clientp.message = "a message 4 u"
-    	self.communicator().addObjectFactory(factory, Demo.ClientPrinter.ice_staticId())
+        clientp = Printer.ClientPrinterI()
+        clientp.message = "a message 4 u"
+        self.communicator().addObjectFactory(factory, Demo.ClientPrinter.ice_staticId())
 
-    	derivedAsBase = initial.updatePrinterMessage(clientp)
-	assert(derivedAsBase.ice_id() == Demo.ClientPrinter.ice_staticId())
-    	print("==> " + derivedAsBase.message)
+        derivedAsBase = initial.updatePrinterMessage(clientp)
+        assert(derivedAsBase.ice_id() == Demo.ClientPrinter.ice_staticId())
+        print("==> " + derivedAsBase.message)
 
         print('\n'\
               "Finally, we try the same again, but instead of returning the\n"\
