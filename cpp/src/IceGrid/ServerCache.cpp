@@ -727,7 +727,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     ServerInfo destroy;
     int timeout = -1;
     bool synced = false;
-    bool noRestart;
+    bool noRestart = false;
 
     {
         Lock sync(*this);
@@ -804,7 +804,7 @@ void
 ServerEntry::destroyCallback()
 {
     ServerInfo load;
-    bool noRestart;
+    bool noRestart = false;
     SessionIPtr session;
 
     {
@@ -853,7 +853,7 @@ ServerEntry::exception(const Ice::Exception& ex)
 {
     ServerInfo load;
     SessionIPtr session;
-    bool noRestart;
+    bool noRestart = false;
     bool remove = false;
     int timeout = -1;
 

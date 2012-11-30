@@ -217,7 +217,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
     ++cnt;
     assert(cnt > 0);
 
-    int interval;
+    int interval = -1;
     if(cnt == static_cast<int>(_retryIntervals.size() + 1) && 
        dynamic_cast<const CloseConnectionException*>(&ex))
     {

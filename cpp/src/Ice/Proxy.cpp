@@ -1302,7 +1302,7 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
             ex.ice_throw();
         }
 
-        int interval;
+        int interval = 0;
         try
         {
             interval = _reference->getInstance()->proxyFactory()->checkRetryAfterException(ex, _reference, sleep, cnt);

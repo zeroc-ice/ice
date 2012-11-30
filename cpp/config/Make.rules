@@ -116,9 +116,11 @@ USE_READLINE		?= no
 
 #
 # If you want to build the deprecated SQL database plugins for IceStorm 
-# and IceGrid, set QT_HOME to the Qt installation directory.
+# and IceGrid, set QT_HOME to the Qt installation directory, and go
+# to the database plugins directories to build them.
 #
 #
+QT_HOME                ?= /usr
 #QT_HOME		= /usr/local/Trolltech/Qt-4.5.3
 #QT_HOME		= /Library/Frameworks
 
