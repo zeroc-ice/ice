@@ -132,6 +132,7 @@ namespace hello
                 }
                 else
                 {
+                    hello.sayHello(_delay);
                     txtOutput.Text = "Queued hello request";
                 }
             }
@@ -150,8 +151,11 @@ namespace hello
                 }).whenSent(
                     (bool sentSynchronously) => 
                     {
-                        btnFlush.IsEnabled = false;
-                        txtOutput.Text = "Flushed batch requests";
+                        Dispatcher.BeginInvoke(delegate() 
+                                        {
+                                            btnFlush.IsEnabled = false;
+                                            txtOutput.Text = "Flushed batch requests";
+                                        });
                     });
         }
 
