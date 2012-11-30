@@ -106,11 +106,11 @@ public class LoginController
 
                         if(secure)
                         {
-                            s = "DemoGlacier2/router:ssl -p 4064 -h " + hostname + " -t 10000";
+                            s = "DemoGlacier2/router -e 1.0:ssl -p 4064 -h " + hostname + " -t 10000";
                         }
                         else
                         {
-                            s = "DemoGlacier2/router:tcp -p 4502 -h " + hostname + " -t 10000";
+                            s = "DemoGlacier2/router -e 1.0:tcp -p 4502 -h " + hostname + " -t 10000";
                         }
 
                         Ice.ObjectPrx proxy = _communicator.stringToProxy(s);
@@ -159,12 +159,12 @@ public class LoginController
                         String s;
                         if(secure)
                         {
-                            s = "SessionFactory:ssl -h " + hostname + " -p 10001 -t 10000";
+                            s = "SessionFactory -e 1.0:ssl -h " + hostname + " -p 10001 -t 10000";
 
                         }
                         else
                         {
-                            s = "SessionFactory:tcp -h " + hostname + " -p 10000 -t 10000";
+                            s = "SessionFactory -e 1.0:tcp -h " + hostname + " -p 10000 -t 10000";
                         }
                         Ice.ObjectPrx proxy = _communicator.stringToProxy(s);
                         Demo.SessionFactoryPrx factory = Demo.SessionFactoryPrxHelper.checkedCast(proxy);

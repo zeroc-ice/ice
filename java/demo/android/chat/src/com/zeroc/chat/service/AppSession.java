@@ -60,11 +60,11 @@ public class AppSession
         String s;
         if(secure)
         {
-            s = "Glacier2/router:ssl -p 4064 -h " + hostname + " -t 10000";
+            s = "Glacier2/router -e 1.0:ssl -p 4064 -h " + hostname + " -t 10000";
         }
         else
         {
-            s = "Glacier2/router:tcp -p 4502 -h " + hostname + " -t 10000";
+            s = "Glacier2/router -e 1.0:tcp -p 4502 -h " + hostname + " -t 10000";
         }
 
         Ice.ObjectPrx proxy = _communicator.stringToProxy(s);
