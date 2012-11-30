@@ -223,7 +223,6 @@ createDistfiles("Windows", winDistFilesDir)
 fixGitAttributes(True, False, """
 /distribution export-ignore
 /vsaddin export-ignore
-/vb export-ignore
 
 *.sln export-ignore
 *.csproj export-ignore
@@ -399,6 +398,11 @@ for root, dirnames, filesnames in os.walk(demoDir):
     for f in filesnames:
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
+
+#
+# vb directory in Unix source distribution only needed to copy demo scripts.
+#
+remove(os.path.join(srcDir, 'vb'))
 
 # Windows demo distribution
 copy(os.path.join(winDistFilesDir, "src", "common", "README.DEMOS.txt"), os.path.join(winDemoDir, "README.txt"))
