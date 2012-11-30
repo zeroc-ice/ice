@@ -671,7 +671,7 @@ public class AllTests : TestCommon.TestApp
         bool dnsException = false;
         try
         {
-            communicator.stringToProxy("test:tcp -p 12010 -h unknownfoo.zeroc.com").ice_ping();
+            communicator.stringToProxy("test:tcp -t 500 -p 12010 -h unknownfoo.zeroc.com").ice_ping();
             test(false);
         }
         catch(Ice.DNSException)
@@ -684,11 +684,11 @@ public class AllTests : TestCommon.TestApp
         }
         test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
         m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-        if(!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010"))
+        if(!m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500"))
         {
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
         }
-        test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && 
+        test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 && 
              (!dnsException || m1.failures == 2));
         if(dnsException)
         {

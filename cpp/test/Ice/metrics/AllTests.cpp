@@ -698,7 +698,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     bool dnsException = false;
     try
     {
-        communicator->stringToProxy("test:tcp -p 12010 -h unknownfoo.zeroc.com")->ice_ping();
+        communicator->stringToProxy("test:tcp -t 500 -p 12010 -h unknownfoo.zeroc.com")->ice_ping();
         test(false);
     }
     catch(const Ice::DNSException&)
@@ -711,7 +711,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 2);
     m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][1];
-    test(m1->id == "tcp -h unknownfoo.zeroc.com -p 12010" && m1->total == 2 && (!dnsException || m1->failures == 2));
+    test(m1->id == "tcp -h unknownfoo.zeroc.com -p 12010 -t 500" && m1->total == 2 && 
+         (!dnsException || m1->failures == 2));
     if(dnsException)
     {
         checkFailure(clientMetrics, "EndpointLookup", m1->id, "Ice::DNSException", 2);
