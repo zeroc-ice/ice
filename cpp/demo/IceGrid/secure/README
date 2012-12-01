@@ -14,14 +14,14 @@ server. Run the makecerts.py script to create these certificates:
 $ makecerts.py
 
 Follow the instructions provided by the script. Note that to run the
-script you must have java (Java5 or greater) in your path.
+script you must have java (Java6 or greater) in your path.
 
 For simplicity, the certificates created by makecerts.py are not
 protected with a password. In a real world deployment, to ensure that
 only privileged users can create new certificates and start the
 IceGrid components, you would typically use a password for the
 certificate authority, the IceGrid registry and node certificates and
-the Glacier2 certificate. 
+the Glacier2 certificate.
 
 You could also protect the server certificate with a password and
 specify the password in the server configuration in clear text.
@@ -51,7 +51,7 @@ To use icegridadmin through the Glacier2 router, you can use the
 following command:
 
 $ icegridadmin --Ice.Config=config.admin \
-  --Ice.Default.Router="DemoGlacier2/router:ssl -p 4064" 
+  --Ice.Default.Router="DemoGlacier2/router:ssl -p 4064"
 
 Alternatively, you can edit the config.admin file and uncomment the
 Ice.Default.Router property definition.
@@ -66,7 +66,7 @@ connection:
   * In the "Open file" dialog, navigate to the "certs" subdirectory of
     the demo. In the "Files of Type" field, select
     "PEM Files (*.pem, *crt)" and select the ca_cert.pem file.
-  * When asked for the alias, give it an alias for example "ca" and
+  * When asked for the alias, give it an alias such as "ca" and
     click Ok.
   * Close the "Certificate Manager" dialog by clicking the Close
     button.
@@ -89,18 +89,18 @@ connection:
     as the demo uses the default port. Change the protocol to "SSL"
     and click Next.
 
-  * In the next step, select "Yes" to provide an SSL X509 Certificate.
+  * In the next step, select "Yes" to provide an SSL X509 certificate
     and click Next.
 
   * If "Key Alias" list is empty, click "New Alias" to open the
-    "Certificate Manager". With "My Certificates" tab selected, click
-    the "Import" button.
+    "Certificate Manager". With the "My Certificates" tab selected,
+    click the "Import" button.
 
   * In the "Open file" dialog, navigate to the "certs" subdirectory of
     the demo. In the "Files of Type" field, select
     "Java Key Store Files (*.jks)" and select the certs.jks file.
 
-  * When asked for the password for "ca_cert" type "password" and
+  * When asked for the password for "ca_cert", type "password" and
     click Ok.
 
   * Close the "Certificate Manager" dialog by clicking the Close
@@ -109,12 +109,11 @@ connection:
   * "ca_cert" must now be selected in the "Key Alias" field. Enter
     "password" in the "Key password" field and click Ok to log in.
 
-  * In "Authentication Type", select "Log in with a username and 
+  * In "Authentication Type", select "Log in with a username and
     password" and click Next.
 
   * Enter any username and password combination (the password is not
     validated). Click Finish.
-
 
 - Configure routed connection to IceGrid through Glacier2:
 
@@ -125,7 +124,8 @@ connection:
 
   * Select "Routed Connection" and click Next.
 
-  * Enter "DemoGlacier2" for the Glacier2 instance name and click Next.
+  * Enter "DemoGlacier2" for the Glacier2 instance name and click
+    Next.
 
   * In "Endpoint Configuration", select "A hostname and port number?"
     and click Next.
@@ -134,18 +134,18 @@ connection:
     as the demo uses the default port. Change the protocol to "SSL"
     and click Next.
 
-  * In the next step, select "Yes" to provide an SSL X509 Certificate.
+  * In the next step, select "Yes" to provide an SSL X509 certificate
     and click Next.
 
   * If "Key Alias" list is empty, click "New Alias" to open the
-    "Certificate Manager". With "My Certificates" tab selected, click
-    the "Import" button.
+    "Certificate Manager". With the "My Certificates" tab selected,
+    click the "Import" button.
 
   * In the "Open file" dialog, navigate to the "certs" subdirectory of
     the demo. In the "Files of Type" field, select
     "Java Key Store Files (*.jks)" and select the certs.jks file.
 
-  * When asked for the password for "ca_cert" type "password" and
+  * When asked for the password for "ca_cert", type "password" and
     click Ok.
 
   * Close the "Certificate Manager" dialog by clicking the Close
@@ -154,7 +154,7 @@ connection:
   * "ca_cert" must now be selected in the "Key Alias" field. Enter
     "password" in the "Key password" field and click Ok to log in.
 
-  * In "Authentication Type", select "Log in with a username and 
+  * In "Authentication Type", select "Log in with a username and
     password" and click Next.
 
   * Enter any username and password combination (the password is not

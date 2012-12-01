@@ -2,10 +2,10 @@ Note for Mono:
 
     For this demo to work properly using Mono on Linux, you must
     configure Linux to recognize Mono binaries. Configuration
-    instructions are provided in INSTALL.MONO at the top level of the
-    Ice for .NET source distribution or, in README at the top level of
-    the Ice binary distribution (in /usr/share/doc/packages/ice-@ver@
-    if you have installed Ice from RPMs).
+    instructions are provided in cs/INSTALL.MONO in the Ice source
+    distribution, or in README at the top level of the Ice binary
+    distribution (in /usr/share/doc/packages/ice-@ver@ if you have
+    installed Ice from RPMs).
 
     Alternatively, if you do not want to reconfigure your kernel, edit
     application.xml and change the <icebox> element to read:
@@ -20,16 +20,16 @@ Note for Mono:
     of the icebox executable in your installation, such as
     /usr/bin/iceboxnet.exe or /opt/Ice-@ver@/bin/iceboxnet.exe.
 
-This demo shows a very simple IceGrid deployment, with a single
-IceBox server hosting a number of IceBox services.
+This demo shows a very simple IceGrid deployment, with a single IceBox
+server hosting a number of IceBox services.
 
-The demo also demostrate how to use an environment variable in a
-server descriptor.
+The demo also shows how to use an environment variable in a server
+descriptor.
 
-In applicationx.xml, <env>LANG=en</env>, defines a enviroment variable
-named "LANG" with value "en", the Hello object implementation HelloI
-reads the value of "LANG" and show the message in the corresponding 
-language; you can try to update the value to fr, de, es or it.
+In application.xml, <env>LANG=en</env> defines an environment variable
+named "LANG" with value "en". The Hello object implementation HelloI
+reads the value of "LANG" and shows the message in the corresponding
+language; you can try changing the value to fr, de, es or it.
 
 Note for 64 bit Windows:
 
@@ -90,8 +90,8 @@ the application you deployed above:
   - Enter "localhost" for the Hostname. You can leave the port empty
     as the demo uses the default port. Click Next.
 
-  - Enter any username and password combination and click Finish
-    to log in.
+  - Enter any username and password combination and click Finish to
+    log in.
 
   - Next time you want to connect, the connection will appear in the
     "Saved Connections" dialog, just select it and click Connect.
@@ -121,14 +121,14 @@ Administration through Glacier2
 -------------------------------
 
 This demo also includes the configuration for a Glacier2 router
-(DemoGlacier2), to show how you could administer IceGrid from
- "the other side" of a firewall. (In this demo, however, all the
+(DemoGlacier2) to show how you could administer IceGrid from
+"the other side" of a firewall. (In this demo, however, all the
 components run on the same system.)
 
 Follow these steps:
 
- - Connect to the IceGrid registry with icegridadmin or the
-   IceGrid Admin graphical utility
+ - Connect to the IceGrid registry with icegridadmin or the IceGrid
+   Admin graphical utility
 
  - Start the DemoGlacier2 server
 
