@@ -95,15 +95,6 @@ def configurePaths():
         addenv("CLASSPATH", "classes")
         return # That's it, we're done!
 
-    binDir = os.path.join(getIceDir("cpp"), "bin")
-
-    if isWin32() and iceHome:
-        compiler = ""
-        if os.environ.get("CPP_COMPILER", "") != "":
-            compiler = os.environ["CPP_COMPILER"]
-        if compiler == "VC110" or compiler == "VC110_EXPRESS":
-            binDir = os.path.join(binDir, "vc110")
-
     shlibVar = None
     libDir = None
     if not isWin32():
@@ -111,21 +102,34 @@ def configurePaths():
 
     # 64-bits binaries are located in a subdirectory with binary
     # distributions.
+    binDir = os.path.join(getIceDir("cpp"), "bin")
     addenv("PATH", binDir)
-    if iceHome and x64:
+    if iceHome:
         if isWin32():
-            binDir = os.path.join(binDir, "x64")
-        elif isSolaris():
-            if isSparc():
-                libDir = os.path.join(libDir, "64")
-                binDir = os.path.join(binDir, "sparcv9")
+            compilers = { 
+                "VC110" : "vc110",
+                "VC110_EXPRESS" : "vc110"
+            }
+            subdir = compilers.get(os.environ.get("CPP_COMPILER", None), "")
+            if subdir and getMapping() == "cpp":
+                if x64:
+                    addenv("PATH", os.path.join(binDir, subdir, "x64"))
+                else:
+                    addenv("PATH", os.path.join(binDir, subdir))
+            elif x64:
+                addenv("PATH", os.path.join(binDir, "x64"))
+        elif x64:
+            if isSolaris():
+                if isSparc():
+                    libDir = os.path.join(libDir, "64")
+                    binDir = os.path.join(binDir, "sparcv9")
+                else:
+                    libDir = os.path.join(libDir, "amd64")
+                    binDir = os.path.join(binDir, "amd64")
             else:
-                libDir = os.path.join(libDir, "amd64")
-                binDir = os.path.join(binDir, "amd64")
-        else:
-            libDir = libDir + "64"
-            binDir = binDir + "64"
-        addenv("PATH", binDir)
+                libDir = libDir + "64"
+                binDir = binDir + "64"
+            addenv("PATH", binDir)
 
     # Only add the lib directory to the shared library path if we're
     # not using the embedded location.
@@ -503,8 +507,8 @@ def getIceBox(mapping = "cpp"):
             return "iceboxd"
         return "icebox"
     elif mapping == "cs":
-        if isMono(): # Mono cannot locate icebox in the PATH.
-            # This is wrong for a demo dist.
+        if isMono(): 
+            # Mono cannot locate icebox in the PATH. This is wrong for a demo dist.
             return os.path.join(getIceDir("cs"), "bin", "iceboxnet.exe")
         else:
             return "iceboxnet.exe"
