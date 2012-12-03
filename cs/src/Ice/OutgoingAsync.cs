@@ -1743,13 +1743,12 @@ namespace IceInternal
             //
             // sentSynchronously_ is immutable here.
             //
-            if(!sentSynchronously_ && userThread)
+            if(!sentSynchronously_ || !userThread)
             {
                 sentAsync__(sentCallback);
             }
             else
             {
-                Debug.Assert(sentSynchronously_ == userThread); // sentSynchronously && !userThread is impossible.
                 sent__(sentCallback);
             }
         }

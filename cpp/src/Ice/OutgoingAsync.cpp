@@ -1114,13 +1114,12 @@ IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
         //
         // _sentSynchronously is immutable here.
         //
-        if(!_sentSynchronously && userThread)
+        if(!_sentSynchronously || !userThread)
         {
             __sentAsync();
         }
         else
         {
-            assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
             AsyncResult::__sent();
         }
     }
