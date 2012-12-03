@@ -21,9 +21,9 @@
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC90, VC90_EXPRESS, VC100, VC100_EXPRESS
+# VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
 #
-#CPP_COMPILER		= VC90
+#CPP_COMPILER		= VC100
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -45,15 +45,20 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"  || "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
+    "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
 !elseif "$(CPP_COMPILER)" == ""
-!error Please set CPP_COMPILER to VC90, VC90_EXPRESS, VC100, VC100_EXPRESS
+!error Please set CPP_COMPILER to VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
 !else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
+!if "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+libsuff			= \vc110$(x64suffix)
+!else
 libsuff			= $(x64suffix)
+!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX	= $(LIBSUFFIX)d
