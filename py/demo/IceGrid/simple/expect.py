@@ -26,7 +26,7 @@ def rewrite(namein, nameout):
     fi = open(namein, "r")
     fo = open(nameout, "w")
     for l in fi:
-        if sys.version_info[0] == 3:
+        if sys.version_info[0] == 3 and not Util.isWin32():
             if l.find('exe="python"') != -1:
                 l = l.replace('exe="python"', 'exe="python3"')
         if l.find('option') != -1:
