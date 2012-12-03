@@ -15,7 +15,7 @@ build the Ice extension for Python.
 
 
 ======================================================================
-Building the Ice extension for Python (Linux/Solaris/Mac OS X)
+Building the Ice extension for Python (Linux/Solaris/OS X)
 ======================================================================
 
 Follow these steps to build the Ice extension for Python:

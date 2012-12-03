@@ -158,7 +158,7 @@ sigwaitThread(void*)
         int rc = sigwait(&ctrlCLikeSignals, &signal);
 #if defined(__APPLE__)
         //
-        // WORKAROUND: sigwait is not a cancelation point on MacOS X. To cancel this thread, the 
+        // WORKAROUND: sigwait is not a cancelation point on OS X. To cancel this thread, the 
         // destructor cancels the thread and send a signal to the thread to unblock sigwait, then
         // we explicitly test for cancellation.
         //
@@ -239,7 +239,7 @@ CtrlCHandler::~CtrlCHandler()
     assert(rc == 0);
 #if defined(__APPLE__)
     //
-    // WORKAROUND: sigwait isn't a cancellation point on MacOS X, see
+    // WORKAROUND: sigwait isn't a cancellation point on OS X, see
     // comment in sigwaitThread
     //
     pthread_kill(_tid, SIGTERM);

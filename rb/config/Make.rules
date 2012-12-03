@@ -98,7 +98,7 @@ RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
 
 #
 # The build architectures for gcc based builds. The format of these
-# build flags are OS dependent. For example, under Mac OS X to build
+# build flags are OS dependent. For example, under OS X to build
 # binaries which support both i386 and x86_64 you would use "-arch
 # i386 -arch x86_64".  The default is OS version dependent. Be aware
 # that this value may conflict with the setting of LP64 above.

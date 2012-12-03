@@ -41,7 +41,7 @@ endif
 CXXLIBS		=
 
 ifneq ($(embedded_runpath_prefix),)
-    # Only use -rpath if Mac OS X >= 10.5
+    # Only use -rpath if OS X >= 10.5
     release = $(shell uname -r)
     ifeq ($(shell test $(firstword $(subst ., ,$(release))) -ge 9 && echo 0),0)
 	LDPLATFORMFLAGS     = -Wl,-rpath,$(runpath_libdir)

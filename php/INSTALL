@@ -16,7 +16,7 @@ Requirements
 
 
 ======================================================================
-Building the Ice for PHP extension (Linux/Mac OS X)
+Building the Ice for PHP extension (Linux/OS X)
 ======================================================================
 
 This source distribution only supports building Ice for PHP as a
@@ -115,7 +115,7 @@ To build the Ice extension, follow these instructions:
 
 
 ======================================================================
-Installing the Extension (Linux/Mac OS X)
+Installing the Extension (Linux/OS X)
 ======================================================================
 
 To install the Ice extension, you must move the extension's shared
@@ -142,7 +142,7 @@ following line on Linux:
 
   extension = IcePHP.so
 
-Or on Mac OS X:
+Or on OS X:
 
   extension = IcePHP.dy
 
@@ -155,7 +155,7 @@ Open the configuration file and append the following line on Linux:
 
   extension = IcePHP.so
 
-Or on Mac OS X:
+Or on OS X:
 
   extension = IcePHP.dy
 
@@ -165,7 +165,7 @@ command shown below:
   php -m
 
 Look for "ice" among the installed modules. Note that your library
-search path (LD_LIBRARY_PATH on Linux or DYLD_LIBRARY_PATH on Mac OS
+search path (LD_LIBRARY_PATH on Linux or DYLD_LIBRARY_PATH on OS
 X) must include the directory containing the Ice shared libraries.
 
 Read the "Dependencies" and "Source Files" sections below for more

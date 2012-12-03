@@ -23,7 +23,7 @@ using namespace IceUtil;
 #endif
 
 //
-// GCC on MacOS doesn't support __thread; and on HP-UX with aC++, there
+// GCC on OS X doesn't support __thread; and on HP-UX with aC++, there
 // is strange compiler or linker bug when using __thread.
 //
 #if defined(__HP_aCC) || defined(__APPLE__)

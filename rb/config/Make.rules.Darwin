@@ -8,7 +8,7 @@
 # **********************************************************************
 
 $(warning ===================================================================) 
-$(warning Mac OS X is currently an unsupported platform for Ice for Ruby.)
+$(warning OS X is currently an unsupported platform for Ice for Ruby.)
 $(warning Contact sales@zeroc.com if you wish to sponsor official support.)
 $(warning ===================================================================) 
 

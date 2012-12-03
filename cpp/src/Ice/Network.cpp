@@ -700,9 +700,10 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     }
     while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
 
-    // In theory, getaddrinfo should only return EAI_NONAME if AI_NUMERICHOST is specified and the host name
-    // is not a IP address. However on some platforms (e.g. Mac OS X 10.4.x) EAI_NODATA is also returned so 
-    // we also check for it.
+    // In theory, getaddrinfo should only return EAI_NONAME if
+    // AI_NUMERICHOST is specified and the host name is not a IP
+    // address. However on some platforms (e.g. OS X 10.4.x)
+    // EAI_NODATA is also returned so we also check for it.
 #ifdef EAI_NODATA
     if(!blocking && (rs == EAI_NONAME || rs == EAI_NODATA))
 #else

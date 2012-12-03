@@ -22,7 +22,7 @@ sys.path.append(path[0])
 from demoscript import Util
 
 if Util.isDarwin():
-    print("This demo is not supported under MacOS.")
+    print("This demo is not supported under OS X.")
     sys.exit(0)
 
 sys.stdout.write("cleaning databases... ")

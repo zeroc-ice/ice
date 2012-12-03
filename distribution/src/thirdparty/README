@@ -32,7 +32,7 @@ Table of Contents
   2. Instructions for Linux
      - Berkeley DB
      - mcpp
-  3. Instructions for Mac OS X
+  3. Instructions for OS X
      - Berkeley DB
      - mcpp
   4. Instructions for Solaris
@@ -90,7 +90,7 @@ library installation directory from $(prefix)/lib to $(prefix>/lib64.
 
 
 ======================================================================
-3. Instructions for Mac OS X
+3. Instructions for OS X
 ======================================================================
 
 Berkeley DB

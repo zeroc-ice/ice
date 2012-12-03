@@ -6,8 +6,8 @@ Requirements
 Operating System
 ----------------
 
-Ice is expected to build and run properly on any recent Mac OS X
-version. However, Ice is officially supported only on Mac OS X 10.8.
+Ice is expected to build and run properly on any recent OS X
+version. However, Ice is officially supported only on OS X 10.8.
 
 
 C++ compiler
