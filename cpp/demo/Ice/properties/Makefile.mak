@@ -46,4 +46,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Props.cpp Props.h
 
-!include .depend
+!include .depend.mak

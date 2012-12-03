@@ -162,7 +162,7 @@ MCSFLAGS        = $(MCSFLAGS) /unsafe
 MCSFLAGS	= $(MCSFLAGS) -define:UNITY
 !endif
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I"$(slicedir)"
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) /baseaddress:0x20000000 $(MCSFLAGS) $(SRCS) $(GEN_SRCS)
@@ -186,9 +186,9 @@ install:: all
 	copy $(assembliesdir)\$(PKG).pdb "$(install_assembliesdir)"
 !endif
 
-$(GDIR)\BuiltinSequences.cs: $(SDIR)\BuiltinSequences.ice $(SLICE2CS) $(SLICEPARSERLIB)
+$(GDIR)\BuiltinSequences.cs: "$(SDIR)\BuiltinSequences.ice" "$(SLICE2CS)" "$(SLICEPARSERLIB)"
 	del /q $(GDIR)\BuiltinSequences.cs
-	$(SLICE2CS) $(SLICE2CSFLAGS) --stream $(SDIR)\BuiltinSequences.ice
+	"$(SLICE2CS)" $(SLICE2CSFLAGS) --stream "$(SDIR)\BuiltinSequences.ice"
 	move BuiltinSequences.cs $(GDIR)
 
 !include .depend.mak
