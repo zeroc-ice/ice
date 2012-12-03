@@ -163,7 +163,7 @@ C++ Changes
 - Fixed a bug that could cause an assertion failure when flushing
   batch requests.
 
-- Added support for clang compiler on Mac OS X.
+- Added support for clang compiler on OS X.
 
 - Fixed issue where a connection to a remote address would always fail
   with an assertion on Windows 8.

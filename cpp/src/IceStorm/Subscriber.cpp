@@ -828,7 +828,7 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         _events.clear();
         setState(SubscriberStateOffline);
     }
-   // Errored out.
+    // Errored out.
     else if(_state < SubscriberStateError)
     {
         _events.clear();

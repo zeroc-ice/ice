@@ -2105,10 +2105,8 @@ public:
                 return;
             }
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ok, outParams);
-            return;
         }
-    
-        if(responseArray)
+        else
         {
             bool __ok;
             std::pair<const ::Ice::Byte*, const::Ice::Byte*> outParams;
@@ -2121,8 +2119,10 @@ public:
                 ::IceInternal::CallbackNC<T>::__exception(__result, ex);
                 return;
             }
-            (::IceInternal::CallbackNC<T>::callback.get()->*responseArray)(__ok, outParams);
-            return;
+            if(responseArray)
+            {
+                (::IceInternal::CallbackNC<T>::callback.get()->*responseArray)(__ok, outParams);
+            }
         }
     }
 
@@ -2170,10 +2170,8 @@ public:
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ok, 
                                                                         outParams, 
                                                                         CT::dynamicCast(__result->getCookie()));
-            return;
         }
-    
-        if(responseArray)
+        else
         {
             bool __ok;
             std::pair<const ::Ice::Byte*, const::Ice::Byte*> outParams;
@@ -2186,10 +2184,13 @@ public:
                 ::IceInternal::Callback<T, CT>::__exception(__result, ex);
                 return;
             }
-            (::IceInternal::Callback<T, CT>::callback.get()->*responseArray)(__ok,
-                                                                             outParams, 
-                                                                             CT::dynamicCast(__result->getCookie()));
-            return;
+            if(responseArray)
+            {
+                (::IceInternal::Callback<T, CT>::callback.get()->*responseArray)(__ok,
+                                                                                 outParams, 
+                                                                                 CT::dynamicCast(
+                                                                                     __result->getCookie()));
+            }
         }
     }
 
