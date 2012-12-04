@@ -146,7 +146,7 @@ refdir = $(assembliesdir)
 refdir = $(ice_dir)\Assemblies
 
 !if "$(COMPACT)" == "yes"
-refdir    = $(refdir )\cf
+refdir    = $(refdir)\cf
 !endif
 
 !endif

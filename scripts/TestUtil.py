@@ -51,9 +51,6 @@ def isCygwin():
 def isWin32():
     return sys.platform == "win32" or isCygwin()
     
-def isCompactFramework():
-    return isWin32() and ("COMPACT" in os.environ and os.environ["COMPACT"] == "yes")
-
 def isVista():
     return isWin32() and sys.getwindowsversion()[0] == 6
 
@@ -595,6 +592,8 @@ def getJdkVersion():
     return jdkVersion.decode("utf-8")
 
 def getIceBox():
+    global compact
+
     #
     # Get and return the path of the IceBox executable
     #
@@ -622,7 +621,7 @@ def getIceBox():
     elif lang == "java":
         iceBox = "IceBox.Server"
     elif lang == "cs":
-        if isCompactFramework():
+        if compact:
             iceBox = os.path.join(getIceDir("cs"), "bin", "cf", "iceboxnet")
         else:
             iceBox = os.path.join(getIceDir("cs"), "bin", "iceboxnet")
@@ -1406,6 +1405,8 @@ def getServiceDir():
     return serviceDir
 
 def getTestEnv(lang, testdir):
+    global compact
+
     env = os.environ.copy()
 
     # First sanitize the environment.
@@ -1467,7 +1468,7 @@ def getTestEnv(lang, testdir):
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if lang == "cs":
-        if isCompactFramework():
+        if compact:
             addPathToEnv("DEVPATH", os.path.join(getIceDir("cs", testdir), "Assemblies", "cf"), env)
         elif isWin32():
             addPathToEnv("DEVPATH", os.path.join(getIceDir("cs", testdir), "Assemblies"), env)

@@ -38,13 +38,13 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)" --stream
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -DCOMPACT
 !endif
 
-client.exe: $(C_SRCS) $(GEN_SRCS) Serializable.dll
+client.exe: $(C_SRCS) $(GEN_SRCS) $(SERIAL_DLL)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(C_SRCS) $(GEN_SRCS)
 
-server.exe: $(S_SRCS) $(GEN_SRCS) Serializable.dll
+server.exe: $(S_SRCS) $(GEN_SRCS) $(SERIAL_DLL)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(S_SRCS) $(GEN_SRCS)
 
-serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) Serializable.dll
+serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SERIAL_DLL)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(SAMD_SRCS) $(GEN_AMD_SRCS)
 
 !if "$(COMPACT)" != "yes"
