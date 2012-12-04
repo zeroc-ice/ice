@@ -764,7 +764,7 @@ public class SessionKeeper
 
         public synchronized void setInstanceName(String instanceName)
         {
-            _instanceName = instanceName;
+            _instanceName = instanceName == null ? null : instanceName.trim();
         }
 
         public synchronized boolean getDefaultEndpoint()
@@ -797,7 +797,7 @@ public class SessionKeeper
 
         public synchronized void setHost(String host)
         {
-            _host = host;
+            _host = host == null ? null : host.trim();
             setDefaultEndpoint(true);
             setCustomEndpoint(false);
         }
@@ -868,7 +868,7 @@ public class SessionKeeper
 
         public synchronized void setEndpoint(String endpoint)
         {
-            _endpoint = endpoint;
+            _endpoint = endpoint == null ? null : endpoint.trim();
             setDefaultEndpoint(false);
             setCustomEndpoint(true);
         }
@@ -925,7 +925,7 @@ public class SessionKeeper
             
         public synchronized void setUsername(String username)
         {
-            _username = username;
+            _username = username == null ? null : username.trim();
         }
 
         public synchronized char[] getPassword()
