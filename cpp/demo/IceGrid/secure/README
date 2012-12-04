@@ -56,109 +56,18 @@ $ icegridadmin --Ice.Config=config.admin \
 Alternatively, you can edit the config.admin file and uncomment the
 Ice.Default.Router property definition.
 
-To use the IceGrid administrative GUI, you must first configure the
-connection:
+You can also manage this IceGrid deployment with the IceGrid Admin 
+graphical tool. 
 
-- Import trusted certificate authority:
+The IceSSL configuration in config.master, config.slave and 
+config.glacier2 is:
 
-  * Select "Certificate Manager" from the File menu.
-  * Select the "Trusted CAs" tab and click Import.
-  * In the "Open file" dialog, navigate to the "certs" subdirectory of
-    the demo. In the "Files of Type" field, select
-    "PEM Files (*.pem, *crt)" and select the ca_cert.pem file.
-  * When asked for the alias, give it an alias such as "ca" and
-    click Ok.
-  * Close the "Certificate Manager" dialog by clicking the Close
-    button.
+IceSSL.VerifyPeer=1
 
-- Configure direct connection to IceGrid:
-
-  * Select Login... from the File menu.
-
-  * In the "Saved Connections" dialog, click "New Connection" to open
-    the "New Connection" wizard.
-
-  * Select "Direct Connection" and click Next.
-
-  * Enter "DemoIceGrid" for the IceGrid instance name and click Next.
-
-  * In "Endpoint Configuration", select "A hostname and port number?"
-    and click Next.
-
-  * Enter "localhost" for the Hostname. You can leave the port empty
-    as the demo uses the default port. Change the protocol to "SSL"
-    and click Next.
-
-  * In the next step, select "Yes" to provide an SSL X509 certificate
-    and click Next.
-
-  * If "Key Alias" list is empty, click "New Alias" to open the
-    "Certificate Manager". With the "My Certificates" tab selected,
-    click the "Import" button.
-
-  * In the "Open file" dialog, navigate to the "certs" subdirectory of
-    the demo. In the "Files of Type" field, select
-    "Java Key Store Files (*.jks)" and select the certs.jks file.
-
-  * When asked for the password for "ca_cert", type "password" and
-    click Ok.
-
-  * Close the "Certificate Manager" dialog by clicking the Close
-    button.
-
-  * "ca_cert" must now be selected in the "Key Alias" field. Enter
-    "password" in the "Key password" field and click Ok to log in.
-
-  * In "Authentication Type", select "Log in with a username and
-    password" and click Next.
-
-  * Enter any username and password combination (the password is not
-    validated). Click Finish.
-
-- Configure routed connection to IceGrid through Glacier2:
-
-  * Select Login... from the File menu.
-
-  * In the "Saved Connections" dialog, click "New Connection" to open
-    the "New Connection" wizard.
-
-  * Select "Routed Connection" and click Next.
-
-  * Enter "DemoGlacier2" for the Glacier2 instance name and click
-    Next.
-
-  * In "Endpoint Configuration", select "A hostname and port number?"
-    and click Next.
-
-  * Enter "localhost" for the Hostname. You can leave the port empty
-    as the demo uses the default port. Change the protocol to "SSL"
-    and click Next.
-
-  * In the next step, select "Yes" to provide an SSL X509 certificate
-    and click Next.
-
-  * If "Key Alias" list is empty, click "New Alias" to open the
-    "Certificate Manager". With the "My Certificates" tab selected,
-    click the "Import" button.
-
-  * In the "Open file" dialog, navigate to the "certs" subdirectory of
-    the demo. In the "Files of Type" field, select
-    "Java Key Store Files (*.jks)" and select the certs.jks file.
-
-  * When asked for the password for "ca_cert", type "password" and
-    click Ok.
-
-  * Close the "Certificate Manager" dialog by clicking the Close
-    button.
-
-  * "ca_cert" must now be selected in the "Key Alias" field. Enter
-    "password" in the "Key password" field and click Ok to log in.
-
-  * In "Authentication Type", select "Log in with a username and
-    password" and click Next.
-
-  * Enter any username and password combination (the password is not
-    validated). Click Finish.
+which means that a client, such IceGrid Admin, does not need to 
+provide a X.509 certificate. As a result, connecting with IceGrid
+Admin is straightforward: you just need to create a SSL connection
+with no associated X.509 certificate.
 
 The IceGrid registry and Glacier2 router are configured to use the
 "null permissions verifier" so you can use any username/password to
