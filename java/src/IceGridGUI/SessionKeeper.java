@@ -1506,7 +1506,7 @@ public class SessionKeeper
                     });
                 group.add(_x509CertificateYesButton);
 
-                builder.append(new JLabel("<html><b>Do you want to provide a X.509 certificate for SSL authentication?</b></html>"));
+                builder.append(new JLabel("<html><b>Do you want to provide an X.509 certificate for SSL authentication?</b></html>"));
                 builder.append(_x509CertificateNoButton);
                 builder.append(_x509CertificateYesButton);
 
@@ -1558,7 +1558,7 @@ public class SessionKeeper
                     ButtonGroup group = new ButtonGroup();
                     
                     builder.append("<html><b>Alias:</b></html>", alias);
-                    builder.append("", new JLabel("<html><p>Your X.509 certificate, for SSL authentication.</p></html>"));
+                    builder.append("", new JLabel("<html><p>Your X.509 certificate for SSL authentication.</p></html>"));
 
                     _directCertificatePassword = new JPasswordField();
                     builder.append("<html><b>Password:</b></html>", _directCertificatePassword);
@@ -1622,7 +1622,7 @@ public class SessionKeeper
                     ButtonGroup group = new ButtonGroup();
                     
                     builder.append("<html><b>Alias:</b></html>", alias);
-                    builder.append("", new JLabel("<html><p>Your X.509 certificate, for SSL authentication.</p></html>"));
+                    builder.append("", new JLabel("<html><p>Your X.509 certificate for SSL authentication.</p></html>"));
 
                     _routedCertificatePassword = new JPasswordField();
                     builder.append("<html><b>Password:</b></html>", _routedCertificatePassword);
@@ -4159,7 +4159,7 @@ public class SessionKeeper
         builder.border(Borders.DIALOG);
         builder.rowGroupingEnabled(true);
         builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
-        builder.addSeparator("Fingerpints");
+        builder.addSeparator("Fingerprints");
         builder.nextLine();
 
         String sha1Fingerprint = "";
@@ -4184,7 +4184,7 @@ public class SessionKeeper
             sha1Fingerprint = sb.toString().toUpperCase();
         }
 
-        builder.append(new JLabel("<html><b>SHA-1 Fingerpint:</b></html>"),
+        builder.append(new JLabel("<html><b>SHA-1 Fingerprint:</b></html>"),
                         new JLabel(sha1Fingerprint));
         builder.nextLine();
 
@@ -4210,7 +4210,7 @@ public class SessionKeeper
             }
             md5Fingerprint = sb.toString().toUpperCase();
         }
-        builder.append(new JLabel("<html><b>MD5 Fingerpint:</b></html>"),
+        builder.append(new JLabel("<html><b>MD5 Fingerprint:</b></html>"),
                         new JLabel(md5Fingerprint));
         builder.nextLine();
 

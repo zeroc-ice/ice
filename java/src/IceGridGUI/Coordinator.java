@@ -736,7 +736,7 @@ public class Coordinator
                 JOptionPane.showMessageDialog(
                     _mainFrame,
                     e.toString(),
-                    "Bad Application Descriptor: Unable load from Registry",
+                    "Bad Application Descriptor: Unable to load from Registry",
                     JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1928,7 +1928,7 @@ public class Coordinator
             {
                 JOptionPane.showMessageDialog(
                     parent,
-                    "You need to provide one or more endpoint for the Registry",
+                    "You need to provide one or more endpoints for the Registry",
                     "Login failed",
                     JOptionPane.ERROR_MESSAGE);
                 cb.loginFailed();
@@ -2677,7 +2677,7 @@ public class Coordinator
                     {
                         JOptionPane.showMessageDialog(
                             _mainFrame,
-                            "The registry does not contain any application",
+                            "The registry does not contain any applications",
                             "Empty registry",
                             JOptionPane.INFORMATION_MESSAGE);
                     }
@@ -2758,7 +2758,7 @@ public class Coordinator
                     {
                         JOptionPane.showMessageDialog(
                             _mainFrame,
-                            "The registry does not contain any application",
+                            "The registry does not contain any applications",
                             "Empty registry",
                             JOptionPane.INFORMATION_MESSAGE);
                     }
@@ -3576,7 +3576,7 @@ public class Coordinator
 
                 if(validAlternateName)
                 {
-                    builder.append(new JLabel("The subject alternate name match the connection remote address.", 
+                    builder.append(new JLabel("The subject alternate name matches the connection remote address.",
                                    _infoIcon, SwingConstants.LEADING));
                 }
                 else
