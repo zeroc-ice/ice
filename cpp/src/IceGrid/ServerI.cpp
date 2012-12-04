@@ -1278,15 +1278,38 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
         _destroy = 0;
     }
 
-    if(amdCB)
+    if(_stop || StopCommand::isStopped(_state))
     {
-        _load->addCallback(amdCB);
+        _load->addCallback(amdCB); // Load will return once the server is loaded.
     }
-
-    if(!_stop && _state == Active) // Must be done after adding the AMD callback.
+    else
     {
-        updateRevision(desc->uuid, desc->revision);
-        _load->startRuntimePropertiesUpdate(_process);
+        if(_state >= ServerI::Activating && _state < ServerI::Active)
+        {
+            //
+            // If the server is being activated, return the response
+            // now. We can't wait for runtime properties to be updated
+            // as this could cause a deadlock if the registry needs
+            // the server proxy to register the server process proxy
+            // with the node.
+            //
+            AdapterPrxDict adapters;
+            for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+            {
+                adapters.insert(make_pair(p->first, p->second->getProxy()));
+            }    
+            amdCB->ice_response(_this, adapters, _activationTimeout, _deactivationTimeout);
+        }
+        else if(_state == ServerI::Active)
+        {
+            _load->addCallback(amdCB); // Must be called before startRuntimePropertiesUpdate!
+            updateRevision(desc->uuid, desc->revision);
+            _load->startRuntimePropertiesUpdate(_process);
+        }
+        else
+        {
+            _load->addCallback(amdCB);
+        }
     }
     return nextCommand();
 }
