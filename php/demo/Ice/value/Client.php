@@ -177,8 +177,8 @@ try
     echo "[press enter]\n";
     fgets(STDIN);
 
-    $clientp = new ClientPrinterI()
-    $clientp->message = "a message 4 u"
+    $clientp = new ClientPrinterI();
+    $clientp->message = "a message 4 u";
     $ICE->addObjectFactory($factory, Demo_ClientPrinter::ice_staticId());
 
     $derivedAsBase = $initial->updatePrinterMessage($clientp);
