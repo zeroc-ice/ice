@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="9.6.1" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="9.7" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="32767" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="2" ColumnIndex="7" ColumnSize="2" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="32767" Description="File sequence number for the last file for this media." Options="0" ColumnType="2" ColumnIndex="1" ColumnSize="2" MsiKey="Media#LastSequence"/>
@@ -42,6 +42,7 @@
     <ROW Directory="NewFolder_Dir" Directory_Parent="lib_DIR" DefaultDir="mingw"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="bin_DIR" Directory_Parent="APPDIR" DefaultDir="bin"/>
+    <ROW Directory="config_Dir" Directory_Parent="APPDIR" DefaultDir="config"/>
     <ROW Directory="include_Dir" Directory_Parent="APPDIR" DefaultDir="include"/>
     <ROW Directory="lib_DIR" Directory_Parent="APPDIR" DefaultDir="lib"/>
     <ROW Directory="openssl_Dir" Directory_Parent="include_Dir" DefaultDir="openssl"/>
@@ -150,6 +151,7 @@
     <ROW Component="libexpat.dll_2" ComponentId="{65543764-0869-4795-87B8-2914AAC4D1B3}" Directory_="vc110_Dir" Attributes="0" KeyPath="libexpat.dll_2"/>
     <ROW Component="libexpat.dll_3" ComponentId="{12EC66A4-8F4D-424F-8DC8-B0DEB4F01CAC}" Directory_="x64_Dir" Attributes="256" KeyPath="libexpat.dll_3"/>
     <ROW Component="libmcpp.a" ComponentId="{817B16AC-B790-47A6-8685-5A01C5EF9977}" Directory_="NewFolder_Dir" Attributes="0" KeyPath="libmcpp.a" Type="0"/>
+    <ROW Component="openssl.cnf" ComponentId="{CE6C016A-9637-42AD-8731-050F6B7AEC55}" Directory_="config_Dir" Attributes="0" KeyPath="openssl.cnf" Type="0"/>
     <ROW Component="openssl.exe" ComponentId="{F4CBB828-1E36-4340-9653-7E24D884CD7F}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
     <ROW Component="openssl.exe_1" ComponentId="{53B359AE-C9A0-4758-9DDC-9AF2BAAB17CA}" Directory_="x64_1_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
     <ROW Component="openssl.exe_2" ComponentId="{C15690F6-8804-4D9F-B062-EC48199139BE}" Directory_="vc110_Dir" Attributes="0" KeyPath="openssl.exe_2"/>
@@ -162,7 +164,7 @@
     <ROW Component="ssleay32_vc90.dll" ComponentId="{2D8B6FEF-E2AE-402E-9188-D01C24D3BAD8}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc90.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="AI_CustomARPName InstallDir SOURCES aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_vc90.dll bzip2_vc90d.dll bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libeay32_mingw.dll libeay32_vc90.dll libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3 ssleay32_mingw.dll ssleay32_vc90.dll"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="AI_CustomARPName InstallDir SOURCES aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_vc90.dll bzip2_vc90d.dll bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libeay32_mingw.dll libeay32_vc90.dll libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a openssl.cnf openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3 ssleay32_mingw.dll ssleay32_vc90.dll"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -346,6 +348,7 @@
     <ROW File="obj_mac.h" Component_="aes.h" FileName="obj_mac.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\obj_mac.h" SelfReg="false" NextFile="ocsp.h"/>
     <ROW File="objects.h" Component_="aes.h" FileName="objects.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\objects.h" SelfReg="false" NextFile="obj_mac.h"/>
     <ROW File="ocsp.h" Component_="aes.h" FileName="ocsp.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\ocsp.h" SelfReg="false" NextFile="opensslconf.h"/>
+    <ROW File="openssl.cnf" Component_="openssl.cnf" FileName="openssl.cnf" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\config\openssl.cnf" SelfReg="false"/>
     <ROW File="openssl.exe" Component_="openssl.exe" FileName="openssl.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\openssl.exe" SelfReg="false" NextFile="ssleay32.dll" DigSign="true"/>
     <ROW File="openssl.exe_1" Component_="openssl.exe_1" FileName="openssl.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\x64\openssl.exe" SelfReg="false" NextFile="ssleay32.dll_1" DigSign="true"/>
     <ROW File="openssl.exe_2" Component_="openssl.exe_2" FileName="openssl.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\openssl.exe" SelfReg="false" NextFile="ssleay32.dll_2" DigSign="true"/>
@@ -380,7 +383,7 @@
     <ROW File="ssleay32.lib_1" Component_="libbz2.lib_1" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\lib\ssleay32.lib" SelfReg="false" NextFile="libbz2.lib_2"/>
     <ROW File="ssleay32.lib_2" Component_="libbz2.lib_2" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\lib\x64\ssleay32.lib" SelfReg="false" NextFile="libbz2.lib_3"/>
     <ROW File="ssleay32.lib_3" Component_="db.jar" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\lib\ssleay32.lib" SelfReg="false" NextFile="SOURCES.txt"/>
-    <ROW File="ssleay32.lib_4" Component_="libbz2.lib_3" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\TP\VC100\lib\x64\ssleay32.lib" SelfReg="false"/>
+    <ROW File="ssleay32.lib_4" Component_="libbz2.lib_3" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\TP\VC100\lib\x64\ssleay32.lib" SelfReg="false" NextFile="openssl.cnf"/>
     <ROW File="ssleay32_mingw.dll" Component_="ssleay32_mingw.dll" FileName="ssleay~1.dll|ssleay32_mingw.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\MinGW\bin\ssleay32_mingw.dll" SelfReg="false" NextFile="bzip2_vc90.dll"/>
     <ROW File="ssleay32_vc90.dll" Component_="ssleay32_vc90.dll" FileName="ssleay~2.dll|ssleay32_vc90.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC90\bin\ssleay32_vc90.dll" SelfReg="false" NextFile="libbz2.lib"/>
     <ROW File="stack.h" Component_="aes.h" FileName="stack.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\stack.h" SelfReg="false" NextFile="symhacks.h"/>
