@@ -99,7 +99,7 @@ hello::MainPage::proxy()
 
     if(timeout->Value > 0)
     {
-        prx = prx->ice_timeout((int)timeout->Value * 1000);
+        prx = prx->ice_timeout((int)(timeout->Value * 1000));
     }
     return Demo::HelloPrx::uncheckedCast(prx);
 }
