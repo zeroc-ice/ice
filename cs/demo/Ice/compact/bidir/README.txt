@@ -2,11 +2,12 @@ This demo shows how to write a simple C# server application using Ice
 for .NET Compact Framework (CF).
 
 This demo requires a bidir client. You can use the C# client located
-in ..\..\bidir, or you can use a client from any other language mapping.
+in ..\..\bidir, or you can use a client from any other language
+mapping.
 
-You must use Visual Studio 2008 to build this client (Visual Studio
-2010 does not support Compact Framework development). Follow these
-instructions to build and run the client:
+You must use Visual Studio 2008 to build this server (Visual Studio
+2010 does not support for Compact Framework development). Follow these
+instructions to build and run the server:
 
 1) Open the project in Visual Studio 2008. This is a Smart Device
    project and therefore Visual Studio will compile it against the
@@ -15,7 +16,7 @@ instructions to build and run the client:
    configures the project to compile against the Ice for .NET CF
    DLL in <Ice installation directory>\bin\cf\Ice.dll.
 
-2) Build the client by right-clicking on the project and choosing
+2) Build the server by right-clicking on the project and choosing
    "Build".
 
 3) Start a device emulator. Select Tools -> Device Emulator Manager,
@@ -45,7 +46,7 @@ instructions to build and run the client:
 6) In Visual Studio, right-click on the project, choose Deploy, select
    the "USA Windows Mobile 5.0 Pocket PC R2 Emulator" device, and
    click Deploy. This action causes Visual Studio to install the .NET
-   CF run time, the client executable, and the Ice for .NET CF run
+   CF run time, the server executable, and the Ice for .NET CF run
    time in the emulator.
 
 7) In the emulator, choose Start -> Programs and select File Explorer.
@@ -55,4 +56,17 @@ instructions to build and run the client:
 8) Select "server" to start the program. Click the Start Server button 
    to start the server.
 
-9) Finally in a command window, start the bidir client.
+9) Before you can run the bidir client, you need to know the IP
+   address being used by the emulator. In the emulator, choose Start
+   -> Settings, select the Connections tab, click on Network Cards,
+   and click on "NE2000 Compatible Ethernet Driver". Here you can find
+   the device's IP address.
+
+   Edit the config.client file for your bidir client and change the
+   following line:
+
+   CallbackSender.Proxy=sender:tcp -h localhost -p 10000
+
+   Replace "localhost" with the IP address of the emulator.
+
+10) Finally, start the bidir client.
