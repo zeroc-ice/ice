@@ -20,5 +20,13 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
+#
+# Don't use a slave registry for this test. This can lead to race
+# conditions when resolving endpoints of round-robin replica groups if
+# the slave didn't fully load the servers at the time of the client
+# invocation
+#
+IceGridAdmin.nreplicas=0
+
 IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"",
                          "icebox.exe='%s'" % TestUtil.getIceBox())
