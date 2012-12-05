@@ -13,6 +13,8 @@
 
 #include <Ice/SliceChecksumDict.ice>
 
+#include <IceStorm/Metrics.ice>
+
 /**
  *
  * A messaging service with support for federation. In contrast to
