@@ -21,6 +21,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Ice:
     Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
     Test::MyClassPrx myClass = allTests(communicator, false);
 
+#ifndef ICE_OS_WINRT
     cout << "testing server shutdown... " << flush;
     myClass->shutdown();
     try
@@ -32,7 +33,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Ice:
     {
         cout << "ok" << endl;
     }
-
+#else
+    //
+    // When using SSL the run.py script starts a new server after shutdown
+    // and the call to opVoid will success.
+    //
+    myClass->shutdown();
+#endif
     return EXIT_SUCCESS;
 }
 

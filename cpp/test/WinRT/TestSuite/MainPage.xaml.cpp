@@ -302,7 +302,7 @@ static const TestCase allTest[] =
     {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0, true},
     {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0, false},
     {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0, true},
-    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0, true},
+    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0, false},
     {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0, true},
     {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0, true},
     {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0, true}
@@ -352,7 +352,10 @@ public:
                     printLineToConsoleOutput("");
                 }
 
-                if(_test.collocated)
+                //
+                // Don't run collocated tests with SSL as there isn't SSL server side.
+                //
+                if(_test.collocated && !_config.ssl)
                 {
                     printLineToConsoleOutput("*** running collocated test " + _test.name);
                     runClientTest(_test.collocated, true);
