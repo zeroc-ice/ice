@@ -99,7 +99,7 @@ hello::MainPage::proxy()
 
     if(timeout->Value > 0)
     {
-        prx = prx->ice_timeout((int)(timeout->Value * 1000));
+        prx = prx->ice_timeout(static_cast<int>(timeout->Value * 1000));
     }
     return Demo::HelloPrx::uncheckedCast(prx);
 }
@@ -172,7 +172,7 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
         else
         {
             print("Queued hello request.");
-            prx->sayHello((int)(delay->Value * 1000));
+            prx->sayHello(static_cast<int>(delay->Value * 1000));
             flush->IsEnabled = true;
         }
     }
