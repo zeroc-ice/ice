@@ -1,0 +1,16 @@
+Ice 3.5b Third Party Packages
+-----------------------------
+
+This distribution contains the development kit (including binaries)
+for the open-source packages used by Ice 3.5b on Solaris. Its primary
+purpose is to simplify building Ice 3.5b from sources.
+
+The following versions of the third party software were used to
+create this package:
+
+ - MCPP 2.7.2
+
+This distribution provides:
+   
+ - The static library for MCPP in the lib directory (32-bit) and
+   in the lib/64 directory (64-bit)
