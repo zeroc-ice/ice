@@ -708,6 +708,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(svc1Prx->getProperty("test2") == "");
         test(svc1Prx->getProperty("test3") == "test3");
         test((iceBoxPid = admin->getServerPid("IceBox")) > 0);
+        // Wait for the server to be active to have the guarantee that
+        // the property update will return once the properties are
+        // updated.
+        while(admin->getServerState("IceBox") != IceGrid::Active)
+        {
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
         test(hasProperty(getServiceDescriptor(admin, "Service1"), "test", "test"));
         test(!hasProperty(getServiceDescriptor(admin, "Service1"), "test2", ""));
         test(hasProperty(getServiceDescriptor(admin, "Service1"), "test3", "test3"));
@@ -719,13 +726,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         updateServerRuntimeProperties(admin, "IceBox", icebox);
         test(svc2Prx->getProperty("test22") == "test22");
         test(svc3Prx->getProperty("test32") == "test32");
-        // Wait for the server to be active to have the guarantee that
-        // the property update will return once the properties are
-        // updated.
-        while(admin->getServerState("IceBox") != IceGrid::Active)
-        {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        }
         test(iceBoxPid == admin->getServerPid("IceBox"));
         test(hasProperty(getServiceDescriptor(admin, "Service2"), "test22", "test22"));
         test(hasProperty(getServiceDescriptor(admin, "Service3"), "test32", "test32"));
