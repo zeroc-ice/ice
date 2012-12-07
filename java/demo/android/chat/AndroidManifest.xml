@@ -3,6 +3,11 @@
       package="com.zeroc.chat"
       android:versionCode="1"
       android:versionName="1.0.0">
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <!--
+      http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
+    -->
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="9"/>
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:label="@string/app_name" android:name=".ChatActivity">
             <intent-filter>
@@ -20,5 +25,4 @@
         <service android:permission="android.permission.INTERNET" android:enabled="true"
             android:name=".service.ChatService" android:exported="false"></service>
     </application>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 </manifest>
