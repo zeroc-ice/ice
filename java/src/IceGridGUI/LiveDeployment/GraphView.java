@@ -172,8 +172,14 @@ public class GraphView extends JFrame implements MetricsFieldContext
                             @Override
                             public void run()
                             {
-                                r.run();
-                                sem.release();
+                                try
+                                {
+                                    r.run();
+                                }
+                                finally
+                                {
+                                    sem.release();
+                                }
                             }
                         });
                 }
@@ -184,8 +190,14 @@ public class GraphView extends JFrame implements MetricsFieldContext
                             @Override
                             public void run()
                             {
-                                r.run();
-                                sem.release();
+                                try
+                                {
+                                    r.run();
+                                }
+                                finally
+                                {
+                                    sem.release();
+                                }
                             }
                         });
                 }
@@ -648,7 +660,14 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                     // to be reasign by JavaFX.
                                     //
                                     // _chart.getData().remove(row.series);
-                                    row.series.getData().clear();
+                                    try
+                                    {
+                                        row.series.getData().clear();
+                                    }
+                                    catch(NullPointerException ex)
+                                    {
+                                        // JavaFX bug
+                                    }
                                 }
                             }
                         }, true);
@@ -894,6 +913,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                         {
                             continue;
                         }
+
                         while(row.series.getData().size() > 0)
                         {
                             row.series.getData().remove(0);
@@ -1649,6 +1669,11 @@ public class GraphView extends JFrame implements MetricsFieldContext
         for(javafx.scene.Node n : _chart.lookupAll("." + seriesClass))
         {
             n.setStyle(style);
+            //
+            // Disable effects like shadows. This effect doesn't look good in some
+            // Windows versions.
+            //
+            n.setEffect(null);
         }
     }
 

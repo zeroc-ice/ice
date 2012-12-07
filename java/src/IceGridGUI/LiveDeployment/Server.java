@@ -403,13 +403,13 @@ public class Server extends ListArrayTreeNode
         {
             return; // Already loaded.
         }
-        _metricsRetrieved = true;
 
         Ice.ObjectPrx admin = getServerAdmin();
         if(admin == null)
         {
             return;
         }
+        _metricsRetrieved = true;
         final IceMX.MetricsAdminPrx metricsAdmin = 
                 IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("Metrics"));
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
@@ -439,6 +439,7 @@ public class Server extends ListArrayTreeNode
                         {
                             public void run()
                             {
+                                _metricsRetrieved = false;
                                 if(e instanceof Ice.ObjectNotExistException)
                                 {
                                     // Server is down.
@@ -464,6 +465,7 @@ public class Server extends ListArrayTreeNode
         }
         catch(Ice.LocalException e)
         {
+            _metricsRetrieved = false;
             JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
                                           JOptionPane.ERROR_MESSAGE);
         }
