@@ -1317,7 +1317,11 @@ def cleanDbDir(path):
         os.remove(os.path.join(path, "__Freeze", "lock"))
     if os.path.exists(os.path.join(path, "__Freeze")):
         os.rmdir(os.path.join(path, "__Freeze"))
-    for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
+    #
+    # We include __Freeze in this list even though we just removed it - see ICE-5108.
+    #
+    ignore = [".gitignore", "DB_CONFIG", "__Freeze"]
+    for filename in [ os.path.join(path, f) for f in os.listdir(path) if f not in ignore ]:
         os.remove(filename)
 
 def startClient(exe, args = "", config=None, env=None, echo = True, startReader = True, clientConfig = False, iceOptions = None, iceProfile = None):
