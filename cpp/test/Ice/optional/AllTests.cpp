@@ -1021,6 +1021,10 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         IceUtil::Optional<FixedStructSeq> p2 = initial->opFixedStructSeq(p1, p3);
         test(!p2 && !p3);
 
+        p1 = std::pair<const FixedStruct*, const FixedStruct*>(0, 0);
+        p2 = initial->opFixedStructSeq(p1, p3);
+        test(p2 && p3 && p2.get().empty() && p3.get().empty());
+
         FixedStruct fss[10];
         fss[0].m = 1;
         fss[1].m = 2;

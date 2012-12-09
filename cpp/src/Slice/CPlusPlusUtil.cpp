@@ -222,16 +222,30 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                     out << nl << "if(___" << fixedName << ")";
                     out << sb;
                     out << nl << fixedName << ".__setIsSet();";
+                    out << nl << "if(!___" << fixedName << "->empty())";
+                    out << sb;
                     out << nl << fixedName << "->first" << " = &(*___" << fixedName << ")[0];";
                     out << nl << fixedName << "->second" << " = " << fixedName << "->first + " << "___" 
                         << fixedName << "->size();";
                     out << eb;
+                    out << nl << "else";
+                    out << sb;
+                    out << nl << fixedName << "->first" << " = " << fixedName << "->second" << " = 0;";
+                    out << eb;
+                    out << eb;
                 }
                 else
                 {
+                    out << nl << "if(!___" << fixedName << ".empty())";
+                    out << sb;
                     out << nl << fixedName << ".first" << " = &___" << fixedName << "[0];";
                     out << nl << fixedName << ".second" << " = " << fixedName << ".first + " << "___" 
                         << fixedName << ".size();";
+                    out << eb;
+                    out << nl << "else";
+                    out << sb;
+                    out << nl << fixedName << ".first" << " = " << fixedName << ".second" << " = 0;";
+                    out << eb;
                 }
             }
         }
