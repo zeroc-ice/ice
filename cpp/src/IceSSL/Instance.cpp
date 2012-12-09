@@ -687,6 +687,14 @@ IceSSL::Instance::initialize()
         SSL_CTX_set_session_cache_mode(_ctx, SSL_SESS_CACHE_OFF);
 
         //
+        // Although we disable session caching, we still need to set a session ID
+        // context (ICE-5103). The value can be anything; here we just use the
+        // pointer to this Instance object.
+        //
+        SSL_CTX_set_session_id_context(_ctx, reinterpret_cast<unsigned char*>(this),
+                                       static_cast<unsigned int>(sizeof(this)));
+
+        //
         // Select protocols.
         //
         if(protocols != 0)
