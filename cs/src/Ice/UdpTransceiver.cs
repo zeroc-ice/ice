@@ -56,6 +56,24 @@ namespace IceInternal
 
             if(_state <= StateConnectPending)
             {
+#if !SILVERLIGHT
+                if(!AssemblyUtil.osx_)
+                {
+                    //
+                    // On Windows, we delay the join for the mcast group after the connection
+                    // establishment succeeds. This is necessary for older Windows versions 
+                    // where joining the group fails if the socket isn't bound. See ICE-5113.
+                    //
+                    if(Network.isMulticast((IPEndPoint)_addr))
+                    {
+                        Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
+                        if(_mcastTtl != -1)
+                        {
+                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
+                        }
+                    }
+                }
+#endif                    
                 _state = StateConnected;
             }
 
@@ -792,12 +810,20 @@ namespace IceInternal
                 setBufSize(instance);
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
-                if(Network.isMulticast((IPEndPoint)_addr))
+                if(AssemblyUtil.osx_)
                 {
-                    Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                    if(_mcastTtl != -1)
+                    //
+                    // On Windows, we delay the join for the mcast group after the connection
+                    // establishment succeeds. This is necessary for older Windows versions 
+                    // where joining the group fails if the socket isn't bound. See ICE-5113.
+                    //
+                    if(Network.isMulticast((IPEndPoint)_addr))
                     {
-                        Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
+                        Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
+                        if(_mcastTtl != -1)
+                        {
+                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
+                        }
                     }
                 }
 #endif
