@@ -1530,13 +1530,13 @@ class WatchDog(threading.Thread):
         try:
             self._cv.acquire()
             while True:
-                self._cv.wait(180)
+                self._cv.wait(240)
                 if self._stopFlag:
                     break
                 if self._resetFlag:
                     self._resetFlag = False
                 else:
-                    print("\a*** %s Warning: Test has been inactive for 3 minutes and may be hung", \
+                    print("\a*** %s Warning: Test has been inactive for 4 minutes and may be hung", \
                           time.strftime("%x %X"))
             self._cv.release()
         except:
