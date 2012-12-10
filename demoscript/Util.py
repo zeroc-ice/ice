@@ -111,7 +111,7 @@ def configurePaths():
                 "VC110_EXPRESS" : "vc110"
             }
             subdir = compilers.get(os.environ.get("CPP_COMPILER", None), "")
-            if subdir and getMapping() == "cpp":
+            if subdir:
                 if x64:
                     addenv("PATH", os.path.join(binDir, subdir, "x64"))
                 else:
