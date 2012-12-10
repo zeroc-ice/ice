@@ -120,7 +120,7 @@ public class HelloApp extends Application
                 // little faster since the plugin will not initialize
                 // two keystores.
                 //
-                java.io.InputStream certs = getResources().openRawResource(R.raw.certs);
+                java.io.InputStream certs = getResources().openRawResource(R.raw.client);
                 plugin.setKeystoreStream(certs);
                 plugin.setTruststoreStream(certs);
                 communicator.getPluginManager().initializePlugins();

@@ -366,7 +366,7 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
         os.remove("certs.bks")
 
     print "Converting Java truststore to BKS..."
-    cmd = "keytool -importkeystore -srckeystore certs.jks -destkeystore certs.bks -srcstoretype JKS -deststoretype BKS " + \
+    cmd = "keytool -importkeystore -srckeystore client.jks -destkeystore client.bks -srcstoretype JKS -deststoretype BKS " + \
           "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
     if debug:
         print "[debug]", cmd
@@ -379,8 +379,8 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
         #
         for root, dirnames, filenames in os.walk('../java/demo/android'):
             for f in filenames:
-                if f == "certs.bks":
-                    shutil.copyfile("certs.bks", os.path.join(root, f))
+                if f == "client.bks":
+                    shutil.copyfile("client.bks", os.path.join(root, f))
     except subprocess.CalledProcessError as e:
         if e.output.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
             print ""
@@ -388,6 +388,12 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
             print "         You can download BKS provider from http://www.bouncycastle.org/latest_releases.html."
             print "         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE"
             print "         and run this script again."
+            print ""
+        elif: e.output.find("java.security.InvalidKeyException: Illegal key size") != -1:
+            print ""
+            print "WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength."
+            print "         You can download it from Additional Resources section in Orcale Java Download page at:"
+            print "             http://www.oracle.com/technetwork/java/javase/downloads/index.html."
             print ""
         else:
             raise
