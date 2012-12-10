@@ -183,7 +183,8 @@ public final class Selector
             
             if(++_spuriousWakeUp > 100)
             {
-                _instance.initializationData().logger.error("spurious selector wake up");
+                _spuriousWakeUp = 0;
+                _instance.initializationData().logger.warning("spurious selector wake up");
             }
             return;
         }
