@@ -85,7 +85,7 @@ ALL_SRCS	= $(ICE_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
-PACKAGES	= IceBox IceGrid IcePatch2 IceStorm
+PACKAGES	= IceBox IceGrid IcePatch2 IceStorm IceMX
 
 SLICE2PYFLAGS   = $(SLICE2PYFLAGS) --ice
 

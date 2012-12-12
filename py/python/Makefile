@@ -98,7 +98,7 @@ ICEGRID_SLICE	= $(patsubst IceGrid_%_ice.py,$(slicedir)/IceGrid/%.ice,$(ICEGRID_
 ICEPATCH2_SLICE	= $(patsubst IcePatch2_%_ice.py,$(slicedir)/IcePatch2/%.ice,$(ICEPATCH2_SRCS))
 ICESTORM_SLICE	= $(patsubst IceStorm_%_ice.py,$(slicedir)/IceStorm/%.ice,$(ICESTORM_SRCS))
 
-PACKAGES	= IceBox IceGrid IcePatch2 IceStorm
+PACKAGES	= IceBox IceGrid IcePatch2 IceStorm IceMX
 
 all:: $(ALL_SRCS)
 
