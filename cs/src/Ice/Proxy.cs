@@ -1422,7 +1422,7 @@ namespace Ice
                 context = emptyContext_;
             }
 
-            InvocationObserver observer = IceInternal.ObserverHelper.get(this, __ice_invoke_name, context);
+            InvocationObserver observer = IceInternal.ObserverHelper.get(this, operation, context);
             int cnt__ = 0;
             try
             {

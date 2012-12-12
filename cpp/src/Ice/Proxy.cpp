@@ -535,7 +535,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
                                   vector<Byte>& outEncaps,
                                   const Context* context)
 {
-    InvocationObserver __observer(this, ice_invoke_name, context);
+    InvocationObserver __observer(this, operation, context);
     int __cnt = 0;
     while(true)
     {

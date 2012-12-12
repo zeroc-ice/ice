@@ -872,7 +872,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             context = _emptyContext;
         }
 
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, __ice_invoke_name, context);
+        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, operation, context);
         int __cnt = 0;
         try
         {

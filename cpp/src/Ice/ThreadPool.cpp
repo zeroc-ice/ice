@@ -640,7 +640,6 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
     {
         if(current._handler)
         {
-            thread->setState(ThreadStateInUseForIO);
             try
             {
                 current._handler->message(current);
@@ -663,7 +662,6 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         }
         else if(select)
         {
-            thread->setState(ThreadStateIdle);
             try
             {
                 _selector.select(handlers, _serverIdleTime);
@@ -731,6 +729,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 current._handler = _nextHandler->first;
                 current.operation = _nextHandler->second;
                 ++_nextHandler;
+                thread->setState(ThreadStateInUseForIO);
             }
             else
             {
@@ -753,6 +752,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 {
                     _selector.startSelect();
                     select = true;
+                    thread->setState(ThreadStateIdle);
                 }
             }
             else if(_sizeMax > 1)
@@ -834,17 +834,15 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             }
         }
 
-        assert(current._handler);
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            thread->setState(ThreadStateInUseForIO);
+        }
+
         try
         {
+            assert(current._handler);
             current._handler->message(current);
-
-            if(_sizeMax > 1 && current._ioCompleted)
-            {
-                Lock sync(*this);
-                assert(_inUse > 0);
-                --_inUse;
-            }
         }
         catch(ThreadPoolDestroyedException&)
         {
@@ -868,6 +866,16 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             Error out(_instance->initializationData().logger);
             out << "exception in `" << _prefix << "':\nevent handler: " << current._handler->toString();
         }
+
+        {
+            Lock sync(*this);
+            if(_sizeMax > 1 && current._ioCompleted)
+            {
+                assert(_inUse > 0);
+                --_inUse;
+            }
+            thread->setState(ThreadStateIdle);
+        }
     }
 #endif
 }
@@ -875,13 +883,14 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 bool
 IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 {
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
     current._ioCompleted = true; // Set the IO completed flag to specifiy that ioCompleted() has been called.
 
     current._thread->setState(ThreadStateInUseForUser);
 
     if(_sizeMax > 1)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
         --_inUseIO;
         
@@ -1120,6 +1129,7 @@ IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPool
 void
 IceInternal::ThreadPool::EventHandlerThread::updateObserver()
 {
+    // Must be called with the thread pool mutex locked
     const CommunicatorObserverPtr& obsv = _pool->_instance->initializationData().observer;
     if(obsv)
     {
@@ -1130,6 +1140,7 @@ IceInternal::ThreadPool::EventHandlerThread::updateObserver()
 void
 IceInternal::ThreadPool::EventHandlerThread::setState(Ice::Instrumentation::ThreadState s)
 {
+    // Must be called with the thread pool mutex locked
     if(_observer)
     {
         if(_state != s)

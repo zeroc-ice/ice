@@ -253,9 +253,17 @@ namespace IceInternal
 
         public void updateObservers()
         {
-            foreach(WorkerThread t in _threads)
+            _m.Lock();
+            try
             {
-                t.updateObserver();
+                foreach(WorkerThread t in _threads)
+                {
+                    t.updateObserver();
+                }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -752,6 +760,7 @@ namespace IceInternal
 
             public void updateObserver()
             {
+                // Must be called with the thread pool mutex locked
                 Ice.Instrumentation.CommunicatorObserver obsv = _threadPool._instance.initializationData().observer;
                 if(obsv != null)
                 {
@@ -766,6 +775,7 @@ namespace IceInternal
             public void
             setState(Ice.Instrumentation.ThreadState s)
             {
+                // Must be called with the thread pool mutex locked
                 if(_observer != null)
                 {
                     if(_state != s)
