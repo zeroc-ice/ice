@@ -100,12 +100,12 @@ maps = {
 
 def metricsTitle():
     # Returns a lambda which returns the title of the field.
-    return lambda mapName, field, title, align, width: ("{:" + align + str(width) + "}").format(title)
+    return lambda mapName, field, title, align, width: ("{0:" + align + str(width) + "}").format(title)
 
 def metricsSeparator(fill):
     # Returns a lambda which returns a separator of the size of the
     # field and using the specified fill character.
-    return lambda mapName, field, title, align, width: ("{:" + fill + align + str(width) + "}").format("")
+    return lambda mapName, field, title, align, width: ("{0:" + fill + align + str(width) + "}").format("")
 
 def metricsField(metrics):
     def getField(mapName, field, title, width):
@@ -132,7 +132,7 @@ def metricsField(metrics):
     # Return a lambda which returns the formated metric value for the
     # given metrics object.
     return lambda mapName, field, title, align, width: \
-        ("{:" + align + str(width) + "}").format(getField(mapName, field, title, width))
+        ("{0:" + align + str(width) + "}").format(getField(mapName, field, title, width))
 
 def printMetrics(mapName, getValue, sep = '|', prefix = " "):
     #
