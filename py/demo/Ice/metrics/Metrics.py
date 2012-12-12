@@ -145,7 +145,7 @@ def printMetrics(mapName, getValue, sep = '|', prefix = " "):
     fieldStr = [ prefix + sep ]
     for (field, title, align, width) in maps[mapName]:
         fieldStr.append(getValue(mapName, field, title, align, width) + sep)
-    print "".join(fieldStr)
+    print("".join(fieldStr))
 
 def printMetricsMap(admin, viewName, mapName, map):
 
@@ -185,26 +185,29 @@ def printMetricsMap(admin, viewName, mapName, map):
     #
     failures = admin.getMapMetricsFailures(viewName, mapName)
     if len(failures) > 0:
-        print
-        print " Failures:"
+        print("")
+        print(" Failures:")
         for k in failures:
             for (exception, count) in k.failures.items():
                 if len(k.id) > 0:
-                    print "  - " + str(count) + ' ' + exception + " for `" + k.id + "'"
+                    print("  - " + str(count) + ' ' + exception + " for `" + k.id + "'")
                 else:
-                    print "  - " + str(count) + ' ' + exception
-    print
+                    print("  - " + str(count) + ' ' + exception)
+    print("")
 
-def printMetricsView(admin, viewName, (view, refreshTime)):
+def printMetricsView(admin, viewName, viewAndRefreshTime):
+
+    (view, refreshTime) = viewAndRefreshTime
+
     #
     # Print each metrics map from the metrics view.
     #
-    print "View: " + viewName
-    print
+    print("View: " + viewName)
+    print("")
     for mapName, map in view.items():
         if mapName in maps and len(map) > 0:
             printMetricsMap(admin, viewName, mapName, map)
-    print
+    print("")
 
 class Client(Ice.Application):
 
@@ -265,21 +268,21 @@ Commands:
                 else:
                     # Ensure the view exists
                     if not viewName in views and not viewName in disabledViews:
-                        print "unknown view `" + viewName + "', available views:"
-                        print "enabled = " + str(views) + ", disabled = " + str(disabledViews)
+                        print("unknown view `" + viewName + "', available views:")
+                        print("enabled = " + str(views) + ", disabled = " + str(disabledViews))
                         return 0
 
                     # Ensure the view is enabled
                     if viewName in disabledViews:
-                        print "view `" + viewName + "' is disabled"
+                        print("view `" + viewName + "' is disabled")
                         return 0
                     
                     # Retrieve the metrics view and print it.
                     (view, refresh) = metrics.getMetricsView(viewName);                
                     if mapName:
                         if not mapName in view:
-                            print "no map `" + mapName + "' in `" + viewName + "' view, available maps:"
-                            print str(view.keys())
+                            print("no map `" + mapName + "' in `" + viewName + "' view, available maps:")
+                            print(str(view.keys()))
                             return 0
                         printMetricsMap(metrics, viewName, mapName, view[mapName])
                     else:
@@ -290,16 +293,16 @@ Commands:
             elif command == "disable":
                 metrics.disableMetricsView(viewName)
             else:
-                print "unknown command `" + command + "'"
+                print("unknown command `" + command + "'")
                 self.usage()
                 return 2
 
         except Ice.ObjectNotExistException as ex:
-            print ("failed to get metrics from `%s':\n(the admin object doesn't exist, " + 
-                   "are you sure to use the correct instance name?)") % (proxyStr)
+            print("failed to get metrics from `%s':\n(the admin object doesn't exist, " + 
+                  "are you sure to use the correct instance name?)") % (proxyStr)
             return 1
         except Ice.Exception as ex:
-            print ("failed to get metrics from `%s':\n%s") % (proxyStr, ex)
+            print("failed to get metrics from `%s':\n%s") % (proxyStr, ex)
             return 1
 
         return 0
