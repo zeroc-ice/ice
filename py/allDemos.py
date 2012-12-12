@@ -31,6 +31,7 @@ demos = [
     "Ice/hello",
     "Ice/latency",
     "Ice/minimal",
+    "Ice/metrics",
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
