@@ -234,6 +234,10 @@
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Running slice2freeze</Message>
     </CustomBuild>
     <None Include="config.server" />
     <None Include="README" />

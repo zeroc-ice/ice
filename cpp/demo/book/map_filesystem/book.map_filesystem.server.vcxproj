@@ -234,6 +234,10 @@
 "$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --output-dir="generated\server" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">generated\server\IdentityFileEntryMap.cpp;generated\server\IdentityFileEntryMap.h;generated\server\IdentityDirectoryEntryMap.cpp;generated\server\IdentityDirectoryEntryMap.h;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Running slice2freeze</Message>
     </CustomBuild>
     <None Include="config.server" />
     <None Include="README" />

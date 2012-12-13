@@ -286,6 +286,10 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" --ice --output-dir="generated\collocated"  -I. -I"$(IceHome)\slice" --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes "$(IceHome)\slice/Ice/BuiltinSequences.ice" Library.ice</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">generated\collocated\LibraryTypes.cpp;generated\collocated\LibraryTypes.h;%(Outputs)</Outputs>
       <FileType>Document</FileType>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Running slice2freeze</Message>
     </CustomBuild>
     <None Include="config.collocated" />
     <None Include="README" />

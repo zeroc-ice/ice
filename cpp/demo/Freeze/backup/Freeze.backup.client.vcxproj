@@ -217,6 +217,10 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">generated\IntLongMap.h;generated\IntLongMap.cpp;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" --output-dir="generated" -I. --dict IntLongMap,int,long IntLongMap</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">generated\IntLongMap.h;generated\IntLongMap.cpp;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Running slice2freeze</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Running slice2freeze</Message>
     </CustomBuild>
     <None Include="config" />
     <None Include="README" />
