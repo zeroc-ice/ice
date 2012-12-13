@@ -1311,8 +1311,6 @@
     <ROW Component="glacier2.lib_1" ComponentId="{1CE9C20E-8C9D-48BB-A5CC-786B748CDA16}" Directory_="x86_Dir" Attributes="0" KeyPath="glacier2.lib_3" Type="0"/>
     <ROW Component="glacier2.lib_2" ComponentId="{10A49D9F-E4A4-4441-BF15-0489348B9152}" Directory_="x64_2_Dir" Attributes="0" KeyPath="glacier2.lib_4" Type="0"/>
     <ROW Component="glacier2.lib_3" ComponentId="{7FFCC8A2-B385-4898-B018-CC77EAF355E3}" Directory_="x86_1_Dir" Attributes="0" KeyPath="glacier2.lib_5" Type="0"/>
-    <ROW Component="glacier2.pdb" ComponentId="{553533EA-9778-4ED5-9C5E-CAE7773C0A70}" Directory_="x64_1_Dir" Attributes="0" KeyPath="glacier2.pdb" Type="4"/>
-    <ROW Component="glacier2.pdb_1" ComponentId="{11CD8547-6C56-4E32-9C26-4C03C233B28F}" Directory_="x86_Dir" Attributes="0" KeyPath="glacier2.pdb_1" Type="4"/>
     <ROW Component="glacier235b.dll" ComponentId="{3A850617-FBB0-4600-BAFB-283034AA51FE}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier235b.dll"/>
     <ROW Component="glacier235b.dll_1" ComponentId="{231011EE-DE06-43CC-913B-7DA370D15C7C}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier235b.dll_1"/>
     <ROW Component="glacier235b.dll_2" ComponentId="{0C9806EE-DF1C-4CF3-9A4C-DF8A44B262B7}" Directory_="vc100_DIR" Attributes="0" KeyPath="glacier235b.dll_2"/>
@@ -1702,7 +1700,7 @@
     <ROW Feature="VS2008ADDIN" Title="VS 2008 Addin" Description="Visual Studio 2008 Add-in" Display="4" Level="0" Directory_="APPDIR" Attributes="0" Components="Slice.zip"/>
     <ROW Feature="VS2010ADDIN" Title="VS 2010 Addin" Description="Visual Studio 2010 Add-in" Display="6" Level="0" Directory_="APPDIR" Attributes="0" Components="Slice.zip_1 Slice.zip_3 Slice.zip_4 Slice.zip_5 slice.vsdir_4 slice.vsdir_5 slice.vsdir_6 slice.vsdir_7"/>
     <ROW Feature="VS2012ADDIN" Title="VS 2012 Addin" Description="Visual Studio 2012 Add-in" Display="9" Level="0" Directory_="APPDIR" Attributes="0" Components="newslice.ice newslice.ice_1 newslice.ice_2 newslice.ice_3 newslice.ico_1 newslice.ico_2 slice.vsdir slice.vsdir_1"/>
-    <ROW Feature="WINRTSDK" Title="WinRT SDK" Description="WinRT SDK" Display="11" Level="32767" Directory_="APPDIR" Attributes="0" Options="32" Components="AbstractMutex.h_1 Admin.h_1 Application.h_2 Application.h_3 ConnectionInfo.h_1 ICE_LICENSE.txt Ice.props_1 IceStorm.h_1 IceWinRT __8 __9 glacier2.lib glacier2.lib_1 glacier2.lib_2 glacier2.lib_3 glacier2.pdb glacier2.pdb_1"/>
+    <ROW Feature="WINRTSDK" Title="WinRT SDK" Description="WinRT SDK" Display="11" Level="32767" Directory_="APPDIR" Attributes="0" Options="32" Components="AbstractMutex.h_1 Admin.h_1 Application.h_2 Application.h_3 ConnectionInfo.h_1 ICE_LICENSE.txt Ice.props_1 IceStorm.h_1 IceWinRT __8 __9 glacier2.lib glacier2.lib_1 glacier2.lib_2 glacier2.lib_3"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -4592,14 +4590,12 @@
     <ROW File="freezed.lib_3" Component_="freeze.lib_3" FileName="freezed.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\freezed.lib" SelfReg="false" NextFile="glacier2.lib_7"/>
     <ROW File="glacier2.lib" Component_="freeze.lib" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\lib\glacier2.lib" SelfReg="false" NextFile="ice.lib"/>
     <ROW File="glacier2.lib_1" Component_="freeze.lib_1" FileName="glacier2.lib" Attributes="0" SourcePath="..\..\..\..\VC100\Ice-3.5b\lib\x64\glacier2.lib" SelfReg="false" NextFile="ice.lib_1"/>
-    <ROW File="glacier2.lib_2" Component_="glacier2.lib" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\glacier2.lib" SelfReg="false" NextFile="glacier2.pdb"/>
-    <ROW File="glacier2.lib_3" Component_="glacier2.lib_1" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\glacier2.lib" SelfReg="false" NextFile="glacier2.pdb_1"/>
+    <ROW File="glacier2.lib_2" Component_="glacier2.lib" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\glacier2.lib" SelfReg="false" NextFile="ice.lib_2"/>
+    <ROW File="glacier2.lib_3" Component_="glacier2.lib_1" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\glacier2.lib" SelfReg="false" NextFile="ice.lib_3"/>
     <ROW File="glacier2.lib_4" Component_="glacier2.lib_2" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x64\glacier2.lib" SelfReg="false" NextFile="ice.lib_4"/>
     <ROW File="glacier2.lib_5" Component_="glacier2.lib_3" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x86\glacier2.lib" SelfReg="false" NextFile="ice.lib_5"/>
     <ROW File="glacier2.lib_6" Component_="freeze.lib_2" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\glacier2.lib" SelfReg="false" NextFile="glacier2d.lib_2"/>
     <ROW File="glacier2.lib_7" Component_="freeze.lib_3" FileName="glacier2.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\glacier2.lib" SelfReg="false" NextFile="glacier2d.lib_3"/>
-    <ROW File="glacier2.pdb" Component_="glacier2.pdb" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\glacier2.pdb" SelfReg="false" NextFile="ice.lib_2"/>
-    <ROW File="glacier2.pdb_1" Component_="glacier2.pdb_1" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\glacier2.pdb" SelfReg="false" NextFile="ice.lib_3"/>
     <ROW File="glacier235b.dll" Component_="glacier235b.dll" FileName="glacie~1.dll|glacier235b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\glacier235b.dll" SelfReg="false" NextFile="ice35b.dll" DigSign="true"/>
     <ROW File="glacier235b.dll_1" Component_="glacier235b.dll_1" FileName="glacie~1.dll|glacier235b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\x64\glacier235b.dll" SelfReg="false" NextFile="ice35b.dll_1" DigSign="true"/>
     <ROW File="glacier235b.dll_2" Component_="glacier235b.dll_2" FileName="glacie~1.dll|glacier235b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\bin\glacier235b.dll" SelfReg="false" NextFile="ice35b.dll_2" DigSign="true"/>
@@ -4632,14 +4628,12 @@
     <ROW File="helloservice.vbproj" Component_="Client.vb_10" FileName="hellos~1.vbp|helloservice.vbproj" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b-demos\demovb\IceBox\hello\helloservice.vbproj" SelfReg="false" NextFile="HelloServiceI.vb"/>
     <ROW File="ice.lib" Component_="freeze.lib" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\lib\ice.lib" SelfReg="false" NextFile="icebox.lib"/>
     <ROW File="ice.lib_1" Component_="freeze.lib_1" FileName="ice.lib" Attributes="0" SourcePath="..\..\..\..\VC100\Ice-3.5b\lib\x64\ice.lib" SelfReg="false" NextFile="icebox.lib_1"/>
-    <ROW File="ice.lib_2" Component_="glacier2.lib" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\ice.lib" SelfReg="false" NextFile="ice.pdb"/>
-    <ROW File="ice.lib_3" Component_="glacier2.lib_1" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\ice.lib" SelfReg="false" NextFile="ice.pdb_1"/>
+    <ROW File="ice.lib_2" Component_="glacier2.lib" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\ice.lib" SelfReg="false" NextFile="icegrid.lib_2"/>
+    <ROW File="ice.lib_3" Component_="glacier2.lib_1" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\ice.lib" SelfReg="false" NextFile="icegrid.lib_3"/>
     <ROW File="ice.lib_4" Component_="glacier2.lib_2" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x64\ice.lib" SelfReg="false" NextFile="icegrid.lib_4"/>
     <ROW File="ice.lib_5" Component_="glacier2.lib_3" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x86\ice.lib" SelfReg="false" NextFile="icegrid.lib_5"/>
     <ROW File="ice.lib_6" Component_="freeze.lib_2" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\ice.lib" SelfReg="false" NextFile="icebox.lib_2"/>
     <ROW File="ice.lib_7" Component_="freeze.lib_3" FileName="ice.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\ice.lib" SelfReg="false" NextFile="icebox.lib_3"/>
-    <ROW File="ice.pdb" Component_="glacier2.pdb" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\ice.pdb" SelfReg="false" NextFile="icegrid.lib_2"/>
-    <ROW File="ice.pdb_1" Component_="glacier2.pdb_1" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\ice.pdb" SelfReg="false" NextFile="icegrid.lib_3"/>
     <ROW File="ice35b.dll" Component_="ice35b.dll" FileName="ice35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\ice35b.dll" SelfReg="false" NextFile="icebox.exe" DigSign="true"/>
     <ROW File="ice35b.dll_1" Component_="ice35b.dll_1" FileName="ice35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\x64\ice35b.dll" SelfReg="false" NextFile="icebox.exe_1" DigSign="true"/>
     <ROW File="ice35b.dll_2" Component_="ice35b.dll_2" FileName="ice35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\bin\ice35b.dll" SelfReg="false" NextFile="icebox.exe_2" DigSign="true"/>
@@ -4706,14 +4700,12 @@
     <ROW File="icedbd.lib_3" Component_="freeze.lib_3" FileName="icedbd.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\icedbd.lib" SelfReg="false" NextFile="icegrid.lib_7"/>
     <ROW File="icegrid.lib" Component_="freeze.lib" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\lib\icegrid.lib" SelfReg="false" NextFile="icegridfreezedb.lib"/>
     <ROW File="icegrid.lib_1" Component_="freeze.lib_1" FileName="icegrid.lib" Attributes="0" SourcePath="..\..\..\..\VC100\Ice-3.5b\lib\x64\icegrid.lib" SelfReg="false" NextFile="icegridfreezedb.lib_1"/>
-    <ROW File="icegrid.lib_2" Component_="glacier2.lib" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\icegrid.lib" SelfReg="false" NextFile="icegrid.pdb"/>
-    <ROW File="icegrid.lib_3" Component_="glacier2.lib_1" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\icegrid.lib" SelfReg="false" NextFile="icegrid.pdb_1"/>
+    <ROW File="icegrid.lib_2" Component_="glacier2.lib" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\icegrid.lib" SelfReg="false" NextFile="icestorm.lib_2"/>
+    <ROW File="icegrid.lib_3" Component_="glacier2.lib_1" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\icegrid.lib" SelfReg="false" NextFile="icestorm.lib_3"/>
     <ROW File="icegrid.lib_4" Component_="glacier2.lib_2" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x64\icegrid.lib" SelfReg="false" NextFile="icestorm.lib_4"/>
     <ROW File="icegrid.lib_5" Component_="glacier2.lib_3" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x86\icegrid.lib" SelfReg="false" NextFile="icestorm.lib_5"/>
     <ROW File="icegrid.lib_6" Component_="freeze.lib_2" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\icegrid.lib" SelfReg="false" NextFile="icegridd.lib_2"/>
     <ROW File="icegrid.lib_7" Component_="freeze.lib_3" FileName="icegrid.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\icegrid.lib" SelfReg="false" NextFile="icegridd.lib_3"/>
-    <ROW File="icegrid.pdb" Component_="glacier2.pdb" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\icegrid.pdb" SelfReg="false" NextFile="icestorm.lib_2"/>
-    <ROW File="icegrid.pdb_1" Component_="glacier2.pdb_1" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\icegrid.pdb" SelfReg="false" NextFile="icestorm.lib_3"/>
     <ROW File="icegrid35b.dll" Component_="icegrid35b.dll" FileName="icegri~1.dll|icegrid35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\icegrid35b.dll" SelfReg="false" NextFile="icegridadmin.exe" DigSign="true"/>
     <ROW File="icegrid35b.dll_1" Component_="icegrid35b.dll_1" FileName="icegri~1.dll|icegrid35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\x64\icegrid35b.dll" SelfReg="false" NextFile="icegridadmin.exe_1" DigSign="true"/>
     <ROW File="icegrid35b.dll_2" Component_="icegrid35b.dll_2" FileName="icegri~1.dll|icegrid35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\bin\icegrid35b.dll" SelfReg="false" NextFile="icegridadmin.exe_2" DigSign="true"/>
@@ -4812,14 +4804,12 @@
     <ROW File="icesslvc90_35b.dll" Component_="icesslvc90_35b.dll" FileName="icessl~4.dll|icesslvc90_35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC90\Ice-3.5b\bin\icesslvc90_35b.dll" SelfReg="false" NextFile="iceutilvc90_35b.dll" DigSign="true"/>
     <ROW File="icestorm.lib" Component_="freeze.lib" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\lib\icestorm.lib" SelfReg="false" NextFile="icestormfreezedb.lib"/>
     <ROW File="icestorm.lib_1" Component_="freeze.lib_1" FileName="icestorm.lib" Attributes="0" SourcePath="..\..\..\..\VC100\Ice-3.5b\lib\x64\icestorm.lib" SelfReg="false" NextFile="icestormfreezedb.lib_1"/>
-    <ROW File="icestorm.lib_2" Component_="glacier2.lib" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\icestorm.lib" SelfReg="false" NextFile="icestorm.pdb"/>
-    <ROW File="icestorm.lib_3" Component_="glacier2.lib_1" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\icestorm.lib" SelfReg="false" NextFile="icestorm.pdb_1"/>
+    <ROW File="icestorm.lib_2" Component_="glacier2.lib" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\icestorm.lib" SelfReg="false" NextFile="iceutil.lib_2"/>
+    <ROW File="icestorm.lib_3" Component_="glacier2.lib_1" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\icestorm.lib" SelfReg="false" NextFile="iceutil.lib_3"/>
     <ROW File="icestorm.lib_4" Component_="glacier2.lib_2" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x64\icestorm.lib" SelfReg="false" NextFile="iceutil.lib_4"/>
     <ROW File="icestorm.lib_5" Component_="glacier2.lib_3" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x86\icestorm.lib" SelfReg="false" NextFile="iceutil.lib_5"/>
     <ROW File="icestorm.lib_6" Component_="freeze.lib_2" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\icestorm.lib" SelfReg="false" NextFile="icestormd.lib_2"/>
     <ROW File="icestorm.lib_7" Component_="freeze.lib_3" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\icestorm.lib" SelfReg="false" NextFile="icestormd.lib_3"/>
-    <ROW File="icestorm.pdb" Component_="glacier2.pdb" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\icestorm.pdb" SelfReg="false" NextFile="iceutil.lib_2"/>
-    <ROW File="icestorm.pdb_1" Component_="glacier2.pdb_1" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\icestorm.pdb" SelfReg="false" NextFile="iceutil.lib_3"/>
     <ROW File="icestorm35b.dll" Component_="icestorm35b.dll" FileName="icesto~1.dll|icestorm35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\icestorm35b.dll" SelfReg="false" NextFile="icestormadmin.exe" DigSign="true"/>
     <ROW File="icestorm35b.dll_1" Component_="icestorm35b.dll_1" FileName="icesto~1.dll|icestorm35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\x64\icestorm35b.dll" SelfReg="false" NextFile="icestormadmin.exe_1" DigSign="true"/>
     <ROW File="icestorm35b.dll_2" Component_="icestorm35b.dll_2" FileName="icesto~1.dll|icestorm35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\bin\icestorm35b.dll" SelfReg="false" NextFile="icestormadmin.exe_2" DigSign="true"/>
@@ -4874,14 +4864,12 @@
     <ROW File="icestormserviced.lib_3" Component_="freeze.lib_3" FileName="icesto~5.lib|icestormserviced.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\icestormserviced.lib" SelfReg="false" NextFile="iceutil.lib_7"/>
     <ROW File="iceutil.lib" Component_="freeze.lib" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\lib\iceutil.lib" SelfReg="false" NextFile="icexml.lib"/>
     <ROW File="iceutil.lib_1" Component_="freeze.lib_1" FileName="iceutil.lib" Attributes="0" SourcePath="..\..\..\..\VC100\Ice-3.5b\lib\x64\iceutil.lib" SelfReg="false" NextFile="icexml.lib_1"/>
-    <ROW File="iceutil.lib_2" Component_="glacier2.lib" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\iceutil.lib" SelfReg="false" NextFile="iceutil.pdb"/>
-    <ROW File="iceutil.lib_3" Component_="glacier2.lib_1" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\iceutil.lib" SelfReg="false" NextFile="iceutil.pdb_1"/>
+    <ROW File="iceutil.lib_2" Component_="glacier2.lib" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\iceutil.lib" SelfReg="false" NextFile="glacier2.lib_3"/>
+    <ROW File="iceutil.lib_3" Component_="glacier2.lib_1" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\iceutil.lib" SelfReg="false" NextFile="glacier2.lib_4"/>
     <ROW File="iceutil.lib_4" Component_="glacier2.lib_2" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x64\iceutil.lib" SelfReg="false" NextFile="glacier2.lib_5"/>
     <ROW File="iceutil.lib_5" Component_="glacier2.lib_3" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Retail\x86\iceutil.lib" SelfReg="false" NextFile="ICE_LICENSE.txt_1"/>
     <ROW File="iceutil.lib_6" Component_="freeze.lib_2" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\iceutil.lib" SelfReg="false" NextFile="iceutild.lib_2"/>
     <ROW File="iceutil.lib_7" Component_="freeze.lib_3" FileName="iceutil.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\lib\x64\iceutil.lib" SelfReg="false" NextFile="iceutild.lib_3"/>
-    <ROW File="iceutil.pdb" Component_="glacier2.pdb" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x64\iceutil.pdb" SelfReg="false" NextFile="glacier2.lib_3"/>
-    <ROW File="iceutil.pdb_1" Component_="glacier2.pdb_1" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs\Ice\3.5\DesignTime\Debug\x86\iceutil.pdb" SelfReg="false" NextFile="glacier2.lib_4"/>
     <ROW File="iceutil35b.dll" Component_="iceutil35b.dll" FileName="iceuti~1.dll|iceutil35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\iceutil35b.dll" SelfReg="false" NextFile="icexml35b.dll" DigSign="true"/>
     <ROW File="iceutil35b.dll_1" Component_="iceutil35b.dll_1" FileName="iceuti~1.dll|iceutil35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC100\Ice-3.5b\bin\x64\iceutil35b.dll" SelfReg="false" NextFile="icexml35b.dll_1" DigSign="true"/>
     <ROW File="iceutil35b.dll_2" Component_="iceutil35b.dll_2" FileName="iceuti~1.dll|iceutil35b.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\bin\iceutil35b.dll" SelfReg="false" NextFile="icexml35b.dll_2" DigSign="true"/>
@@ -5663,6 +5651,5 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
     <ROW Directory_="DEMO_DIR" SourcePath="&lt;ICE_BUILD_HOME&gt;Ice-3.5b-demos" Feature="MainFeature" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
-    <ROW Directory_="SDKs_Dir" SourcePath="&lt;ICE_BUILD_HOME&gt;VC110\Ice-3.5b\SDKs" Feature="WINRTSDK" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
   </COMPONENT>
 </DOCUMENT>
