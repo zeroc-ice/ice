@@ -6,6 +6,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="var" path="ICE_JAR_HOME/Ice.jar"/>
-	<classpathentry exported="true" kind="var" path="ICE_JAR_HOME/IceTest.jar"/>
+	<classpathentry exported="true" kind="var" path="ICE_JAR_HOME/IceAndroidTest.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

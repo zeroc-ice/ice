@@ -622,6 +622,29 @@
         </jar>
     </target>
 
+    <target name="test-android-jar" depends="test-compile, ice-jar">
+        <jar jarfile="${lib.dir}/IceAndroidTest.jar" basedir="${lib.dir}">
+            <include name="test/Ice/**"/>
+            <include name="test/Util/**"/>
+            <!-- 
+                Don't include some tests that aren't supported in Android, see comments
+                in test/android/src/com/zeroc/testsuite/TestApp.java for details on 
+                non supported tests.
+            -->
+            <exclude name="test/Ice/background/**"/>
+            <exclude name="test/Ice/faultTolerance/**"/>
+            <exclude name="test/Ice/hash/**"/>
+            <exclude name="test/Ice/metrics/**"/>
+            <exclude name="test/Ice/plugin/**"/>
+            <exclude name="test/Ice/properties/**"/>
+            <exclude name="test/Ice/threadPoolPriority/**"/>
+            <exclude name="test/Ice/throughput/**"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+            </manifest>
+        </jar>
+    </target>
+
     <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile, config-init-javafx"
             if="build-icegridadmin" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
@@ -757,7 +780,7 @@
     <target name="dist-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, freeze-jar,
                                      icepatch2-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
 
-    <target name="jar" depends="dist-jar, test-jar"/>
+    <target name="jar" depends="dist-jar, test-jar, test-android-jar"/>
 
     <target name="test" depends="test-compile, ice-compile"/>
 
