@@ -736,7 +736,7 @@ class Platform:
 
 class Darwin(Platform):
     def __init__(self, uname, arch, languages):
-        Platform.__init__(self, uname, "macosx", None, languages, "", "dylib")
+        Platform.__init__(self, uname, "osx", None, languages, "", "dylib")
 
     def getSharedLibraryFiles(self, root, path, extension = None) : 
         libraries = Platform.getSharedLibraryFiles(self, root, path, extension)
