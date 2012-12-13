@@ -385,30 +385,29 @@ client:
 Android Tests
 ======================================================================
 
-Android test suite is composed of a JAR file which contains the 
-individual test cases and an Android graphical application that loads 
-and run the tests.
+The Ice test suite for Android consists of a JAR file containing the
+individual test cases and an Android app that loads and runs these
+tests.
 
-You must first build the IceAndroidTest.jar JAR file:
+You must first build the test JAR file:
 
   $ ant test-android-jar
 
-Then you must use Eclipse and the Slice2Java plug-in to build the
-the graphical projects.
+This produces IceAndroidTest.jar. Next, you must use Eclipse and the
+Slice2Java plug-in to build the the test app.
 
-In Eclipse, you can open a sample project by choosing File->Import...;
-in the "General" group, select "Existing Project into Workspace", 
-then open one of the subdirectories of test/android.
+In Eclipse, open the test project by choosing File->Import...; in the
+"General" group, select "Existing Project into Workspace", then
+navigate to the test/android directory.
 
-The tests projects are configured to locate the Ice run time JAR file
-(Ice.jar) via the ICE_JAR_HOME classpath variable.
+The test project is configured to locate the Ice run time JAR file
+(Ice.jar) and IceAndroidTest.jar via the ICE_JAR_HOME classpath
+variable. The Slice2Java plug-in configures this variable
+automatically based on your setting for the SDK location in the
+Eclipse preferences.
 
-After successfully building an Android project, deploy it onto a suitable
-emulator or device and review the README file in the project subdirectory
-for further instructions.
-
-Note that the test Android project require the Slice2Java Eclipse
-Plug-in.
+After successfully building the project, deploy it onto a suitable
+emulator or device.
 
 
 ======================================================================
