@@ -61,7 +61,7 @@ public class IceClasspathContainerIntializer extends ClasspathContainerInitializ
     {
         if(c.getAddJars())
         {
-            Path dir = new Path(c.getJarDir());
+            Path dir = new Path(Configuration.getJarDir());
             List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
             for(String jar : c.getJars())
             {

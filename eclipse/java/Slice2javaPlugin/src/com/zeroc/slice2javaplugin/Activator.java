@@ -110,7 +110,7 @@ public class Activator extends AbstractUIPlugin
                     List<IJavaProject> projects = getSlice2JavaProjects(javaModel);
                     String value = (String)event.getNewValue();
                     IceClasspathContainerIntializer.updateProjects(value, projects);
-                    IceClasspathVariableInitializer.update(value);
+                    IceClasspathVariableInitializer.update();
                     // Need to trigger a clean build of the projects.
                     for(final IJavaProject p : projects)
                     {

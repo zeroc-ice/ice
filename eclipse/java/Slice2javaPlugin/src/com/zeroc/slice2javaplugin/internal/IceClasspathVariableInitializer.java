@@ -16,25 +16,22 @@ import org.eclipse.jdt.core.ClasspathVariableInitializer;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import com.zeroc.slice2javaplugin.Activator;
-import com.zeroc.slice2javaplugin.preferences.PluginPreferencePage;
-
 public class IceClasspathVariableInitializer extends ClasspathVariableInitializer
 {
-    private final static String VARIABLE_NAME = "ICE_HOME";
+    private final static String VARIABLE_NAME = "ICE_JAR_HOME";
 
     @Override
     public void initialize(String variable)
     {
         if(variable.equals(VARIABLE_NAME))
         {
-            update(Activator.getDefault().getPreferenceStore().getString(PluginPreferencePage.SDK_PATH));
+            update();
         }
     }
 
-    public static void update(String value)
+    public static void update()
     {
-        IPath path = new Path(value);
+        IPath path = new Path(Configuration.getJarDir());
         try
         {
             JavaCore.setClasspathVariable(VARIABLE_NAME, path, null);

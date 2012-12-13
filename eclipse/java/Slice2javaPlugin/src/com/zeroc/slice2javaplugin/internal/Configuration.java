@@ -812,7 +812,7 @@ public class Configuration
         return getTranslatorForHome(dir) != null;
     }
 
-    public String getJarDir()
+    public static String getJarDir()
     {
         String iceHome = getIceHome();
         String os = System.getProperty("os.name");
@@ -939,9 +939,9 @@ public class Configuration
         }
         else
         {
-            cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/Ice.jar"), 
-                                                new Path("ICE_HOME/lib/Ice.jar"), 
-                                                new Path("ICE_HOME/lib/"), 
+            cpEntry = JavaCore.newVariableEntry(new Path("ICE_JAR_HOME/Ice.jar"), 
+                                                new Path("ICE_JAR_HOME/Ice.jar"), 
+                                                new Path("ICE_JAR_HOME/lib/"), 
                                                 true);
         }
         
@@ -976,9 +976,9 @@ public class Configuration
     private void addLibrary(IJavaProject project, String jar)
         throws CoreException
     {
-        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/" + jar), 
-                                                            new Path("ICE_HOME/lib/" + jar), 
-                                                            new Path("ICE_HOME/lib/"), 
+        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_JAR_HOME/" + jar), 
+                                                            new Path("ICE_JAR_HOME/" + jar), 
+                                                            new Path("ICE_JAR_HOME/"), 
                                                             true);
         
         IClasspathEntry[] entries = project.getRawClasspath();
@@ -1040,7 +1040,7 @@ public class Configuration
     public void removeLibrary(IJavaProject project, String lib)
         throws CoreException
     {
-        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/" + lib), null, null);
+        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_JAR_HOME/lib/" + lib), null, null);
         
         IClasspathEntry[] entries = project.getRawClasspath();
     

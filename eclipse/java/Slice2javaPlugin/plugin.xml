@@ -116,7 +116,7 @@
    <extension
            point="org.eclipse.jdt.core.classpathVariableInitializer">
        <classpathVariableInitializer
-           variable="ICE_HOME"
+           variable="ICE_JAR_HOME"
            class="com.zeroc.slice2javaplugin.internal.IceClasspathVariableInitializer"/>
    </extension>
    <extension
