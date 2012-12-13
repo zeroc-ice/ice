@@ -183,7 +183,9 @@ namespace IceInternal
             
             if(_stats != null)
             {
+#pragma warning disable 618
                 _stats.bytesSent(type(), ret);
+#pragma warning restore 618
             }
             
             Debug.Assert(ret == buf.b.limit());
@@ -306,7 +308,9 @@ namespace IceInternal
 
             if(_stats != null)
             {
+#pragma warning disable 618
                 _stats.bytesReceived(type(), ret);
+#pragma warning restore 618
             }
 
             buf.resize(ret, true);
@@ -497,7 +501,9 @@ namespace IceInternal
 
             if(_stats != null)
             {
+#pragma warning disable 618
                 _stats.bytesReceived(type(), ret);
+#pragma warning restore 618
             }
 
             buf.resize(ret, true);
@@ -661,7 +667,9 @@ namespace IceInternal
 
             if(_stats != null)
             {
+#pragma warning disable 618
                 _stats.bytesSent(type(), ret);
+#pragma warning restore 618
             }
 
             Debug.Assert(ret == buf.b.limit());

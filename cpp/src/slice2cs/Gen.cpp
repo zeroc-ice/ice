@@ -2968,6 +2968,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     writeDocComment(p, getDeprecateReason(p, classDef, "operation"));
     emitAttributes(p);
+    emitDeprecate(p, classDef, _out, "operation");
     emitGeneratedCodeAttribute();
     if(!isInterface)
     {

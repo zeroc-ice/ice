@@ -162,7 +162,9 @@ namespace IceInternal
 
                     if(_stats != null)
                     {
+#pragma warning disable 618                        
                         _stats.bytesSent(type(), ret);
+#pragma warning restore 618
                     }
 
                     buf.b.position(buf.b.position() + ret);
@@ -236,7 +238,9 @@ namespace IceInternal
 
                     if(_stats != null)
                     {
+#pragma warning disable 618
                         _stats.bytesReceived(type(), ret);
+#pragma warning restore 618
                     }
 
                     remaining -= ret;
@@ -360,7 +364,9 @@ namespace IceInternal
 
                 if(_stats != null)
                 {
+#pragma warning disable 618
                     _stats.bytesReceived(type(), ret);
+#pragma warning restore 618
                 }
 
                 buf.b.position(buf.b.position() + ret);
@@ -499,7 +505,9 @@ namespace IceInternal
 
                 if(_stats != null)
                 {
+#pragma warning disable 618
                     _stats.bytesSent(type(), ret);
+#pragma warning restore 618
                 }
 
                 buf.b.position(buf.b.position() + ret);

@@ -202,7 +202,9 @@ namespace IceSSL
 
                 if(_stats != null)
                 {
+#pragma warning disable 618
                     _stats.bytesReceived(type(), ret);
+#pragma warning restore 618
                 }
 
                 buf.b.position(buf.b.position() + ret);
@@ -334,7 +336,9 @@ namespace IceSSL
 
                 if(_stats != null)
                 {
+#pragma warning disable 618
                     _stats.bytesSent(type(), packetSize);
+#pragma warning restore 618
                 }
 
                 buf.b.position(buf.b.position() + packetSize);
