@@ -31,7 +31,12 @@ prefix			= C:\Ice-$(VERSION)
 # VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
+!if "$(VISUALSTUDIOVERSION)" == "11.0"
+CPP_COMPILER            = VC110
+!else
 CPP_COMPILER		= VC100
+!endif
+#!message CPP_COMPILER set to $(CPP_COMPILER)
 !endif
 
 #
