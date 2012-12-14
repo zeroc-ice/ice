@@ -48,7 +48,7 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 #
 # OCCI first
 #
-!if "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC100"
 
 #
 # OCCI libraries default location, adjust to match your setup.

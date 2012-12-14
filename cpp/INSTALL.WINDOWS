@@ -130,12 +130,7 @@ Change the working directory to Ice-@ver@. For example:
 > cd C:\Ice-@ver@\cpp
 
 Edit config\Make.rules.mak to establish your build configuration. The
-comments in the file provide more information. If you are not using
-Visual Studio 2010 (VC100) or Visual Studio 2012 (VC110), you must set 
-CPP_COMPILER to the appropriate value, for example:
-
-> set CPP_COMPILER=VC110_EXPRESS
-for Visual Studio 2012 Express
+comments in the file provide more information.
 
 Now you're ready to build Ice:
 

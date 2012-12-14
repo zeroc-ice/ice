@@ -22,12 +22,10 @@ prefix			= C:\Ice-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler. Supported values are:
-# VC100, VC100_EXPRESS, VC90, VC90_EXPRESS
+# Specify your C++ compiler, or leave unset for auto-detection.
+# Supported values are: VC90, VC100
 #
-!if "$(CPP_COMPILER)" == ""
-CPP_COMPILER            = VC100
-!endif
+# CPP_COMPILER = VCxxx
 
 #
 # Set PYTHON_HOME to your Python installation directory.
@@ -39,6 +37,29 @@ PYTHON_HOME		= C:\Python33
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+#
+# Check CPP_COMPILER
+#
+!if "$(CPP_COMPILER)" == ""
+
+!if "$(VISUALSTUDIOVERSION)" == "11.0"
+!error Detected VC110
+!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+CPP_COMPILER            = VC100
+!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
+CPP_COMPILER            = VC90
+!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+!error Detected VC110
+!else
+!error Cannot detect C++ compiler 
+!endif
+
+#!message CPP_COMPILER set to $(CPP_COMPILER)
+!elseif "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC100"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC90, VC100.
+!endif
+
 
 #
 # Common definitions
@@ -56,11 +77,6 @@ slice_translator = slice2py.exe
 libdir			= $(top_srcdir)\python
 install_pythondir	= $(prefix)\python$(x64suffix)
 install_libdir		= $(prefix)\python$(x64suffix)
-
-!if "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && \
-    "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC100_EXPRESS"
-!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
-!endif
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 

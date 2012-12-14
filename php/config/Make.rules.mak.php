@@ -22,12 +22,10 @@ prefix			= C:\Ice-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler. Supported values are:
-# VC90, VC90_EXPRESS
+# Specify your C++ compiler. The only value currently supported is VC90.
+# Leave unset for auto-detection.
 #
-!if "$(CPP_COMPILER)" == ""
-CPP_COMPILER            = VC90
-!endif
+#CPP_COMPILER           = VC90
 
 #
 # Determines whether the extension uses PHP namespaces (requires
@@ -77,6 +75,27 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 # ----------------------------------------------------------------------
 
 #
+# Check CPP_COMPILER
+#
+!if "$(CPP_COMPILER)" == ""
+
+!if "$(VISUALSTUDIOVERSION)" == "11.0"
+!error Detected VC110 compiler
+!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
+CPP_COMPILER            = VC90
+!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+!error Detected VC100 compiler
+!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+!error Detected VC110 compiler
+!else
+!error Cannot detect C++ compiler 
+!endif
+
+!elseif "$(CPP_COMPILER)" != "VC90"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC90.
+!endif
+
+#
 # Common definitions
 #
 ice_language     = php
@@ -92,10 +111,6 @@ slice_translator = slice2php.exe
 libdir			= $(top_srcdir)\lib
 install_phpdir		= $(prefix)\php
 install_libdir		= $(prefix)\php
-
-!if "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
-!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
-!endif
 
 !if exist ($(top_srcdir)\..\cpp\config\Make.rules.msvc)
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc

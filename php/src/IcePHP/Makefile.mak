@@ -29,10 +29,8 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS)
-!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
-CPPFLAGS	= $(CPPFLAGS) -D_USE_32BIT_TIME_T
-!endif
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) $(ICE_CPPFLAGS) $(PHP_CPPFLAGS) -D_USE_32BIT_TIME_T
+
 !if "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
 !endif

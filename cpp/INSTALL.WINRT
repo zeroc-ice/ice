@@ -73,10 +73,9 @@ Change the working directory to Ice-@ver@. For example:
 > cd C:\Ice-@ver@\cpp
 
 Edit config\Make.rules.mak to establish your build configuration. The
-comments in the file provide more information. If you are using
-Visual Studio 2012 Express, you must set CPP_COMPILER to VC110_EXPRESS.
+comments in the file provide more information. You must in particular 
+set WINRT to yes in Make.rules.mak or in your environment:
 
-You must also set WINRT to yes:
 > set WINRT=yes
 
 Now you're ready to build Ice for WinRT:

@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC90"
 
 SUBDIRS		= IceUtil \
 		  Ice
@@ -27,7 +27,7 @@ SUBDIRS		= IceUtil \
 		  IceGrid \
 		  IceBox
 
-!if "$(CPP_COMPILER)" != "VC100_EXPRESS" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
+!if "$(HAS_MFC)" == "yes"
 SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
 !endif

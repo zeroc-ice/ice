@@ -11,7 +11,6 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-
 prefix			= C:\Ice-$(VERSION)
 
 #
@@ -24,37 +23,27 @@ prefix			= C:\Ice-$(VERSION)
 # Define if you want pdb files to be generated for optimized/release
 # builds
 #
-#RELEASEPDBS             = yes
+#RELEASEPDBS            = yes
 
 #
-# Specify your C++ compiler. Supported values are:
-# VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
+# Specify your C++ compiler, or leave unset for auto-detection.
+# Supported values are: VC90, VC100, VC110
 #
-# CPP_COMPILER = VC
-
-#
-# Otherwise, try to detect the compiler:
-#
-!if "$(CPP_COMPILER)" == ""
-
-!if "$(VISUALSTUDIOVERSION)" == "11.0"
-CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
-CPP_COMPILER            = VC100
-!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
-CPP_COMPILER            = VC110
-!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-CPP_COMPILER            = VC90
-!else
-!error Cannot detect C++ compiler 
-!endif
-#!message CPP_COMPILER set to $(CPP_COMPILER)
-!endif
+# CPP_COMPILER = VCxxx
 
 #
 # Define if you want to build for WinRT
 #
-#WINRT		= yes
+#WINRT		        = yes
+
+#
+# Is the MFC library available? 
+# Set to no if you are using Visual Studio Express
+# A few Ice demos use MFC
+#
+!if "$(HAS_MFC)" == ""
+HAS_MFC                 = yes
+!endif
 
 #
 # If third party libraries are not installed in the default location
@@ -71,15 +60,44 @@ THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 
 #
 # Define if you want the Ice DLLs to have compiler specific names.
-# Defined by default for VC9.
+# Will be set to yes by default when CPP_COMPILER=VC90, and unset 
+# otherwise 
 #
-!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
-UNIQUE_DLL_NAMES	= yes
-!endif
+#UNIQUE_DLL_NAMES	= yes
+
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+#
+# Check CPP_COMPILER
+#
+!if "$(CPP_COMPILER)" == ""
+
+!if "$(VISUALSTUDIOVERSION)" == "11.0"
+CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+CPP_COMPILER            = VC100
+!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
+CPP_COMPILER            = VC90
+!else
+!error Cannot detect C++ compiler 
+!endif
+
+#!message CPP_COMPILER set to $(CPP_COMPILER)
+!elseif "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC90, VC100 or VC110.
+!endif
+
+#
+# With VC90, we want unique dll names
+#
+!if "$(CPP_COMPILER)" == "VC90" && "$(UNIQUE_DLL_NAMES)" == ""
+UNIQUE_DLL_NAMES	= yes
+!endif
 
 #
 # Common definitions
@@ -117,21 +135,15 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
-    "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
-    "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
-! else
-!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
-!endif
 
-!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
+!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110"
 !error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
 !if "$(CPP_COMPILER)" == "VC90"
 libsuff			= \vc90$(x64suffix)
-!elseif "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+!elseif "$(CPP_COMPILER)" == "VC110"
 libsuff			= \vc110$(x64suffix)
 !else
 libsuff			= $(x64suffix)
@@ -146,11 +158,11 @@ LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(libsuff)" $(LDFLAGS)
 !endif
 
 !if "$(UNIQUE_DLL_NAMES)" == "yes"
-!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC90"
 COMPSUFFIX	= vc90_
-!elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+!elseif "$(CPP_COMPILER)" == "VC100"
 COMPSUFFIX	= vc100_
-!elseif "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+!elseif "$(CPP_COMPILER)" == "VC110"
 COMPSUFFIX  = vc110_
 !endif
 !endif

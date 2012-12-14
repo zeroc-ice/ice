@@ -15,7 +15,7 @@ top_srcdir	= ..
 
 SUBDIRS		= Ice
 
-!elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+!elseif "$(CPP_COMPILER)" == "VC90"
 
 SUBDIRS		= IceUtil \
 		  Slice \

@@ -31,7 +31,7 @@ SUBDIRS		= minimal \
 		  optional
 
 
-!if "$(CPP_COMPILER)" != "VC100_EXPRESS" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
+!if "$(HAS_MFC)" == "yes"
 SUBDIRS		= $(SUBDIRS) \
 		  MFC
 !endif

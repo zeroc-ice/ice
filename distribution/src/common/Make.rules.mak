@@ -17,17 +17,46 @@
 # Define if you want pdb files to be generated for optimized/release
 # builds
 #
-#RELEASEPDBS             = yes
+#RELEASEPDBS            = yes
 
 #
-# Specify your C++ compiler. Supported values are:
-# VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
+# Specify your C++ compiler, or leave unset for auto-detection.
+# Supported values are: VC100, VC110
 #
-#CPP_COMPILER		= VC100
+#CPP_COMPILER           = VCxxx 
+
+#
+# Is the MFC library available? 
+# Set to no if you are using Visual Studio Express
+# A few Ice demos use MFC
+#
+!if "$(HAS_MFC)" == ""
+HAS_MFC                 = yes
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+#
+# Check CPP_COMPILER
+#
+!if "$(CPP_COMPILER)" == ""
+
+!if "$(VISUALSTUDIOVERSION)" == "11.0"
+CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+CPP_COMPILER            = VC100
+!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+CPP_COMPILER            = VC110
+!else
+!error Cannot detect C++ compiler 
+!endif
+
+#!message CPP_COMPILER set to $(CPP_COMPILER)
+!elseif "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100 or VC110.
+!endif
 
 #
 # Common definitions
@@ -43,36 +72,19 @@ includedir		= $(ice_dir)\include
 SETARGV			= setargv.obj
 
 #
-# Default C++ compiler
-#
-!if "$(CPP_COMPILER)" == ""
-!if "$(VISUALSTUDIOVERSION)" == "11.0"
-CPP_COMPILER            = VC110
-!else
-CPP_COMPILER		= VC100
-!endif
-!message CPP_COMPILER set to $(CPP_COMPILER)
-!endif
-
-#
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
-    "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
-!else
-!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
-!endif
 
-!if "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC110"
 libsuff			= \vc110$(x64suffix)
 !else
 libsuff			= $(x64suffix)
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
-LIBSUFFIX	= $(LIBSUFFIX)d
-RCFLAGS		= -D_DEBUG
+LIBSUFFIX          	= $(LIBSUFFIX)d
+RCFLAGS		        = -D_DEBUG
 !endif
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
