@@ -30,11 +30,23 @@ prefix			= C:\Ice-$(VERSION)
 # Specify your C++ compiler. Supported values are:
 # VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
 #
+# CPP_COMPILER = VC
+
+#
+# Otherwise, try to detect the compiler:
+#
 !if "$(CPP_COMPILER)" == ""
+
 !if "$(VISUALSTUDIOVERSION)" == "11.0"
 CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
+CPP_COMPILER            = VC100
+!elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
+CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
+CPP_COMPILER            = VC90
 !else
-CPP_COMPILER		= VC100
+!error Cannot detect C++ compiler 
 !endif
 #!message CPP_COMPILER set to $(CPP_COMPILER)
 !endif
