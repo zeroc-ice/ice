@@ -193,4 +193,45 @@ public final class Util
         }
         return java.lang.Thread.NORM_PRIORITY;
     }
+
+    //
+    // Return true if the given thread is the android main thread, also know as the GUI thread.
+    //
+    public static boolean
+    isAndroidMainThread(Thread thread)
+    {
+        if(!System.getProperty("java.vm.name").startsWith("Dalvik"))
+        {
+            return false;
+        }
+
+        if(_androidMainThread == null)
+        {
+            try
+            {
+                Class<?> c = Util.findClass("android.os.Looper", null);
+                java.lang.reflect.Method getMainLooper = c.getDeclaredMethod("getMainLooper", (Class<?>[])null);
+                java.lang.reflect.Method getThread = c.getDeclaredMethod("getThread", (Class<?>[])null);
+
+                Object looper = getMainLooper.invoke(null);
+                _androidMainThread = (Thread)getThread.invoke(looper);
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                assert false;
+            }
+            catch(java.lang.NoSuchMethodException ex)
+            {
+                assert false;
+            }
+            catch(IllegalAccessException ex)
+            {
+                assert false;
+            }
+        }
+
+        return thread != null && _androidMainThread == thread;
+    }
+
+    private static Thread _androidMainThread;
 }

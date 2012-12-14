@@ -89,6 +89,16 @@ final class TcpTransceiver implements Transceiver
     public boolean
     write(Buffer buf)
     {
+        //
+        // We don't want write to be called on android main thread as this will cause
+        // NetworkOnMainThreadException to be thrown. If that is the android main thread
+        // we return false and this method will be later called from the thread pool.
+        //
+        if(Util.isAndroidMainThread(Thread.currentThread()))
+        {
+            return false;
+        }
+
         final int size = buf.b.limit();
         int packetSize = size - buf.b.position();
 
@@ -115,7 +125,7 @@ final class TcpTransceiver implements Transceiver
                 else if(ret == 0)
                 {
                     //
-                    // Writing would block, so we reset the limit (if necessary) and return true to indicate
+                    // Writing would block, so we reset the limit (if necessary) and return false to indicate
                     // that more data must be sent.
                     //
                     if(packetSize == _maxSendPacketSize)

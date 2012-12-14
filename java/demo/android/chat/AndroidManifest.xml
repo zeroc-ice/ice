@@ -7,9 +7,9 @@
     <!--
       http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
     -->
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="9"/>
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:label="@string/app_name" android:name=".ChatActivity">
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:allowBackup="false">
+        <activity android:label="@string/app_name" android:name=".ChatActivity" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.RUN"/>
                 <category android:name="android.intent.category.DEFAULT"/>

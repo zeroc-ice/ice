@@ -52,6 +52,16 @@ final class UdpTransceiver implements Transceiver
     public boolean
     write(Buffer buf)
     {
+        //
+        // We don't want write or send to be called on android main thread as this will cause
+        // NetworkOnMainThreadException to be thrown. If that is the android main thread
+        // we return false and this method will be later called from the thread pool
+        //
+        if(Util.isAndroidMainThread(Thread.currentThread()))
+        {
+            return false;
+        }
+
         assert(buf.b.position() == 0);
         assert(_fd != null && _state >= StateConnected);
                 

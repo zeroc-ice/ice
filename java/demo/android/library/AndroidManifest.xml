@@ -7,11 +7,10 @@
     <!--
       http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
     -->
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="9"/>
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="LibraryApp"
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="LibraryApp" 
                  android:allowBackup="false">
-        <activity android:name=".LoginActivity"
-                  android:label="@string/app_name">
+        <activity android:name=".LoginActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

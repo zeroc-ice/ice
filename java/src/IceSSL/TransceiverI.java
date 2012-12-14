@@ -163,6 +163,16 @@ final class TransceiverI implements IceInternal.Transceiver
             throw new Ice.ConnectionLostException();
         }
 
+        //
+        // We don't want write to be called on android main thread as this will cause
+        // NetworkOnMainThreadException to be thrown. If that is the android main thread
+        // we return false and this method will be later called from the thread pool.
+        //
+        if(IceInternal.Util.isAndroidMainThread(Thread.currentThread()))
+        {
+            return false;
+        }
+
         int status = writeNonBlocking(buf.b);
         if(status != IceInternal.SocketOperation.None)
         {
