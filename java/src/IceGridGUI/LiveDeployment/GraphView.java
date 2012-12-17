@@ -499,40 +499,20 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                                                               _maxRefreshPeriod, 1);
 
                     //
-                    // SpinnerNumberModel to set the duration of samples to keep in X axis.
+                    // SpinnerNumberModel to set the maximum number of samples to keep in X axis.
                     //
-                    final SpinnerNumberModel duration = new SpinnerNumberModel(getDuration(), _minDuration, 
-                                                                               _maxDuration, 1);
-
+                    final SpinnerNumberModel samples = new SpinnerNumberModel(_samples, _minSamples, 
+                                                                              _maxSamples, 1);
 
                     JPanel refreshPanel;
                     {
                         DefaultFormBuilder builder =
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
+                        builder.rowGroupingEnabled(true);
                         final JSpinner spinner = new JSpinner(refreshPeriod);
-                        builder.append("Refresh period (s):", spinner);
-                        spinner.addChangeListener(new ChangeListener()
-                            {
-                                @Override
-                                public void stateChanged(ChangeEvent e)
-                                {
-                                    int refreshPeriod = ((Number)spinner.getValue()).intValue();
-                                    _maxDuration = (_maxPoints * refreshPeriod) / 60;
-                                    _minDuration = Math.max((refreshPeriod * 2) / 60, 1);
-                                    int value = ((Number)duration.getValue()).intValue();
-                                    if(value > _maxDuration)
-                                    {
-                                        duration.setValue(_maxDuration);    
-                                    }
-                                    else if(value < _minDuration)
-                                    {
-                                        duration.setValue(_minDuration);
-                                    }
-                                    duration.setMinimum(_minDuration);
-                                    duration.setMaximum(_maxDuration);
-                                
-                                }
-                            });
+                        builder.append("Sample interval (s):", spinner);
+                        builder.append("", new JLabel("<html><p>Sample interval in seconds, minimum values is 1 second," +
+                                                      "<br/> maximun value is 3600 seconds.</p></html>"));
                         refreshPanel = builder.getPanel();
                     }
 
@@ -545,7 +525,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     {
                         DefaultFormBuilder builder = 
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
-                        builder.append("Duration (min):", new JSpinner(duration));
+                        builder.append("Maximum samples:", new JSpinner(samples));
+                        builder.append("", new JLabel("<html><p>Maximum number of samples, is the number of samples " +
+                                                      "to<br/>keep in the graph. The value must be between 2 and 300." +
+                                                      "</p></html>"));
                         builder.append("Time format:", dateFormats);
 
                         xAxisPanel = builder.getPanel();
@@ -568,7 +551,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
 
                     setTitle(title.getText());
                     setRefreshPeriod(refreshPeriod.getNumber().intValue());
-                    setDuration(duration.getNumber().intValue());
+                    setMaximumSamples(samples.getNumber().intValue());
                     setDateFormat((String)dateFormats.getSelectedItem());
                 }
             };
@@ -957,8 +940,8 @@ public class GraphView extends JFrame implements MetricsFieldContext
         preferences.putBoolean("maximized", getExtendedState() == Frame.MAXIMIZED_BOTH);
         preferences.putInt("splitLocation", _splitPane.getDividerLocation());
 
-        preferences.putInt("refreshPeriod", getRefreshPeriod());
-        preferences.putInt("horizontalSymbolsCount", getDuration());
+        preferences.putInt("sampleInterval", getRefreshPeriod());
+        preferences.putInt("maximunSamples", getMaximumSamples());
         preferences.put("dateFormat", getDateFormat());
     }
 
@@ -1013,19 +996,16 @@ public class GraphView extends JFrame implements MetricsFieldContext
         }
         setRefreshPeriod(refreshPeriod);
 
-        _maxDuration = (_maxPoints * _refreshPeriod) / 60;
-        _minDuration = Math.max((_refreshPeriod * 2) / 60, 1);
-
-        int duration = preferences.getInt("duration", _defaultDuration);
-        if(duration < _minDuration)
+        int samples = preferences.getInt("maximunSamples", _defaultSamples);
+        if(samples < _minSamples)
         {
-            duration = _minDuration;
+            samples = _minSamples;
         }
-        else if(duration > _maxDuration)
+        else if(samples > _maxSamples)
         {
-            duration = _maxDuration;
+            samples = _maxSamples;
         }
-        setDuration(duration);
+        setMaximumSamples(samples);
 
         setDateFormat(preferences.get("dateFormat", getDateFormat()));
         return true;
@@ -1187,7 +1167,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                                                                     timestamp, 
                                                                                     value));
 
-                                        final int n = (getDuration() * 60) / getRefreshPeriod();
+                                        final int n = getMaximumSamples();
                                         while(row.series.getData().size() > n)
                                         {
                                             row.series.getData().remove(0);
@@ -1247,27 +1227,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
         {
             return;
         }
-        else if(refreshPeriod > _refreshPeriod)
-        {
-            //
-            // Number of symbos to keep is duration / refresh period.
-            //
-            final int count = (getDuration() * 60) / refreshPeriod;
-            _queue.enqueue(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        for(XYChart.Series<Number, Number> series : _chart.getData())
-                        {
-                            while(series.getData().size() > count)
-                            {
-                                series.getData().remove(0);
-                            }
-                        }
-                    }
-                }, true);
-        }
+
         _refreshPeriod = refreshPeriod;
         if(_refreshThread != null)
         {
@@ -1297,18 +1257,17 @@ public class GraphView extends JFrame implements MetricsFieldContext
             }, true);
     }
 
-    synchronized private void setDuration(final int duration)
+    synchronized private void setMaximumSamples(final int samples)
     {
-        if(duration == _duration)
+        if(samples == _samples)
         {
             return;
         }
-        else if(duration < _duration)
+        else if(samples < _samples)
         {
             //
-            // Number of symbos to keep is duration / refresh period.
+            // If maximum samples change, we remove older samples.
             //
-            final int count = (duration * 60) / getRefreshPeriod();
             _queue.enqueue(new Runnable()
                 {
                     @Override
@@ -1316,7 +1275,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     {
                         for(XYChart.Series<Number, Number> series : _chart.getData())
                         {
-                            while(series.getData().size() > count)
+                            while(series.getData().size() > samples)
                             {
                                 series.getData().remove(0);
                             }
@@ -1324,13 +1283,13 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     }
                 }, true);
         }
-        _duration = duration;
+        _samples = samples;
         
     }
 
-    synchronized private int getDuration()
+    synchronized private int getMaximumSamples()
     {
-        return _duration;
+        return _samples;
     }
 
     class MetricsRow
@@ -1828,22 +1787,15 @@ public class GraphView extends JFrame implements MetricsFieldContext
     private final Coordinator _coordinator;
     private RefreshThread _refreshThread;
 
-    //
-    // The max number of points for a series, it is calculate dividing the duration,
-    // by the refresh period. 
-    //
-    private final static int _maxPoints = 300;
-    private final static int _minPoints = 2;
-
     private final static int _minRefreshPeriod = 1;         //     1 seconds
     private final static int _maxRefreshPeriod = 60 * 60;   //  3600 seconds = 1 hour.
     private final static int _defaultRefreshPeriod = 5;     //     5 seconds
     private int _refreshPeriod = _defaultRefreshPeriod;
 
-    private int _minDuration = Math.max((_refreshPeriod * 2) / 60, 1);   //   1 minutes
-    private int _maxDuration = (_maxPoints * _refreshPeriod) / 60;      // 100 points.
-    private int _defaultDuration = 5;                                   //   5 minutes.
-    private int _duration = _defaultDuration;
+    private int _minSamples = 2;   // We need at least to points to draw a line.
+    private int _maxSamples = 300; // More that 300 points in a line doesn't work well with JavaFX charts.
+    private int _defaultSamples = 120;
+    private int _samples = _defaultSamples;
 
     private String[] _dateFormats = new String[]{"HH:mm:ss", "mm:ss"};
     private String _dateFormat = _dateFormats[0];
