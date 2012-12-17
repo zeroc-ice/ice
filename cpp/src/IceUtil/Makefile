@@ -65,8 +65,3 @@ install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
 include .depend
-
-parser: parser.o
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ parser.o $(BASELIBS)
-
