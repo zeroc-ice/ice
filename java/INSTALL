@@ -426,6 +426,7 @@ start the console with the following command:
   java -jar IceGridGUI.jar
 
 If you compiled the console without ProGuard, you will need to add
-IceGridGUI.jar CLASSPATH. You can start the console with this command:
+IceGridGUI.jar to your CLASSPATH. You can start the console with this
+command:
 
   java IceGridGUI.Main
