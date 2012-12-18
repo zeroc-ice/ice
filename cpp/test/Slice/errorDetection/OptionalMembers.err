@@ -11,20 +11,20 @@ OptionalMembers.ice:33: tag for optional is out of range
 OptionalMembers.ice:33: invalid tag `C4' for optional
 OptionalMembers.ice:34: invalid tag `C5' for optional
 OptionalMembers.ice:36: tag for optional data member `m13' is already in use
-OptionalMembers.ice:38: tag for optional data member `m15' is already in use
-OptionalMembers.ice:53: missing tag for optional
+OptionalMembers.ice:39: tag for optional data member `m16' is already in use
 OptionalMembers.ice:54: missing tag for optional
-OptionalMembers.ice:55: `abc' is not defined
-OptionalMembers.ice:56: tag for optional is out of range
+OptionalMembers.ice:55: missing tag for optional
+OptionalMembers.ice:56: `abc' is not defined
 OptionalMembers.ice:57: tag for optional is out of range
 OptionalMembers.ice:58: tag for optional is out of range
-OptionalMembers.ice:60: tag for optional data member `m8' is already in use
-OptionalMembers.ice:61: tag for optional is out of range
-OptionalMembers.ice:61: invalid tag `C3' for optional
+OptionalMembers.ice:59: tag for optional is out of range
+OptionalMembers.ice:61: tag for optional data member `m8' is already in use
 OptionalMembers.ice:62: tag for optional is out of range
-OptionalMembers.ice:62: invalid tag `C4' for optional
-OptionalMembers.ice:63: invalid tag `C5' for optional
-OptionalMembers.ice:65: tag for optional data member `m13' is already in use
-OptionalMembers.ice:67: tag for optional data member `m15' is already in use
-OptionalMembers.ice:82: optional data members not supported in struct
-OptionalMembers.ice:83: optional data members not supported in struct
+OptionalMembers.ice:62: invalid tag `C3' for optional
+OptionalMembers.ice:63: tag for optional is out of range
+OptionalMembers.ice:63: invalid tag `C4' for optional
+OptionalMembers.ice:64: invalid tag `C5' for optional
+OptionalMembers.ice:66: tag for optional data member `m13' is already in use
+OptionalMembers.ice:69: tag for optional data member `m16' is already in use
+OptionalMembers.ice:84: optional data members not supported in struct
+OptionalMembers.ice:85: optional data members not supported in struct

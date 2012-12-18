@@ -17,7 +17,7 @@ const long C4 = 0x80000001;
 const float C5 = 1.1;
 const long C6 = 2;
 
-enum E { e1, e2, e3 };
+enum E { e1, e2, e3 = 4 };
 
 class C
 {
@@ -35,7 +35,8 @@ class C
     optional(C6) bool m12;          // ok
     optional(e1) int m13;           // duplicate tag
     optional(e2) int m14;           // ok
-    optional(e3) int m15;           // duplicate tag
+    optional(e3) int m15;           // ok
+    optional(4) int m16;            // duplicate tag
 };
 
 class Base
@@ -64,7 +65,8 @@ class Ex
     optional(C6) bool m12;          // ok
     optional(e1) int m13;           // duplicate tag
     optional(e2) int m14;           // ok
-    optional(e3) int m15;           // duplicate tag
+    optional(e3) int m15;           // ok
+    optional(4) int m16;            // duplicate tag
 };
 
 class BaseEx
