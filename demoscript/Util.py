@@ -14,6 +14,7 @@ import re
 import os
 import signal
 import time
+import subprocess
 
 # Locate the top level directory of the demo dist (or the top of the
 # source tree for a source dist).
@@ -49,6 +50,40 @@ host = "127.0.0.1"
 # Echo the commands.
 #
 debug = False
+
+def getCppCompiler():
+    if not isWin32():
+        return ""
+    compiler = ""
+    if os.environ.get("CPP_COMPILER", "") != "":
+        compiler = os.environ["CPP_COMPILER"]
+    else:
+        config = None
+        if os.path.exists(os.path.join(toplevel, "cpp", "config", "Make.rules.mak")):
+            config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
+        elif os.path.exists(os.path.join(toplevel, "config", "Make.rules.mak")):
+            config = open(os.path.join(toplevel, "config", "Make.rules.mak"), "r")
+        if config != None:
+            compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+            if compiler != "VC90" and compiler != "VC100" and compiler != "VC110":
+                compiler = ""
+
+        if compiler == "":
+            p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            if not p or not p.stdout:
+                print("Cannot detect C++ compiler")
+                sys.exit(1)
+            l = p.stdout.readline().decode("utf-8").strip()
+            if l.find("Version 15") != -1:
+                compiler = "VC90"
+            elif l.find("Version 16") != -1:
+                compiler = "VC100"
+            elif l.find("Version 17") != -1:
+                compiler = "VC110"
+            else:
+                print("Cannot detect C++ compiler")
+                sys.exit(1)
+    return compiler
 
 origenv = {}
 def dumpenv():
@@ -106,11 +141,10 @@ def configurePaths():
     addenv("PATH", binDir)
     if iceHome:
         if isWin32():
-            compilers = { 
-                "VC110" : "vc110",
-                "VC110_EXPRESS" : "vc110"
-            }
-            subdir = compilers.get(os.environ.get("CPP_COMPILER", None), "")
+            subdir = None
+            if getCppCompiler() == "VC110":
+                subdir = "vc110"
+
             if subdir:
                 if x64:
                     addenv("PATH", os.path.join(binDir, subdir, "x64"))
@@ -256,18 +290,7 @@ def isSolaris():
 def isNoServices():
     if not isWin32():
         return False
-    compiler = ""
-    if os.environ.get("CPP_COMPILER", "") != "":
-        compiler = os.environ["CPP_COMPILER"]
-    else:
-        config = None
-        if os.path.exists(os.path.join(toplevel, "cpp", "config", "Make.rules.mak")):
-            config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
-        elif os.path.exists(os.path.join(toplevel, "config", "Make.rules.mak")):
-            config = open(os.path.join(toplevel, "config", "Make.rules.mak"), "r")
-        if config != None:
-            compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-    return compiler == "VC60"
+    return getCppCompiler() == "VC90"
 
 def getMapping():
     """Determine the current mapping based on the cwd."""

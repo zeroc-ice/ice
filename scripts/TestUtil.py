@@ -90,6 +90,24 @@ def getCppCompiler():
     else:
         config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+        if compiler != "VC90" and compiler != "VC100" and compiler != "VC110":
+            compiler = ""
+                
+        if compiler == "":
+            p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            if not p or not p.stdout:
+                print("Cannot detect C++ compiler")
+                sys.exit(1)
+            l = p.stdout.readline().decode("utf-8").strip()
+            if l.find("Version 15") != -1:
+                compiler = "VC90"
+            elif l.find("Version 16") != -1:
+                compiler = "VC100"
+            elif l.find("Version 17") != -1:
+                compiler = "VC110"
+            else:
+                print("Cannot detect C++ compiler")
+                sys.exit(1)
     return compiler
 
 def isMINGW():
@@ -108,7 +126,7 @@ def isVS2012():
     if not isWin32():
         return False
     compiler = getCppCompiler()
-    return compiler == "VC110" or compiler == "VC110_EXPRESS"
+    return compiler == "VC110"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
