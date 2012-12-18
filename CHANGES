@@ -20,6 +20,24 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
+Changes since version 3.5b
+======================================================================
+
+
+General Changes
+===============
+
+- Fixed bugs in the Slice parser related to optional values:
+
+  * The parser was too strict when validating tags of optional data
+    members. It is legal to reuse the tag of an inherited data member
+    but the parser treated it as an error.
+
+  * The parser did not detect duplicate tags among the optional
+    parameters in an operation.
+
+
+======================================================================
 Changes since version 3.4.2
 ======================================================================
 

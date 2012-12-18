@@ -430,21 +430,7 @@ optional
     }
     else if(enumerator)
     {
-        //
-        // TODO: When this code is merged with ICE-4619, we need to fix the
-        // loop below to consider the enumerator's value instead of its ordinal
-        // position.
-        //
-        EnumeratorList el = enumerator->type()->getEnumerators();
-        int i = 0;
-        for(EnumeratorList::iterator p = el.begin(); p != el.end(); ++p, ++i)
-        {
-            if(enumerator == *p)
-            {
-                break;
-            }
-        }
-        tag = i;
+        tag = enumerator->value();
     }
 
     if(tag < 0)

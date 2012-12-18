@@ -3269,7 +3269,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         //
         // Validate the tag.
         //
-        DataMemberList dml = allDataMembers();
+        DataMemberList dml = dataMembers();
         for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
         {
             if((*q)->optional() && tag == (*q)->tag())
@@ -3804,7 +3804,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         //
         // Validate the tag.
         //
-        DataMemberList dml = allDataMembers();
+        DataMemberList dml = dataMembers();
         for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
         {
             if((*q)->optional() && tag == (*q)->tag())
@@ -5013,6 +5013,30 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have local parameter `";
         msg += name + "' in operation `" + this->name() + "'";
         _unit->error(msg);
+    }
+
+    if(optional)
+    {
+        //
+        // Check for a duplicate tag.
+        //
+        const string msg = "tag for optional parameter `" + name + "' is already in use";
+        if(_returnIsOptional && tag == _returnTag)
+        {
+            _unit->error(msg);
+        }
+        else
+        {
+            ParamDeclList params = parameters();
+            for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+            {
+                if((*p)->optional() && (*p)->tag() == tag)
+                {
+                    _unit->error(msg);
+                    break;
+                }
+            }
+        }
     }
 
     ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam, optional, tag);

@@ -1,15 +1,30 @@
-OptionalMembers.ice:23: missing tag for optional
 OptionalMembers.ice:24: missing tag for optional
-OptionalMembers.ice:25: `abc' is not defined
-OptionalMembers.ice:26: tag for optional is out of range
+OptionalMembers.ice:25: missing tag for optional
+OptionalMembers.ice:26: `abc' is not defined
 OptionalMembers.ice:27: tag for optional is out of range
 OptionalMembers.ice:28: tag for optional is out of range
-OptionalMembers.ice:30: tag for optional data member `m8' is already in use
-OptionalMembers.ice:31: tag for optional is out of range
-OptionalMembers.ice:31: invalid tag `C3' for optional
+OptionalMembers.ice:29: tag for optional is out of range
+OptionalMembers.ice:31: tag for optional data member `m8' is already in use
 OptionalMembers.ice:32: tag for optional is out of range
-OptionalMembers.ice:32: invalid tag `C4' for optional
-OptionalMembers.ice:33: invalid tag `C5' for optional
-OptionalMembers.ice:34: tag for optional data member `m12' is already in use
-OptionalMembers.ice:39: optional data members not supported in struct
-OptionalMembers.ice:40: optional data members not supported in struct
+OptionalMembers.ice:32: invalid tag `C3' for optional
+OptionalMembers.ice:33: tag for optional is out of range
+OptionalMembers.ice:33: invalid tag `C4' for optional
+OptionalMembers.ice:34: invalid tag `C5' for optional
+OptionalMembers.ice:36: tag for optional data member `m13' is already in use
+OptionalMembers.ice:38: tag for optional data member `m15' is already in use
+OptionalMembers.ice:53: missing tag for optional
+OptionalMembers.ice:54: missing tag for optional
+OptionalMembers.ice:55: `abc' is not defined
+OptionalMembers.ice:56: tag for optional is out of range
+OptionalMembers.ice:57: tag for optional is out of range
+OptionalMembers.ice:58: tag for optional is out of range
+OptionalMembers.ice:60: tag for optional data member `m8' is already in use
+OptionalMembers.ice:61: tag for optional is out of range
+OptionalMembers.ice:61: invalid tag `C3' for optional
+OptionalMembers.ice:62: tag for optional is out of range
+OptionalMembers.ice:62: invalid tag `C4' for optional
+OptionalMembers.ice:63: invalid tag `C5' for optional
+OptionalMembers.ice:65: tag for optional data member `m13' is already in use
+OptionalMembers.ice:67: tag for optional data member `m15' is already in use
+OptionalMembers.ice:82: optional data members not supported in struct
+OptionalMembers.ice:83: optional data members not supported in struct
