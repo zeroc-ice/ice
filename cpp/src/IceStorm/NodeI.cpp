@@ -18,11 +18,6 @@ using namespace std;
 namespace
 {
 
-bool operator==(const GroupNodeInfo& info, int id)
-{
-    return info.id == id;
-}
-
 class CheckTask : public IceUtil::TimerTask
 {
     const NodeIPtr _node;

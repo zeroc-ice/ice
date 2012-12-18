@@ -96,7 +96,8 @@ endif
 #
 # Avoid OpenSSL deprecation warnings on OS X
 #
-OPENSSL_FLAGS   =  -Wno-deprecated-declarations
+NO_DEPRECATED_FLAGS 	= -Wno-deprecated-declarations
+OPENSSL_FLAGS   	= $(NO_DEPRECATED_FLAGS)
 
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)

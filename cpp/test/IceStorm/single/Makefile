@@ -28,7 +28,7 @@ SLICE_SRCS	= Single.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) $(NO_DEPRECATED_FLAGS)
 LIBS		:= -lIceStorm $(LIBS)
 
 $(PUBLISHER): $(OBJS) $(POBJS)
