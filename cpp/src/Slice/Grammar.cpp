@@ -612,21 +612,21 @@ static const yytype_uint16 yyrline[] =
      268,   279,   290,   289,   316,   325,   333,   342,   345,   350,
      357,   370,   390,   446,   454,   467,   475,   490,   496,   500,
      511,   522,   521,   563,   572,   575,   580,   587,   593,   597,
-     608,   629,   694,   706,   720,   719,   759,   794,   802,   807,
-     815,   824,   827,   832,   839,   861,   888,   910,   936,   945,
-     956,   965,   974,   984,   998,  1004,  1012,  1024,  1048,  1073,
-    1097,  1128,  1127,  1150,  1149,  1172,  1173,  1179,  1183,  1194,
-    1209,  1208,  1243,  1278,  1313,  1323,  1328,  1336,  1345,  1348,
-    1353,  1360,  1366,  1373,  1385,  1397,  1408,  1417,  1432,  1443,
-    1460,  1464,  1476,  1475,  1499,  1514,  1520,  1528,  1540,  1563,
-    1571,  1580,  1584,  1623,  1630,  1641,  1643,  1659,  1675,  1687,
-    1699,  1710,  1726,  1731,  1739,  1742,  1748,  1761,  1765,  1769,
-    1773,  1777,  1781,  1785,  1789,  1793,  1797,  1801,  1805,  1824,
-    1865,  1871,  1879,  1886,  1898,  1905,  1915,  1928,  1941,  1987,
-    1998,  2009,  2025,  2034,  2048,  2051,  2054,  2057,  2060,  2063,
-    2066,  2069,  2072,  2075,  2078,  2081,  2084,  2087,  2090,  2093,
-    2096,  2099,  2102,  2105,  2108,  2111,  2114,  2117,  2120,  2123,
-    2126,  2129,  2132
+     608,   633,   698,   710,   724,   723,   763,   798,   806,   811,
+     819,   828,   831,   836,   843,   865,   892,   914,   940,   949,
+     960,   969,   978,   988,  1002,  1008,  1016,  1028,  1052,  1077,
+    1101,  1132,  1131,  1154,  1153,  1176,  1177,  1183,  1187,  1198,
+    1213,  1212,  1247,  1282,  1317,  1327,  1332,  1340,  1349,  1352,
+    1357,  1364,  1370,  1377,  1389,  1401,  1412,  1421,  1436,  1447,
+    1464,  1468,  1480,  1479,  1503,  1518,  1524,  1532,  1544,  1567,
+    1575,  1584,  1588,  1627,  1634,  1645,  1647,  1663,  1679,  1691,
+    1703,  1714,  1730,  1735,  1743,  1746,  1752,  1765,  1769,  1773,
+    1777,  1781,  1785,  1789,  1793,  1797,  1801,  1805,  1809,  1828,
+    1869,  1875,  1883,  1890,  1902,  1909,  1919,  1932,  1945,  1991,
+    2002,  2013,  2029,  2038,  2052,  2055,  2058,  2061,  2064,  2067,
+    2070,  2073,  2076,  2079,  2082,  2085,  2088,  2091,  2094,  2097,
+    2100,  2103,  2106,  2109,  2112,  2115,  2118,  2121,  2124,  2127,
+    2130,  2133,  2136
 };
 #endif
 
@@ -2426,14 +2426,18 @@ yyreduce:
   case 60:
 #line 609 "../Slice/Grammar.y"
     {
-    int id = IntegerTokPtr::dynamicCast((yyvsp[(3) - (4)]))->v;
+    IceUtil::Int64 id = IntegerTokPtr::dynamicCast((yyvsp[(3) - (4)]))->v;
     if(id < 0)
     {
         unit->error("invalid compact id for class: id must be a positive integer");
     }
+    else if(id > Int32Max)
+    {
+        unit->error("invalid compact id for class: value is out of range");
+    }
     else 
     {
-        string typeId = unit->getTypeId(id);
+        string typeId = unit->getTypeId(static_cast<int>(id));
         if(!typeId.empty())
         {
             unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
@@ -2442,13 +2446,13 @@ yyreduce:
 
     ClassIdTokPtr classId = new ClassIdTok();
     classId->v = StringTokPtr::dynamicCast((yyvsp[(2) - (4)]))->v;
-    classId->t = id;
+    classId->t = static_cast<int>(id);
     (yyval) = classId;
 ;}
     break;
 
   case 61:
-#line 630 "../Slice/Grammar.y"
+#line 634 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(3) - (4)]));
 
@@ -2516,7 +2520,7 @@ yyreduce:
     break;
 
   case 62:
-#line 695 "../Slice/Grammar.y"
+#line 699 "../Slice/Grammar.y"
     {
     ClassIdTokPtr classId = new ClassIdTok();
     classId->v = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]))->v;
@@ -2526,7 +2530,7 @@ yyreduce:
     break;
 
   case 63:
-#line 707 "../Slice/Grammar.y"
+#line 711 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2537,7 +2541,7 @@ yyreduce:
     break;
 
   case 64:
-#line 720 "../Slice/Grammar.y"
+#line 724 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (4)]));
     ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast((yyvsp[(2) - (4)]));
@@ -2563,7 +2567,7 @@ yyreduce:
     break;
 
   case 65:
-#line 743 "../Slice/Grammar.y"
+#line 747 "../Slice/Grammar.y"
     {
     if((yyvsp[(5) - (8)]))
     {
@@ -2578,7 +2582,7 @@ yyreduce:
     break;
 
   case 66:
-#line 760 "../Slice/Grammar.y"
+#line 764 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
     ContainerPtr cont = unit->currentContainer();
@@ -2615,28 +2619,28 @@ yyreduce:
     break;
 
   case 67:
-#line 794 "../Slice/Grammar.y"
+#line 798 "../Slice/Grammar.y"
     {
     (yyval) = 0;
 ;}
     break;
 
   case 68:
-#line 803 "../Slice/Grammar.y"
+#line 807 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
 ;}
     break;
 
   case 69:
-#line 807 "../Slice/Grammar.y"
+#line 811 "../Slice/Grammar.y"
     {
     (yyval) = new ClassListTok;
 ;}
     break;
 
   case 70:
-#line 816 "../Slice/Grammar.y"
+#line 820 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (4)]));
     ContainedPtr contained = ContainedPtr::dynamicCast((yyvsp[(2) - (4)]));
@@ -2648,26 +2652,26 @@ yyreduce:
     break;
 
   case 71:
-#line 825 "../Slice/Grammar.y"
+#line 829 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 72:
-#line 828 "../Slice/Grammar.y"
+#line 832 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
 ;}
     break;
 
   case 73:
-#line 832 "../Slice/Grammar.y"
+#line 836 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 74:
-#line 840 "../Slice/Grammar.y"
+#line 844 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
@@ -2692,7 +2696,7 @@ yyreduce:
     break;
 
   case 75:
-#line 862 "../Slice/Grammar.y"
+#line 866 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -2722,7 +2726,7 @@ yyreduce:
     break;
 
   case 76:
-#line 889 "../Slice/Grammar.y"
+#line 893 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (2)]));
     string name = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]))->v;
@@ -2747,7 +2751,7 @@ yyreduce:
     break;
 
   case 77:
-#line 911 "../Slice/Grammar.y"
+#line 915 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (1)]));
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
@@ -2771,7 +2775,7 @@ yyreduce:
     break;
 
   case 78:
-#line 937 "../Slice/Grammar.y"
+#line 941 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -2783,7 +2787,7 @@ yyreduce:
     break;
 
   case 79:
-#line 946 "../Slice/Grammar.y"
+#line 950 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -2797,7 +2801,7 @@ yyreduce:
     break;
 
   case 80:
-#line 957 "../Slice/Grammar.y"
+#line 961 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -2809,7 +2813,7 @@ yyreduce:
     break;
 
   case 81:
-#line 966 "../Slice/Grammar.y"
+#line 970 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(2) - (4)]));
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -2821,7 +2825,7 @@ yyreduce:
     break;
 
   case 82:
-#line 975 "../Slice/Grammar.y"
+#line 979 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (2)]));
     string name = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]))->v;
@@ -2834,7 +2838,7 @@ yyreduce:
     break;
 
   case 83:
-#line 985 "../Slice/Grammar.y"
+#line 989 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (1)]));
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -2846,7 +2850,7 @@ yyreduce:
     break;
 
   case 84:
-#line 999 "../Slice/Grammar.y"
+#line 1003 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     m->v.type = TypePtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2855,7 +2859,7 @@ yyreduce:
     break;
 
   case 85:
-#line 1005 "../Slice/Grammar.y"
+#line 1009 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = new OptionalDefTok();
     m->v.type = TypePtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -2866,7 +2870,7 @@ yyreduce:
     break;
 
   case 86:
-#line 1013 "../Slice/Grammar.y"
+#line 1017 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = new OptionalDefTok;
     m->v.optional = false;
@@ -2876,7 +2880,7 @@ yyreduce:
     break;
 
   case 87:
-#line 1025 "../Slice/Grammar.y"
+#line 1029 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     string name = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]))->v;
@@ -2903,7 +2907,7 @@ yyreduce:
     break;
 
   case 88:
-#line 1049 "../Slice/Grammar.y"
+#line 1053 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(2) - (3)]));
     string name = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]))->v;
@@ -2931,7 +2935,7 @@ yyreduce:
     break;
 
   case 89:
-#line 1074 "../Slice/Grammar.y"
+#line 1078 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     string name = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]))->v;
@@ -2958,7 +2962,7 @@ yyreduce:
     break;
 
   case 90:
-#line 1098 "../Slice/Grammar.y"
+#line 1102 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(2) - (3)]));
     string name = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]))->v;
@@ -2986,7 +2990,7 @@ yyreduce:
     break;
 
   case 91:
-#line 1128 "../Slice/Grammar.y"
+#line 1132 "../Slice/Grammar.y"
     {
     if((yyvsp[(1) - (3)]))
     {
@@ -3001,7 +3005,7 @@ yyreduce:
     break;
 
   case 92:
-#line 1140 "../Slice/Grammar.y"
+#line 1144 "../Slice/Grammar.y"
     {
     OperationPtr op = OperationPtr::dynamicCast((yyvsp[(4) - (5)]));
     ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast((yyvsp[(5) - (5)]));
@@ -3014,7 +3018,7 @@ yyreduce:
     break;
 
   case 93:
-#line 1150 "../Slice/Grammar.y"
+#line 1154 "../Slice/Grammar.y"
     {
     if((yyvsp[(1) - (3)]))
     {
@@ -3025,7 +3029,7 @@ yyreduce:
     break;
 
   case 94:
-#line 1158 "../Slice/Grammar.y"
+#line 1162 "../Slice/Grammar.y"
     {
     OperationPtr op = OperationPtr::dynamicCast((yyvsp[(4) - (5)]));
     ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast((yyvsp[(5) - (5)]));
@@ -3038,14 +3042,14 @@ yyreduce:
     break;
 
   case 97:
-#line 1180 "../Slice/Grammar.y"
+#line 1184 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
 ;}
     break;
 
   case 98:
-#line 1184 "../Slice/Grammar.y"
+#line 1188 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
     unit->error("keyword `" + ident->v + "' cannot be used as interface name");
@@ -3054,7 +3058,7 @@ yyreduce:
     break;
 
   case 99:
-#line 1195 "../Slice/Grammar.y"
+#line 1199 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -3066,7 +3070,7 @@ yyreduce:
     break;
 
   case 100:
-#line 1209 "../Slice/Grammar.y"
+#line 1213 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (3)]));
@@ -3087,7 +3091,7 @@ yyreduce:
     break;
 
   case 101:
-#line 1227 "../Slice/Grammar.y"
+#line 1231 "../Slice/Grammar.y"
     {
     if((yyvsp[(4) - (7)]))
     {
@@ -3102,7 +3106,7 @@ yyreduce:
     break;
 
   case 102:
-#line 1244 "../Slice/Grammar.y"
+#line 1248 "../Slice/Grammar.y"
     {
     ClassListTokPtr intfs = ClassListTokPtr::dynamicCast((yyvsp[(3) - (3)]));
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3140,7 +3144,7 @@ yyreduce:
     break;
 
   case 103:
-#line 1279 "../Slice/Grammar.y"
+#line 1283 "../Slice/Grammar.y"
     {
     ClassListTokPtr intfs = new ClassListTok;
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3178,7 +3182,7 @@ yyreduce:
     break;
 
   case 104:
-#line 1314 "../Slice/Grammar.y"
+#line 1318 "../Slice/Grammar.y"
     {
     unit->error("illegal inheritance from type Object");
     (yyval) = new ClassListTok; // Dummy
@@ -3186,21 +3190,21 @@ yyreduce:
     break;
 
   case 105:
-#line 1324 "../Slice/Grammar.y"
+#line 1328 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
 ;}
     break;
 
   case 106:
-#line 1328 "../Slice/Grammar.y"
+#line 1332 "../Slice/Grammar.y"
     {
     (yyval) = new ClassListTok;
 ;}
     break;
 
   case 107:
-#line 1337 "../Slice/Grammar.y"
+#line 1341 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (4)]));
     ContainedPtr contained = ContainedPtr::dynamicCast((yyvsp[(2) - (4)]));
@@ -3212,26 +3216,26 @@ yyreduce:
     break;
 
   case 108:
-#line 1346 "../Slice/Grammar.y"
+#line 1350 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 109:
-#line 1349 "../Slice/Grammar.y"
+#line 1353 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
 ;}
     break;
 
   case 110:
-#line 1353 "../Slice/Grammar.y"
+#line 1357 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 112:
-#line 1367 "../Slice/Grammar.y"
+#line 1371 "../Slice/Grammar.y"
     {
     ExceptionPtr exception = ExceptionPtr::dynamicCast((yyvsp[(1) - (3)]));
     ExceptionListTokPtr exceptionList = ExceptionListTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -3241,7 +3245,7 @@ yyreduce:
     break;
 
   case 113:
-#line 1374 "../Slice/Grammar.y"
+#line 1378 "../Slice/Grammar.y"
     {
     ExceptionPtr exception = ExceptionPtr::dynamicCast((yyvsp[(1) - (1)]));
     ExceptionListTokPtr exceptionList = new ExceptionListTok;
@@ -3251,7 +3255,7 @@ yyreduce:
     break;
 
   case 114:
-#line 1386 "../Slice/Grammar.y"
+#line 1390 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     ContainerPtr cont = unit->currentContainer();
@@ -3266,7 +3270,7 @@ yyreduce:
     break;
 
   case 115:
-#line 1398 "../Slice/Grammar.y"
+#line 1402 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
@@ -3275,7 +3279,7 @@ yyreduce:
     break;
 
   case 116:
-#line 1409 "../Slice/Grammar.y"
+#line 1413 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (7)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(7) - (7)]));
@@ -3287,7 +3291,7 @@ yyreduce:
     break;
 
   case 117:
-#line 1418 "../Slice/Grammar.y"
+#line 1422 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (7)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(7) - (7)]));
@@ -3300,7 +3304,7 @@ yyreduce:
     break;
 
   case 118:
-#line 1433 "../Slice/Grammar.y"
+#line 1437 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (10)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(10) - (10)]));
@@ -3314,7 +3318,7 @@ yyreduce:
     break;
 
   case 119:
-#line 1444 "../Slice/Grammar.y"
+#line 1448 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (10)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(10) - (10)]));
@@ -3329,14 +3333,14 @@ yyreduce:
     break;
 
   case 120:
-#line 1461 "../Slice/Grammar.y"
+#line 1465 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
 ;}
     break;
 
   case 121:
-#line 1465 "../Slice/Grammar.y"
+#line 1469 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
     unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
@@ -3345,7 +3349,7 @@ yyreduce:
     break;
 
   case 122:
-#line 1476 "../Slice/Grammar.y"
+#line 1480 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -3357,7 +3361,7 @@ yyreduce:
     break;
 
   case 123:
-#line 1485 "../Slice/Grammar.y"
+#line 1489 "../Slice/Grammar.y"
     {
     EnumPtr en = EnumPtr::dynamicCast((yyvsp[(3) - (6)]));
     if(en)
@@ -3374,7 +3378,7 @@ yyreduce:
     break;
 
   case 124:
-#line 1500 "../Slice/Grammar.y"
+#line 1504 "../Slice/Grammar.y"
     {
     unit->error("missing enumeration name");
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (5)]));
@@ -3387,7 +3391,7 @@ yyreduce:
     break;
 
   case 125:
-#line 1515 "../Slice/Grammar.y"
+#line 1519 "../Slice/Grammar.y"
     {
     EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     ens->v.splice(ens->v.end(), EnumeratorListTokPtr::dynamicCast((yyvsp[(3) - (3)]))->v);
@@ -3396,13 +3400,13 @@ yyreduce:
     break;
 
   case 126:
-#line 1521 "../Slice/Grammar.y"
+#line 1525 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 127:
-#line 1529 "../Slice/Grammar.y"
+#line 1533 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     EnumeratorListTokPtr ens = new EnumeratorListTok;
@@ -3417,7 +3421,7 @@ yyreduce:
     break;
 
   case 128:
-#line 1541 "../Slice/Grammar.y"
+#line 1545 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     EnumeratorListTokPtr ens = new EnumeratorListTok;
@@ -3443,7 +3447,7 @@ yyreduce:
     break;
 
   case 129:
-#line 1564 "../Slice/Grammar.y"
+#line 1568 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
@@ -3453,7 +3457,7 @@ yyreduce:
     break;
 
   case 130:
-#line 1571 "../Slice/Grammar.y"
+#line 1575 "../Slice/Grammar.y"
     {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     (yyval) = ens; // Dummy
@@ -3461,14 +3465,14 @@ yyreduce:
     break;
 
   case 131:
-#line 1581 "../Slice/Grammar.y"
+#line 1585 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
 ;}
     break;
 
   case 132:
-#line 1585 "../Slice/Grammar.y"
+#line 1589 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
@@ -3505,7 +3509,7 @@ yyreduce:
     break;
 
   case 133:
-#line 1624 "../Slice/Grammar.y"
+#line 1628 "../Slice/Grammar.y"
     {
     BoolTokPtr out = new BoolTok;
     out->v = true;
@@ -3514,7 +3518,7 @@ yyreduce:
     break;
 
   case 134:
-#line 1630 "../Slice/Grammar.y"
+#line 1634 "../Slice/Grammar.y"
     {
     BoolTokPtr out = new BoolTok;
     out->v = false;
@@ -3523,13 +3527,13 @@ yyreduce:
     break;
 
   case 135:
-#line 1641 "../Slice/Grammar.y"
+#line 1645 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 136:
-#line 1644 "../Slice/Grammar.y"
+#line 1648 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     OptionalDefTokPtr tsp = OptionalDefTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -3548,7 +3552,7 @@ yyreduce:
     break;
 
   case 137:
-#line 1660 "../Slice/Grammar.y"
+#line 1664 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(3) - (5)]));
     OptionalDefTokPtr tsp = OptionalDefTokPtr::dynamicCast((yyvsp[(5) - (5)]));
@@ -3567,7 +3571,7 @@ yyreduce:
     break;
 
   case 138:
-#line 1676 "../Slice/Grammar.y"
+#line 1680 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(1) - (4)]));
     TypePtr type = TypePtr::dynamicCast((yyvsp[(3) - (4)]));
@@ -3582,7 +3586,7 @@ yyreduce:
     break;
 
   case 139:
-#line 1688 "../Slice/Grammar.y"
+#line 1692 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(3) - (6)]));
     TypePtr type = TypePtr::dynamicCast((yyvsp[(5) - (6)]));
@@ -3597,7 +3601,7 @@ yyreduce:
     break;
 
   case 140:
-#line 1700 "../Slice/Grammar.y"
+#line 1704 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     TypePtr type = TypePtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -3611,7 +3615,7 @@ yyreduce:
     break;
 
   case 141:
-#line 1711 "../Slice/Grammar.y"
+#line 1715 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(3) - (5)]));
     TypePtr type = TypePtr::dynamicCast((yyvsp[(5) - (5)]));
@@ -3625,27 +3629,27 @@ yyreduce:
     break;
 
   case 142:
-#line 1727 "../Slice/Grammar.y"
+#line 1731 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
 ;}
     break;
 
   case 143:
-#line 1731 "../Slice/Grammar.y"
+#line 1735 "../Slice/Grammar.y"
     {
     (yyval) = new ExceptionListTok;
 ;}
     break;
 
   case 144:
-#line 1740 "../Slice/Grammar.y"
+#line 1744 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 145:
-#line 1743 "../Slice/Grammar.y"
+#line 1747 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
     ident->v = "::" + ident->v;
@@ -3654,7 +3658,7 @@ yyreduce:
     break;
 
   case 146:
-#line 1749 "../Slice/Grammar.y"
+#line 1753 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -3665,84 +3669,84 @@ yyreduce:
     break;
 
   case 147:
-#line 1762 "../Slice/Grammar.y"
+#line 1766 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindByte);
 ;}
     break;
 
   case 148:
-#line 1766 "../Slice/Grammar.y"
+#line 1770 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindBool);
 ;}
     break;
 
   case 149:
-#line 1770 "../Slice/Grammar.y"
+#line 1774 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindShort);
 ;}
     break;
 
   case 150:
-#line 1774 "../Slice/Grammar.y"
+#line 1778 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindInt);
 ;}
     break;
 
   case 151:
-#line 1778 "../Slice/Grammar.y"
+#line 1782 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindLong);
 ;}
     break;
 
   case 152:
-#line 1782 "../Slice/Grammar.y"
+#line 1786 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindFloat);
 ;}
     break;
 
   case 153:
-#line 1786 "../Slice/Grammar.y"
+#line 1790 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindDouble);
 ;}
     break;
 
   case 154:
-#line 1790 "../Slice/Grammar.y"
+#line 1794 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindString);
 ;}
     break;
 
   case 155:
-#line 1794 "../Slice/Grammar.y"
+#line 1798 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindObject);
 ;}
     break;
 
   case 156:
-#line 1798 "../Slice/Grammar.y"
+#line 1802 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindObjectProxy);
 ;}
     break;
 
   case 157:
-#line 1802 "../Slice/Grammar.y"
+#line 1806 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindLocalObject);
 ;}
     break;
 
   case 158:
-#line 1806 "../Slice/Grammar.y"
+#line 1810 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     ContainerPtr cont = unit->currentContainer();
@@ -3764,7 +3768,7 @@ yyreduce:
     break;
 
   case 159:
-#line 1825 "../Slice/Grammar.y"
+#line 1829 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     ContainerPtr cont = unit->currentContainer();
@@ -3803,7 +3807,7 @@ yyreduce:
     break;
 
   case 160:
-#line 1866 "../Slice/Grammar.y"
+#line 1870 "../Slice/Grammar.y"
     {
     StringTokPtr str1 = StringTokPtr::dynamicCast((yyvsp[(1) - (2)]));
     StringTokPtr str2 = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -3812,13 +3816,13 @@ yyreduce:
     break;
 
   case 161:
-#line 1872 "../Slice/Grammar.y"
+#line 1876 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 162:
-#line 1880 "../Slice/Grammar.y"
+#line 1884 "../Slice/Grammar.y"
     {
     StringTokPtr str = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]));
     StringListTokPtr stringList = StringListTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3828,7 +3832,7 @@ yyreduce:
     break;
 
   case 163:
-#line 1887 "../Slice/Grammar.y"
+#line 1891 "../Slice/Grammar.y"
     {
     StringTokPtr str = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     StringListTokPtr stringList = new StringListTok;
@@ -3838,7 +3842,7 @@ yyreduce:
     break;
 
   case 164:
-#line 1899 "../Slice/Grammar.y"
+#line 1903 "../Slice/Grammar.y"
     {
     BoolTokPtr local = new BoolTok;
     local->v = true;
@@ -3847,7 +3851,7 @@ yyreduce:
     break;
 
   case 165:
-#line 1905 "../Slice/Grammar.y"
+#line 1909 "../Slice/Grammar.y"
     {
     BoolTokPtr local = new BoolTok;
     local->v = false;
@@ -3856,7 +3860,7 @@ yyreduce:
     break;
 
   case 166:
-#line 1916 "../Slice/Grammar.y"
+#line 1920 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindLong);
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3872,7 +3876,7 @@ yyreduce:
     break;
 
   case 167:
-#line 1929 "../Slice/Grammar.y"
+#line 1933 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindDouble);
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3888,7 +3892,7 @@ yyreduce:
     break;
 
   case 168:
-#line 1942 "../Slice/Grammar.y"
+#line 1946 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
     ConstDefTokPtr def = new ConstDefTok;
@@ -3937,7 +3941,7 @@ yyreduce:
     break;
 
   case 169:
-#line 1988 "../Slice/Grammar.y"
+#line 1992 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3951,7 +3955,7 @@ yyreduce:
     break;
 
   case 170:
-#line 1999 "../Slice/Grammar.y"
+#line 2003 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3965,7 +3969,7 @@ yyreduce:
     break;
 
   case 171:
-#line 2010 "../Slice/Grammar.y"
+#line 2014 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3979,7 +3983,7 @@ yyreduce:
     break;
 
   case 172:
-#line 2026 "../Slice/Grammar.y"
+#line 2030 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(2) - (6)]));
     TypePtr const_type = TypePtr::dynamicCast((yyvsp[(3) - (6)]));
@@ -3991,7 +3995,7 @@ yyreduce:
     break;
 
   case 173:
-#line 2035 "../Slice/Grammar.y"
+#line 2039 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(2) - (5)]));
     TypePtr const_type = TypePtr::dynamicCast((yyvsp[(3) - (5)]));
@@ -4003,182 +4007,182 @@ yyreduce:
     break;
 
   case 174:
-#line 2049 "../Slice/Grammar.y"
+#line 2053 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 175:
-#line 2052 "../Slice/Grammar.y"
+#line 2056 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 176:
-#line 2055 "../Slice/Grammar.y"
+#line 2059 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 177:
-#line 2058 "../Slice/Grammar.y"
+#line 2062 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 178:
-#line 2061 "../Slice/Grammar.y"
+#line 2065 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 179:
-#line 2064 "../Slice/Grammar.y"
+#line 2068 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 180:
-#line 2067 "../Slice/Grammar.y"
+#line 2071 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 181:
-#line 2070 "../Slice/Grammar.y"
+#line 2074 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 182:
-#line 2073 "../Slice/Grammar.y"
+#line 2077 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 183:
-#line 2076 "../Slice/Grammar.y"
+#line 2080 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 184:
-#line 2079 "../Slice/Grammar.y"
+#line 2083 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 185:
-#line 2082 "../Slice/Grammar.y"
+#line 2086 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 186:
-#line 2085 "../Slice/Grammar.y"
+#line 2089 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 187:
-#line 2088 "../Slice/Grammar.y"
+#line 2092 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 188:
-#line 2091 "../Slice/Grammar.y"
+#line 2095 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 189:
-#line 2094 "../Slice/Grammar.y"
+#line 2098 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 190:
-#line 2097 "../Slice/Grammar.y"
+#line 2101 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 191:
-#line 2100 "../Slice/Grammar.y"
+#line 2104 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 192:
-#line 2103 "../Slice/Grammar.y"
+#line 2107 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 193:
-#line 2106 "../Slice/Grammar.y"
+#line 2110 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 194:
-#line 2109 "../Slice/Grammar.y"
+#line 2113 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 195:
-#line 2112 "../Slice/Grammar.y"
+#line 2116 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 196:
-#line 2115 "../Slice/Grammar.y"
+#line 2119 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 197:
-#line 2118 "../Slice/Grammar.y"
+#line 2122 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 198:
-#line 2121 "../Slice/Grammar.y"
+#line 2125 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 199:
-#line 2124 "../Slice/Grammar.y"
+#line 2128 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 200:
-#line 2127 "../Slice/Grammar.y"
+#line 2131 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 201:
-#line 2130 "../Slice/Grammar.y"
+#line 2134 "../Slice/Grammar.y"
     {
 ;}
     break;
 
   case 202:
-#line 2133 "../Slice/Grammar.y"
+#line 2137 "../Slice/Grammar.y"
     {
 ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 4182 "Grammar.tab.c"
+#line 4186 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -4392,6 +4396,6 @@ yyreturn:
 }
 
 
-#line 2137 "../Slice/Grammar.y"
+#line 2141 "../Slice/Grammar.y"
 
 

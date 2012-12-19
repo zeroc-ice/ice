@@ -607,14 +607,18 @@ class_id
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENT_OP ICE_INTEGER_LITERAL ')'
 {
-    int id = IntegerTokPtr::dynamicCast($3)->v;
+    IceUtil::Int64 id = IntegerTokPtr::dynamicCast($3)->v;
     if(id < 0)
     {
         unit->error("invalid compact id for class: id must be a positive integer");
     }
+    else if(id > Int32Max)
+    {
+        unit->error("invalid compact id for class: value is out of range");
+    }
     else 
     {
-        string typeId = unit->getTypeId(id);
+        string typeId = unit->getTypeId(static_cast<int>(id));
         if(!typeId.empty())
         {
             unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
@@ -623,7 +627,7 @@ class_id
 
     ClassIdTokPtr classId = new ClassIdTok();
     classId->v = StringTokPtr::dynamicCast($2)->v;
-    classId->t = id;
+    classId->t = static_cast<int>(id);
     $$ = classId;
 }
 | ICE_CLASS ICE_IDENT_OP scoped_name ')'
