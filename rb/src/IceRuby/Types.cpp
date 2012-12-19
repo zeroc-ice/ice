@@ -2387,7 +2387,8 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         ClassInfoPtr info = _info;
         while(info)
         {
-            os->startSlice(info->id, !info->base);
+            // TODO: XXX: should be the compactId not -1
+            os->startSlice(info->id, -1, !info->base);
 
             writeMembers(os, info->members);
             writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.

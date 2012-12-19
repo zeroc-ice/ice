@@ -545,10 +545,10 @@ public class BasicStream
     }
 
     public void
-    startWriteSlice(String typeId, boolean last)
+    startWriteSlice(String typeId, int compactId, boolean last)
     {
         assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
-        _writeEncapsStack.encoder.startSlice(typeId, last);
+        _writeEncapsStack.encoder.startSlice(typeId, compactId, last);
     }
 
     public void
@@ -2587,6 +2587,36 @@ public class BasicStream
         return obj;
     }
 
+    private String 
+    getTypeId(int compactId)
+    {
+        String className = "IceCompactId.TypeId_" + Integer.toString(compactId);
+        Class<?> c = getConcreteClass(className);
+        if(c == null)
+        {
+            for(String pkg : _instance.getPackages())
+            {
+                c = getConcreteClass(pkg + "." + className);
+                if(c != null)
+                {
+                    break;
+                }
+            }
+        }
+        if(c != null)
+        {
+            try
+            {
+                return (String)c.getField("typeId").get(null);
+            }
+            catch(Exception ex)
+            {
+                assert(false);
+            }
+        }
+        return "";
+    }
+
     private static final class DynamicUserExceptionFactory
         implements UserExceptionFactory
     {
@@ -2811,6 +2841,7 @@ public class BasicStream
             _traceSlicing = -1;
             _sliceType = SliceType.NoSlice;
             _typeIdIndex = 0;
+            _compactId = -1;
             _slices = new java.util.ArrayList<Ice.SliceInfo>();
             _indirectionTables = new java.util.ArrayList<int[]>();
             _indirectPatchList = new java.util.ArrayList<IndirectPatchEntry>();
@@ -3088,7 +3119,12 @@ public class BasicStream
             //
             if(_sliceType == SliceType.ObjectSlice)
             {
-                if((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0)
+                if((_sliceFlags & FLAG_HAS_TYPE_ID_COMPACT) == FLAG_HAS_TYPE_ID_COMPACT) // Must be checked first!
+                {
+                    _typeId = "";
+                    _compactId = _stream.readSize();
+                }
+                else if((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0)
                 {
                     int index = _stream.readSize();
                     _typeId = _typeIdMap.get(index);
@@ -3096,10 +3132,12 @@ public class BasicStream
                     {
                         throw new Ice.UnmarshalOutOfBoundsException();
                     }
+                    _compactId = -1;
                 }
                 else if((_sliceFlags & FLAG_HAS_TYPE_ID_STRING) != 0)
                 {
                     _typeId = _stream.readString();
+                    _compactId = -1;
                     _typeIdMap.put(++_typeIdIndex, _typeId);
                 }
                 else
@@ -3107,11 +3145,13 @@ public class BasicStream
                     // Only the most derived slice encodes the type ID for the
                     // compact format.
                     _typeId = "";
+                    _compactId = -1;
                 }
             }
             else
             {
                 _typeId = _stream.readString();
+                _compactId = -1;
             }
 
             //
@@ -3223,6 +3263,7 @@ public class BasicStream
                 //
                 Ice.SliceInfo info = new Ice.SliceInfo();
                 info.typeId = _typeId;
+                info.compactId = _compactId;
                 info.hasOptionalMembers = (_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0;
                 info.isLastSlice = (_sliceFlags & FLAG_IS_LAST_SLICE) != 0;
                 java.nio.ByteBuffer b = _stream.getBuffer().b;
@@ -3371,42 +3412,50 @@ public class BasicStream
                     throw new Ice.NoObjectFactoryException("", mostDerivedId);
                 }
 
-                //
-                // Try to find a factory registered for the specific type.
-                //
-                Ice.ObjectFactory userFactory = servantFactoryManager.find(_typeId);
-                if(userFactory != null)
+                if(_compactId >= 0)
                 {
-                    v = userFactory.create(_typeId);
+                    _typeId = _stream.getTypeId(_compactId);
                 }
-
-                //
-                // If that fails, invoke the default factory if one has been
-                // registered.
-                //
-                if(v == null)
+                
+                if(_typeId.length() > 0)
                 {
-                    userFactory = servantFactoryManager.find("");
+                    //
+                    // Try to find a factory registered for the specific type.
+                    //
+                    Ice.ObjectFactory userFactory = servantFactoryManager.find(_typeId);
                     if(userFactory != null)
                     {
                         v = userFactory.create(_typeId);
                     }
-                }
-
-                //
-                // Last chance: try to instantiate the class dynamically.
-                //
-                if(v == null)
-                {
-                    v = _stream.createObject(_typeId);
-                }
-
-                //
-                // We found a factory, we get out of this loop.
-                //
-                if(v != null)
-                {
-                    break;
+                    
+                    //
+                    // If that fails, invoke the default factory if one has been
+                    // registered.
+                    //
+                    if(v == null)
+                    {
+                        userFactory = servantFactoryManager.find("");
+                        if(userFactory != null)
+                        {
+                            v = userFactory.create(_typeId);
+                        }
+                    }
+                    
+                    //
+                    // Last chance: try to instantiate the class dynamically.
+                    //
+                    if(v == null)
+                    {
+                        v = _stream.createObject(_typeId);
+                    }
+                    
+                    //
+                    // We found a factory, we get out of this loop.
+                    //
+                    if(v != null)
+                    {
+                        break;
+                    }
                 }
 
                 //
@@ -3636,6 +3685,7 @@ public class BasicStream
         private byte _sliceFlags;
         private int _sliceSize;
         private String _typeId;
+        private int _compactId;
 
         private static final class IndirectPatchEntry
         {
@@ -3776,7 +3826,7 @@ public class BasicStream
                 //
                 // Write the Object slice.
                 //
-                startSlice(Ice.ObjectImpl.ice_staticId(), true);
+                startSlice(Ice.ObjectImpl.ice_staticId(), -1, true);
                 _stream.writeSize(0); // For compatibility with the old AFM.
                 endSlice();
             }
@@ -3798,7 +3848,7 @@ public class BasicStream
             _sliceType = SliceType.NoSlice;
         }
 
-        void startSlice(String typeId, boolean last)
+        void startSlice(String typeId, int compactId, boolean last)
         {
             assert(_indirectionTable.isEmpty() && _indirectionMap.isEmpty());
             _sliceFlags = (byte)0;
@@ -3836,22 +3886,30 @@ public class BasicStream
                 //
                 if(_encaps.format == Ice.FormatType.SlicedFormat || _encaps.encoding_1_0 || _firstSlice)
                 {
-                    //
-                    // If the type ID has already been seen, write the index
-                    // of the type ID, otherwise allocate a new type ID and
-                    // write the string.
-                    //
-                    Integer p = _typeIdMap.get(typeId);
-                    if(p != null)
+                    if(!_encaps.encoding_1_0 && compactId >= 0)
                     {
-                        _sliceFlags |= FLAG_HAS_TYPE_ID_INDEX;
-                        _stream.writeSize(p.intValue());
+                        _sliceFlags |= FLAG_HAS_TYPE_ID_COMPACT;
+                        _stream.writeSize(compactId);
                     }
                     else
                     {
-                        _sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
-                        _typeIdMap.put(typeId, ++_typeIdIndex);
-                        _stream.writeString(typeId);
+                        //
+                        // If the type ID has already been seen, write the index
+                        // of the type ID, otherwise allocate a new type ID and
+                        // write the string.
+                        //
+                        Integer p = _typeIdMap.get(typeId);
+                        if(p != null)
+                        {
+                            _sliceFlags |= FLAG_HAS_TYPE_ID_INDEX;
+                            _stream.writeSize(p.intValue());
+                        }
+                        else
+                        {
+                            _sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
+                            _typeIdMap.put(typeId, ++_typeIdIndex);
+                            _stream.writeString(typeId);
+                        }
                     }
                 }
             }
@@ -4036,7 +4094,7 @@ public class BasicStream
             for(int n = 0; n < slicedData.slices.length; ++n)
             {
                 Ice.SliceInfo info = slicedData.slices[n];
-                startSlice(info.typeId, info.isLastSlice);
+                startSlice(info.typeId, info.compactId, info.isLastSlice);
 
                 //
                 // Write the bytes associated with this slice.
@@ -4242,6 +4300,7 @@ public class BasicStream
 
     private static final byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
     private static final byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);
+    private static final byte FLAG_HAS_TYPE_ID_COMPACT      = (byte)(1<<1 | 1<<0);
     private static final byte FLAG_HAS_OPTIONAL_MEMBERS     = (byte)(1<<2);
     private static final byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
     private static final byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);

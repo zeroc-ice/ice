@@ -423,7 +423,7 @@ public:
 
     virtual void destroy();
     ModulePtr createModule(const std::string&);
-    ClassDefPtr createClassDef(const std::string&, bool, const ClassList&, bool);
+    ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&, bool);
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool, NodeType = Real);
     StructPtr createStruct(const std::string&, bool, NodeType = Real);
@@ -664,10 +664,11 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
+    int compactId() const;
 
 protected:
 
-    ClassDef(const ContainerPtr&, const std::string&, bool, const ClassList&, bool);
+    ClassDef(const ContainerPtr&, const std::string&, int, bool, const ClassList&, bool);
     friend class Container;
 
     ClassDeclPtr _declaration;
@@ -676,6 +677,7 @@ protected:
     bool _hasOperations;
     ClassList _bases;
     bool _local;
+    int _compactId;
 };
 
 // ----------------------------------------------------------------------
@@ -1036,6 +1038,9 @@ public:
     ExceptionList findDerivedExceptions(const ExceptionPtr&) const;
     ContainedList findUsedBy(const ContainedPtr&) const;
 
+    void addTypeId(int, const std::string&);
+    std::string getTypeId(int);
+
     bool usesNonLocals() const;
     bool usesConsts() const;
 
@@ -1081,6 +1086,7 @@ private:
     std::map<std::string, ContainedList> _contentMap;
     FeatureProfile _featureProfile;
     std::map<std::string, DefinitionContextPtr> _definitionContextMap;
+    std::map<int, std::string> _typeIds;
 };
 
 extern SLICE_API Unit* unit; // The current parser for bison/flex

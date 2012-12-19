@@ -28,6 +28,7 @@ class EnumeratorListTok;
 class ConstDefTok;
 class OptionalDefTok;
 class OptionalTypeDefTok;
+class ClassIdTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
@@ -41,6 +42,7 @@ typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 typedef ::IceUtil::Handle<ConstDefTok> ConstDefTokPtr;
 typedef ::IceUtil::Handle<OptionalDefTok> OptionalDefTokPtr;
+typedef ::IceUtil::Handle<ClassIdTok> ClassIdTokPtr;
 
 // ----------------------------------------------------------------------
 // StringTok
@@ -187,6 +189,19 @@ public:
 
     OptionalDefTok() { }
     OptionalDef v;
+};
+
+// ----------------------------------------------------------------------
+// ClassIdTok
+// ----------------------------------------------------------------------
+
+class SLICE_API ClassIdTok : public GrammarBase
+{
+public:
+
+    ClassIdTok() { }
+    std::string v;
+    int t;
 };
 
 }

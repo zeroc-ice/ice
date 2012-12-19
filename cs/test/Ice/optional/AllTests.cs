@@ -2312,7 +2312,7 @@ public class AllTests : TestCommon.TestApp
         {
             @out.startObject(null);
             // ::Test::D
-            @out.startSlice("::Test::D", false);
+            @out.startSlice("::Test::D", -1, false);
             string s = "test";
             @out.writeString(s);
             @out.writeOptional(1, Ice.OptionalFormat.FSize);
@@ -2326,12 +2326,12 @@ public class AllTests : TestCommon.TestApp
             @out.writeObject(a);
             @out.endSlice();
             // ::Test::B
-            @out.startSlice(Test.B.ice_staticId(), false);
+            @out.startSlice(Test.B.ice_staticId(), -1, false);
             int v = 14;
             @out.writeInt(v);
             @out.endSlice();
             // ::Test::A
-            @out.startSlice(Test.A.ice_staticId(), true);
+            @out.startSlice(Test.A.ice_staticId(), -1, true);
             @out.writeInt(v);
             @out.endSlice();
             @out.endObject();

@@ -434,6 +434,21 @@ public class AllTests : TestCommon.TestApp
             callback.called();
         }
 
+        public void response_exchangePBaseCompact1(PBase r)
+        {
+            AllTests.test(!(r is CompactPCDerived));
+            AllTests.test(r.pi == 3);
+            callback.called();
+        }
+
+        public void response_exchangePBaseCompact2(PBase r)
+        {
+            CompactPCDerived p2 = r as CompactPCDerived;
+            AllTests.test(p2.pi == 3);
+            AllTests.test(p2.pbs[0] == p2);
+            callback.called();
+        }
+
         public void response_exchangePBase5(PBase r)
         {
             AllTests.test(!(r is PCDerived3));
@@ -2028,6 +2043,29 @@ public class AllTests : TestCommon.TestApp
 
         {
             //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            CompactPCDerived pcd = new CompactPCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            PBase r = testPrx.exchangePBase(pcd);
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r is CompactPCDerived));
+                test(r.pi == 3);
+            }
+            else
+            {
+                CompactPCDerived p2 = r as CompactPCDerived;
+                test(p2.pi == 3);
+                test(p2.pbs[0] == p2);
+            }
+        }
+
+        {
+            //
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
@@ -2135,6 +2173,27 @@ public class AllTests : TestCommon.TestApp
             else
             {
                 testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase4, cb.exception);
+            }
+            cb.check();
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            CompactPCDerived pcd = new CompactPCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            AsyncCallback cb = new AsyncCallback();
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBaseCompact1, cb.exception);
+            }
+            else
+            {
+                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBaseCompact2, cb.exception);
             }
             cb.check();
         }

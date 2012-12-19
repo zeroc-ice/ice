@@ -609,6 +609,12 @@ public final class Instance
         }
     }
 
+    public String[]
+    getPackages()
+    {
+        return _packages;
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -703,7 +709,7 @@ public final class Instance
                 }
             }
 
-            validatePackages();
+            _packages = validatePackages();
 
             _traceLevels = new TraceLevels(_initData.properties);
 
@@ -1125,11 +1131,12 @@ public final class Instance
         }
     }
 
-    private void
+    private String[]
     validatePackages()
     {
         final String prefix = "Ice.Package.";
         java.util.Map<String, String> map = _initData.properties.getPropertiesForPrefix(prefix);
+        java.util.List<String> packages = new java.util.ArrayList<String>();
         for(java.util.Map.Entry<String, String> p : map.entrySet())
         {
             String key = p.getKey();
@@ -1152,7 +1159,18 @@ public final class Instance
             {
                 _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
             }
+            else
+            {
+                packages.add(pkg);
+            }
         }
+
+        String pkg = _initData.properties.getProperty("Ice.Default.Package");
+        if(pkg.length() > 0)
+        {
+            packages.add(pkg);
+        }
+        return packages.toArray(new String[packages.size()]);
     }
 
     private static final int StateActive = 0;
@@ -1191,6 +1209,7 @@ public final class Instance
     private Ice.Identity _adminIdentity;
 
     private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<String, String>();
+    private String[] _packages;
 
     private static boolean _oneOffDone = false;
 }

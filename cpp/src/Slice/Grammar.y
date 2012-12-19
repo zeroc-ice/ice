@@ -588,7 +588,7 @@ struct_export
 ;
 
 // ----------------------------------------------------------------------
-class_id
+class_name
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENTIFIER
 {
@@ -603,9 +603,107 @@ class_id
 ;
 
 // ----------------------------------------------------------------------
+class_id
+// ----------------------------------------------------------------------
+: ICE_CLASS ICE_IDENT_OP ICE_INTEGER_LITERAL ')'
+{
+    int id = IntegerTokPtr::dynamicCast($3)->v;
+    if(id < 0)
+    {
+        unit->error("invalid compact id for class: id must be a positive integer");
+    }
+    else 
+    {
+        string typeId = unit->getTypeId(id);
+        if(!typeId.empty())
+        {
+            unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+        }
+    }
+
+    ClassIdTokPtr classId = new ClassIdTok();
+    classId->v = StringTokPtr::dynamicCast($2)->v;
+    classId->t = id;
+    $$ = classId;
+}
+| ICE_CLASS ICE_IDENT_OP scoped_name ')'
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($3);
+
+    ContainerPtr cont = unit->currentContainer();
+    assert(cont);
+    ContainedList cl = cont->lookupContained(scoped->v);
+    if(cl.empty())
+    {
+        YYERROR; // Can't continue, jump to next yyerrok
+    }
+    cont->checkIntroduced(scoped->v);
+
+    int id = -1;
+    EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
+    ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+    if(constant)
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+        if(b)
+        {
+            switch(b->kind())
+            {
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+                if(l < 0 || l > Int32Max)
+                {
+                    unit->error("compact id for class is out of range");
+                }
+                id = static_cast<int>(l);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    else if(enumerator)
+    {
+        id = enumerator->value();
+    }
+
+    if(id < 0)
+    {
+        unit->error("invalid compact id for class: id must be a positive integer");
+    }
+    else 
+    {
+        string typeId = unit->getTypeId(id);
+        if(!typeId.empty())
+        {
+            unit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+        }
+    }
+
+    ClassIdTokPtr classId = new ClassIdTok();
+    classId->v = StringTokPtr::dynamicCast($2)->v;
+    classId->t = id;
+    $$ = classId;
+
+}
+| class_name
+{
+    ClassIdTokPtr classId = new ClassIdTok();
+    classId->v = StringTokPtr::dynamicCast($1)->v;
+    classId->t = -1;
+    $$ = classId;
+}
+;
+
+// ----------------------------------------------------------------------
 class_decl
 // ----------------------------------------------------------------------
-: local_qualifier class_id
+: local_qualifier class_name
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -621,7 +719,7 @@ class_def
 : local_qualifier class_id class_extends implements
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ClassDefPtr base = ClassDefPtr::dynamicCast($3);
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
@@ -629,7 +727,7 @@ class_def
     {
 	bases->v.push_front(base);
     }
-    ClassDefPtr cl = cont->createClassDef(ident->v, false, bases->v, local->v);
+    ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, false, bases->v, local->v);
     if(cl)
     {
 	cont->checkIntroduced(ident->v, cl);
@@ -1113,7 +1211,7 @@ interface_def
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($3);
-    ClassDefPtr cl = cont->createClassDef(ident->v, true, bases->v, local->v);
+    ClassDefPtr cl = cont->createClassDef(ident->v, -1, true, bases->v, local->v);
     if(cl)
     {
 	cont->checkIntroduced(ident->v, cl);

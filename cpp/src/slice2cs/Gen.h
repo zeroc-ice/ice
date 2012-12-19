@@ -111,6 +111,17 @@ private:
         virtual bool visitUnitStart(const UnitPtr&);
     };
 
+    class CompactIdVisitor : public CsVisitor
+    {
+    public:
+
+        CompactIdVisitor(IceUtilInternal::Output&);
+
+        virtual bool visitUnitStart(const UnitPtr&);
+        virtual void visitUnitEnd(const UnitPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
     class TypesVisitor : public CsVisitor
     {
     public:

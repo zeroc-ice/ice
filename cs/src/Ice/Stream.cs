@@ -484,8 +484,9 @@ namespace Ice
         /// Marks the start of a new slice for an Ice object or user exception.
         /// </summary>
         /// <param name="typeId">The Slice type ID corresponding to this slice.</param>
+        /// <param name="compactId">The Slice compact type ID corresponding to this slice.</param>
         /// <param name="last">True if this is the last slice, false otherwise.</param>
-        void startSlice(string typeId, bool last);
+        void startSlice(string typeId, int compactId, bool last);
 
         /// <summary>
         /// Marks the end of a slice for an Ice object or user exception.

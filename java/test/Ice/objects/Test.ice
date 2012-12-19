@@ -94,6 +94,18 @@ class H implements I
 
 sequence<Base> BaseSeq;
 
+class CompactExt;
+
+class Compact(1)
+{
+};
+
+const int CompactExtId = 789;
+
+class CompactExt(CompactExtId) extends Compact
+{
+};
+
 class Initial
 {
     void shutdown();
@@ -113,6 +125,8 @@ class Initial
     void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
+
+    Compact getCompact();
 };
 
 class Empty

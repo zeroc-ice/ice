@@ -288,7 +288,7 @@ public:
     virtual void startException(const SlicedDataPtr&) = 0;
     virtual void endException() = 0;
 
-    virtual void startSlice(const ::std::string&, bool) = 0;
+    virtual void startSlice(const ::std::string&, int, bool) = 0;
     virtual void endSlice() = 0;
 
     virtual void startEncapsulation(const Ice::EncodingVersion&, FormatType) = 0;

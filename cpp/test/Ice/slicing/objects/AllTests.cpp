@@ -445,6 +445,31 @@ public:
         called();
     }
 
+    void
+    response_compactPreserved1(const PBasePtr& r)
+    {
+        //
+        // Encoding 1.0
+        //
+        CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
+        test(!p2);
+        test(r->pi == 3);
+        called();
+    }
+
+    void
+    response_compactPreserved2(const PBasePtr& r)
+    {
+        //
+        // Encoding > 1.0
+        //
+        CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
+        test(p2);
+        test(p2->pi == 3);
+        test(p2->pbs[0] == p2);
+        called();
+    }
+
     void 
     response()
     {
@@ -1996,6 +2021,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         //
+        // Server only knows the intermediate type CompactPDerived. The object will be sliced to
+        // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+        //
+        CompactPCDerivedPtr pcd = new CompactPCDerived;
+        pcd->pi = 3;
+        pcd->pbs.push_back(pcd);
+
+        PBasePtr r = test->exchangePBase(pcd);
+        CompactPCDerivedPtr p2 = CompactPCDerivedPtr::dynamicCast(r);
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!p2);
+            test(r->pi == 3);
+        }
+        else
+        {
+            test(p2);
+            test(p2->pi == 3);
+            test(p2->pbs[0] == p2);
+        }
+    }
+
+    {
+        //
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
@@ -2107,6 +2156,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test->begin_exchangePBase(
                 pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved4, &Callback::exception));
+        }
+        cb->check();
+    }
+
+    {
+        //
+        // Server only knows the intermediate type Preserved. The object will be sliced to
+        // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+        //
+        CompactPCDerivedPtr pcd = new CompactPCDerived;
+        pcd->pi = 3;
+        pcd->pbs.push_back(pcd);
+
+        CallbackPtr cb = new Callback;
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test->begin_exchangePBase(pcd, newCallback_TestIntf_exchangePBase(cb,
+                                                                              &Callback::response_compactPreserved1,
+                                                                              &Callback::exception));
+        }
+        else
+        {
+            test->begin_exchangePBase(pcd, newCallback_TestIntf_exchangePBase(cb,
+                                                                              &Callback::response_compactPreserved2, 
+                                                                              &Callback::exception));
         }
         cb->check();
     }

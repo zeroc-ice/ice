@@ -31,6 +31,10 @@ public:
     Ice::ObjectFactoryPtr getObjectFactory(const ::std::string&) const;
     void removeObjectFactory(const ::std::string&);
 
+    void addTypeId(int, const ::std::string&);
+    std::string getTypeId(int) const;
+    void removeTypeId(int);
+
 private:
 
     IceUtil::Mutex _m;
@@ -42,6 +46,10 @@ private:
     typedef ::std::pair<Ice::ObjectFactoryPtr, int> OFPair;
     typedef ::std::map< ::std::string, OFPair> OFTable;
     OFTable _oft;
+
+    typedef ::std::pair< ::std::string, int> TypeIdPair;
+    typedef ::std::map<int, TypeIdPair> TypeIdTable;
+    TypeIdTable _typeIdTable;
 };
 
 }

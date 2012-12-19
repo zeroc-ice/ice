@@ -586,7 +586,7 @@ Slice::Container::createModule(const string& name)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, bool intf, const ClassList& bases, bool local)
+Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases, bool local)
 {
     checkIdentifier(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -655,7 +655,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 
     ClassDecl::checkBasesAreLegal(name, intf, local, bases, _unit);
  
-    ClassDefPtr def = new ClassDef(this, name, intf, bases, local);
+    ClassDefPtr def = new ClassDef(this, name, id, intf, bases, local);
     _contents.push_back(def);
 
     for(ContainedList::const_iterator q = matches.begin(); q != matches.end(); ++q)
@@ -3584,7 +3584,13 @@ Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
     }
 }
 
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, bool intf, const ClassList& bases,
+int
+Slice::ClassDef::compactId() const
+{
+    return _compactId;
+}
+
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, bool intf, const ClassList& bases,
                           bool local) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
@@ -3593,7 +3599,8 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
     _hasDataMembers(false),
     _hasOperations(false),
     _bases(bases),
-    _local(local)
+    _local(local),
+    _compactId(id)
 {
     //
     // First element of bases may be a class, all others must be
@@ -3605,6 +3612,11 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
         assert(p == _bases.begin() || (*p)->isInterface());
     }
 #endif
+    
+    if(_compactId >= 0)
+    {
+        _unit->addTypeId(_compactId, scoped());
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -5980,6 +5992,23 @@ Slice::Unit::findUsedBy(const ContainedPtr& contained) const
     usedBy.sort();
     usedBy.unique();
     return usedBy;
+}
+
+void
+Slice::Unit::addTypeId(int compactId, const std::string& typeId)
+{
+    _typeIds.insert(make_pair(compactId, typeId));
+}
+
+std::string
+Slice::Unit::getTypeId(int compactId)
+{
+    map<int, string>::const_iterator p = _typeIds.find(compactId);
+    if(p != _typeIds.end())
+    {
+        return p->second;
+    }
+    return string();
 }
 
 bool

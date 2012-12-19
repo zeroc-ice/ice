@@ -103,7 +103,7 @@ FreezeScript::ObjectWriter::write(const Ice::OutputStreamPtr& out) const
             base = bases.front();
         }
 
-        out->startSlice(type->scoped(), !base);
+        out->startSlice(type->scoped(), type->compactId(), !base);
         Slice::DataMemberList members = type->dataMembers();
         for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
         {

@@ -21,6 +21,8 @@ import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.Initial;
+import test.Ice.objects.Test.Compact;
+import test.Ice.objects.Test.CompactExt;
 
 
 public final class InitialI extends Initial
@@ -141,6 +143,12 @@ public final class InitialI extends Initial
     {
         outS.value = inS;
         return inS;
+    }
+
+    public Compact
+    getCompact(Ice.Current current)
+    {
+        return new CompactExt();
     }
 
     public void

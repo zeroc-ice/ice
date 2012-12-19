@@ -20,6 +20,11 @@ public class SliceInfo
     public String typeId;
 
     /**
+     * The Slice compact type ID for this slice.
+     **/
+    public int compactId;
+
+    /**
      * The encoded bytes for this slice, including the leading size integer.
      **/
     public byte[] bytes;

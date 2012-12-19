@@ -160,7 +160,7 @@ public:
     virtual void startException(const SlicedDataPtr&);
     virtual void endException();
 
-    virtual void startSlice(const std::string&, bool);
+    virtual void startSlice(const std::string&, int, bool);
     virtual void endSlice();
 
     virtual void startEncapsulation(const Ice::EncodingVersion&, FormatType);

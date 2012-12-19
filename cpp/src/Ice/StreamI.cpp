@@ -636,9 +636,9 @@ OutputStreamI::endException()
 }
 
 void
-OutputStreamI::startSlice(const string& typeId, bool lastSlice)
+OutputStreamI::startSlice(const string& typeId, int compactId, bool lastSlice)
 {
-    _os->startWriteSlice(typeId, lastSlice);
+    _os->startWriteSlice(typeId, compactId, lastSlice);
 }
 
 void

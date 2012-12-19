@@ -1213,7 +1213,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     }
     _out << nl << "protected override void writeImpl__(IceInternal.BasicStream os__)";
     _out << sb;
-    _out << nl << "os__.startWriteSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
+    _out << nl << "os__.startWriteSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
         if(!(*d)->optional())
@@ -1369,7 +1369,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << nl << "protected override void writeImpl__(Ice.OutputStream outS__)";
         _out << sb;
-        _out << nl << "outS__.startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
+        _out << nl << "outS__.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
             if(!(*d)->optional())
@@ -2443,6 +2443,9 @@ Slice::Gen::generate(const UnitPtr& p)
     UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
 
+    CompactIdVisitor compactIdVisitor(_out);
+    p->visit(&compactIdVisitor, false);
+
     TypesVisitor typesVisitor(_out, _stream);
     p->visit(&typesVisitor, false);
 
@@ -2599,6 +2602,40 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
             string attrib = q->substr(pos + attributePrefix.size());
             _out << nl << '[' << attrib << ']';
         }
+    }
+    return false;
+}
+
+Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
+{
+    _out << sp << nl << "namespace IceCompactId";
+    _out << sb;
+    return true;
+}
+
+void
+Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr& p)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(p->compactId() >= 0)
+    {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public sealed class TypeId_" << p->compactId();
+        _out << sb;
+        _out << nl << "public readonly static string typeId = \"" << p->scoped() << "\";";
+        _out << eb;
     }
     return false;
 }
@@ -3447,7 +3484,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "protected override void writeImpl__(IceInternal.BasicStream os__)";
         _out << sb;
-        _out << nl << "os__.startWriteSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
+        _out << nl << "os__.startWriteSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             writeMarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception));
@@ -3578,7 +3615,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             emitGeneratedCodeAttribute();
             _out << nl << "protected override void writeImpl__(Ice.OutputStream outS__)";
             _out << sb;
-            _out << nl << "outS__.startSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
+            _out << nl << "outS__.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 writeStreamMarshalDataMember(*q, fixId((*q)->name(), DotNet::Exception));

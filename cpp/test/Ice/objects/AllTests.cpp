@@ -225,6 +225,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(retS.size() == 1 && outS.size() == 1);
     cout << "ok" << endl;
 
+    cout << "testing compact ID..." << flush;
+    try
+    {
+        test(initial->getCompact());
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    cout << "ok" << endl;
+
     if(!collocated)
     {
         cout << "testing UnexpectedObjectException... " << flush;

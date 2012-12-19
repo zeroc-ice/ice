@@ -29,6 +29,8 @@ import test.Ice.objects.Test.InitialPrxHelper;
 import test.Ice.objects.Test.J;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
+import test.Ice.objects.Test.Compact;
+import test.Ice.objects.Test.CompactExt;
 
 public class AllTests
 {
@@ -215,6 +217,17 @@ public class AllTests
         inS[0] = new Base(new S(), "");
         retS = initial.opBaseSeq(inS, outS);
         test(retS.length == 1 && outS.value.length == 1);
+        out.println("ok");
+
+        out.print("testing compact ID...");
+        out.flush();
+        try
+        {
+            test(initial.getCompact() != null);
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
         out.println("ok");
 
         if(!collocated)

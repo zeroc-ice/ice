@@ -99,6 +99,11 @@ public sealed class InitialI : Initial
         return inS;
     }
 
+    public override Compact getCompact(Ice.Current current)
+    {
+        return new CompactExt();
+    }
+
     public override void shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();

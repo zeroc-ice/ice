@@ -1203,6 +1203,69 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
+    private static class Callback_TestIntf_exchangePBaseICompact1 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            test(!(r instanceof CompactPCDerived));
+            test(r.pi == 3);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_exchangePBaseICompact2 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            CompactPCDerived p2 = (CompactPCDerived)r;
+            test(p2.pi == 3);
+            test(p2.pbs[0] == p2);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     private static class Callback_TestIntf_exchangePBaseI5 extends Callback_TestIntf_exchangePBase
     {
         public void
@@ -2796,6 +2859,29 @@ public class AllTests
 
         {
             //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            CompactPCDerived pcd = new CompactPCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            PBase r = test.exchangePBase(pcd);
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r instanceof CompactPCDerived));
+                test(r.pi == 3);
+            }
+            else
+            {
+                CompactPCDerived p2 = (CompactPCDerived)r;
+                test(p2.pi == 3);
+                test(p2.pbs[0] == p2);
+            }
+        }
+
+        {
+            //
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
@@ -2904,6 +2990,29 @@ public class AllTests
             else
             {
                 Callback_TestIntf_exchangePBaseI4 cb = new Callback_TestIntf_exchangePBaseI4();
+                test.begin_exchangePBase(pcd, cb);
+                cb.check();
+            }
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            CompactPCDerived pcd = new CompactPCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                Callback_TestIntf_exchangePBaseICompact1 cb = new Callback_TestIntf_exchangePBaseICompact1();
+                test.begin_exchangePBase(pcd, cb);
+                cb.check();
+            }
+            else
+            {
+                Callback_TestIntf_exchangePBaseICompact2 cb = new Callback_TestIntf_exchangePBaseICompact2();
                 test.begin_exchangePBase(pcd, cb);
                 cb.check();
             }

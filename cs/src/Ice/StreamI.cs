@@ -466,9 +466,9 @@ namespace Ice
             _os.endWriteException();
         }
 
-        public void startSlice(string typeId, bool last)
+        public void startSlice(string typeId, int compactId, bool last)
         {
-            _os.startWriteSlice(typeId, last);
+            _os.startWriteSlice(typeId, compactId, last);
         }
 
         public void endSlice()

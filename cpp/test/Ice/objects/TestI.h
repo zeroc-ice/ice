@@ -113,6 +113,8 @@ public:
 
     virtual Test::BaseSeq opBaseSeq(const Test::BaseSeq&, Test::BaseSeq&, const Ice::Current&);
 
+    virtual Test::CompactPtr getCompact(const Ice::Current&);
+    
 private:
 
     Ice::ObjectAdapterPtr _adapter;

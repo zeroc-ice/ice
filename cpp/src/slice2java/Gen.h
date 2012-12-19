@@ -191,6 +191,15 @@ private:
         bool _stream;
     };
 
+    class CompactIdVisitor : public JavaVisitor
+    {
+    public:
+
+        CompactIdVisitor(const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
     class HolderVisitor : public JavaVisitor
     {
     public:

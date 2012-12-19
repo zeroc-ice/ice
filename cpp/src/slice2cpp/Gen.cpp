@@ -975,7 +975,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
          
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::IceInternal::BasicStream* __os) const";
         C << sb;
-        C << nl << "__os->startWriteSlice(\"" << p->scoped() << "\", " << (!base ? "true" : "false") << ");";
+        C << nl << "__os->startWriteSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
         C << nl << "__os->endWriteSlice();";
         if(base)
@@ -1017,7 +1017,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << sp << nl << "void" << nl << scoped.substr(2) 
               << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
             C << sb;
-            C << nl << "__os->startSlice(\"" << p->scoped() << "\", " << (!base ? "true" : "false") << ");";
+            C << nl << "__os->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
             writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
             C << nl << "__os->endSlice();";
             if(base)
@@ -3863,7 +3863,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "void" << nl << scoped.substr(2)
           << "::__writeImpl(::IceInternal::BasicStream* __os) const";
         C << sb;
-        C << nl << "__os->startWriteSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
+        C << nl << "__os->startWriteSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
         writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
         C << nl << "__os->endWriteSlice();";
         if(base)
@@ -3906,7 +3906,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sp << nl << "void" << nl << scoped.substr(2)
               << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
             C << sb;
-            C << nl << "__os->startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
+            C << nl << "__os->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
             writeMarshalUnmarshalDataMembers(C, p->dataMembers(), p->orderedOptionalDataMembers(), true);
             C << nl << "__os->endSlice();";
             if(base)
@@ -3927,30 +3927,33 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb;
         }
 
-        if(!p->isAbstract())
+        if(!p->isAbstract() || p->compactId() >= 0)
         {
             C << sp << nl << "namespace";
             C << nl << "{";
 
             string factoryName = "__F" + p->flattenedScope() + p->name();
-            C << sp;
-            C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
-            C << sb;
-            C.dec();
-            C << nl << "public:";
-            C.inc();
-            C << sp << nl << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string& type)";
-            C << sb;
-            C << nl << "assert(type == " << scoped << "::ice_staticId());";
-            C << nl << "return new " << scoped << ';';
-            C << eb;
-            C << sp << nl << "virtual void" << nl << "destroy()";
-            C << sb;
-            C << eb;
-            C << eb << ';';
-
             string flatName = factoryName + "_Ptr";
-            C << nl << "const ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
+            if(!p->isAbstract())
+            {
+                C << sp;
+                C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
+                C << sb;
+                C.dec();
+                C << nl << "public:";
+                C.inc();
+                C << sp << nl << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string& type)";
+                C << sb;
+                C << nl << "assert(type == " << scoped << "::ice_staticId());";
+                C << nl << "return new " << scoped << ';';
+                C << eb;
+                C << sp << nl << "virtual void" << nl << "destroy()";
+                C << sb;
+                C << eb;
+                C << eb << ';';
+
+                C << nl << "const ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
+            }
 
             C << sp;
             C << nl << "class " << factoryName << "__Init";
@@ -3960,12 +3963,27 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C.inc();
             C << sp << nl << factoryName << "__Init()";
             C << sb;
-            C << nl << "::IceInternal::factoryTable->addObjectFactory(" << scoped << "::ice_staticId(), "
-              << flatName << ");";
+            if(!p->isAbstract())
+            {
+                C << nl << "::IceInternal::factoryTable->addObjectFactory(" << scoped << "::ice_staticId(), "
+                  << flatName << ");";
+            }
+            if(p->compactId() >= 0)
+            {
+                C << nl << "::IceInternal::factoryTable->addTypeId(" << p->compactId() << ", " 
+                  << scoped << "::ice_staticId());";
+            }
             C << eb;
             C << sp << nl << "~" << factoryName << "__Init()";
             C << sb;
-            C << nl << "::IceInternal::factoryTable->removeObjectFactory(" << scoped << "::ice_staticId());";
+            if(!p->isAbstract())
+            {
+                C << nl << "::IceInternal::factoryTable->removeObjectFactory(" << scoped << "::ice_staticId());";
+            }
+            if(p->compactId() >= 0)
+            {
+                C << nl << "::IceInternal::factoryTable->removeTypeId(" << p->compactId() << ");";
+            }
             C << eb;
             C << eb << ';';
 
@@ -3973,10 +3991,13 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
             C << sp << nl << "}";
 
-            C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
-            C << sb;
-            C << nl << "return " << flatName << ';';
-            C << eb;
+            if(!p->isAbstract())
+            {
+                C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
+                C << sb;
+                C << nl << "return " << flatName << ';';
+                C << eb;
+            }
         }
     }
 

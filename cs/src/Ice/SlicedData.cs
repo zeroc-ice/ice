@@ -36,6 +36,11 @@ namespace Ice
         public string typeId;
 
         /// <summary>
+        /// The Slice compact type ID for this slice.
+        /// </summary>
+        public int compactId;
+
+        /// <summary>
         /// The encoded bytes for this slice, including the leading size integer.
         /// </summary>
         public byte[] bytes;

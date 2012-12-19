@@ -217,9 +217,14 @@ public interface OutputStream
      * Marks the start of a new slice for an Ice object or user exception.
      *
      * @param typeId The Slice type ID corresponding to this slice.
+
+     * @param compactId The Slice compact type ID corresponding to
+     *        this slice or -1 if no compact ID is defined for the
+     *        type ID.
+
      * @param last True if this is the last slice, false otherwise.
      **/
-    void startSlice(String typeId, boolean last);
+    void startSlice(String typeId, int compactId, boolean last);
 
     /**
      * Marks the end of a slice for an Ice object or user exception.

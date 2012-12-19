@@ -80,6 +80,7 @@ private:
 
 const Byte BasicStream::FLAG_HAS_TYPE_ID_STRING    = (1<<0);
 const Byte BasicStream::FLAG_HAS_TYPE_ID_INDEX     = (1<<1);
+const Byte BasicStream::FLAG_HAS_TYPE_ID_COMPACT   = (1<<0) | (1<<1);
 const Byte BasicStream::FLAG_HAS_OPTIONAL_MEMBERS  = (1<<2);
 const Byte BasicStream::FLAG_HAS_INDIRECTION_TABLE = (1<<3);
 const Byte BasicStream::FLAG_HAS_SLICE_SIZE        = (1<<4);
@@ -1966,7 +1967,7 @@ IceInternal::BasicStream::EncapsEncoder::endObject()
         //
         // Write the Object slice.
         //
-        startSlice(Object::ice_staticId(), true);
+        startSlice(Object::ice_staticId(), -1, true);
         _stream->writeSize(0); // For compatibility with the old AFM.
         endSlice();
     }
@@ -1991,7 +1992,7 @@ IceInternal::BasicStream::EncapsEncoder::endException()
 }
 
 void
-IceInternal::BasicStream::EncapsEncoder::startSlice(const string& typeId, bool last)
+IceInternal::BasicStream::EncapsEncoder::startSlice(const string& typeId, int compactId, bool last)
 {
     assert(_indirectionTable.empty() && _indirectionMap.empty());
     _sliceFlags = 0;
@@ -2029,22 +2030,30 @@ IceInternal::BasicStream::EncapsEncoder::startSlice(const string& typeId, bool l
         // 
         if(_encaps->format == SlicedFormat || _encaps->encoding == Encoding_1_0 || _firstSlice)
         {
-            //
-            // If the type ID has already been seen, write the index
-            // of the type ID, otherwise allocate a new type ID and
-            // write the string.
-            //
-            TypeIdWriteMap::const_iterator p = _typeIdMap.find(typeId);
-            if(p != _typeIdMap.end())
+            if(_encaps->encoding != Encoding_1_0 && compactId >= 0)
             {
-                _sliceFlags |= FLAG_HAS_TYPE_ID_INDEX;
-                _stream->writeSize(p->second);
+                _sliceFlags |= FLAG_HAS_TYPE_ID_COMPACT;
+                _stream->writeSize(compactId);
             }
             else
             {
-                _sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
-                _typeIdMap.insert(make_pair(typeId, ++_typeIdIndex));
-                _stream->write(typeId, false);
+                //
+                // If the type ID has already been seen, write the index
+                // of the type ID, otherwise allocate a new type ID and
+                // write the string.
+                //
+                TypeIdWriteMap::const_iterator p = _typeIdMap.find(typeId);
+                if(p != _typeIdMap.end())
+                {
+                    _sliceFlags |= FLAG_HAS_TYPE_ID_INDEX;
+                    _stream->writeSize(p->second);
+                }
+                else
+                {
+                    _sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
+                    _typeIdMap.insert(make_pair(typeId, ++_typeIdIndex));
+                    _stream->write(typeId, false);
+                }
             }
         }
     }
@@ -2218,7 +2227,7 @@ IceInternal::BasicStream::EncapsEncoder::writeSlicedData(const SlicedDataPtr& sl
 
     for(SliceInfoSeq::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
-        startSlice((*p)->typeId, (*p)->isLastSlice);
+        startSlice((*p)->typeId, (*p)->compactId, (*p)->isLastSlice);
  
         //
         // Write the bytes associated with this slice.
@@ -2559,7 +2568,12 @@ IceInternal::BasicStream::EncapsDecoder::startSlice()
     //
     if(_sliceType == ObjectSlice)
     {
-        if(_sliceFlags & FLAG_HAS_TYPE_ID_INDEX)
+        if((_sliceFlags & FLAG_HAS_TYPE_ID_COMPACT) == FLAG_HAS_TYPE_ID_COMPACT) // Must be checked first!
+        {
+            _typeId.clear();
+            _compactId = _stream->readSize();
+        }
+        else if(_sliceFlags & FLAG_HAS_TYPE_ID_INDEX)
         {
             Int index = _stream->readSize();
             TypeIdReadMap::const_iterator k = _typeIdMap.find(index);
@@ -2568,17 +2582,20 @@ IceInternal::BasicStream::EncapsDecoder::startSlice()
                 throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
             _typeId = k->second;
+            _compactId = -1;
         }
         else if(_sliceFlags & FLAG_HAS_TYPE_ID_STRING)
         {
             _stream->read(_typeId, false);
             _typeIdMap.insert(make_pair(++_typeIdIndex, _typeId));
+            _compactId = -1;
         }
         else
         {
             // Only the most derived slice encodes the type ID for the
             // compact format.
             _typeId.clear();
+            _compactId = -1;
         }
     } 
     else
@@ -2774,49 +2791,23 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
         {
             throw NoObjectFactoryException(__FILE__, __LINE__, "", mostDerivedId);
         }
-
-        //
-        // Try to find a factory registered for the specific type.
-        //
-        ObjectFactoryPtr userFactory = servantFactoryManager->find(_typeId);
-        if(userFactory)
+        
+        if(_compactId >= 0)
         {
-            v = userFactory->create(_typeId);
+            _typeId = IceInternal::factoryTable->getTypeId(_compactId);
         }
 
-        //
-        // If that fails, invoke the default factory if one has been
-        // registered.
-        //
-        if(!v)
+        if(!_typeId.empty())
         {
-            userFactory = servantFactoryManager->find("");
-            if(userFactory)
+            v = newInstance(servantFactoryManager, _typeId);
+
+            //
+            // We found a factory, we get out of this loop.
+            //
+            if(v)
             {
-                v = userFactory->create(_typeId);
+                break;
             }
-        }
-
-        //
-        // Last chance: check the table of static factories (i.e.,
-        // automatically generated factories for concrete classes).
-        //
-        if(!v)
-        {
-            ObjectFactoryPtr of = IceInternal::factoryTable->getObjectFactory(_typeId);
-            if(of)
-            {
-                v = of->create(_typeId);
-                assert(v);
-            }
-        }
-
-        //
-        // We found a factory, we get out of this loop.
-        //
-        if(v)
-        {
-            break;
         }
 
         //
@@ -2855,25 +2846,7 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
             // We pass the "::Ice::Object" ID to indicate that this is the
             // last chance to preserve the object.
             //
-            userFactory = servantFactoryManager->find(Object::ice_staticId());
-            if(userFactory)
-            {
-                v = userFactory->create(Object::ice_staticId());
-            }
-
-            //
-            // If that fails, invoke the default factory if one has been
-            // registered.
-            //
-            if(!v)
-            {
-                userFactory = servantFactoryManager->find("");
-                if(userFactory)
-                {
-                    v = userFactory->create(Object::ice_staticId());
-                }
-            }
-
+            v = newInstance(servantFactoryManager, Object::ice_staticId());
             if(!v)
             {
                 v = new UnknownSlicedObject(mostDerivedId);
@@ -2995,6 +2968,7 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
         //
         SliceInfoPtr info = new SliceInfo;
         info->typeId = _typeId;
+        info->compactId = _compactId;
         info->hasOptionalMembers = _sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
         info->isLastSlice = _sliceFlags & FLAG_IS_LAST_SLICE;
         if(info->hasOptionalMembers)
@@ -3064,4 +3038,49 @@ IceInternal::BasicStream::EncapsDecoder::readSlicedData()
     }
 
     return new SlicedData(_slices);
+}
+
+Ice::ObjectPtr
+IceInternal::BasicStream::EncapsDecoder::newInstance(const ObjectFactoryManagerPtr& servantFactoryManager,
+                                                     const string& typeId)
+{
+    Ice::ObjectPtr v;
+
+    //
+    // Try to find a factory registered for the specific type.
+    //
+    ObjectFactoryPtr userFactory = servantFactoryManager->find(typeId);
+    if(userFactory)
+    {
+        v = userFactory->create(typeId);
+    }
+
+    //
+    // If that fails, invoke the default factory if one has been
+    // registered.
+    //
+    if(!v)
+    {
+        userFactory = servantFactoryManager->find("");
+        if(userFactory)
+        {
+            v = userFactory->create(typeId);
+        }
+    }
+
+    //
+    // Last chance: check the table of static factories (i.e.,
+    // automatically generated factories for concrete classes).
+    //
+    if(!v)
+    {
+        ObjectFactoryPtr of = IceInternal::factoryTable->getObjectFactory(typeId);
+        if(of)
+        {
+            v = of->create(typeId);
+            assert(v);
+        }
+    }
+
+    return v;
 }

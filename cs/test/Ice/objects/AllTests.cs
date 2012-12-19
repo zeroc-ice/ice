@@ -244,6 +244,17 @@ public class AllTests : TestCommon.TestApp
         test(retS.Length == 1 && outS.Length == 1);
         WriteLine("ok");
 
+        Write("testing compact ID...");
+        Flush();
+        try
+        {
+            test(initial.getCompact() != null);
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
+        WriteLine("ok");
+
         if(!collocated)
         {
             Write("testing UnexpectedObjectException...");

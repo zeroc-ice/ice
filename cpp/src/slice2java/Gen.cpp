@@ -1367,7 +1367,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     out << sp << nl << "protected void __writeImpl(IceInternal.BasicStream __os)";
     out << sb;
-    out << nl << "__os.startWriteSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
+    out << nl << "__os.startWriteSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     iter = 0;
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
@@ -1422,7 +1422,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     {
         out << sp << nl << "protected void __writeImpl(Ice.OutputStream __outS)";
         out << sb;
-        out << nl << "__outS.startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
+        out << nl << "__outS.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
@@ -2016,9 +2016,12 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
 
     PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
-
+ 
     TypesVisitor typesVisitor(_dir, stream);
     p->visit(&typesVisitor, false);
+
+    CompactIdVisitor compactIdVisitor(_dir);
+    p->visit(&compactIdVisitor, false);
 
     HolderVisitor holderVisitor(_dir, stream);
     p->visit(&holderVisitor, false);
@@ -3278,7 +3281,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         out << sp << nl << "protected void" << nl << "__writeImpl(IceInternal.BasicStream __os)";
         out << sb;
-        out << nl << "__os.startWriteSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
+        out << nl << "__os.startWriteSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
         iter = 0;
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
         {
@@ -3332,7 +3335,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             out << sp << nl << "protected void" << nl << "__writeImpl(Ice.OutputStream __outS)";
             out << sb;
-            out << nl << "__outS.startSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
+            out << nl << "__outS.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
             iter = 0;
             for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
             {
@@ -4138,6 +4141,36 @@ Slice::Gen::TypesVisitor::validateMethod(const OperationList& ops, const std::st
         }
     }
     return true;
+}
+
+Slice::Gen::CompactIdVisitor::CompactIdVisitor(const string& dir) :
+    JavaVisitor(dir)
+{
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    string prefix = getPackagePrefix(p);
+    if(!prefix.empty())
+    {
+        prefix = prefix + ".";
+    }
+    if(p->compactId() >= 0)
+    {
+        ostringstream os;
+        os << prefix << "IceCompactId.TypeId_" << p->compactId();
+        open(os.str(), p->file());
+
+        Output& out = output();
+        out << sp << nl << "public class TypeId_" << p->compactId();
+        out << sb;
+        out << nl << "public final static String typeId = \"" << p->scoped() << "\";";
+        out << eb;
+
+        close();
+    }
+    return false;
 }
 
 Slice::Gen::HolderVisitor::HolderVisitor(const string& dir, bool stream) :

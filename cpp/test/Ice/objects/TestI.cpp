@@ -217,6 +217,12 @@ InitialI::opBaseSeq(const BaseSeq& inSeq, BaseSeq& outSeq, const Ice::Current&)
     return inSeq;
 }
 
+CompactPtr
+InitialI::getCompact(const Ice::Current&)
+{
+    return new CompactExt();
+}
+
 IPtr
 InitialI::getJ(const Ice::Current&)
 {

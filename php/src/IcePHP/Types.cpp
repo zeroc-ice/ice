@@ -2903,7 +2903,8 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         {
             assert(info->base); // All classes have the Ice::Object base type.
             const bool lastSlice = info->base->id == Ice::Object::ice_staticId();
-            os->startSlice(info->id, lastSlice);
+            // TODO: XXX: should be the compactId not -1
+            os->startSlice(info->id, -1, lastSlice);
 
             writeMembers(os, info->members);
             writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.

@@ -41,4 +41,9 @@ class PCDerived3 extends PCDerived2
     Object pcd3;
 };
 
+class CompactPCDerived(57) extends CompactPDerived
+{
+    PBaseSeq pbs;
+};
+
 };

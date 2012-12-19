@@ -111,3 +111,48 @@ IceInternal::FactoryTable::removeObjectFactory(const std::string& t)
     }
 }
 
+//
+// Add a factory to the object factory table.
+//
+void
+IceInternal::FactoryTable::addTypeId(int compactId, const std::string& typeId)
+{
+    IceUtil::Mutex::Lock lock(_m);
+    assert(!typeId.empty() && compactId >= 0);
+    TypeIdTable::iterator i = _typeIdTable.find(compactId);
+    if(i == _typeIdTable.end())
+    {
+        _typeIdTable[compactId] = TypeIdPair(typeId, 1);
+    }
+    else
+    {
+        i->second.second++;
+    }
+}
+
+//
+// Return the type ID for the given compact ID
+//
+std::string
+IceInternal::FactoryTable::getTypeId(int compactId) const
+{
+    IceUtil::Mutex::Lock lock(_m);
+    TypeIdTable::const_iterator i = _typeIdTable.find(compactId);
+    return i != _typeIdTable.end() ? i->second.first : std::string();
+}
+
+void
+IceInternal::FactoryTable::removeTypeId(int compactId)
+{
+    IceUtil::Mutex::Lock lock(_m);
+    TypeIdTable::iterator i = _typeIdTable.find(compactId);
+    if(i != _typeIdTable.end())
+    {
+        if(--i->second.second == 0)
+        {
+            _typeIdTable.erase(i);
+        }
+    }
+}
+
+

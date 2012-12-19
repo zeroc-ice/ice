@@ -79,7 +79,7 @@ public:
     {
         out->startObject(0);
         // ::Test::D
-        out->startSlice("::Test::D", false);
+        out->startSlice("::Test::D", -1, false);
         string s = "test";
         out->write(s);
         IceUtil::Optional<vector<string> > o;
@@ -94,12 +94,12 @@ public:
         out->write(1000, IceUtil::Optional<APtr>(a));
         out->endSlice();
         // ::Test::B
-        out->startSlice(B::ice_staticId(), false);
+        out->startSlice(B::ice_staticId(), -1, false);
         Ice::Int v = 14;
         out->write(v);
         out->endSlice();
         // ::Test::A
-        out->startSlice(A::ice_staticId(), true);
+        out->startSlice(A::ice_staticId(), -1, true);
         out->write(v);
         out->endSlice();
         out->endObject();

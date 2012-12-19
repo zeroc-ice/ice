@@ -92,6 +92,11 @@ class PDerived extends Preserved
     PBase pb;
 };
 
+class CompactPDerived(56) extends Preserved
+{
+    PBase pb;
+};
+
 ["preserve-slice"]
 class PNode
 {
@@ -190,6 +195,11 @@ class PCDerived2 extends PCDerived
 class PCDerived3 extends PCDerived2
 {
     Object pcd3;
+};
+
+class CompactPCDerived(57) extends CompactPDerived
+{
+    PBaseSeq pbs;
 };
 
 class Hidden

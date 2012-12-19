@@ -14,6 +14,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
+#include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>
 #include <Ice/SlicedDataF.h>
@@ -342,10 +343,10 @@ public:
     Ice::Int getReadEncapsSize();
     Ice::EncodingVersion skipEncaps();
 
-    void startWriteSlice(const std::string& typeId, bool last)
+    void startWriteSlice(const std::string& typeId, int compactId, bool last)
     {
         assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
-        _currentWriteEncaps->encoder->startSlice(typeId, last);
+        _currentWriteEncaps->encoder->startSlice(typeId, compactId, last);
     }
     void endWriteSlice()
     {
@@ -889,7 +890,7 @@ private:
     public:
         EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
             _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _traceSlicing(-1), _sliceType(NoSlice),
-            _typeIdIndex(0)
+            _compactId(-1), _typeIdIndex(0)
         {
         } 
 
@@ -927,7 +928,8 @@ private:
         Ice::ObjectPtr readInstance();
         void addPatchEntry(Ice::Int, PatchFunc, void*);
         Ice::SlicedDataPtr readSlicedData();
-        
+        Ice::ObjectPtr newInstance(const IceInternal::ObjectFactoryManagerPtr&, const std::string&);
+
         BasicStream* _stream;
         ReadEncaps* _encaps;
         const bool _sliceObjects;
@@ -945,6 +947,7 @@ private:
         Ice::Byte _sliceFlags;
         Ice::Int _sliceSize;
         std::string _typeId;
+        int _compactId;
         IndirectPatchList _indirectPatchList;
         
         // Encapsulation attributes for object un-marshalling
@@ -972,7 +975,7 @@ private:
         void startException(const Ice::SlicedDataPtr&);
         void endException();
 
-        void startSlice(const std::string&, bool);
+        void startSlice(const std::string&, int, bool);
         void endSlice();
 
         bool writeOpt(Ice::Int tag, Ice::OptionalFormat format)
@@ -1120,6 +1123,7 @@ private:
 
     static const Ice::Byte FLAG_HAS_TYPE_ID_STRING;
     static const Ice::Byte FLAG_HAS_TYPE_ID_INDEX;
+    static const Ice::Byte FLAG_HAS_TYPE_ID_COMPACT;
     static const Ice::Byte FLAG_HAS_OPTIONAL_MEMBERS;
     static const Ice::Byte FLAG_HAS_INDIRECTION_TABLE;
     static const Ice::Byte FLAG_HAS_SLICE_SIZE;

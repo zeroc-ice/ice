@@ -2235,7 +2235,7 @@ public class AllTests
         {
             out.startObject(null);
             // ::Test::D
-            out.startSlice("::Test::D", false);
+            out.startSlice("::Test::D", -1, false);
             String s = "test";
             out.writeString("test");
             out.writeOptional(1, Ice.OptionalFormat.FSize);
@@ -2249,12 +2249,12 @@ public class AllTests
             out.writeObject(a);
             out.endSlice();
             // ::Test::B
-            out.startSlice(B.ice_staticId(), false);
+            out.startSlice(B.ice_staticId(), -1, false);
             int v = 14;
             out.writeInt(v);
             out.endSlice();
             // ::Test::A
-            out.startSlice(A.ice_staticId(), true);
+            out.startSlice(A.ice_staticId(), -1, true);
             out.writeInt(v);
             out.endSlice();
             out.endObject();

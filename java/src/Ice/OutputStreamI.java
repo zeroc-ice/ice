@@ -205,9 +205,9 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
-    startSlice(String typeId, boolean last)
+    startSlice(String typeId, int compactId, boolean last)
     {
-        _os.startWriteSlice(typeId, last);
+        _os.startWriteSlice(typeId, compactId, last);
     }
 
     public void
