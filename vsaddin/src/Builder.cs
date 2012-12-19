@@ -1135,24 +1135,6 @@ namespace Ice.VisualStudio
             {
                 dte.StatusBar.Text = "Ready";
             }
-
-            //
-            // If we are not in CommandLine mode we also update projects
-            // that depend on the project being build.
-            // 
-            if(scope == vsBuildScope.vsBuildScopeProject && 
-               _connectMode != ext_ConnectMode.ext_cm_CommandLine)
-            {
-                List<Project> dependantProjects = new List<Project>();
-                foreach(ProjectItem i in buildItems)
-                {
-                    updateReverseDependencies(i, ref dependantProjects);
-                }
-                foreach(Project p in dependantProjects)
-                {
-                    buildProject(p, force, excludeItem, scope, buildDependencies, ref builded);
-                }
-            }
         }
 
         public bool buildCppProject(Project project, bool force, ref List<ProjectItem> buildedItems)
@@ -1954,44 +1936,6 @@ namespace Ice.VisualStudio
             process.Close();
 
             return true;
-        }
-
-        public void updateReverseDependencies(ProjectItem item, ref List<Project> dependantProjects)
-        {
-            DependenciesMap dependenciesMap = getDependenciesMap();
-            List<Project> projects = Util.buildOrder(_applicationObject.Solution);
-
-            foreach(Project p in projects)
-            {
-                if(p.Equals(item.ContainingProject) || !dependenciesMap.ContainsKey(p.Name) ||
-                   dependantProjects.Contains(p))
-                {
-                    continue;
-                }
-
-                Dictionary<string, List<string>> projectDependencies = dependenciesMap[p.Name];
-                foreach(KeyValuePair<string, List<string>> pair in projectDependencies)
-                {
-                    bool found = false;
-                    foreach(string f in pair.Value)
-                    {
-                        ProjectItem other = Util.findItem(f);
-                        if(item.Equals(other))
-                        {
-                            if(!dependantProjects.Contains(p))
-                            {
-                                dependantProjects.Add(p);
-                                found = true;
-                            }
-                            break;
-                        }
-                    }
-                    if(found)
-                    {
-                        break;
-                    }
-                }
-            }
         }
 
         public void initDocumentEvents()
