@@ -128,6 +128,12 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #ifdef _WIN32
     lib += libName;
 
+    lib += version;
+
+#   if defined(_DEBUG) && !defined(__MINGW32__)
+    lib += 'd';
+#   endif
+
 #   ifdef COMPSUFFIX
     //
     // If using unique dll names we need to add compiler suffix
@@ -138,12 +144,6 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     {
         lib += COMPSUFFIX;
     }
-#   endif
-
-    lib += version;
-
-#   if defined(_DEBUG) && !defined(__MINGW32__)
-    lib += 'd';
 #   endif
 
     lib += ".dll";

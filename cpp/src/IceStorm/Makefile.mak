@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestormservice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 

@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestorm$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icestorm$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 

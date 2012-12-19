@@ -93,7 +93,7 @@ CPP_COMPILER            = VC90
 !endif
 
 #
-# With VC90, we want unique dll names
+# With VC90, we want unique dll names by default
 #
 !if "$(CPP_COMPILER)" == "VC90" && "$(UNIQUE_DLL_NAMES)" == ""
 UNIQUE_DLL_NAMES	= yes
@@ -159,16 +159,16 @@ LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(libsuff)" $(LDFLAGS)
 
 !if "$(UNIQUE_DLL_NAMES)" == "yes"
 !if "$(CPP_COMPILER)" == "VC90"
-COMPSUFFIX	= vc90_
+COMPSUFFIX	= _vc90
 !elseif "$(CPP_COMPILER)" == "VC100"
-COMPSUFFIX	= vc100_
+COMPSUFFIX	= _vc100
 !elseif "$(CPP_COMPILER)" == "VC110"
-COMPSUFFIX  = vc110_
+COMPSUFFIX  = _vc110
 !endif
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
-LIBSUFFIX	= $(LIBSUFFIX)d
+LIBSUFFIX	= d
 RCFLAGS		= -D_DEBUG
 !endif
 
