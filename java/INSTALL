@@ -154,6 +154,17 @@ ProGuard is available here:
 
 Ice for Java has been tested with ProGuard 4.8.
 
+Java Application Bundler
+------------------------
+
+The Java Application Bundler is used to create the OS X application bundle
+for the graphical IceGrid administrative tool (see "IceGrid Administrative
+Console").
+
+The Java Application Bundle is available here:
+
+  http://java.net/projects/appbundler
+
 
 Android
 -------
@@ -214,6 +225,10 @@ two options:
    be present in your CLASSPATH or available at the locations defined
    in config/build.properties.
 
+In OS X you have one more option to create an Application Bundle. The
+Java Application Bundler must be present in your CLASSPATH. After build
+the application bundle will be placed in "lib/IceGrid Admin.app". During
+installation the bundle is copied to the Ice-@ver@/bin subdirectory.
 
 Building Ice for Java
 ---------------------
@@ -430,3 +445,8 @@ IceGridGUI.jar to your CLASSPATH. You can start the console with this
 command:
 
   java IceGridGUI.Main
+
+In OS X there is also an application bundle named "IceGrid Admin" you
+can start the IceGrid Administrative Console by double click the "IceGrid
+Admin" icon from Finder.
+

@@ -776,11 +776,41 @@
         <delete dir="${lib.dir}/dist"/>
     </target>
 
+    <condition property="build-icegridadmin-bundle">
+        <and>
+            <isset property="build-icegridadmin-pro-jar" />
+            <available classname="com.oracle.appbundler.AppBundlerTask" classpath="${env.CLASSPATH}" />
+            <os family="mac"/>
+        </and>
+    </condition>
+
+    <target name="icegridadmin-bundle" depends="icegridadmin-pro-jar" if="build-icegridadmin-bundle">
+        <!-- AppBundleTask available at http://java.net/projects/appbundler -->
+        <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask"/>
+        <bundleapp outputdirectory="${lib.dir}"
+            name="IceGrid Admin"
+            displayname="IceGrid Admin"
+            identifier="com.zeroc.IceGridGUI"
+            icon="${lib.dir}/../resources/icons/icegrid.icns"
+            shortversion="3.5"
+            applicationCategory="public.app-category.utilities"
+            mainclassname="com/javafx/main/Main"
+            copyright="Copyright © 2005-2012 ZeroC, Inc. All rights reserved.">
+            <runtime dir="${env.JAVA_HOME}"/>
+            <classpath file="${lib.dir}/IceGridGUI.jar"/>
+            <option value="-Dapple.laf.useScreenMenuBar=true"/>
+            <option value="-Dcom.apple.macos.use-file-dialog-packages=true"/>
+            <option value="-Dcom.apple.macos.useScreenMenuBar=true"/>
+            <option value="-Xdock:name=IceGrid Admin"/>
+            <option value="-Dcom.apple.mrj.application.apple.menu.about.name=IceGrid Admin"/>
+        </bundleapp>
+    </target>
+
     <target name="compile" depends="ice-compile, icebox-compile, glacier2-compile, icestorm-compile, icegrid-compile, 
                                     freeze-compile, icepatch2-compile, icegridadmin-compile"/>
 
     <target name="dist-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, freeze-jar,
-                                     icepatch2-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
+                                     icepatch2-jar, icegridadmin-plain-jar, icegridadmin-pro-jar, icegridadmin-bundle"/>
 
     <target name="jar" depends="dist-jar, test-jar, test-android-jar"/>
 
@@ -819,6 +849,16 @@
         </copy>
     </target>
 
+    <target name="install-icegridgui-bundle" if="build-icegridadmin-bundle">
+        <mkdir dir="${prefix}/bin"/>
+        <!-- Don't use the copy task, it will lost the folder flags -->
+        <exec executable="cp">
+            <arg value="-rf"/>
+            <arg value="${lib.dir}/IceGrid Admin.app"/>
+            <arg value="${prefix}/bin"/>
+        </exec>
+    </target>
+
     <target name="install-jar">
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
         <copy file="${lib.dir}/Glacier2.jar" todir="${prefix}/lib"/>
@@ -834,7 +874,7 @@
     </target>
 
     <target name="install" depends="dist-jar, install-common, install-jar, install-icegridgui-jar, install-tasks, 
-                                    install-slice">
+                                    install-slice, install-icegridgui-bundle">
     </target>
 
     <target name="clean" depends="config-init">

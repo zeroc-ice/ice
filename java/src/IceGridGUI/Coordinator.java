@@ -189,35 +189,6 @@ public class Coordinator
 
     private class FocusListener implements java.beans.PropertyChangeListener
     {
-        FocusListener()
-        {
-            //
-            // If running in OS X update text component key strokes to use OS X default
-            // key strokes.
-            //
-            if(System.getProperty("os.name").startsWith("Mac OS"))
-            {
-                int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-                JTextComponent.KeyBinding[] defaultBindings = {
-                    new JTextComponent.KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK),
-                                                  javax.swing.text.DefaultEditorKit.copyAction),
-                    new JTextComponent.KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK),
-                                                  javax.swing.text.DefaultEditorKit.pasteAction),
-                    new JTextComponent.KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_X, MENU_MASK),
-                                                  javax.swing.text.DefaultEditorKit.cutAction),
-                    new JTextComponent.KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_A, MENU_MASK),
-                                                  javax.swing.text.DefaultEditorKit.selectAllAction)};
-
-                JTextComponent field = new JTextField();
-
-                Keymap k = field.getKeymap();
-                JTextComponent.loadKeymap(k, defaultBindings, field.getActions());
-
-                field = new JTextArea();
-                k = field.getKeymap();
-                JTextComponent.loadKeymap(k, defaultBindings, field.getActions());
-            }
-        }
         public void propertyChange(java.beans.PropertyChangeEvent e)
         {
             Object o = e.getNewValue();
