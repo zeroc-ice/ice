@@ -729,6 +729,7 @@
              -outjars "${lib.dir}/IceGridGUI.jar"
              -libraryjars ${library.jars}
              -include config/icegridgui.pro
+             -dontnote
         </proguard>
         <delete file="${lib.dir}/IceGridGUItemp.jar" />
 

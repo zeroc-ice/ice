@@ -1,5 +1,7 @@
 # ProGuard configuration options
 
+-dontnote
+
 -keep class HelloApplet
 
 # Preserve all annotations.
