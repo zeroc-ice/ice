@@ -80,9 +80,14 @@
     <property name="class.dir" value="classes${build.suffix}"/>
     <property name="generated.dir" value="generated${build.suffix}"/>
 
-    <!-- Do we build the IceGridAdmin GUI? -->
+    <!-- Do we build the IceGrid Admin graphical tool -->
+    <!-- Currently we build it when the JDK is version 7 and we are not 
+         on Solaris (which does not have JavaFX) -->
     <condition property="build-icegridadmin">
-      <equals arg1="${java.specification.version}" arg2="1.7"/>
+      <and>
+         <equals arg1="${java.specification.version}" arg2="1.7"/>
+         <not><os name="SunOS"/></not>
+      </and>
     </condition>
 
     <!-- We use pathconvert to ensure that ice.top.dir is relative to the path of the build.xml
