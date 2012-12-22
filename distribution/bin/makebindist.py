@@ -59,6 +59,7 @@ thirdParties = [
     "JGoodiesLooks", \
     "JGoodiesForms", \
     "Proguard", \
+    "JavaApplicationBundler"
 ]
 platform = DistUtils.getPlatform(thirdParties)
 
@@ -244,13 +245,7 @@ print "ok"
 #
 # Everything should be clean now, we can create the binary distribution archive
 # 
-print "Archiving " + platform.getPackageName("Ice", version) + ".tar.gz ...",
-sys.stdout.flush()
-os.chdir(buildRootDir)
-tarfile = os.path.join(cwd, platform.getPackageName("Ice", version)) + ".tar.gz"
-os.system("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
-os.chdir(cwd)
-print "ok"
+platform.createArchive(cwd, buildRootDir, version, quiet)
 
 #
 # Done.

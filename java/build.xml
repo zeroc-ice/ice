@@ -797,7 +797,6 @@
             applicationCategory="public.app-category.utilities"
             mainclassname="com/javafx/main/Main"
             copyright="Copyright © 2005-2012 ZeroC, Inc. All rights reserved.">
-            <runtime dir="${env.JAVA_HOME}"/>
             <classpath file="${lib.dir}/IceGridGUI.jar"/>
             <option value="-Dapple.laf.useScreenMenuBar=true"/>
             <option value="-Dcom.apple.macos.use-file-dialog-packages=true"/>

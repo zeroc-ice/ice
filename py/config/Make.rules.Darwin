@@ -20,7 +20,8 @@ ifneq ($(PYTHON_HOME),)
     endif
     PYTHON_LIBS		= -F$(patsubst %/Python.framework/Versions/,%,$(dir $(PYTHON_HOME))) -framework Python
 else
-    PYTHON_HOME		= /System/Library/Frameworks/Python.framework/Versions/Current
+    SDK_BASE_DIR	= /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
+    PYTHON_HOME		= $(SDK_BASE_DIR)/System/Library/Frameworks/Python.framework/Versions/Current
     PYTHON_LIBS		= -framework Python
 endif
 

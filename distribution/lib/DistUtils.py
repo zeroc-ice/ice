@@ -73,6 +73,10 @@ proguard = { \
     'Linux' : '/opt/proguard/lib/proguard.jar', \
 }
 
+javaApplicationBundler = { \
+    'Darwin' : '/opt/appbundler-1.0.jar', \
+}
+
 #
 # Some utility methods
 # 
@@ -734,6 +738,15 @@ class Platform:
     def getMakeOptions(self):
         return ""
 
+    def createArchive(self, cwd, buildRootDir, version, quiet):
+        print "Archiving " + self.getPackageName("Ice", version) + ".tar.gz ...",
+        sys.stdout.flush()
+        os.chdir(buildRootDir)
+        tarfile = os.path.join(cwd, self.getPackageName("Ice", version)) + ".tar.gz"
+        os.system("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
+        os.chdir(cwd)
+        print "ok"
+
 class Darwin(Platform):
     def __init__(self, uname, arch, languages):
         Platform.__init__(self, uname, "osx", None, languages, "", "dylib")
@@ -798,6 +811,46 @@ class Darwin(Platform):
             for f in binFiles:
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
 
+        print "ok"
+
+        print "Fixing IceGrid Admin.app location"
+        move(buildDir + '/bin/IceGrid Admin.app', buildDir + '/../IceGrid Admin.app')
+        print "ok"
+
+    def createArchive(self, cwd, buildRootDir, version, quiet):
+        print "Creating installer...",
+        sys.stdout.flush()
+        if os.path.exists(buildRootDir + "/installer"):
+            shutil.rmtree(buildRootDir + "/installer")
+        os.mkdir(buildRootDir + "/installer")
+
+        pmdoc = os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "Ice.pmdoc")
+        os.system("/Applications/PackageMaker.app/Contents/MacOS/PackageMaker --doc " + pmdoc + " --out " + buildRootDir + 
+                  "/installer/Ice-" + version + ".pkg")
+        copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "readme.rtf"),
+             os.path.join(buildRootDir, "installer"))
+        copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "uninstall.sh"),
+             os.path.join(buildRootDir, "installer"))
+        print "ok"
+
+        volname = "Ice-" + version
+        print "Building disk image... " + volname + " ",
+        sys.stdout.flush()
+
+        if os.path.exists("scratch.dmg.sparseimage"):
+            os.remove("scratch.dmg.sparseimage")
+        os.system("hdiutil create scratch.dmg -volname \"%s\" -type SPARSE -fs HFS+" % volname)
+        os.system("hdid scratch.dmg.sparseimage")
+        os.system("ditto -rsrc %s \"/Volumes/%s\"" % (os.path.join(buildRootDir, "installer"), volname))
+        os.system("hdiutil detach \"/Volumes/%s\"" % volname)
+        if os.path.exists(os.path.join(buildRootDir, "..", volname) + ".dmg"):
+            os.remove(os.path.join(buildRootDir, "..", volname) + ".dmg")
+        os.system("hdiutil convert  scratch.dmg.sparseimage -format UDZO -o %s.dmg -imagekey zlib-devel=9" %
+                  os.path.join(buildRootDir, "..", volname))
+        os.remove("scratch.dmg.sparseimage")
+
+        shutil.rmtree(buildRootDir + "/installer")
+        shutil.rmtree(buildRootDir + "/IceGrid Admin.app")
         print "ok"
 
 class Linux(Platform):
@@ -919,6 +972,11 @@ class Proguard(ThirdParty):
     def __init__(self, platform):
         global proguard
         ThirdParty.__init__(self, platform, "Proguard", proguard, ["java"])
+
+class JavaApplicationBundler(ThirdParty):
+    def __init__(self, platform):
+        global javaApplicationBundler
+        ThirdParty.__init__(self, platform, "JavaApplicationBundler", javaApplicationBundler, ["java"])
 
 
 platform = None
