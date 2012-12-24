@@ -127,7 +127,6 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef _WIN32
     lib += libName;
-
     lib += version;
 
 #   if defined(_DEBUG) && !defined(__MINGW32__)
@@ -135,15 +134,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #   endif
 
 #   ifdef COMPSUFFIX
-    //
-    // If using unique dll names we need to add compiler suffix
-    // to IceSSL so that we do not have to use compiler suffix
-    // in the configuration.
-    //
-    if(IceUtilInternal::toLower(libName) == "icessl")
-    {
-        lib += COMPSUFFIX;
-    }
+    lib += COMPSUFFIX;
 #   endif
 
     lib += ".dll";
