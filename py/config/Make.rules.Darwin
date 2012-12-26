@@ -27,9 +27,9 @@ endif
 
 PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
 
-CXX	                = c++
+CXX	                = xcrun clang++
 
-CXXFLAGS		= -ftemplate-depth-128 -Wall -D_REENTRANT
+CXXFLAGS		= -Wall -Werror -D_REENTRANT
 
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)

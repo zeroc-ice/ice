@@ -31,12 +31,13 @@ IceGrid::AdminCallbackRouter::addMapping(const string& category, const Connectio
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
-#ifndef NDEBUG
+#ifdef NDEBUG
+    _categoryToConnection.insert(map<string, ConnectionPtr>::value_type(category, con));
+#else
     bool inserted =
-#endif
         _categoryToConnection.insert(map<string, ConnectionPtr>::value_type(category, con)).second;
-    
     assert(inserted == true);
+#endif
 }
 
 void

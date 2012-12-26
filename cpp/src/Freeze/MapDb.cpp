@@ -228,11 +228,13 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
                     throw DatabaseException(__FILE__, __LINE__, message);
                 }
                 
-#ifndef NDEBUG
+#ifdef NDEBUG
+		_indices.insert(IndexMap::value_type(indexBase->name(), indexI.get()));
+#else
                 bool inserted = 
-#endif
                     _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
                 assert(inserted);
+#endif
                 
                 indexBase->_impl = indexI.release();
                 

@@ -13,7 +13,7 @@
 
 CXX			= xcrun clang++
 
-CXXFLAGS		= -Wall -D_REENTRANT
+CXXFLAGS		= -Wall -Werror -D_REENTRANT
 
 ifeq ($(OPTIMIZE),yes)
      #
@@ -96,8 +96,7 @@ endif
 #
 # Avoid OpenSSL deprecation warnings on OS X
 #
-NO_DEPRECATED_FLAGS 	= -Wno-deprecated-declarations
-OPENSSL_FLAGS   	= $(NO_DEPRECATED_FLAGS)
+OPENSSL_FLAGS   	= -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_6
 
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)

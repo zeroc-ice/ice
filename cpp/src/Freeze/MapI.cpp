@@ -1030,11 +1030,14 @@ Freeze::MapHelperI::MapHelperI(const ConnectionIPtr& connection,
         assert(indexBase->_communicator == _connection->communicator());
         assert(indexBase->_map == 0);
         
-#ifndef NDEBUG
+#ifdef NDEBUG
+	_indices.insert(IndexMap::value_type(indexBase->name(), indexBase));
+#else
         bool inserted =
-#endif 
             _indices.insert(IndexMap::value_type(indexBase->name(), indexBase)).second;
         assert(inserted);
+#endif
+
         indexBase->_map = this;
     }
     
