@@ -482,6 +482,11 @@ char *yytext;
 #   pragma warning( 4 : 4244 )
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic warning "-Wunused-function"
+#endif
+
+
 using namespace std;
 using namespace Ice;
 
@@ -505,7 +510,7 @@ using namespace Ice;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
-#line 508 "lex.yy.c"
+#line 513 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -594,7 +599,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO fwrite( yytext, yyleng, 1, yyout )
+#define ECHO do { if (fwrite( yytext, yyleng, 1, yyout )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -605,7 +610,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		unsigned n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -687,10 +692,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 62 "Scanner.l"
+#line 67 "Scanner.l"
 
 
-#line 693 "lex.yy.c"
+#line 698 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -771,7 +776,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 64 "Scanner.l"
+#line 69 "Scanner.l"
 {
     *yylvalp = new Complex::NumberNodeI(atoi(yytext));
     return TOK_NUMBER;
@@ -779,20 +784,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 69 "Scanner.l"
+#line 74 "Scanner.l"
 /* eat whitespace */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 71 "Scanner.l"
+#line 76 "Scanner.l"
 { return *yytext; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 73 "Scanner.l"
+#line 78 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 795 "lex.yy.c"
+#line 800 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1787,7 +1792,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 73 "Scanner.l"
+#line 78 "Scanner.l"
 
 
 

@@ -22,6 +22,13 @@
 #   undef max
 #endif
 
+//
+// Work-around for GCC warning bug
+//
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 using namespace std;
 
 namespace

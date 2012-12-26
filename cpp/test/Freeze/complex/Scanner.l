@@ -27,6 +27,11 @@
 #   pragma warning( 4 : 4244 )
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic warning "-Wunused-function"
+#endif
+
+
 using namespace std;
 using namespace Ice;
 

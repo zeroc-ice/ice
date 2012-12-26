@@ -54,7 +54,7 @@ extern "C"
 static PyObject*
 endpointCompare(EndpointObject* p1, PyObject* other, int op)
 {
-    bool result;
+    bool result = false;
 
     if(PyObject_TypeCheck(other, &EndpointType))
     {

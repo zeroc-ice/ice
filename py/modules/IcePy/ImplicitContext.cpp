@@ -63,7 +63,7 @@ extern "C"
 static PyObject*
 implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
 {
-    bool result;
+    bool result = false;
 
     if(PyObject_TypeCheck(other, &ImplicitContextType))
     {

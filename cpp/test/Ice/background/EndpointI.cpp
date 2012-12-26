@@ -18,6 +18,10 @@
 #pragma warning( disable : 4996 )
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace std;
 
 Ice::Short EndpointI::TYPE_BASE = 100;

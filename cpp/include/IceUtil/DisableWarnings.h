@@ -11,7 +11,7 @@
 #define ICE_UTIL_DISABLEWARNINGS_H
 
 //
-// This header file disables various annoying compiler warnings that
+// This header file disables or makes non-fatal various compiler warnings that
 // we don't want.
 //
 // IMPORTANT: Do *not* include this header file in another public header file!
@@ -20,6 +20,9 @@
 //            header file in Ice *source* files!
 //
 
+//
+// Microsoft Visual C++
+//
 #if defined(_MSC_VER)
 #    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated/
 #    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
@@ -29,5 +32,14 @@
 #       pragma warning( 4 : 4355 ) // C4355 'this' : used in base member initializer list
 #    endif
 #endif
+
+
+//
+// GCC
+//
+#if defined(__GNUC__)
+#   pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#endif
+
 
 #endif

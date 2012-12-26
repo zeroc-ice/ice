@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Proxy.h>
 #include <Communicator.h>
 #include <Connection.h>
@@ -16,6 +17,7 @@
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
 #include <Ice/Router.h>
+
 
 using namespace std;
 using namespace IceRuby;

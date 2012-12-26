@@ -96,7 +96,7 @@ extern "C"
 static PyObject*
 proxyCompare(ProxyObject* p1, PyObject* other, int op)
 {
-    bool result;
+    bool result = false;
 
     if(PyObject_TypeCheck(other, &ProxyType))
     {

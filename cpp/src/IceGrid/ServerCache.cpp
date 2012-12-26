@@ -561,7 +561,7 @@ ServerEntry::syncImpl()
     SessionIPtr session;
     ServerInfo destroy;
     int timeout = -1;
-    bool noRestart;
+    bool noRestart = false;
 
     {
         Lock sync(*this);

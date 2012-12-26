@@ -17,6 +17,10 @@
 #pragma warning( disable : 4996 )
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace std;
 using namespace Test;
 

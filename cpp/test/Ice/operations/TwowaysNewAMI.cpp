@@ -11,6 +11,13 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+//
+// Work-around for GCC warning bug
+//
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 using namespace std;
 
 namespace

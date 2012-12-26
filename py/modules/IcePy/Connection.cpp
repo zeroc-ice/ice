@@ -72,7 +72,7 @@ extern "C"
 static PyObject*
 connectionCompare(ConnectionObject* c1, PyObject* other, int op)
 {
-    bool result;
+    bool result = false;
 
     if(PyObject_TypeCheck(other, &ConnectionType))
     {
