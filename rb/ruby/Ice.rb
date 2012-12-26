@@ -100,7 +100,7 @@ module Ice
         end
     end
 
-    T_Object.defineClass(nil, true, false, nil, [], [])
+    T_Object.defineClass(nil, -1, true, false, nil, [], [])
     Object_mixin::ICE_TYPE = T_Object
 
     T_ObjectPrx.defineProxy(ObjectPrx, T_Object)
@@ -110,7 +110,7 @@ module Ice
     # LocalObject.
     #
     T_LocalObject = Ice.__declareLocalClass('::Ice::LocalObject')
-    T_LocalObject.defineClass(nil, true, false, nil, [], [])
+    T_LocalObject.defineClass(nil, -1, true, false, nil, [], [])
 
     #
     # UnknownSlicedObject.
@@ -121,7 +121,7 @@ module Ice
         attr_accessor :unknownTypeId
     end
     T_UnknownSlicedObject = Ice.__declareClass('::Ice::UnknownSlicedObject')
-    T_UnknownSlicedObject.defineClass(UnknownSlicedObject, false, true, nil, [], [])
+    T_UnknownSlicedObject.defineClass(UnknownSlicedObject, -1, false, true, nil, [], [])
     UnknownSlicedObject::ICE_TYPE = T_UnknownSlicedObject
 
     #

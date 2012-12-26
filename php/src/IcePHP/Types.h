@@ -383,7 +383,7 @@ public:
 
     ClassInfo(const std::string& TSRMLS_DC);
 
-    void define(const std::string&, bool, bool, zval*, zval*, zval* TSRMLS_DC);
+    void define(const std::string&, Ice::Int, bool, bool, zval*, zval*, zval* TSRMLS_DC);
 
     virtual std::string getId() const;
 
@@ -412,6 +412,7 @@ public:
 
     const std::string id;
     const std::string name; // PHP class name
+    const Ice::Int compactId;
     const bool isAbstract;
     const bool preserve;
     const ClassInfoPtr base;
@@ -579,6 +580,21 @@ private:
     ExceptionInfoPtr _info;
     zval* _ex;
     Ice::SlicedDataPtr _slicedData;
+#if ZTS
+    TSRMLS_D;
+#endif
+};
+
+class IdResolver : public Ice::CompactIdResolver
+{
+public:
+
+    IdResolver(TSRMLS_D);
+
+    virtual std::string resolve(Ice::Int) const;
+
+private:
+
 #if ZTS
     TSRMLS_D;
 #endif

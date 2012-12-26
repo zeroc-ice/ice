@@ -324,6 +324,23 @@ class Callback(CallbackBase):
         test(r.pcd3 == r.pbs[10])
         self.called()
 
+    def response_compactPreserved1(self, r):
+        #
+        # Encoding 1.0
+        #
+        test(not isinstance(r, Test.CompactPCDerived))
+        test(r.pi == 3)
+        self.called()
+
+    def response_compactPreserved2(self, r):
+        #
+        # Encoding > 1.0
+        #
+        test(isinstance(r, Test.CompactPCDerived))
+        test(r.pi == 3)
+        test(r.pbs[0] == r)
+        self.called()
+
     def response(self):
         test(False)
 
@@ -1490,6 +1507,23 @@ def allTests(communicator):
         test(r.pbs[0] == r)
 
     #
+    # Server only knows the intermediate type CompactPDerived. The object will be sliced to
+    # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+    #
+    pcd = Test.CompactPCDerived()
+    pcd.pi = 3
+    pcd.pbs = [ pcd ]
+
+    r = t.exchangePBase(pcd)
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        test(not isinstance(r, Test.CompactPCDerived))
+        test(r.pi == 3)
+    else:
+        test(isinstance(r, Test.CompactPCDerived))
+        test(r.pi == 3)
+        test(r.pbs[0] == r)
+
+    #
     # Send an object that will have multiple preserved slices in the server.
     # The object will be sliced to Preserved for the 1.0 encoding.
     #
@@ -1577,6 +1611,21 @@ def allTests(communicator):
         t.begin_exchangePBase(pcd, cb.response_preserved3, cb.exception)
     else:
         t.begin_exchangePBase(pcd, cb.response_preserved4, cb.exception)
+    cb.check()
+
+    #
+    # Server only knows the intermediate type CompactPDerived. The object will be sliced to
+    # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+    #
+    pcd = Test.CompactPCDerived()
+    pcd.pi = 3
+    pcd.pbs = [ pcd ]
+
+    cb = Callback()
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        t.begin_exchangePBase(pcd, cb.response_compactPreserved1, cb.exception)
+    else:
+        t.begin_exchangePBase(pcd, cb.response_compactPreserved2, cb.exception)
     cb.check()
 
     #

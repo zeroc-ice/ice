@@ -20,6 +20,7 @@
 #include <Ice/SlicedDataF.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/StreamHelpers.h>
+#include <Ice/FactoryTable.h>
 
 namespace Ice
 {
@@ -947,7 +948,7 @@ private:
         Ice::Byte _sliceFlags;
         Ice::Int _sliceSize;
         std::string _typeId;
-        int _compactId;
+        Ice::Int _compactId;
         IndirectPatchList _indirectPatchList;
         
         // Encapsulation attributes for object un-marshalling

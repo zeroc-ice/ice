@@ -48,6 +48,7 @@ static void handleExceptionInfoFreeStorage(void* TSRMLS_DC);
 
 typedef map<string, ProxyInfoPtr> ProxyInfoMap;
 typedef map<string, ClassInfoPtr> ClassInfoMap;
+typedef map<Ice::Int, ClassInfoPtr> CompactIdMap;
 typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
 
 //
@@ -400,6 +401,18 @@ IcePHP::SlicedDataUtil::setMember(zval* obj, const Ice::SlicedDataPtr& slicedDat
         }
 
         //
+        // compactId
+        //
+        zval* compactId;
+        MAKE_STD_ZVAL(compactId);
+        AutoDestroy compactIdDestroyer(compactId);
+        ZVAL_LONG(compactId, (*p)->compactId);
+        if(add_property_zval(slice, STRCAST("compactId"), compactId) != SUCCESS)
+        {
+            throw AbortMarshaling();
+        }
+
+        //
         // bytes
         //
         zval* bytes;
@@ -439,6 +452,30 @@ IcePHP::SlicedDataUtil::setMember(zval* obj, const Ice::SlicedDataPtr& slicedDat
             assert(Z_TYPE_P(o) == IS_OBJECT); // Should be non-nil.
             add_next_index_zval(objects, o); // Steals a reference.
             Z_ADDREF_P(o);
+        }
+
+        //
+        // hasOptionalMembers
+        //
+        zval* hasOptionalMembers;
+        MAKE_STD_ZVAL(hasOptionalMembers);
+        AutoDestroy hasOptionalMembersDestroyer(hasOptionalMembers);
+        ZVAL_BOOL(hasOptionalMembers, (*p)->hasOptionalMembers ? 1 : 0);
+        if(add_property_zval(slice, STRCAST("hasOptionalMembers"), hasOptionalMembers) != SUCCESS)
+        {
+            throw AbortMarshaling();
+        }
+
+        //
+        // isLastSlice
+        //
+        zval* isLastSlice;
+        MAKE_STD_ZVAL(isLastSlice);
+        AutoDestroy isLastSliceDestroyer(isLastSlice);
+        ZVAL_BOOL(isLastSlice, (*p)->isLastSlice ? 1 : 0);
+        if(add_property_zval(slice, STRCAST("isLastSlice"), isLastSlice) != SUCCESS)
+        {
+            throw AbortMarshaling();
         }
     }
 
@@ -506,6 +543,15 @@ IcePHP::SlicedDataUtil::getMember(zval* obj, ObjectMap* objectMap TSRMLS_DC)
 #ifndef NDEBUG
                 status =
 #endif
+                zend_hash_find(Z_OBJPROP_P(s), STRCAST("compactId"), sizeof("compactId"), &data);
+                assert(status == SUCCESS);
+                zval* compactId = *(reinterpret_cast<zval**>(data));
+                assert(Z_TYPE_P(compactId) == IS_LONG);
+                info->compactId = Z_LVAL_P(compactId);
+
+#ifndef NDEBUG
+                status =
+#endif
                 zend_hash_find(Z_OBJPROP_P(s), STRCAST("bytes"), sizeof("bytes"), &data);
                 assert(status == SUCCESS);
                 zval* bytes = *(reinterpret_cast<zval**>(data));
@@ -557,6 +603,24 @@ IcePHP::SlicedDataUtil::getMember(zval* obj, ObjectMap* objectMap TSRMLS_DC)
                     info->objects.push_back(writer);
                     zend_hash_move_forward_ex(oarr, &opos);
                 }
+
+#ifndef NDEBUG
+                status =
+#endif
+                zend_hash_find(Z_OBJPROP_P(s), STRCAST("hasOptionalMembers"), sizeof("hasOptionalMembers"), &data);
+                assert(status == SUCCESS);
+                zval* hasOptionalMembers = *(reinterpret_cast<zval**>(data));
+                assert(Z_TYPE_P(hasOptionalMembers) == IS_BOOL);
+                info->hasOptionalMembers = Z_BVAL_P(hasOptionalMembers) ? true : false;
+
+#ifndef NDEBUG
+                status =
+#endif
+                zend_hash_find(Z_OBJPROP_P(s), STRCAST("isLastSlice"), sizeof("isLastSlice"), &data);
+                assert(status == SUCCESS);
+                zval* isLastSlice = *(reinterpret_cast<zval**>(data));
+                assert(Z_TYPE_P(isLastSlice) == IS_BOOL);
+                info->isLastSlice = Z_BVAL_P(isLastSlice) ? true : false;
 
                 slices.push_back(info);
                 zend_hash_move_forward_ex(arr, &pos);
@@ -2388,14 +2452,15 @@ IcePHP::DictionaryInfo::destroy()
 // ClassInfo implementation.
 //
 IcePHP::ClassInfo::ClassInfo(const string& ident TSRMLS_DC) :
-    id(ident), isAbstract(false), preserve(false), zce(0), defined(false)
+    id(ident), compactId(-1), isAbstract(false), preserve(false), zce(0), defined(false)
 {
 }
 
 void
-IcePHP::ClassInfo::define(const string& n, bool isAbs, bool pres, zval* b, zval* i, zval* m TSRMLS_DC)
+IcePHP::ClassInfo::define(const string& n, Ice::Int compact, bool isAbs, bool pres, zval* b, zval* i, zval* m TSRMLS_DC)
 {
     const_cast<string&>(name) = n;
+    const_cast<Ice::Int&>(compactId) = static_cast<Ice::Int>(compact);
     const_cast<bool&>(isAbstract) = isAbs;
     const_cast<bool&>(preserve) = pres;
 
@@ -2903,8 +2968,7 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         {
             assert(info->base); // All classes have the Ice::Object base type.
             const bool lastSlice = info->base->id == Ice::Object::ice_staticId();
-            // TODO: XXX: should be the compactId not -1
-            os->startSlice(info->id, -1, lastSlice);
+            os->startSlice(info->id, info->compactId, lastSlice);
 
             writeMembers(os, info->members);
             writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
@@ -3366,6 +3430,31 @@ IcePHP::ExceptionReader::getSlicedData() const
     return _slicedData;
 }
 
+//
+// IdResolver
+//
+IcePHP::IdResolver::IdResolver(TSRMLS_D)
+{
+#ifdef ZTS
+    this->TSRMLS_C = TSRMLS_C;
+#endif
+}
+
+string
+IcePHP::IdResolver::resolve(Ice::Int id) const
+{
+    CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
+    if(m)
+    {
+        CompactIdMap::iterator p = m->find(id);
+        if(p != m->end())
+        {
+            return p->second->id;
+        }
+    }
+    return string();
+}
+
 #ifdef _WIN32
 extern "C"
 #endif
@@ -3573,14 +3662,15 @@ ZEND_FUNCTION(IcePHP_defineClass)
     int idLen;
     char* name;
     int nameLen;
+    long compactId;
     zend_bool isAbstract;
     zend_bool preserve;
     zval* base;
     zval* interfaces;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ssbbo!a!a!"), &id, &idLen, &name, &nameLen,
-                             &isAbstract, &preserve, &base, &interfaces, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sslbbo!a!a!"), &id, &idLen, &name, &nameLen,
+                             &compactId, &isAbstract, &preserve, &base, &interfaces, &members) == FAILURE)
     {
         return;
     }
@@ -3592,8 +3682,17 @@ ZEND_FUNCTION(IcePHP_defineClass)
         addClassInfoById(type TSRMLS_CC);
     }
 
-    type->define(name, isAbstract ? true : false, preserve ? true : false, base, interfaces, members TSRMLS_CC);
+    type->define(name, static_cast<Ice::Int>(compactId), isAbstract ? true : false, preserve ? true : false, base,
+                 interfaces, members TSRMLS_CC);
     addClassInfoByName(type TSRMLS_CC);
+
+    CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
+    if(!m)
+    {
+        m = new CompactIdMap;
+        ICE_G(compactIdToClassInfoMap) = m;
+    }
+    m->insert(CompactIdMap::value_type(type->compactId, type));
 
     if(!createTypeInfo(return_value, type TSRMLS_CC))
     {

@@ -793,7 +793,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     DataMemberList members = p->dataMembers();
-    _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", ";
+    _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", " << p->compactId()
+         << ", ";
     writeMetaData(p->getMetaData());
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << ", " << (isAbstract ? "True" : "False") << ", " << (preserved ? "True" : "False") << ", ";

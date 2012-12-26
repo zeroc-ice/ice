@@ -13,6 +13,7 @@
 #include <ObjectFactory.h>
 #include <Properties.h>
 #include <Proxy.h>
+#include <Types.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
@@ -125,6 +126,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         //
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
+
+        data.compactIdResolver = new IdResolver;
 
         if(hasArgs)
         {

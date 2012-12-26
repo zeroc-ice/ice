@@ -116,6 +116,15 @@ zend_function_entry ice_functions[] =
     {0, 0, 0}
 };
 
+//
+// The ice_module_entry declaration below generates lots of warnings:
+//
+// deprecated conversion from string constant to ‘char*’
+//
+// We disable them with a pragma.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 zend_module_entry ice_module_entry =
 {
     STANDARD_MODULE_HEADER,

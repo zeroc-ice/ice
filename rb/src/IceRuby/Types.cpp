@@ -39,6 +39,9 @@ static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;
 typedef map<string, ClassInfoPtr> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
+typedef map<Ice::Int, ClassInfoPtr> CompactIdMap;
+static CompactIdMap _compactIdMap;
+
 typedef map<string, ProxyInfoPtr> ProxyInfoMap;
 static ProxyInfoMap _proxyInfoMap;
 
@@ -270,6 +273,12 @@ IceRuby::SlicedDataUtil::setMember(VALUE obj, const Ice::SlicedDataPtr& slicedDa
         callRuby(rb_iv_set, slice, "@typeId", typeId);
 
         //
+        // compactId
+        //
+        volatile VALUE compactId = INT2FIX((*p)->compactId);
+        callRuby(rb_iv_set, slice, "@compactId", compactId);
+
+        //
         // bytes
         //
         volatile VALUE bytes = callRuby(rb_str_new, reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
@@ -294,6 +303,16 @@ IceRuby::SlicedDataUtil::setMember(VALUE obj, const Ice::SlicedDataPtr& slicedDa
             assert(o != Qnil); // Should be non-nil.
             RARRAY_PTR(objects)[j++] = o;
         }
+
+        //
+        // hasOptionalMembers
+        //
+        callRuby(rb_iv_set, slice, "@hasOptionalMembers", (*p)->hasOptionalMembers ? Qtrue : Qfalse);
+
+        //
+        // isLastSlice
+        //
+        callRuby(rb_iv_set, slice, "@isLastSlice", (*p)->isLastSlice ? Qtrue : Qfalse);
     }
 
     callRuby(rb_iv_set, obj, "@_ice_slicedData", sd);
@@ -332,6 +351,9 @@ IceRuby::SlicedDataUtil::getMember(VALUE obj, ObjectMap* objectMap)
                 volatile VALUE typeId = callRuby(rb_iv_get, s, "@typeId");
                 info->typeId = getString(typeId);
 
+                volatile VALUE compactId = callRuby(rb_iv_get, s, "@compactId");
+                info->compactId = static_cast<Ice::Int>(getInteger(compactId));
+
                 volatile VALUE bytes = callRuby(rb_iv_get, s, "@bytes");
                 assert(TYPE(bytes) == T_STRING);
                 const char* str = RSTRING_PTR(bytes);
@@ -365,6 +387,12 @@ IceRuby::SlicedDataUtil::getMember(VALUE obj, ObjectMap* objectMap)
 
                     info->objects.push_back(writer);
                 }
+
+                volatile VALUE hasOptionalMembers = callRuby(rb_iv_get, s, "@hasOptionalMembers");
+                info->hasOptionalMembers = hasOptionalMembers == Qtrue;
+
+                volatile VALUE isLastSlice = callRuby(rb_iv_get, s, "@isLastSlice");
+                info->isLastSlice = isLastSlice == Qtrue;
 
                 slices.push_back(info);
             }
@@ -1879,7 +1907,8 @@ IceRuby::DictionaryInfo::destroy()
 // ClassInfo implementation.
 //
 IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
-    isBase(false), isLocal(loc), isAbstract(false), preserve(false), rubyClass(Qnil), typeObj(Qnil), defined(false)
+    compactId(-1), isBase(false), isLocal(loc), isAbstract(false), preserve(false), rubyClass(Qnil), typeObj(Qnil),
+    defined(false)
 {
     const_cast<string&>(id) = getString(ident);
     if(isLocal)
@@ -1894,7 +1923,7 @@ IceRuby::ClassInfo::ClassInfo(VALUE ident, bool loc) :
 }
 
 void
-IceRuby::ClassInfo::define(VALUE t, VALUE abstr, VALUE pres, VALUE b, VALUE i, VALUE m)
+IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE abstr, VALUE pres, VALUE b, VALUE i, VALUE m)
 {
     if(!NIL_P(b))
     {
@@ -1902,6 +1931,7 @@ IceRuby::ClassInfo::define(VALUE t, VALUE abstr, VALUE pres, VALUE b, VALUE i, V
         assert(base);
     }
 
+    const_cast<Ice::Int&>(compactId) = static_cast<Ice::Int>(getInteger(compact));
     const_cast<bool&>(isAbstract) = RTEST(abstr);
     const_cast<bool&>(preserve) = RTEST(pres);
 
@@ -2387,8 +2417,7 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         ClassInfoPtr info = _info;
         while(info)
         {
-            // TODO: XXX: should be the compactId not -1
-            os->startSlice(info->id, -1, !info->base);
+            os->startSlice(info->id, info->compactId, !info->base);
 
             writeMembers(os, info->members);
             writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
@@ -2547,6 +2576,7 @@ IceRuby::InfoMapDestroyer::~InfoMapDestroyer()
             p->second->destroy();
         }
     }
+    _compactIdMap.clear();
     _exceptionInfoMap.clear();
 }
 
@@ -2759,6 +2789,20 @@ IceRuby::ExceptionReader::getSlicedData() const
     return _slicedData;
 }
 
+//
+// IdResolver
+//
+string
+IceRuby::IdResolver::resolve(Ice::Int id) const
+{
+    CompactIdMap::iterator p = _compactIdMap.find(id);
+    if(p != _compactIdMap.end())
+    {
+        return p->second->id;
+    }
+    return string();
+}
+
 extern "C"
 VALUE
 IceRuby_defineEnum(VALUE /*self*/, VALUE id, VALUE type, VALUE enumerators)
@@ -2932,15 +2976,22 @@ IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE classInfo)
 
 extern "C"
 VALUE
-IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE isAbstract, VALUE preserve, VALUE base, VALUE interfaces,
-                             VALUE members)
+IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE isAbstract, VALUE preserve, VALUE base,
+                             VALUE interfaces, VALUE members)
 {
     ICE_RUBY_TRY
     {
         ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(self));
         assert(info);
 
-        info->define(type, isAbstract, preserve, base, interfaces, members);
+        info->define(type, compactId, isAbstract, preserve, base, interfaces, members);
+
+        CompactIdMap::iterator q = _compactIdMap.find(info->compactId);
+        if(q != _compactIdMap.end())
+        {
+            _compactIdMap.erase(q);
+        }
+        _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -3043,7 +3094,7 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
     rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 5);
 
-    rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 6);
+    rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 7);
     rb_define_method(_typeInfoClass, "defineProxy", CAST_METHOD(IceRuby_TypeInfo_defineProxy), 2);
 
     rb_define_module_function(iceModule, "__stringify", CAST_METHOD(IceRuby_stringify), 2);

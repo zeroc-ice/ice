@@ -934,6 +934,27 @@ function allTests($communicator)
         }
 
         //
+        // Server only knows the intermediate type CompactPDerived. The object will be sliced to
+        // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+        //
+        $pcd = $NS ? eval("return new Test\\CompactPCDerived;") : eval("return new Test_CompactPCDerived;");
+        $pcd->pi = 3;
+        $pcd->pbs = array($pcd);
+
+        $r = $test->exchangePBase($pcd);
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(get_class($r) != ($NS ? "Test\\CompactPCDerived" : "Test_CompactPCDerived"));
+            test($r->pi == 3);
+        }
+        else
+        {
+            test(get_class($r) == ($NS ? "Test\\CompactPCDerived" : "Test_CompactPCDerived"));
+            test($r->pi == 3);
+            test($r->pbs[0] === $r); // Object identity comparison
+        }
+
+        //
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //

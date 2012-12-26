@@ -86,6 +86,11 @@ class PDerived extends Preserved
     PBase pb;
 };
 
+class CompactPDerived(56) extends Preserved
+{
+    PBase pb;
+};
+
 ["preserve-slice"]
 class PNode
 {
@@ -156,3 +161,4 @@ interface TestIntf
 };
 
 };
+

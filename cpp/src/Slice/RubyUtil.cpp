@@ -605,8 +605,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     bool isAbstract = p->isInterface() || p->allOperations().size() > 0; // Don't use isAbstract() here - see bug 3739
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << (isAbstract ? "true" : "false") << ", "
-         << (preserved ? "true" : "false") << ", ";
+    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
+         << (isAbstract ? "true" : "false") << ", " << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "nil";

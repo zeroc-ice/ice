@@ -731,6 +731,24 @@ def allTests(communicator)
     end
 
     #
+    # Server only knows the intermediate type CompactPDerived. The object will be sliced to
+    # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+    #
+    pcd = Test::CompactPCDerived.new()
+    pcd.pi = 3
+    pcd.pbs = [ pcd ]
+
+    r = t.exchangePBase(pcd)
+    if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+        test(!r.is_a?(Test::CompactPCDerived))
+        test(r.pi == 3)
+    else
+        test(r.is_a?(Test::CompactPCDerived))
+        test(r.pi == 3)
+        test(r.pbs[0] == r)
+    end
+
+    #
     # Send an object that will have multiple preserved slices in the server.
     # The object will be sliced to PDerived for the 1.0 encoding.
     #

@@ -404,7 +404,7 @@ public:
 
     ClassInfo(const std::string&);
 
-    void define(PyObject*, bool, bool, PyObject*, PyObject*, PyObject*);
+    void define(PyObject*, int, bool, bool, PyObject*, PyObject*, PyObject*);
 
     virtual std::string getId() const;
 
@@ -427,6 +427,7 @@ public:
     void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     const std::string id;
+    const Ice::Int compactId;
     const bool isAbstract;
     const bool preserve;
     const ClassInfoPtr base;
@@ -597,6 +598,13 @@ private:
     ExceptionInfoPtr _info;
     PyObjectHandle _ex;
     Ice::SlicedDataPtr _slicedData;
+};
+
+class IdResolver : public Ice::CompactIdResolver
+{
+public:
+
+    virtual ::std::string resolve(Ice::Int) const;
 };
 
 ClassInfoPtr lookupClassInfo(const std::string&);

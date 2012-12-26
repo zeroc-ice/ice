@@ -27,7 +27,7 @@ struct ICE_API SliceInfo : public ::IceUtil::Shared
     ::std::string typeId;
 
     //
-    // The Slice compact tye ID for this slice.
+    // The Slice compact type ID for this slice.
     //
     int compactId;
 

@@ -16,8 +16,10 @@ include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 ifeq ($(CXX),g++)
    ifeq ($(OPTIMIZE),yes)
       #
-      # TODO: this is only need for Python < 3.x
+      # Necessary to avoid warnings for Python < 3.x
       #
-      CXXFLAGS          += -fno-strict-aliasing
+      ifneq ($(findstring $(PYTHON_BASE_VERSION),2.6 2.7),)
+         CXXFLAGS += -fno-strict-aliasing
+      endif
    endif
 endif

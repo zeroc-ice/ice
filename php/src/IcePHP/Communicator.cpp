@@ -11,6 +11,7 @@
 #include <Logger.h>
 #include <Properties.h>
 #include <Proxy.h>
+#include <Types.h>
 #include <Util.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -916,6 +917,8 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
+    initData.compactIdResolver = new IdResolver;
+
     CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, hasArgs, initData TSRMLS_CC);
     if(!info)
     {
@@ -1316,6 +1319,11 @@ parseProfiles(const string& file TSRMLS_DC)
     return true;
 }
 
+//
+// Necessary to suppress warnings from calls to INI_STR macro.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 bool
 IcePHP::communicatorInit(TSRMLS_D)
 {
@@ -1349,12 +1357,12 @@ IcePHP::communicatorInit(TSRMLS_D)
     // Create the profiles from configuration settings.
     //
     const char* empty = "";
-    const char* config = INI_STR("ice.config");
+    const char* config = INI_STR("ice.config"); // Needs to be a string literal!
     if(!config)
     {
         config = empty;
     }
-    const char* options = INI_STR("ice.options");
+    const char* options = INI_STR("ice.options"); // Needs to be a string literal!
     if(!options)
     {
         options = empty;
@@ -1364,7 +1372,7 @@ IcePHP::communicatorInit(TSRMLS_D)
         return false;
     }
 
-    const char* profiles = INI_STR("ice.profiles");
+    const char* profiles = INI_STR("ice.profiles"); // Needs to be a string literal!
     if(!profiles)
     {
         profiles = empty;

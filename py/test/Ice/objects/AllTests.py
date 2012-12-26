@@ -192,6 +192,15 @@ def allTests(communicator, collocated):
     test(len(retS) == 1 and len(outS) == 1)
     print("ok")
 
+    sys.stdout.write("testing compact ID... ")
+    sys.stdout.flush()
+    try:
+        r = initial.getCompact()
+        test(r)
+    except Ice.OperationNotExistException:
+        pass
+    print("ok")
+
     if not collocated:
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()

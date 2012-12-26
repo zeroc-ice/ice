@@ -30,6 +30,9 @@ using namespace IceUtilInternal;
 typedef map<string, ClassInfoPtr> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
+typedef map<Ice::Int, ClassInfoPtr> CompactIdMap;
+static CompactIdMap _compactIdMap;
+
 typedef map<string, ProxyInfoPtr> ProxyInfoMap;
 static ProxyInfoMap _proxyInfoMap;
 
@@ -356,6 +359,16 @@ IcePy::SlicedDataUtil::setMember(PyObject* obj, const Ice::SlicedDataPtr& sliced
         }
 
         //
+        // compactId
+        //
+        PyObjectHandle compactId = PyLong_FromLong((*p)->compactId);
+        if(!compactId.get() || PyObject_SetAttrString(slice.get(), STRCAST("compactId"), compactId.get()) < 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        //
         // bytes
         //
 #if PY_VERSION_HEX >= 0x03000000
@@ -394,6 +407,26 @@ IcePy::SlicedDataUtil::setMember(PyObject* obj, const Ice::SlicedDataPtr& sliced
             assert(obj != Py_None); // Should be non-nil.
             PyTuple_SET_ITEM(objects.get(), j++, obj);
             Py_INCREF(obj); // PyTuple_SET_ITEM steals a reference.
+        }
+
+        //
+        // hasOptionalMembers
+        //
+        PyObject* hasOptionalMembers = (*p)->hasOptionalMembers ? getTrue() : getFalse();
+        if(PyObject_SetAttrString(slice.get(), STRCAST("hasOptionalMembers"), hasOptionalMembers) < 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        //
+        // isLastSlice
+        //
+        PyObject* isLastSlice = (*p)->isLastSlice ? getTrue() : getFalse();
+        if(PyObject_SetAttrString(slice.get(), STRCAST("isLastSlice"), isLastSlice) < 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
         }
     }
 
@@ -441,6 +474,10 @@ IcePy::SlicedDataUtil::getMember(PyObject* obj, ObjectMap* objectMap)
                 assert(typeId.get());
                 info->typeId = getString(typeId.get());
 
+                PyObjectHandle compactId = PyObject_GetAttrString(s.get(), STRCAST("compactId"));
+                assert(compactId.get());
+                info->compactId = static_cast<int>(PyLong_AsLong(compactId.get()));
+
                 PyObjectHandle bytes = PyObject_GetAttrString(s.get(), STRCAST("bytes"));
                 assert(bytes.get());
                 char* str;
@@ -478,6 +515,14 @@ IcePy::SlicedDataUtil::getMember(PyObject* obj, ObjectMap* objectMap)
 
                     info->objects.push_back(writer);
                 }
+
+                PyObjectHandle hasOptionalMembers = PyObject_GetAttrString(s.get(), STRCAST("hasOptionalMembers"));
+                assert(hasOptionalMembers.get());
+                info->hasOptionalMembers = PyObject_IsTrue(hasOptionalMembers.get()) ? true : false;
+
+                PyObjectHandle isLastSlice = PyObject_GetAttrString(s.get(), STRCAST("isLastSlice"));
+                assert(isLastSlice.get());
+                info->isLastSlice = PyObject_IsTrue(isLastSlice.get()) ? true : false;
 
                 slices.push_back(info);
             }
@@ -2616,18 +2661,19 @@ IcePy::DictionaryInfo::destroy()
 // ClassInfo implementation.
 //
 IcePy::ClassInfo::ClassInfo(const string& ident) :
-    id(ident), isAbstract(false), preserve(false), defined(false)
+    id(ident), compactId(-1), isAbstract(false), preserve(false), defined(false)
 {
     const_cast<PyObjectHandle&>(typeObj) = createType(this);
 }
 
 void
-IcePy::ClassInfo::define(PyObject* t, bool abstr, bool pres, PyObject* b, PyObject* i, PyObject* m)
+IcePy::ClassInfo::define(PyObject* t, int compact, bool abstr, bool pres, PyObject* b, PyObject* i, PyObject* m)
 {
     assert(PyType_Check(t));
     assert(PyTuple_Check(i));
     assert(PyTuple_Check(m));
 
+    const_cast<int&>(compactId) = compact;
     const_cast<bool&>(isAbstract) = abstr;
     const_cast<bool&>(preserve) = pres;
 
@@ -3052,8 +3098,7 @@ IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         ClassInfoPtr info = _info;
         while(info)
         {
-            // TODO: XXX: should be the compactId not -1
-            os->startSlice(info->id, -1, !info->base);
+            os->startSlice(info->id, info->compactId, !info->base);
 
             writeMembers(os, info->members);
             writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
@@ -3244,6 +3289,7 @@ IcePy::InfoMapDestroyer::~InfoMapDestroyer()
             p->second->destroy();
         }
     }
+    _compactIdMap.clear();
     _exceptionInfoMap.clear();
 }
 
@@ -3598,6 +3644,20 @@ Ice::SlicedDataPtr
 IcePy::ExceptionReader::getSlicedData() const
 {
     return _slicedData;
+}
+
+//
+// IdResolver
+//
+string
+IcePy::IdResolver::resolve(Ice::Int id) const
+{
+    CompactIdMap::iterator p = _compactIdMap.find(id);
+    if(p != _compactIdMap.end())
+    {
+        return p->second->id;
+    }
+    return string();
 }
 
 //
@@ -4041,14 +4101,15 @@ IcePy_defineClass(PyObject*, PyObject* args)
 {
     char* id;
     PyObject* type;
+    int compactId;
     PyObject* meta; // Not currently used.
     int isAbstract;
     int preserve;
     PyObject* base;
     PyObject* interfaces;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, STRCAST("sOOiiOOO"), &id, &type, &meta, &isAbstract, &preserve, &base, &interfaces,
-                         &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOiOiiOOO"), &id, &type, &compactId, &meta, &isAbstract, &preserve, &base,
+                         &interfaces, &members))
     {
         return 0;
     }
@@ -4067,7 +4128,14 @@ IcePy_defineClass(PyObject*, PyObject* args)
         addClassInfo(id, info);
     }
 
-    info->define(type, isAbstract ? true : false, preserve ? true : false, base, interfaces, members);
+    info->define(type, compactId, isAbstract ? true : false, preserve ? true : false, base, interfaces, members);
+
+    CompactIdMap::iterator q = _compactIdMap.find(info->compactId);
+    if(q != _compactIdMap.end())
+    {
+        _compactIdMap.erase(q);
+    }
+    _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
 
     Py_INCREF(info->typeObj.get());
     return info->typeObj.get();

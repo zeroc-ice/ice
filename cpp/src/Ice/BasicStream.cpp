@@ -2780,7 +2780,8 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ObjectFactoryManagerPtr servantFactoryManager = _stream->instance()->servantFactoryManager();
+    const ObjectFactoryManagerPtr servantFactoryManager = _stream->instance()->servantFactoryManager();
+    const CompactIdResolverPtr compactIdResolver = _stream->instance()->initializationData().compactIdResolver;
     while(true)
     {
         //
@@ -2794,7 +2795,18 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
         
         if(_compactId >= 0)
         {
-            _typeId = IceInternal::factoryTable->getTypeId(_compactId);
+            //
+            // Translate a compact (numeric) type ID into a string type ID.
+            //
+            _typeId.clear();
+            if(compactIdResolver)
+            {
+                _typeId = compactIdResolver->resolve(_compactId);
+            }
+            if(_typeId.empty())
+            {
+                _typeId = IceInternal::factoryTable->getTypeId(_compactId);
+            }
         }
 
         if(!_typeId.empty())

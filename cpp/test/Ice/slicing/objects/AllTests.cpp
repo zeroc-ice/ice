@@ -2162,8 +2162,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         //
-        // Server only knows the intermediate type Preserved. The object will be sliced to
-        // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+        // Server only knows the intermediate type CompactPDerived. The object will be sliced to
+        // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
         //
         CompactPCDerivedPtr pcd = new CompactPCDerived;
         pcd->pi = 3;

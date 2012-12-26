@@ -21,6 +21,7 @@
 #include <PropertiesAdmin.h>
 #include <Proxy.h>
 #include <Thread.h>
+#include <Types.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
 #include <Ice/CommunicatorAsync.h>
@@ -203,6 +204,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         argv[i] = strdup(s->c_str());
     }
     argv[argc] = 0;
+
+    data.compactIdResolver = new IdResolver;
 
     Ice::CommunicatorPtr communicator;
     try

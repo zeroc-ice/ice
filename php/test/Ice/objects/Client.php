@@ -353,7 +353,7 @@ function allTests($communicator)
     $initial->setI($j);
     $initial->setI($h);
     echo "ok\n";
- 
+
     echo "testing sequences... ";
     flush();
     $outS = null;
@@ -361,6 +361,23 @@ function allTests($communicator)
 
     $retS = $initial->opBaseSeq(array(new Test_Base()), $outS);
     test(count($retS) == 1 && count($outS) == 1);
+    echo "ok\n";
+
+    echo "testing compact ID... ";
+    flush();
+    try
+    {
+        $r = $initial->getCompact();
+        test($r != null);
+    }
+    catch(Exception $ex)
+    {
+        $one = $NS ? "Ice\\OperationNotExistException" : "Ice_OperationNotExistException";
+        if(!($ex instanceof $one))
+        {
+            throw $ex;
+        }
+    }
     echo "ok\n";
 
     echo "testing UnexpectedObjectException... ";

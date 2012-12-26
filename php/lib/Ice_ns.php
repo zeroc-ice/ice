@@ -92,9 +92,9 @@ namespace Ice
         }
     }
 
-    $Ice__t_Object = IcePHP_defineClass('::Ice::Object', "\\Ice\\Object", true, false, null, null, null);
+    $Ice__t_Object = IcePHP_defineClass('::Ice::Object', "\\Ice\\Object", -1, true, false, null, null, null);
     $Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Object);
-    $Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "\\Ice\\LocalObject", true, false, null, null, null);
+    $Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "\\Ice\\LocalObject", -1, true, false, null, null, null);
     $Ice__t_ObjectPrx = IcePHP_defineProxy($Ice__t_Object);
     $Ice__t_ObjectProxySeq = IcePHP_defineSequence('::Ice::ObjectProxySeq', $Ice__t_ObjectPrx);
 
@@ -107,7 +107,7 @@ namespace Ice
         public $unknownTypeId;
     }
 
-    $Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', "\\Ice\\UnknownSlicedObject", false, true, $Ice__t_Object, null, null);
+    $Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', "\\Ice\\UnknownSlicedObject", -1, false, true, $Ice__t_Object, null, null);
 
     interface ObjectFactory
     {

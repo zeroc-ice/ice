@@ -19,6 +19,7 @@
 #include <Ice/InstrumentationF.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/StringConverter.h>
+#include <Ice/FactoryTable.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Version.h>
 
@@ -91,6 +92,7 @@ struct InitializationData
     WstringConverterPtr wstringConverter;
     ThreadNotificationPtr threadHook;
     DispatcherPtr dispatcher;
+    CompactIdResolverPtr compactIdResolver;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),

@@ -154,6 +154,9 @@ class InitialI(Test.Initial):
     def opBaseSeq(self, inSeq, current=None):
         return (inSeq, inSeq)
 
+    def getCompact(self, current=None):
+        return Test.CompactExt()
+
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
         return Test.AlsoEmpty()

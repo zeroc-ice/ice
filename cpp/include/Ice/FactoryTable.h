@@ -13,8 +13,19 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/ObjectFactoryF.h>
-#include <string>
-#include <map>
+
+namespace Ice
+{
+
+class ICE_API CompactIdResolver : public IceUtil::Shared
+{
+public:
+
+    virtual ::std::string resolve(Ice::Int) const = 0;
+};
+typedef IceUtil::Handle<CompactIdResolver> CompactIdResolverPtr;
+
+}
 
 namespace IceInternal
 {

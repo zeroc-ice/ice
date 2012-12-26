@@ -352,7 +352,7 @@ public:
 
     ClassInfo(VALUE, bool);
 
-    void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+    void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
     virtual std::string getId() const;
 
@@ -376,6 +376,7 @@ public:
     bool isA(const ClassInfoPtr&);
 
     const std::string id;
+    const Ice::Int compactId;
     const bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
     const bool isLocal;
     const bool isAbstract;
@@ -517,6 +518,13 @@ private:
     ExceptionInfoPtr _info;
     VALUE _ex;
     Ice::SlicedDataPtr _slicedData;
+};
+
+class IdResolver : public Ice::CompactIdResolver
+{
+public:
+
+    virtual ::std::string resolve(Ice::Int) const;
 };
 
 ClassInfoPtr lookupClassInfo(const std::string&);

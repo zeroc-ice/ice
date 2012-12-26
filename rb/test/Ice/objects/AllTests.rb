@@ -208,6 +208,15 @@ def allTests(communicator)
     test(retS.length == 1 && outS.length == 1)
     puts "ok"
 
+    print "testing compact ID... "
+    STDOUT.flush
+    begin
+        r = initial.getCompact()
+        test(r != nil)
+    rescue Ice::OperationNotExistException
+    end
+    puts "ok"
+
     print "testing UnexpectedObjectException... "
     STDOUT.flush
     ref = "uoet:default -p 12010"

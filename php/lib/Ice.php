@@ -87,9 +87,9 @@ abstract class Ice_ObjectImpl implements Ice_Object
     }
 }
 
-$Ice__t_Object = IcePHP_defineClass('::Ice::Object', "Ice_Object", true, false, null, null, null);
+$Ice__t_Object = IcePHP_defineClass('::Ice::Object', "Ice_Object", -1, true, false, null, null, null);
 $Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Object);
-$Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "Ice_LocalObject", true, false, null, null, null);
+$Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "Ice_LocalObject", -1, true, false, null, null, null);
 $Ice__t_ObjectPrx = IcePHP_defineProxy($Ice__t_Object);
 $Ice__t_ObjectProxySeq = IcePHP_defineSequence('::Ice::ObjectProxySeq', $Ice__t_ObjectPrx);
 
@@ -102,7 +102,7 @@ class Ice_UnknownSlicedObject extends Ice_ObjectImpl
     public $unknownTypeId;
 }
 
-$Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', 'Ice_UnknownSlicedObject', false, true, $Ice__t_Object, null, null);
+$Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', 'Ice_UnknownSlicedObject', -1, false, true, $Ice__t_Object, null, null);
 
 interface Ice_ObjectFactory
 {
