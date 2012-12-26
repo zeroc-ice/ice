@@ -87,6 +87,8 @@ def getCppCompiler():
     compiler = ""
     if os.environ.get("CPP_COMPILER", "") != "":
         compiler = os.environ["CPP_COMPILER"]
+    elif isMINGW():
+        compiler = "MINGW"
     else:
         config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
