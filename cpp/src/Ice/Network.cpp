@@ -163,7 +163,7 @@ getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool serv
         addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
     }
 #else
-    memset(&addr, 0, sizeof(Address));
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     //
     // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
@@ -173,17 +173,15 @@ getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool serv
     {
         if(protocol == EnableIPv6)
         {
-            sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
-            addrin6->sin6_family = AF_INET6;
-            addrin6->sin6_port = htons(port);
-            addrin6->sin6_addr = server ? in6addr_any : in6addr_loopback;
+            addr.saIn6.sin6_family = AF_INET6;
+            addr.saIn6.sin6_port = htons(port);
+            addr.saIn6.sin6_addr = server ? in6addr_any : in6addr_loopback;
         }
         else
         {
-            sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
-            addrin->sin_family = AF_INET;
-            addrin->sin_port = htons(port);
-            addrin->sin_addr.s_addr = server ? htonl(INADDR_ANY) : htonl(INADDR_LOOPBACK);
+            addr.saIn.sin_family = AF_INET;
+            addr.saIn.sin_port = htons(port);
+            addr.saIn.sin_addr.s_addr = server ? htonl(INADDR_ANY) : htonl(INADDR_LOOPBACK);
         }
         return addr;
     }
@@ -230,14 +228,14 @@ getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool serv
         throw ex;
     }
 
-    memcpy(&addr, info->ai_addr, info->ai_addrlen);
+    memcpy(&addr.saStorage, info->ai_addr, info->ai_addrlen);
     if(info->ai_family == PF_INET)
     {
-        reinterpret_cast<sockaddr_in*>(&addr)->sin_port = htons(port);
+        addr.saIn.sin_port = htons(port);
     }
     else if(info->ai_family == PF_INET6)
     {
-        reinterpret_cast<sockaddr_in6*>(&addr)->sin6_port = htons(port);
+        addr.saIn6.sin6_port = htons(port);
     }
     else // Unknown address family.
     {
@@ -305,18 +303,17 @@ getLocalAddresses(ProtocolSupport protocol)
             for (int i = 0; i < addrs->iAddressCount; ++i)
             {
                 Address addr;
-                memcpy(&addr, addrs->Address[i].lpSockaddr, addrs->Address[i].iSockaddrLength);
-                if(addr.ss_family == AF_INET && protocol != EnableIPv6)
+                memcpy(&addr.saStorage, addrs->Address[i].lpSockaddr, addrs->Address[i].iSockaddrLength);
+                if(addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
                 {
-                    if(reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr.s_addr != 0)
+                    if(addr.saIn.sin_addr.s_addr != 0)
                     {
                         result.push_back(addr);
                     }
                 }
-                else if(addr.ss_family == AF_INET6 && protocol != EnableIPv4)
+                else if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
                 {
-                    struct in6_addr* inaddr6 = &reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr;
-                    if(!IN6_IS_ADDR_UNSPECIFIED(inaddr6) && !IN6_IS_ADDR_LOOPBACK(inaddr6))
+                    if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr))
                     {
                         result.push_back(addr);
                     }
@@ -349,8 +346,8 @@ getLocalAddresses(ProtocolSupport protocol)
             if(curr->ifa_addr->sa_family == AF_INET && protocol != EnableIPv6)
             {
                 Address addr;
-                memcpy(&addr, curr->ifa_addr, sizeof(sockaddr_in));
-                if(reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr.s_addr != 0)
+                memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
+                if(addr.saIn.sin_addr.s_addr != 0)
                 {
                     result.push_back(addr);
                 }
@@ -358,10 +355,10 @@ getLocalAddresses(ProtocolSupport protocol)
             else if(curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
             {
                 Address addr;
-                memcpy(&addr, curr->ifa_addr, sizeof(sockaddr_in6));
-                if(!IN6_IS_ADDR_UNSPECIFIED(&reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr))
+                memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
+                if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                 {
-                    result.push_back(*reinterpret_cast<Address*>(curr->ifa_addr));
+                    result.push_back(addr);
                 }
             }
         }
@@ -440,9 +437,8 @@ getLocalAddresses(ProtocolSupport protocol)
                 if(ifr[i].ifr_addr.sa_family == AF_INET && protocol != EnableIPv6)
                 {
                     Address addr;
-                    memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in));
-                    struct in_addr* inaddr = &reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr;
-                    if(inaddr->s_addr != 0 && inaddr->s_addr != htonl(INADDR_LOOPBACK))
+                    memcpy(&addr.saStorage, &ifr[i].ifr_addr, sizeof(sockaddr_in));
+                    if(addr.saIn.sin_addr.s_addr != 0 && addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
                     {
                         unsigned int j;
                         for(j = 0; j < result.size(); ++j)
@@ -461,9 +457,8 @@ getLocalAddresses(ProtocolSupport protocol)
                 else if(ifr[i].ifr_addr.sa_family == AF_INET6 && protocol != EnableIPv4)
                 {
                     Address addr;
-                    memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in6));
-                    struct in6_addr* inaddr6 = &reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr;
-                    if(!IN6_IS_ADDR_UNSPECIFIED(inaddr6) && !IN6_IS_ADDR_LOOPBACK(inaddr6))
+                    memcpy(&addr.saStorage, &ifr[i].ifr_addr, sizeof(sockaddr_in6));
+                    if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) && !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr))
                     {
                         unsigned int j;
                         for(j = 0; j < result.size(); ++j)
@@ -494,18 +489,16 @@ isWildcard(const string& host, ProtocolSupport protocol)
     try
     {
         Address addr = getAddressImpl(host, 0, protocol, false);
-        if(addr.ss_family == AF_INET)
+        if(addr.saStorage.ss_family == AF_INET)
         {
-            struct sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
-            if(addrin->sin_addr.s_addr == INADDR_ANY)
+            if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
             {
                 return true;
             }
         }
-        else if(addr.ss_family)
+        else if(addr.saStorage.ss_family)
         {
-            struct sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
-            if(IN6_IS_ADDR_UNSPECIFIED(&addrin6->sin6_addr))
+            if(IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
             {
                 return true;
             }
@@ -644,7 +637,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
     result.push_back(addr);
 #else
-    memset(&addr, 0, sizeof(Address));
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     //
     // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
@@ -654,18 +647,16 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     {
         if(protocol != EnableIPv4)
         {
-            sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
-            addrin6->sin6_family = AF_INET6;
-            addrin6->sin6_port = htons(port);
-            addrin6->sin6_addr = in6addr_loopback;
+            addr.saIn6.sin6_family = AF_INET6;
+            addr.saIn6.sin6_port = htons(port);
+            addr.saIn6.sin6_addr = in6addr_loopback;
             result.push_back(addr);
         }
         if(protocol != EnableIPv6)
         {
-            sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
-            addrin->sin_family = AF_INET;
-            addrin->sin_port = htons(port);
-            addrin->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+            addr.saIn.sin_family = AF_INET;
+            addr.saIn.sin_port = htons(port);
+            addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
             result.push_back(addr);
         }
         return result;
@@ -722,16 +713,14 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 
     for(struct addrinfo* p = info; p != NULL; p = p->ai_next)
     {
-        memcpy(&addr, p->ai_addr, p->ai_addrlen);
+        memcpy(&addr.saStorage, p->ai_addr, p->ai_addrlen);
         if(p->ai_family == PF_INET)
         {
-            struct sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
-            addrin->sin_port = htons(port);
+            addr.saIn.sin_port = htons(port);
         }
         else if(p->ai_family == PF_INET6)
         {
-            struct sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
-            addrin6->sin6_port = htons(port);
+            addr.saIn6.sin6_port = htons(port);
         }
 
         bool found = false;
@@ -765,7 +754,7 @@ ProtocolSupport
 IceInternal::getProtocolSupport(const Address& addr)
 {
 #ifndef ICE_OS_WINRT
-    return addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6;
+    return addr.saStorage.ss_family == AF_INET ? EnableIPv4 : EnableIPv6;
 #else
     // For WinRT, there's no distinction between IPv4 and IPv6 adresses.
     return EnableBoth;
@@ -795,53 +784,47 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
     }
     return String::CompareOrdinal(addr1.host->RawName, addr2.host->RawName);
 #else
-    if(addr1.ss_family < addr2.ss_family)
+    if(addr1.saStorage.ss_family < addr2.saStorage.ss_family)
     {
         return -1;
     }
-    else if(addr2.ss_family < addr1.ss_family)
+    else if(addr2.saStorage.ss_family < addr1.saStorage.ss_family)
     {
         return 1;
     }
 
-    if(addr1.ss_family == AF_INET)
+    if(addr1.saStorage.ss_family == AF_INET)
     {
-        const struct sockaddr_in* addr1in = reinterpret_cast<const sockaddr_in*>(&addr1);
-        const struct sockaddr_in* addr2in = reinterpret_cast<const sockaddr_in*>(&addr2);
-
-        if(addr1in->sin_port < addr2in->sin_port)
+        if(addr1.saIn.sin_port < addr2.saIn.sin_port)
         {
             return -1;
         }
-        else if(addr2in->sin_port < addr1in->sin_port)
+        else if(addr2.saIn.sin_port < addr1.saIn.sin_port)
         {
             return 1;
         }
 
-        if(addr1in->sin_addr.s_addr < addr2in->sin_addr.s_addr)
+        if(addr1.saIn.sin_addr.s_addr < addr2.saIn.sin_addr.s_addr)
         {
             return -1;
         }
-        else if(addr2in->sin_addr.s_addr < addr1in->sin_addr.s_addr)
+        else if(addr2.saIn.sin_addr.s_addr < addr1.saIn.sin_addr.s_addr)
         {
             return 1;
         }
     }
     else
     {
-        const struct sockaddr_in6* addr1in = reinterpret_cast<const sockaddr_in6*>(&addr1);
-        const struct sockaddr_in6* addr2in = reinterpret_cast<const sockaddr_in6*>(&addr2);
-
-        if(addr1in->sin6_port < addr2in->sin6_port)
+        if(addr1.saIn6.sin6_port < addr2.saIn6.sin6_port)
         {
             return -1;
         }
-        else if(addr2in->sin6_port < addr1in->sin6_port)
+        else if(addr2.saIn6.sin6_port < addr1.saIn6.sin6_port)
         {
             return 1;
         }
 
-        int res = memcmp(&addr1in->sin6_addr, &addr2in->sin6_addr, sizeof(struct in6_addr));
+        int res = memcmp(&addr1.saIn6.sin6_addr, &addr2.saIn6.sin6_addr, sizeof(in6_addr));
         if(res < 0)
         {
             return -1;
@@ -862,7 +845,7 @@ IceInternal::createSocket(bool udp, const Address& addr)
 #ifdef ICE_OS_WINRT
     return createSocketImpl(udp, 0);
 #else
-    return createSocketImpl(udp, addr.ss_family);
+    return createSocketImpl(udp, addr.saStorage.ss_family);
 #endif
 }
 
@@ -935,8 +918,8 @@ void
 IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 {
 #ifndef ICE_OS_WINRT
-    socklen_t len = static_cast<socklen_t>(sizeof(Address));
-    if(getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
+    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    if(getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -963,8 +946,8 @@ bool
 IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 {
 #ifndef ICE_OS_WINRT
-    socklen_t len = static_cast<socklen_t>(sizeof(Address));
-    if(getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
+    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    if(getpeername(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         if(notConnected())
         {
@@ -1070,7 +1053,7 @@ bool
 IceInternal::isAddressValid(const Address& addr)
 {
 #ifndef ICE_OS_WINRT
-    return addr.ss_family != AF_UNSPEC;
+    return addr.saStorage.ss_family != AF_UNSPEC;
 #else
     return addr.host != nullptr || addr.port != nullptr;
 #endif
@@ -1091,8 +1074,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
             // be accessed in general with a scope-id.
             //
-            if(p->ss_family != AF_INET6 ||
-               !IN6_IS_ADDR_LINKLOCAL(&reinterpret_cast<const struct sockaddr_in6*>(&(*p))->sin6_addr))
+            if(p->saStorage.ss_family != AF_INET6 || !IN6_IS_ADDR_LINKLOCAL(&p->saIn6.sin6_addr))
             {
                 hosts.push_back(inetAddrToString(*p));
             }
@@ -1123,11 +1105,11 @@ IceInternal::inetAddrToString(const Address& ss)
 {
 #ifndef ICE_OS_WINRT
     int size = 0;
-    if(ss.ss_family == AF_INET)
+    if(ss.saStorage.ss_family == AF_INET)
     {
         size = static_cast<int>(sizeof(sockaddr_in));
     }
-    else if(ss.ss_family == AF_INET6)
+    else if(ss.saStorage.ss_family == AF_INET6)
     {
         size = static_cast<int>(sizeof(sockaddr_in6));
     }
@@ -1138,7 +1120,7 @@ IceInternal::inetAddrToString(const Address& ss)
 
     char namebuf[1024];
     namebuf[0] = '\0';
-    getnameinfo(reinterpret_cast<const struct sockaddr *>(&ss), size, namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0, NI_NUMERICHOST);
+    getnameinfo(&ss.sa, size, namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0, NI_NUMERICHOST);
     return string(namebuf);
 #else
     if(ss.host == nullptr)
@@ -1156,13 +1138,13 @@ int
 IceInternal::getPort(const Address& addr)
 {
 #ifndef ICE_OS_WINRT
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
-        return ntohs(reinterpret_cast<const sockaddr_in*>(&addr)->sin_port);
+        return ntohs(addr.saIn.sin_port);
     }
-    else if(addr.ss_family == AF_INET6)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
-        return ntohs(reinterpret_cast<const sockaddr_in6*>(&addr)->sin6_port);
+        return ntohs(addr.saIn6.sin6_port);
     }
     else
     {
@@ -1182,14 +1164,14 @@ void
 IceInternal::setPort(Address& addr, int port)
 {
 #ifndef ICE_OS_WINRT
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
-        reinterpret_cast<sockaddr_in*>(&addr)->sin_port = htons(port);
+        addr.saIn.sin_port = htons(port);
     }
     else
     {
-        assert(addr.ss_family == AF_INET6);
-        reinterpret_cast<sockaddr_in6*>(&addr)->sin6_port = htons(port);
+        assert(addr.saStorage.ss_family == AF_INET6);
+        addr.saIn6.sin6_port = htons(port);
     }
 #else
     ostringstream os;
@@ -1202,13 +1184,13 @@ bool
 IceInternal::isMulticast(const Address& addr)
 {
 #ifndef ICE_OS_WINRT
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
-        return IN_MULTICAST(ntohl(reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr.s_addr));
+        return IN_MULTICAST(ntohl(addr.saIn.sin_addr.s_addr));
     }
-    else if(addr.ss_family == AF_INET6)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
-        return IN6_IS_ADDR_MULTICAST(&reinterpret_cast<const struct sockaddr_in6*>(&addr)->sin6_addr);
+        return IN6_IS_ADDR_MULTICAST(&addr.saIn6.sin6_addr);
     }
 #else
     if(addr.host == nullptr)
@@ -1426,10 +1408,10 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
 #ifndef ICE_OS_WINRT
     int rc;
-    if(group.ss_family == AF_INET)
+    if(group.saStorage.ss_family == AF_INET)
     {
         struct ip_mreq mreq;
-        mreq.imr_multiaddr = reinterpret_cast<const struct sockaddr_in*>(&group)->sin_addr;
+        mreq.imr_multiaddr = group.saIn.sin_addr;
         mreq.imr_interface.s_addr = INADDR_ANY;
         if(intf.size() > 0)
         {
@@ -1440,7 +1422,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
             if(mreq.imr_interface.s_addr == INADDR_ANY)
             {
                 Address addr = getAddressForServer(intf, 0, EnableIPv4);
-                mreq.imr_interface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+                mreq.imr_interface = addr.saIn.sin_addr;
             }
         }
         rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq)));
@@ -1448,7 +1430,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
     else
     {
         struct ipv6_mreq mreq;
-        mreq.ipv6mr_multiaddr = reinterpret_cast<const struct sockaddr_in6*>(&group)->sin6_addr;
+        mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
         mreq.ipv6mr_interface = 0;
         if(intf.size() != 0)
         {
@@ -1497,7 +1479,7 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
 {
 #ifndef ICE_OS_WINRT
     int rc;
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
         //
         // First see if it is the interface name. If not check if IP Address.
@@ -1506,7 +1488,7 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
         if(iface.s_addr == INADDR_ANY)
         {
             Address addr = getAddressForServer(intf, 0, EnableIPv4);
-            iface = reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr;
+            iface = addr.saIn.sin_addr;
         }
         rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));
     }
@@ -1543,7 +1525,7 @@ IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
 {
 #ifndef ICE_OS_WINRT
     int rc;
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
         rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, int(sizeof(int)));
     }
@@ -1621,11 +1603,11 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
     return local;
 #else
     int size;
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
         size = static_cast<int>(sizeof(sockaddr_in));
     }
-    else if(addr.ss_family == AF_INET6)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
         size = static_cast<int>(sizeof(sockaddr_in6));
     }
@@ -1635,7 +1617,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         size = 0; // Keep the compiler happy.
     }
 
-    if(::bind(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
+    if(::bind(fd, &addr.sa, size) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);
@@ -1644,11 +1626,11 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
     }
 
     Address local;
-    socklen_t len = static_cast<socklen_t>(sizeof(local));
+    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 #ifdef NDEBUG
-    getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
+    getsockname(fd, &local.sa, &len);
 #else
-    int ret = getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
+    int ret = getsockname(fd, &local.sa, &len);
     assert(ret != SOCKET_ERROR);
 #endif
     return local;
@@ -1839,11 +1821,11 @@ IceInternal::doConnect(SOCKET fd, const Address& addr)
 {
 repeatConnect:
     int size;
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
         size = static_cast<int>(sizeof(sockaddr_in));
     }
-    else if(addr.ss_family == AF_INET6)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
         size = static_cast<int>(sizeof(sockaddr_in6));
     }
@@ -1853,7 +1835,7 @@ repeatConnect:
         size = 0; // Keep the compiler happy.
     }
 
-    if(::connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
+    if(::connect(fd, &addr.sa, size) == SOCKET_ERROR)
     {
         if(interrupted())
         {
@@ -2012,12 +1994,11 @@ IceInternal::createPipe(SOCKET fds[2])
     setBlock(fd, true);
 
     Address addr;
-    memset(&addr, 0, sizeof(addr));
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
-    struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&addr);
-    addrin->sin_family = AF_INET;
-    addrin->sin_port = htons(0);
-    addrin->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.saIn.sin_family = AF_INET;
+    addr.saIn.sin_port = htons(0);
+    addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
     addr = doBind(fd, addr);
     doListen(fd, 1);
@@ -2184,26 +2165,23 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, AsyncInfo& info)
     //
 
     Address bindAddr;
-    memset(&bindAddr, 0, sizeof(bindAddr));
+    memset(&bindAddr.saStorage, 0, sizeof(sockaddr_storage));
 
     int size;
-    if(addr.ss_family == AF_INET)
+    if(addr.saStorage.ss_family == AF_INET)
     {
         size = sizeof(sockaddr_in);
-
-        struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&bindAddr);
-        addrin->sin_family = AF_INET;
-        addrin->sin_port = htons(0);
-        addrin->sin_addr.s_addr = htonl(INADDR_ANY);
+        bindAddr.saIn.sin_family = AF_INET;
+        bindAddr.saIn.sin_port = htons(0);
+        bindAddr.saIn.sin_addr.s_addr = htonl(INADDR_ANY);
     }
-    else if(addr.ss_family == AF_INET6)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
         size = sizeof(sockaddr_in6);
 
-        struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&bindAddr);
-        addrin->sin6_family = AF_INET6;
-        addrin->sin6_port = htons(0);
-        addrin->sin6_addr = in6addr_any;
+        bindAddr.saIn6.sin6_family = AF_INET6;
+        bindAddr.saIn6.sin6_port = htons(0);
+        bindAddr.saIn6.sin6_addr = in6addr_any;
     }
     else
     {
@@ -2211,7 +2189,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, AsyncInfo& info)
         size = 0; // Keep the compiler happy.
     }
 
-    if(bind(fd, reinterpret_cast<const struct sockaddr*>(&bindAddr), size) == SOCKET_ERROR)
+    if(::bind(fd, &bindAddr.sa, size) == SOCKET_ERROR)
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();
@@ -2236,9 +2214,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, AsyncInfo& info)
         throw ex;
     }        
 
-    if(!ConnectEx(fd, reinterpret_cast<const struct sockaddr*>(&addr), size, 0, 0, 0, 
-                  &info
-                  ))
+    if(!ConnectEx(fd, &addr.sa, size, 0, 0, 0, &info))
     {
         if(!connectInProgress())
         {

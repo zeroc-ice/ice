@@ -14,7 +14,6 @@
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
-#include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
 #include <IceUtil/DisableWarnings.h>
@@ -224,7 +223,7 @@ IceSSL::TransceiverI::initialize()
                 }
                 case SSL_ERROR_SSL:
                 {
-                    struct sockaddr_storage remoteAddr;
+                    IceInternal::Address remoteAddr;
                     string desc = "<not available>";
                     if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
                     {
@@ -260,7 +259,7 @@ IceSSL::TransceiverI::initialize()
                 //
                 // The local address is only accessible with connected sockets on Windows.
                 //
-                struct sockaddr_storage localAddr;
+                IceInternal::Address localAddr;
                 IceInternal::fdToLocalAddress(_fd, localAddr);
                 out << "local address: " << IceInternal::addrToString(localAddr) << "\n";
 #else
@@ -827,7 +826,7 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& host,
-                                   const struct sockaddr_storage& addr) :
+                                   const IceInternal::Address& addr) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
     _logger(instance->communicator()->getLogger()),

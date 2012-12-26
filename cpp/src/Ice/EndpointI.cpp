@@ -125,7 +125,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     // Try to get the addresses without DNS lookup. If this doesn't
     // work, we retry with DNS lookup (and observer).
     //
-    vector<struct sockaddr_storage> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
+    vector<Address> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
     if(!addrs.empty())
     {
         return endpoint->connectors(addrs);
@@ -161,7 +161,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     //
     try
     {
-        vector<struct sockaddr_storage> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
+        vector<Address> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
         if(!addrs.empty())
         {
             callback->connectors(endpoint->connectors(addrs));

@@ -176,12 +176,12 @@ repeat:
     }
     else
     {
-        socklen_t len = static_cast<socklen_t>(sizeof(_peerAddr));
-        if(_peerAddr.ss_family == AF_INET)
+        socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+        if(_peerAddr.saStorage.ss_family == AF_INET)
         {
             len = static_cast<socklen_t>(sizeof(sockaddr_in));
         }
-        else if(_peerAddr.ss_family == AF_INET6)
+        else if(_peerAddr.saStorage.ss_family == AF_INET6)
         {
             len = static_cast<socklen_t>(sizeof(sockaddr_in6));
         }
@@ -195,10 +195,10 @@ repeat:
 
 #   ifdef _WIN32
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, 
-                       reinterpret_cast<struct sockaddr*>(&_peerAddr), len);
+                       &_peerAddr.sa, len);
 #   else
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0,
-                       reinterpret_cast<struct sockaddr*>(&_peerAddr), len);
+                       &_peerAddr.sa, len);
 #   endif
     }
 
@@ -260,12 +260,12 @@ repeat:
     {
         assert(_incoming);
 
-        sockaddr_storage peerAddr;
-        memset(&peerAddr, 0, sizeof(struct sockaddr_storage));
-        socklen_t len = static_cast<socklen_t>(sizeof(peerAddr));
+        Address peerAddr;
+        memset(&peerAddr.saStorage, 0, sizeof(sockaddr_storage));
+        socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
         ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0, 
-                       reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
+                       &peerAddr.sa, &len);
 
         if(ret != SOCKET_ERROR)
         {
@@ -521,12 +521,12 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
     }
     else
     {
-        socklen_t len = static_cast<socklen_t>(sizeof(_peerAddr));
-        if(_peerAddr.ss_family == AF_INET)
+        socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+        if(_peerAddr.saStorage.ss_family == AF_INET)
         {
             len = sizeof(sockaddr_in);
         }
-        else if(_peerAddr.ss_family == AF_INET6)
+        else if(_peerAddr.saStorage.ss_family == AF_INET6)
         {
             len = sizeof(sockaddr_in6);
         }
@@ -537,7 +537,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             ex.error = 0;
             throw ex;
         }
-        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, reinterpret_cast<struct sockaddr*>(&_peerAddr), 
+        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa, 
                         len, &_write, NULL);
     }
 
@@ -624,11 +624,11 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     }
     else
     {
-        memset(&_readAddr, 0, sizeof(struct sockaddr_storage));
-        _readAddrLen = static_cast<socklen_t>(sizeof(_readAddr));
+        memset(&_readAddr.saStorage, 0, sizeof(struct sockaddr_storage));
+        _readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
         
         err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags, 
-                          reinterpret_cast<struct sockaddr*>(&_readAddr), &_readAddrLen, &_read, NULL);
+                          &_readAddr.sa, &_readAddrLen, &_read, NULL);
     }
 
     if(err == SOCKET_ERROR)
@@ -893,8 +893,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
     setBlock(_fd, false);
 
 #ifndef ICE_OS_WINRT
-    _mcastAddr.ss_family = AF_UNSPEC;
-    _peerAddr.ss_family = AF_UNSPEC; // Not initialized yet.
+    _mcastAddr.saStorage.ss_family = AF_UNSPEC;
+    _peerAddr.saStorage.ss_family = AF_UNSPEC; // Not initialized yet.
 
     //
     // NOTE: setting the multicast interface before performing the
@@ -964,10 +964,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     setBlock(_fd, false);
 
 #ifndef ICE_OS_WINRT
-    memset(&_mcastAddr, 0, sizeof(_mcastAddr));
-    memset(&_peerAddr, 0, sizeof(_peerAddr));
-    _peerAddr.ss_family = AF_UNSPEC;
-    _mcastAddr.ss_family = AF_UNSPEC;
+    memset(&_mcastAddr.saStorage, 0, sizeof(sockaddr_storage));
+    memset(&_peerAddr.saStorage, 0, sizeof(sockaddr_storage));
+    _peerAddr.saStorage.ss_family = AF_UNSPEC;
+    _mcastAddr.saStorage.ss_family = AF_UNSPEC;
 #else
     DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
     socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(

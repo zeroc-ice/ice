@@ -12,7 +12,6 @@
 #include <IceSSL/ConnectorI.h>
 #include <IceSSL/TransceiverI.h>
 #include <IceSSL/Instance.h>
-#include <Ice/Network.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
@@ -534,7 +533,7 @@ IceSSL::EndpointI::hashInit() const
 }
 
 vector<IceInternal::ConnectorPtr>
-IceSSL::EndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
+IceSSL::EndpointI::connectors(const vector<IceInternal::Address>& addresses) const
 {
     vector<IceInternal::ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)

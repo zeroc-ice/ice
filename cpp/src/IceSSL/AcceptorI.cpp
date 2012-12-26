@@ -16,7 +16,6 @@
 #include <Ice/Exception.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Network.h>
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
 
@@ -194,13 +193,13 @@ IceSSL::AcceptorI::toString() const
 int
 IceSSL::AcceptorI::effectivePort() const
 {
-    if(_addr.ss_family == AF_INET)
+    if(_addr.saStorage.ss_family == AF_INET)
     {
-        return ntohs(reinterpret_cast<const sockaddr_in*>(&_addr)->sin_port);
+        return ntohs(_addr.saIn.sin_port);
     }
     else
     {
-        return ntohs(reinterpret_cast<const sockaddr_in6*>(&_addr)->sin6_port);
+        return ntohs(_addr.saIn6.sin6_port);
     }
 }
 
@@ -246,7 +245,7 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
         Trace out(_logger, _instance->networkTraceCategory());
         out << "attempting to bind to ssl socket " << toString();
     }
-    const_cast<struct sockaddr_storage&>(_addr) = IceInternal::doBind(_fd, _addr);
+    const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
 }
 
 IceSSL::AcceptorI::~AcceptorI()

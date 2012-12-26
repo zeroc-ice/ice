@@ -14,6 +14,7 @@
 #include <Ice/EndpointFactory.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/EndpointInfo.h>
+#include <Ice/Network.h>
 
 namespace IceSSL
 {
@@ -55,7 +56,7 @@ public:
 private:
 
     virtual ::Ice::Int hashInit() const;
-    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;    
+    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<IceInternal::Address>&) const;    
 
     //
     // All members are const, because endpoints are immutable.

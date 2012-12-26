@@ -107,7 +107,7 @@ namespace IceInternal
 {
 
 //
-// Use Address typedef/struct depending on the platform
+// Use Address struct or union depending on the platform
 //
 #ifdef ICE_OS_WINRT
 struct ICE_API Address
@@ -116,7 +116,13 @@ struct ICE_API Address
     Platform::String^ port;
 };
 #else
-typedef struct sockaddr_storage Address;
+union Address
+{
+    sockaddr sa;
+    sockaddr_in saIn;
+    sockaddr_in6 saIn6;
+    sockaddr_storage saStorage;
+};
 #endif
 
 enum SocketOperation
