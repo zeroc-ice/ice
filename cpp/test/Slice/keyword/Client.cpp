@@ -84,8 +84,10 @@ testtypes()
     _cpp_and::_cpp_continue a = _cpp_and::_cpp_asm;
     test(a);
 
-    _cpp_and::_cpp_auto b;
+    _cpp_and::_cpp_auto b, b2;
     b._cpp_default = 0;
+    b2._cpp_default = b._cpp_default;
+    b._cpp_default = b2._cpp_default;
 
     _cpp_and::deletePtr c = new _cpp_and::_cpp_delete();
     c->_cpp_else = "";

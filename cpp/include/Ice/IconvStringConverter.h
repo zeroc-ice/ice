@@ -225,11 +225,16 @@ IconvStringConverter<charT>::cleanupKey(void* val)
 template<typename charT> /*static*/ void
 IconvStringConverter<charT>::close(std::pair<iconv_t, iconv_t> cdp)
 {
+#ifndef NDEBUG
     int rs = iconv_close(cdp.first);
     assert(rs == 0);
 
     rs = iconv_close(cdp.second);
     assert(rs == 0);
+#else
+    iconv_close(cdp.first);
+    iconv_close(cdp.second);
+#endif
 }
  
 template<typename charT> Ice::Byte* 

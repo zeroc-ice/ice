@@ -224,19 +224,31 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         sigaddset(&ctrlCLikeSignals, SIGHUP);
         sigaddset(&ctrlCLikeSignals, SIGINT);
         sigaddset(&ctrlCLikeSignals, SIGTERM);
+
+#ifndef NDEBUG
         int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
         assert(rc == 0);
 
         // Joinable thread
         rc = pthread_create(&_tid, 0, sigwaitThread, 0);
         assert(rc == 0);
+#else
+        pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
+
+        // Joinable thread
+        pthread_create(&_tid, 0, sigwaitThread, 0);
+#endif
     }
 }
 
 CtrlCHandler::~CtrlCHandler()
 {
+#ifndef NDEBUG
     int rc = pthread_cancel(_tid);
     assert(rc == 0);
+#else
+    pthread_cancel(_tid);
+#endif
 #if defined(__APPLE__)
     //
     // WORKAROUND: sigwait isn't a cancellation point on OS X, see
@@ -246,8 +258,14 @@ CtrlCHandler::~CtrlCHandler()
     //assert(rc == 0); For some reaosns, this assert is sometime triggered
 #endif
     void* status = 0;
+
+#ifndef NDEBUG
     rc = pthread_join(_tid, &status);
     assert(rc == 0);
+#else
+    pthread_join(_tid, &status);
+#endif
+    
 #if !defined(__APPLE__)
     assert(status == PTHREAD_CANCELED);
 #endif

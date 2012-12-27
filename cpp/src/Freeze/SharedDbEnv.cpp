@@ -330,11 +330,13 @@ void Freeze::SharedDbEnv::__decRef()
         //
         // Remove from map
         //
-     
+#ifndef NDEBUG
         size_t one;
         one = sharedDbEnvMap->erase(key);
         assert(one == 1);
-
+#else
+        sharedDbEnvMap->erase(key);
+#endif
         if(sharedDbEnvMap->size() == 0)
         {
             delete sharedDbEnvMap;

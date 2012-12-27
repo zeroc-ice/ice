@@ -1709,15 +1709,33 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             int fd;
             fd = open("/dev/null", O_RDWR);
             assert(fd == 0);
+            if(fd != 0)
+            {
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = IceInternal::getSystemErrno();
+                throw ex;
+            }
             if(stdOut.empty())
             {
                 fd = dup2(0, 1);
                 assert(fd == 1);
+                if(fd != 1)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = IceInternal::getSystemErrno();
+                    throw ex;
+                }
             }
             if(stdErr.empty())
             {
                 fd = dup2(1, 2);
                 assert(fd == 2);
+                if(fd != 2)
+                {
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = IceInternal::getSystemErrno();
+                    throw ex;
+                }
             }
         }
 

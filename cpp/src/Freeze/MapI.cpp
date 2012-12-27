@@ -759,9 +759,13 @@ Freeze::IteratorHelperI::set(const Value& value)
 
     try
     {
+#ifndef NDEBUG
         int err;
         err = _dbc->put(&dbKey, &dbValue, DB_CURRENT);
         assert(err == 0);
+#else
+        _dbc->put(&dbKey, &dbValue, DB_CURRENT);
+#endif
     }
     catch(const ::DbDeadlockException& dx)
     {
@@ -1381,9 +1385,13 @@ Freeze::MapHelperI::clear()
         try
         {
             u_int32_t count;
+#ifndef NDEBUG
             int err;
             err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
             assert(err == 0);
+#else
+            _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
+#endif
             break;
         }
         catch(const ::DbDeadlockException& dx)

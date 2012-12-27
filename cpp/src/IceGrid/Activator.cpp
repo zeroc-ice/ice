@@ -73,7 +73,7 @@ private:
 // Helper function for async-signal safe error reporting
 //
 void
-reportChildError(int err, int fd, const char* cannot, const char* name)
+reportChildError(int err, int fd, const char* cannot, const char* name, const TraceLevelsPtr& traceLevels)
 {
     //
     // Send any errors to the parent process, using the write
@@ -89,7 +89,12 @@ reportChildError(int err, int fd, const char* cannot, const char* name)
         strcat(msg, ": ");
         strcat(msg, strerror(err));
     }
-    write(fd, msg, strlen(msg));
+    ssize_t sz = write(fd, msg, strlen(msg));
+    if(sz == -1)
+    {
+        Ice::Warning out(traceLevels->logger);
+        out << "error rerporting child error msg: `" << msg << "'";
+    }
     close(fd);
 
     //
@@ -651,14 +656,16 @@ Activator::activate(const string& name,
         {
             ostringstream os;
             os << gid;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str());
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str(),
+                             _traceLevels);
         }           
         
         if(setuid(uid) == -1)
         {
             ostringstream os;
             os << uid;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process user id", os.str().c_str());
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process user id", os.str().c_str(),
+                             _traceLevels);
         }
 
         //
@@ -687,7 +694,8 @@ Activator::activate(const string& name,
             //
             if(putenv(strdup(env.argv[i])) != 0)
             {
-                reportChildError(errno, errorFds[1], "cannot set environment variable",  env.argv[i]); 
+                reportChildError(errno, errorFds[1], "cannot set environment variable",  env.argv[i], 
+                                 _traceLevels); 
             }
         }
 
@@ -698,7 +706,8 @@ Activator::activate(const string& name,
         {
             if(chdir(pwdCStr) == -1)
             {
-                reportChildError(errno, errorFds[1], "cannot change working directory to",  pwdCStr);
+                reportChildError(errno, errorFds[1], "cannot change working directory to",  pwdCStr,
+                                 _traceLevels);
             }
         }
 
@@ -717,11 +726,11 @@ Activator::activate(const string& name,
         {
             if(errorFds[1] != -1)
             {
-                reportChildError(errno, errorFds[1], "cannot execute",  av.argv[0]);
+                reportChildError(errno, errorFds[1], "cannot execute",  av.argv[0], _traceLevels);
             }
             else
             {
-                reportChildError(errno, fds[1], "cannot execute",  av.argv[0]);
+                reportChildError(errno, fds[1], "cannot execute",  av.argv[0], _traceLevels);
             }
         }
     }
@@ -1354,7 +1363,13 @@ Activator::setInterrupt()
     SetEvent(_hIntr);
 #else
     char c = 0;
-    write(_fdIntrWrite, &c, 1);
+    ssize_t sz = write(_fdIntrWrite, &c, 1);
+    if(sz == -1)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = IceInternal::getSystemErrno();
+        throw ex;
+    }
 #endif
 }
 

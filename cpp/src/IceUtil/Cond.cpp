@@ -357,9 +357,13 @@ IceUtil::Cond::Cond()
 
 IceUtil::Cond::~Cond()
 {
+#ifndef NDEBUG
     int rc = 0;
     rc = pthread_cond_destroy(&_cond);
     assert(rc == 0);
+#else
+    pthread_cond_destroy(&_cond);
+#endif
 }
 
 void
