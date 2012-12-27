@@ -26,6 +26,15 @@
 //#    undef _POSIX_C_SOURCE
 //#endif
 
+//
+// Ruby defines _FILE_OFFSET_BITS without a guard; we undefine it to
+// avoid a warning
+//
+#if defined(__SUNPRO_CC) && defined(_FILE_OFFSET_BITS)
+   #undef _FILE_OFFSET_BITS
+#endif
+
+
 #include <ruby.h>
 
 //

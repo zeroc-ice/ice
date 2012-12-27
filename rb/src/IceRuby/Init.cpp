@@ -27,7 +27,7 @@ extern "C"
 {
 
 void
-Init_IceRuby()
+ICE_DECLSPEC_EXPORT Init_IceRuby()
 {
     iceModule = rb_define_module("Ice");
     initCommunicator(iceModule);

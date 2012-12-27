@@ -39,7 +39,7 @@ ifeq ($(CXX),CC)
     # notemsource: Could not find source for <template name>
 
     #
-    CXXWARNFLAGS     = +w -errtags -erroff=wvarhidenmem,wvarhidemem,notemsource
+    CXXWARNFLAGS     = +w -xwe -errtags -erroff=wvarhidenmem,wvarhidemem,notemsource
     CXXSCOPEFLAGS    = -xldscope=hidden
 
     CXXFLAGS         = -mt +p $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
