@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2rb
+NAME		= $(top_srcdir)/bin/slice2rb$(EXE_EXT)
 
 TARGETS		= $(NAME)
 

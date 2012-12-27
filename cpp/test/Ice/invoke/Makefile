@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
-SERVER		= server
+CLIENT		= client$(EXE_EXT)
+SERVER		= server$(EXE_EXT)
 
 TARGETS		= $(CLIENT) $(SERVER)
 

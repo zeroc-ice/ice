@@ -9,9 +9,9 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
-SERVER		= server
-COLLOCATED	= collocated
+CLIENT		= client$(EXE_EXT)
+SERVER		= server$(EXE_EXT)
+COLLOCATED	= collocated$(EXE_EXT)
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 

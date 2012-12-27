@@ -78,3 +78,5 @@ SLICE_LIBS		= -lslice$(SOVERSION)$(COMPSUFFIX) $(BASELIBS)
 
 ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32
 ICE_OS_LIBS		= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32
+
+EXE_EXT = .exe

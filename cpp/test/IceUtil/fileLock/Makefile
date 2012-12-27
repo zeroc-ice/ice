@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
-CLIENTF		= clientFail
+CLIENT		= client$(EXE_EXT)
+CLIENTF		= clientFail$(EXE_EXT)
 
 TARGETS		= $(CLIENT) $(CLIENTF)
 

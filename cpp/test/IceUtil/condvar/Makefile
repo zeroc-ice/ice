@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-WQ		= workqueue
-MATCH		= match
+WQ		= workqueue$(EXE_EXT)
+MATCH		= match$(EXE_EXT)
 
 TARGETS		= $(WQ) $(MATCH)
 

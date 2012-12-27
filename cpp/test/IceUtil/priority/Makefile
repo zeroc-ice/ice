@@ -9,7 +9,7 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
+CLIENT		= client$(EXE_EXT)
 
 TARGETS		= $(CLIENT)
 

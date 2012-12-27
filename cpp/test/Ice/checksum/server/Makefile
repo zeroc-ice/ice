@@ -9,7 +9,7 @@
 
 top_srcdir	= ../../../..
 
-SERVER		= server
+SERVER		= server$(EXE_EXT)
 
 TARGETS		= $(SERVER)
 

@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2cpp
+NAME		= $(top_srcdir)/bin/slice2cpp$(EXE_EXT)
 
 TARGETS		= $(NAME)
 
