@@ -13,8 +13,14 @@
 include	 $(top_srcdir)/../cpp/config/Make.rules.MINGW
 
 mkrblibfilename	= $(1).so
+#
+# Define the following names so the rule to build $(libdir)/$(LIBFILENAME)
+# is not override by $(libdir)/$(SONAME) and $(libdir)/$(LIBNAME)
+# targets.
+#
 mkrbsoname	= $(if $(2),lib$(1).xxx.$(2),lib$(1).xxx)
 mkrblibname     = $(1).xxx
+
 
 libdir		= $(top_srcdir)/ruby
 
