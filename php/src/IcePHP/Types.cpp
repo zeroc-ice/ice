@@ -126,43 +126,6 @@ addClassInfoByName(const ClassInfoPtr& p TSRMLS_DC)
 }
 
 static ClassInfoPtr
-getMostDerived(zend_class_entry* formal, zend_class_entry* cls, const ClassInfoPtr& c TSRMLS_DC)
-{
-    assert(checkClass(cls, formal));
-    ClassInfoPtr curr = c;
-
-    ClassInfoPtr info = getClassInfoByName(cls->name TSRMLS_CC);
-    if(info)
-    {
-        if(!curr || info->isA(curr->id))
-        {
-            curr = info;
-        }
-    }
-
-    if(cls->parent && checkClass(cls->parent, formal))
-    {
-        curr = getMostDerived(formal, cls->parent, curr TSRMLS_CC);
-    }
-
-    //
-    // Only check the interfaces if we don't have a base class.
-    //
-    if(!curr)
-    {
-        for(zend_uint i = 0; i < cls->num_interfaces && !info; ++i)
-        {
-            if(checkClass(cls->interfaces[i], formal))
-            {
-                curr = getMostDerived(formal, cls->interfaces[i], curr TSRMLS_CC);
-            }
-        }
-    }
-
-    return curr;
-}
-
-static ClassInfoPtr
 getClassInfoByClass(zend_class_entry* cls, zend_class_entry* formal TSRMLS_DC)
 {
     //

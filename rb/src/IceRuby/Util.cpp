@@ -22,14 +22,6 @@ using namespace IceRuby;
 namespace
 {
 
-bool
-checkIsInstance(VALUE p, const char* type)
-{
-    volatile VALUE rbType = callRuby(rb_path2class, type);
-    assert(!NIL_P(rbType));
-    return callRuby(rb_obj_is_instance_of, p, rbType) == Qtrue;
-}
-
 template<typename T>
 bool
 setVersion(VALUE p, const T& version, const char* type)
