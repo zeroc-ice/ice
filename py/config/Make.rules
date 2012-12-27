@@ -146,9 +146,9 @@ endif
 # A Python extension library cannot have a "lib" prefix, so Python-specific
 # functions are defined that strip "lib" from the regular library name.
 #
-mkpylibfilename		= $(subst lib,,$(call mklibfilename,$(1),$(2)))
-mkpysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
-mkpylibname		= $(subst lib,,$(call mklibname,$(1)))
+mkpylibfilename     = $(subst dy,dylib,$(subst lib,,$(call mklibfilename,$(1),$(2))))
+mkpysoname      = $(subst dy,dylib,$(subst lib,,$(call mksoname,$(1),$(2))))
+mkpylibname     = $(subst dy,dylib,$(subst lib,,$(call mklibname,$(1))))
 
 EVERYTHING		= all depend clean install
 

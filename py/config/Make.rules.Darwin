@@ -11,6 +11,11 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
+include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
+
+mksoname           	= $(if $(2),lib$(1).$(2).so,lib$(1).so)
+mklibname           	= lib$(1).so
+
 #
 # We require Python to be built as a Framework for the IcePy plug-in.
 #
@@ -20,33 +25,10 @@ ifneq ($(PYTHON_HOME),)
     endif
     PYTHON_LIBS		= -F$(patsubst %/Python.framework/Versions/,%,$(dir $(PYTHON_HOME))) -framework Python
 else
-    SDK_BASE_DIR	= /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-    PYTHON_HOME		= $(SDK_BASE_DIR)/System/Library/Frameworks/Python.framework/Versions/Current
-    PYTHON_LIBS		= -framework Python
+    XCODE_PATH  = $(shell xcode-select --print-path)
+    SDKS_DIR    = $(XCODE_PATH)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
+    PYTHON_HOME	= $(SDKS_DIR)/System/Library/Frameworks/Python.framework/Versions/Current
+    PYTHON_LIBS	= -framework Python
 endif
 
 PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
-
-CXX	                = xcrun clang++
-
-CXXFLAGS		= -Wall -Werror -D_REENTRANT
-
-ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
-else
-     CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
-endif
-
-#
-# C++ run-time libraries, necessary for linking some shared libraries.
-#
-CXXLIBS			=
-
-shlibldflags		= $(CXXFLAGS) -L$(libdir)
-
-mkshlib                 = $(CXX) -bundle $(shlibldflags) -o $(1) $(3) $(4)
-
-BASELIBS		= -lIceUtil -lpthread 
-LIBS			= -lIce $(BASELIBS)
-
-PLATFORM_HAS_READLINE   := no
