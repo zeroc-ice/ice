@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_FACTORY_MANAGER_F_H
-#define ICE_SERVANT_FACTORY_MANAGER_F_H
+#ifndef ICE_OBJECT_FACTORY_MANAGER_F_H
+#define ICE_OBJECT_FACTORY_MANAGER_F_H
 
 #include <IceUtil/Shared.h>
 
