@@ -722,7 +722,10 @@ IceSSL::TransceiverI::startRead(IceInternal::Buffer& buf)
         assert(!BIO_ctrl_get_read_request(_iocpBio));
 
         ERR_clear_error(); // Clear any spurious errors.
-        int ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), static_cast<int>(buf.b.end() - buf.i));
+#ifndef NDEBUG
+        int ret = 
+#endif
+            SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), static_cast<int>(buf.b.end() - buf.i));
         assert(ret <= 0 && SSL_get_error(_ssl, ret) == SSL_ERROR_WANT_READ);
 
         assert(BIO_ctrl_get_read_request(_iocpBio));
@@ -1001,7 +1004,11 @@ IceSSL::TransceiverI::receive()
     }
 
     assert(_readI == _readBuffer.end());
-    int n = BIO_write(_iocpBio, &_readBuffer[0], static_cast<int>(_readBuffer.size()));
+#ifndef NDEBUG
+    int n = 
+#endif
+        BIO_write(_iocpBio, &_readBuffer[0], static_cast<int>(_readBuffer.size()));
+
     assert(n == static_cast<int>(_readBuffer.size()));
     return true;
 }
@@ -1013,7 +1020,10 @@ IceSSL::TransceiverI::send()
     {
         assert(BIO_ctrl_pending(_iocpBio));
         _writeBuffer.resize(BIO_ctrl_pending(_iocpBio));
-        int n = BIO_read(_iocpBio, &_writeBuffer[0], static_cast<int>(_writeBuffer.size()));
+#ifndef NDEBUG
+        int n = 
+#endif
+            BIO_read(_iocpBio, &_writeBuffer[0], static_cast<int>(_writeBuffer.size()));
         assert(n == static_cast<int>(_writeBuffer.size()));
         _writeI = _writeBuffer.begin();
     }

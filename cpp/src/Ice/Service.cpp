@@ -230,7 +230,7 @@ public:
         DWORD d;
         LONG err = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
                                    IceUtil::stringToWstring(nativeToUTF8(stringConverter, createKey(source))).c_str(),
-                                   0, L"REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, &d);
+                                   0, const_cast<wchar_t*>(L"REG_SZ"), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, &d);
 
         if(err != ERROR_SUCCESS)
         {

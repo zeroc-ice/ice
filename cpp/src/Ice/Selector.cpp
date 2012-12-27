@@ -114,7 +114,7 @@ Selector::~Selector()
 void
 Selector::setup(int sizeIO)
 {
-    _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, sizeIO);
+    _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, sizeIO);
     if(_handle == NULL)
     {
         Ice::SocketException ex(__FILE__, __LINE__);
