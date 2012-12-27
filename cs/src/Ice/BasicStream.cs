@@ -4207,6 +4207,7 @@ namespace IceInternal
                 startSlice();
                 string mostDerivedId = _typeId;
                 ObjectFactoryManager servantFactoryManager = _stream.instance().servantFactoryManager();
+                Ice.CompactIdResolver compactIdResolver = _stream.instance().initializationData().compactIdResolver;
                 while(true)
                 {
                     //
@@ -4220,7 +4221,30 @@ namespace IceInternal
 
                     if(_compactId >= 0)
                     {
-                        _typeId = _stream.getTypeId(_compactId);
+                        //
+                        // Translate a compact (numeric) type ID into a string type ID.
+                        //
+                        _typeId = "";
+                        if(compactIdResolver != null)
+                        {
+                            try
+                            {
+                                _typeId = compactIdResolver(_compactId);
+                            }
+                            catch(Ice.LocalException)
+                            {
+                                throw;
+                            }
+                            catch(System.Exception ex)
+                            {
+                                throw new Ice.MarshalException("exception in CompactIdResolver for ID " + _compactId,
+                                                               ex);
+                            }
+                        }
+                        if(_typeId.Length == 0)
+                        {
+                            _typeId = _stream.getTypeId(_compactId);
+                        }
                     }
                 
                     if(_typeId.Length > 0)

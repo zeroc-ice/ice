@@ -55,7 +55,16 @@ namespace Ice
 #endif
 
     /// <summary>
-    /// A class that encpasulates data to initalize a communicator.
+    /// Applications that make use of compact type IDs to conserve space
+    /// when marshaling class instances, and also use the streaming API to
+    /// extract such classes, can intercept the translation between compact
+    /// type IDs and their corresponding string type IDs by installing an
+    /// instance of CompactIdResolver in InitializationData.
+    /// </summary>
+    public delegate string CompactIdResolver(int id);
+
+    /// <summary>
+    /// A class that encpasulates data to initialize a communicator.
     /// </summary>
     public class InitializationData : ICloneable
     {
@@ -99,6 +108,11 @@ namespace Ice
         /// The dispatcher for the communicator.
         /// </summary>
         public Dispatcher dispatcher;
+
+        /// <summary>
+        /// The compact type ID resolver.
+        /// </summary>
+        public CompactIdResolver compactIdResolver;
     }
 
     /// <summary>

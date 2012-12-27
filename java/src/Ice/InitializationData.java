@@ -83,4 +83,9 @@ public final class InitializationData implements Cloneable
      * The call dispatcher for the communicator.
      **/
     public Dispatcher dispatcher;
+
+    /**
+     * The compact type ID resolver.
+     **/
+    public CompactIdResolver compactIdResolver;
 }

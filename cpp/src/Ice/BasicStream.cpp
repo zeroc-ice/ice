@@ -2801,7 +2801,32 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
             _typeId.clear();
             if(compactIdResolver)
             {
-                _typeId = compactIdResolver->resolve(_compactId);
+                try
+                {
+                    _typeId = compactIdResolver->resolve(_compactId);
+                }
+                catch(const LocalException&)
+                {
+                    throw;
+                }
+                catch(const std::exception& ex)
+                {
+                    ostringstream ostr;
+                    ostr << "exception in CompactIdResolver for ID " << _compactId;
+                    string msg = ostr.str();
+                    string what = ex.what();
+                    if(!what.empty())
+                    {
+                        msg += ":\n" + what;
+                    }
+                    throw MarshalException(__FILE__, __LINE__, msg);
+                }
+                catch(...)
+                {
+                    ostringstream ostr;
+                    ostr << "unknown exception in CompactIdResolver for ID " << _compactId;
+                    throw MarshalException(__FILE__, __LINE__, ostr.str());
+                }
             }
             if(_typeId.empty())
             {

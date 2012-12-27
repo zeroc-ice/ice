@@ -3400,7 +3400,8 @@ public class BasicStream
             //
             startSlice();
             final String mostDerivedId = _typeId;
-            ObjectFactoryManager servantFactoryManager = _stream.instance().servantFactoryManager();
+            final ObjectFactoryManager servantFactoryManager = _stream.instance().servantFactoryManager();
+            final Ice.CompactIdResolver compactIdResolver = _stream.instance().initializationData().compactIdResolver;
             while(true)
             {
                 //
@@ -3414,7 +3415,29 @@ public class BasicStream
 
                 if(_compactId >= 0)
                 {
-                    _typeId = _stream.getTypeId(_compactId);
+                    //
+                    // Translate a compact (numeric) type ID into a string type ID.
+                    //
+                    _typeId = "";
+                    if(compactIdResolver != null)
+                    {
+                        try
+                        {
+                            _typeId = compactIdResolver.resolve(_compactId);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            throw ex;
+                        }
+                        catch(Throwable ex)
+                        {
+                            throw new Ice.MarshalException("exception in CompactIdResolver for ID " + _compactId, ex);
+                        }
+                    }
+                    if(_typeId.length() == 0)
+                    {
+                        _typeId = _stream.getTypeId(_compactId);
+                    }
                 }
                 
                 if(_typeId.length() > 0)
