@@ -38,6 +38,10 @@ public class Main extends JFrame
                 System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid Admin");
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
+            else if(System.getProperty("os.name").startsWith("Windows"))
+            {
+                UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
+            }
             else  // JGoodies L&F
             {
                 UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
