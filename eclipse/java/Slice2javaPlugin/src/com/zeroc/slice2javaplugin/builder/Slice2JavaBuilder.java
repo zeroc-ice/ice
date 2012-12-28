@@ -431,9 +431,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         throws CoreException
     {
         try
-        {
-            
-            
+        {    
             if(state.out != null)
             {
                 for(Iterator<String> p = builder.command().iterator(); p.hasNext();)
@@ -463,9 +461,9 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
                 errThread.join();
             }
             
-            if(status != 0 && state.err != null)
+            if(status != 0)
             {
-                state.err.println("slice2java status: " + status);
+                throw new RuntimeException(err == null ? out.toString() : err.toString());
             }
 
             return status;
