@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if [[ -d "/Library/Developer/Ice-3.5b" ]]; then
-    if [[ -L "/Library/Developer/Ice-3.5" ]]; then
-        rm -f /Library/Developer/Ice-3.5
+if [[ -d "/Library/Developer/Ice-@ver@" ]]; then
+    if [[ -L "/Library/Developer/Ice-@mmver@" ]]; then
+        rm -f /Library/Developer/Ice-@mmver@
     fi
-    ln -s "/Library/Developer/IceT-3.5b" "/Library/Developer/Ice-3.5"
+    ln -s "/Library/Developer/Ice-@ver@" "/Library/Developer/Ice-@mmver@"
 fi

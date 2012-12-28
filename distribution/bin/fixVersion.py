@@ -84,9 +84,6 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "window
 for f in FixUtil.find("*.py"):
     FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)], False)
 
-
-
-
 #
 # Demo config files and scripts
 #

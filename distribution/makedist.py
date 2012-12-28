@@ -93,6 +93,7 @@ config = open(os.path.join("config", "Make.common.rules"), "r")
 version = re.search("VERSION\s*=\s*([0-9\.b]*)", config.read()).group(1)
 mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
 libversion = mmversion.replace('.', '')
+
 versions = (version, mmversion, libversion)
 config.close()
 
@@ -138,6 +139,15 @@ def createDistfiles(platform, whichDestDir):
 	fixVersion(os.path.join("src", "rpm", "glacier2router.conf"), *versions)
 	fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
 	fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
+
+    #
+    # Fix OS X installer files.
+    #
+    for root, dirnames, filenames in os.walk('src/mac/Ice'):
+        for f in filenames:
+            if fnmatch.fnmatch(f, "*.txt") or fnmatch.fnmatch(f, "*.xml") or fnmatch.fnmatch(f, "*.sh"):
+                filepath = os.path.join(root, f)
+                fixVersion(filepath, *versions)
 
     for root, dirnames, filenames in os.walk('.'):
 	for f in filenames:

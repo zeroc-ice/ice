@@ -1,6 +1,12 @@
-This installer installs the following components:
+Installing Ice @ver@
 
- - Ice in /opt/Ice-3.5b
- - IceGrid Administrative Console in /Applications
+Double-click on Ice-@ver@.pkg and follow the instructions to install Ice on your computer.
 
-To uninstall Ice 3.5b, please use the uninstall script that accompanies the distribution.
+Removing Ice @ver@
+
+To remove Ice @ver@ from your computer, execute the uninstall.sh script as root in a Terminal:
+
+  $ cd /Volumes/Ice-@ver@
+  $ sudo ./uninstall.sh
+   
+uninstall.sh removes all Ice @ver@ installations from your computer.

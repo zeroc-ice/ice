@@ -1,15 +1,15 @@
 #!/bin/sh
 
 #
-# This script uninstalls all Ice Touch 1.3b packages currently installed on this system.
+# This script uninstalls all Ice @ver@ packages currently installed on this system.
 #
 
 showHelp ()
 {
-    echo "Ice 3.5b uninstall script"
+    echo "Ice @ver@ uninstall script"
     echo "Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved."
     echo "usage: "
-    echo "  \"sudo $0\" -- uninstall all Ice 3.5b packages installed on this system."
+    echo "  \"sudo $0\" -- uninstall all Ice @ver@ packages installed on this system."
 }
 
 #
@@ -109,7 +109,7 @@ answer=""
 
 while [[ $ok -eq 0 ]]
 do
-    echo "Uninstall all Ice 3.5b packages installed on this sytem? Yes/No"
+    echo "Uninstall all Ice @ver@ packages installed on this sytem? Yes/No"
     read -p "$*" answer
     if [[ ! "$answer" ]]; then
         answer="no"
@@ -140,4 +140,4 @@ fi
 uninstallPackage "com.zeroc.ice.pkg"
 uninstallPackage "com.zeroc.icegridadmin.pkg"
 
-echo "Ice 3.5b uninstallation completed successfully"
+echo "Ice @ver@ uninstallation completed successfully"

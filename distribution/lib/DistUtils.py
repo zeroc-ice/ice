@@ -827,7 +827,7 @@ class Darwin(Platform):
         pmdoc = os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "Ice.pmdoc")
         os.system("/Applications/PackageMaker.app/Contents/MacOS/PackageMaker --doc " + pmdoc + " --out " + buildRootDir + 
                   "/installer/Ice-" + version + ".pkg")
-        copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "readme.rtf"),
+        copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "README.txt"),
              os.path.join(buildRootDir, "installer"))
         copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "uninstall.sh"),
              os.path.join(buildRootDir, "installer"))
