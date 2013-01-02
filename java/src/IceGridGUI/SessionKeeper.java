@@ -1898,13 +1898,13 @@ public class SessionKeeper
                                 try
                                 {
                                     Ice.Identity id = new Ice.Identity();
-                                    id.name = "router";
+                                    id.name = "Locator";
                                     id.category = _directInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
                                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
-                                    if(hasSecureEndpoints(endpoint.toString()))
+                                    if(containsSecureEndpoints(endpoint.toString()))
                                     {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
@@ -1935,7 +1935,7 @@ public class SessionKeeper
                                 }
                                 if(_x509CertificateDefault)
                                 {
-                                    if(hasSecureEndpoints(_directCustomEndpointValue.getText()))
+                                    if(containsSecureEndpoints(_directCustomEndpointValue.getText()))
                                     {
                                         _x509CertificateYesButton.setSelected(true);
                                         _certificateAuthButton.setSelected(true);
@@ -1959,7 +1959,7 @@ public class SessionKeeper
                                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
-                                    if(hasSecureEndpoints(endpoint.toString()))
+                                    if(containsSecureEndpoints(endpoint.toString()))
                                     {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
@@ -1990,7 +1990,7 @@ public class SessionKeeper
                                 }
                                 if(_x509CertificateDefault)
                                 {
-                                    if(hasSecureEndpoints(_routedCustomEndpointValue.getText()))
+                                    if(containsSecureEndpoints(_routedCustomEndpointValue.getText()))
                                     {
                                         _x509CertificateYesButton.setSelected(true);
                                         _certificateAuthButton.setSelected(true);
@@ -2130,62 +2130,10 @@ public class SessionKeeper
                             if(_directDefaultEndpoints.isSelected())
                             {
                                 inf.setHost(_directDefaultEndpointHost.getText());
-                                try
-                                {
-                                    String port = _directDefaultEndpointPort.getText();
-                                    if(port != null && port.length() > 0)
-                                    {
-                                        inf.setPort(Integer.parseInt(port));
-                                        inf.setDefaultPort(false);
-                                    }
-                                    else
-                                    {
-                                        inf.setDefaultPort(true);
-                                    }
-                                }
-                                catch(NumberFormatException ex)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        ConnectionWizardDialog.this,
-                                        "Invalid port number `" + _directDefaultEndpointPort.getText() + "'",
-                                        "Invalid port number",
-                                        JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
                                 inf.setSSL(_directDefaultEndpointSSL.isSelected());
-                                secureEndpoints = _directDefaultEndpointSSL.isSelected();
                             }
                             else
                             {
-                                try
-                                {
-                                    Ice.Identity id = new Ice.Identity();
-                                    id.name = "locator";
-                                    id.category = _directInstanceName.getText();
-                                    StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
-                                    endpoint.append(":");
-                                    endpoint.append(_directCustomEndpointValue.getText());
-                                    secureEndpoints = hasSecureEndpoints(endpoint.toString());
-                                }
-                                catch(Ice.EndpointParseException ex)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        ConnectionWizardDialog.this,
-                                        ex.str,
-                                        "Error parsing endpoint",
-                                        JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                                catch(Ice.ProxyParseException ex)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        ConnectionWizardDialog.this,
-                                        ex.str,
-                                        "Error parsing endpoint",
-                                        JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
                                 inf.setEndpoint(_directCustomEndpointValue.getText());
                             }
                         }
@@ -2227,62 +2175,10 @@ public class SessionKeeper
                             if(_routedDefaultEndpoints.isSelected())
                             {
                                 inf.setHost(_routedDefaultEndpointHost.getText());
-                                try
-                                {
-                                    String port = _routedDefaultEndpointPort.getText();
-                                    if(port != null && port.length() > 0)
-                                    {
-                                        inf.setPort(Integer.parseInt(port));
-                                        inf.setDefaultPort(false);
-                                    }
-                                    else
-                                    {
-                                        inf.setDefaultPort(true);
-                                    }
-                                }
-                                catch(NumberFormatException ex)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        ConnectionWizardDialog.this,
-                                        "Invalid port number `" + _routedDefaultEndpointPort.getText() + "'",
-                                        "Invalid port number",
-                                        JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
                                 inf.setSSL(_routedDefaultEndpointSSL.isSelected());
-                                secureEndpoints = _routedDefaultEndpointSSL.isSelected();
                             }
                             else
                             {
-                                try
-                                {
-                                    Ice.Identity id = new Ice.Identity();
-                                    id.name = "router";
-                                    id.category = _routedInstanceName.getText();
-                                    StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
-                                    endpoint.append(":");
-                                    endpoint.append(_routedCustomEndpointValue.getText());
-                                    secureEndpoints = hasSecureEndpoints(endpoint.toString());
-                                }
-                                catch(Ice.EndpointParseException ex)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        ConnectionWizardDialog.this,
-                                        ex.str,
-                                        "Error parsing endpoint",
-                                        JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                                catch(Ice.ProxyParseException ex)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        ConnectionWizardDialog.this,
-                                        ex.str,
-                                        "Error parsing endpoint",
-                                        JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
                                 inf.setEndpoint(_routedCustomEndpointValue.getText());
                             }
                         }
@@ -2296,16 +2192,6 @@ public class SessionKeeper
                         {
                             inf.setAuth(AuthType.X509CertificateAuthType);
                             inf.setUseX509Certificate(true);
-                        }
-
-                        //
-                        // If there isn't secure endpoints, we must set auth type to username password
-                        // and use X509 certificate to false.
-                        //
-                        if(!secureEndpoints)
-                        {
-                            inf.setAuth(AuthType.UsernamePasswordAuthType);
-                            inf.setUseX509Certificate(false);
                         }
                         
                         try
@@ -2609,6 +2495,16 @@ public class SessionKeeper
 
         boolean validateConfiguration()
         {
+            //
+            // If there isn't secure endpoints, we must set auth type to username password
+            // and use X509 certificate to false.
+            //
+            if(!hasSecureEndpoints())
+            {
+                _x509CertificateNoButton.setSelected(true);
+                _usernamePasswordAuthButton.setSelected(true);
+            }
+
             if(!validateWizardStep(WizardStep.ConnectionTypeStep))
             {
                 return false;
@@ -2844,6 +2740,46 @@ public class SessionKeeper
             return _conf;
         }
 
+        public boolean hasSecureEndpoints()
+        {
+            if(_directConnection.isSelected())
+            {
+                if(_directDefaultEndpoints.isSelected())
+                {
+                    return _directDefaultEndpointSSL.isSelected();
+                }
+                else
+                {
+                    Ice.Identity id = new Ice.Identity();
+                    id.name = "Locator";
+                    id.category = _directInstanceName.getText();
+                    StringBuilder endpoint = new StringBuilder();
+                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                    endpoint.append(":");
+                    endpoint.append(_directCustomEndpointValue.getText());
+                    return containsSecureEndpoints(endpoint.toString());
+                }
+            }
+            else
+            {
+                if(_routedDefaultEndpoints.isSelected())
+                {
+                    return _routedDefaultEndpointSSL.isSelected();
+                }
+                else
+                {
+                    Ice.Identity id = new Ice.Identity();
+                    id.name = "router";
+                    id.category = _routedInstanceName.getText();
+                    StringBuilder endpoint = new StringBuilder();
+                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                    endpoint.append(":");
+                    endpoint.append(_routedCustomEndpointValue.getText());
+                    return containsSecureEndpoints(endpoint.toString());
+                }
+            }
+        }
+
         private JPanel _cardPanel;
         private CardLayout _cardLayout;
         private JButton _backButton;
@@ -2927,7 +2863,7 @@ public class SessionKeeper
         private boolean _x509CertificateDefault;
     }
 
-    private boolean hasSecureEndpoints(String str)
+    private boolean containsSecureEndpoints(String str)
     {
         for(Ice.Endpoint endpoint : _coordinator.getWizardCommunicator().stringToProxy(str).ice_getEndpoints())
         {
@@ -3003,13 +2939,13 @@ public class SessionKeeper
                                    new JLabel(inf.getEndpoint()));
 
                     Ice.Identity id = new Ice.Identity();
-                    id.name = inf.getDirect() ? "locator" : "router";
+                    id.name = inf.getDirect() ? "Locator" : "router";
                     id.category = inf.getInstanceName();
                     StringBuilder endpoint = new StringBuilder();
                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(inf.getEndpoint());
-                    ssl = hasSecureEndpoints(endpoint.toString());
+                    ssl = containsSecureEndpoints(endpoint.toString());
                 }
 
                 if(inf.getAuth() == AuthType.UsernamePasswordAuthType)
