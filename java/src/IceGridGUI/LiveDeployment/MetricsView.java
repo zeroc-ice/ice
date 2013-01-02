@@ -92,6 +92,7 @@ class MetricsView extends TreeNode
                                 {
                                     _enabled = true;
                                     getRoot().getTreeModel().nodeChanged(MetricsView.this);
+                                    getRoot().getCoordinator().showActions(MetricsView.this);
                                     if(getRoot().getTree().getLastSelectedPathComponent() == MetricsView.this)
                                     {
                                         //
@@ -160,6 +161,7 @@ class MetricsView extends TreeNode
                                     _enabled = false;
                                     _editor.show(MetricsView.this, null, 0);
                                     getRoot().getTreeModel().nodeChanged(MetricsView.this);
+                                    getRoot().getCoordinator().showActions(MetricsView.this);
                                     if(getRoot().getTree().getLastSelectedPathComponent() == MetricsView.this)
                                     {
                                         //

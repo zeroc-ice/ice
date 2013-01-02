@@ -410,6 +410,15 @@ public class Coordinator
             _appMenu.setEnabled(false);
 
             //
+            // Metrics View sub-menu
+            //
+            _metricsViewMenu = new JMenu("Metrics View");
+            _metricsViewMenu.setEnabled(false);
+            toolsMenu.add(_metricsViewMenu);
+            _metricsViewMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.ENABLE_METRICS_VIEW));
+            _metricsViewMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.DISABLE_METRICS_VIEW));
+
+            //
             // Node sub-menu
             //
             _nodeMenu = new JMenu("Node");
@@ -3380,6 +3389,9 @@ public class Coordinator
         
         _appMenu.setEnabled(true);
 
+        _metricsViewMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.ENABLE_METRICS_VIEW] ||
+                                    availableActions[IceGridGUI.LiveDeployment.TreeNode.DISABLE_METRICS_VIEW]);
+
         _nodeMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
 
         _registryMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY]);
@@ -3414,6 +3426,7 @@ public class Coordinator
             availableActions[IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVICE]);
 
         _appMenu.setEnabled(false);
+        _metricsViewMenu.setEnabled(false);
         _nodeMenu.setEnabled(false);
         _registryMenu.setEnabled(false);
         _signalMenu.setEnabled(false);
@@ -3755,6 +3768,7 @@ public class Coordinator
     private JMenu _newServiceMenu;
     private JMenu _newTemplateMenu;
     private JMenu _appMenu;
+    private JMenu _metricsViewMenu;
     private JMenu _nodeMenu;
     private JMenu _registryMenu;
     private JMenu _serverMenu;
