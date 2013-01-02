@@ -133,22 +133,19 @@ public class Coordinator
 
         void setTarget(Action t)
         {
-            if(_target != t)
+            if(_target != null)
             {
-                if(_target != null)
-                {
-                    _target.removePropertyChangeListener(this);
-                }
-                _target = t;
-                if(_target != null)
-                {
-                    _target.addPropertyChangeListener(this);
-                    setEnabled(_target.isEnabled());
-                }
-                else
-                {
-                    setEnabled(false);
-                }
+                _target.removePropertyChangeListener(this);
+            }
+            _target = t;
+            if(_target != null)
+            {
+                _target.addPropertyChangeListener(this);
+                setEnabled(_target.isEnabled());
+            }
+            else
+            {
+                setEnabled(false);
             }
         }
 
@@ -205,7 +202,7 @@ public class Coordinator
                 JTree tree = (JTree)o;
                 if(tree.getModel().getRoot() instanceof IceGridGUI.Application.Root)
                 {
-                    enableTreetEditActions();
+                    enableTreeEditActions();
                 }
                 else
                 {
@@ -259,19 +256,16 @@ public class Coordinator
                 _moveDown.setTarget(null);
             }
         }
+    }
 
-        private void enableTreetEditActions()
-        {
-            if(_copy.getTarget() != _appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY))
-            {
-                _cut.setTarget(null);
-                _copy.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY));
-                _paste.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.PASTE));
-                _delete.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.DELETE));
-                _moveUp.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_UP));
-                _moveDown.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_DOWN));
-            }
-        }
+    private void enableTreeEditActions()
+    {
+        _cut.setTarget(null);
+        _copy.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.COPY));
+        _paste.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.PASTE));
+        _delete.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.DELETE));
+        _moveUp.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_UP));
+        _moveDown.setTarget(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.MOVE_DOWN));
     }
 
     private class MenuBar extends JMenuBar
@@ -3425,6 +3419,8 @@ public class Coordinator
         _signalMenu.setEnabled(false);
         _serverMenu.setEnabled(false);
         _serviceMenu.setEnabled(false);
+
+        enableTreeEditActions();
     }
 
     public void removeGraphView(GraphView view)
