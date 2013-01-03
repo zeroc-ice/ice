@@ -19,7 +19,7 @@ for top_srcdir in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.join(top_srcdir, "..", "config", "makedepend.py")):
         break
 else:
-    raise "can't find top level source directory!"
+    raise RuntimeError("can't find top level source directory!")
     
 def contains(s, words):
     i = -1

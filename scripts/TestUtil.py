@@ -160,7 +160,7 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 toplevel = path[0]
 
 def sanitize(cp):
@@ -716,7 +716,7 @@ def getDefaultMapping():
     for i in range(0, len(here)):
         if here[i] in ["cpp", "cs", "java", "php", "py", "rb", "cppe", "javae", "tmp"]:
             return here[i]
-    raise "cannot determine mapping"
+    raise RuntimeError("cannot determine mapping")
 
 def getStringIO():
     if sys.version_info[0] == 2:
@@ -973,7 +973,7 @@ def directoryToPackage():
             break
         after.insert(0, current)
     else:
-        raise "cannot find language dir"
+        raise RuntimeError("cannot find language dir")
     return ".".join(after)
 
 def getDefaultServerFile():
@@ -1181,7 +1181,7 @@ def getMirrorDir(base, mapping):
             break
         after.insert(0, current)
     else:
-        raise "cannot find language dir"
+        raise RuntimeError("cannot find language dir")
     return os.path.join(before, mapping, *after)
 
 def getClientCrossTestDir(base):
@@ -1200,7 +1200,7 @@ def getClientCrossTestDir(base):
             break
         after.insert(0, current)
     else:
-        raise "cannot find language dir"
+        raise RuntimeError("cannot find language dir")
     return os.path.join(clientHome, lang, *after)
 
 
@@ -1522,7 +1522,7 @@ def getTestName():
         if here[i] == lang:
             break
     else:
-        raise "cannot find language dir"
+        raise RuntimeError("cannot find language dir")
     here = here[:i-1]
     here.reverse()
     # The crossTests list is in UNIX format.

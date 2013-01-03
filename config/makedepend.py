@@ -19,7 +19,7 @@ for top_srcdir in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.join(top_srcdir, "..", "config", "makedepend.py")):
         break
 else:
-    raise "can't find top level source directory!"
+    raise RuntimeError("can't find top level source directory!")
 
 subincludedir = top_srcdir + "/include"
 subcppincludedir = top_srcdir + "/../cpp/include"
@@ -27,7 +27,7 @@ subcppincludedir = top_srcdir + "/../cpp/include"
 try:
     opts, args = getopt.getopt(sys.argv[1:], "n", ["nmake"])
 except getopt.GetoptError:
-    raise "invalid arguments"
+    raise RuntimeError("invalid arguments")
 
 prefix = None
 if len(args) > 0:
