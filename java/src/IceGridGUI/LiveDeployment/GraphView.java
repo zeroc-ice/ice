@@ -11,6 +11,7 @@ package IceGridGUI.LiveDeployment;
 
 import java.util.Map;
 import java.util.List;
+import java.util.Stack;
 import java.util.HashMap;
 import java.util.ArrayList;
 
@@ -352,34 +353,12 @@ public class GraphView extends JFrame implements MetricsFieldContext
 
                             public void exception(final Ice.LocalException e)
                             {
-                                _queue.enqueue(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            removeRows(m);
-                                        }
-                                    }, false);
-                                if(!(e instanceof Ice.ObjectNotExistException) &&
-                                   !(e instanceof Ice.CommunicatorDestroyedException) &&
-                                   !(e instanceof Ice.ConnectionRefusedException))
-                                {
-                                    handleError(m, e.toString());
-                                }
+                                addData(m, null, 0);
                             }
 
                             public void exception(final Ice.UserException e)
                             {
-                                _queue.enqueue(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            removeRows(m);
-                                        }
-                                    }, false);
-                                if(!(e instanceof IceMX.UnknownMetricsView))
-                                {
-                                    handleError(m, e.toString());
-                                }
+                                addData(m, null, 0);
                             }
                         };
                     try
@@ -388,17 +367,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     }
                     catch(Ice.LocalException e)
                     {
-                        _queue.enqueue(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    removeRows(m);
-                                }
-                            }, false);
-                        if(!(e instanceof Ice.CommunicatorDestroyedException))
-                        {
-                            handleError(m, e.toString());
-                        }
+                        addData(m, null, 0);
                     }
                 }
                 if(!_done)
@@ -427,21 +396,6 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 _done = true;
                 notify();
             }
-        }
-
-        private void
-        handleError(final MetricsViewInfo metrics, final String error)
-        {
-            _queue.enqueue(new Runnable()
-                {
-                    public void run()
-                    {
-                        JOptionPane.showMessageDialog(GraphView.this,
-                                        "Error retrieving metrics view from `" + metrics.toString() + "'\n" + error, 
-                                        "Error",
-                                        JOptionPane.ERROR_MESSAGE);
-                    }
-                }, false);
         }
 
         private int _period;
@@ -511,8 +465,8 @@ public class GraphView extends JFrame implements MetricsFieldContext
                         builder.rowGroupingEnabled(true);
                         final JSpinner spinner = new JSpinner(refreshPeriod);
                         builder.append("Sample interval (s):", spinner);
-                        builder.append("", new JLabel("<html><p>Sample interval in seconds, minimum values is 1 second," +
-                                                      "<br/> maximun value is 3600 seconds.</p></html>"));
+                        builder.append("", new JLabel("<html><p>Sample interval in seconds, minimum values is 1 " +
+                                                      "second,<br/> maximun value is 3600 seconds.</p></html>"));
                         refreshPanel = builder.getPanel();
                     }
 
@@ -563,7 +517,8 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 {
                     if(convertColumnIndexToModel(columnAtPoint(e.getPoint())) == 6)
                     {
-                        return _legendModel.getRows(new int[]{rowAtPoint(e.getPoint())})[0].cell.getField().getColumnToolTip();
+                        return _legendModel.getRows(new int[]{rowAtPoint(e.getPoint())})[0].cell.getField().
+                                                                                                    getColumnToolTip();
                     }
                     else
                     {
@@ -636,20 +591,27 @@ public class GraphView extends JFrame implements MetricsFieldContext
                             {
                                 for(MetricsRow row : rows)
                                 {
-                                     String seriesClass = getSeriesClass(row.series);
-                                    _styles.remove(seriesClass);
-                                    //
-                                    // Don't remove the XYChart.Series object here, to avoid the series style classes 
-                                    // to be reasign by JavaFX.
-                                    //
-                                    // _chart.getData().remove(row.series);
-                                    try
+                                    for(int i = 0; i < row.series.size(); ++i)
                                     {
-                                        row.series.getData().clear();
-                                    }
-                                    catch(NullPointerException ex)
-                                    {
-                                        // JavaFX bug
+                                        XYChart.Series<Number, Number> series = row.series.get(i);
+                                        String seriesClass = getSeriesClass(series);
+                                        if(seriesClass != null)
+                                        {
+                                            _styles.remove(seriesClass);
+                                        }
+                                        //
+                                        // Don't remove the XYChart.Series object here, to avoid the series
+                                        // style classes to be reasign by JavaFX.
+                                        //
+                                        // _chart.getData().remove(row.series);
+                                        try
+                                        {
+                                            series.getData().clear();
+                                        }
+                                        catch(NullPointerException ex)
+                                        {
+                                            // JavaFX bug
+                                        }
                                     }
                                 }
                             }
@@ -885,21 +847,28 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 {
                     for(MetricsRow row : rows)
                     {
-                         String seriesClass = getSeriesClass(row.series);
-                        _styles.remove(seriesClass);
+                         String seriesClass = getSeriesClass(row.series.peek());
+                         if(seriesClass != null)
+                         {
+                            _styles.remove(seriesClass);
+                        }
                         //
                         // Don't remove the XYChart.Series object here, to avoid the series style classes 
                         // to be reasign by JavaFX.
                         //
                         // _chart.getData().remove(row.series);
-                        if(row.series == null || row.series.getData() == null)
+                        for(int i = 0; i < row.series.size(); ++i)
                         {
-                            continue;
-                        }
+                            XYChart.Series<Number, Number> series = row.series.get(i);
+                            if(series == null || series.getData() == null)
+                            {
+                                continue;
+                            }
 
-                        while(row.series.getData().size() > 0)
-                        {
-                            row.series.getData().remove(0);
+                            while(series.getData().size() > 0)
+                            {
+                                series.getData().remove(0);
+                            }
                         }
                     }
                 }
@@ -1061,10 +1030,12 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                 String color = DefaultColors[_chart.getData().size() % DefaultColors.length];
                                 final MetricsRow row = new MetricsRow(data.info, j, color, 
                                                                       new XYChart.Series<Number, Number>());
-                                _chart.getData().add(row.series);
 
-                                String styleClass = getSeriesClass(row.series);
-                                addStyle(row.series, styleClass, color);
+                                XYChart.Series<Number, Number> series = row.series.peek();
+                                _chart.getData().add(series);
+
+                                String styleClass = getSeriesClass(series);
+                                addStyle(series, styleClass, color);
                                 setNodesStyle(styleClass);
 
                                 columns.put(j.getField().getFieldName(), row);
@@ -1072,7 +1043,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                 //
                                 // When a line is clicked we select the correspoding row in the legend table.
                                 //
-                                javafx.scene.Node n = _chart.lookup(".chart-series-line." + getSeriesClass(row.series));
+                                javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
                                 if(n != null)
                                 {
                                     n.setOnMousePressed(new EventHandler<MouseEvent>()
@@ -1123,6 +1094,69 @@ public class GraphView extends JFrame implements MetricsFieldContext
             }, true);
     }
 
+    //
+    // Added a new chart series to an existing row, the graph series will use the
+    // same configuration, the row cell field must be reset so calculations doesn't 
+    // take into account previous data. If we don't reset fields here caculations
+    // can be bogus in case the view was disabled and the data in the view was reset.
+    //
+    void addSeries(final MetricsRow row)
+    {
+        XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+        row.series.push(series);
+        _chart.getData().add(series);
+
+        //
+        // Retrieve the style class asigned by JavaFX to this series, and set the
+        // same style
+        //
+        String styleClass = getSeriesClass(series);
+        addStyle(series, styleClass, row.color);
+        setNodesStyle(styleClass);
+
+        //
+        // Reset the cell field necessary to avoid bogus calculations.
+        //
+        row.cell.resetField();
+
+        //
+        // We need also a new click handler so click works in all segments 
+        // of the line.
+        // 
+        // When a line is clicked we select the correspoding row in the legend table.
+        //
+        javafx.scene.Node n = _chart.lookup(".chart-series-line." + styleClass);
+        if(n != null)
+        {
+            n.setOnMousePressed(new EventHandler<MouseEvent>()
+            {
+                @Override public void 
+                handle(MouseEvent e)
+                {
+                    if(e.getEventType() == MouseEvent.MOUSE_PRESSED &&
+                       e.getButton() == MouseButton.PRIMARY)
+                    {
+                        //
+                        // Must run in Swing thread.
+                        //
+                        _queue.enqueue(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    int i = _legendModel.getRowIndex(row);
+                                    if(i != -1)
+                                    {
+                                        i = _legendTable.convertRowIndexToView(i);
+                                        _legendTable.setRowSelectionInterval(i, i);
+                                    }
+                                }
+                            }, false);
+                    }
+                }
+            });
+        }
+    }
+
     private void addData(final MetricsViewInfo info, final Map<String, IceMX.Metrics[]> data, 
                          final long timestamp)
     {
@@ -1134,68 +1168,161 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 @Override
                 public void run()
                 {
-                    Map<String, Map<String, Map<String, MetricsRow>>> metricsCollection = _series.get(info);
-                    if(metricsCollection != null)
+                    Map<String, Map<String, Map<String, MetricsRow>>> series = _series.get(info);
+                    if(series == null)
                     {
-                        for(Map.Entry<String, IceMX.Metrics[]> i : data.entrySet())
+                        return;
+                    }
+
+                    for(Map.Entry<String, Map<String, Map<String, MetricsRow>>> i : series.entrySet())
+                    {
+                        IceMX.Metrics[] metricsSeq = null;
+                        if(data != null)
                         {
-                            Map<String, Map<String, MetricsRow>> rows = metricsCollection.get(i.getKey());
-                            if(rows == null)
-                            {
-                                continue;
-                            }
+                            metricsSeq = data.get(i.getKey());
+                        }
 
-                            for(IceMX.Metrics metrics : i.getValue())
+                        //
+                        // Iterate over all configured values, if there isn't data for one configured
+                        // field we need to add a gap.
+                        //
+
+                        for(Map.Entry<String, Map<String, MetricsRow>> j : i.getValue().entrySet())
+                        {
+                            IceMX.Metrics metrics = null;
+
+                            if(metricsSeq != null)
                             {
-                                Map<String, MetricsRow> columns = rows.get(metrics.id);
-                                if(columns == null)
+                                for(IceMX.Metrics m : metricsSeq)
                                 {
-                                    continue;
+                                    if(m.id.equals(j.getKey()))
+                                    {
+                                        metrics = m;
+                                        break;
+                                    }
                                 }
-
-                                for(Map.Entry<String, MetricsRow> j : columns.entrySet())
+                            }
+                            for(Map.Entry<String, MetricsRow> k : j.getValue().entrySet())
+                            {
+                                MetricsRow row = k.getValue();
+                                //
+                                // If there isn't a metrics object we disable the row and add a dummy value.
+                                //
+                                if(metrics == null)
+                                {
+                                    //
+                                    // If the row isn't disabled we add a new serie to represent the gap
+                                    // and mark the row as disabled.
+                                    //
+                                    if(!row.disabled)
+                                    {
+                                        row.series.push(new XYChart.Series<Number, Number>());
+                                        row.disabled = true;
+                                    }
+                                    //
+                                    // This dummy value is added to represent gap sizes, but isn't displayed
+                                    // as the series isn't added to the graph.
+                                    //
+                                    row.series.peek().getData().add(new XYChart.Data<Number, Number>(0, 0));
+                                }
+                                else
                                 {
                                     try
                                     {
-                                        MetricsRow row = j.getValue();
+                                        if(row.disabled)
+                                        {
+                                            addSeries(row);
+                                            row.disabled = false;
+                                        }
+
                                         Number value = row.cell.getValue(metrics, timestamp);
+                                        //
+                                        // The cell returns null to indicate the value must be skipped,
+                                        // this is usually because it needs two values to calculate
+                                        // the average.
+                                        //
                                         if(value == null)
                                         {
                                             continue;
                                         }
-                                        row.series.getData().add(new XYChart.Data<Number, Number>(
-                                                                                    timestamp, 
-                                                                                    value));
 
-                                        final int n = getMaximumSamples();
-                                        while(row.series.getData().size() > n)
-                                        {
-                                            row.series.getData().remove(0);
-                                        }
+                                        row.series.peek().getData().add(
+                                            new XYChart.Data<Number, Number>(timestamp, value));
                                     }
                                     catch(java.lang.RuntimeException ex)
                                     {
                                         ex.printStackTrace();
                                     }
                                 }
+
+                                //
+                                // Remove the vertices from the beginning of the series that exceeded 
+                                // the maximum number of samples.
+                                //
+                                adjustSize(row);
                             }
                         }
-                        //
-                        // Fire an event on the legend model to update all cells.
-                        //
-                        _queue.enqueue(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    _legendModel.fireTableChanged(
-                                                new TableModelEvent(_legendModel, 0, _legendModel.getRowCount() - 1, 
-                                                                    TableModelEvent.ALL_COLUMNS, 
-                                                                    TableModelEvent.UPDATE));
-                                }
-                            }, false);
                     }
+                    //
+                    // Fire an event on the legend model to update all cells.
+                    //
+                    _queue.enqueue(new Runnable()
+                        {
+                            public void run()
+                            {
+                                _legendModel.fireTableChanged(
+                                            new TableModelEvent(_legendModel, 0, _legendModel.getRowCount() - 1, 
+                                                                TableModelEvent.ALL_COLUMNS, 
+                                                                TableModelEvent.UPDATE));
+                            }
+                        }, false);
                 }
             }, true);
+    }
+
+    int seriesSize(MetricsRow row)
+    {
+        int size = 0;
+        for(int i = 0; i < row.series.size(); ++i)
+        {
+            size += row.series.get(i).getData().size();
+        }
+        return size;
+    }
+
+    void adjustSize(MetricsRow row)
+    {
+        int samples = seriesSize(row);
+        final int n = getMaximumSamples();
+        while(samples > n)
+        {
+            for(int i = 0; i < row.series.size(); ++i)
+            {
+                XYChart.Series<Number, Number> series = row.series.get(i);
+                while(series.getData().size() > 0 && samples > n)
+                {
+                    try
+                    {
+                        series.getData().remove(0);
+                    }
+                    catch(java.lang.NullPointerException ex)
+                    {
+                        // JavaFX bug
+                    }
+                    samples--;
+
+                    //
+                    // Remove empty series not longer in use, if there is only one
+                    // series that is keep to add new values.
+                    //
+                    if(series.getData().size() == 0 && row.series.size() > 1)
+                    {
+                        row.series.remove(series);
+                        i--;
+                    }
+                }
+            }
+        }
     }
 
     synchronized private void startRefreshThread()
@@ -1263,8 +1390,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
         {
             return;
         }
-        else if(samples < _samples)
+
+        if(samples < _samples)
         {
+            _samples = samples;
             //
             // If maximum samples change, we remove older samples.
             //
@@ -1273,18 +1402,18 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     @Override
                     public void run()
                     {
-                        for(XYChart.Series<Number, Number> series : _chart.getData())
+                        MetricsRow[] rows = _legendModel.getRows();
+                        for(MetricsRow row : rows)
                         {
-                            while(series.getData().size() > samples)
-                            {
-                                series.getData().remove(0);
-                            }
+                            adjustSize(row);
                         }
                     }
                 }, true);
         }
-        _samples = samples;
-        
+        else
+        {
+            _samples = samples;
+        }
     }
 
     synchronized private int getMaximumSamples()
@@ -1297,17 +1426,23 @@ public class GraphView extends JFrame implements MetricsFieldContext
         public MetricsRow(MetricsViewInfo info, MetricsCell cell, String color, XYChart.Series<Number, Number> series)
         {
             this.visible = true;
+            this.disabled = false;
             this.info = info;
             this.cell = cell;
             this.color = color;
-            this.series = series;
+            this.series.push(series);
         }
 
         boolean visible;
+        boolean disabled;
         MetricsViewInfo info;
         MetricsCell cell;
         String color;
-        XYChart.Series<Number, Number> series;
+        //
+        // Stack of all the chart series used to represent this metrics object
+        // new values are added to the chart series at the top.
+        //
+        Stack<XYChart.Series<Number, Number>> series = new Stack<XYChart.Series<Number, Number>>();
     }
 
     class LegendTableModel extends javax.swing.table.AbstractTableModel
@@ -1485,7 +1620,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
                             @Override
                             public void run()
                             {
-                                setNodesVisible(getSeriesClass(row.series), row.visible);
+                                for(int i = 0; i < row.series.size(); ++i)
+                                {
+                                    setNodesVisible(getSeriesClass(row.series.get(i)), row.visible);
+                                }
                             }
                         }, true);
                 }
@@ -1493,7 +1631,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 {
                     double s1 = ((Double)getValueAt(rowIndex, columnIndex)).doubleValue();
                     double s2 = ((Double)value).doubleValue();
-                    updateScaleFactor(row.series, s1, s2);
+                    for(int i = 0; i < row.series.size(); ++i)
+                    {
+                        updateScaleFactor(row.series.get(i), s1, s2);
+                    }
                     row.cell.setScaleFactor(((Double)value).doubleValue());
                 }
                 else if(_columnNames[columnIndex].equals("Color"))
@@ -1506,7 +1647,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     row.color = "#" + String.format("%02X", color.getRed()) + 
                                       String.format("%02X", color.getGreen()) +
                                       String.format("%02X", color.getBlue());
-                    updateSeriesColor(row.series, row.color);
+                    for(int i = 0; i < row.series.size(); ++i)
+                    {
+                        updateSeriesColor(row.series.get(i), row.color);
+                    }
                 }
                 fireTableCellUpdated(rowIndex, columnIndex);
             }
@@ -1542,6 +1686,16 @@ public class GraphView extends JFrame implements MetricsFieldContext
             for(int i = 0; i < rowIndexes.length; i++)
             {
                 rows[i] = _rows.get(rowIndexes[i]);
+            }
+            return rows;
+        }
+
+        public MetricsRow[] getRows()
+        {
+            MetricsRow[] rows = new MetricsRow[_rows.size()];
+            for(Map.Entry<Integer, MetricsRow> entry : _rows.entrySet())
+            {
+                rows[rows.length] = entry.getValue();
             }
             return rows;
         }
@@ -1593,9 +1747,12 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 @Override
                 public void run()
                 {
-                    String cssClass = getSeriesClass(series);
-                    addStyle(series, cssClass, color);
-                    setNodesStyle(cssClass);
+                    String styleClass = getSeriesClass(series);
+                    if(styleClass != null)
+                    {
+                        addStyle(series, styleClass, color);
+                        setNodesStyle(styleClass);
+                    }
                 }
             }, true);
     }
@@ -1607,6 +1764,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
     //
     public String getSeriesClass(XYChart.Series<Number, Number> series)
     {
+        if(series == null || series.getNode() == null || series.getNode().getStyleClass() == null)
+        {
+            return null;
+        }
         String value = null;
         for(String styleClass : series.getNode().getStyleClass())
         {
@@ -1810,7 +1971,21 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                                               "Metrics Name", "Metrics Id", "Metrics Field", "Scale", 
                                                               "Last", "Average", "Minimum", "Maximum", "Color"};
 
-    private final Map<MetricsViewInfo, Map<String, Map<String, Map<String, MetricsRow>>>> _series =
+
+    //
+    // The metrics view being graph
+    //
+
+    //
+    // MetricsViewInfo (Metrics view of a server)
+    // Metrics Name
+    // Row identity
+    // Field name
+    //
+    private final Map<MetricsViewInfo,
+        Map<String, 
+            Map<String, 
+                Map<String, MetricsRow>>>> _series =
                                     new HashMap<MetricsViewInfo, Map<String, Map<String, Map<String, MetricsRow>>>>();
 
     private final static String MetricsCellFlavor = 

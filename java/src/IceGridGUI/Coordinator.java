@@ -1230,6 +1230,15 @@ public class Coordinator
         }
         _liveApplications.clear();
 
+        //
+        // Close al graphs
+        //
+        java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
+        for(GraphView v : views)
+        {
+            v.close();
+        }
+        
         _logout.setEnabled(false);
         _showLiveDeploymentFilters.setEnabled(false);
         _openApplicationFromRegistry.setEnabled(false);

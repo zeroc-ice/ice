@@ -455,6 +455,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return _max;
         }
 
+        public void resetField()
+        {
+            _field = _field.createField();
+        }
+
         private String _id;
         private MetricsField _field;
         private double _scaleFactor = 1.0d;
