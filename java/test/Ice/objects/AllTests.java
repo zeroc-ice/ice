@@ -46,7 +46,7 @@ public class AllTests
     public static InitialPrx
     allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
-                out.print("testing stringToProxy... ");
+        out.print("testing stringToProxy... ");
         out.flush();
         String ref = "initial:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
@@ -207,16 +207,22 @@ public class AllTests
         out.println("ok");
         
         out.print("testing sequences...");
-        out.flush();
-        Base[] inS = new Base[0];
-        BaseSeqHolder outS = new BaseSeqHolder();
-        Base[] retS;
-        retS = initial.opBaseSeq(inS, outS);
-
-        inS = new Base[1];
-        inS[0] = new Base(new S(), "");
-        retS = initial.opBaseSeq(inS, outS);
-        test(retS.length == 1 && outS.value.length == 1);
+        try
+        {
+            out.flush();
+            Base[] inS = new Base[0];
+            BaseSeqHolder outS = new BaseSeqHolder();
+            Base[] retS;
+            retS = initial.opBaseSeq(inS, outS);
+            
+            inS = new Base[1];
+            inS[0] = new Base(new S(), "");
+            retS = initial.opBaseSeq(inS, outS);
+            test(retS.length == 1 && outS.value.length == 1);
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
         out.println("ok");
 
         out.print("testing compact ID...");

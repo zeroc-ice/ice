@@ -816,6 +816,9 @@ public class AllTests : TestCommon.TestApp
                 //
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
             }
+            catch(Ice.OperationNotExistException)
+            {
+            }
             catch(Exception)
             {
                 test(false);
@@ -845,6 +848,9 @@ public class AllTests : TestCommon.TestApp
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
             }
+            catch(Ice.OperationNotExistException)
+            {
+            }
             catch(Exception)
             {
                 test(false);
@@ -867,6 +873,9 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             }
             */
+            catch(Ice.OperationNotExistException)
+            {
+            }
             catch(Exception)
             {
                 test(false);
@@ -898,6 +907,9 @@ public class AllTests : TestCommon.TestApp
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
             }
+            catch(Ice.OperationNotExistException)
+            {
+            }
             catch(Exception)
             {
                 test(false);
@@ -928,6 +940,9 @@ public class AllTests : TestCommon.TestApp
                 test(ex.b.Equals("base"));
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
+            }
+            catch(Ice.OperationNotExistException)
+            {
             }
             catch(Exception)
             {

@@ -481,6 +481,11 @@ public class AllTests : TestCommon.TestApp
 
         public void exception(Ice.Exception exc)
         {
+            if(exc is Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             AllTests.test(false);
         }
 
@@ -1989,6 +1994,7 @@ public class AllTests : TestCommon.TestApp
         //
         communicator.addObjectFactory(new PreservedFactoryI(), Preserved.ice_staticId());
 
+        try
         {
             //
             // Server knows the most-derived class PDerived.
@@ -2004,7 +2010,11 @@ public class AllTests : TestCommon.TestApp
             test(p2.ps.Equals("preserved"));
             test(p2.pb == p2);
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
@@ -2017,7 +2027,11 @@ public class AllTests : TestCommon.TestApp
             test(!(r is PCUnknown));
             test(r.pi == 3);
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2040,7 +2054,11 @@ public class AllTests : TestCommon.TestApp
                 test(p2.pbs[0] == p2);
             }
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2063,7 +2081,11 @@ public class AllTests : TestCommon.TestApp
                 test(p2.pbs[0] == p2);
             }
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
 
+        try
         {
             //
             // Send an object that will have multiple preserved slices in the server.
@@ -2110,7 +2132,11 @@ public class AllTests : TestCommon.TestApp
                 test(p3.pcd3 == p3.pbs[10]);
             }
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
 
+        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -2123,6 +2149,9 @@ public class AllTests : TestCommon.TestApp
             {
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
             }
+        }
+        catch(Ice.OperationNotExistException)
+        {
         }
 
         WriteLine("ok");
@@ -2233,6 +2262,7 @@ public class AllTests : TestCommon.TestApp
             cb.check();
         }
 
+        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -2246,11 +2276,15 @@ public class AllTests : TestCommon.TestApp
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
             }
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
 
         WriteLine("ok");
 
         Write("garbage collection for preserved classes... ");
         Flush();
+        try
         {
             //
             // Register a factory in order to substitute our own subclass of PNode. This provides
@@ -2333,6 +2367,9 @@ public class AllTests : TestCommon.TestApp
             {
                 test(false);
             }
+        }
+        catch(Ice.OperationNotExistException)
+        {
         }
 
         WriteLine("ok");

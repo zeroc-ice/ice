@@ -41,7 +41,7 @@ namespace IceInternal
 {
 
 template<typename T> inline void 
-patchHandle(void* addr, Ice::ObjectPtr& v)
+patchHandle(void* addr, const Ice::ObjectPtr& v)
 {
     IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
     __patch(*p, v); // Generated __patch method, necessary for forward declarations.
@@ -52,7 +52,7 @@ class ICE_API BasicStream : public Buffer
 public:
 
     typedef size_t size_type;
-    typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
+    typedef void (*PatchFunc)(void*, const Ice::ObjectPtr&);
 
     BasicStream(Instance*, const Ice::EncodingVersion&, bool = false);
     ~BasicStream()
@@ -95,45 +95,45 @@ public:
     void startWriteObject(const Ice::SlicedDataPtr& data)
     {
         assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
-        _currentWriteEncaps->encoder->startObject(data);
+        _currentWriteEncaps->encoder->startInstance(ObjectSlice, data);
     }
     void endWriteObject()
     {
         assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
-        _currentWriteEncaps->encoder->endObject();
+        _currentWriteEncaps->encoder->endInstance();
     }
 
     void startReadObject()
     {
         assert(_currentReadEncaps && _currentReadEncaps->decoder);
-        _currentReadEncaps->decoder->startObject();
+        _currentReadEncaps->decoder->startInstance(ObjectSlice);
     }
     Ice::SlicedDataPtr endReadObject(bool preserve)
     {
         assert(_currentReadEncaps && _currentReadEncaps->decoder);
-        return _currentReadEncaps->decoder->endObject(preserve);
+        return _currentReadEncaps->decoder->endInstance(preserve);
     }
 
     void startWriteException(const Ice::SlicedDataPtr& data)
     {
         assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
-        _currentWriteEncaps->encoder->startException(data);
+        _currentWriteEncaps->encoder->startInstance(ExceptionSlice, data);
     }
     void endWriteException()
     {
         assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
-        _currentWriteEncaps->encoder->endException();
+        _currentWriteEncaps->encoder->endInstance();
     }
 
     void startReadException()
     {
         assert(_currentReadEncaps && _currentReadEncaps->decoder);
-        _currentReadEncaps->decoder->startException();
+        _currentReadEncaps->decoder->startInstance(ExceptionSlice);
     }
     Ice::SlicedDataPtr endReadException(bool preserve)
     {
         assert(_currentReadEncaps && _currentReadEncaps->decoder);
-        return _currentReadEncaps->decoder->endException(preserve);
+        return _currentReadEncaps->decoder->endInstance(preserve);
     }
 
     void startWriteEncaps();
@@ -162,11 +162,6 @@ public:
     void endWriteEncaps()
     {
         assert(_currentWriteEncaps);
-
-        if(_currentWriteEncaps->encoder)
-        {
-            _currentWriteEncaps->encoder->writePendingObjects();
-        }
 
         // Size includes size and version.
         const Ice::Int sz = static_cast<Ice::Int>(b.size() - _currentWriteEncaps->start);
@@ -250,34 +245,21 @@ public:
     {
         assert(_currentReadEncaps);
 
-        if(_currentReadEncaps->decoder)
+        if(_currentReadEncaps->encoding != Ice::Encoding_1_0)
         {
-            _currentReadEncaps->decoder->readPendingObjects();
-        } 
-        else if(i < b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz &&
-                _currentReadEncaps->encoding != Ice::Encoding_1_0)
-        {
-            //
-            // Read remaining encapsulation optionals. This returns
-            // true if the optionals end with the end marker. The end
-            // marker indicates that there are more to read from the
-            // encapsulation: object instances. In this case, don't
-            // bother reading the objects, just skip to the end of the
-            // encapsulation.
-            //
-            if(skipOpts())
+            skipOpts();
+            if(i != b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
             {
-                i = b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz;
+                throwEncapsulationException(__FILE__, __LINE__);
             }
         }
-
-        if(i != b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
+        else if(i != b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
         {
             if(i + 1 != b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
             {
                 throwEncapsulationException(__FILE__, __LINE__);
             }
-
+            
             //
             // Ice version < 3.3 had a bug where user exceptions with
             // class members could be encoded with a trailing byte
@@ -355,7 +337,7 @@ public:
         _currentWriteEncaps->encoder->endSlice();
     }
 
-    std::string startReadSlice() // Returns type ID of next slice
+    std::string startReadSlice()
     {
         assert(_currentReadEncaps && _currentReadEncaps->decoder);
         return _currentReadEncaps->decoder->startSlice();
@@ -385,14 +367,6 @@ public:
         else
         {
             write(static_cast<Ice::Byte>(v));
-        }
-    }
-    void writeSizeSeq(const std::vector<Ice::Int>& v)
-    {
-        writeSize(static_cast<Ice::Int>(v.size()));
-        for(std::vector<Ice::Int>::const_iterator p = v.begin(); p != v.end(); ++p)
-        {
-            writeSize(*p);
         }
     }
     void rewriteSize(Ice::Int v, Container::iterator dest)
@@ -426,22 +400,6 @@ public:
         else
         {
             return static_cast<Ice::Int>(static_cast<unsigned char>(byte));
-        }
-    }
-    void readSizeSeq(std::vector<Ice::Int>& v)
-    {
-        Ice::Int sz = readAndCheckSeqSize(1);
-        if(sz > 0)
-        {
-            v.resize(sz);
-            for(Ice::Int n = 0; n < sz; ++n)
-            {
-                v[n] = readSize();
-            }
-        }
-        else
-        {
-            v.clear();
         }
     }
 
@@ -510,7 +468,9 @@ public:
                                                    Ice::StreamableTraits<T>::helper, 
                                                    Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
-            Ice::StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::write(this, *v);
+            Ice::StreamOptionalHelper<T, 
+                                      Ice::StreamableTraits<T>::helper, 
+                                      Ice::StreamableTraits<T>::fixedLength>::write(this, *v);
         }
     }
     template<typename T> void read(Ice::Int tag, IceUtil::Optional<T>& v)
@@ -520,7 +480,9 @@ public:
                                                   Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
-            Ice::StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::read(this, *v);
+            Ice::StreamOptionalHelper<T, 
+                                      Ice::StreamableTraits<T>::helper,
+                                      Ice::StreamableTraits<T>::fixedLength>::read(this, *v);
         }
         else
         {
@@ -778,7 +740,6 @@ public:
     }
     void read(PatchFunc patchFunc, void* patchAddr)
     {
-        assert(patchFunc && patchAddr);
         initReadEncaps();
         _currentReadEncaps->decoder->read(patchFunc, patchAddr);
     }
@@ -800,8 +761,8 @@ public:
     // Read/write/skip optionals
     bool readOptImpl(Ice::Int, Ice::OptionalFormat);
     bool writeOptImpl(Ice::Int, Ice::OptionalFormat);
-    bool skipOpt(Ice::OptionalFormat);
-    bool skipOpts();
+    void skipOpt(Ice::OptionalFormat);
+    void skipOpts();
     
     // Skip bytes from the stream
     void skip(size_type size)
@@ -831,35 +792,6 @@ public:
         write(value, b.begin() + p);
     }
 
-    struct IndirectPatchEntry
-    {
-        Ice::Int index;
-        PatchFunc patchFunc;
-        void* patchAddr;
-    };
-
-    struct PatchEntry
-    {
-        PatchFunc patchFunc;
-        void* patchAddr;
-    };
-
-    typedef std::vector<PatchEntry> PatchList;
-    typedef std::map<Ice::Int, PatchList> PatchMap;
-    typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
-    typedef std::map<Ice::Int, std::string> TypeIdReadMap;
-
-    typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
-    typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
-
-    typedef std::vector<Ice::ObjectPtr> ObjectList;
-
-    typedef std::vector<IndirectPatchEntry> IndirectPatchList;
-    typedef std::vector<Ice::Int> IndexList;
-    typedef std::map<Ice::Int, Ice::Int> IndirectionMap;
-
-    typedef std::vector<IndexList> IndexListList;
-
 private:
 
     //
@@ -886,147 +818,338 @@ private:
     class WriteEncaps;
     enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
 
+    typedef std::vector<Ice::ObjectPtr> ObjectList;
+
     class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
     public:
-        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
-            _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _traceSlicing(-1), _sliceType(NoSlice),
-            _compactId(-1), _typeIdIndex(0)
+
+        virtual ~EncapsDecoder() { }
+
+        virtual void read(PatchFunc, void*) = 0;
+        virtual void throwException(const UserExceptionFactoryPtr&) = 0;
+
+        virtual void startInstance(SliceType) = 0;
+        virtual Ice::SlicedDataPtr endInstance(bool) = 0;
+        virtual const std::string& startSlice() = 0;
+        virtual void endSlice() = 0;
+        virtual void skipSlice() = 0;
+
+        virtual bool readOpt(Ice::Int, Ice::OptionalFormat)
         {
-        } 
-
-        void read(PatchFunc, void*);
-        void throwException(const UserExceptionFactoryPtr&);
-
-        void startObject();
-        Ice::SlicedDataPtr endObject(bool);
-
-        void startException();
-        Ice::SlicedDataPtr endException(bool);
-
-        const std::string& startSlice();
-        void endSlice();
-        void skipSlice();
-
-        bool readOpt(Ice::Int readTag, Ice::OptionalFormat expectedFormat)
-        {
-            if(_sliceType == NoSlice)
-            {
-                return _stream->readOptImpl(readTag, expectedFormat);
-            }
-            else if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
-            {
-                return _stream->readOptImpl(readTag, expectedFormat);
-            }
             return false;
         }
 
-        void readPendingObjects();
+        virtual void readPendingObjects()
+        {
+        }
 
-    private:
+    protected:
 
-        const std::string& readTypeId() const;
-        Ice::ObjectPtr readInstance();
+        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
+            _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _servantFactoryManager(f), _typeIdIndex(0)
+        {
+        } 
+
+        std::string readTypeId(bool);
+        Ice::ObjectPtr newInstance(const std::string&);
+
         void addPatchEntry(Ice::Int, PatchFunc, void*);
-        Ice::SlicedDataPtr readSlicedData();
-        Ice::ObjectPtr newInstance(const IceInternal::ObjectFactoryManagerPtr&, const std::string&);
+        void unmarshal(Ice::Int, const Ice::ObjectPtr&);
+
+        typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
+        typedef std::map<Ice::Int, std::string> TypeIdReadMap;
+
+        struct PatchEntry
+        {
+            PatchFunc patchFunc;
+            void* patchAddr;
+        };
+        typedef std::vector<PatchEntry> PatchList;
+        typedef std::map<Ice::Int, PatchList> PatchMap;
 
         BasicStream* _stream;
         ReadEncaps* _encaps;
         const bool _sliceObjects;
+        ObjectFactoryManagerPtr _servantFactoryManager;
 
-        int _traceSlicing;
-        const char* _slicingCat;
-
-        // Object/exception attributes
-        SliceType _sliceType;
-        bool _skipFirstSlice;
-        Ice::SliceInfoSeq _slices;          // Preserved slices.
-        IndexListList _indirectionTables;   // Indirection tables for the preserved slices.
-
-        // Slice attributes
-        Ice::Byte _sliceFlags;
-        Ice::Int _sliceSize;
-        std::string _typeId;
-        Ice::Int _compactId;
-        IndirectPatchList _indirectPatchList;
-        
         // Encapsulation attributes for object un-marshalling
         PatchMap _patchMap;
+
+    private:
+
+        // Encapsulation attributes for object un-marshalling
         IndexToPtrMap _unmarshaledMap;
         TypeIdReadMap _typeIdMap;
         Ice::Int _typeIdIndex;
+        ObjectList _objectList;
+    };
+
+    class ICE_API EncapsDecoder10 : public EncapsDecoder
+    {
+    public:
+
+        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) : 
+            EncapsDecoder(stream, encaps, sliceObjects, f), _sliceType(NoSlice)
+        {
+        } 
+
+        virtual void read(PatchFunc, void*);
+        virtual void throwException(const UserExceptionFactoryPtr&);
+
+        virtual void startInstance(SliceType);
+        virtual Ice::SlicedDataPtr endInstance(bool);
+        virtual const std::string& startSlice();
+        virtual void endSlice();
+        virtual void skipSlice();
+
+        virtual void readPendingObjects();
+
+    private:
+
+        void readInstance();
+
+        // Instance attributes
+        SliceType _sliceType;
+        bool _skipFirstSlice;
+
+        // Slice attributes
+        Ice::Int _sliceSize;
+        std::string _typeId;
+    };
+
+    class ICE_API EncapsDecoder11 : public EncapsDecoder
+    {
+    public:
+
+        EncapsDecoder11(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
+            EncapsDecoder(stream, encaps, sliceObjects, f), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
+        {
+        } 
+
+        virtual void read(PatchFunc, void*);
+        virtual void throwException(const UserExceptionFactoryPtr&);
+
+        virtual void startInstance(SliceType);
+        virtual Ice::SlicedDataPtr endInstance(bool);
+        virtual const std::string& startSlice();
+        virtual void endSlice();
+        virtual void skipSlice();
+
+        virtual bool readOpt(Ice::Int, Ice::OptionalFormat);
+
+    private:
+
+        Ice::Int readInstance(Ice::Int, PatchFunc, void*);
+        Ice::SlicedDataPtr readSlicedData();
+
+        struct IndirectPatchEntry
+        {
+            Ice::Int index;
+            PatchFunc patchFunc;
+            void* patchAddr;
+        };
+        typedef std::vector<IndirectPatchEntry> IndirectPatchList;
+
+        typedef std::vector<Ice::Int> IndexList;
+        typedef std::vector<IndexList> IndexListList;
+
+        struct InstanceData
+        {
+            InstanceData(InstanceData* previous) : previous(previous), next(0)
+            {
+                if(previous)
+                {
+                    previous->next = this;
+                }
+            }
+
+            ~InstanceData()
+            {
+                if(next)
+                {
+                    delete next;
+                }
+            }
+
+            // Instance attributes
+            SliceType sliceType;
+            bool skipFirstSlice;
+            Ice::SliceInfoSeq slices; // Preserved slices.
+            IndexListList indirectionTables;
+
+            // Slice attributes
+            Ice::Byte sliceFlags;
+            Ice::Int sliceSize;
+            std::string typeId;
+            int compactId;
+            IndirectPatchList indirectPatchList;
+
+            InstanceData* previous;
+            InstanceData* next;
+        };
+        InstanceData _preAllocatedInstanceData;
+        InstanceData* _current;
+
+        void push(SliceType sliceType)
+        {
+            if(!_current)
+            {
+                _current = &_preAllocatedInstanceData;
+            }
+            else
+            {
+                _current = _current->next ? _current->next : new InstanceData(_current);
+            }
+            _current->sliceType = sliceType;
+            _current->skipFirstSlice = false;
+        }
+
+        Ice::Int _objectIdIndex; // The ID of the next object to un-marshal.
     };
 
     class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
     {
     public:
-        EncapsEncoder(BasicStream* stream, WriteEncaps* encaps) : 
-            _stream(stream), _encaps(encaps), _sliceType(NoSlice), _objectIdIndex(0), 
-            _typeIdIndex(0)
+
+        virtual ~EncapsEncoder() { }
+
+        virtual void write(const Ice::ObjectPtr&) = 0;
+        virtual void write(const Ice::UserException&) = 0;
+        
+        virtual void startInstance(SliceType, const Ice::SlicedDataPtr&) = 0;
+        virtual void endInstance() = 0;
+        virtual void startSlice(const std::string&, int, bool) = 0;
+        virtual void endSlice() = 0;
+
+        virtual bool writeOpt(Ice::Int, Ice::OptionalFormat)
+        {
+            return false;
+        }
+
+        virtual void writePendingObjects()
         {
         }
 
-        void write(const Ice::ObjectPtr&);
-        void write(const Ice::UserException&);
+    protected:
 
-        void startObject(const Ice::SlicedDataPtr&);
-        void endObject();
-
-        void startException(const Ice::SlicedDataPtr&);
-        void endException();
-
-        void startSlice(const std::string&, int, bool);
-        void endSlice();
-
-        bool writeOpt(Ice::Int tag, Ice::OptionalFormat format)
+        EncapsEncoder(BasicStream* stream, WriteEncaps* encaps) : _stream(stream), _encaps(encaps), _typeIdIndex(0)
         {
-            if(_sliceType == NoSlice)
-            {
-                return _stream->writeOptImpl(tag, format);
-            }
-            else
-            {
-                if(_stream->writeOptImpl(tag, format))
-                {
-                    _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
         }
 
-        void writePendingObjects();
-
-    private:
-
-        void writeTypeId(const std::string&);
-        void writeSlicedData(const Ice::SlicedDataPtr&);
-        Ice::Int registerObject(const Ice::ObjectPtr&);
+        Ice::Int registerTypeId(const std::string&);
 
         BasicStream* _stream;
         WriteEncaps* _encaps;
 
-        // Object/exception attributes
+        typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
+        typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
+
+        // Encapsulation attributes for object marshalling.
+        PtrToIndexMap _marshaledMap;
+
+    private:
+
+        // Encapsulation attributes for object marshalling.
+        TypeIdWriteMap _typeIdMap;
+        Ice::Int _typeIdIndex;
+    };
+
+    class ICE_API EncapsEncoder10 : public EncapsEncoder
+    {
+    public:
+
+        EncapsEncoder10(BasicStream* stream, WriteEncaps* encaps) : 
+            EncapsEncoder(stream, encaps), _sliceType(NoSlice), _objectIdIndex(0)
+        {
+        }
+
+        virtual void write(const Ice::ObjectPtr&);
+        virtual void write(const Ice::UserException&);
+        
+        virtual void startInstance(SliceType, const Ice::SlicedDataPtr&);
+        virtual void endInstance();
+        virtual void startSlice(const std::string&, int, bool);
+        virtual void endSlice();
+
+        virtual void writePendingObjects();
+
+    private:
+
+        Ice::Int registerObject(const Ice::ObjectPtr&);
+
+        // Instance attributes
         SliceType _sliceType;
         bool _firstSlice;
 
         // Slice attributes
-        Ice::Byte _sliceFlags;
-        Container::size_type _writeSlice;    // Position of the slice data members
-        Container::size_type _sliceFlagsPos; // Position of the slice flags
-        IndexList _indirectionTable;
-        IndirectionMap _indirectionMap;
+        Container::size_type _writeSlice; // Position of the slice data members
 
         // Encapsulation attributes for object marshalling.
         Ice::Int _objectIdIndex;
         PtrToIndexMap _toBeMarshaledMap;
-        PtrToIndexMap _marshaledMap;
-        TypeIdWriteMap _typeIdMap;
-        Ice::Int _typeIdIndex;
+    };
+
+    class ICE_API EncapsEncoder11 : public EncapsEncoder
+    {
+    public:
+
+        EncapsEncoder11(BasicStream* stream, WriteEncaps* encaps) : 
+            EncapsEncoder(stream, encaps), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
+        {
+        }
+
+        virtual void write(const Ice::ObjectPtr&);
+        virtual void write(const Ice::UserException&);
+
+        virtual void startInstance(SliceType, const Ice::SlicedDataPtr&);
+        virtual void endInstance();
+        virtual void startSlice(const std::string&, int, bool);
+        virtual void endSlice();
+
+        virtual bool writeOpt(Ice::Int, Ice::OptionalFormat);
+
+    private:
+
+        void writeSlicedData(const Ice::SlicedDataPtr&);
+        void writeInstance(const Ice::ObjectPtr&);
+
+        struct InstanceData
+        {
+            InstanceData(InstanceData* previous) : previous(previous), next(0)
+            {
+                if(previous)
+                {
+                    previous->next = this;
+                }
+            }
+            
+            ~InstanceData()
+            {
+                if(next)
+                {
+                    delete next;
+                }
+            }
+            
+            // Instance attributes
+            SliceType sliceType;
+            bool firstSlice;
+
+            // Slice attributes
+            Ice::Byte sliceFlags;
+            Container::size_type writeSlice;    // Position of the slice data members
+            Container::size_type sliceFlagsPos; // Position of the slice flags
+            PtrToIndexMap indirectionMap;
+            ObjectList indirectionTable;
+
+            InstanceData* previous;
+            InstanceData* next;
+        };
+        InstanceData _preAllocatedInstanceData;
+        InstanceData* _current;
+
+        Ice::Int _objectIdIndex; // The ID of the next object to marhsal
     };
 
     class ReadEncaps : private ::IceUtil::noncopyable
@@ -1121,14 +1244,6 @@ private:
     int _minSeqSize;
 
     int _sizePos;
-
-    static const Ice::Byte FLAG_HAS_TYPE_ID_STRING;
-    static const Ice::Byte FLAG_HAS_TYPE_ID_INDEX;
-    static const Ice::Byte FLAG_HAS_TYPE_ID_COMPACT;
-    static const Ice::Byte FLAG_HAS_OPTIONAL_MEMBERS;
-    static const Ice::Byte FLAG_HAS_INDIRECTION_TABLE;
-    static const Ice::Byte FLAG_HAS_SLICE_SIZE;
-    static const Ice::Byte FLAG_IS_LAST_SLICE;
 };
 
 } // End namespace IceInternal

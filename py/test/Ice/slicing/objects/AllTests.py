@@ -345,6 +345,9 @@ class Callback(CallbackBase):
         test(False)
 
     def exception(self, exc):
+        if(isinstance(exc, Ice.OperationNotExistException)):
+            self.called()
+            return
         test(False)
 
 class PNodeI(Test.PNode):
@@ -475,6 +478,8 @@ def allTests(communicator):
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(sb.sb == "SBSUnknownDerived.sb")
+        except Ice.OperationNotExistException:
+            pass
         except:
             test(False)
     else:
@@ -485,6 +490,8 @@ def allTests(communicator):
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(False)
+        except Ice.OperationNotExistException:
+            pass
         except Ice.NoObjectFactoryException:
             # Expected.
             pass
@@ -1464,112 +1471,115 @@ def allTests(communicator):
     sys.stdout.write("preserved classes... ")
     sys.stdout.flush()
 
-    #
-    # Server knows the most-derived class PDerived.
-    #
-    pd = Test.PDerived()
-    pd.pi = 3
-    pd.ps = "preserved"
-    pd.pb = pd
+    try:
+        #
+        # Server knows the most-derived class PDerived.
+        #
+        pd = Test.PDerived()
+        pd.pi = 3
+        pd.ps = "preserved"
+        pd.pb = pd
 
-    r = t.exchangePBase(pd)
-    test(isinstance(r, Test.PDerived))
-    test(r.pi == 3)
-    test(r.ps == "preserved")
-    test(r.pb == r)
-
-    #
-    # Server only knows the base (non-preserved) type, so the object is sliced.
-    #
-    pu = Test.PCUnknown()
-    pu.pi = 3
-    pu.pu = "preserved"
-
-    r = t.exchangePBase(pu)
-    test(not isinstance(r, Test.PCUnknown))
-    test(r.pi == 3)
-
-    #
-    # Server only knows the intermediate type Preserved. The object will be sliced to
-    # Preserved for the 1.0 encoding; otherwise it should be returned intact.
-    #
-    pcd = Test.PCDerived()
-    pcd.pi = 3
-    pcd.pbs = [ pcd ]
-
-    r = t.exchangePBase(pcd)
-    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        test(not isinstance(r, Test.PCDerived))
+        r = t.exchangePBase(pd)
+        test(isinstance(r, Test.PDerived))
         test(r.pi == 3)
-    else:
-        test(isinstance(r, Test.PCDerived))
-        test(r.pi == 3)
-        test(r.pbs[0] == r)
+        test(r.ps == "preserved")
+        test(r.pb == r)
 
-    #
-    # Server only knows the intermediate type CompactPDerived. The object will be sliced to
-    # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
-    #
-    pcd = Test.CompactPCDerived()
-    pcd.pi = 3
-    pcd.pbs = [ pcd ]
+        #
+        # Server only knows the base (non-preserved) type, so the object is sliced.
+        #
+        pu = Test.PCUnknown()
+        pu.pi = 3
+        pu.pu = "preserved"
 
-    r = t.exchangePBase(pcd)
-    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        test(not isinstance(r, Test.CompactPCDerived))
+        r = t.exchangePBase(pu)
+        test(not isinstance(r, Test.PCUnknown))
         test(r.pi == 3)
-    else:
-        test(isinstance(r, Test.CompactPCDerived))
-        test(r.pi == 3)
-        test(r.pbs[0] == r)
 
-    #
-    # Send an object that will have multiple preserved slices in the server.
-    # The object will be sliced to Preserved for the 1.0 encoding.
-    #
-    pcd = Test.PCDerived3()
-    pcd.pi = 3
-    #
-    # Sending more than 254 objects exercises the encoding for object ids.
-    #
-    pcd.pbs = []
-    for i in range(0, 300):
-        p2 = Test.PCDerived2()
-        p2.pi = i
-        p2.pbs = [ None ] # Nil reference. This slice should not have an indirection table.
-        p2.pcd2 = i
-        pcd.pbs.append(p2)
-    pcd.pcd2 = pcd.pi
-    pcd.pcd3 = pcd.pbs[10]
+        #
+        # Server only knows the intermediate type Preserved. The object will be sliced to
+        # Preserved for the 1.0 encoding; otherwise it should be returned intact.
+        #
+        pcd = Test.PCDerived()
+        pcd.pi = 3
+        pcd.pbs = [ pcd ]
 
-    r = t.exchangePBase(pcd)
-    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        test(not isinstance(r, Test.PCDerived3))
-        test(isinstance(r, Test.Preserved))
-        test(r.pi == 3)
-    else:
-        test(isinstance(r, Test.PCDerived3))
-        test(r.pi == 3)
+        r = t.exchangePBase(pcd)
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(r, Test.PCDerived))
+            test(r.pi == 3)
+        else:
+            test(isinstance(r, Test.PCDerived))
+            test(r.pi == 3)
+            test(r.pbs[0] == r)
+
+        #
+        # Server only knows the intermediate type CompactPDerived. The object will be sliced to
+        # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
+        #
+        pcd = Test.CompactPCDerived()
+        pcd.pi = 3
+        pcd.pbs = [ pcd ]
+
+        r = t.exchangePBase(pcd)
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(r, Test.CompactPCDerived))
+            test(r.pi == 3)
+        else:
+            test(isinstance(r, Test.CompactPCDerived))
+            test(r.pi == 3)
+            test(r.pbs[0] == r)
+
+        #
+        # Send an object that will have multiple preserved slices in the server.
+        # The object will be sliced to Preserved for the 1.0 encoding.
+        #
+        pcd = Test.PCDerived3()
+        pcd.pi = 3
+        #
+        # Sending more than 254 objects exercises the encoding for object ids.
+        #
+        pcd.pbs = []
         for i in range(0, 300):
-            p2 = r.pbs[i]
-            test(isinstance(p2, Test.PCDerived2))
-            test(p2.pi == i)
-            test(len(p2.pbs) == 1)
-            test(not p2.pbs[0])
-            test(p2.pcd2 == i)
-        test(r.pcd2 == r.pi)
-        test(r.pcd3 == r.pbs[10])
+            p2 = Test.PCDerived2()
+            p2.pi = i
+            p2.pbs = [ None ] # Nil reference. This slice should not have an indirection table.
+            p2.pcd2 = i
+            pcd.pbs.append(p2)
+        pcd.pcd2 = pcd.pi
+        pcd.pcd3 = pcd.pbs[10]
 
-    #
-    # Obtain an object with preserved slices and send it back to the server.
-    # The preserved slices should be excluded for the 1.0 encoding, otherwise
-    # they should be included.
-    #
-    p = t.PBSUnknownAsPreserved()
-    t.checkPBSUnknown(p)
-    if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
-        t.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
+        r = t.exchangePBase(pcd)
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(r, Test.PCDerived3))
+            test(isinstance(r, Test.Preserved))
+            test(r.pi == 3)
+        else:
+            test(isinstance(r, Test.PCDerived3))
+            test(r.pi == 3)
+            for i in range(0, 300):
+                p2 = r.pbs[i]
+                test(isinstance(p2, Test.PCDerived2))
+                test(p2.pi == i)
+                test(len(p2.pbs) == 1)
+                test(not p2.pbs[0])
+                test(p2.pcd2 == i)
+            test(r.pcd2 == r.pi)
+            test(r.pcd3 == r.pbs[10])
 
+        #
+        # Obtain an object with preserved slices and send it back to the server.
+        # The preserved slices should be excluded for the 1.0 encoding, otherwise
+        # they should be included.
+        #
+        p = t.PBSUnknownAsPreserved()
+        t.checkPBSUnknown(p)
+        if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
+            t.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
+    except Ice.OperationNotExistException:
+        pass
+    
     print("ok")
 
     sys.stdout.write("preserved classes (AMI)... ")
@@ -1658,143 +1668,145 @@ def allTests(communicator):
 
     sys.stdout.write("garbage collection of preserved classes... ")
     sys.stdout.flush()
-
-    #
-    # Register a factory in order to substitute our own subclass of
-    # UCNode. This provides an easy way to determine how many
-    # unmarshaled instances currently exist.
-    #
-    communicator.addObjectFactory(NodeFactoryI(), Test.PNode.ice_staticId())
-
-    #
-    # Relay a graph through the server. This test uses a preserved class
-    # with a class member.
-    #
-    c = Test.PNode()
-    c.next = Test.PNode()
-    c.next.next = Test.PNode()
-    c.next.next.next = c    # Create a cyclic graph.
-
-    test(PNodeI.counter == 0)
-    n = t.exchangePNode(c)
-    test(PNodeI.counter == 3)
-    test(n.next != None)
-    test(n.next != n.next.next)
-    test(n.next.next != n.next.next.next)
-    test(n.next.next.next == n)
-    n = None        # Release reference.
-    #
-    # The PNodeI class declares a __del__ method, which means the Python
-    # garbage collector will NOT collect a cycle of PNodeI objects.
-    #
-    gc.collect()    # No effect.
-    test(PNodeI.counter == 3)
-    #
-    # The uncollectable objects are stored in gc.garbage. We have to
-    # manually break the cycle and then remove the objects from the
-    # gc.garbage list.
-    #
-    test(len(gc.garbage) > 0)
-    for o in gc.garbage:
-        if isinstance(o, PNodeI):
-            o.next = None
-    o = None        # Remove last reference.
-    del gc.garbage[:]
-    test(PNodeI.counter == 0)
-
-    #
-    # Obtain a preserved object from the server where the most-derived
-    # type is unknown. The preserved slice refers to a graph of PNode
-    # objects.
-    #
-    test(PNodeI.counter == 0)
-    p = t.PBSUnknownAsPreservedWithGraph()
-    test(p)
-    test(PNodeI.counter == 3)
-    t.checkPBSUnknownWithGraph(p)
-    p = None        # Release reference.
-    #
-    # The PNodeI class declares a __del__ method, which means the Python
-    # garbage collector will NOT collect a cycle of PNodeI objects.
-    #
-    gc.collect()    # No effect.
-    test(PNodeI.counter == 3)
-    #
-    # The uncollectable objects are stored in gc.garbage. We have to
-    # manually break the cycle and then remove the objects from the
-    # gc.garbage list.
-    #
-    test(len(gc.garbage) > 0)
-    for o in gc.garbage:
-        if isinstance(o, PNodeI):
-            o.next = None
-    o = None        # Remove last reference.
-    del gc.garbage[:]
-    test(PNodeI.counter == 0)
-
-    #
-    # Register a factory in order to substitute our own subclass of
-    # Preserved. This provides an easy way to determine how many
-    # unmarshaled instances currently exist.
-    #
-    communicator.addObjectFactory(PreservedFactoryI(), Test.Preserved.ice_staticId())
-
-    #
-    # Obtain a preserved object from the server where the most-derived
-    # type is unknown. A data member in the preserved slice refers to the
-    # outer object, so the chain of references looks like this:
-    #
-    # outer->slicedData->outer
-    #
-    test(PreservedI.counter == 0)
-    p = t.PBSUnknown2AsPreservedWithGraph()
-    test(p != None)
-    test(PreservedI.counter == 1)
-    t.checkPBSUnknown2WithGraph(p)
-    p._ice_slicedData = None    # Break the cycle.
-    p = None                    # Release reference.
-    test(PreservedI.counter == 0)
-
-    #
-    # Throw a preserved exception where the most-derived type is unknown.
-    # The preserved exception slice contains a class data member. This
-    # object is also preserved, and its most-derived type is also unknown.
-    # The preserved slice of the object contains a class data member that
-    # refers to itself.
-    #
-    # The chain of references looks like this:
-    #
-    # ex->slicedData->obj->slicedData->obj
-    #
     try:
+        #
+        # Register a factory in order to substitute our own subclass of
+        # UCNode. This provides an easy way to determine how many
+        # unmarshaled instances currently exist.
+        #
+        communicator.addObjectFactory(NodeFactoryI(), Test.PNode.ice_staticId())
+
+        #
+        # Relay a graph through the server. This test uses a preserved class
+        # with a class member.
+        #
+        c = Test.PNode()
+        c.next = Test.PNode()
+        c.next.next = Test.PNode()
+        c.next.next.next = c    # Create a cyclic graph.
+
+        test(PNodeI.counter == 0)
+        n = t.exchangePNode(c)
+        test(PNodeI.counter == 3)
+        test(n.next != None)
+        test(n.next != n.next.next)
+        test(n.next.next != n.next.next.next)
+        test(n.next.next.next == n)
+        n = None        # Release reference.
+        #
+        # The PNodeI class declares a __del__ method, which means the Python
+        # garbage collector will NOT collect a cycle of PNodeI objects.
+        #
+        gc.collect()    # No effect.
+        test(PNodeI.counter == 3)
+        #
+        # The uncollectable objects are stored in gc.garbage. We have to
+        # manually break the cycle and then remove the objects from the
+        # gc.garbage list.
+        #
+        test(len(gc.garbage) > 0)
+        for o in gc.garbage:
+            if isinstance(o, PNodeI):
+                o.next = None
+        o = None        # Remove last reference.
+        del gc.garbage[:]
+        test(PNodeI.counter == 0)
+
+        #
+        # Obtain a preserved object from the server where the most-derived
+        # type is unknown. The preserved slice refers to a graph of PNode
+        # objects.
+        #
+        test(PNodeI.counter == 0)
+        p = t.PBSUnknownAsPreservedWithGraph()
+        test(p)
+        test(PNodeI.counter == 3)
+        t.checkPBSUnknownWithGraph(p)
+        p = None        # Release reference.
+        #
+        # The PNodeI class declares a __del__ method, which means the Python
+        # garbage collector will NOT collect a cycle of PNodeI objects.
+        #
+        gc.collect()    # No effect.
+        test(PNodeI.counter == 3)
+        #
+        # The uncollectable objects are stored in gc.garbage. We have to
+        # manually break the cycle and then remove the objects from the
+        # gc.garbage list.
+        #
+        test(len(gc.garbage) > 0)
+        for o in gc.garbage:
+            if isinstance(o, PNodeI):
+                o.next = None
+        o = None        # Remove last reference.
+        del gc.garbage[:]
+        test(PNodeI.counter == 0)
+
+        #
+        # Register a factory in order to substitute our own subclass of
+        # Preserved. This provides an easy way to determine how many
+        # unmarshaled instances currently exist.
+        #
+        communicator.addObjectFactory(PreservedFactoryI(), Test.Preserved.ice_staticId())
+
+        #
+        # Obtain a preserved object from the server where the most-derived
+        # type is unknown. A data member in the preserved slice refers to the
+        # outer object, so the chain of references looks like this:
+        #
+        # outer->slicedData->outer
+        #
+        test(PreservedI.counter == 0)
+        p = t.PBSUnknown2AsPreservedWithGraph()
+        test(p != None)
+        test(PreservedI.counter == 1)
+        t.checkPBSUnknown2WithGraph(p)
+        p._ice_slicedData = None    # Break the cycle.
+        p = None                    # Release reference.
         test(PreservedI.counter == 0)
 
+        #
+        # Throw a preserved exception where the most-derived type is unknown.
+        # The preserved exception slice contains a class data member. This
+        # object is also preserved, and its most-derived type is also unknown.
+        # The preserved slice of the object contains a class data member that
+        # refers to itself.
+        #
+        # The chain of references looks like this:
+        #
+        # ex->slicedData->obj->slicedData->obj
+        #
         try:
-            t.throwPreservedException()
-        except Test.PreservedException as ex:
+            test(PreservedI.counter == 0)
+
+            try:
+                t.throwPreservedException()
+            except Test.PreservedException as ex:
+                #
+                # The class instance is only retained when the encoding is > 1.0.
+                #
+                if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
+                    test(PreservedI.counter == 1)
+                    gc.collect()        # No effect.
+                    test(PreservedI.counter == 1)
+                    ex._ice_slicedData = None   # Break the cycle.
+
             #
-            # The class instance is only retained when the encoding is > 1.0.
+            # Exception has gone out of scope.
             #
             if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
-                test(PreservedI.counter == 1)
-                gc.collect()        # No effect.
-                test(PreservedI.counter == 1)
-                ex._ice_slicedData = None   # Break the cycle.
-
-        #
-        # Exception has gone out of scope.
-        #
-        if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
-            gc.collect()
-            test(len(gc.garbage) > 0)
-            for o in gc.garbage:
-                if isinstance(o, PreservedI):
-                    o._ice_slicedData = None
-            o = None        # Remove last reference.
-            del gc.garbage[:]
-        test(PreservedI.counter == 0)
-    except Ice.Exception:
-        test(False)
+                gc.collect()
+                test(len(gc.garbage) > 0)
+                for o in gc.garbage:
+                    if isinstance(o, PreservedI):
+                        o._ice_slicedData = None
+                o = None        # Remove last reference.
+                del gc.garbage[:]
+            test(PreservedI.counter == 0)
+        except Ice.Exception:
+            test(False)
+    except Ice.OperationNotExistException:
+        pass
 
     print("ok")
 

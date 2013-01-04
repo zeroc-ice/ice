@@ -2015,7 +2015,7 @@ IceRuby::ClassInfo::wireSize() const
 Ice::OptionalFormat
 IceRuby::ClassInfo::optionalFormat() const
 {
-    return Ice::OptionalFormatSize;
+    return Ice::OptionalFormatClass;
 }
 
 bool

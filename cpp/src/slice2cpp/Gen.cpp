@@ -3229,7 +3229,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
         H << nl << _dllExport << "::Ice::Object* upCast(" << scoped << "*);";
         H << nl << "typedef ::IceInternal::Handle< " << scoped << "> " << p->name() << "Ptr;";
         H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << p->name() << "Prx;";
-        H << nl << _dllExport << "void __patch(" << p->name() << "Ptr&, ::Ice::ObjectPtr&);";
+        H << nl << _dllExport << "void __patch(" << p->name() << "Ptr&, const ::Ice::ObjectPtr&);";
     }
     else
     {
@@ -4105,7 +4105,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         C << sp << nl << "void "
           << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ");
-        C << nl << scope.substr(2) << "__patch(" << p->name() << "Ptr& handle, ::Ice::ObjectPtr& v)";
+        C << nl << scope.substr(2) << "__patch(" << p->name() << "Ptr& handle, const ::Ice::ObjectPtr& v)";
         C << sb;
         C << nl << "handle = " << scope << p->name() << "Ptr::dynamicCast(v);";
         C << nl << "if(v && !handle)";

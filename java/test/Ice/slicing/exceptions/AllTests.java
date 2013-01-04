@@ -1103,6 +1103,9 @@ public class AllTests
                 //
                 test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
             }
+            catch(Ice.OperationNotExistException ex)
+            {
+            }
             catch(Exception ex)
             {
                 test(false);
@@ -1128,6 +1131,9 @@ public class AllTests
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
             }
+            catch(Ice.OperationNotExistException ex)
+            {
+            }
             catch(Exception ex)
             {
                 test(false);
@@ -1143,6 +1149,9 @@ public class AllTests
                 test(ex.b.equals("base"));
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
+            }
+            catch(Ice.OperationNotExistException ex)
+            {
             }
             catch(Exception ex)
             {
@@ -1175,6 +1184,9 @@ public class AllTests
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
             }
+            catch(Ice.OperationNotExistException ex)
+            {
+            }
             catch(Exception ex)
             {
                 test(false);
@@ -1205,6 +1217,9 @@ public class AllTests
                 test(ex.b.equals("base"));
                 test(ex.kp.equals("preserved"));
                 test(ex.kpd.equals("derived"));
+            }
+            catch(Ice.OperationNotExistException ex)
+            {
             }
             catch(Exception ex)
             {

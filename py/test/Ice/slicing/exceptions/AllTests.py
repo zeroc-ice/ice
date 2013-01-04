@@ -495,6 +495,8 @@ def allTests(communicator):
         # most-derived type is unknown and the exception cannot be sliced.
         #
         test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
+    except Ice.OperationNotExistException:
+        pass
     except:
         test(False)
     print("ok")
@@ -512,6 +514,8 @@ def allTests(communicator):
         test(ex.b == "base")
         test(ex.kp == "preserved")
         test(ex.kpd == "derived")
+    except Ice.OperationNotExistException:
+        pass
     except:
         test(False)
 
@@ -522,6 +526,8 @@ def allTests(communicator):
         test(ex.b == "base")
         test(ex.kp == "preserved")
         test(ex.kpd == "derived")
+    except Ice.OperationNotExistException:
+        pass
     except:
         test(False)
 
@@ -546,6 +552,8 @@ def allTests(communicator):
         test(ex.b == "base")
         test(ex.kp == "preserved")
         test(ex.kpd == "derived")
+    except Ice.OperationNotExistException:
+        pass
     except:
         test(False)
 
@@ -570,6 +578,8 @@ def allTests(communicator):
         test(ex.b == "base")
         test(ex.kp == "preserved")
         test(ex.kpd == "derived")
+    except Ice.OperationNotExistException:
+        pass
     except:
         test(False)
 

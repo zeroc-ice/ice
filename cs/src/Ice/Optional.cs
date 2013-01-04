@@ -215,6 +215,6 @@ namespace Ice
         Size = 4,
         VSize = 5,
         FSize = 6,
-        EndMarker = 7
+        Class = 7
     }
 }

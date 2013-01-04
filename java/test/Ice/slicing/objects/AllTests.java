@@ -231,6 +231,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -261,6 +266,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(exc instanceof Ice.NoObjectFactoryException);
             callback.called();
         }
@@ -1091,6 +1101,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1122,6 +1137,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1153,6 +1173,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1185,6 +1210,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1216,6 +1246,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1248,6 +1283,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1280,6 +1320,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1321,6 +1366,11 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
+            if(exc instanceof Ice.OperationNotExistException)
+            {
+                callback.called();
+                return;
+            }
             test(false);
         }
 
@@ -1538,6 +1588,9 @@ public class AllTests
                 SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
                 test(sb.sb.equals("SBSUnknownDerived.sb"));
             }
+            catch(Ice.OperationNotExistException ex)
+            {
+            }
             catch(Exception ex)
             {
                 test(false);
@@ -1557,6 +1610,9 @@ public class AllTests
             catch(Ice.NoObjectFactoryException ex)
             {
                 // Expected.
+            }
+            catch(Ice.OperationNotExistException ex)
+            {
             }
             catch(Exception ex)
             {
@@ -2805,6 +2861,7 @@ public class AllTests
         //
         communicator.addObjectFactory(new PreservedFactoryI(), Preserved.ice_staticId());
 
+        try
         {
             //
             // Server knows the most-derived class PDerived.
@@ -2820,7 +2877,11 @@ public class AllTests
             test(p2.ps.equals("preserved"));
             test(p2.pb == p2);
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
@@ -2833,7 +2894,11 @@ public class AllTests
             test(!(r instanceof PCUnknown));
             test(r.pi == 3);
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2856,7 +2921,11 @@ public class AllTests
                 test(p2.pbs[0] == p2);
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2879,7 +2948,11 @@ public class AllTests
                 test(p2.pbs[0] == p2);
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Send an object that will have multiple preserved slices in the server.
@@ -2926,7 +2999,11 @@ public class AllTests
                 test(p3.pcd3 == p3.pbs[10]);
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -2940,11 +3017,14 @@ public class AllTests
                 ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
             }
         }
-
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
         out.println("ok");
 
         out.print("preserved classes (AMI)... ");
         out.flush();
+        try
         {
             //
             // Server knows the most-derived class PDerived.
@@ -2958,7 +3038,11 @@ public class AllTests
             test.begin_exchangePBase(pd, cb);
             cb.check();
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the base (non-preserved) type, so the object is sliced.
@@ -2971,7 +3055,11 @@ public class AllTests
             test.begin_exchangePBase(pu, cb);
             cb.check();
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2994,7 +3082,11 @@ public class AllTests
                 cb.check();
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -3017,7 +3109,11 @@ public class AllTests
                 cb.check();
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Send an object that will have multiple preserved slices in the server.
@@ -3054,7 +3150,11 @@ public class AllTests
                 cb.check();
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
+        try
         {
             //
             // Obtain an object with preserved slices and send it back to the server.
@@ -3068,11 +3168,15 @@ public class AllTests
                 ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
             }
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
         out.println("ok");
 
         out.print("garbage collection for preserved classes... ");
         out.flush();
+        try
         {
             //
             // Register a factory in order to substitute our own subclass of PNode. This provides
@@ -3154,6 +3258,9 @@ public class AllTests
             {
                 test(false);
             }
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
         }
 
         out.println("ok");

@@ -145,7 +145,36 @@ public:
 private:
 
     IceUtil::Optional<APtr> a;
+};
 
+class FObjectReader : public Ice::ObjectReader
+{
+public:
+
+    virtual void
+    read(const Ice::InputStreamPtr& in)
+    {
+        _f = new F();
+        in->startObject();
+        in->startSlice();
+        // Don't read af on purpose
+        //in->read(1, _f->af);
+        in->endSlice();
+        in->startSlice();
+        in->read(_f->ae);
+        in->endSlice();
+        in->endObject(false);
+    }
+
+    FPtr 
+    getF()
+    {
+        return _f;
+    }
+
+private:
+
+    FPtr _f;
 };
 
 class FactoryI : public Ice::ObjectFactory
@@ -185,6 +214,10 @@ public:
         else if(typeId == "::Test::D")
         {
             return new DObjectReader;
+        }
+        else if(typeId == "::Test::F")
+        {
+            return new FObjectReader;
         }
         
         return 0;
@@ -657,6 +690,33 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
+    cout << "testing marshalling of objects with optional objects..." << flush;
+    {
+        FPtr f = new F();
+
+        f->af = new A();
+        f->ae = *f->af;
+
+        FPtr rf = FPtr::dynamicCast(initial->pingPong(f));
+        test(rf->ae == *rf->af);
+
+        factory->setEnabled(true);
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(f);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        in = Ice::createInputStream(communicator, inEncaps);
+        in->startEncapsulation();
+        in->read(obj);
+        in->endEncapsulation();
+        factory->setEnabled(false);
+
+        rf = dynamic_cast<FObjectReader*>(obj.get())->getF();
+        test(rf->ae && !rf->af);
+    }
+    cout << "ok" << endl;
+
     cout << "testing optional with default values... " << flush;
     WDPtr wd = WDPtr::dynamicCast(initial->pingPong(new WD()));
     test(*wd->a == 5);
@@ -867,6 +927,26 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         in->endEncapsulation();
     }
 
+    {
+        FPtr f = new F();
+        f->af = new A();
+        (*f->af)->requiredA = 56;
+        f->ae = *f->af;
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(1, makeOptional(f));
+        out->write(2, makeOptional(f->ae));
+        out->endEncapsulation();
+        out->finished(inEncaps);
+
+        in = Ice::createInputStream(communicator, inEncaps);
+        in->startEncapsulation();
+        IceUtil::Optional<APtr> a;
+        in->read(2, a);
+        in->endEncapsulation();
+        test(a && *a && (*a)->requiredA == 56);        
+    }
     cout << "ok" << endl;
 
     cout << "testing optional parameters and custom sequences... " << flush;

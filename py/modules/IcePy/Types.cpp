@@ -2728,7 +2728,7 @@ IcePy::ClassInfo::wireSize() const
 Ice::OptionalFormat
 IcePy::ClassInfo::optionalFormat() const
 {
-    return Ice::OptionalFormatSize;
+    return Ice::OptionalFormatClass;
 }
 
 bool

@@ -613,7 +613,7 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
         }
         case Builtin::KindObject:
         {
-            return "Ice.OptionalFormat.Size";
+            return "Ice.OptionalFormat.Class";
         }
         case Builtin::KindObjectProxy:
         {
@@ -658,7 +658,7 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     assert(cl);
-    return "Ice.OptionalFormat.Size";
+    return "Ice.OptionalFormat.Class";
 }
 
 string

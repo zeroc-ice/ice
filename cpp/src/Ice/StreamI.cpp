@@ -169,7 +169,7 @@ namespace
 {
 
 void
-patchObject(void* addr, ObjectPtr& v)
+patchObject(void* addr, const ObjectPtr& v)
 {
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);

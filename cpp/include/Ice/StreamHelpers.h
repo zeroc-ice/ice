@@ -51,10 +51,10 @@ enum OptionalFormat
     OptionalFormatF4 = 2,             // Fixed 4 bytes encoding
     OptionalFormatF8 = 3,             // Fixed 8 bytes encoding
     OptionalFormatSize = 4,           // "Size encoding" on 1 to 5 bytes, e.g. enum, class identifier
-    OptionalFormatVSize = 5,          // "Size encoding" on 1 to 5 bytes followed by data, e.g. string, fixed size struct,
-                                      // or containers whose size can be computed prior to marshaling
+    OptionalFormatVSize = 5,          // "Size encoding" on 1 to 5 bytes followed by data, e.g. string, fixed size 
+                                      // struct, or containers whose size can be computed prior to marshaling
     OptionalFormatFSize = 6,          // Fixed size on 4 bytes followed by data, e.g. variable-size struct, container.
-    OptionalFormatEndMarker = 7 
+    OptionalFormatClass = 7 
 };
 
 
@@ -566,7 +566,7 @@ struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, false>
 template<>
 struct GetOptionalFormat<StreamHelperCategoryClass, 1, false>
 {
-    static const OptionalFormat value = OptionalFormatSize;
+    static const OptionalFormat value = OptionalFormatClass;
 };
 
 template<int minWireSize>

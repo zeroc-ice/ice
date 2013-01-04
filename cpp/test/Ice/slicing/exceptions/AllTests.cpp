@@ -781,6 +781,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             //
             test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
         }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
         catch(...)
         {
             test(false);
@@ -805,6 +808,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ex.kp == "preserved");
             test(ex.kpd == "derived");
         }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
         catch(...)
         {
             test(false);
@@ -820,6 +826,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ex.b == "base");
             test(ex.kp == "preserved");
             test(ex.kpd == "derived");
+        }
+        catch(const Ice::OperationNotExistException&)
+        {
         }
         catch(...)
         {
@@ -842,6 +851,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(pc->pc == "pc");
             test(ex.p2 == ex.p1);
         }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
         catch(const KnownPreservedDerived& ex)
         {
             //
@@ -861,6 +873,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test->relayUnknownPreservedAsKnownPreserved(relay);
             test(false);
+        }
+        catch(const Ice::OperationNotExistException&)
+        {
         }
         catch(const Preserved2& ex)
         {

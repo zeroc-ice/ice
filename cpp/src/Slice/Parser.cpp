@@ -283,7 +283,7 @@ Slice::Builtin::minWireSize() const
         4, // KindFloat
         8, // KindDouble
         1, // KindString: at least one byte for an empty string.
-        4, // KindObject: at least 4 bytes (to marshal an index instead of an instance).
+        1, // KindObject: at least 4 bytes (to marshal an index instead of an instance).
         2  // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
     };
 

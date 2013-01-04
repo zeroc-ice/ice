@@ -26,7 +26,7 @@ public enum OptionalFormat
     Size(4),
     VSize(5),
     FSize(6),
-    EndMarker(7);
+    Class(7);
 
     private
     OptionalFormat(int value)
@@ -60,7 +60,7 @@ public enum OptionalFormat
         case 6:
             return FSize;
         case 7:
-            return EndMarker;
+            return Class;
         default:
             throw new IllegalArgumentException();
         }

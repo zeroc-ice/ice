@@ -23,7 +23,7 @@ using namespace IceInternal;
 Object* Ice::upCast(Object* p) { return p; }
 
 void 
-Ice::__patch(ObjectPtr& obj, ObjectPtr& v)
+Ice::__patch(ObjectPtr& obj, const ObjectPtr& v)
 {
     obj = v;
 }

@@ -185,11 +185,14 @@ def allTests(communicator, collocated):
     print("ok")
 
     sys.stdout.write("testing sequences... ")
-    sys.stdout.flush()
-    initial.opBaseSeq([])
+    try:
+        sys.stdout.flush()
+        initial.opBaseSeq([])
 
-    retS, outS = initial.opBaseSeq([Test.Base()])
-    test(len(retS) == 1 and len(outS) == 1)
+        retS, outS = initial.opBaseSeq([Test.Base()])
+        test(len(retS) == 1 and len(outS) == 1)
+    except Ice.OperationNotExistException:
+        pass
     print("ok")
 
     sys.stdout.write("testing compact ID... ")

@@ -477,9 +477,16 @@ public:
     }
 
     void 
-    exception(const ::Ice::Exception&)
+    exception(const ::Ice::Exception& ex)
     {
-        test(false);
+        if(!dynamic_cast<const Ice::OperationNotExistException*>(&ex))
+        {
+            test(false);
+        }
+        else
+        {
+            called();
+        }
     }
  
     BPtr rb;
@@ -724,6 +731,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
         catch(...)
         {
             test(false);
@@ -739,6 +749,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             //
             SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
             test(false);
+        }
+        catch(const Ice::OperationNotExistException&)
+        {
         }
         catch(const Ice::NoObjectFactoryException&)
         {
@@ -1964,6 +1977,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "preserved classes... " << flush;
+    try
     {
         //
         // Server knows the most-derived class PDerived.
@@ -1980,7 +1994,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(p2->ps == "preserved");
         test(p2->pb == p2);
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
 
+    try
     {
         //
         // Server only knows the base (non-preserved) type, so the object is sliced.
@@ -1994,7 +2012,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(!p2);
         test(r->pi == 3);
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
 
+    try
     {
         //
         // Server only knows the intermediate type Preserved. The object will be sliced to
@@ -2018,7 +2040,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p2->pbs[0] == p2);
         }
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
 
+    try
     {
         //
         // Server only knows the intermediate type CompactPDerived. The object will be sliced to
@@ -2042,7 +2068,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p2->pbs[0] == p2);
         }
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
 
+    try
     {
         //
         // Send an object that will have multiple preserved slices in the server.
@@ -2089,7 +2119,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p3->pcd3 == p3->pbs[10]);
         }
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
 
+    try
     {
         //
         // Obtain an object with preserved slices and send it back to the server.
@@ -2102,6 +2136,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test->ice_encodingVersion(Ice::Encoding_1_0)->checkPBSUnknown(p);
         }
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
     }
 
     cout << "ok" << endl;
@@ -2223,6 +2260,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "garbage collection for preserved classes... " << flush;
+    try
     {
         //
         // Register a factory in order to substitute our own subclass of PNode. This provides
@@ -2350,6 +2388,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
     }
     cout << "ok" << endl;
 

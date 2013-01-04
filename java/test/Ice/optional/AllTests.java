@@ -477,6 +477,40 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing marshalling of objects with optional objects...");
+        out.flush();
+        {
+            F f = new F();
+
+            f.setAf(new A());
+            f.ae = f.getAf();
+
+            F rf = (F)initial.pingPong(f);
+            test(rf.ae == rf.getAf());
+
+            factory.setEnabled(true);
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeObject(f);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            in = Ice.Util.createInputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            final FHolder fholder = new FHolder();
+            in.readObject(new Ice.ReadObjectCallback()
+                {
+                    public void invoke(Ice.Object obj)
+                    {
+                        fholder.value = ((FObjectReader)obj).getF();
+                    }
+                });
+            in.endEncapsulation();
+            factory.setEnabled(false);
+            rf = fholder.value;
+            test(rf.ae != null && !rf.hasAf());
+        }
+        out.println("ok");
+
         out.print("testing optional with default values... ");
         out.flush();
         {
@@ -539,7 +573,7 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeObject(a);
-                os.writeOptional(1, Ice.OptionalFormat.Size);
+                os.writeOptional(1, Ice.OptionalFormat.Class);
                 os.writeObject(new DObjectWriter());
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1129,17 +1163,17 @@ public class AllTests
 
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
-                os.writeOptional(2, Ice.OptionalFormat.Size);
+                os.writeOptional(2, Ice.OptionalFormat.Class);
                 os.writeObject(p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opOneOptionalReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
                 in = Ice.Util.createInputStream(communicator, outEncaps.value);
                 in.startEncapsulation();
-                test(in.readOptional(1, Ice.OptionalFormat.Size));
+                test(in.readOptional(1, Ice.OptionalFormat.Class));
                 ReadObjectCallbackI p2cb = new ReadObjectCallbackI();
                 in.readObject(p2cb);
-                test(in.readOptional(3, Ice.OptionalFormat.Size));
+                test(in.readOptional(3, Ice.OptionalFormat.Class));
                 ReadObjectCallbackI p3cb = new ReadObjectCallbackI();
                 in.readObject(p3cb);
                 in.endEncapsulation();
@@ -2046,6 +2080,36 @@ public class AllTests
                 in.endEncapsulation();
             }
         }
+
+        {
+            F f = new F();
+            f.setAf(new A());
+            f.getAf().requiredA = 56;
+            f.ae = f.getAf();
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(1, Ice.OptionalFormat.Class);
+            os.writeObject(f);
+            os.writeOptional(2, Ice.OptionalFormat.Class);
+            os.writeObject(f.ae);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+
+            in = Ice.Util.createInputStream(communicator, inEncaps);
+            in.startEncapsulation();
+            test(in.readOptional(2, Ice.OptionalFormat.Class));
+            final AHolder a = new AHolder();
+            in.readObject(new Ice.ReadObjectCallback()
+                {
+                    public void invoke(Ice.Object obj)
+                    {
+                        a.value = (A)obj;
+                    }
+                });
+            in.endEncapsulation();
+            test(a.value != null && a.value.requiredA == 56);        
+        }
         out.println("ok");
 
         out.print("testing exception optionals... ");
@@ -2245,7 +2309,7 @@ public class AllTests
             out.endSize();
             A a = new A();
             a.setMc(18);
-            out.writeOptional(1000, Ice.OptionalFormat.Size);
+            out.writeOptional(1000, Ice.OptionalFormat.Class);
             out.writeObject(a);
             out.endSlice();
             // ::Test::B
@@ -2275,7 +2339,7 @@ public class AllTests
             String[] o = in.readStringSeq();
             test(o.length == 4 &&
                  o[0].equals("test1") && o[1].equals("test2") && o[2].equals("test3") && o[3].equals("test4"));
-            test(in.readOptional(1000, Ice.OptionalFormat.Size));
+            test(in.readOptional(1000, Ice.OptionalFormat.Class));
             in.readObject(a);
             in.endSlice();
             // ::Test::B
@@ -2295,6 +2359,36 @@ public class AllTests
         }
 
         private ReadObjectCallbackI a = new ReadObjectCallbackI();
+    }
+
+    private static class FObjectReader extends Ice.ObjectReader
+    {
+        public void read(Ice.InputStream in)
+        {
+            _f = new F();
+            in.startObject();
+            in.startSlice();
+            // Don't read af on purpose
+            //in.read(1, _f.af);
+            in.endSlice();
+            in.startSlice();
+            in.readObject(new Ice.ReadObjectCallback()
+                {
+                    public void invoke(Ice.Object obj)
+                    {
+                        _f.ae = (A)obj;
+                    }
+                });
+            in.endSlice();
+            in.endObject(false);
+        }
+
+        F getF()
+        {
+            return _f;
+        }
+
+        private F _f;
     }
 
     private static class FactoryI implements Ice.ObjectFactory
@@ -2325,6 +2419,10 @@ public class AllTests
             else if(typeId.equals("::Test::D"))
             {
                 return new DObjectReader();
+            }
+            else if(typeId.equals("::Test::F"))
+            {
+                return new FObjectReader();
             }
 
             return null;

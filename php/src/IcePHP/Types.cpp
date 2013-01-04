@@ -2493,7 +2493,7 @@ IcePHP::ClassInfo::wireSize() const
 Ice::OptionalFormat
 IcePHP::ClassInfo::optionalFormat() const
 {
-    return Ice::OptionalFormatSize;
+    return Ice::OptionalFormatClass;
 }
 
 bool

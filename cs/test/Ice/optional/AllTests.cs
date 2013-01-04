@@ -504,6 +504,34 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        Write("testing marshalling of objects with optional objects...");
+        Flush();
+        {
+            Test.F f = new Test.F();
+
+            f.af = new Test.A();
+            f.ae = (Test.A)f.af;
+            
+            Test.F rf = (Test.F)initial.pingPong(f);
+            test(rf.ae == rf.af.Value);
+
+            factory.setEnabled(true);
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeObject(f);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            @in = Ice.Util.createInputStream(communicator, inEncaps);
+            @in.startEncapsulation();
+            ReadObjectCallbackI rocb = new ReadObjectCallbackI();
+            @in.readObject(rocb);
+            @in.endEncapsulation();
+            factory.setEnabled(false);
+            rf = ((FObjectReader)rocb.obj).getF();
+            test(rf.ae != null && !rf.af.HasValue);
+        }
+        WriteLine("ok");
+
         Write("testing optional with default values... ");
         Flush();
         {
@@ -566,7 +594,7 @@ public class AllTests : TestCommon.TestApp
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeObject(a);
-                os.writeOptional(1, Ice.OptionalFormat.Size);
+                os.writeOptional(1, Ice.OptionalFormat.Class);
                 os.writeObject(new DObjectWriter());
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1149,17 +1177,17 @@ public class AllTests : TestCommon.TestApp
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalFormat.Size);
+            os.writeOptional(2, Ice.OptionalFormat.Class);
             os.writeObject(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opOneOptional", Ice.OperationMode.Normal, inEncaps, out outEncaps);
             @in = Ice.Util.createInputStream(communicator, outEncaps);
             @in.startEncapsulation();
-            test(@in.readOptional(1, Ice.OptionalFormat.Size));
+            test(@in.readOptional(1, Ice.OptionalFormat.Class));
             ReadObjectCallbackI p2cb = new ReadObjectCallbackI();
             @in.readObject(p2cb);
-            test(@in.readOptional(3, Ice.OptionalFormat.Size));
+            test(@in.readOptional(3, Ice.OptionalFormat.Class));
             ReadObjectCallbackI p3cb = new ReadObjectCallbackI();
             @in.readObject(p3cb);
             @in.endEncapsulation();
@@ -2036,6 +2064,29 @@ public class AllTests : TestCommon.TestApp
             @in = Ice.Util.createInputStream(communicator, outEncaps);
             @in.startEncapsulation();
             @in.endEncapsulation();
+
+            Test.F f = new Test.F();
+            f.af = new Test.A();
+            f.af.Value.requiredA = 56;
+            f.ae = f.af.Value;
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(1, Ice.OptionalFormat.Class);
+            os.writeObject(f);
+            os.writeOptional(2, Ice.OptionalFormat.Class);
+            os.writeObject(f.ae);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+
+            @in = Ice.Util.createInputStream(communicator, inEncaps);
+            @in.startEncapsulation();
+            test(@in.readOptional(2, Ice.OptionalFormat.Class));
+            ReadObjectCallbackI rocb = new ReadObjectCallbackI();
+            @in.readObject(rocb);
+            @in.endEncapsulation();
+            Test.A a = (Test.A)rocb.obj;
+            test(a != null && a.requiredA == 56);
         }
         WriteLine("ok");
 
@@ -2322,7 +2373,7 @@ public class AllTests : TestCommon.TestApp
             @out.endSize();
             Test.A a = new Test.A();
             a.mc = 18;
-            @out.writeOptional(1000, Ice.OptionalFormat.Size);
+            @out.writeOptional(1000, Ice.OptionalFormat.Class);
             @out.writeObject(a);
             @out.endSlice();
             // ::Test::B
@@ -2352,7 +2403,7 @@ public class AllTests : TestCommon.TestApp
             string[] o = @in.readStringSeq();
             test(o.Length == 4 &&
                  o[0].Equals("test1") && o[1].Equals("test2") && o[2].Equals("test3") && o[3].Equals("test4"));
-            test(@in.readOptional(1000, Ice.OptionalFormat.Size));
+            test(@in.readOptional(1000, Ice.OptionalFormat.Class));
             @in.readObject(a);
             @in.endSlice();
             // ::Test::B
@@ -2372,6 +2423,32 @@ public class AllTests : TestCommon.TestApp
         }
 
         private ReadObjectCallbackI a = new ReadObjectCallbackI();
+    }
+
+    private class FObjectReader : Ice.ObjectReader
+    {
+        public override void read(Ice.InputStream @in)
+        {
+            _f = new Test.F();
+            @in.startObject();
+            @in.startSlice();
+            // Don't read af on purpose
+            //in.read(1, _f.af);
+            @in.endSlice();
+            @in.startSlice();
+            ReadObjectCallbackI rocb = new ReadObjectCallbackI();
+            @in.readObject(rocb);
+            @in.endSlice();
+            @in.endObject(false);
+            _f.ae = (Test.A)rocb.obj;
+        }
+
+        public Test.F getF()
+        {
+            return _f;
+        }
+
+        private Test.F _f;
     }
 
     private class FactoryI : Ice.ObjectFactory
@@ -2402,6 +2479,10 @@ public class AllTests : TestCommon.TestApp
             else if(typeId.Equals("::Test::D"))
             {
                 return new DObjectReader();
+            }
+            else if(typeId.Equals("::Test::F"))
+            {
+                return new FObjectReader();
             }
 
             return null;
