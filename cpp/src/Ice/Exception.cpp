@@ -35,8 +35,18 @@ socketErrorToString(int error)
         return "unknown error";
     }
 #ifdef ICE_OS_WINRT
-    return IceUtil::wstringToString(
-        static_cast<Windows::Networking::Sockets::SocketErrorStatus>(error).ToString()->Data());
+    if(error == E_ACCESSDENIED)
+    {
+        ostringstream os;
+        os << "access to a resource or feature is denied, ensure that you have requested the appropriate\n";
+        os << "capability and made the required declarations in the package manifest of your app.";
+        return os.str();
+    }
+    else
+    {
+        return IceUtil::wstringToString(
+            static_cast<Windows::Networking::Sockets::SocketErrorStatus>(error).ToString()->Data());
+    }
 #else
     return IceUtilInternal::errorToString(error);
 #endif

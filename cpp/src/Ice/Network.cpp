@@ -2093,6 +2093,12 @@ IceInternal::createPipe(SOCKET fds[2])
 void
 IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr, HostName^ host)
 {
+    if(herr == E_ACCESSDENIED)
+    {
+        SocketException ex(file, line);
+        ex.error = static_cast<int>(herr);
+        throw ex;
+    }
     SocketErrorStatus error = SocketError::GetStatus(herr);
     if(error == SocketErrorStatus::ConnectionRefused)
     {
@@ -2129,6 +2135,12 @@ IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr, Hos
 void
 IceInternal::checkErrorCode(const char* file, int line, HRESULT herr)
 {
+    if(herr == E_ACCESSDENIED)
+    {
+        SocketException ex(file, line);
+        ex.error = static_cast<int>(herr);
+        throw ex;
+    }
     SocketErrorStatus error = SocketError::GetStatus(herr);
     if(error == SocketErrorStatus::NetworkDroppedConnectionOnReset ||
        error == SocketErrorStatus::SoftwareCausedConnectionAbort ||
