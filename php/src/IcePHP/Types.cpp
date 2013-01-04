@@ -3830,6 +3830,11 @@ ZEND_FUNCTION(IcePHP_stringifyException)
 }
 
 //
+// Necessary to suppress warnings from zend_function_entry in php-5.2.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+//
 // Predefined methods for IcePHP_TypeInfo.
 //
 static zend_function_entry _typeInfoMethods[] =
@@ -3890,6 +3895,11 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
 
     return true;
 }
+
+//
+// enable warning again
+//
+#pragma GCC diagnostic error "-Wwrite-strings"
 
 bool
 IcePHP::typesRequestInit(TSRMLS_D)

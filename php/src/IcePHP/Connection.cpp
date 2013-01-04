@@ -270,6 +270,11 @@ handleConnectionCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 }
 
 //
+// Necessary to suppress warnings from zend_function_entry in php-5.2.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+//
 // Predefined methods for Connection.
 //
 static zend_function_entry _interfaceMethods[] =
@@ -303,6 +308,10 @@ static zend_function_entry _connectionInfoClassMethods[] =
     ZEND_ME(Ice_ConnectionInfo, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     {0, 0, 0}
 };
+//
+// enable warning again
+//
+#pragma GCC diagnostic error "-Wwrite-strings"
 
 #ifdef _WIN32
 extern "C"

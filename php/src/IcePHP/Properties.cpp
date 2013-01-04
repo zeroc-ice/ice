@@ -588,6 +588,11 @@ ZEND_FUNCTION(Ice_createProperties)
 }
 
 //
+// Necessary to suppress warnings from zend_function_entry in php-5.2.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+//
 // Predefined methods for Properties.
 //
 static zend_function_entry _interfaceMethods[] =
@@ -613,6 +618,11 @@ static zend_function_entry _classMethods[] =
     ZEND_ME(Ice_Properties, clone, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
+
+//
+// enable warning again
+//
+#pragma GCC diagnostic error "-Wwrite-strings"
 
 bool
 IcePHP::propertiesInit(TSRMLS_D)

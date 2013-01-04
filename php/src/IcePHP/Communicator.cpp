@@ -1109,6 +1109,13 @@ ZEND_FUNCTION(Ice_getProperties)
     }
 }
 
+
+//
+// Necessary to suppress warnings from zend_function_entry in php-5.2
+// and INI_STR macro.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 //
 // Predefined methods for Communicator.
 //
@@ -1318,11 +1325,6 @@ parseProfiles(const string& file TSRMLS_DC)
 
     return true;
 }
-
-//
-// Necessary to suppress warnings from calls to INI_STR macro.
-//
-#pragma GCC diagnostic ignored "-Wwrite-strings"
 
 bool
 IcePHP::communicatorInit(TSRMLS_D)

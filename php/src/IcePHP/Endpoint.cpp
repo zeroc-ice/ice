@@ -224,6 +224,11 @@ static zend_function_entry _interfaceMethods[] =
 };
 
 //
+// Necessary to suppress warnings from zend_function_entry in php-5.2.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+//
 // Predefined methods for Endpoint.
 //
 static zend_function_entry _endpointMethods[] =
@@ -246,6 +251,11 @@ static zend_function_entry _endpointInfoMethods[] =
     ZEND_ME(Ice_EndpointInfo, secure, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
+
+//
+// enable warning again
+//
+#pragma GCC diagnostic error "-Wwrite-strings"
 
 bool
 IcePHP::endpointInit(TSRMLS_D)

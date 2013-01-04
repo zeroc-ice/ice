@@ -101,6 +101,11 @@ ZEND_END_ARG_INFO()
 #endif
 
 //
+// Necessary to suppress warnings from zend_function_entry in php-5.2.
+//
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+//
 // Entries for all global functions.
 //
 zend_function_entry ice_functions[] =
@@ -115,6 +120,10 @@ zend_function_entry ice_functions[] =
     ICEPHP_UTIL_NS_FUNCTIONS
     {0, 0, 0}
 };
+//
+// enable warning again
+//
+#pragma GCC diagnostic error "-Wwrite-strings"
 
 //
 // The ice_module_entry declaration below generates lots of warnings:
