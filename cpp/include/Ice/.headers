@@ -65,6 +65,7 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectFactory.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectFactoryF.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectFactoryManagerF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObserverHelper.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Outgoing.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\OutgoingAsync.h \
