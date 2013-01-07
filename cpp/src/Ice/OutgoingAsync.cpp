@@ -619,7 +619,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
         assert(!_exception.get() && !(_state & Done));
         if(_remoteObserver)
         {
-            _remoteObserver->reply(is.b.size() - headerSize - 4);
+            _remoteObserver->reply(static_cast<Int>(is.b.size() - headerSize - 4));
         }
         _remoteObserver.detach();
 

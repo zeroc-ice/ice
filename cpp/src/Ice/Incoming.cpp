@@ -230,7 +230,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
             _os.startWriteEncaps(_current.encoding, DefaultFormat);
             _os.write(ex);
             _os.endWriteEncaps();
-            _observer.reply(_os.b.size() - headerSize - 4);
+            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -323,7 +323,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
 
             _os.write(rfe->operation, false);
 
-            _observer.reply(_os.b.size() - headerSize - 4);
+            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -391,7 +391,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
                 _os.write(str.str(), false);
             }
 
-            _observer.reply(_os.b.size() - headerSize - 4);
+            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -419,7 +419,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             str << "std::exception: " << exc.what();
             _os.write(str.str(), false);
 
-            _observer.reply(_os.b.size() - headerSize - 4);
+            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -453,7 +453,7 @@ IceInternal::IncomingBase::__handleException()
         _os.write(replyUnknownException);
         string reason = "unknown c++ exception";
         _os.write(reason, false);
-        _observer.reply(_os.b.size() - headerSize - 4);
+        _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
         _connection->sendResponse(&_os, _compress);
     }
     else
@@ -596,7 +596,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         _is->read(sz); 
         _is->i -= 4;
 
-        _observer.attach(obsv->getDispatchObserver(_current, _is->i - start + sz));
+        _observer.attach(obsv->getDispatchObserver(_current, static_cast<Int>(_is->i - start + sz)));
     }
 
     //
@@ -634,7 +634,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                         _os.startWriteEncaps(encoding, DefaultFormat);
                         _os.write(ex);
                         _os.endWriteEncaps();
-                        _observer.reply(_os.b.size() - headerSize - 4);
+                        _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
                         _connection->sendResponse(&_os, _compress);
                     }
                     else
@@ -725,7 +725,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
     if(_response)
     {
-        _observer.reply(_os.b.size() - headerSize - 4);
+        _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
         _connection->sendResponse(&_os, _compress);
     }
     else
