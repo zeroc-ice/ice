@@ -41,6 +41,8 @@ public:
     virtual void throwNonIceException(const Ice::Current&);
     virtual void throwAssertException(const Ice::Current&);
 
+    virtual void throwLocalExceptionIdempotent(const Ice::Current&);
+
     virtual void throwAfterResponse(const Ice::Current&);
     virtual void throwAfterException(const Ice::Current&);
 };

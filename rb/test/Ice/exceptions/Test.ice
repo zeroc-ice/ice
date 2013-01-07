@@ -69,6 +69,8 @@ module Mod
     void throwLocalException();
     void throwNonIceException();
     void throwAssertException();
+
+    idempotent void throwLocalExceptionIdempotent();
 };
 
 ["ami"] interface WrongOperation

@@ -921,6 +921,9 @@ public class AllTests : TestCommon.TestApp
             catch(Ice.UnknownLocalException)
             {
             }
+            catch(Ice.OperationNotExistException)
+            {
+            }
             catch(Exception)
             {
                 test(false);
@@ -1386,6 +1389,21 @@ public class AllTests : TestCommon.TestApp
         {
             test(false);
         }
+        try
+        {
+            thrower.throwLocalExceptionIdempotent();
+            test(false);
+        }
+        catch(Ice.UnknownLocalException)
+        {
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
+        catch(Exception)
+        {
+            test(false);
+        }
 
         WriteLine("ok");
 
@@ -1711,6 +1729,12 @@ public class AllTests : TestCommon.TestApp
             {
                 AsyncCallback cb3 = new AsyncCallback();
                 thrower.begin_throwLocalException().whenCompleted(cb3.response, cb3.exception_LocalException);
+                cb3.check();
+            }
+
+            {
+                AsyncCallback cb3 = new AsyncCallback();
+                thrower.begin_throwLocalExceptionIdempotent().whenCompleted(cb3.response, cb3.exception_LocalException);
                 cb3.check();
             }
 

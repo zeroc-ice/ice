@@ -27,6 +27,32 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- Fixed bug where the retry of an AMI invocation could trigger an
+  assertion.
+
+- Improved the dispatch and remote invocation metrics classes to
+  support additional size and replySize data members.
+
+- Improved the 1.1 encoding to reduce further more the size of encoded
+  objects. Objects are no longer encoded at the end of the
+  encapsulation. Instead, an object is encoded as soon as it's written
+  and it hasn't already been encoded within the encapsulation.
+  
+  IMPORTANT: This change implies that the 1.1 class encoding from Ice
+  3.5.0 is incompatible with the encoding from the 3.5 beta version.
+
+- Added support for Slice class compact IDs. A compact ID is defined
+  as a numeric value in the Slice class definition. For example:
+   
+  // Slice
+  class Compact(1)
+  {
+      string v;
+  };
+
+  When using the 1.1 encoding, Ice will transmit this numerical value
+  instead of the string type ID of the class.
+
 - Fixed bugs in the Slice parser related to optional values:
 
   * The parser was too strict when validating tags of optional data

@@ -139,6 +139,12 @@ public class ThrowerI : ThrowerDisp_
         Debug.Assert(false);
     }
 
+    public override void throwLocalExceptionIdempotent_async(AMD_Thrower_throwLocalExceptionIdempotent e, 
+                                                             Ice.Current current)
+    {
+        throw new Ice.TimeoutException();
+    }
+    
     public override void throwAfterResponse_async(AMD_Thrower_throwAfterResponse cb, Ice.Current current)
     {
         cb.ice_response();

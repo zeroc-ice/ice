@@ -434,6 +434,8 @@ class Callback(CallbackBase):
             raise ex
         except Ice.UnknownLocalException as ex:
             pass
+        except Ice.OperationNotExistException as ex:
+            pass
         except:
             test(False)
         self.called()
@@ -745,6 +747,16 @@ def allTests(communicator):
     except:
         print(sys.exc_info())
         test(False)
+    try:
+        thrower.throwLocalExceptionIdempotent()
+        test(False)
+    except Ice.UnknownLocalException:
+        pass
+    except Ice.OperationNotExistException:
+        pass
+    except:
+        print(sys.exc_info())
+        test(False)
 
     print("ok")
 
@@ -1000,6 +1012,10 @@ def allTests(communicator):
 
     cb = Callback()
     thrower.begin_throwLocalException(cb.response, cb.exception_LocalException)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwLocalExceptionIdempotent(cb.response, cb.exception_LocalException)
     cb.check()
 
     print("ok")

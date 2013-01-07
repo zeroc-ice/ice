@@ -153,6 +153,12 @@ ThrowerI::throwAssertException(const Ice::Current&)
 }
 
 void
+ThrowerI::throwLocalExceptionIdempotent(const Ice::Current&)
+{
+    throw Ice::TimeoutException(__FILE__, __LINE__);
+}
+
+void
 ThrowerI::throwAfterResponse(const Ice::Current&)
 {
     //

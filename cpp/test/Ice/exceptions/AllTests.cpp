@@ -841,6 +841,9 @@ public:
         catch(const Ice::UnknownLocalException&)
         {
         }
+        catch(const Ice::OperationNotExistException&)
+        {
+        }
         catch(...)
         {
             test(false);
@@ -1416,6 +1419,21 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         test(false);
     }
+    try
+    {
+        thrower->throwLocalExceptionIdempotent();
+        test(false);
+    }
+    catch(const Ice::UnknownLocalException&)
+    {
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    catch(...)
+    {
+        test(false);
+    }
 
     cout << "ok" << endl;
 
@@ -1767,6 +1785,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             Callback_Thrower_throwLocalExceptionPtr callback = 
                 newCallback_Thrower_throwLocalException(cb, &Callback::response, &Callback::exception_LocalException);
             thrower->begin_throwLocalException(callback);
+            cb->check();
+        }
+
+        {
+            CallbackPtr cb = new Callback;
+            Callback_Thrower_throwLocalExceptionIdempotentPtr callback = 
+                newCallback_Thrower_throwLocalExceptionIdempotent(cb, &Callback::response, 
+                                                                  &Callback::exception_LocalException);
+            thrower->begin_throwLocalExceptionIdempotent(callback);
             cb->check();
         }
 

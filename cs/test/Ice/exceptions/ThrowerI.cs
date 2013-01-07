@@ -102,6 +102,11 @@ public sealed class ThrowerI : ThrowerDisp_
         Debug.Assert(false);
     }
     
+    public override void throwLocalExceptionIdempotent(Ice.Current current)
+    {
+        throw new Ice.TimeoutException();
+    }
+    
     public override void throwUndeclaredA(int a, Ice.Current current)
     {
         A ex = new A();

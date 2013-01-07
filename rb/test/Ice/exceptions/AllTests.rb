@@ -332,6 +332,20 @@ def allTests(communicator)
         test(false)
     end
 
+    begin
+        thrower.throwLocalExceptionIdempotent()
+        test(false)
+    rescue Ice::UnknownLocalException
+        #
+        # We get an unknown local exception without collocation
+        # optimization.
+        #
+    rescue Ice::OperationNotExistException
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
+    end
+
     puts "ok"
 
     print "catching unknown non-Ice exception... "

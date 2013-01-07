@@ -21,6 +21,7 @@ import test.Ice.exceptions.Test.AMI_Thrower_throwCasA;
 import test.Ice.exceptions.Test.AMI_Thrower_throwCasB;
 import test.Ice.exceptions.Test.AMI_Thrower_throwCasC;
 import test.Ice.exceptions.Test.AMI_Thrower_throwLocalException;
+import test.Ice.exceptions.Test.AMI_Thrower_throwLocalExceptionIdempotent;
 import test.Ice.exceptions.Test.AMI_Thrower_throwNonIceException;
 import test.Ice.exceptions.Test.AMI_Thrower_throwUndeclaredA;
 import test.Ice.exceptions.Test.AMI_Thrower_throwUndeclaredB;
@@ -42,6 +43,7 @@ import test.Ice.exceptions.Test.Callback_Thrower_throwCasA;
 import test.Ice.exceptions.Test.Callback_Thrower_throwCasB;
 import test.Ice.exceptions.Test.Callback_Thrower_throwCasC;
 import test.Ice.exceptions.Test.Callback_Thrower_throwLocalException;
+import test.Ice.exceptions.Test.Callback_Thrower_throwLocalExceptionIdempotent;
 import test.Ice.exceptions.Test.Callback_Thrower_throwNonIceException;
 import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredA;
 import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredB;
@@ -1245,6 +1247,9 @@ public class AllTests
             catch(Ice.UnknownLocalException ex)
             {
             }
+            catch(Ice.OperationNotExistException ex)
+            {
+            }
             catch(Throwable ex)
             {
                 ex.printStackTrace();
@@ -1820,6 +1825,23 @@ public class AllTests
             test(false);
         }
 
+        try
+        {
+            thrower.throwLocalExceptionIdempotent();
+            test(false);
+        }
+        catch(Ice.UnknownLocalException ex)
+        {
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
+        catch(Throwable ex)
+        {
+            ex.printStackTrace();
+            test(false);
+        }
+
         out.println("ok");
 
         out.print("catching unknown non-Ice exception... ");
@@ -2176,6 +2198,25 @@ public class AllTests
             {
                 Callback_Thrower_throwLocalExceptionI cb = new Callback_Thrower_throwLocalExceptionI();
                 thrower.begin_throwLocalException(cb);
+                cb.check();
+            }
+
+            {
+                final Callback_Thrower_throwLocalExceptionI cb = new Callback_Thrower_throwLocalExceptionI();
+                thrower.begin_throwLocalExceptionIdempotent(new Callback_Thrower_throwLocalExceptionIdempotent()
+                    {
+                        @Override
+                        public void response()
+                        {
+                            cb.response();
+                        }
+
+                        @Override
+                        public void exception(Ice.LocalException exc)
+                        {
+                            cb.exception(exc);
+                        }
+                    });
                 cb.check();
             }
 

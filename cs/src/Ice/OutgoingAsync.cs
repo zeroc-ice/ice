@@ -1040,8 +1040,10 @@ namespace IceInternal
                         _timerTask = null;
                     }
 
-                    Debug.Assert(is_ == null);
-                    is_ = new IceInternal.BasicStream(instance_, Ice.Util.currentProtocolEncoding);
+                    if(is_ == null) // _is can already be initialized if the invocation is retried
+                    {
+                        is_ = new IceInternal.BasicStream(instance_, Ice.Util.currentProtocolEncoding);
+                    }
                     is_.swap(istr);
                     replyStatus = is_.readByte();
 

@@ -196,6 +196,13 @@ ThrowerI::throwAssertException_async(const AMD_Thrower_throwAssertExceptionPtr&,
 }
 
 void
+ThrowerI::throwLocalExceptionIdempotent_async(const AMD_Thrower_throwLocalExceptionIdempotentPtr& cb,
+                                              const Ice::Current&)
+{
+    cb->ice_exception(Ice::TimeoutException(__FILE__, __LINE__));
+}
+
+void
 ThrowerI::throwAfterResponse_async(const AMD_Thrower_throwAfterResponsePtr& cb, const Ice::Current&)
 {
     cb->ice_response();

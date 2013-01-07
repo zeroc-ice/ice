@@ -354,6 +354,21 @@ function allTests($communicator)
         }
     }
 
+    try
+    {
+        $thrower->throwLocalExceptionIdempotent();
+        test(false);
+    }
+    catch(Exception $ex)
+    {
+        $ule = $NS ? "Ice\\UnknownLocalException" : "Ice_UnknownLocalException";
+        $one = $NS ? "Ice\\OperationNotExistException" : "Ice_OperationNotExistException";
+        if(!($ex instanceof $ule) && !($ex instanceof $one))
+        {
+            throw $ex;
+        }
+    }
+
     echo "ok\n";
 
     echo "catching unknown non-Ice exception... ";

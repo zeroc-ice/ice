@@ -138,6 +138,12 @@ public final class ThrowerI extends _ThrowerDisp
     }
 
     public void
+    throwLocalExceptionIdempotent(Ice.Current current)
+    {
+        throw new Ice.TimeoutException();
+    }
+
+    public void
     throwNonIceException(Ice.Current current)
     {
         throw new RuntimeException();

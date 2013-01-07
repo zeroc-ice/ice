@@ -69,6 +69,8 @@ module Mod
     void throwNonIceException();
     void throwAssertException();
 
+    idempotent void throwLocalExceptionIdempotent();
+
     void throwAfterResponse();
     void throwAfterException() throws A;
 };

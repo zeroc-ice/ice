@@ -55,6 +55,8 @@ exception D
     void throwUndeclaredC(int a, int b, int c);
     void throwLocalException();
     void throwNonIceException();
+
+    idempotent void throwLocalExceptionIdempotent();
 };
 
 ["ami"] interface WrongOperation

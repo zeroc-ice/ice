@@ -89,6 +89,9 @@ class ThrowerI(Test.Thrower):
     def throwAssertException(self, current=None):
         raise RuntimeError("operation `throwAssertException' not supported")
 
+    def throwLocalExceptionIdempotent(self, current=None):
+        raise Ice.TimeoutException()
+
     def throwAfterResponse(self, current=None):
         #
         # Only relevant for AMD.

@@ -109,6 +109,9 @@ class ThrowerI(Test.Thrower):
     def throwAssertException_async(self, cb, current=None):
         raise RuntimeError("operation `throwAssertException' not supported")
 
+    def throwLocalExceptionIdempotent_async(self, cb, current=None):
+        cb.ice_exception(Ice.TimeoutException())
+
     def throwAfterResponse_async(self, cb, current=None):
         cb.ice_response()
         raise RuntimeError("12345")

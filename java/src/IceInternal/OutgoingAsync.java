@@ -241,8 +241,10 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                     _timerTask = null;
                 }
 
-                assert _is == null;
-                _is = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
+                if(_is == null) // _is can already be initialized if the invocation is retried
+                {
+                    _is = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
+                }
                 _is.swap(is);
                 replyStatus = _is.readByte();
 
