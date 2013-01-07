@@ -274,6 +274,10 @@ namespace IceInternal
                     os_.startWriteEncaps();
                     os_.writeUserException(ex);
                     os_.endWriteEncaps();
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -367,6 +371,10 @@ namespace IceInternal
 
                     os_.writeString(ex.operation);
 
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -392,6 +400,10 @@ namespace IceInternal
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.unknown);
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -417,6 +429,10 @@ namespace IceInternal
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.unknown);
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -442,6 +458,10 @@ namespace IceInternal
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.unknown);
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -467,6 +487,10 @@ namespace IceInternal
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -492,6 +516,10 @@ namespace IceInternal
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -517,6 +545,10 @@ namespace IceInternal
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.ToString());
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -622,6 +654,8 @@ namespace IceInternal
         {
             _is = stream;
 
+            int start = _is.pos();
+
             //
             // Read the current.
             //
@@ -658,7 +692,11 @@ namespace IceInternal
             Ice.Instrumentation.CommunicatorObserver obsv = instance_.initializationData().observer;
             if(obsv != null)
             {
-                observer_ = obsv.getDispatchObserver(current_);
+                // Read the encapsulation size.
+                int size = _is.readInt();
+                _is.pos(_is.pos() - 4);
+                
+                observer_ = obsv.getDispatchObserver(current_, _is.pos() - start + size);
                 if(observer_ != null)
                 {
                     observer_.attach();
@@ -703,6 +741,10 @@ namespace IceInternal
                                 os_.startWriteEncaps(encoding, Ice.FormatType.DefaultFormat);
                                 os_.writeUserException(ex);
                                 os_.endWriteEncaps();
+                                if(observer_ != null)
+                                {
+                                    observer_.reply(os_.size() - Protocol.headerSize - 4);
+                                }
                                 connection_.sendResponse(os_, compress_);
                             }
                             else
@@ -787,6 +829,10 @@ namespace IceInternal
 
             if(response_)
             {
+                if(observer_ != null)
+                {
+                    observer_.reply(os_.size() - Protocol.headerSize - 4);
+                }
                 connection_.sendResponse(os_, compress_);
             }
             else

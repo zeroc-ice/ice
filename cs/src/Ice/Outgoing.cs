@@ -296,6 +296,7 @@ namespace IceInternal
 
                 if(_remoteObserver != null)
                 {
+                    _remoteObserver.reply(istr.size() - Protocol.headerSize - 4);
                     _remoteObserver.detach();
                     _remoteObserver = null;
                 }
@@ -536,11 +537,11 @@ namespace IceInternal
             }
         }
 
-        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int sz)
         {
             if(_observer != null)
             {
-                _remoteObserver = _observer.getRemoteObserver(info, endpt);
+                _remoteObserver = _observer.getRemoteObserver(info, endpt, requestId, sz);
                 if(_remoteObserver != null)
                 {
                     _remoteObserver.attach();
@@ -638,7 +639,7 @@ namespace IceInternal
         private int _state;
 
         private InvocationObserver _observer;
-        private Observer _remoteObserver;
+        private RemoteObserver _remoteObserver;
 
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 
@@ -742,11 +743,11 @@ namespace IceInternal
             return _os;
         }
 
-        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int size)
         {
             if(_observer != null)
             {
-                _remoteObserver = _observer.getRemoteObserver(info, endpt);
+                _remoteObserver = _observer.getRemoteObserver(info, endpt, 0, size);
                 if(_remoteObserver != null)
                 {
                     _remoteObserver.attach();

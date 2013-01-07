@@ -289,6 +289,10 @@ public class IncomingBase
                 _os.startWriteEncaps();
                 _os.writeUserException(ex);
                 _os.endWriteEncaps();
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -382,6 +386,10 @@ public class IncomingBase
 
                 _os.writeString(ex.operation);
 
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -406,6 +414,10 @@ public class IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 _os.writeString(ex.unknown);
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -430,6 +442,10 @@ public class IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 _os.writeString(ex.unknown);
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -454,6 +470,10 @@ public class IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 _os.writeString(ex.unknown);
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -484,6 +504,10 @@ public class IncomingBase
                 ex.printStackTrace(pw);
                 pw.flush();
                 _os.writeString(sw.toString());
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -514,6 +538,10 @@ public class IncomingBase
                 ex.printStackTrace(pw);
                 pw.flush();
                 _os.writeString(sw.toString());
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -543,6 +571,10 @@ public class IncomingBase
                 ex.printStackTrace(pw);
                 pw.flush();
                 _os.writeString(sw.toString());
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else

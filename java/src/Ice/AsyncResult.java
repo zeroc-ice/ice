@@ -341,11 +341,11 @@ public class AsyncResult
     }
 
     public void 
-    __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+    __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getRemoteObserver(info, endpt);
+            _remoteObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
             if(_remoteObserver != null)
             {
                 _remoteObserver.attach();
@@ -494,7 +494,7 @@ public class AsyncResult
     protected LocalException _exception;
 
     protected Ice.Instrumentation.InvocationObserver _observer;
-    protected Ice.Instrumentation.Observer _remoteObserver;
+    protected Ice.Instrumentation.RemoteObserver _remoteObserver;
     
     private IceInternal.CallbackBase _callback;
 }

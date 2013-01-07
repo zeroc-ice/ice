@@ -617,6 +617,10 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(!_exception.get() && !(_state & Done));
+        if(_remoteObserver)
+        {
+            _remoteObserver->reply(is.b.size() - headerSize - 4);
+        }
         _remoteObserver.detach();
 
         if(_timerTaskConnection)
@@ -1054,9 +1058,10 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
             _outAsync->check(false);
         }
 
-        virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+        virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt,
+                                            Ice::Int requestId, Ice::Int sz)
         {
-            _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+            _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt, requestId, sz));
         }
 
     private:

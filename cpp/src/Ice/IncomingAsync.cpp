@@ -200,6 +200,7 @@ IceInternal::IncomingAsync::__response()
 
         if(_response)
         {
+            _observer.reply(_os.b.size() - headerSize - 4);
             _connection->sendResponse(&_os, _compress);
         }
         else

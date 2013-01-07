@@ -398,8 +398,6 @@ namespace Ice
                 Debug.Assert(_state > StateNotValidated);
                 Debug.Assert(_state < StateClosing);
 
-                og.attachRemoteObserver(initConnectionInfo(), _endpoint);
-
                 //
                 // Ensure the message isn't bigger than what we can send with the
                 // transport.
@@ -426,6 +424,9 @@ namespace Ice
                     os.writeInt(requestId);
                 }
 
+                og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, 
+                                        os.size() - IceInternal.Protocol.headerSize - 4);
+
                 //
                 // Send the message. If it can't be sent without blocking the message is added
                 // to _sendStreams and it will be sent by the asynchronous I/O callback.
@@ -433,7 +434,7 @@ namespace Ice
                 bool sent = false;
                 try
                 {
-                    sent = sendMessage(new OutgoingMessage(og, og.ostr(), compress, requestId));
+                    sent = sendMessage(new OutgoingMessage(og, os, compress, requestId));
                 }
                 catch(LocalException ex)
                 {
@@ -479,8 +480,6 @@ namespace Ice
                 Debug.Assert(_state > StateNotValidated);
                 Debug.Assert(_state < StateClosing);
 
-                og.attachRemoteObserver__(initConnectionInfo(), _endpoint);
-
                 //
                 // Ensure the message isn't bigger than what we can send with the
                 // transport.
@@ -506,6 +505,9 @@ namespace Ice
                     os.pos(IceInternal.Protocol.headerSize);
                     os.writeInt(requestId);
                 }
+
+                og.attachRemoteObserver__(initConnectionInfo(), _endpoint, requestId, 
+                                          os.size() - IceInternal.Protocol.headerSize - 4);
 
                 bool sent;
                 try
@@ -815,8 +817,6 @@ namespace Ice
                     throw _exception;
                 }
 
-                @out.attachRemoteObserver(initConnectionInfo(), _endpoint);
-
                 if(_batchRequestNum == 0)
                 {
                     @out.sent(false);
@@ -828,6 +828,9 @@ namespace Ice
                 //
                 _batchStream.pos(IceInternal.Protocol.headerSize);
                 _batchStream.writeInt(_batchRequestNum);
+
+                @out.attachRemoteObserver(initConnectionInfo(), _endpoint, 
+                                          _batchStream.size() - IceInternal.Protocol.headerSize);
 
                 _batchStream.swap(@out.ostr());
 
@@ -875,8 +878,6 @@ namespace Ice
                     throw _exception;
                 }
                 
-                outAsync.attachRemoteObserver__(initConnectionInfo(), _endpoint);
-
                 if(_batchRequestNum == 0)
                 {
                     sentCallback = outAsync.sent__(this);
@@ -888,6 +889,9 @@ namespace Ice
                 //
                 _batchStream.pos(IceInternal.Protocol.headerSize);
                 _batchStream.writeInt(_batchRequestNum);
+
+                outAsync.attachRemoteObserver__(initConnectionInfo(), _endpoint, 0, 
+                                                _batchStream.size() - IceInternal.Protocol.headerSize - 4);
 
                 _batchStream.swap(outAsync.ostr__);
 

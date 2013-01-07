@@ -379,9 +379,14 @@ IceInternal::Outgoing::finished(BasicStream& is)
     assert(_handler->getReference()->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
     assert(_state <= StateInProgress);
+    if(_remoteObserver)
+    {
+        _remoteObserver->reply(is.b.size() - headerSize - 4);
+    }
     _remoteObserver.detach();
 
     _is.swap(is);
+
     Byte replyStatus;
     _is.read(replyStatus);
     

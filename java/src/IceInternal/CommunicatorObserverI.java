@@ -187,6 +187,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                         add("operation", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("operation"));
                         add("identity", cl.getDeclaredMethod("getIdentity"));
                         add("facet", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("facet"));
+                        add("requestId", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("requestId"));
                         add("mode", cl.getDeclaredMethod("getMode"));
                     }
                     catch(Exception ex)
@@ -197,10 +198,17 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 }
             };
         
-        DispatchHelper(Ice.Current current)
+        DispatchHelper(Ice.Current current, int size)
         {
             super(_attributes);
             _current = current;
+            _size = size;
+        }
+
+        public void
+        initMetrics(DispatchMetrics v)
+        {
+            v.size += _size;
         }
 
         protected String 
@@ -237,6 +245,12 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 _id = os.toString();
             }
             return _id;
+        }
+
+        public int
+        getRequestId()
+        {
+            return _current.requestId;
         }
 
         public String 
@@ -286,6 +300,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
         
         final private Ice.Current _current;
+        final private int _size;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
     };
@@ -581,7 +596,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
 
         try
         {
-            _invocations.registerSubMap("Remote", Metrics.class, InvocationMetrics.class.getDeclaredField("remotes"));
+            _invocations.registerSubMap("Remote", RemoteMetrics.class, 
+                                        InvocationMetrics.class.getDeclaredField("remotes"));
         }
         catch(Exception ex)
         {
@@ -677,13 +693,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     }
     
     public Ice.Instrumentation.DispatchObserver
-    getDispatchObserver(Ice.Current c)
+    getDispatchObserver(Ice.Current c, int size)
     {
         if(_dispatch.isEnabled())
         {
             try
             {
-                return _dispatch.getObserver(new DispatchHelper(c), DispatchObserverI.class);
+                return _dispatch.getObserver(new DispatchHelper(c, size), DispatchObserverI.class);
             }
             catch(Exception ex)
             {

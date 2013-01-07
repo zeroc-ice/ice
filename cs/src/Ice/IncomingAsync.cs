@@ -111,6 +111,10 @@ namespace IceInternal
 
                 if(response_)
                 {
+                    if(observer_ != null)
+                    {
+                        observer_.reply(os_.size() - Protocol.headerSize - 4);
+                    }
                     connection_.sendResponse(os_, compress_);
                 }
                 else

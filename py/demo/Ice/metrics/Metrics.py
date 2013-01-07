@@ -26,16 +26,20 @@ maps = {
         ("averageLifetime", "Avg (s)", '>', 8) 
     ],
     "Invocation" : [
-        ("id", "Invocations", '<', 49), 
+        ("id", "Invocations", '<', 39), 
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
-        ("retry", "Retries", '>', 7),
+        ("retry", "Rtrs", '>', 5),
+        ("", "Sz", '>', 5),
+        ("", "RepSz", '>', 5),
         ("averageLifetime", "Avg (ms)", '>', 8) 
     ],
     "Dispatch" : [
         ("id", "Dispatch", '<', 40), 
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
+        ("size", "Sz", '>', 5),
+        ("replySize", "RepSz", '>', 5),
         ("averageLifetime", "Avg (ms)", '>', 8) 
     ],
     "Thread" : [ 
@@ -60,10 +64,12 @@ maps = {
         ("averageLifetime", "Avg (ms)",'>', 8) 
     ],
     "Remote" : [
-        ("id", "Invocations", '>', 49), 
+        ("id", "Invocations", '>', 39), 
         ("current", "#", '>', 3),
         ("total", "Total", '>', 5),
-        ("", "", '>', 7),
+        ("", "", '>', 5),
+        ("size", "Sz", '>', 5),
+        ("replySize", "RepSz", '>', 5),
         ("averageLifetime", "Avg (ms)", '>', 8)
     ],
     "Session" : [

@@ -18,6 +18,19 @@ public class DispatchObserverI extends IceMX.Observer<IceMX.DispatchMetrics>
         forEach(_userException);
     }
 
+    public void
+    reply(final int size)
+    {
+        forEach(new MetricsUpdate<IceMX.DispatchMetrics>()
+                {
+                    public void
+                    update(IceMX.DispatchMetrics v)
+                    {
+                        v.replySize += size;
+                    }
+                });
+    }
+
     final MetricsUpdate<IceMX.DispatchMetrics> _userException = new MetricsUpdate<IceMX.DispatchMetrics>()
         {
             public void

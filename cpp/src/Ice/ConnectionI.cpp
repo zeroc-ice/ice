@@ -559,8 +559,6 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
 
-    out->attachRemoteObserver(initConnectionInfo(), _endpoint);
-
     //
     // Ensure the message isn't bigger than what we can send with the
     // transport.
@@ -590,6 +588,8 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
         copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 #endif
     }
+
+    out->attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, os->b.size() - headerSize - 4);
 
     //
     // Send the message. If it can't be sent without blocking the message is added
@@ -638,8 +638,6 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
 
-    out->__attachRemoteObserver(initConnectionInfo(), _endpoint);
-
     //
     // Ensure the message isn't bigger than what we can send with the
     // transport.
@@ -669,6 +667,8 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
         copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 #endif
     }
+
+    out->__attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, os->b.size() - headerSize - 4);
 
     AsyncStatus status = AsyncStatusQueued;
     try
@@ -958,8 +958,6 @@ Ice::ConnectionI::flushBatchRequests(BatchOutgoing* out)
         _exception->ice_throw();
     }
 
-    out->attachRemoteObserver(initConnectionInfo(), _endpoint);
-
     if(_batchRequestNum == 0)
     {
         out->sent(false);
@@ -975,6 +973,9 @@ Ice::ConnectionI::flushBatchRequests(BatchOutgoing* out)
 #else
     copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #endif
+
+    out->attachRemoteObserver(initConnectionInfo(), _endpoint, _batchStream.b.size() - headerSize - 4);
+
     _batchStream.swap(*out->os());
 
     //
@@ -1018,8 +1019,6 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
         _exception->ice_throw();
     }
 
-    outAsync->__attachRemoteObserver(initConnectionInfo(), _endpoint);
-
     if(_batchRequestNum == 0)
     {
         AsyncStatus status = AsyncStatusSent;
@@ -1039,6 +1038,9 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 #else
     copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #endif
+
+    outAsync->__attachRemoteObserver(initConnectionInfo(), _endpoint, 0, _batchStream.b.size() - headerSize - 4);
+
     _batchStream.swap(*outAsync->__getOs());
 
     //

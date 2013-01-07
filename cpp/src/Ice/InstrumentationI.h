@@ -72,6 +72,14 @@ class DispatchObserverI : public Ice::Instrumentation::DispatchObserver,
 public:
 
     virtual void userException();
+
+    virtual void reply(Ice::Int);
+};
+
+class RemoteObserverI : public Ice::Instrumentation::RemoteObserver, 
+                        public IceMX::ObserverT<IceMX::RemoteMetrics>
+{
+    virtual void reply(Ice::Int);
 };
 
 class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, 
@@ -83,7 +91,8 @@ public:
 
     virtual void userException();
 
-    virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&);
+    virtual Ice::Instrumentation::RemoteObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, 
+                                                                      const Ice::EndpointPtr&, Ice::Int, Ice::Int);
 };
 
 class ICE_API CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
@@ -113,7 +122,7 @@ public:
                                                                               const std::string&,
                                                                               const Ice::Context&);
 
-    virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&);
+    virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, Ice::Int);
 
     const IceInternal::MetricsAdminIPtr& getMetricsAdmin() const;
 

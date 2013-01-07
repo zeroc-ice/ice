@@ -312,8 +312,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         assert(_state > StateNotValidated);
         assert(_state < StateClosing);
 
-        out.attachRemoteObserver(initConnectionInfo(), _endpoint);
-
         //
         // Ensure the message isn't bigger than what we can send with the
         // transport.
@@ -338,6 +336,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             os.pos(IceInternal.Protocol.headerSize);
             os.writeInt(requestId);
         }
+
+        out.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, 
+                                 os.size() - IceInternal.Protocol.headerSize - 4);
 
         //
         // Send the message. If it can't be sent without blocking the message is added
@@ -388,8 +389,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         assert(_state > StateNotValidated);
         assert(_state < StateClosing);
 
-        out.__attachRemoteObserver(initConnectionInfo(), _endpoint);
-
         //
         // Ensure the message isn't bigger than what we can send with the
         // transport.
@@ -414,6 +413,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             os.pos(IceInternal.Protocol.headerSize);
             os.writeInt(requestId);
         }
+
+        out.__attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, 
+                                   os.size() - IceInternal.Protocol.headerSize - 4);
 
         int status;
         try
@@ -707,8 +709,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
-        out.attachRemoteObserver(initConnectionInfo(), _endpoint);
-
         if(_batchRequestNum == 0)
         {
             out.sent(false);
@@ -720,6 +720,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
         _batchStream.pos(IceInternal.Protocol.headerSize);
         _batchStream.writeInt(_batchRequestNum);
+
+        out.attachRemoteObserver(initConnectionInfo(), _endpoint,
+                                 _batchStream.size() - IceInternal.Protocol.headerSize - 4);
 
         _batchStream.swap(out.os());
 
@@ -766,8 +769,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
-        outAsync.__attachRemoteObserver(initConnectionInfo(), _endpoint);
-
         if(_batchRequestNum == 0)
         {
             int status = IceInternal.AsyncStatus.Sent;
@@ -783,6 +784,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
         _batchStream.pos(IceInternal.Protocol.headerSize);
         _batchStream.writeInt(_batchRequestNum);
+
+        outAsync.__attachRemoteObserver(initConnectionInfo(), _endpoint, 0,
+                                        _batchStream.size() - IceInternal.Protocol.headerSize - 4);
 
         _batchStream.swap(outAsync.__getOs());
 

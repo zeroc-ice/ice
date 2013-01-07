@@ -121,9 +121,10 @@ public:
     virtual void __exception(const Exception&); // Required to be public for AsynchronousException
     void __sent(); // Required to be public for AsynchronousSent
 
-    virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, 
+                                        Ice::Int requestId, Ice::Int sz)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+        _remoteObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, sz));
     }
 
     IceInternal::InvocationObserver& __getObserver()
@@ -165,7 +166,7 @@ protected:
     bool _sentSynchronously;
     IceUtil::UniquePtr<Exception> _exception;
     IceInternal::InvocationObserver _observer;
-    IceInternal::ObserverHelperT<> _remoteObserver;
+    IceInternal::ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
 };
 
 }

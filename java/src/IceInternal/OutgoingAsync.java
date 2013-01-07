@@ -229,6 +229,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 assert(_exception == null && (_state & Done) == 0);
                 if(_remoteObserver != null)
                 {
+                    _remoteObserver.reply(is.size() - Protocol.headerSize - 4);
                     _remoteObserver.detach();
                     _remoteObserver = null;
                 }

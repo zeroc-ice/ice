@@ -107,6 +107,14 @@ public:
             _observer->userException();
         }
     }
+
+    void reply(Ice::Int size)
+    {
+        if(_observer)
+        {
+            _observer->reply(size);
+        }
+    }
 };
 
 class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
@@ -130,12 +138,12 @@ public:
         }
     }
 
-    ::Ice::Instrumentation::ObserverPtr
-    getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt)
+    ::Ice::Instrumentation::RemoteObserverPtr
+    getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt, int requestId, int size)
     {
         if(_observer)
         {
-            return _observer->getRemoteObserver(con, endpt);
+            return _observer->getRemoteObserver(con, endpt, requestId, size);
         }
         return 0;
     }

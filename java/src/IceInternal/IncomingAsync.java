@@ -114,6 +114,10 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
 
             if(_response)
             {
+                if(_observer != null)
+                {
+                    _observer.reply(_os.size() - Protocol.headerSize - 4);
+                }
                 _connection.sendResponse(_os, _compress);
             }
             else

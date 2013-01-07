@@ -529,11 +529,11 @@ namespace IceInternal
             }
         }
 
-        virtual public void attachRemoteObserver__(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+        virtual public void attachRemoteObserver__(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int sz)
         {
             if(observer_ != null)
             {
-                remoteObserver_ = observer_.getRemoteObserver(info, endpt);
+                remoteObserver_ = observer_.getRemoteObserver(info, endpt, requestId, sz);
                 if(remoteObserver_ != null)
                 {
                     remoteObserver_.attach();
@@ -782,7 +782,7 @@ namespace IceInternal
         protected EventWaitHandle waitHandle_;
 
         protected Ice.Instrumentation.InvocationObserver observer_;
-        protected Ice.Instrumentation.Observer remoteObserver_;
+        protected Ice.Instrumentation.RemoteObserver remoteObserver_;
 
         protected Ice.AsyncCallback completedCallback_;
         protected Ice.AsyncCallback sentCallback_;
@@ -1027,6 +1027,7 @@ namespace IceInternal
 
                     if(remoteObserver_ != null)
                     {
+                        remoteObserver_.reply(istr.size() - Protocol.headerSize - 4);
                         remoteObserver_.detach();
                         remoteObserver_ = null;
                     }
@@ -1783,11 +1784,12 @@ namespace IceInternal
                 _outAsync.check(false);
             }
 
-            override public void attachRemoteObserver__(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+            override public void attachRemoteObserver__(Ice.ConnectionInfo info, Ice.Endpoint endpt, 
+                                                        int requestId, int sz)
             {
                 if(_outAsync.observer_ != null)
                 {
-                    remoteObserver_ = _outAsync.observer_.getRemoteObserver(info, endpt);
+                    remoteObserver_ = _outAsync.observer_.getRemoteObserver(info, endpt, requestId, sz);
                     if(remoteObserver_ != null)
                     {
                         remoteObserver_.attach();

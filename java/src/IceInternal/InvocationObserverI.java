@@ -14,7 +14,7 @@ import IceMX.*;
 public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics> 
     implements Ice.Instrumentation.InvocationObserver
 {
-    static public final class RemoteInvocationHelper extends MetricsHelper<Metrics>
+    static public final class RemoteInvocationHelper extends MetricsHelper<RemoteMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             { 
@@ -24,6 +24,7 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
                         Class<?> cl = RemoteInvocationHelper.class;
                         add("parent", cl.getDeclaredMethod("getParent"));
                         add("id", cl.getDeclaredMethod("getId"));
+                        add("requestId", cl.getDeclaredMethod("getRequestId"));
                         CommunicatorObserverI.addConnectionAttributes(this, RemoteInvocationHelper.class);
                     }
                     catch(Exception ex)
@@ -34,11 +35,19 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
                 }
             };
 
-        RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt) 
+        RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size) 
         {
             super(_attributes);
             _connectionInfo = con;
             _endpoint = endpt;
+            _requestId = requestId;
+            _size = size;
+        }
+
+        public void 
+        initMetrics(RemoteMetrics v)
+        {
+            v.size += _size;
         }
 
         public String
@@ -54,7 +63,13 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
             }
             return _id;
         }
-    
+
+        int
+        getRequestId()
+        {
+            return _requestId;
+        }
+
         public String 
         getParent()
         {
@@ -92,6 +107,8 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
 
         final private Ice.ConnectionInfo _connectionInfo;
         final private Ice.Endpoint _endpoint;
+        final private int _requestId;
+        final private int _size;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
     };
@@ -108,10 +125,13 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
         forEach(_incrementRetry);
     }
     
-    public Observer 
-    getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt)
+    public Ice.Instrumentation.RemoteObserver 
+    getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint edpt, int requestId, int sz)
     {
-        return getObserver("Remote", new RemoteInvocationHelper(con, endpt), Metrics.class, ObserverI.class);
+        return (Ice.Instrumentation.RemoteObserver)getObserver("Remote",
+                                                               new RemoteInvocationHelper(con, edpt, requestId, sz),
+                                                               RemoteMetrics.class, 
+                                                               RemoteObserverI.class);
     }
 
     final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>()

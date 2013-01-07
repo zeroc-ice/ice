@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-import Ice.Instrumentation.Observer;
+import Ice.Instrumentation.RemoteObserver;
 import Ice.Instrumentation.InvocationObserver;
 
 public final class Outgoing implements OutgoingMessageCallback
@@ -304,6 +304,7 @@ public final class Outgoing implements OutgoingMessageCallback
         
         if(_remoteObserver != null)
         {
+            _remoteObserver.reply(is.size() - Protocol.headerSize - 4);
             _remoteObserver.detach();
             _remoteObserver = null;
         }
@@ -544,11 +545,11 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     public void 
-    attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+    attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getRemoteObserver(info, endpt);
+            _remoteObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
             if(_remoteObserver != null)
             {
                 _remoteObserver.attach();
@@ -648,7 +649,7 @@ public final class Outgoing implements OutgoingMessageCallback
     private int _state;
 
     private InvocationObserver _observer;
-    private Observer _remoteObserver;
+    private RemoteObserver _remoteObserver;
 
     public Outgoing next; // For use by Ice._ObjectDelM
 }

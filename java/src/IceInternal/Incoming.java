@@ -87,7 +87,9 @@ final public class Incoming extends IncomingBase implements Ice.Request
     invoke(ServantManager servantManager, BasicStream stream)
     {
         _is = stream;
-        
+
+        int start = _is.pos();
+
         //
         // Read the current.
         //
@@ -124,7 +126,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
         CommunicatorObserver obsv = _instance.initializationData().observer;
         if(obsv != null)
         {
-            _observer = obsv.getDispatchObserver(_current);
+            // Read the parameter encapsulation size.
+            int size = _is.readInt();
+            _is.pos(_is.pos() - 4);
+
+            _observer = obsv.getDispatchObserver(_current, _is.pos() - start + size);
             if(_observer != null)
             {
                 _observer.attach();
@@ -169,6 +175,10 @@ final public class Incoming extends IncomingBase implements Ice.Request
                             _os.startWriteEncaps(encoding, Ice.FormatType.DefaultFormat);
                             _os.writeUserException(ex);
                             _os.endWriteEncaps();
+                            if(_observer != null)
+                            {
+                                _observer.reply(_os.size() - Protocol.headerSize - 4);
+                            }
                             _connection.sendResponse(_os, _compress);
                         }
                         else
@@ -253,6 +263,10 @@ final public class Incoming extends IncomingBase implements Ice.Request
 
         if(_response)
         {
+            if(_observer != null)
+            {
+                _observer.reply(_os.size() - Protocol.headerSize - 4);
+            }
             _connection.sendResponse(_os, _compress);
         }
         else

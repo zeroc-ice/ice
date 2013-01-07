@@ -188,6 +188,7 @@ namespace IceInternal
                     add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
                     add("identity", cl.GetMethod("getIdentity"));
                     add("facet", cl.GetMethod("getCurrent"), clc.GetField("facet"));
+                    add("current", cl.GetMethod("getCurrent"), clc.GetField("requestId"));
                     add("mode", cl.GetMethod("getMode"));
                 }
                 catch(Exception)
@@ -198,9 +199,10 @@ namespace IceInternal
         };
         static AttributeResolver _attributes = new AttributeResolverI();
         
-        public DispatchHelper(Ice.Current current) : base(_attributes)
+        public DispatchHelper(Ice.Current current, int size) : base(_attributes)
         {
             _current = current;
+            _size = size;
         }
 
         override protected string defaultResolve(string attribute)
@@ -215,12 +217,17 @@ namespace IceInternal
             }
             throw new ArgumentOutOfRangeException(attribute);
         }
+
+        override public void initMetrics(DispatchMetrics v)
+        {
+            v.size += _size;
+        }
         
         public string getMode()
         {
             return _current.requestId == 0 ? "oneway" : "twoway";
         }
-        
+
         public string getId()
         {
             if(_id == null)
@@ -276,6 +283,7 @@ namespace IceInternal
         }
         
         readonly private Ice.Current _current;
+        readonly private int _size;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
     };
@@ -544,9 +552,9 @@ namespace IceInternal
         private Ice.EndpointInfo _endpointInfo;
     };
     
-    public class RemoteInvocationHelper : MetricsHelper<Metrics>
+    public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
     {
-        class AttributeResolverI : MetricsHelper<Metrics>.AttributeResolver
+        class AttributeResolverI : MetricsHelper<RemoteMetrics>.AttributeResolver
         { 
             public AttributeResolverI()
             {
@@ -555,7 +563,8 @@ namespace IceInternal
                     Type cl = typeof(RemoteInvocationHelper);
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
-                    AttrsUtil.addConnectionAttributes<Metrics>(this, cl);
+                    add("requestId", cl.GetMethod("getRequestId"));
+                    AttrsUtil.addConnectionAttributes<RemoteMetrics>(this, cl);
                 }
                 catch(Exception)
                 {
@@ -565,10 +574,18 @@ namespace IceInternal
         };
         static AttributeResolver _attributes = new AttributeResolverI();
 
-        public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt) : base(_attributes)
+        public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size) :
+            base(_attributes)
         {
             _connectionInfo = con;
             _endpoint = endpt;
+            _requestId = requestId;
+            _size = size;
+        }
+
+        override public void initMetrics(RemoteMetrics v)
+        {
+            v.size += _size;
         }
 
         public string getId()
@@ -582,6 +599,11 @@ namespace IceInternal
                 }
             }
             return _id;
+        }
+
+        public int getRequestId()
+        {
+            return _requestId;
         }
     
         public string getParent()
@@ -617,6 +639,8 @@ namespace IceInternal
 
         readonly private Ice.ConnectionInfo _connectionInfo;
         readonly private Ice.Endpoint _endpoint;
+        readonly private int _size;
+        readonly private int _requestId;
         private string _id;
         private Ice.EndpointInfo _endpointInfo;
     };
@@ -661,9 +685,26 @@ namespace IceInternal
             forEach(userException);
         }
 
+        public void reply(int size)
+        {
+            forEach((DispatchMetrics v) => {
+                    v.replySize += size;
+                });
+        }
+
         private void userException(DispatchMetrics v)
         {
             ++v.userException;
+        }
+    }
+
+    public class RemoteObserverI : Observer<RemoteMetrics>, Ice.Instrumentation.RemoteObserver
+    {
+        public void reply(int size)
+        {
+            forEach((RemoteMetrics v) => {
+                    v.replySize += size;
+                });
         }
     }
 
@@ -681,9 +722,11 @@ namespace IceInternal
             forEach(incrementRetry);
         }
     
-        public Ice.Instrumentation.Observer getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt)
+        public Ice.Instrumentation.RemoteObserver getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt, 
+                                                                    int requestId, int size)
         {
-            return getObserver<Metrics, ObserverI>("Remote", new RemoteInvocationHelper(con, endpt));
+            return getObserver<RemoteMetrics, RemoteObserverI>("Remote", 
+                                                               new RemoteInvocationHelper(con, endpt, requestId, size));
         }
 
         private void incrementRetry(InvocationMetrics v)
@@ -756,7 +799,7 @@ namespace IceInternal
 
             try
             {
-                _invocations.registerSubMap<Metrics>("Remote", typeof(InvocationMetrics).GetField("remotes"));
+                _invocations.registerSubMap<RemoteMetrics>("Remote", typeof(InvocationMetrics).GetField("remotes"));
             }
             catch(Exception)
             {
@@ -814,11 +857,11 @@ namespace IceInternal
             return null;
         }
     
-        public Ice.Instrumentation.DispatchObserver getDispatchObserver(Ice.Current c)
+        public Ice.Instrumentation.DispatchObserver getDispatchObserver(Ice.Current c, int size)
         {
             if(_dispatch.isEnabled())
             {
-                return _dispatch.getObserver(new DispatchHelper(c));
+                return _dispatch.getObserver(new DispatchHelper(c, size));
             }
             return null;
         }

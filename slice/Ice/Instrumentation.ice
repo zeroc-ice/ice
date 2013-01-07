@@ -204,6 +204,30 @@ local interface DispatchObserver extends Observer
      *
      **/
     void userException();
+
+    /**
+     *
+     * Reply notification.
+     *
+     * @param size The size of the reply.
+     * 
+     **/
+    void reply(int size);
+};
+
+/**
+ *
+ * The remote invocation observer.
+ *
+ **/
+local interface RemoteObserver extends Observer
+{
+    /**
+     *
+     * Reply notification.
+     *
+     **/
+    void reply(int size);
 };
 
 /**
@@ -235,8 +259,12 @@ local interface InvocationObserver extends Observer
      *
      * @param endpt The connection endpoint.
      *
+     * @param requestId The ID of the invocation.
+     *
+     * @param size The size of the invocation.
+     *
      **/
-    Observer getRemoteObserver(ConnectionInfo con, Endpoint endpt);
+    RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint endpt, int requestId, int size);
 };
 
 /**
@@ -389,10 +417,12 @@ local interface CommunicatorObserver
      * @param c The Ice::Current object as provided to the Ice
      * servant dispatching the invocation.
      *
+     * @param size The size of the dispatch.
+     *
      * @return The observer object.
      *
      **/
-    DispatchObserver getDispatchObserver(Current c); 
+    DispatchObserver getDispatchObserver(Current c, int size); 
 
     /**
      *

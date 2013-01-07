@@ -104,11 +104,11 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     }
 
     public void 
-    attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+    attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int size)
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getRemoteObserver(info, endpt);
+            _remoteObserver = _observer.getRemoteObserver(info, endpt, 0, size);
             if(_remoteObserver != null)
             {
                 _remoteObserver.attach();

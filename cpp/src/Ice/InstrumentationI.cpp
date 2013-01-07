@@ -209,19 +209,25 @@ public:
             add("identity", &DispatchHelper::getIdentity);
             add("facet", &DispatchHelper::getCurrent, &Current::facet);
             add("mode", &DispatchHelper::getMode);
+            add("requestId", &DispatchHelper::getCurrent, &Current::requestId);
 
             setDefault(&DispatchHelper::resolve);
         }
     };
     static Attributes attributes;
     
-    DispatchHelper(const Current& current) : _current(current)
+    DispatchHelper(const Current& current, int size) : _current(current), _size(size)
     {
     }
 
     virtual string operator()(const string& attribute) const
     {
         return attributes(this, attribute);
+    }
+
+    virtual void initMetrics(const DispatchMetricsPtr& v) const
+    {
+        v->size += _size;
     }
 
     string resolve(const string& attribute) const
@@ -308,6 +314,7 @@ public:
 private:
 
     const Current& _current;
+    const int _size;
     mutable string _id;
     mutable EndpointInfoPtr _endpointInfo;
 };
@@ -466,7 +473,7 @@ private:
 
 InvocationHelper::Attributes InvocationHelper::attributes;
 
-class RemoteInvocationHelper : public MetricsHelperT<Metrics>
+class RemoteInvocationHelper : public MetricsHelperT<RemoteMetrics>
 {
 public:
 
@@ -478,19 +485,25 @@ public:
         {
             add("parent", &RemoteInvocationHelper::getParent);
             add("id", &RemoteInvocationHelper::getId);
+            add("requestId", &RemoteInvocationHelper::_requestId);
             addConnectionAttributes<RemoteInvocationHelper>(*this);
         }
     };
     static Attributes attributes;
     
-    RemoteInvocationHelper(const ConnectionInfoPtr& con, const EndpointPtr& endpt) : 
-        _connectionInfo(con), _endpoint(endpt)
+    RemoteInvocationHelper(const ConnectionInfoPtr& con, const EndpointPtr& endpt, int requestId, int size) : 
+        _connectionInfo(con), _endpoint(endpt), _requestId(requestId), _size(size)
     {
     }
 
     virtual string operator()(const string& attribute) const
     {
         return attributes(this, attribute);
+    }
+
+    virtual void initMetrics(const RemoteMetricsPtr& v) const
+    {
+        v->size += _size;
     }
 
     const string&
@@ -546,6 +559,8 @@ private:
 
     const ConnectionInfoPtr& _connectionInfo;
     const EndpointPtr& _endpoint;
+    const int _requestId;
+    const int _size;
     mutable string _id;
     mutable EndpointInfoPtr _endpointInfo;
 };
@@ -692,6 +707,18 @@ DispatchObserverI::userException()
 }
 
 void
+DispatchObserverI::reply(Int size)
+{
+    forEach(add(&DispatchMetrics::replySize, size));
+}
+
+void
+RemoteObserverI::reply(Int size)
+{
+    forEach(add(&RemoteMetrics::replySize, size));
+}
+
+void
 InvocationObserverI::retried()
 {
     forEach(inc(&InvocationMetrics::retry));
@@ -703,12 +730,15 @@ InvocationObserverI::userException()
     forEach(inc(&InvocationMetrics::userException));
 }
 
-ObserverPtr
-InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection, const EndpointPtr& endpoint)
+RemoteObserverPtr
+InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection, 
+                                       const EndpointPtr& endpoint, 
+                                       int requestId,
+                                       int size)
 {
     try
     {
-        return getObserver<ObserverI>("Remote", RemoteInvocationHelper(connection, endpoint));
+        return getObserver<RemoteObserverI>("Remote", RemoteInvocationHelper(connection, endpoint, requestId, size));
     }
     catch(const exception&)
     {
@@ -725,7 +755,7 @@ CommunicatorObserverI::CommunicatorObserverI(const IceInternal::MetricsAdminIPtr
     _connects(metrics, "ConnectionEstablishment"),
     _endpointLookups(metrics, "EndpointLookup")
 {
-    _invocations.registerSubMap<Metrics>("Remote", &InvocationMetrics::remotes);
+    _invocations.registerSubMap<RemoteMetrics>("Remote", &InvocationMetrics::remotes);
 }
 
 void
@@ -832,13 +862,13 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
 }
 
 DispatchObserverPtr 
-CommunicatorObserverI::getDispatchObserver(const Current& current)
+CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
 {
     if(_dispatch.isEnabled())
     {
         try
         {
-            return _dispatch.getObserver(DispatchHelper(current));
+            return _dispatch.getObserver(DispatchHelper(current, size));
         }
         catch(const exception& ex)
         {

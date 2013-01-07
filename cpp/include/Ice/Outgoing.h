@@ -138,9 +138,10 @@ public:
 
     void throwUserException();
 
-    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt,
+                              Ice::Int requestId, Ice::Int size)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+        _remoteObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, size));
     }
 
 private:
@@ -152,7 +153,7 @@ private:
     RequestHandler* _handler;
     IceUtil::UniquePtr<Ice::LocalException> _exception;
     InvocationObserver& _observer;
-    ObserverHelperT<> _remoteObserver;
+    ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
 
     enum
     {
@@ -193,9 +194,9 @@ public:
     
     BasicStream* os() { return &_os; }
 
-    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt, Ice::Int sz)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt, 0, sz));
     }
 
 private:
@@ -209,7 +210,7 @@ private:
     BasicStream _os;
 
     InvocationObserver& _observer;
-    ObserverHelperT<> _remoteObserver;
+    ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
 };
 
 }

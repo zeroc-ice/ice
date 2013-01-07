@@ -72,11 +72,12 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             }
 
             public void
-            __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+            __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
             {
                 if(CommunicatorBatchOutgoingAsync.this._observer != null)
                 {
-                    _remoteObserver = CommunicatorBatchOutgoingAsync.this._observer.getRemoteObserver(info, endpt);
+                    _remoteObserver = CommunicatorBatchOutgoingAsync.this._observer.getRemoteObserver(info, endpt,
+                                                                                                      requestId, size);
                     if(_remoteObserver != null)
                     {
                         _remoteObserver.attach();

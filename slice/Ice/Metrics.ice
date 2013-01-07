@@ -242,6 +242,37 @@ class DispatchMetrics extends Metrics
      *
      **/
     int userException = 0;
+
+    /**
+     *
+     * The size of the dispatch.
+     *
+     **/
+    long size = 0;
+
+    /**
+     *
+     * The size of the dispatch reply.
+     *
+     **/
+    long replySize = 0;
+};
+
+class RemoteMetrics extends Metrics
+{
+    /**
+     *
+     * The size of the invocation.
+     *
+     **/
+    long size = 0;
+
+    /**
+     *
+     * The size of the invocation reply.
+     * 
+     **/
+    long replySize = 0;
 };
 
 /**
