@@ -122,15 +122,19 @@ Mutex::Mutex()
 #endif
 }
 
+#ifdef _WIN32
+inline
+Mutex::Mutex(MutexProtocol)
+{
+    init(PrioNone);
+}
+#else
 inline
 Mutex::Mutex(MutexProtocol protocol)
 {
-#ifdef _WIN32
-    init(PrioNone);
-#else
     init(protocol);
-#endif
 }
+#endif
 
 #ifdef _WIN32
 

@@ -166,7 +166,7 @@ public:
     {
     }
 
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr& cookie)
+    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr&)
     {
         return this;
     }
