@@ -121,7 +121,7 @@ if not platform.checkAndPrintThirdParties():
 #
 # Ensure that the source archive or directory exists and create the build directory.
 #
-buildRootDir = os.path.join(cwd, os.path.join("build-" + platform.pkgPlatform + "-" + version))
+buildRootDir = os.path.join(distDir, "..", os.path.join("build-" + platform.pkgPlatform + "-" + version))
 srcDir = os.path.join(buildRootDir, "Ice-" + version + "-src")
 buildDir = os.path.join(buildRootDir, "Ice-" + version)
 if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
@@ -245,7 +245,7 @@ print "ok"
 #
 # Everything should be clean now, we can create the binary distribution archive
 # 
-platform.createArchive(cwd, buildRootDir, version, quiet)
+platform.createArchive(cwd, buildRootDir, distDir, version, quiet)
 
 #
 # Done.

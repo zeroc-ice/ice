@@ -738,7 +738,7 @@ class Platform:
     def getMakeOptions(self):
         return ""
 
-    def createArchive(self, cwd, buildRootDir, version, quiet):
+    def createArchive(self, cwd, buildRootDir, distDist, version, quiet):
         print "Archiving " + self.getPackageName("Ice", version) + ".tar.gz ...",
         sys.stdout.flush()
         os.chdir(buildRootDir)
@@ -806,7 +806,7 @@ class Darwin(Platform):
         mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
         for oldName in oldInstallNames:
             libName = os.path.basename(oldName)
-            newName = '/opt/Ice-' + mmversion + '/lib/' + libName
+            newName = '/Library/Developer/Ice-' + mmversion + '/lib/' + libName
             os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/' + libName)
             for f in binFiles:
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
@@ -817,20 +817,19 @@ class Darwin(Platform):
         move(buildDir + '/bin/IceGrid Admin.app', buildDir + '/../IceGrid Admin.app')
         print "ok"
 
-    def createArchive(self, cwd, buildRootDir, version, quiet):
+    def createArchive(self, cwd, buildRootDir, distDir, version, quiet):
+
         print "Creating installer...",
         sys.stdout.flush()
         if os.path.exists(buildRootDir + "/installer"):
             shutil.rmtree(buildRootDir + "/installer")
         os.mkdir(buildRootDir + "/installer")
 
-        pmdoc = os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "Ice.pmdoc")
-        os.system("/Applications/PackageMaker.app/Contents/MacOS/PackageMaker --doc " + pmdoc + " --out " + buildRootDir + 
-                  "/installer/Ice-" + version + ".pkg")
-        copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "README.txt"),
-             os.path.join(buildRootDir, "installer"))
-        copy(os.path.join(buildRootDir, "..", "distfiles-" + version, "src", "mac", "Ice", "uninstall.sh"),
-             os.path.join(buildRootDir, "installer"))
+        pmdoc = os.path.join(distDir, "src", "mac", "Ice", "Ice.pmdoc")
+        pkg = os.path.join(buildRootDir, "installer", "Ice-" + version + ".pkg")
+        os.system("/Applications/PackageMaker.app/Contents/MacOS/PackageMaker --doc " + pmdoc + " --out " + pkg)
+        copy(os.path.join(distDir, "src", "mac", "Ice", "README.txt"), os.path.join(buildRootDir, "installer"))
+        copy(os.path.join(distDir, "src", "mac", "Ice", "uninstall.sh"), os.path.join(buildRootDir, "installer"))
         print "ok"
 
         volname = "Ice-" + version
@@ -850,7 +849,6 @@ class Darwin(Platform):
         os.remove("scratch.dmg.sparseimage")
 
         shutil.rmtree(buildRootDir + "/installer")
-        shutil.rmtree(buildRootDir + "/IceGrid Admin.app")
         print "ok"
 
 class Linux(Platform):
