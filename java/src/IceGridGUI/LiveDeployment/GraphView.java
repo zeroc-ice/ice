@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
@@ -58,6 +59,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JColorChooser;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -71,7 +73,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JOptionPane;
-
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.SpinnerNumberModel;
@@ -618,6 +620,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 }
             };
         delete.setEnabled(false);
+        delete.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 
         _legendTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
             {
@@ -1691,12 +1694,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
 
         public MetricsRow[] getRows()
         {
-            MetricsRow[] rows = new MetricsRow[_rows.size()];
-            for(Map.Entry<Integer, MetricsRow> entry : _rows.entrySet())
-            {
-                rows[rows.length] = entry.getValue();
-            }
-            return rows;
+            return _rows.values().toArray(new MetricsRow[_rows.size()]);
         }
 
         public int getRowIndex(MetricsRow row)
@@ -1865,7 +1863,17 @@ public class GraphView extends JFrame implements MetricsFieldContext
             _button.setBorderPainted(false);
 
             _colorChooser = new JColorChooser();
-            _dialog = JColorChooser.createDialog(_button, "Select the series color", true, _colorChooser, this, null);
+
+            AbstractColorChooserPanel[] panels = _colorChooser.getChooserPanels();
+            for(AbstractColorChooserPanel panel : panels)
+            {
+                if(!panel.getClass().getName().equals("javax.swing.colorchooser.DefaultSwatchChooserPanel"))
+                {
+                    _colorChooser.removeChooserPanel(panel);
+                }
+            }
+
+            _dialog = JColorChooser.createDialog(_button, "Select the metrics color", true, _colorChooser, this, null);
             
         }
 
