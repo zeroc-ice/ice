@@ -464,9 +464,9 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
                         builder.rowGroupingEnabled(true);
                         final JSpinner spinner = new JSpinner(refreshPeriod);
-                        builder.append("Sample interval (s):", spinner);
-                        builder.append("", new JLabel("<html><p>Sample interval in seconds, minimum values is 1 " +
-                                                      "second,<br/> maximun value is 3600 seconds.</p></html>"));
+                        builder.append("Sample interval:", spinner);
+                        builder.append("", new JLabel("<html><p>Sample interval in seconds; must be between 1" +
+                                                      "<br/>and 3600 seconds.</p></html>"));
                         refreshPanel = builder.getPanel();
                     }
 
@@ -479,10 +479,9 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     {
                         DefaultFormBuilder builder = 
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
-                        builder.append("Maximum samples:", new JSpinner(samples));
-                        builder.append("", new JLabel("<html><p>Maximum number of samples, is the number of samples " +
-                                                      "to<br/>keep in the graph. The value must be between 2 and 300." +
-                                                      "</p></html>"));
+                        builder.append("Samples displayed:", new JSpinner(samples));
+                        builder.append("", new JLabel("<html><p>The number of samples displayed on a graph;" +
+                                                      "<br/>must be between 2 and 300." + "</p></html>"));
                         builder.append("Time format:", dateFormats);
 
                         xAxisPanel = builder.getPanel();
@@ -910,7 +909,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
         preferences.putInt("splitLocation", _splitPane.getDividerLocation());
 
         preferences.putInt("sampleInterval", getRefreshPeriod());
-        preferences.putInt("maximunSamples", getMaximumSamples());
+        preferences.putInt("maximumSamples", getMaximumSamples());
         preferences.put("dateFormat", getDateFormat());
     }
 
@@ -965,7 +964,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
         }
         setRefreshPeriod(refreshPeriod);
 
-        int samples = preferences.getInt("maximunSamples", _defaultSamples);
+        int samples = preferences.getInt("maximumSamples", _defaultSamples);
         if(samples < _minSamples)
         {
             samples = _minSamples;
