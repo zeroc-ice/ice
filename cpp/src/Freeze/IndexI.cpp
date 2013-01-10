@@ -396,7 +396,7 @@ Freeze::IndexI::associate(ObjectStoreBase* store, DbTxn* txn,
 }
 
 int
-Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey, 
+Freeze::IndexI::secondaryKeyCreate(Db* /*secondary*/, const Dbt* /*dbKey*/, 
                                    const Dbt* dbValue, Dbt* result)
 {
     const Ice::CommunicatorPtr& communicator = _store->communicator();

@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 }
 
 int
-NrvotServer::run(int argc, char* argv[])
+NrvotServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

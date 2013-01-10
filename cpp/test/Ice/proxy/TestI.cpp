@@ -30,7 +30,7 @@ MyDerivedClassI::shutdown(const Ice::Current& c)
 }
 
 Ice::Context
-MyDerivedClassI::getContext(const Ice::Current& c)
+MyDerivedClassI::getContext(const Ice::Current&)
 {
     return _ctx;
 }

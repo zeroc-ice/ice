@@ -23,7 +23,7 @@ TestI::getProperty(const std::string& name, const Ice::Current& current)
 }
 
 Ice::StringSeq
-TestI::getArgs(const Ice::Current& current)
+TestI::getArgs(const Ice::Current&)
 {
     return _args;
 }

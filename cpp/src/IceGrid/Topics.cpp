@@ -324,7 +324,7 @@ NodeObserverTopic::nodeInit(const NodeDynamicInfoSeq&, const Ice::Current&)
 }
 
 void
-NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
+NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current&)
 {
     Lock sync(*this);
     if(!_topic)
@@ -345,7 +345,7 @@ NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& curre
 }
 
 void 
-NodeObserverTopic::nodeDown(const string& name, const Ice::Current&)
+NodeObserverTopic::nodeDown(const string& /*name*/, const Ice::Current&)
 {
     assert(false);
 }

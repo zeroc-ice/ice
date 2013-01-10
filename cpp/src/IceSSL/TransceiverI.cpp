@@ -645,7 +645,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 
 #ifdef ICE_USE_IOCP
 bool
-IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
+IceSSL::TransceiverI::startWrite(IceInternal::Buffer& /*buf*/)
 {
     if(_state < StateConnected)
     {
@@ -686,7 +686,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
 }
 
 void
-IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
+IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& /*buf*/)
 {
     if(_state < StateConnected)
     {
@@ -765,7 +765,7 @@ IceSSL::TransceiverI::startRead(IceInternal::Buffer& buf)
 }
 
 void
-IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
+IceSSL::TransceiverI::finishRead(IceInternal::Buffer& /*buf*/)
 {
     if(static_cast<int>(_read.count) == SOCKET_ERROR)
     {

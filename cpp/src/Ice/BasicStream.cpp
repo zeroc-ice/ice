@@ -2158,8 +2158,12 @@ IceInternal::BasicStream::EncapsDecoder10::throwException(const UserExceptionFac
     }
 }
 
-void 
+void
+#ifndef NDEBUG
 IceInternal::BasicStream::EncapsDecoder10::startInstance(SliceType sliceType)
+#else
+IceInternal::BasicStream::EncapsDecoder10::startInstance(SliceType)
+#endif
 {
     assert(_sliceType == sliceType);
     _skipFirstSlice = true;
@@ -2451,8 +2455,12 @@ IceInternal::BasicStream::EncapsDecoder11::throwException(const UserExceptionFac
     }
 }
 
-void 
+void
+#ifndef NDEBUG
 IceInternal::BasicStream::EncapsDecoder11::startInstance(SliceType sliceType)
+#else
+IceInternal::BasicStream::EncapsDecoder11::startInstance(SliceType)
+#endif
 {
     assert(_current->sliceType == sliceType);
     _current->skipFirstSlice = true;
@@ -2937,7 +2945,7 @@ IceInternal::BasicStream::EncapsEncoder10::endInstance()
 }
 
 void
-IceInternal::BasicStream::EncapsEncoder10::startSlice(const string& typeId, int, bool last)
+IceInternal::BasicStream::EncapsEncoder10::startSlice(const string& typeId, int, bool /*last*/)
 {
     //
     // For object slices, encode a boolean to indicate how the type ID

@@ -136,7 +136,7 @@ private:
 };
 typedef IceUtil::Handle<DestroyTask> DestroyTaskPtr;
 
-int main(int argc, char* argv[])
+int main(int, char**)
 {
     cout << "testing timer... " << flush;
     {

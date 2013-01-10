@@ -14,7 +14,7 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Test::ChecksumPrx allTests(const Ice::CommunicatorPtr&, bool);
     Test::ChecksumPrx checksum = allTests(communicator, false);

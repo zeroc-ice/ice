@@ -151,7 +151,7 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
 }
 
 vector<string>
-Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package, ParamDir paramType, bool proxy,
+Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package, ParamDir paramType, bool /*proxy*/,
                                    bool optionalMapping)
 {
     vector<string> params;
@@ -186,7 +186,7 @@ Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package
 }
 
 vector<string>
-Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package, bool amd, bool optionalMapping)
+Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package, bool /*amd*/, bool optionalMapping)
 {
     vector<string> params;
 
@@ -1995,7 +1995,7 @@ Slice::JavaVisitor::writeDocCommentParam(Output& out, const OperationPtr& p, Par
     }
 }
 
-Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir) :
+Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir) :
     _base(base),
     _includePaths(includePaths),
     _dir(dir)
@@ -5348,7 +5348,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     Output& out = output();
     out << eb;
@@ -5676,7 +5676,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::writeOperation(const ClassDefPtr& p, const string& package, const OperationPtr& op,
+Slice::Gen::DelegateMVisitor::writeOperation(const ClassDefPtr& /*p*/, const string& package, const OperationPtr& op,
                                              bool optionalMapping)
 {
     Output& out = output();

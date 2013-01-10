@@ -52,7 +52,7 @@ AllocationRequest::pending()
 }
 
 bool
-AllocationRequest::allocate(const AllocatablePtr& allocatable, const SessionIPtr& session)
+AllocationRequest::allocate(const AllocatablePtr& /*allocatable*/, const SessionIPtr& session)
 {
     Lock sync(*this);
     switch(_state)

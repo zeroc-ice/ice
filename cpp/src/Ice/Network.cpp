@@ -95,10 +95,12 @@ setKeepAlive(SOCKET fd)
 }
 #endif
 
-SOCKET
-createSocketImpl(bool udp, int family)
-{
 #ifdef ICE_OS_WINRT
+SOCKET
+createSocketImpl(bool udp, int)
+{
+    SOCKET fd;
+
     if(udp)
     {
         return ref new DatagramSocket();
@@ -110,7 +112,13 @@ createSocketImpl(bool udp, int family)
         socket->Control->NoDelay = true;
         return socket;
     }
+
+    return fd;
+}
 #else
+SOCKET
+createSocketImpl(bool udp, int family)
+{
     SOCKET fd;
 
     if(udp)
@@ -136,14 +144,14 @@ createSocketImpl(bool udp, int family)
     }
 
     return fd;
-#endif
 }
+#endif
 
+#ifdef ICE_OS_WINRT
 Address
-getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool server)
+getAddressImpl(const string& host, int port, ProtocolSupport, bool server)
 {
     Address addr;
-#ifdef ICE_OS_WINRT
     ostringstream os;
     os << port;
     addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
@@ -162,7 +170,13 @@ getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool serv
     {
         addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
     }
+    return addr;
+}
 #else
+Address
+getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool server)
+{
+    Address addr;
     memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     //
@@ -245,9 +259,9 @@ getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool serv
         throw ex;
     }
     freeaddrinfo(info);
-#endif
     return addr;
 }
+#endif
 
 #ifndef ICE_OS_WINRT
 vector<Address>
@@ -613,30 +627,44 @@ IceInternal::noMoreFds(int error)
 #endif
 }
 
+#if defined(ICE_OS_WINRT)
+string
+IceInternal::errorToStringDNS(int)
+{
+    return "Host not found";
+}
+#else
 string
 IceInternal::errorToStringDNS(int error)
 {
-#if defined(ICE_OS_WINRT)
-    return "Host not found";
-#elif defined(_WIN32)
+#  if defined(_WIN32)
     return IceUtilInternal::errorToString(error);
-#else
+#  else
     return gai_strerror(error);
-#endif
+#  endif
 }
+#endif
 
+#ifdef ICE_OS_WINRT
 vector<Address>
-IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, bool blocking)
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport, bool)
 {
     vector<Address> result;
     Address addr;
-#ifdef ICE_OS_WINRT
     addr.host = ref new HostName(host.empty() ? "localhost" : ref new String(IceUtil::stringToWstring(host).c_str()));
     stringstream os;
     os << port;
     addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
     result.push_back(addr);
+    return result;
+}
 #else
+vector<Address>
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, bool blocking)
+{
+    vector<Address> result;
+    Address addr;
+
     memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     //
@@ -695,11 +723,11 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     // AI_NUMERICHOST is specified and the host name is not a IP
     // address. However on some platforms (e.g. OS X 10.4.x)
     // EAI_NODATA is also returned so we also check for it.
-#ifdef EAI_NODATA
+#  ifdef EAI_NODATA
     if(!blocking && (rs == EAI_NONAME || rs == EAI_NODATA))
-#else
+#  else
     if(!blocking && rs == EAI_NONAME)
-#endif
+#  endif
     {
         return result; // Empty result indicates that a blocking lookup is necessary.
     }
@@ -746,20 +774,24 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
         ex.host = host;
         throw ex;
     }
-#endif
     return result;
 }
+#endif
 
+#ifdef ICE_OS_WINRT
+ProtocolSupport
+IceInternal::getProtocolSupport(const Address&)
+{
+    // For WinRT, there's no distinction between IPv4 and IPv6 adresses.
+    return EnableBoth;
+}
+#else
 ProtocolSupport
 IceInternal::getProtocolSupport(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
     return addr.saStorage.ss_family == AF_INET ? EnableIPv4 : EnableIPv6;
-#else
-    // For WinRT, there's no distinction between IPv4 and IPv6 adresses.
-    return EnableBoth;
-#endif
 }
+#endif
 
 Address
 IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol)
@@ -839,16 +871,19 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 #endif
 }
 
+#ifdef ICE_OS_WINRT
+SOCKET
+IceInternal::createSocket(bool udp, const Address&)
+{
+    return createSocketImpl(udp, 0);
+}
+#else
 SOCKET
 IceInternal::createSocket(bool udp, const Address& addr)
 {
-#ifdef ICE_OS_WINRT
-    return createSocketImpl(udp, 0);
-#else
     return createSocketImpl(udp, addr.saStorage.ss_family);
-#endif
 }
-
+#endif
 
 void
 IceInternal::closeSocketNoThrow(SOCKET fd)
@@ -1059,12 +1094,21 @@ IceInternal::isAddressValid(const Address& addr)
 #endif
 }
 
+#ifdef ICE_OS_WINRT
+vector<string>
+IceInternal::getHostsForEndpointExpand(const string&, ProtocolSupport, bool)
+{
+    //
+    // No support for expanding wildcard addresses on WinRT
+    //
+    vector<string> hosts;
+    return hosts;
+}
+#else
 vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
     vector<string> hosts;
-
-#ifndef ICE_OS_WINRT
     if(host.empty() || isWildcard(host, protocolSupport))
     {
         vector<Address> addrs = getLocalAddresses(protocolSupport);
@@ -1092,13 +1136,9 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             }
         }
     }
-#else
-    //
-    // No support for expanding wildcard addresses on WinRT
-    //
-#endif
     return hosts; // An empty host list indicates to just use the given host.
 }
+#endif
 
 string
 IceInternal::inetAddrToString(const Address& ss)
@@ -1272,7 +1312,11 @@ IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, cons
 }
 
 void
+#ifndef ICE_OS_WINRT
 IceInternal::setBlock(SOCKET fd, bool block)
+#else
+IceInternal::setBlock(SOCKET fd, bool)
+#endif
 {
 #ifndef ICE_OS_WINRT
     if(block)
@@ -1369,10 +1413,16 @@ IceInternal::getSendBufferSize(SOCKET fd)
 #endif
 }
 
+#ifdef ICE_OS_WINRT
+void
+IceInternal::setRecvBufferSize(SOCKET, int)
+{
+}
+#else
 void
 IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 {
-#ifndef ICE_OS_WINRT
+
     if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
@@ -1380,8 +1430,8 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
         ex.error = getSocketErrno();
         throw ex;
     }
-#endif
 }
+#endif
 
 int
 IceInternal::getRecvBufferSize(SOCKET fd)
@@ -1403,10 +1453,10 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 #endif
 }
 
+#ifndef ICE_OS_WINRT
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
-#ifndef ICE_OS_WINRT
     int rc;
     if(group.saStorage.ss_family == AF_INET)
     {
@@ -1459,7 +1509,11 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
         ex.error = getSocketErrno();
         throw ex;
     }
+}
 #else
+void
+IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
+{
     try
     {
         //
@@ -1471,13 +1525,18 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
     {
         throw SocketException(__FILE__, __LINE__, (int)SocketError::GetStatus(pex->HResult));
     }
-#endif
 }
+#endif
 
+#ifdef ICE_OS_WINRT
+void
+IceInternal::setMcastInterface(SOCKET, const string&, const Address&)
+{
+}
+#else
 void
 IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& addr)
 {
-#ifndef ICE_OS_WINRT
     int rc;
     if(addr.saStorage.ss_family == AF_INET)
     {
@@ -1517,13 +1576,18 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
         ex.error = getSocketErrno();
         throw ex;
     }
-#endif
 }
+#endif
 
+#ifdef ICE_OS_WINRT
+void
+IceInternal::setMcastTtl(SOCKET, int, const Address&)
+{
+}
+#else
 void
 IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
 {
-#ifndef ICE_OS_WINRT
     int rc;
     if(addr.saStorage.ss_family == AF_INET)
     {
@@ -1540,13 +1604,18 @@ IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
         ex.error = getSocketErrno();
         throw ex;
     }
-#endif
 }
+#endif
 
+#ifdef ICE_OS_WINRT
+void
+IceInternal::setReuseAddress(SOCKET, bool)
+{
+}
+#else
 void
 IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 {
-#ifndef ICE_OS_WINRT
     int flag = reuse ? 1 : 0;
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
     {
@@ -1555,8 +1624,8 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
         ex.error = getSocketErrno();
         throw ex;
     }
-#endif
 }
+#endif
 
 Address
 IceInternal::doBind(SOCKET fd, const Address& addr)

@@ -46,7 +46,7 @@ MetricsI::opWithUnknownException(const Ice::Current&)
 }
 
 void
-MetricsI::opByteS(const Test::ByteSeq& bs, const Ice::Current&)
+MetricsI::opByteS(const Test::ByteSeq&, const Ice::Current&)
 {
 }
 

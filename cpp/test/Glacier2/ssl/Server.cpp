@@ -43,7 +43,7 @@ class PermissionsVerifierI : public Glacier2::PermissionsVerifier
 public:
 
     virtual bool
-    checkPermissions(const string& userId, const string& password, string& reason, const Ice::Current& current) const
+    checkPermissions(const string& userId, const string&, string&, const Ice::Current& current) const
     {
         testContext(userId == "ssl", current.ctx);
         return true;
@@ -172,7 +172,7 @@ main(int argc, char* argv[])
 }
 
 int
-SessionServer::run(int argc, char* argv[])
+SessionServer::run(int, char**)
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
         "SessionServer", "tcp -h 127.0.0.1 -p 12350");

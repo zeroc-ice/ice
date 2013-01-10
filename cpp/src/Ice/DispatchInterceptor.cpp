@@ -16,7 +16,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 DispatchStatus
-Ice::DispatchInterceptor::__dispatch(IceInternal::Incoming& in, const Current& current)
+Ice::DispatchInterceptor::__dispatch(IceInternal::Incoming& in, const Current& /*current*/)
 {
     try
     {

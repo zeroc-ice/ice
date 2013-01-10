@@ -20,7 +20,7 @@ NestedI::NestedI(const NestedPrx& self) :
 }
 
 void
-NestedI::nestedCall(Int level, const NestedPrx& proxy, const Ice::Current& current)
+NestedI::nestedCall(Int level, const NestedPrx& proxy, const Ice::Current&)
 {
     cout << level << endl;
     if(--level > 0)

@@ -18,7 +18,7 @@ TestFacetI::TestFacetI() :
 }
 
 Ice::PropertyDict
-TestFacetI::getChanges(const Ice::Current& current)
+TestFacetI::getChanges(const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 

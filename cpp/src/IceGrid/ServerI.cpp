@@ -889,13 +889,13 @@ ServerI::stop_async(const AMD_Server_stopPtr& amdCB, const Ice::Current&)
 }
 
 void
-ServerI::sendSignal(const string& signal, const Ice::Current& current)
+ServerI::sendSignal(const string& signal, const Ice::Current&)
 {
     _node->getActivator()->sendSignal(_id, signal);
 }
 
 void
-ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
+ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current&)
 {
     Lock sync(*this);
     checkDestroyed();
@@ -2466,8 +2466,13 @@ ServerI::checkNoRestart(const InternalServerDescriptorPtr& desc)
     }
 }
 
+#ifndef _WIN32
 void
 ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool update)
+#else
+void
+ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*update*/)
+#endif
 {
 #ifndef _WIN32
     uid_t uid = getuid();

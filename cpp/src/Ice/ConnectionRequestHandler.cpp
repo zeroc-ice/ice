@@ -88,7 +88,7 @@ ConnectionRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& o
 }
 
 Ice::ConnectionIPtr
-ConnectionRequestHandler::getConnection(bool wait)
+ConnectionRequestHandler::getConnection(bool /*wait*/)
 {
     return _connection;
 }

@@ -85,7 +85,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
     }
 
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-    pair<const Byte*, const Byte*> ret(nullptr, nullptr);
+    pair<const Byte*, const Byte*> ret(static_cast<const Byte*>(nullptr), static_cast<const Byte*>(nullptr));
 #else
     pair<const Byte*, const Byte*> ret(0, 0);
 #endif

@@ -71,7 +71,7 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
 }
 
 void
-ReplicaSessionI::keepAlive(const Ice::Current& current)
+ReplicaSessionI::keepAlive(const Ice::Current&)
 {
     Lock sync(*this);
     if(_destroy)
@@ -89,13 +89,13 @@ ReplicaSessionI::keepAlive(const Ice::Current& current)
 }
 
 int
-ReplicaSessionI::getTimeout(const Ice::Current& current) const
+ReplicaSessionI::getTimeout(const Ice::Current&) const
 {
     return _timeout;
 }
 
 void
-ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const Ice::Current& current)
+ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const Ice::Current&)
 {
     //
     // If it's a read only master, we don't setup the observer to not
@@ -133,7 +133,7 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const 
 }
 
 void
-ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice::Current& current)
+ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice::Current&)
 {
     {
         Lock sync(*this);
@@ -147,7 +147,7 @@ ReplicaSessionI::setEndpoints(const StringObjectProxyDict& endpoints, const Ice:
 }
 
 void
-ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ice::Current& current)
+ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ice::Current&)
 {
     int serial;
     {

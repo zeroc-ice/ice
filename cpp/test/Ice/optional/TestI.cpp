@@ -340,7 +340,7 @@ InitialI::opStringIntDict(const Optional<StringIntDict>& p1, Optional<StringIntD
 }
 
 void
-InitialI::opClassAndUnknownOptional(const APtr& a, const Ice::Current&)
+InitialI::opClassAndUnknownOptional(const APtr&, const Ice::Current&)
 {
 }
 

@@ -14,7 +14,7 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Test::PriorityPrx allTests(const Ice::CommunicatorPtr&);
     Test::PriorityPrx priority = allTests(communicator);

@@ -851,14 +851,14 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
 }
 
 ServiceDescriptorBuilder*
-ServerDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
+ServerDescriptorBuilder::createService(const XmlAttributesHelper& /*attrs*/)
 {
     throw "<service> element can only be a child of an <icebox> element";
     return 0;
 }
 
 ServiceInstanceDescriptorBuilder*
-ServerDescriptorBuilder::createServiceInstance(const XmlAttributesHelper& attrs)
+ServerDescriptorBuilder::createServiceInstance(const XmlAttributesHelper& /*attrs*/)
 {
     throw "<service-instance> element can only be a child of an <icebox> element";
     return 0;
@@ -877,13 +877,13 @@ ServerDescriptorBuilder::addEnv(const string& v)
 }
 
 void
-ServerDescriptorBuilder::addService(const ServiceDescriptorPtr& desc)
+ServerDescriptorBuilder::addService(const ServiceDescriptorPtr& /*desc*/)
 {
     assert(false);
 }
 
 void
-ServerDescriptorBuilder::addServiceInstance(const ServiceInstanceDescriptor& desc)
+ServerDescriptorBuilder::addServiceInstance(const ServiceInstanceDescriptor& /*desc*/)
 {
     assert(false);
 }
@@ -927,13 +927,13 @@ IceBoxDescriptorBuilder::createServiceInstance(const XmlAttributesHelper& attrs)
 }
 
 void
-IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
+IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& /*attrs*/)
 {
     throw "<adapter> element can't be a child of an <icebox> element";
 }
 
 void
-IceBoxDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
+IceBoxDescriptorBuilder::addDbEnv(const XmlAttributesHelper& /*attrs*/)
 {
     throw "<dbenv> element can't be a child of an <icebox> element";
 }

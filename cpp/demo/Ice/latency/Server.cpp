@@ -28,7 +28,7 @@ main(int argc, char* argv[])
 }
 
 int
-LatencyServer::run(int argc, char* argv[])
+LatencyServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

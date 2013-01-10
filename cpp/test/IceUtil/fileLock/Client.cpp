@@ -15,7 +15,7 @@ using namespace IceUtil;
 using namespace std;
 
 int
-main(int argc, char** argv)
+main(int, char**)
 {
     {
         IceUtilInternal::FileLockPtr lock;

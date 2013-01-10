@@ -42,7 +42,7 @@ class ChatServer : public Ice::Application
 public:
 
     virtual int
-    run(int argc, char* argv[])
+    run(int argc, char*[])
     {
         if(argc > 1)
         {

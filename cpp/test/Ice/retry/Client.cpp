@@ -17,7 +17,7 @@ using namespace std;
 using namespace Test;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     RetryPrx allTests(const Ice::CommunicatorPtr&);
     RetryPrx retry = allTests(communicator);

@@ -32,7 +32,11 @@ IceInternal::TcpAcceptor::getNativeInfo()
 
 #ifdef ICE_USE_IOCP
 AsyncInfo*
+#  ifndef NDEBUG
 IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation op)
+#  else
+IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
+#  endif
 {
     assert(op == SocketOperationRead);
     return &_info;

@@ -34,7 +34,7 @@ public:
     }
 
     virtual void
-    event(int i, const Current& current)
+    event(int i, const Current&)
     {
         if(_name == "twoway ordered" && i != _last)
         {

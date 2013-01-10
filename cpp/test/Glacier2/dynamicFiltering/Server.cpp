@@ -67,7 +67,7 @@ public:
     }    
 
     virtual void
-    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string& id, const Current& current) const 
+    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string&, const Current&) const 
     {
        cb->ice_response(_adapter->createDirectProxy(_adapter->getCommunicator()->stringToIdentity("dummy")));   
     }

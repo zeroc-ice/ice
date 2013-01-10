@@ -22,7 +22,7 @@ class HelloI : virtual public Hello
 public:
     
     virtual void
-    sayHello(const Ice::Current& foo)
+    sayHello(const Ice::Current&)
     {
         // Do nothing, this is just a dummy servant.
     }

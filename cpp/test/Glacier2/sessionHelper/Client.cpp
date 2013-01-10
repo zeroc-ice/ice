@@ -46,7 +46,7 @@ public:
     
     virtual void 
     dispatch(const Ice::DispatcherCallPtr& call,
-             const Ice::ConnectionPtr& conn)
+             const Ice::ConnectionPtr&)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
         if(_queue.empty())
@@ -110,14 +110,14 @@ class SuccessSessionCallback : public Glacier2::SessionCallback
 public:
     
     virtual void
-    connected(const Glacier2::SessionHelperPtr& session)
+    connected(const Glacier2::SessionHelperPtr&)
     {
         cout << "ok" << endl;
         instance->notify();
     }
 
     virtual void
-    disconnected(const Glacier2::SessionHelperPtr& session)
+    disconnected(const Glacier2::SessionHelperPtr&)
     {
         cout << "ok" << endl;
         instance->notify();
@@ -142,19 +142,19 @@ class AfterShutdownSessionCallback : public Glacier2::SessionCallback
 public:
     
     virtual void
-    connected(const Glacier2::SessionHelperPtr& session)
+    connected(const Glacier2::SessionHelperPtr&)
     {
             test(false);
     }
 
     virtual void
-    disconnected(const Glacier2::SessionHelperPtr& session)
+    disconnected(const Glacier2::SessionHelperPtr&)
     {
         test(false);
     }
 
     virtual void
-    connectFailed(const Glacier2::SessionHelperPtr& session, const Ice::Exception& ex)
+    connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception& ex)
     {
         try
         {

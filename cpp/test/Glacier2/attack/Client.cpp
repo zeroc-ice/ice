@@ -42,7 +42,7 @@ main(int argc, char* argv[])
 }
 
 int
-AttackClient::run(int argc, char* argv[])
+AttackClient::run(int, char**)
 {
     cout << "getting router... " << flush;
     ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");

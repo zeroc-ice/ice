@@ -17,7 +17,11 @@ BookFactory::BookFactory(const LibraryIPtr& library) :
 }
 
 Ice::ObjectPtr
+#ifndef NDEBUG
 BookFactory::create(const string& type)
+#else
+BookFactory::create(const string&)
+#endif
 {
     assert(_library);
     assert(type == "::Demo::Book");

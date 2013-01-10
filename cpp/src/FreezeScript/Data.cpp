@@ -1189,7 +1189,7 @@ FreezeScript::ProxyData::ProxyData(const Slice::TypePtr& type, const Ice::Commun
 }
 
 FreezeScript::DataPtr
-FreezeScript::ProxyData::getMember(const string& member) const
+FreezeScript::ProxyData::getMember(const string& /*member*/) const
 {
     // TODO: Support members (id, facet, etc.)?
 
@@ -2142,7 +2142,7 @@ FreezeScript::ObjectData::getMember(const string& member) const
 }
 
 FreezeScript::DataPtr
-FreezeScript::ObjectData::getElement(const DataPtr& element) const
+FreezeScript::ObjectData::getElement(const DataPtr& /*element*/) const
 {
     _errorReporter->error("element requested of object value");
     return 0;
@@ -2155,14 +2155,14 @@ FreezeScript::ObjectData::operator==(const Data& rhs) const
 }
 
 bool
-FreezeScript::ObjectData::operator!=(const Data& rhs) const
+FreezeScript::ObjectData::operator!=(const Data& /*rhs*/) const
 {
     _errorReporter->error("object comparison not supported");
     return false;
 }
 
 bool
-FreezeScript::ObjectData::operator<(const Data& rhs) const
+FreezeScript::ObjectData::operator<(const Data& /*rhs*/) const
 {
     _errorReporter->error("object comparison not supported");
     return false;
@@ -2198,7 +2198,7 @@ FreezeScript::ObjectData::marshal(const Ice::OutputStreamPtr& out) const
 }
 
 void
-FreezeScript::ObjectData::unmarshal(const Ice::InputStreamPtr& in)
+FreezeScript::ObjectData::unmarshal(const Ice::InputStreamPtr& /*in*/)
 {
     //
     // Unmarshaling is done by ObjectReader.
@@ -2242,7 +2242,7 @@ FreezeScript::ObjectData::toString() const
 }
 
 void
-FreezeScript::ObjectData::visit(DataVisitor& visitor)
+FreezeScript::ObjectData::visit(DataVisitor& /*visitor*/)
 {
     assert(false);
 }
@@ -2339,7 +2339,7 @@ FreezeScript::ObjectRef::operator!=(const Data& rhs) const
 }
 
 bool
-FreezeScript::ObjectRef::operator<(const Data& rhs) const
+FreezeScript::ObjectRef::operator<(const Data& /*rhs*/) const
 {
     _errorReporter->error("object comparison not supported");
     return false;

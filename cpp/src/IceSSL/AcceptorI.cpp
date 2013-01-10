@@ -36,7 +36,11 @@ IceSSL::AcceptorI::getNativeInfo()
 
 #ifdef ICE_USE_IOCP
 IceInternal::AsyncInfo*
+#  ifndef NDEBUG
 IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)
+#  else
+IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation)
+#  endif
 {
     assert(status == IceInternal::SocketOperationRead);
     return &_info;

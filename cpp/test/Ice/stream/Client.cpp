@@ -64,7 +64,11 @@ class TestObjectFactory : public Ice::ObjectFactory
 public:
 
     virtual Ice::ObjectPtr
+#ifndef NDEBUG
     create(const string& type)
+#else
+    create(const string&)
+#endif
     {
         assert(type == Test::MyClass::ice_staticId());
         return new TestObjectReader;
@@ -133,7 +137,7 @@ class MyInterfaceFactory : public Ice::ObjectFactory
 public:
 
     virtual Ice::ObjectPtr
-    create(const string& type)
+    create(const string&)
     {
         return new Test::MyInterface;
     }
@@ -145,7 +149,7 @@ public:
 };
 
 int
-run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
     communicator->addObjectFactory(factoryWrapper, Test::MyClass::ice_staticId());

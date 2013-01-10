@@ -177,7 +177,7 @@ Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Ruby::CodeVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Ruby::CodeVisitor::visitModuleEnd(const ModulePtr&)
 {
     _out.dec();
     _out << nl << "end";
@@ -1431,7 +1431,7 @@ Slice::Ruby::CodeVisitor::getInitializer(const TypePtr& p)
 }
 
 void
-Slice::Ruby::CodeVisitor::writeHash(const string& name, const TypePtr& p, int& iter)
+Slice::Ruby::CodeVisitor::writeHash(const string& name, const TypePtr&, int&)
 {
     _out << nl << "_h = 5 * _h + " << name << ".hash";
 }

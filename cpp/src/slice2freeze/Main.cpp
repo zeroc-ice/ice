@@ -54,7 +54,7 @@ string ICE_ENCODING_COMPARE = "Freeze::IceEncodingCompare";
 }
 
 void
-interruptedCallback(int signal)
+interruptedCallback(int /*signal*/)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
 
@@ -76,7 +76,7 @@ public:
         return true;
     }
 
-    virtual void visitModuleEnd(const ModulePtr& p)
+    virtual void visitModuleEnd(const ModulePtr&)
     {
         resetUseWstring();
     }
@@ -1277,7 +1277,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
 }
 
 void
-writeIndex(const string& n, const UnitPtr& u, const Index& index, Output& H, Output& C, const string& dllExport)
+writeIndex(const string& /*n*/, const UnitPtr& u, const Index& index, Output& H, Output& C, const string& dllExport)
 {
     string absolute = index.name;
     if(absolute.find("::") == 0)

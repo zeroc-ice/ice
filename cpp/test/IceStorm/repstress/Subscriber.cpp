@@ -40,7 +40,7 @@ public:
     }
 
     virtual void
-    event(int, const Current& current)
+    event(int, const Current&)
     {
         Lock sync(*this);
         ++_nevents;
@@ -60,7 +60,7 @@ private:
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+run(int, char* argv[], const CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";

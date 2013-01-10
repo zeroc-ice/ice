@@ -274,7 +274,7 @@ TestI::returnTest2_async(const AMD_TestIntf_returnTest2Ptr& cb, const ::Ice::Cur
 }
 
 void
-TestI::returnTest3_async(const AMD_TestIntf_returnTest3Ptr& cb, const BPtr& p1, const BPtr& p2, const ::Ice::Current&)
+TestI::returnTest3_async(const AMD_TestIntf_returnTest3Ptr& cb, const BPtr& p1, const BPtr&, const ::Ice::Current&)
 {
     cb->ice_response(p1);
 }

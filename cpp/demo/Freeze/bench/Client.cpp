@@ -696,7 +696,7 @@ public:
 typedef IceUtil::Handle<MyFactory> MyFactoryPtr;
 
 int
-TestApp::run(int argc, char* argv[])
+TestApp::run(int argc, char*[])
 {
     if(argc > 1)
     {

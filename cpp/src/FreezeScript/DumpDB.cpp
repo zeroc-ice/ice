@@ -830,7 +830,7 @@ FreezeScript::DescriptorHandler::DescriptorHandler(const DataFactoryPtr& factory
 
 void
 FreezeScript::DescriptorHandler::startElement(const string& name, const IceXML::Attributes& attributes, int line,
-                                              int column)
+                                              int /*column*/)
 {
     DescriptorPtr d;
 
@@ -956,7 +956,7 @@ FreezeScript::DescriptorHandler::startElement(const string& name, const IceXML::
 }
 
 void
-FreezeScript::DescriptorHandler::endElement(const std::string& name, int, int)
+FreezeScript::DescriptorHandler::endElement(const std::string&, int, int)
 {
     assert(_current);
     _current = _current->parent();
@@ -968,7 +968,7 @@ FreezeScript::DescriptorHandler::characters(const std::string&, int, int)
 }
 
 void
-FreezeScript::DescriptorHandler::error(const std::string& msg, int line, int col)
+FreezeScript::DescriptorHandler::error(const std::string& msg, int line, int)
 {
     _errorReporter->descriptorError(msg, line);
 }

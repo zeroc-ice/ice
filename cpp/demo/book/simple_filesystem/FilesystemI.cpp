@@ -22,7 +22,7 @@ Filesystem::NodeI::name(const Ice::Current&)
 
 // NodeI constructor
 
-Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr& communicator, const string& name, const DirectoryIPtr& parent) :
+Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr&, const string& name, const DirectoryIPtr& parent) :
     _name(name), _parent(parent)
 {
     // Create an identity. The root directory has the fixed identity "RootDir"
@@ -74,7 +74,7 @@ Filesystem::FileI::FileI(const Ice::CommunicatorPtr& communicator, const string&
 // Slice Directory::list() operation
 
 Filesystem::NodeSeq
-Filesystem::DirectoryI::list(const Ice::Current& c)
+Filesystem::DirectoryI::list(const Ice::Current&)
 {
     return _contents;
 }

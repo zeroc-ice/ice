@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 }
 
 int
-ContactServer::run(int argc, char* argv[])
+ContactServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

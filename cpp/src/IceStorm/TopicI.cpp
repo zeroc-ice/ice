@@ -104,7 +104,7 @@ public:
     }
 
     virtual void
-    forward(const EventDataSeq& v, const Ice::Current& current)
+    forward(const EventDataSeq& v, const Ice::Current& /*current*/)
     {
         // The publish call does a cached read.
         _impl->publish(true, v);
@@ -254,7 +254,7 @@ public:
         return _impl->getLinkProxy();
     }
 
-    virtual void reap(const Ice::IdentitySeq& ids, const Ice::Current& current)
+    virtual void reap(const Ice::IdentitySeq& ids, const Ice::Current& /*current*/)
     {
         NodeIPtr node = _instance->node();
         if(!node->updateMaster(__FILE__, __LINE__))

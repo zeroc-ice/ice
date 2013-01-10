@@ -353,7 +353,7 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrx& proxy)
 
 
 vector<EndpointIPtr>
-IceInternal::RouterInfo::setServerEndpoints(const Ice::ObjectPrx& serverProxy)
+IceInternal::RouterInfo::setServerEndpoints(const Ice::ObjectPrx& /*serverProxy*/)
 {
     IceUtil::Mutex::Lock sync(*this);
     if(_serverEndpoints.empty()) // Lazy initialization.

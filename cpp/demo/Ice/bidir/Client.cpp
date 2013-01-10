@@ -40,7 +40,7 @@ main(int argc, char* argv[])
 }
 
 int
-CallbackClient::run(int argc, char* argv[])
+CallbackClient::run(int argc, char*[])
 {
     if(argc > 1)
     {

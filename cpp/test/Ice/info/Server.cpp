@@ -16,7 +16,7 @@ DEFINE_TEST("server");
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

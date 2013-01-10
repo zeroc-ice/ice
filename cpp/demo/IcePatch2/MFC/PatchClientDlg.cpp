@@ -50,7 +50,7 @@ public:
     }
 
     virtual bool
-    noFileSummary(const string& reason)
+    noFileSummary(const string& /*reason*/)
     {
         return IDYES == AfxMessageBox(L"Cannot load file summary. Perform a thorough patch?", MB_YESNO|MB_ICONSTOP);
     }

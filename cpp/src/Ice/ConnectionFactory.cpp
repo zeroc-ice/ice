@@ -977,7 +977,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartComplete
 }
 
 void
-IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(const ConnectionIPtr& connection, 
+IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(const ConnectionIPtr& /*connection*/, 
                                                                                const LocalException& ex)
 {
     assert(_iter != _connectors.end());
@@ -1544,7 +1544,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
 }
 
 void
-IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& connection,
+IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& /*connection*/,
                                                               const Ice::LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);

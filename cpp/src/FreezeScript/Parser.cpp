@@ -129,7 +129,7 @@ FreezeScript::parseExpression(const string& expr, const DataFactoryPtr& factory,
 // getInput supplies characters to the lexical scanner.
 //
 int
-FreezeScript::getInput(char* buf, int maxSize)
+FreezeScript::getInput(char* buf, int /*maxSize*/)
 {
     if(_pos < _input.length())
     {
@@ -544,7 +544,7 @@ FreezeScript::DataNode::evaluate(const SymbolTablePtr&)
 }
 
 void
-FreezeScript::DataNode::print(ostream& os) const
+FreezeScript::DataNode::print(ostream& /*os*/) const
 {
     // TODO
     //_data->print(os);

@@ -39,7 +39,7 @@ main(int argc, char* argv[])
 }
 
 int
-CallbackClient::run(int argc, char* argv[])
+CallbackClient::run(int, char**)
 {
     Glacier2::RouterPrx router = Glacier2::RouterPrx::uncheckedCast(
         communicator()->stringToProxy("Glacier2/router:tcp -h 127.0.0.1 -p 12347"));

@@ -16,9 +16,9 @@ DEFINE_TEST("client")
 using namespace std;
 
 int
-run(int argc, char* argv[], 
+run(int, char**, 
     const Ice::CommunicatorPtr& communicator,
-    const Ice::InitializationData& initData)
+    const Ice::InitializationData&)
 {
     Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrx myClass = allTests(communicator);

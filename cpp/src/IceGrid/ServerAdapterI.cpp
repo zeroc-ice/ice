@@ -37,7 +37,7 @@ ServerAdapterI::~ServerAdapterI()
 }
 
 void
-ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current& current)
+ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current&)
 {
     {
         Lock sync(*this);
@@ -107,7 +107,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 }
 
 Ice::ObjectPrx
-ServerAdapterI::getDirectProxy(const Ice::Current& current) const
+ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
     Lock sync(*this);
 

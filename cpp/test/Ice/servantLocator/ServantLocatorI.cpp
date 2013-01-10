@@ -56,7 +56,7 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
 }
 
 void
-ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr& servant,
+ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&,
                           const Ice::LocalObjectPtr& cookie)
 {
     test(!_deactivated);

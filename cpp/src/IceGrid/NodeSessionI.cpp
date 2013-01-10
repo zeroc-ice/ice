@@ -181,7 +181,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
 }
 
 void
-NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
+NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current&)
 {
     Lock sync(*this);
     if(_destroy)
@@ -219,19 +219,19 @@ NodeSessionI::setReplicaObserver(const ReplicaObserverPrx& observer, const Ice::
 }
 
 int
-NodeSessionI::getTimeout(const Ice::Current& current) const
+NodeSessionI::getTimeout(const Ice::Current&) const
 {
     return _timeout;
 }
 
 NodeObserverPrx
-NodeSessionI::getObserver(const Ice::Current& current) const
+NodeSessionI::getObserver(const Ice::Current&) const
 {
     return NodeObserverTopicPtr::dynamicCast(_database->getObserverTopic(NodeObserverTopicName))->getPublisher();
 }
 
 void
-NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, const Ice::Current& current) const
+NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, const Ice::Current&) const
 {
     //
     // No need to wait for the servers to be loaded. If we were
@@ -253,7 +253,7 @@ NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, con
 }
 
 Ice::StringSeq
-NodeSessionI::getServers(const Ice::Current& current) const
+NodeSessionI::getServers(const Ice::Current&) const
 {
     ServerEntrySeq servers =  _database->getNode(_info->name)->getServers();
     Ice::StringSeq names;

@@ -132,7 +132,7 @@ public:
     }
 
     void
-    waitForUpdate(const char* file, int line)
+    waitForUpdate(const char*, int line)
     {
         Lock sync(*this);
 
@@ -362,7 +362,7 @@ public:
     }
 
     virtual void 
-    nodeInit(const NodeDynamicInfoSeq& info, const Ice::Current& current)
+    nodeInit(const NodeDynamicInfoSeq& info, const Ice::Current&)
     {
         Lock sync(*this);
         for(NodeDynamicInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
@@ -373,7 +373,7 @@ public:
     }
 
     virtual void
-    nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
+    nodeUp(const NodeDynamicInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
         this->nodes[info.info.name] = filter(info);
@@ -381,7 +381,7 @@ public:
     }
 
     virtual void
-    nodeDown(const string& name, const Ice::Current& current)
+    nodeDown(const string& name, const Ice::Current&)
     {
         Lock sync(*this);
         this->nodes.erase(name);
@@ -389,7 +389,7 @@ public:
     }
 
     virtual void
-    updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
+    updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current&)
     {
         if(info.id == "Glacier2" || info.id == "Glacier2Admin" || info.id == "PermissionsVerifierServer")
         {
@@ -427,7 +427,7 @@ public:
     }
 
     virtual void
-    updateAdapter(const string& node, const AdapterDynamicInfo& info, const Ice::Current& current)
+    updateAdapter(const string& node, const AdapterDynamicInfo& info, const Ice::Current&)
     {
         if(info.id == "PermissionsVerifierServer.Server")
         {
@@ -509,7 +509,7 @@ public:
     }
 
     virtual void 
-    registryInit(const RegistryInfoSeq& info, const Ice::Current& current)
+    registryInit(const RegistryInfoSeq& info, const Ice::Current&)
     {
         Lock sync(*this);
         for(RegistryInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
@@ -520,7 +520,7 @@ public:
     }
 
     virtual void
-    registryUp(const RegistryInfo& info, const Ice::Current& current)
+    registryUp(const RegistryInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
         this->registries[info.name] = info;
@@ -528,7 +528,7 @@ public:
     }
 
     virtual void
-    registryDown(const string& name, const Ice::Current& current)
+    registryDown(const string& name, const Ice::Current&)
         {
             Lock sync(*this);
             this->registries.erase(name);

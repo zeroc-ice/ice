@@ -28,7 +28,7 @@ main(int argc, char* argv[])
 }
 
 int
-ValueServer::run(int argc, char* argv[])
+ValueServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

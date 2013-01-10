@@ -138,7 +138,7 @@ public:
     }
 
     void
-    updated(const Ice::PropertyDict& dict)
+    updated(const Ice::PropertyDict&)
     {
         Lock sync(*this);
         _updated = true;

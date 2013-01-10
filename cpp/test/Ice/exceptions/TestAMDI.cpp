@@ -78,8 +78,8 @@ ThrowerI::throwAorDasAorD_async(const AMD_Thrower_throwAorDasAorDPtr& cb,
 }
 
 void
-ThrowerI::throwBasA_async(const AMD_Thrower_throwBasAPtr& cb,
-                          Ice::Int a, Ice::Int b, const Ice::Current& current)
+ThrowerI::throwBasA_async(const AMD_Thrower_throwBasAPtr& /*cb*/,
+                          Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
@@ -90,7 +90,7 @@ ThrowerI::throwBasA_async(const AMD_Thrower_throwBasAPtr& cb,
 
 void
 ThrowerI::throwCasA_async(const AMD_Thrower_throwCasAPtr& cb,
-                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
+                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.aMem = a;
@@ -100,7 +100,7 @@ ThrowerI::throwCasA_async(const AMD_Thrower_throwCasAPtr& cb,
 }
 
 void
-ThrowerI::throwBasB_async(const AMD_Thrower_throwBasBPtr& cb,
+ThrowerI::throwBasB_async(const AMD_Thrower_throwBasBPtr& /*cb*/,
                           Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
@@ -112,7 +112,7 @@ ThrowerI::throwBasB_async(const AMD_Thrower_throwBasBPtr& cb,
 
 void
 ThrowerI::throwCasB_async(const AMD_Thrower_throwCasBPtr& cb,
-                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
+                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.aMem = a;
@@ -133,7 +133,7 @@ ThrowerI::throwCasC_async(const AMD_Thrower_throwCasCPtr& cb,
 }
 
 void
-ThrowerI::throwModA_async(const AMD_Thrower_throwModAPtr& cb,
+ThrowerI::throwModA_async(const AMD_Thrower_throwModAPtr& /*cb*/,
                           Ice::Int a, Ice::Int a2, const Ice::Current&)
 {
     Mod::A ex;
@@ -153,14 +153,14 @@ ThrowerI::throwUndeclaredA_async(const AMD_Thrower_throwUndeclaredAPtr& cb,
 }
 
 void
-ThrowerI::throwUndeclaredB_async(const AMD_Thrower_throwUndeclaredBPtr& cb,
+ThrowerI::throwUndeclaredB_async(const AMD_Thrower_throwUndeclaredBPtr& /*cb*/,
                                  Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
     ex.bMem = b;
     throw ex;
-//    cb->ice_exception(ex);
+    //cb->ice_exception(ex);
 }
 
 void

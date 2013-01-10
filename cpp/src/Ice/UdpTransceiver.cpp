@@ -151,12 +151,17 @@ IceInternal::UdpTransceiver::close()
     _fd = INVALID_SOCKET;
 }
 
+
+#ifdef ICE_OS_WINRT
+bool
+IceInternal::UdpTransceiver::write(Buffer&)
+{
+    return false;
+}
+#else
 bool
 IceInternal::UdpTransceiver::write(Buffer& buf)
 {
-#ifdef ICE_OS_WINRT
-    return false;
-#else
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET && _state >= StateConnected);
 
@@ -233,15 +238,19 @@ repeat:
     assert(ret == static_cast<ssize_t>(buf.b.size()));
     buf.i = buf.b.end();
     return true;
-#endif
 }
+#endif
 
+#ifdef ICE_OS_WINRT
+bool
+IceInternal::UdpTransceiver::read(Buffer&)
+{
+    return false;
+}
+#else
 bool
 IceInternal::UdpTransceiver::read(Buffer& buf)
 {
-#ifdef ICE_OS_WINRT
-    return false;
-#else
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET);
 
@@ -345,8 +354,8 @@ repeat:
     buf.b.resize(ret);
     buf.i = buf.b.end();
     return true;
-#endif
 }
+#endif
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
@@ -873,8 +882,14 @@ IceInternal::UdpTransceiver::effectivePort() const
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, 
                                             const Address& addr,
+#ifdef ICE_OS_WINRT
+                                            const string&,
+                                            int
+#else
                                             const string& mcastInterface,
-                                            int mcastTtl) :
+                                            int mcastTtl
+#endif
+                                            ) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),

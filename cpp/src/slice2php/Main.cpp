@@ -1369,7 +1369,7 @@ CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 }
 
 string
-CodeVisitor::getOperationMode(Slice::Operation::Mode mode, bool ns)
+CodeVisitor::getOperationMode(Slice::Operation::Mode mode, bool /*ns*/)
 {
     ostringstream ostr;
     ostr << static_cast<int>(mode);
@@ -1533,7 +1533,7 @@ Init init;
 }
 
 static void
-interruptedCallback(int signal)
+interruptedCallback(int /*signal*/)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
 

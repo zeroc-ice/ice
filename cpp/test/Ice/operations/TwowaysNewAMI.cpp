@@ -501,7 +501,7 @@ public:
         called();
     }
 
-    void exCB(const Ice::Exception& ex)
+    void exCB(const Ice::Exception&)
     {
         test(false);
     }

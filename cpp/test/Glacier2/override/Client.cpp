@@ -45,7 +45,7 @@ main(int argc, char* argv[])
 }
 
 int
-CallbackClient::run(int argc, char* argv[])
+CallbackClient::run(int, char**)
 {
     ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);

@@ -496,7 +496,7 @@ ReplicaGroupEntry::addSyncCallback(const SynchronizationCallbackPtr& callback, c
 }
 
 void
-ReplicaGroupEntry::addReplica(const string& replicaId, const ServerAdapterEntryPtr& adapter)
+ReplicaGroupEntry::addReplica(const string& /*replicaId*/, const ServerAdapterEntryPtr& adapter)
 {
     Lock sync(*this);
     _replicas.push_back(adapter);

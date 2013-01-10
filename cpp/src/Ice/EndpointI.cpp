@@ -64,7 +64,7 @@ IceInternal::EndpointI::internal_getHash() const
 }
 
 vector<ConnectorPtr>
-IceInternal::EndpointI::connectors(const vector<Address>& addrs) const
+IceInternal::EndpointI::connectors(const vector<Address>& /*addrs*/) const
 {
     //
     // This method must be extended by endpoints which use the EndpointHostResolver to create

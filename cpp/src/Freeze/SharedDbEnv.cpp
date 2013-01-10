@@ -77,8 +77,8 @@ operator<(const MapKey& lhs, const MapKey& rhs)
 void
 dbErrCallback(const char* prefix, char* msg)
 #else
-    void
-    dbErrCallback(const ::DbEnv* ignored, const char* prefix, const char* msg)
+void
+dbErrCallback(const ::DbEnv* /*ignored*/, const char* prefix, const char* msg)
 #endif    
 {
     const Freeze::SharedDbEnv* env = reinterpret_cast<const Freeze::SharedDbEnv*>(prefix);

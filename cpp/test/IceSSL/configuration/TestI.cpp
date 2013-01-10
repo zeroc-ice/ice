@@ -72,7 +72,7 @@ ServerI::destroy()
 }
 
 Test::ServerPrx
-ServerFactoryI::createServer(const Test::Properties& props, const Current& current)
+ServerFactoryI::createServer(const Test::Properties& props, const Current&)
 {
     InitializationData initData;
     initData.properties = createProperties();

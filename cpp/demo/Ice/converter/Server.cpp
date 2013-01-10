@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 }
 
 int
-ConverterServer::run(int argc, char* argv[])
+ConverterServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

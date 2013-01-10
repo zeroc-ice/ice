@@ -23,7 +23,7 @@ class LocatorI : public Ice::Locator
 public:
         
     virtual void
-    findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string& adapter,
+    findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string&,
                           const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
@@ -96,7 +96,7 @@ private:
 
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");

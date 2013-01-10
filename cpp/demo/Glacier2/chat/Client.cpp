@@ -87,7 +87,7 @@ public:
     }
 
     virtual int
-    runWithSession(int argc, char* argv[])
+    runWithSession(int argc, char*[])
     {
         if(argc > 1)
         {

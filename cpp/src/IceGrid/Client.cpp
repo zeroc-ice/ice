@@ -174,7 +174,7 @@ private:
 };
 
 static void
-interruptCallback(int signal)
+interruptCallback(int /*signal*/)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
     if(_globalClient)

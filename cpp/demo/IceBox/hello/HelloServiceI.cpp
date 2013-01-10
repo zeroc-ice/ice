@@ -36,7 +36,7 @@ HelloServiceI::~HelloServiceI()
 }
 
 void
-HelloServiceI::start(const string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
+HelloServiceI::start(const string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& /*args*/)
 {
     _adapter = communicator->createObjectAdapter(name);
     Demo::HelloPtr hello = new HelloI;

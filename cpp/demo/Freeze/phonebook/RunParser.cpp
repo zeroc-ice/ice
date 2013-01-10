@@ -14,7 +14,7 @@ using namespace std;
 using namespace Demo;
 
 int
-runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+runParser(int, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(communicator->propertyToProxy("PhoneBook.Proxy"));
     if(!phoneBook)

@@ -55,7 +55,7 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT ::Ice::Plugin*
-createLogger(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq& args)
+createLogger(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new Ice::LoggerPlugin(communicator, new LoggerI);
 }

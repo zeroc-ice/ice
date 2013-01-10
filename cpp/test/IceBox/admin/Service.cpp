@@ -66,7 +66,7 @@ ServiceI::~ServiceI()
 }
 
 void
-ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq& args)
+ServiceI::start(const string&, const CommunicatorPtr&, const StringSeq&)
 {
 }
 

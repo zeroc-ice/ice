@@ -362,7 +362,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
 {
     assert(!_moduleStack.empty());
     _out << sp << nl << "# End of module " << _moduleStack.front();

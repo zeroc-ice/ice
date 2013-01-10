@@ -2198,7 +2198,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                                   const ApplicationInfo& oldApp,
                                   const ApplicationHelper& previous, 
                                   const ApplicationHelper& helper,
-                                  AdminSessionI* session,
+                                  AdminSessionI* /*session*/,
                                   bool noRestart)
 {
     const ApplicationDescriptor& newDesc = helper.getDefinition();

@@ -25,7 +25,7 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT Ice::Plugin*
-createIceSSL(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
+createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
 {
     PluginI* plugin = new PluginI(communicator);
     return plugin;

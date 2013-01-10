@@ -35,7 +35,7 @@ SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl, const Test
 }
 
 void
-SessionI::destroySession(const Ice::Current& current)
+SessionI::destroySession(const Ice::Current&)
 {
     _sessionControl->destroy();
 }

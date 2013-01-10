@@ -98,7 +98,7 @@ public:
     }
 
     void
-    response_SBSUnknownDerivedAsSBaseCompact(const SBasePtr& sb)
+    response_SBSUnknownDerivedAsSBaseCompact(const SBasePtr&)
     {
         test(false);
     }
@@ -111,7 +111,7 @@ public:
     }
 
     void
-    response_SUnknownAsObject10(const Ice::ObjectPtr& o)
+    response_SUnknownAsObject10(const Ice::ObjectPtr&)
     {
         test(false);
     }
@@ -132,7 +132,7 @@ public:
     }
 
     void
-    exception_SUnknownAsObject11(const Ice::Exception& exc)
+    exception_SUnknownAsObject11(const Ice::Exception&)
     {
         test(false);
     }
@@ -243,14 +243,14 @@ public:
     }
 
     void
-    response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr& p2)
+    response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr&)
     {
         test(r == p1);
         called();
     }
 
     void
-    response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr& p2)
+    response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr&)
     {
         test(r == p1);
         called();

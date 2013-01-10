@@ -20,7 +20,7 @@ using namespace Ice;
 using namespace Test;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     TestIntfPrx allTests(const CommunicatorPtr&);
     TestIntfPrx obj = allTests(communicator);

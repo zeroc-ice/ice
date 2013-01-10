@@ -30,7 +30,7 @@ main(int argc, char* argv[])
 }
 
 int
-SessionControlServer::run(int argc, char* argv[])
+SessionControlServer::run(int, char**)
 {
     communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");

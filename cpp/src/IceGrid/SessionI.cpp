@@ -104,7 +104,7 @@ BaseSessionI::keepAlive(const Ice::Current& current)
 }
 
 void
-BaseSessionI::destroyImpl(bool shutdown)
+BaseSessionI::destroyImpl(bool /*shutdown*/)
 {
     Lock sync(*this);
     if(_destroyed)
@@ -351,7 +351,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 }
 
 SessionIPtr
-ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx& ctl)
+ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx&)
 {
     return new SessionI(userId, _database, _timer);
 }
@@ -367,7 +367,7 @@ ClientSessionManagerI::ClientSessionManagerI(const ClientSessionFactoryPtr& fact
 }
 
 Glacier2::SessionPrx
-ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
+ClientSessionManagerI::create(const string& user, const Glacier2::SessionControlPrx& ctl, const Ice::Current&)
 {
     return _factory->createGlacier2Session(user, ctl);
 }
@@ -379,7 +379,7 @@ ClientSSLSessionManagerI::ClientSSLSessionManagerI(const ClientSessionFactoryPtr
 Glacier2::SessionPrx
 ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
                                  const Glacier2::SessionControlPrx& ctl, 
-                                 const Ice::Current& current)
+                                 const Ice::Current&)
 {
     string userDN;
     if(!info.certs.empty()) // TODO: Require userDN?

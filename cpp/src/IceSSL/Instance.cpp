@@ -80,7 +80,7 @@ extern "C"
 // OpenSSL mutex callback.
 //
 void
-IceSSL_opensslLockCallback(int mode, int n, const char* file, int line)
+IceSSL_opensslLockCallback(int mode, int n, const char* /*file*/, int /*line*/)
 {
     assert(locks);
     if(mode & CRYPTO_LOCK)
@@ -1168,7 +1168,7 @@ IceSSL::Instance::parseProtocols(const StringSeq& protocols)
 }
 
 SSL_METHOD*
-IceSSL::Instance::getMethod(int protocols)
+IceSSL::Instance::getMethod(int /*protocols*/)
 {
     //
     // Despite its name, the SSLv23 method can negotiate SSL3, TLS1.0, TLS1.1, and TLS1.2.

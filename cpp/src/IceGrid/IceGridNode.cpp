@@ -105,7 +105,7 @@ public:
     {
     }
 
-    virtual ObjectPtr locate(const Current& c, LocalObjectPtr&)
+    virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
     {
         return _servant;
     }

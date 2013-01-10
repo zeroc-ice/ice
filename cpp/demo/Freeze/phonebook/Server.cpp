@@ -38,7 +38,7 @@ main(int argc, char* argv[])
 }
 
 int
-PhoneBookServer::run(int argc, char* argv[])
+PhoneBookServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

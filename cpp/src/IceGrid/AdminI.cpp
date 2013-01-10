@@ -690,7 +690,7 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 }
 
 void 
-AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
+AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -712,7 +712,7 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 }
 
 void 
-AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current& current)
+AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -737,7 +737,7 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
 }
 
 void 
-AdminI::removeObject(const Ice::Identity& id, const Ice::Current& current)
+AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
 {
     checkIsReadOnly();
     if(id.category == _database->getInstanceName())

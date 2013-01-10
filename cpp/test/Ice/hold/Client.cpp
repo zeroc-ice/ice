@@ -17,7 +17,7 @@ using namespace std;
 using namespace Test;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     void allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

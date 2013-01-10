@@ -21,7 +21,7 @@ public:
 };
 
 int
-Server::run(int argc, char* argv[])
+Server::run(int, char**)
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ReplicatedAdapter");
     Ice::ObjectPtr object = new TestI(communicator()->getProperties());

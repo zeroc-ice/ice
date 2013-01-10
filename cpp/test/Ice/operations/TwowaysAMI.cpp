@@ -120,7 +120,7 @@ class AMI_MyClass_opByteExI : public Test::AMI_MyClass_opByte, public CallbackBa
 {
 public:
 
-    virtual void ice_response(::Ice::Byte r, ::Ice::Byte b)
+    virtual void ice_response(::Ice::Byte, ::Ice::Byte)
     {
         test(false);
     }
@@ -503,7 +503,7 @@ class AMI_MyClass_opBoolSSI : public Test::AMI_MyClass_opBoolSS, public Callback
 {
 public:
 
-    virtual void ice_response(const ::Test::BoolSS&, const ::Test::BoolSS& bso)
+    virtual void ice_response(const ::Test::BoolSS&, const ::Test::BoolSS&)
     {
         called();
     }
@@ -920,7 +920,7 @@ public:
         called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception& ex)
+    virtual void ice_exception(const ::Ice::Exception&)
     {
         test(false);
     }
@@ -954,7 +954,7 @@ public:
         called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception& ex)
+    virtual void ice_exception(const ::Ice::Exception&)
     {
         test(false);
     }

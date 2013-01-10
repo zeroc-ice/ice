@@ -51,7 +51,7 @@ class ObjectFactory : public Ice::ObjectFactory
 public:
 
     virtual Ice::ObjectPtr
-    create(const string& type)
+    create(const string& /*type*/)
     {
         return new T;
     }
@@ -63,7 +63,7 @@ public:
 };
 
 int
-CasinoServer::run(int argc, char* argv[])
+CasinoServer::run(int argc, char*[])
 {
     if(argc > 1)
     {
@@ -115,7 +115,7 @@ CasinoServer::run(int argc, char* argv[])
         }
 
         virtual void
-        initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& facet,
+        initialize(const Ice::ObjectAdapterPtr& /*adapter*/, const Ice::Identity& /*identity*/, const string& /*facet*/,
                    const Ice::ObjectPtr& servant)
         {
             BankI* bank = dynamic_cast<BankI*>(servant.get());
@@ -154,7 +154,7 @@ CasinoServer::run(int argc, char* argv[])
         }
 
         virtual void
-        initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& facet,
+        initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& /*facet*/,
                    const Ice::ObjectPtr& servant)
         {
             CasinoStore::PersistentPlayerPrx prx =
@@ -195,7 +195,7 @@ CasinoServer::run(int argc, char* argv[])
         }
 
         virtual void
-        initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& facet,
+        initialize(const Ice::ObjectAdapterPtr& /*adapter*/, const Ice::Identity& /*identity*/, const string& /*facet*/,
                    const Ice::ObjectPtr& servant)
         {
             BetI* bet = dynamic_cast<BetI*>(servant.get());

@@ -17,7 +17,7 @@ using namespace IceStorm;
 using namespace Test;
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+run(int, char* argv[], const CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";

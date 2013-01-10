@@ -83,7 +83,7 @@ public:
     }
 
     virtual void
-    forward(const EventDataSeq& v, const Ice::Current& current)
+    forward(const EventDataSeq& v, const Ice::Current& /*current*/)
     {
         _impl->publish(true, v);
     }

@@ -215,7 +215,7 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
 }
 
 void
-InternalRegistryI::shutdown(const Ice::Current& current) const
+InternalRegistryI::shutdown(const Ice::Current& /*current*/) const
 {
     _registry->shutdown();
 }

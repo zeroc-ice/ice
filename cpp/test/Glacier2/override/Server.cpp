@@ -36,7 +36,7 @@ main(int argc, char* argv[])
 }
 
 int
-CallbackServer::run(int argc, char* argv[])
+CallbackServer::run(int, char**)
 {
     communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");

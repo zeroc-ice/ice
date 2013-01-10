@@ -66,7 +66,7 @@ public:
 };
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectFactoryPtr factory = new MyObjectFactory;
     communicator->addObjectFactory(factory, "::Test::B");

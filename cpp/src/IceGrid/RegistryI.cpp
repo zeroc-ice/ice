@@ -56,7 +56,7 @@ class NullPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
 
-    bool checkPermissions(const string& userId, const string& password, string&, const Current&) const
+    bool checkPermissions(const string& /*userId*/, const string& /*password*/, string&, const Current&) const
     {
         return true;
     }
@@ -119,7 +119,7 @@ public:
     {
     }
 
-    virtual ObjectPtr locate(const Current& c, LocalObjectPtr&)
+    virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
     {
         return _servant;
     }
@@ -999,7 +999,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 }
 
 int
-RegistryI::getSessionTimeout(const Ice::Current& current) const
+RegistryI::getSessionTimeout(const Ice::Current& /*current*/) const
 {
     return _sessionTimeout;
 }
@@ -1372,7 +1372,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
 }
 
 void
-RegistryI::registerNodes(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& nodes)
+RegistryI::registerNodes(const InternalRegistryPrx& /*internalRegistry*/, const NodePrxSeq& nodes)
 {
     const string prefix("Node-");
 

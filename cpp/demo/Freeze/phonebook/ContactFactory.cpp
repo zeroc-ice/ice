@@ -17,7 +17,11 @@ ContactFactory::ContactFactory()
 }
 
 Ice::ObjectPtr
+#ifndef NDEBUG
 ContactFactory::create(const string& type)
+#else
+ContactFactory::create(const string&)
+#endif
 {
     assert(_evictor);
     assert(type == "::Demo::Contact");

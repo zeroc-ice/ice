@@ -280,7 +280,7 @@ IceXML::DocumentBuilder::startElement(const string& name, const Attributes& attr
 }
 
 void
-IceXML::DocumentBuilder::endElement(const string& name, int, int)
+IceXML::DocumentBuilder::endElement(const string&, int, int)
 {
     assert(!_nodeStack.empty());
     _nodeStack.pop_front();

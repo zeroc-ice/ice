@@ -84,7 +84,7 @@ main(int argc, char* argv[])
 }
 
 int
-TestServer::run(int argc, char* argv[])
+TestServer::run(int, char**)
 {
     communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");

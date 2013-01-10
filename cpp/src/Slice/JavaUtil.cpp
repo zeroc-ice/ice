@@ -31,8 +31,7 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
-
-
+ 
 namespace
 {
 
@@ -2457,7 +2456,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                                                       const string& package,
                                                       const TypePtr& type,
                                                       bool optional,
-                                                      int tag,
+                                                      int /*tag*/,
                                                       const string& param,
                                                       bool marshal,
                                                       int& iter,

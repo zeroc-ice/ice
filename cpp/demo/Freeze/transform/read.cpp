@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 }
 
 int
-Read::run(int argc, char* argv[])
+Read::run(int, char*[])
 {
     ConnectionPtr connection = createConnection(communicator(), "db");
     const Contacts contacts(connection, "contacts", false);

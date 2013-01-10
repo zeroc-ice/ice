@@ -39,7 +39,7 @@ main(int argc, char* argv[])
 }
 
 int
-CasinoClient::run(int argc, char* argv[])
+CasinoClient::run(int argc, char*[])
 {
     if(argc > 1)
     {

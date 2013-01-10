@@ -22,7 +22,7 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT ::Ice::Plugin*
-createFreezeDB(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq& args)
+createFreezeDB(const Ice::CommunicatorPtr& communicator, const string& /*name*/, const Ice::StringSeq& /*args*/)
 {
     return new IceStorm::FreezeDBPlugin(communicator);
 }

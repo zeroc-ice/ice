@@ -633,7 +633,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -641,7 +641,7 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
 {
     return false;
 }
@@ -1361,7 +1361,7 @@ Slice::Gen::ProxyDeclVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr&)
 {
     H << sp << nl << '}';
 }
@@ -1382,7 +1382,7 @@ Slice::Gen::ProxyDeclVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 }
@@ -1423,7 +1423,7 @@ Slice::Gen::ProxyVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr&)
 {
     H << sp << nl << '}';
 }
@@ -1446,7 +1446,7 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -2461,7 +2461,7 @@ Slice::Gen::DelegateVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr&)
 {
     H << sp << nl << '}';
 }
@@ -2484,7 +2484,7 @@ Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -2532,7 +2532,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     H << eb << ';';
 
@@ -2590,7 +2590,7 @@ Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr&)
 {
     H << sp << nl << '}';
 }
@@ -2613,7 +2613,7 @@ Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -2663,7 +2663,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     H << eb << ';';
 
@@ -2861,7 +2861,7 @@ Slice::Gen::DelegateDVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::DelegateDVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::DelegateDVisitor::visitUnitEnd(const UnitPtr&)
 {
     H << sp << nl << '}';
 }
@@ -2884,7 +2884,7 @@ Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::DelegateDVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::DelegateDVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -2934,7 +2934,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     H << eb << ';';
 
@@ -3209,7 +3209,7 @@ Slice::Gen::ObjectDeclVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
     C << sp << nl << "}";
@@ -3272,7 +3272,7 @@ Slice::Gen::ObjectVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -3942,7 +3942,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 C.dec();
                 C << nl << "public:";
                 C.inc();
-                C << sp << nl << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string& type)";
+                C.zeroIndent();
+                C << nl << "#ifndef NDEBUG";
+                C.restoreIndent();
+                C << sp << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string& type)";
+                C.zeroIndent();
+                C << nl << "#else";
+                C.restoreIndent();
+                C << sp << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string&)";
+                C.zeroIndent();
+                C << nl <<"#endif";
+                C.restoreIndent();
                 C << sb;
                 C << nl << "assert(type == " << scoped << "::ice_staticId());";
                 C << nl << "return new " << scoped << ';';
@@ -4866,7 +4876,7 @@ Slice::Gen::AsyncCallbackVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::AsyncCallbackVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::AsyncCallbackVisitor::visitModuleEnd(const ModulePtr&)
 {
     _useWstring = resetUseWstring(_useWstringHist);
 
@@ -4881,7 +4891,7 @@ Slice::Gen::AsyncCallbackVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::AsyncCallbackVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::AsyncCallbackVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -4937,7 +4947,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::AsyncCallbackTemplateVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::AsyncCallbackTemplateVisitor::visitModuleEnd(const ModulePtr&)
 {
     _useWstring = resetUseWstring(_useWstringHist);
 
@@ -4952,7 +4962,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::visitClassDefStart(const ClassDefPtr& 
 }
 
 void
-Slice::Gen::AsyncCallbackTemplateVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::AsyncCallbackTemplateVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -5390,7 +5400,7 @@ Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -5636,7 +5646,7 @@ Slice::Gen::AsyncVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::AsyncVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::AsyncVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -5792,7 +5802,7 @@ Slice::Gen::AsyncImplVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::AsyncImplVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::AsyncImplVisitor::visitUnitEnd(const UnitPtr&)
 {
     H << sp << nl << '}';
 }
@@ -5815,7 +5825,7 @@ Slice::Gen::AsyncImplVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::AsyncImplVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::AsyncImplVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -6364,7 +6374,7 @@ Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 void
 Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData,
-                                      const string& file, const string& line, bool inParam)
+                                      const string& file, const string& line, bool /*inParam*/)
 {
     static const string prefix = "cpp:";
     for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)

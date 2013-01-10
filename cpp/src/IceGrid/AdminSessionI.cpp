@@ -34,7 +34,7 @@ FileIteratorI::FileIteratorI(const AdminSessionIPtr& session,
 }
 
 bool
-FileIteratorI::read(int size, Ice::StringSeq& lines, const Ice::Current& current)
+FileIteratorI::read(int size, Ice::StringSeq& lines, const Ice::Current&)
 {
     try
     {
@@ -96,13 +96,13 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
 }
 
 AdminPrx
-AdminSessionI::getAdmin(const Ice::Current& current) const
+AdminSessionI::getAdmin(const Ice::Current&) const
 {
     return _admin;
 }
 
 Ice::ObjectPrx
-AdminSessionI::getAdminCallbackTemplate(const Ice::Current& current) const
+AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
 {
     return _adminCallbackTemplate;
 }
@@ -223,7 +223,7 @@ AdminSessionI::finishUpdate(const Ice::Current& current)
 }
 
 string
-AdminSessionI::getReplicaName(const Ice::Current& current) const
+AdminSessionI::getReplicaName(const Ice::Current&) const
 {
     return _replicaName;
 }
@@ -378,7 +378,7 @@ AdminSessionI::addFileIterator(const FileReaderPrx& reader,
 }
 
 void
-AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& current)
+AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current&)
 {
     Lock sync(*this);
     _servantManager->remove(id);
@@ -489,7 +489,7 @@ AdminSessionManagerI::AdminSessionManagerI(const AdminSessionFactoryPtr& factory
 }
 
 Glacier2::SessionPrx
-AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& ctl, const Ice::Current& current)
+AdminSessionManagerI::create(const string& userId, const Glacier2::SessionControlPrx& ctl, const Ice::Current&)
 {
     return _factory->createGlacier2Session(userId, ctl);
 }
@@ -501,7 +501,7 @@ AdminSSLSessionManagerI::AdminSSLSessionManagerI(const AdminSessionFactoryPtr& f
 Glacier2::SessionPrx
 AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info, 
                                 const Glacier2::SessionControlPrx& ctl,
-                                const Ice::Current& current)
+                                const Ice::Current&)
 {
     string userDN;
     if(!info.certs.empty()) // TODO: Require userDN?

@@ -61,7 +61,7 @@ InvokeClient::InvokeClient() :
 }
 
 int
-InvokeClient::run(int argc, char* argv[])
+InvokeClient::run(int argc, char*[])
 {
     if(argc > 1)
     {

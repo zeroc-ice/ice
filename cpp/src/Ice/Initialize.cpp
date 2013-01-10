@@ -68,7 +68,7 @@ Ice::argsToStringSeq(int argc, wchar_t* argv[])
 }
 
 StringSeq
-Ice::argsToStringSeq(int argc, wchar_t* argv[], const StringConverterPtr& converter)
+Ice::argsToStringSeq(int /*argc*/, wchar_t* argv[], const StringConverterPtr& converter)
 {
     StringSeq args;
     for(int i=0; argv[i] != 0; i++)

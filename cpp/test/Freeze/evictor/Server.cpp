@@ -18,7 +18,11 @@ class AccountFactory : public Ice::ObjectFactory
 public:
 
     virtual Ice::ObjectPtr
+#ifndef NDEBUG
     create(const string& type)
+#else
+    create(const string&)
+#endif
     {
         assert(type == "::Test::Account");
         return new Test::AccountI;
@@ -36,7 +40,11 @@ class ServantFactory : public Ice::ObjectFactory
 public:
 
     virtual Ice::ObjectPtr
+#ifndef NDEBUG
     create(const string& type)
+#else
+    create(const string&)
+#endif
     {
         assert(type == "::Test::Servant");
         return new Test::ServantI;
@@ -54,7 +62,11 @@ class FacetFactory : public Ice::ObjectFactory
 public:
 
     virtual Ice::ObjectPtr
+#ifndef NDEBUG
     create(const string& type)
+#else
+    create(const string&)
+#endif
     {
         assert(type == "::Test::Facet");
         return new Test::FacetI;
@@ -66,7 +78,7 @@ public:
     }
 };
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const string& envName)
+run(int, char**, const Ice::CommunicatorPtr& communicator, const string& envName)
 {
     communicator->getProperties()->setProperty("Factory.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Factory");

@@ -37,7 +37,7 @@ main(int argc, char* argv[])
 }
 
 int
-LibraryServer::run(int argc, char* argv[])
+LibraryServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

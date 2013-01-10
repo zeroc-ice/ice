@@ -93,7 +93,7 @@ CallbackClient::createSession()
 }
 
 int
-CallbackClient::runWithSession(int argc, char* argv[])
+CallbackClient::runWithSession(int argc, char*[])
 {
     if(argc > 1)
     {

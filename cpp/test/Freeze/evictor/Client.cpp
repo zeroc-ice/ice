@@ -449,7 +449,7 @@ private:
 
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool transactional, bool shutdown)
+run(int, char**, const Ice::CommunicatorPtr& communicator, bool transactional, bool shutdown)
 {
     string ref = "factory:default -p 12010";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);

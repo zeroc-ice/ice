@@ -30,7 +30,7 @@ main(int argc, char* argv[])
 }
 
 int
-TestClient::run(int argc, char* argv[])
+TestClient::run(int, char**)
 {
     TestIntfPrx allTests(const CommunicatorPtr&, bool);
     TestIntfPrx obj = allTests(communicator(), false);

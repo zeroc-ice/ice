@@ -232,7 +232,7 @@ protected:
             }
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
             std::pair<typename StoreMap::iterator, bool> ir = 
-                _storeMap.insert(typename StoreMap::value_type(facet, nullptr));
+                _storeMap.insert(typename StoreMap::value_type(facet, static_cast<ObjectStore<T>*>(nullptr)));
 #else
             std::pair<typename StoreMap::iterator, bool> ir = 
                 _storeMap.insert(typename StoreMap::value_type(facet, 0));

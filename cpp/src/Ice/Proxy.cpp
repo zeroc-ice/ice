@@ -1759,7 +1759,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref, const ::Ice::ObjectPrx
 }
 
 bool
-IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context, InvocationObserver& observer)
+IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context, InvocationObserver& /*observer*/)
 { 
     class DirectI : public Direct
     {
@@ -2012,7 +2012,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context, InvocationObser
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string&,
                                       OperationMode,
-                                      const pair<const Byte*, const Byte*>& inEncaps,
+                                      const pair<const Byte*, const Byte*>& /*inEncaps*/,
                                       vector<Byte>&,
                                       const Context*,
                                       InvocationObserver&)
@@ -2022,7 +2022,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
 }
 
 void
-IceDelegateD::Ice::Object::ice_flushBatchRequests(InvocationObserver& observer)
+IceDelegateD::Ice::Object::ice_flushBatchRequests(InvocationObserver& /*observer*/)
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
 }

@@ -28,7 +28,7 @@ main(int argc, char* argv[])
 }
 
 int
-NestedServer::run(int argc, char* argv[])
+NestedServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

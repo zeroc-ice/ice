@@ -104,7 +104,7 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 
 void
 ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id, 
-                                    const Ice::Current& current) const
+                                    const Ice::Current&) const
 {
     ++const_cast<int&>(_requestCount);
     // We add a small delay to make sure locator request queuing gets tested when

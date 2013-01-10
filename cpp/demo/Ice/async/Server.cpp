@@ -33,7 +33,7 @@ main(int argc, char* argv[])
 }
 
 int
-AsyncServer::run(int argc, char* argv[])
+AsyncServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

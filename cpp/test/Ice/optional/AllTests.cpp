@@ -235,7 +235,7 @@ public:
 };
 
 InitialPrx
-allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
+allTests(const Ice::CommunicatorPtr& communicator, bool)
 {
     FactoryI* factory = new FactoryI();
     Ice::ObjectFactoryPtr f(factory);

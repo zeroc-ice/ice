@@ -81,7 +81,7 @@ main(int argc, char* argv[])
 }
 
 int
-Server::run(int argc, char* argv[])
+Server::run(int argc, char*[])
 {
     if(argc > 1)
     {

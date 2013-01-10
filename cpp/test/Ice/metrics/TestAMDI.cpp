@@ -43,13 +43,13 @@ MetricsI::opWithLocalException_async(const Test::AMD_Metrics_opWithLocalExceptio
 }
 
 void
-MetricsI::opWithUnknownException_async(const Test::AMD_Metrics_opWithUnknownExceptionPtr& cb, const Ice::Current&)
+MetricsI::opWithUnknownException_async(const Test::AMD_Metrics_opWithUnknownExceptionPtr&, const Ice::Current&)
 {
     throw "Test";
 }
 
 void
-MetricsI::opByteS_async(const Test::AMD_Metrics_opByteSPtr& cb, const Test::ByteSeq& bs, const Ice::Current&)
+MetricsI::opByteS_async(const Test::AMD_Metrics_opByteSPtr& cb, const Test::ByteSeq&, const Ice::Current&)
 {
     cb->ice_response();
 }

@@ -103,7 +103,7 @@ public:
     }
 
     virtual bool
-    fileListProgress(Ice::Int percent)
+    fileListProgress(Ice::Int /*percent*/)
     {
         return true;
     }
@@ -120,7 +120,7 @@ public:
     }
 
     virtual bool
-    patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    patchStart(const string& /*path*/, Ice::Long /*size*/, Ice::Long totalProgress, Ice::Long totalSize)
     {
         if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
         {
@@ -158,7 +158,7 @@ public:
     }
 
     virtual bool
-    patchProgress(Ice::Long progress, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    patchProgress(Ice::Long /*progress*/, Ice::Long /*size*/, Ice::Long /*totalProgress*/, Ice::Long /*totalSize*/)
     {
         return true;
     }

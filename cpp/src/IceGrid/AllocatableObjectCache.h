@@ -57,7 +57,7 @@ public:
 
 private:
 
-    virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
+    virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& /*session*/)
     {
         response(AllocatableObjectEntryPtr::dynamicCast(allocatable)->getProxy());
     }

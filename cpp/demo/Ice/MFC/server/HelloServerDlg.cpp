@@ -121,7 +121,7 @@ CHelloServerDlg::OnClear()
 }
 
 LRESULT
-CHelloServerDlg::OnLog(WPARAM wParam, LPARAM lParam)
+CHelloServerDlg::OnLog(WPARAM, LPARAM lParam)
 {
     char* text = (char*)lParam;
 

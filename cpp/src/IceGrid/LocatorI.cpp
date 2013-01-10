@@ -322,7 +322,7 @@ public:
     }
     
     virtual void
-    exception(const string& id, const Ice::Exception& ex)
+    exception(const string& /*id*/, const Ice::Exception& ex)
     {
         LocatorAdapterInfo adapter;
         {
@@ -826,7 +826,7 @@ LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
 void
 LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb, 
                                const Ice::Identity& id, 
-                               const Ice::Current& current) const
+                               const Ice::Current&) const
 {
     try
     {

@@ -16,7 +16,7 @@ DEFINE_TEST("server")
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");

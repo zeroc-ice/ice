@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 }
 
 int
-ThroughputServer::run(int argc, char* argv[])
+ThroughputServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

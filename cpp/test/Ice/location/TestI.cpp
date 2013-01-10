@@ -24,7 +24,7 @@ ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
 }
 
 void
-ServerManagerI::startServer(const Ice::Current& current)
+ServerManagerI::startServer(const Ice::Current&)
 {
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {

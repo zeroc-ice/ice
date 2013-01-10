@@ -15,7 +15,7 @@ using namespace std;
 using namespace Ice;
 
 void
-TestIntfI::ping(const Test::PingReplyPrx& reply, const Current& current)
+TestIntfI::ping(const Test::PingReplyPrx& reply, const Current&)
 {
     try
     {
@@ -28,7 +28,7 @@ TestIntfI::ping(const Test::PingReplyPrx& reply, const Current& current)
 }
 
 void
-TestIntfI::sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrx& reply, const Current& current)
+TestIntfI::sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrx& reply, const Current&)
 {
     try
     {

@@ -38,7 +38,7 @@ public:
     }
 
     void
-    exception(const Ice::Exception& ex)
+    exception(const Ice::Exception&)
     {
         //
         // Here the session has been destroyed. The thread terminates,

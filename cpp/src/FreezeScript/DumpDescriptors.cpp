@@ -1249,7 +1249,7 @@ FreezeScript::RecordDescriptor::RecordDescriptor(const DescriptorPtr& parent, in
 }
 
 void
-FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* info)
+FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& /*sym*/, ExecuteInfo* info)
 {
     //
     // Temporarily add an object factory.
@@ -1398,7 +1398,7 @@ FreezeScript::DatabaseDescriptor::execute(const SymbolTablePtr&, ExecuteInfo* in
 //
 FreezeScript::DumpDBDescriptor::DumpDBDescriptor(int line, const DataFactoryPtr& factory,
                                                  const ErrorReporterPtr& errorReporter,
-                                                 const IceXML::Attributes& attributes, const Slice::UnitPtr& unit) :
+                                                 const IceXML::Attributes& /*attributes*/, const Slice::UnitPtr& unit) :
     Descriptor(0, line, factory, errorReporter), _unit(unit), _info(new ExecuteInfo)
 {
     _info->symbolTable = new SymbolTableI(factory, unit, errorReporter, _info);

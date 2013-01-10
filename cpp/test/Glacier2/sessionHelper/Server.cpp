@@ -51,7 +51,7 @@ public:
 }
 
 int
-SessionHelperServer::run(int argc, char* argv[])
+SessionHelperServer::run(int, char**)
 {
     communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");

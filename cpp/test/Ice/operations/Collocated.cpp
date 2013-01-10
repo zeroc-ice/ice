@@ -16,8 +16,8 @@ DEFINE_TEST("collocated")
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
-    const Ice::InitializationData& initData)
+run(int, char**, const Ice::CommunicatorPtr& communicator,
+    const Ice::InitializationData&)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

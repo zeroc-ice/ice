@@ -129,7 +129,7 @@ hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const str
 }
 
 void
-updateServerRuntimeProperties(const AdminPrx& admin, const string& server, const ServerDescriptorPtr& desc)
+updateServerRuntimeProperties(const AdminPrx& admin, const string&, const ServerDescriptorPtr& desc)
 {
     ApplicationUpdateDescriptor update;
     update.name = "TestApp";

@@ -899,7 +899,7 @@ IceInternal::BatchOutgoingAsync::BatchOutgoingAsync(const CommunicatorPtr& commu
 }
 
 bool
-IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* connection)
+IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* /*connection*/)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(!_exception.get());

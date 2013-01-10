@@ -58,7 +58,7 @@ private:
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+run(int, char* argv[], const CommunicatorPtr& communicator)
 {
     ObjectPrx base = communicator->stringToProxy("Test.IceStorm/TopicManager");
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);

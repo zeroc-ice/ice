@@ -47,7 +47,7 @@ public:
     }
 
     void
-    waitResponse(const char* file, int line)
+    waitResponse(const char*, int)
     {
         Lock sync(*this);
         while(!_response && !_exception)

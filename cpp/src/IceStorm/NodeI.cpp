@@ -1096,7 +1096,7 @@ NodeI::destroy()
 // A node should only receive an observer init call if the node is
 // reorganizing and its not the coordinator.
 void
-NodeI::checkObserverInit(Ice::Long generation)
+NodeI::checkObserverInit(Ice::Long /*generation*/)
 {
     Lock sync(*this);
     if(_state != NodeStateReorganization)
@@ -1140,7 +1140,7 @@ NodeI::startUpdate(Ice::Long& generation, const char* file, int line)
 }
 
 bool
-NodeI::updateMaster(const char* file, int line)
+NodeI::updateMaster(const char* /*file*/, int /*line*/)
 {
     bool majority = _observers->check();
 

@@ -53,7 +53,7 @@ ServiceI::~ServiceI()
 void
 ServiceI::start(const string& name,
                 const CommunicatorPtr& communicator,
-                const StringSeq& args)
+                const StringSeq&)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
     Ice::ObjectPtr object = new TestI(communicator->getProperties());

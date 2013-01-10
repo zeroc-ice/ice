@@ -32,7 +32,7 @@ main(int argc, char* argv[])
 }
 
 int
-Client::run(int argc, char* argv[])
+Client::run(int argc, char*[])
 {
     if(argc > 1)
     {

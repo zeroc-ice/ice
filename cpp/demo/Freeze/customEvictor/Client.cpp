@@ -141,7 +141,7 @@ private:
 typedef IceUtil::Handle<WriterThread> WriterThreadPtr;
 
 int
-WarehouseClient::run(int argc, char* argv[])
+WarehouseClient::run(int argc, char*[])
 {
     if(argc > 1)
     {

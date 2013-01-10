@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace Test;
 
 void
-BackendI::check(const Ice::Current& current)
+BackendI::check(const Ice::Current&)
 {
 }
 

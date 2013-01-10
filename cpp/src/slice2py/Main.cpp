@@ -64,7 +64,7 @@ Init init;
 }
 
 void
-interruptedCallback(int signal)
+interruptedCallback(int /*signal*/)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(globalMutex);
 

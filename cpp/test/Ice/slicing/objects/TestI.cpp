@@ -248,7 +248,7 @@ TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 }
 
 BPtr
-TestI::returnTest3(const BPtr& p1, const BPtr& p2, const ::Ice::Current&)
+TestI::returnTest3(const BPtr& p1, const BPtr&, const ::Ice::Current&)
 {
     return p1;
 }

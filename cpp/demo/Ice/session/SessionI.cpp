@@ -64,7 +64,7 @@ SessionI::createHello(const Ice::Current& c)
 }
 
 void
-SessionI::refresh(const Ice::Current& c)
+SessionI::refresh(const Ice::Current&)
 {
     Lock sync(*this);
     if(_destroy)

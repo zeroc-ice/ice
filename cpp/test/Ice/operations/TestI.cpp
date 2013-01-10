@@ -49,7 +49,7 @@ MyDerivedClassI::shutdown(const Ice::Current& current)
 }
 
 void
-MyDerivedClassI::delay(Ice::Int ms, const Ice::Current& current)
+MyDerivedClassI::delay(Ice::Int ms, const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
 }

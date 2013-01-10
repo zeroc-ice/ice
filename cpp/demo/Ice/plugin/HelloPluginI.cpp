@@ -67,7 +67,7 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT ::Ice::Plugin*
-createHello(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq& args)
+createHello(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new HelloPluginI(communicator);
 }

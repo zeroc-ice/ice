@@ -36,7 +36,7 @@ RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpt
 }
 
 void
-RemoteCommunicatorI::deactivateObjectAdapter(const RemoteObjectAdapterPrx& adapter, const Current& current)
+RemoteCommunicatorI::deactivateObjectAdapter(const RemoteObjectAdapterPrx& adapter, const Current&)
 {
     adapter->deactivate(); // Collocated call
 }

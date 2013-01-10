@@ -65,7 +65,7 @@ public:
     }    
 
     virtual void
-    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string& id, const Current& current) const 
+    findAdapterById_async(const AMD_Locator_findAdapterByIdPtr& cb, const string&, const Current&) const 
     {
        cb->ice_response(_adapter->createDirectProxy(_adapter->getCommunicator()->stringToIdentity("dummy")));   
     }
@@ -124,7 +124,7 @@ main(int argc, char* argv[])
 }
 
 int
-BackendServer::run(int argc, char* argv[])
+BackendServer::run(int, char**)
 {
     string endpoints = communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints", 
                                                                                "tcp -p 12010:ssl -p 12011");

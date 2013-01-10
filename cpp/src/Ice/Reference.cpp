@@ -599,14 +599,14 @@ IceInternal::FixedReference::getConnectionId() const
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
+IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& /*newEndpoints*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
     return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeAdapterId(const string& newAdapterId) const
+IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
     return 0; // Keep the compiler happy.
@@ -688,7 +688,7 @@ IceInternal::FixedReference::isWellKnown() const
 }
 
 void
-IceInternal::FixedReference::streamWrite(BasicStream* s) const
+IceInternal::FixedReference::streamWrite(BasicStream*) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }

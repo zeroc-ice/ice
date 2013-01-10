@@ -69,7 +69,7 @@ class NullPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
 
-    bool checkPermissions(const string& userId, const string& password, string&, const Current&) const
+    bool checkPermissions(const string&, const string&, string&, const Current&) const
     {
         return true;
     }

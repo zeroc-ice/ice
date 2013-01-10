@@ -15,13 +15,13 @@
 using namespace std;
 
 void
-TestIntfI::op(const Ice::Current& current)
+TestIntfI::op(const Ice::Current&)
 {
     test(Dispatcher::isDispatcherThread());
 }
 
 void
-TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current& current)
+TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current&)
 {
     test(Dispatcher::isDispatcherThread());
 }

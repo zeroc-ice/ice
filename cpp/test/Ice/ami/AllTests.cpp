@@ -375,7 +375,7 @@ public:
     {
     }
 
-    void isA(bool r)
+    void isA(bool)
     {
         test(false);
     }
@@ -385,12 +385,12 @@ public:
         test(false);
     }
 
-    void id(const string& id)
+    void id(const string&)
     {
         test(false);
     }
 
-    void ids(const Ice::StringSeq& ids)
+    void ids(const Ice::StringSeq&)
     {
         test(false);
     }
@@ -412,7 +412,7 @@ public:
         called();
     }
 
-    void noEx(const Ice::Exception& ex)
+    void noEx(const Ice::Exception&)
     {
         test(false);
     }
@@ -427,27 +427,27 @@ public:
     {
     }
 
-    void isA(bool r, const CookiePtr& cookie)
+    void isA(bool, const CookiePtr&)
     {
         test(false);
     }
 
-    void ping(const CookiePtr& cookie)
+    void ping(const CookiePtr&)
     {
         test(false);
     }
 
-    void id(const string& id, const CookiePtr& cookie)
+    void id(const string&, const CookiePtr&)
     {
         test(false);
     }
 
-    void ids(const Ice::StringSeq& ids, const CookiePtr& cookie)
+    void ids(const Ice::StringSeq&, const CookiePtr&)
     {
         test(false);
     }
 
-    void op(const CookiePtr& cookie)
+    void op(const CookiePtr&)
     {
         test(false);
     }
@@ -466,7 +466,7 @@ public:
         called();
     }
 
-    void noEx(const Ice::Exception& ex, const CookiePtr& cookie)
+    void noEx(const Ice::Exception&, const CookiePtr&)
     {
         test(false);
     }
@@ -533,11 +533,11 @@ public:
     {
     }
 
-    void ex(const Ice::Exception& ex)
+    void ex(const Ice::Exception&)
     {
     }
 
-    void exWC(const Ice::Exception& ex, const CookiePtr&)
+    void exWC(const Ice::Exception&, const CookiePtr&)
     {
     }
 
@@ -670,17 +670,17 @@ public:
         called();
     }
 
-    void sentAsync(const Ice::AsyncResultPtr& result)
+    void sentAsync(const Ice::AsyncResultPtr&)
     {
         test(false);
     }
 
-    void sent(bool sentSynchronously)
+    void sent(bool)
     {
         test(false);
     }
 
-    void sentWC(bool sentSynchronously, const CookiePtr& cookie)
+    void sentWC(bool, const CookiePtr&)
     {
         test(false);
     }
@@ -703,7 +703,7 @@ public:
     {
     }
 
-    void opAsync(const Ice::AsyncResultPtr& r)
+    void opAsync(const Ice::AsyncResultPtr&)
     {
         called();
         throwEx();
@@ -729,24 +729,24 @@ public:
     {
     }
 
-    void ex(const Ice::Exception& ex)
+    void ex(const Ice::Exception&)
     {
         called();
         throwEx();
     }
 
-    void exWC(const Ice::Exception& ex, const CookiePtr&)
+    void exWC(const Ice::Exception&, const CookiePtr&)
     {
         called();
         throwEx();
     }
 
-    void noEx(const Ice::Exception& ex)
+    void noEx(const Ice::Exception&)
     {
         test(false);
     }
 
-    void noExWC(const Ice::Exception& ex, const CookiePtr&)
+    void noExWC(const Ice::Exception&, const CookiePtr&)
     {
         test(false);
     }

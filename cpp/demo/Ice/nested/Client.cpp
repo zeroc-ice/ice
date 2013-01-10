@@ -39,7 +39,7 @@ NestedClient::NestedClient() :
 }
 
 int
-NestedClient::run(int argc, char* argv[])
+NestedClient::run(int argc, char*[])
 {
     if(argc > 1)
     {

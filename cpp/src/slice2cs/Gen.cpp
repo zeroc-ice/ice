@@ -2612,7 +2612,7 @@ Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
 }
 
 bool
-Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr&)
 {
     _out << sp << nl << "namespace IceCompactId";
     _out << sb;
@@ -2620,7 +2620,7 @@ Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
 {
     _out << eb;
 }
@@ -6497,7 +6497,7 @@ Slice::Gen::AsyncVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::AsyncVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::AsyncVisitor::visitClassDefStart(const ClassDefPtr&)
 {
     return true;
 }

@@ -80,7 +80,7 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 }
 
 void
-onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& proxy)
+onewaysNewAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
 {
     Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(proxy->ice_oneway());
 

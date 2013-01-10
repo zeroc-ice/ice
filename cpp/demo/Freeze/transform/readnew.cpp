@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 }
 
 int
-ReadNew::run(int argc, char* argv[])
+ReadNew::run(int, char*[])
 {
     ConnectionPtr connection = createConnection(communicator(), "dbnew");
     bool createDb = true;

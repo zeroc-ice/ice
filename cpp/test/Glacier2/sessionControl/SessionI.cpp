@@ -63,7 +63,7 @@ SessionI::SessionI(const Glacier2::SessionControlPrx& sessionControl) :
 }
 
 void
-SessionI::destroyFromClient_async(const Test::AMD_Session_destroyFromClientPtr& cb, const Ice::Current& current)
+SessionI::destroyFromClient_async(const Test::AMD_Session_destroyFromClientPtr& cb, const Ice::Current&)
 {
     DestroyCBPtr asyncCB = new DestroyCB(cb);
     Glacier2::Callback_SessionControl_destroyPtr amiCB = Glacier2::newCallback_SessionControl_destroy(asyncCB, 

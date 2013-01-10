@@ -128,7 +128,7 @@ class AMI_MyClass_onewayOpByteExI : public Test::AMI_MyClass_opByte, public Call
 {
 public:
 
-    virtual void ice_response(::Ice::Byte r, ::Ice::Byte b)
+    virtual void ice_response(::Ice::Byte, ::Ice::Byte)
     {
         test(false);
     }
@@ -145,7 +145,7 @@ typedef IceUtil::Handle<AMI_MyClass_onewayOpByteExI> AMI_MyClass_onewayOpByteExI
 }
 
 void
-onewaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& proxy)
+onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
 {
     Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(proxy->ice_oneway());
 

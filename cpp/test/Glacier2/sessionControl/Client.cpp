@@ -42,7 +42,7 @@ main(int argc, char* argv[])
 }
 
 int
-SessionControlClient::run(int argc, char* argv[])
+SessionControlClient::run(int, char**)
 {
     cout << "getting router... " << flush;
     ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");

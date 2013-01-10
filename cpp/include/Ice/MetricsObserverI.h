@@ -347,7 +347,7 @@ public:
     }
     
     void
-    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects, ObserverT* previous = 0)
+    init(const MetricsHelperT<MetricsType>& /*helper*/, EntrySeqType& objects, ObserverT* previous = 0)
     {
         _objects.swap(objects);
 

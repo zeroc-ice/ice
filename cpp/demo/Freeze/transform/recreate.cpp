@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 }
 
 int
-Recreate::run(int argc, char* argv[])
+Recreate::run(int, char*[])
 {
     ConnectionPtr connection = createConnection(communicator(), "dbnew");
     NewContacts::recreate(connection, "contacts");

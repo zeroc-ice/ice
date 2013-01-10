@@ -182,7 +182,7 @@ Evictor::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 }
 
 void 
-Evictor::finished(const Ice::Current& current, const Ice::ObjectPtr& servant, 
+Evictor::finished(const Ice::Current& /*current*/, const Ice::ObjectPtr& /*servant*/, 
                   const Ice::LocalObjectPtr& cookie)
 {
     if(cookie != 0)
@@ -200,7 +200,7 @@ Evictor::finished(const Ice::Current& current, const Ice::ObjectPtr& servant,
 }
 
 void 
-Evictor::deactivate(const string& category)
+Evictor::deactivate(const string& /*category*/)
 {
     Mutex::Lock lock(_mutex);
     _size = 0;

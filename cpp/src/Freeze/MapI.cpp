@@ -1930,7 +1930,7 @@ Freeze::MapIndexI::untypedCount(const Key& k, const ConnectionIPtr& connection) 
 }
     
 int
-Freeze::MapIndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey, 
+Freeze::MapIndexI::secondaryKeyCreate(Db* /*secondary*/, const Dbt* /*dbKey*/, 
                                       const Dbt* dbValue, Dbt* result)
 {
     Byte* first = static_cast<Byte*>(dbValue->get_data());

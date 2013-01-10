@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace Demo;
 
 void
-CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
+CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Current&)
 {
     cout << "initiating callback" << endl;
     try

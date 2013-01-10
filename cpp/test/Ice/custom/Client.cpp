@@ -15,7 +15,7 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);
     Test::TestIntfPrx test = allTests(communicator, false);

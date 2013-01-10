@@ -24,7 +24,7 @@ TestIntfI::op(const Ice::Current&)
 }
 
 int
-TestIntfI::opWithResult(const Ice::Current& current)
+TestIntfI::opWithResult(const Ice::Current&)
 {
     return 15;
 }
@@ -36,7 +36,7 @@ TestIntfI::opWithUE(const Ice::Current&)
 }
 
 void
-TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current& current)
+TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current&)
 {
 }
 

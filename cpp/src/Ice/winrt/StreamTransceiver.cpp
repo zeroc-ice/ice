@@ -149,13 +149,13 @@ IceInternal::StreamTransceiver::close()
 }
 
 bool
-IceInternal::StreamTransceiver::write(Buffer& buf)
+IceInternal::StreamTransceiver::write(Buffer&)
 {
     return false;
 }
 
 bool
-IceInternal::StreamTransceiver::read(Buffer& buf)
+IceInternal::StreamTransceiver::read(Buffer&)
 {
     return false;
 }

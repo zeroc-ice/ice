@@ -114,7 +114,7 @@ BlobjectArrayAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     vector<Ice::Byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-    pair<const Ice::Byte*, const Ice::Byte*> outPair(nullptr, nullptr);
+    pair<const Ice::Byte*, const Ice::Byte*> outPair(static_cast<const Ice::Byte*>(nullptr), static_cast<const Ice::Byte*>(nullptr));
 #else
     pair<const Ice::Byte*, const Ice::Byte*> outPair(0, 0);
 #endif

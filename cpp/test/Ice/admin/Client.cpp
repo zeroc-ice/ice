@@ -16,7 +16,7 @@ using namespace std;
 DEFINE_TEST("client")
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     void allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

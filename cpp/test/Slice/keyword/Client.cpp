@@ -25,7 +25,12 @@ public:
 class charI: public _cpp_and::_cpp_char
 {
 public:
+
+#ifndef NDEBUG
     virtual void _cpp_explicit(const ::Ice::Current& current)
+#else
+    virtual void _cpp_explicit(const ::Ice::Current&)
+#endif
     {
         assert(current.operation == "explicit");
     }

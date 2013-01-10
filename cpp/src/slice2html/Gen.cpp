@@ -208,7 +208,7 @@ Slice::GeneratorBase::~GeneratorBase()
 // is created if necessary) and write the HTML header into the file.
 //
 void
-Slice::GeneratorBase::openDoc(const string& file, const string& title, const string& header, const string& footer)
+Slice::GeneratorBase::openDoc(const string& file, const string& title, const string& header, const string& /*footer*/)
 {
     makeDir(_dir);
     openStream(_dir + "/" + file);
@@ -830,7 +830,7 @@ Slice::GeneratorBase::printSearch()
 }
 
 void
-Slice::GeneratorBase::printLogo(const ContainedPtr& c, const ContainerPtr& container, bool forEnum)
+Slice::GeneratorBase::printLogo(const ContainedPtr& /*c*/, const ContainerPtr& container, bool forEnum)
 {
     string imageDir = getImageDir();
     if(!imageDir.empty())
@@ -1294,7 +1294,7 @@ Slice::GeneratorBase::closeStream()
 }
 
 string
-Slice::GeneratorBase::containedToId(const ContainedPtr& contained, bool asTarget)
+Slice::GeneratorBase::containedToId(const ContainedPtr& contained, bool /*asTarget*/)
 {
     assert(contained);
 
@@ -1834,7 +1834,7 @@ Slice::FileVisitor::FileVisitor(Files& files)
 }
 
 bool
-Slice::FileVisitor::visitUnitStart(const UnitPtr& u)
+Slice::FileVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }
@@ -1897,7 +1897,7 @@ Slice::StartPageVisitor::StartPageVisitor(const Files& files)
 }
 
 bool
-Slice::StartPageVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::StartPageVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }
@@ -2999,7 +2999,7 @@ Slice::PageVisitor::PageVisitor(const Files& files)
 }
 
 bool
-Slice::PageVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::PageVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }

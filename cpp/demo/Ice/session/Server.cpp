@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 }
 
 int
-SessionServer::run(int argc, char* argv[])
+SessionServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

@@ -219,7 +219,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm,
 }
 
 void
-ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& entry)
+ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& /*entry*/)
 {
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
@@ -1056,7 +1056,7 @@ ServerEntry::allocated(const SessionIPtr& session)
 }
 
 void
-ServerEntry::allocatedNoSync(const SessionIPtr& session)
+ServerEntry::allocatedNoSync(const SessionIPtr& /*session*/)
 {
     {
         Lock sync(*this);
@@ -1150,7 +1150,7 @@ ServerEntry::released(const SessionIPtr& session)
 }
 
 void
-ServerEntry::releasedNoSync(const SessionIPtr& session)
+ServerEntry::releasedNoSync(const SessionIPtr& /*session*/)
 {
     {
         Lock sync(*this);

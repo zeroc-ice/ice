@@ -15,7 +15,7 @@ using namespace std;
 using namespace Test;
 
 int
-run(int argc, char* argv[])
+run(int, char**)
 {
     void allTests();
     allTests();

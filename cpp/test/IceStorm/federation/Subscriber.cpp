@@ -30,7 +30,7 @@ public:
     }
 
     virtual void
-    pub(const string& data, const Ice::Current&)
+    pub(const string&, const Ice::Current&)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_countMutex);
 

@@ -87,7 +87,7 @@ public:
     }
 
     void
-    sent(bool ss)
+    sent(bool)
     {
         _sent.called();
     }

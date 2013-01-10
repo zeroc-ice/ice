@@ -42,7 +42,7 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT Ice::Plugin*
-createTestTransport(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq& args)
+createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new TestPluginI(communicator);
 }

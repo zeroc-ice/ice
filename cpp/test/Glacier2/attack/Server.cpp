@@ -56,7 +56,7 @@ main(int argc, char* argv[])
 }
 
 int
-BackendServer::run(int argc, char* argv[])
+BackendServer::run(int, char**)
 {
     communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");

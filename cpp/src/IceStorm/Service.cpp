@@ -110,7 +110,7 @@ void
 ServiceI::start(
     const string& name,
     const CommunicatorPtr& communicator,
-    const StringSeq& args)
+    const StringSeq& /*args*/)
 {
     PropertiesPtr properties = communicator->getProperties();
 
@@ -422,7 +422,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
                           const ObjectAdapterPtr& publishAdapter,
                           const string& name,
                           const Ice::Identity& id,
-                          const string& dbEnv)
+                          const string& /*dbEnv*/)
 {
     //
     // For IceGrid we don't validate the properties as all sorts of

@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 }
 
 int
-InvokeServer::run(int argc, char* argv[])
+InvokeServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

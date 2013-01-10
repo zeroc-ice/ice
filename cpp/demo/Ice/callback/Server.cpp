@@ -28,7 +28,7 @@ main(int argc, char* argv[])
 }
 
 int
-CallbackServer::run(int argc, char* argv[])
+CallbackServer::run(int argc, char*[])
 {
     if(argc > 1)
     {

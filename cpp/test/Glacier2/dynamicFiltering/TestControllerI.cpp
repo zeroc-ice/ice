@@ -57,7 +57,7 @@ TestControllerI::TestControllerI()
 
 void
 TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToken& currentState, TestToken& newState,
-                      const Ice::Current& current)
+                      const Ice::Current&)
 {
     switch(currentState.code)
     {

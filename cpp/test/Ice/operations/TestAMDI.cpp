@@ -77,7 +77,7 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
 }
 
 void
-MyDerivedClassI::delay_async(const Test::AMD_MyClass_delayPtr& cb, Ice::Int ms, const Ice::Current& current)
+MyDerivedClassI::delay_async(const Test::AMD_MyClass_delayPtr& cb, Ice::Int ms, const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
     cb->ice_response();
@@ -428,7 +428,7 @@ MyDerivedClassI::opIntS_async(const Test::AMD_MyClass_opIntSPtr& cb, const Test:
 }
 
 void
-MyDerivedClassI::opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr& cb, const Test::ByteS& s,
+MyDerivedClassI::opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr& cb, const Test::ByteS&,
                                      const Ice::Current&)
 {
     cb->ice_response();

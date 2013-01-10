@@ -291,7 +291,7 @@ Test::ServantI::setValueAsync_async(const AMD_Servant_setValueAsyncPtr& __cb, In
 }
 
 void
-Test::ServantI::releaseAsync(const Current& current) const
+Test::ServantI::releaseAsync(const Current&) const
 {
     Monitor<Mutex>::Lock sync(*this);
     //
@@ -336,14 +336,14 @@ Test::ServantI::removeFacet(const string& name, const Current& current) const
 
 
 Ice::Int
-Test::ServantI::getTransientValue(const Current& current) const
+Test::ServantI::getTransientValue(const Current&) const
 {
     Monitor<Mutex>::Lock sync(*this);
     return _transientValue;
 }
 
 void
-Test::ServantI::setTransientValue(Ice::Int val, const Current& current)
+Test::ServantI::setTransientValue(Ice::Int val, const Current&)
 {
     Monitor<Mutex>::Lock sync(*this);
     _transientValue = val;
@@ -495,7 +495,7 @@ public:
     }
     
     virtual void
-    initialize(const ObjectAdapterPtr& adapter, const Identity& ident, const string& facet, const ObjectPtr& servant)
+    initialize(const ObjectAdapterPtr&, const Identity&, const string&, const ObjectPtr& servant)
     {
         Test::ServantI* servantI = dynamic_cast<Test::ServantI*>(servant.get());
         if(servantI != 0)
@@ -592,7 +592,7 @@ Test::RemoteEvictorI::getServant(const string& id, const Current&)
 
 
 void
-Test::RemoteEvictorI::saveNow(const Current& current)
+Test::RemoteEvictorI::saveNow(const Current&)
 {
     _evictor->getIterator("", 1);
 }
