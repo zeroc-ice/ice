@@ -7,7 +7,7 @@
 showHelp ()
 {
     echo "Ice @ver@ uninstall script"
-    echo "Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved."
+    echo "Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved."
     echo "usage: "
     echo "  \"sudo $0\" -- uninstall all Ice @ver@ packages installed on this system."
 }
@@ -63,8 +63,8 @@ uninstallPackage ()
             fi
         else
             BASE_PATH=$VOLUME$LOCATION
-            if [[ "$BASE_PATH/IceGrid Admin.app" ]]; then
-                rm -rf "$BASE_PATH/IceGrid Admin.app"
+            if [[ "$BASE_PATH" ]]; then
+                rm -rf "$BASE_PATH"
             fi
         fi
 
