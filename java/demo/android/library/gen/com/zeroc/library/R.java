@@ -46,8 +46,7 @@ public final class R {
         public static final int viewitem=0x7f030007;
     }
     public static final class raw {
-        public static final int demo2_ca_cert=0x7f040000;
-        public static final int zeroc_demo_ca_cert=0x7f040001;
+        public static final int client=0x7f040000;
     }
     public static final class string {
         public static final int app_name=0x7f050001;

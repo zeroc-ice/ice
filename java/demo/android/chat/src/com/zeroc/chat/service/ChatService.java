@@ -66,7 +66,7 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
         try
         {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            Certificate caCert = cf.generateCertificate(getResources().openRawResource(R.raw.zeroc_ca_cert));
+            Certificate caCert = cf.generateCertificate(getResources().openRawResource(R.raw.client));
             _verifier = new CertificateVerifier(caCert);
         }
         catch(CertificateException e)

@@ -68,18 +68,7 @@ public class LoginController
             initData.properties.setProperty("Ice.InitPlugins", "0");
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             java.io.InputStream certStream;
-
-            // This is setup to only connect with the demo2.zeroc.com hosted glacier2.
-            if(glacier2 && hostname.toLowerCase().equals("demo2.zeroc.com"))
-            {
-                initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=\"ZeroC library demo Glacier2\"");
-                certStream = resources.openRawResource(R.raw.demo2_ca_cert);
-            }
-            else
-            {
-                initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=Server");
-                certStream = resources.openRawResource(R.raw.zeroc_demo_ca_cert);
-            }
+            certStream = resources.openRawResource(R.raw.client);
             _communicator = Ice.Util.initialize(initData);
 
             IceSSL.Plugin plugin = (IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
@@ -102,18 +91,16 @@ public class LoginController
 
                     if(glacier2)
                     {
-                        String s;
+                        StringBuilder s = new StringBuilder();
+                        s.append("DemoGlacier2/router:");
+                        s.append(secure ? "ssl " : "tcp");
+                        s.append(" -p ");
+                        s.append(secure ? "4064" : "4063");
+                        s.append(" -h ");
+                        s.append(hostname);
+                        s.append(" -t 10000");
 
-                        if(secure)
-                        {
-                            s = "DemoGlacier2/router -e 1.0:ssl -p 4064 -h " + hostname + " -t 10000";
-                        }
-                        else
-                        {
-                            s = "DemoGlacier2/router -e 1.0:tcp -p 4502 -h " + hostname + " -t 10000";
-                        }
-
-                        Ice.ObjectPrx proxy = _communicator.stringToProxy(s);
+                        Ice.ObjectPrx proxy = _communicator.stringToProxy(s.toString());
                         Ice.RouterPrx r = Ice.RouterPrxHelper.uncheckedCast(proxy);
 
                         _communicator.setDefaultRouter(r);
@@ -156,17 +143,15 @@ public class LoginController
                     }
                     else
                     {
-                        String s;
-                        if(secure)
-                        {
-                            s = "SessionFactory -e 1.0:ssl -h " + hostname + " -p 10001 -t 10000";
-
-                        }
-                        else
-                        {
-                            s = "SessionFactory -e 1.0:tcp -h " + hostname + " -p 10000 -t 10000";
-                        }
-                        Ice.ObjectPrx proxy = _communicator.stringToProxy(s);
+                        StringBuilder s = new StringBuilder();
+                        s.append("SessionFactory:");
+                        s.append(secure ? "ssl " : "tcp");
+                        s.append(" -p ");
+                        s.append(secure ? "10001" : "10000");
+                        s.append(" -h ");
+                        s.append(hostname);
+                        s.append(" -t 10000");
+                        Ice.ObjectPrx proxy = _communicator.stringToProxy(s.toString());
                         Demo.SessionFactoryPrx factory = Demo.SessionFactoryPrxHelper.checkedCast(proxy);
                         if(factory == null)
                         {
