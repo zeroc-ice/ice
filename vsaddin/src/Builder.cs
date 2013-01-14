@@ -2023,27 +2023,54 @@ namespace Ice.VisualStudio
         public Project getActiveProject()
         {
             Array projects = null;
-            if(_applicationObject.ActiveSolutionProjects != null)
+            try
             {
-                projects = (Array)_applicationObject.ActiveSolutionProjects;
-                if (projects != null && projects.Length > 0)
+                if(_applicationObject.ActiveSolutionProjects != null)
+                {
+                    projects = (Array)_applicationObject.ActiveSolutionProjects;
+                    if(projects != null && projects.Length > 0)
+                    {
+                        return projects.GetValue(0) as Project;
+                    }
+                }
+            }
+            catch(COMException)
+            {
+                //
+                // Ignore could happen if called while solution is being initialized.
+                //
+            }
+
+            try
+            {
+                projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
+                if(projects != null && projects.Length > 0)
                 {
                     return projects.GetValue(0) as Project;
                 }
             }
-
-            projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
-            if(projects != null && projects.Length > 0)
+            catch(COMException)
             {
-                return projects.GetValue(0) as Project;
+                //
+                // Ignore could happen if called while solution is being initialized.
+                //
             }
 
-            if(_applicationObject.Solution.Projects != null)
+            try
             {
-                if (_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
+                if(_applicationObject.Solution.Projects != null)
                 {
-                    return _applicationObject.Solution.Projects.Item(1) as Project;
+                    if(_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
+                    {
+                        return _applicationObject.Solution.Projects.Item(1) as Project;
+                    }
                 }
+            }
+            catch(COMException)
+            {
+                //
+                // Ignore could happen if called while solution is being initialized.
+                //
             }
             return null;
         }
