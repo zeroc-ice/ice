@@ -1378,7 +1378,7 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
     if(!_destroy)
     {
         //
-        // If uuid is empty, the destroy call comes from the the consistency check. In
+        // If uuid is empty, the destroy call comes from the consistency check. In
         // this case, we clear the server directory only if it contains non-user data.
         //
         _destroy = new DestroyCommand(this, false, !uuid.empty());

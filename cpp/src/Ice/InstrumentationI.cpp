@@ -417,7 +417,7 @@ public:
                 }
                 catch(const Exception&)
                 {
-                    // Either a fixed proxy or the the communicator is destroyed.
+                    // Either a fixed proxy or the communicator is destroyed.
                     os << _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
                     os << " [" << _operation << ']';
                 }

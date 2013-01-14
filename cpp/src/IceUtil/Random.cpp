@@ -97,7 +97,7 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     //
     // It's not clear from the Microsoft documentation if CryptGenRandom 
     // can be called concurrently from several threads. To be on the safe
-    // side, we also serialize calls to to CryptGenRandom with the static 
+    // side, we also serialize calls to CryptGenRandom with the static 
     // mutex.
     //
 

@@ -12,7 +12,7 @@ package IceInternal;
 public final class OutgoingConnectionFactory
 {
     //
-    // Helper class to to multi hash map.
+    // Helper class to multi hash map.
     //
     private static class MultiHashMap<K, V> extends java.util.HashMap<K, java.util.List<V>>
     {

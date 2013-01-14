@@ -114,7 +114,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
     {
         if(traceLevels)
         { 
-            traceLevels->logger->error("connection to the the registry `" + _name + "' was denied:\n" + ex.reason);
+            traceLevels->logger->error("connection to the registry `" + _name + "' was denied:\n" + ex.reason);
         }
         exception.reset(ex.ice_clone());
     }

@@ -933,7 +933,7 @@ class Instance
             }
 
             //
-            // Compare the peer's address against the the dnsName and ipAddress
+            // Compare the peer's address against the dnsName and ipAddress
             // values in the subject alternative name.
             //
             if(!certNameOK)

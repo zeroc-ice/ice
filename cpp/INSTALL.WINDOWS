@@ -162,7 +162,7 @@ x64 Platform
 ======================================================================
 
 Building Ice on x64 with the Visual Studio 2010 or Visual Studio 2012
-C++ compiler is like building Ice on x86. You just need need to
+C++ compiler is like building Ice on x86. You just need to
 perform the build in a "Visual Studio x64 Win64 Command Prompt", and
 not in a regular "Visual Studio 2010/2012 Command Prompt".
 

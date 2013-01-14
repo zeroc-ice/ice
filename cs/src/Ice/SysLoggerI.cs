@@ -194,7 +194,7 @@ namespace Ice
         private static int _port = 514;
         
         //
-        // Syslog facilities facilities (as defined in syslog.h)
+        // Syslog facilities (as defined in syslog.h)
         // 
         private const int LOG_KERN = 0;
         private const int LOG_USER = 1;

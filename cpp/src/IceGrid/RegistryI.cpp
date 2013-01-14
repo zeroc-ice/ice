@@ -616,7 +616,7 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
     }
 
     assert(_reaper);
-    _timer = new IceUtil::Timer();  // Used for for session allocation timeout.
+    _timer = new IceUtil::Timer();  // Used for session allocation timeout.
     _clientSessionFactory = new ClientSessionFactory(servantManager, _database, _timer, _reaper);
 
     if(servantManager && _master) // Slaves don't support client session manager objects.

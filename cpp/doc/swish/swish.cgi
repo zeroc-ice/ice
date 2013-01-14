@@ -220,7 +220,7 @@ sub default_config {
 
 
 
-        # Results can be be sorted by any of the properties listed here
+        # Results can be sorted by any of the properties listed here
         # They will be displayed in a drop-down list on the form.
         # You may modify this list if you are using document properties of your own creation
         # Swish uses the rank as the default sort

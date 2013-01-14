@@ -925,7 +925,7 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const N
         }
 
         //
-        // Compare the peer's address against the the dnsName and ipAddress
+        // Compare the peer's address against the dnsName and ipAddress
         // values in the subject alternative name.
         //
         if(!certNameOK)

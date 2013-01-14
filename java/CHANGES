@@ -8,7 +8,7 @@ Changes since version 3.2.0
 - Added demo book/lifecycle.
 
 - Ant Slice tasks now accept a property, ice.home. This property
-  performs the the same function as the ICE_HOME environment variable.
+  performs the same function as the ICE_HOME environment variable.
 
 - Fixed object adapter activation deadlock. The deadlock could occur
   if another thread invokes concurrently on the locator while the

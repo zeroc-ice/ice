@@ -403,7 +403,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     }
                     catch(Exception ex)
                     {
-                        // Either a fixed proxy or the the communicator is destroyed.
+                        // Either a fixed proxy or the communicator is destroyed.
                         os.append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }

@@ -40,7 +40,7 @@ public class AsyncResult
     }
 
     /**
-     * Returns the connection that that was used for the invocation.
+     * Returns the connection that was used for the invocation.
      *
      * @return The connection.
      **/
@@ -50,7 +50,7 @@ public class AsyncResult
     }
 
     /**
-     * Returns the proxy that that was used to call the <code>begin_</code> method.
+     * Returns the proxy that was used to call the <code>begin_</code> method.
      *
      * @return The proxy.
      **/
