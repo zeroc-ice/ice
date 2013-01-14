@@ -18,7 +18,7 @@ namespace Glacier2
 {
 
 /// <summary>
-/// Utility base class that makes it easy to to correctly initialize and finalize
+/// Utility base class that makes it easy to correctly initialize and finalize
 /// the Ice run time, as well as handle signals. Unless the application specifies
 /// a logger, Application installs a per-process logger that logs to the standard
 /// error output.
