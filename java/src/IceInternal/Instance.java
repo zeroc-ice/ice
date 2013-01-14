@@ -615,6 +615,12 @@ public final class Instance
         return _packages;
     }
 
+    public boolean
+    useServantClassLoader()
+    {
+        return _useServantClassLoader;
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -710,6 +716,8 @@ public final class Instance
             }
 
             _packages = validatePackages();
+
+            _useServantClassLoader = _initData.properties.getPropertyAsInt("Ice.UseServantClassLoader") > 0;
 
             _traceLevels = new TraceLevels(_initData.properties);
 
@@ -1209,7 +1217,8 @@ public final class Instance
     private Ice.Identity _adminIdentity;
 
     private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<String, String>();
-    private String[] _packages;
+    final private String[] _packages;
+    final private boolean _useServantClassLoader;
 
     private static boolean _oneOffDone = false;
 }

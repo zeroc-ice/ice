@@ -208,17 +208,32 @@ final public class Incoming extends IncomingBase implements Ice.Request
         {
             if(_servant != null)
             {
-                //
-                // DispatchAsync is a "pseudo dispatch status", used internally only
-                // to indicate async dispatch.
-                //
-                if(_servant.__dispatch(this, _current) == Ice.DispatchStatus.DispatchAsync)
+                if(_instance.useServantClassLoader())
+                {
+                    Thread.currentThread().setContextClassLoader(_servant.getClass().getClassLoader());
+                }
+
+                try
                 {
                     //
-                    // If this was an asynchronous dispatch, we're done here.
+                    // DispatchAsync is a "pseudo dispatch status", used internally only
+                    // to indicate async dispatch.
                     //
-                    return;
-                }        
+                    if(_servant.__dispatch(this, _current) == Ice.DispatchStatus.DispatchAsync)
+                    {
+                        //
+                        // If this was an asynchronous dispatch, we're done here.
+                        //
+                        return;
+                    }
+                }
+                finally
+                {
+                    if(_instance.useServantClassLoader())
+                    {
+                        Thread.currentThread().setContextClassLoader(null);
+                    }
+                }
                 
                 if(_locator != null && !__servantLocatorFinished())
                 {

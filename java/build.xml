@@ -579,6 +579,7 @@
             <include name="IceCompactId/**"/>
             <include name="test/**"/>
             <exclude name="test/android/"/>
+            <exclude name="test/ejb/"/>
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
         </depend>
@@ -598,6 +599,7 @@
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
             <exclude name="test/android/"/>
+            <exclude name="test/ejb/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
@@ -617,6 +619,7 @@
             <include name="test/**"/>
             <exclude name="test/Ice/plugin/plugins/**"/>
             <exclude name="test/android/**"/>
+            <exclude name="test/ejb/"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
                 <attribute name="Class-Path" value="Ice.jar"/>

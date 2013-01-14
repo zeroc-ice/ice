@@ -63,6 +63,15 @@ General Changes
     parameters in an operation.
 
 
+Java Changes
+============
+
+- Added support for Ice.UseServantClassLoader configuration
+  property. When set to 1, the Ice core will set the thread context
+  class loader to the class loader of the servant before dispatching
+  the call.
+
+
 ======================================================================
 Changes since version 3.4.2
 ======================================================================

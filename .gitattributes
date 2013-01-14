@@ -24,3 +24,4 @@ distribution/makedist.py export-ignore
 cpp/config/makegitignore.py export-ignore
 rb/config/Make.rules.Darwin export-ignore
 cpp/src/slice2confluence export-ignore
+java/test/ejb export-ignore
