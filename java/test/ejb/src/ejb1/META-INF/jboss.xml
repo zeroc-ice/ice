@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jboss>
+  <loader-repository>
+    com.zeroc.ejb1:loader=EJB1ClassLoader
+       <loader-repository-config>
+         java2ParentDelegation=false
+       </loader-repository-config>
+  </loader-repository>
+</jboss>

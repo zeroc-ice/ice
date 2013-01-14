@@ -1,0 +1,139 @@
+<project name="ice-ejb-test" default="jar" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="top.dir" value="../.."/>
+
+  <!-- import common definitions -->
+  <import file="${top.dir}/config/common.xml"/>
+
+  <property environment="env" />
+  <property name="src.dir" value="${basedir}/src" />
+  <property name="src.resources" value="${basedir}/src/resources" />
+
+  <property name="jboss.home" value="${env.JBOSS_HOME}" />
+  <property name="jboss.server" value="default"/>
+
+  <property name="build.dir" value="${basedir}/target" />
+  <property name="build.classes.dir" value="${build.dir}/classes" />
+  <property name="jboss.base" value="${jboss.home}/server/${jboss.server}"/>
+  <property name="deploy.dir" value="${jboss.base}/deploy"/>
+  <property name="lib.dir" value="${jboss.base}/lib"/>
+
+  <path id="jboss.classpath">
+    <fileset dir="${jboss.home}/lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <target name="generate" depends="init">
+     <!-- Create the output directory for generated code -->
+     <mkdir dir="${generated.dir}"/>
+     <mkdir dir="${generated.dir}/common"/>
+     <mkdir dir="${generated.dir}/ejb1"/>
+     <mkdir dir="${generated.dir}/ejb2"/>
+     <slice2java outputdir="${generated.dir}/common">
+       <fileset dir="${src.dir}/slice" includes="common.ice"/>
+     </slice2java>
+     <slice2java outputdir="${generated.dir}/ejb1">
+       <fileset dir="${src.dir}/slice" includes="ejb1.ice"/>
+     </slice2java>
+     <slice2java outputdir="${generated.dir}/ejb2">
+       <fileset dir="${src.dir}/slice" includes="ejb2.ice"/>
+     </slice2java>
+  </target>
+
+  <target name="compile" depends="generate">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${build.classes.dir}" />
+    <mkdir dir="${build.classes.dir}/common" />
+    <mkdir dir="${build.classes.dir}/ejb1" />
+    <mkdir dir="${build.classes.dir}/ejb2" />
+    <javac srcdir="${generated.dir}/common:${src.dir}/common" destdir="${build.classes.dir}/common" debug="on">
+      <classpath refid="jboss.classpath" />
+      <classpath refid="ice.classpath" />
+      <include name="**/*.java" />
+    </javac>
+    <javac srcdir="${generated.dir}/ejb1:${src.dir}/ejb1" destdir="${build.classes.dir}/ejb1" debug="on">
+      <classpath refid="jboss.classpath" />
+      <classpath refid="ice.classpath" />
+      <classpath path="${build.classes.dir}/common"/>
+      <include name="**/*.java" />
+    </javac>
+    <javac srcdir="${generated.dir}/ejb2:${src.dir}/ejb2" destdir="${build.classes.dir}/ejb2" debug="on">
+      <classpath refid="jboss.classpath" />
+      <classpath refid="ice.classpath" />
+      <classpath path="${build.classes.dir}/common"/>
+      <include name="**/*.java" />
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar jarfile="${build.dir}/${ant.project.name}-common.jar">
+      <fileset dir="${build.classes.dir}/common">
+	<include name="**/*.class" />
+      </fileset>
+      <manifest>
+        <attribute name="Class-Path" value="Ice.jar"/>
+      </manifest>
+    </jar>
+    <jar jarfile="${build.dir}/${ant.project.name}-ejb1.jar">
+      <fileset dir="${build.classes.dir}/ejb1">
+	<include name="**/*.class" />
+      </fileset>
+      <fileset dir="${src.resources}" includes="**"/>
+      <metainf dir="${src.dir}/ejb1/META-INF" includes="jboss.xml" />
+      <manifest>
+        <attribute name="Class-Path" value="${ant.project.name}-common.jar"/>
+      </manifest>
+    </jar>
+    <jar jarfile="${build.dir}/${ant.project.name}-ejb2.jar">
+      <fileset dir="${build.classes.dir}/ejb2">
+	<include name="**/*.class" />
+      </fileset>
+      <fileset dir="${src.resources}" includes="**"/>
+      <metainf dir="${src.dir}/ejb2/META-INF" includes="jboss.xml" />
+      <manifest>
+        <attribute name="Class-Path" value="${ant.project.name}-common.jar"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="deploy" depends="jar">
+    <copy file="${ice.jar.file}" tofile="${lib.dir}/Ice.jar" />
+    <copy file="${build.dir}/${ant.project.name}-common.jar" todir="${lib.dir}" />
+    <copy file="${build.dir}/${ant.project.name}-ejb1.jar" todir="${deploy.dir}" />
+    <copy file="${build.dir}/${ant.project.name}-ejb2.jar" todir="${deploy.dir}" />
+  </target>
+
+  <target name="run.client1" depends="deploy">
+    <java classname="com.zeroc.ejb.Client" fork="yes" dir=".">
+      <classpath refid="ice.classpath" />
+      <classpath path="${env.JBOSS_HOME}/client/jbossall-client.jar" />
+      <classpath path="${build.dir}/${ant.project.name}-common.jar"/>
+      <classpath path="${build.dir}/${ant.project.name}-ejb1.jar"/>
+    </java>
+  </target>
+
+  <target name="run.client2" depends="deploy">
+    <java classname="com.zeroc.ejb.Client" fork="yes" dir=".">
+      <classpath refid="ice.classpath" />
+      <classpath path="${env.JBOSS_HOME}/client/jbossall-client.jar" />
+      <classpath path="${build.dir}/${ant.project.name}-common.jar"/>
+      <classpath path="${build.dir}/${ant.project.name}-ejb2.jar"/>
+    </java>
+  </target>
+
+  <target name="clean.db">
+    <delete dir="${jboss.base}/data/hypersonic" />
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+    <delete dir="${generated.dir}" />
+    <delete file="${lib.dir}/Ice.jar" />
+    <delete file="${lib.dir}/${ant.project.name}-common.jar" />
+    <delete file="${deploy.dir}/${ant.project.name}-ejb1.jar" />
+    <delete file="${deploy.dir}/${ant.project.name}-ejb2.jar" />
+  </target>
+
+</project>
