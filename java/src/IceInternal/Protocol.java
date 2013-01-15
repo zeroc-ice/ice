@@ -131,11 +131,36 @@ final public class Protocol
     }
 
     //
+    // Either return the given protocol if not compatible, or the greatest
+    // supported protocol otherwise.
+    //
+    static public Ice.ProtocolVersion
+    getCompatibleProtocol(Ice.ProtocolVersion v)
+    {
+        if(v.major != currentProtocol.major)
+        {
+            return v; // Unsupported protocol, return as is.
+        }
+        else if(v.minor < currentProtocol.minor)
+        {
+            return v; // Supported protocol.
+        }
+        else
+        {
+            //
+            // Unsupported but compatible, use the currently supported
+            // protocol, that's the best we can do.
+            //
+            return currentProtocol; 
+        }
+    }
+
+    //
     // Either return the given encoding if not compatible, or the greatest
     // supported encoding otherwise.
     //
     static public Ice.EncodingVersion
-    checkForCompatibleEncoding(Ice.EncodingVersion v)
+    getCompatibleEncoding(Ice.EncodingVersion v)
     {
         if(v.major != currentEncoding.major)
         {

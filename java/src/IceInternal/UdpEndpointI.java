@@ -106,7 +106,6 @@ final class UdpEndpointI extends EndpointI
                 }
 
                 _connect = true;
-                break;
             }
             else if(option.equals("-z"))
             {
@@ -117,15 +116,28 @@ final class UdpEndpointI extends EndpointI
                 }
 
                 _compress = true;
-                break;
             }
-            else if(option == "-v")
+            else if(option.equals("-v") || option.equals("-e"))
             {
-                _instance.initializationData().logger.warning("deprecated udp endpoint option: -v");
-            }
-            else if(option == "-e")
-            {
-                _instance.initializationData().logger.warning("deprecated udp endpoint option: -e");
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for " + option + " option in endpoint " +
+                                                         "`udp " + str + "'");
+                }
+
+                try
+                {
+                    Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
+                    if(v.major != 1 || v.minor != 0)
+                    {
+                        _instance.initializationData().logger.warning("deprecated udp endpoint option: " + option);
+                    }
+                }
+                catch(Ice.VersionParseException e)
+                {
+                    throw new Ice.EndpointParseException("invalid version `" + argument + "' in endpoint `udp " + 
+                                                         str + "':\n" + e.str);
+                }
             }
             else if(option.equals("--interface"))
             {

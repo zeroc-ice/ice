@@ -162,13 +162,29 @@ namespace IceInternal
                     
                     _compress = true;
                 }
-                else if(option == "-v")
+                else if(option.Equals("-v") || option.Equals("-e"))
                 {
-                    instance_.initializationData().logger.warning("deprecated udp endpoint option: -v");
-                }
-                else if(option == "-e")
-                {
-                    instance_.initializationData().logger.warning("deprecated udp endpoint option: -e");
+                    if(argument == null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "no argument provided for " + option + " option in endpoint " + "`udp " + str + "'";
+                        throw e;
+                    }
+
+                    try
+                    {
+                        Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
+                        if(v.major != 1 || v.minor != 0)
+                        {
+                            instance_.initializationData().logger.warning("deprecated udp endpoint option: " + option);
+                        }
+                    }
+                    catch(Ice.VersionParseException ex)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "invalid version `" + argument + "' in endpoint `udp " + str + "':\n" + ex.str;
+                        throw e;
+                    }
                 }
                 else if(option.Equals("--interface"))
                 {

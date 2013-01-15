@@ -164,6 +164,7 @@ public final class ReferenceFactory
         int mode = Reference.ModeTwoway;
         boolean secure = false;
         Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
+        Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
         String adapter = "";
 
         while(true)
@@ -356,6 +357,25 @@ public final class ReferenceFactory
                     break;
                 }
 
+                case 'p':
+                {
+                    if(argument == null)
+                    {
+                        throw new Ice.ProxyParseException("no argument provided for -p option in `" + s + "'");
+                    }
+            
+                    try
+                    {
+                        protocol = Ice.Util.stringToProtocolVersion(argument);
+                    }
+                    catch(Ice.VersionParseException e)
+                    {
+                        throw new Ice.ProxyParseException("invalid protocol version `" + argument + "' in `" + s + 
+                                                          "':\n" + e.str);
+                    }
+                    break;
+                }
+
                 default:
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -367,7 +387,7 @@ public final class ReferenceFactory
 
         if(beg == -1)
         {
-            return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, null, propertyPrefix);
+            return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
         }
 
         java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
@@ -457,7 +477,7 @@ public final class ReferenceFactory
 
             EndpointI[] endp = new EndpointI[endpoints.size()];
             endpoints.toArray(endp);
-            return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, endp, null, propertyPrefix);
+            return create(ident, facet, mode, secure, protocol, encoding, endp, null, propertyPrefix);
         }
         else if(s.charAt(beg) == '@')
         {
@@ -516,7 +536,7 @@ public final class ReferenceFactory
                 e.str = "empty adapter id in `" + s + "'";
                 throw e;
             }
-            return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, adapter, propertyPrefix);
+            return create(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
         }
 
         Ice.ProxyParseException ex = new Ice.ProxyParseException();

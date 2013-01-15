@@ -15,7 +15,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     {
         super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation, cb);
         _proxy = (Ice.ObjectPrxHelperBase)prx;
-        _encoding = Protocol.checkForCompatibleEncoding(_proxy.__reference().getEncoding());
+        _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
     }
 
     public void __prepare(String operation, Ice.OperationMode mode, java.util.Map<String, String> ctx,
@@ -26,7 +26,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         _mode = mode;
         _sentSynchronously = false;
 
-        Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.__reference().getProtocol()));
 
         if(explicitCtx && ctx == null)
         {

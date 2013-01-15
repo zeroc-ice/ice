@@ -157,13 +157,29 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             }
             const_cast<bool&>(_compress) = true;
         }
-        else if(option == "-v")
+        else if(option == "-v" || option == "-e")
         {
-            _instance->initializationData().logger->warning("deprecated udp endpoint option: -v");
-        }
-        else if(option == "-e")
-        {
-            _instance->initializationData().logger->warning("deprecated udp endpoint option: -e");
+            if(argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "no argument provided for " + option + " option in endpoint `udp " + str + "'";
+                throw ex;
+            }
+            try
+            {
+                Ice::Byte major, minor;
+                IceInternal::stringToMajorMinor(argument, major, minor);
+                if(major != 1 || minor != 0)
+                {
+                    _instance->initializationData().logger->warning("deprecated udp endpoint option: " + option);
+                }
+            }
+            catch(const VersionParseException& e)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "invalid version `" + argument + "' in endpoint `udp " + str + "':\n" + e.str;
+                throw ex;
+            }
         }
         else if(option == "--interface")
         {

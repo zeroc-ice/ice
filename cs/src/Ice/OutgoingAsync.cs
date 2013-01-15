@@ -798,7 +798,7 @@ namespace IceInternal
                  cookie)
         {
             proxy_ = (Ice.ObjectPrxHelperBase)prx;
-            _encoding = Protocol.checkForCompatibleEncoding(proxy_.reference__().getEncoding());
+            _encoding = Protocol.getCompatibleEncoding(proxy_.reference__().getEncoding());
         }
 
         public void prepare__(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
@@ -809,7 +809,7 @@ namespace IceInternal
             _mode = mode;
             sentSynchronously_ = false;
 
-            Protocol.checkSupportedProtocol(proxy_.reference__().getProtocol());
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(proxy_.reference__().getProtocol()));
 
             if(explicitContext && context == null)
             {

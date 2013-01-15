@@ -220,6 +220,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     b1 = communicator->stringToProxy("test -e 6.5");
     test(b1->ice_getEncodingVersion().major == 6 && b1->ice_getEncodingVersion().minor == 5);
 
+    b1 = communicator->stringToProxy("test -p 1.0 -e 1.0");
+    test(b1->ice_toString() == "test -t");
+
+    b1 = communicator->stringToProxy("test -p 6.5 -e 1.0");
+    test(b1->ice_toString() == "test -t -p 6.5");
+
     try
     {
         b1 = communicator->stringToProxy("test:tcp@adapterId");
@@ -623,61 +629,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
-    cout << "testing protocol versioning... " << flush;
-    {
-        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->write(cl);
-        vector<Ice::Byte> inBytes;
-        out->finished(inBytes);
-        
-        // Protocol version 1.1
-        inBytes[9] = 1;
-        inBytes[10] = 1;
-
-        Ice::InputStreamPtr in = Ice::createInputStream(communicator, inBytes);
-        Test::MyClassPrx cl11;
-        in->read(cl11);
-        cl11 = cl11->ice_collocationOptimized(false);
-        if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
-        {
-            string protocol = communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-            test(cl11->ice_toString() == "test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010");
-        }
-        try
-        {
-            cl11->ice_ping();
-            test(false);
-        }
-        catch(const Ice::UnsupportedProtocolException&)
-        {
-        }
-        try
-        {
-            cl11->end_ice_ping(cl11->begin_ice_ping());
-            test(false);
-        }
-        catch(const Ice::UnsupportedProtocolException&)
-        {
-        }
-        try
-        {
-            cl11->ice_flushBatchRequests();
-            test(false);
-        }
-        catch(const Ice::UnsupportedProtocolException&)
-        {
-        }
-        try
-        {
-            cl11->end_ice_flushBatchRequests(cl11->begin_ice_flushBatchRequests());
-            test(false);
-        }
-        catch(const Ice::UnsupportedProtocolException&)
-        {
-        }
-    }
-    cout << "ok" << endl;
-
     cout << "testing encoding versioning... " << flush;
     string ref20 = "test -e 2.0:default -p 12010";
     Test::MyClassPrx cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
@@ -753,6 +704,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "ok" << endl;
+
+    cout << "testing protocol versioning... " << flush;
+
+    ref20 = "test -p 2.0:default -p 12010";
+    cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
+    try 
+    {
+        cl20->ice_collocationOptimized(false)->ice_ping();
+        test(false);
+    }
+    catch(const Ice::UnsupportedProtocolException&)
+    {
+        // Server 2.0 proxy doesn't support 1.0 version.
+    }
+
+    ref10 = "test -p 1.0:default -p 12010";
+    cl10 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref10));
+    cl10->ice_ping();
+
+    // 1.3 isn't supported but since a 1.3 proxy supports 1.0, the
+    // call will use the 1.0 encoding
+    ref13 = "test -p 1.3:default -p 12010";
+    cl13 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref13));
+    cl13->ice_ping();
+    try
+    {
+        cl13->end_ice_ping(cl13->begin_ice_ping());
+    }
+    catch(const Ice::CollocationOptimizationException&)
+    {
+    }
+
+    cout << "ok" <<endl;
 
     cout << "testing opaque endpoints... " << flush;
 

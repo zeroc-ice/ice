@@ -190,6 +190,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
     Ice::EncodingVersion encoding = _instance->defaultsAndOverrides()->defaultEncoding;
+    Ice::ProtocolVersion protocol = Protocol_1_0;
     string adapter;
 
     while(true)
@@ -372,7 +373,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                     throw ex;
                 }
                 
-                try 
+                try
                 {
                     encoding = Ice::stringToEncodingVersion(argument);
                 }
@@ -380,6 +381,28 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 {
                     Ice::ProxyParseException ex(__FILE__, __LINE__);
                     ex.str = "invalid encoding version `" + argument + "' in `" + s + "':\n" + e.str;
+                    throw ex;
+                }
+                break;
+            }
+
+            case 'p':
+            {
+                if(argument.empty())
+                {
+                    Ice::ProxyParseException ex(__FILE__, __LINE__);
+                    ex.str = "no argument provided for -p option in `" + s + "'";
+                    throw ex;
+                }
+                
+                try
+                {
+                    protocol = Ice::stringToProtocolVersion(argument);
+                }
+                catch(const Ice::VersionParseException& e)
+                {
+                    Ice::ProxyParseException ex(__FILE__, __LINE__);
+                    ex.str = "invalid protocol version `" + argument + "' in `" + s + "':\n" + e.str;
                     throw ex;
                 }
                 break;
@@ -396,7 +419,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 
     if(beg == string::npos)
     {
-        return create(ident, facet, mode, secure, Protocol_1_0, encoding, vector<EndpointIPtr>(), "", propertyPrefix);
+        return create(ident, facet, mode, secure, protocol, encoding, vector<EndpointIPtr>(), "", propertyPrefix);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -484,7 +507,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 }
             }
 
-            return create(ident, facet, mode, secure, Protocol_1_0, encoding, endpoints, "", propertyPrefix);
+            return create(ident, facet, mode, secure, protocol, encoding, endpoints, "", propertyPrefix);
             break;
         }
         case '@':
@@ -548,7 +571,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 
             adapter = Ice::UTF8ToNative(_instance->initializationData().stringConverter, adapter);
 
-            return create(ident, facet, mode, secure, Protocol_1_0, encoding, endpoints, adapter, propertyPrefix);
+            return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapter, propertyPrefix);
             break;
         }
         default:

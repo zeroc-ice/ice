@@ -233,6 +233,12 @@ public class AllTests
         b1 = communicator.stringToProxy("test -e 6.5");
         test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
+        b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
+        test(b1.toString().equals("test -t"));
+        
+        b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
+        test(b1.toString().equals("test -t -p 6.5"));
+
         try
         {
             b1 = communicator.stringToProxy("test:tcp@adapterId");
@@ -559,61 +565,6 @@ public class AllTests
         test(c.equals(c2));
         out.println("ok");
 
-        out.print("testing protocol versioning... ");
-        out.flush();
-        {
-            Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
-            outS.writeProxy(cl);
-            byte[] inBytes = outS.finished();
-        
-            // Protocol version 1.1
-            inBytes[9] = 1;
-            inBytes[10] = 1;
-
-            Ice.InputStream inS = Ice.Util.createInputStream(communicator, inBytes);
-            MyClassPrx cl11 = MyClassPrxHelper.uncheckedCast(inS.readProxy().ice_collocationOptimized(false));
-            if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
-            {
-                String protocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-                test(cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010") ||
-                     // Android doesn't set Ice.DefaultHost to 127.0.0.1
-                     cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -p 12010"));
-            }
-            try
-            {
-                cl11.ice_ping();
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException ex)
-            {
-            }
-            try
-            {
-                cl11.end_ice_ping(cl11.begin_ice_ping());
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException ex)
-            {
-            }
-            try
-            {
-                cl11.ice_flushBatchRequests();
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException ex)
-            {
-            }
-            try
-            {
-                cl11.end_ice_flushBatchRequests(cl11.begin_ice_flushBatchRequests());
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException ex)
-            {
-            }
-        }
-        out.println("ok");
-
         out.print("testing encoding versioning... ");
         out.flush();
         String ref20 = "test -e 2.0:default -p 12010";
@@ -689,6 +640,38 @@ public class AllTests
 
         out.println("ok");
 
+        out.print("testing protocol versioning... ");
+        out.flush();
+        ref20 = "test -p 2.0:default -p 12010";
+        cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
+        try 
+        {
+            cl20.ice_collocationOptimized(false).ice_ping();
+            test(false);
+        }
+        catch(Ice.UnsupportedProtocolException ex)
+        {
+            // Server 2.0 proxy doesn't support 1.0 version.
+        }
+
+        ref10 = "test -p 1.0:default -p 12010";
+        cl10 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
+        cl10.ice_ping();
+
+        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
+        // call will use the 1.1 protocol
+        ref13 = "test -p 1.3:default -p 12010";
+        cl13 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
+        cl13.ice_ping();
+        try
+        {
+            cl13.end_ice_ping(cl13.begin_ice_ping());
+        }
+        catch(Ice.CollocationOptimizationException ex)
+        {
+        }
+        out.println("ok");
+        
         out.print("testing opaque endpoints... ");
         out.flush();
 

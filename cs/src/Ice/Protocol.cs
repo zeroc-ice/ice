@@ -115,11 +115,36 @@ namespace IceInternal
         }
         
         //
+        // Either return the given protocol if not compatible, or the greatest
+        // supported protocol otherwise.
+        //
+        internal static Ice.ProtocolVersion
+        getCompatibleProtocol(Ice.ProtocolVersion v)
+        {
+            if(v.major != Ice.Util.currentProtocol.major)
+            {
+                return v; // Unsupported protocol, return as is.
+            }
+            else if(v.minor < Ice.Util.currentProtocol.minor)
+            {
+                return v; // Supported protocol.
+            }
+            else
+            {
+                //
+                // Unsupported but compatible, use the currently supported
+                // protocol, that's the best we can do.
+                //
+                return Ice.Util.currentProtocol; 
+            }
+        }
+
+        //
         // Either return the given encoding if not compatible, or the greatest
         // supported encoding otherwise.
         //
         internal static Ice.EncodingVersion
-        checkForCompatibleEncoding(Ice.EncodingVersion v)
+        getCompatibleEncoding(Ice.EncodingVersion v)
         {
             if(v.major != Ice.Util.currentEncoding.major)
             {

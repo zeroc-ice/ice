@@ -171,6 +171,7 @@ namespace IceInternal
             Reference.Mode mode = Reference.Mode.ModeTwoway;
             bool secure = false;
             Ice.EncodingVersion encoding = instance_.defaultsAndOverrides().defaultEncoding;
+            Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
             string adapter = "";
 
             while(true)
@@ -362,6 +363,25 @@ namespace IceInternal
                         break;
                     }
 
+                    case 'p':
+                    {
+                        if(argument == null)
+                        {
+                            throw new Ice.ProxyParseException("no argument provided for -p option `" + s + "'");
+                        }
+            
+                        try
+                        {
+                            protocol = Ice.Util.stringToProtocolVersion(argument);
+                        }
+                        catch(Ice.VersionParseException e)
+                        {
+                            throw new Ice.ProxyParseException("invalid protocol version `" + argument + "' in `" + s +
+                                                              "':\n" + e.str);
+                        }
+                        break;
+                    }
+
                     default:
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -373,7 +393,7 @@ namespace IceInternal
 
             if(beg == -1)
             {
-                return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, null, propertyPrefix);
+                return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
             }
 
             List<EndpointI> endpoints = new List<EndpointI>();
@@ -464,7 +484,7 @@ namespace IceInternal
                 }
 
                 EndpointI[] ep = endpoints.ToArray();
-                return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, ep, null, propertyPrefix);
+                return create(ident, facet, mode, secure, protocol, encoding, ep, null, propertyPrefix);
             }
             else if(s[beg] == '@')
             {
@@ -523,8 +543,7 @@ namespace IceInternal
                     e.str = "empty adapter id in `" + s + "'";
                     throw e;
                 }
-                return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, adapter,
-                              propertyPrefix);
+                return create(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
             }
 
             Ice.ProxyParseException ex = new Ice.ProxyParseException();

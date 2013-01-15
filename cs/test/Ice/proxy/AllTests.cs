@@ -219,6 +219,20 @@ public class AllTests : TestCommon.TestApp
         b1 = communicator.stringToProxy("test -s");
         test(b1.ice_isSecure());
 
+        test(b1.ice_getEncodingVersion().Equals(Ice.Util.currentEncoding));
+
+        b1 = communicator.stringToProxy("test -e 1.0");
+        test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);
+
+        b1 = communicator.stringToProxy("test -e 6.5");
+        test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
+
+        b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
+        test(b1.ToString().Equals("test -t"));
+        
+        b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
+        test(b1.ToString().Equals("test -t -p 6.5"));
+
         try
         {
             b1 = communicator.stringToProxy("test:tcp@adapterId");
@@ -540,59 +554,6 @@ public class AllTests : TestCommon.TestApp
         test(Ice.CollectionComparer.Equals(c, c2));
         WriteLine("ok");
 
-        Write("testing protocol versioning... ");
-        Flush();
-        {
-            Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
-            outS.writeProxy(cl);
-            byte[] inBytes = outS.finished();
-        
-            // Protocol version 1.1
-            inBytes[9] = 1;
-            inBytes[10] = 1;
-
-            Ice.InputStream inS = Ice.Util.createInputStream(communicator, inBytes);
-            Test.MyClassPrx cl11 = Test.MyClassPrxHelper.uncheckedCast(inS.readProxy().ice_collocationOptimized(false));
-            if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
-            {
-                string protocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-                test(cl11.ToString().Equals("test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010"));
-            }
-            try
-            {
-                cl11.ice_ping();
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException)
-            {
-            }
-            try
-            {
-                cl11.end_ice_ping(cl11.begin_ice_ping());
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException)
-            {
-            }
-            try
-            {
-                cl11.ice_flushBatchRequests();
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException)
-            {
-            }
-            try
-            {
-                cl11.end_ice_flushBatchRequests(cl11.begin_ice_flushBatchRequests());
-                test(false);
-            }
-            catch(Ice.UnsupportedProtocolException)
-            {
-            }
-        }
-        WriteLine("ok");
-
         Write("testing encoding versioning... ");
         Flush();
         string ref20 = "test -e 2.0:default -p 12010";
@@ -668,6 +629,38 @@ public class AllTests : TestCommon.TestApp
             test(ex.unknown.IndexOf("UnsupportedEncodingException") > 0);
         }
 
+        WriteLine("ok");
+
+        Write("testing protocol versioning... ");
+        Flush();
+        ref20 = "test -p 2.0:default -p 12010";
+        cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
+        try 
+        {
+            cl20.ice_collocationOptimized(false).ice_ping();
+            test(false);
+        }
+        catch(Ice.UnsupportedProtocolException)
+        {
+            // Server 2.0 proxy doesn't support 1.0 version.
+        }
+
+        ref10 = "test -p 1.0:default -p 12010";
+        cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
+        cl10.ice_ping();
+
+        // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
+        // call will use the 1.1 protocol
+        ref13 = "test -p 1.3:default -p 12010";
+        cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
+        cl13.ice_ping();
+        try
+        {
+            cl13.end_ice_ping(cl13.begin_ice_ping());
+        }
+        catch(Ice.CollocationOptimizationException)
+        {
+        }
         WriteLine("ok");
 
         Write("testing opaque endpoints... ");

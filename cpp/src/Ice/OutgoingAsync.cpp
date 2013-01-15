@@ -426,7 +426,7 @@ IceInternal::OutgoingAsync::OutgoingAsync(const ObjectPrx& prx,
                                           const Ice::LocalObjectPtr& cookie) :
     AsyncResult(prx->ice_getCommunicator(), prx->__reference()->getInstance(), operation, delegate, cookie),
     _proxy(prx),
-    _encoding(checkForCompatibleEncoding(prx->__reference()->getEncoding()))
+    _encoding(getCompatibleEncoding(prx->__reference()->getEncoding()))
 {
 }
 
@@ -438,7 +438,7 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
     _mode = mode;
     _sentSynchronously = false;
 
-    checkSupportedProtocol(_proxy->__reference()->getProtocol());
+    checkSupportedProtocol(getCompatibleProtocol(_proxy->__reference()->getProtocol()));
 
     _observer.attach(_proxy.get(), operation, context);
 
