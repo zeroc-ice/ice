@@ -42,10 +42,6 @@ public:
     {
         return _ref;
     }
-
-protected:
-
-    friend class IceInternal::GC; // Allows IceInternal::GC to read value of _ref.
 };
 
 }

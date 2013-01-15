@@ -27,6 +27,10 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- Fixed issue where defining an IceUtil::Handle for a specialization
+  of a generated Slice class would fail to compile because the Slice
+  class privately inherited from IceInternal::GCShared.
+
 - Fixed client side checks for encoding version. An invocation on a
   proxy with a compatible encoding (same major version) will now
   succeed even if the encoding minor version isn't supported. In this

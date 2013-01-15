@@ -3335,7 +3335,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     bool override = p->canBeCyclic() && (!hasBaseClass || !bases.front()->canBeCyclic());
     if(!basePreserved && (override || preserved))
     {
-        H << ", private IceInternal::GCShared";
+        H << ", public IceInternal::GCShared";
     }
 
     H.restoreIndent();
