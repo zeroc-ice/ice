@@ -697,6 +697,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
     cl->ice_collocationOptimized(false)->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
 
+    // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
+    // call will use the 1.1 encoding
+    string ref13 = "test -e 1.3:default -p 12010";
+    Test::MyClassPrx cl13 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref13));
+    cl13->ice_ping();
+    try
+    {
+        cl13->end_ice_ping(cl13->begin_ice_ping());
+    }
+    catch(const Ice::CollocationOptimizationException&)
+    {
+    }
+    
     try
     {
         // Send request with bogus 1.2 encoding.

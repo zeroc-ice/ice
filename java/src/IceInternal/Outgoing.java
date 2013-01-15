@@ -23,7 +23,7 @@ public final class Outgoing implements OutgoingMessageCallback
         _sent = false;
         _handler = handler;
         _observer = observer;
-        _encoding = handler.getReference().getEncoding();
+        _encoding = Protocol.checkForCompatibleEncoding(handler.getReference().getEncoding());
         _os = new BasicStream(_handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
 
         Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
@@ -44,7 +44,7 @@ public final class Outgoing implements OutgoingMessageCallback
         _sent = false;
         _handler = handler;
         _observer = observer;
-        _encoding = handler.getReference().getEncoding();
+        _encoding = Protocol.checkForCompatibleEncoding(handler.getReference().getEncoding());
 
         Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
 

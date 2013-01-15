@@ -187,6 +187,31 @@ checkSupportedEncoding(const Ice::EncodingVersion& v)
     }
 }
 
+//
+// Either return the given encoding if not compatible, or the greatest
+// supported encoding otherwise.
+//
+inline const Ice::EncodingVersion&
+checkForCompatibleEncoding(const Ice::EncodingVersion& v)
+{
+    if(v.major != Ice::currentEncoding.major)
+    {
+        return v; // Unsupported encoding, return as is.
+    }
+    else if(v.minor < Ice::currentEncoding.minor)
+    {
+        return v; // Supported encoding.
+    }
+    else
+    {
+        //
+        // Unsupported but compatible, use the currently supported
+        // encoding, that's the best we can do.
+        //
+        return Ice::currentEncoding; 
+    }
+}
+
 }
 
 #endif

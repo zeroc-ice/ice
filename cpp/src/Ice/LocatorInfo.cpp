@@ -324,9 +324,9 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
         if(_ref->isWellKnown() && !isSupported(_ref->getEncoding(), r->getEncoding()))
         {
             //
-            // If a well-known proxy and the returned proxy encoding isn't 
-            // supported, we're done: there are no compatible endpoints
-            // we can use.
+            // If a well-known proxy and the returned proxy encoding
+            // isn't supported, we're done: there's no compatible
+            // endpoint we can use.
             //
         }
         else if(!r->isIndirect())

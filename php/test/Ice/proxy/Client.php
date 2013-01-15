@@ -501,6 +501,12 @@ function allTests($communicator)
     $cl10->ice_ping();
     $cl10->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
     $cl->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
+
+    // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
+    // call will use the 1.1 encoding
+    $ref13 = "test -e 1.3:default -p 12010";
+    $cl13 = $communicator->stringToProxy($ref13)->ice_uncheckedCast("::Test::MyClass");
+    $cl13->ice_ping();
     echo "ok\n";
 
     echo "testing opaque endpoints... ";

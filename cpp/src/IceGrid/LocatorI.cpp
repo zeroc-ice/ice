@@ -187,7 +187,7 @@ public:
         //
         // Ensure the server supports the request encoding.
         //
-        if(proxy->ice_getEncodingVersion() < _encoding)
+        if(!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
         {
             exception(id, Ice::UnsupportedEncodingException(__FILE__, 
                                                             __LINE__, 

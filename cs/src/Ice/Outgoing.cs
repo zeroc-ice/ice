@@ -30,7 +30,7 @@ namespace IceInternal
             _sent = false;
             _handler = handler;
             _observer = observer;
-            _encoding = handler.getReference().getEncoding();
+            _encoding = Protocol.checkForCompatibleEncoding(handler.getReference().getEncoding());
             _os = new BasicStream(_handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
 
             Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
@@ -49,7 +49,7 @@ namespace IceInternal
             _sent = false;
             _handler = handler;
             _observer = observer;
-            _encoding = handler.getReference().getEncoding();
+            _encoding = Protocol.checkForCompatibleEncoding(handler.getReference().getEncoding());
 
             Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
 

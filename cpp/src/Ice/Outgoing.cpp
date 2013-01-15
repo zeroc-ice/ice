@@ -87,7 +87,7 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     _handler(handler),
     _observer(observer),
     _state(StateUnsent),
-    _encoding(handler->getReference()->getEncoding()),
+    _encoding(checkForCompatibleEncoding(handler->getReference()->getEncoding())),
     _is(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _sent(false)

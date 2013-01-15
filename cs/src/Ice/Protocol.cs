@@ -113,6 +113,31 @@ namespace IceInternal
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentEncoding);
             }
         }
+        
+        //
+        // Either return the given encoding if not compatible, or the greatest
+        // supported encoding otherwise.
+        //
+        internal static Ice.EncodingVersion
+        checkForCompatibleEncoding(Ice.EncodingVersion v)
+        {
+            if(v.major != Ice.Util.currentEncoding.major)
+            {
+                return v; // Unsupported encoding, return as is.
+            }
+            else if(v.minor < Ice.Util.currentEncoding.minor)
+            {
+                return v; // Supported encoding.
+            }
+            else
+            {
+                //
+                // Unsupported but compatible, use the currently supported
+                // encoding, that's the best we can do.
+                //
+                return Ice.Util.currentEncoding; 
+            }
+        }
 
         internal static bool
         isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported)

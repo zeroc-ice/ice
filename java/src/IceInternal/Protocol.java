@@ -130,6 +130,31 @@ final public class Protocol
         }
     }
 
+    //
+    // Either return the given encoding if not compatible, or the greatest
+    // supported encoding otherwise.
+    //
+    static public Ice.EncodingVersion
+    checkForCompatibleEncoding(Ice.EncodingVersion v)
+    {
+        if(v.major != currentEncoding.major)
+        {
+            return v; // Unsupported encoding, return as is.
+        }
+        else if(v.minor < currentEncoding.minor)
+        {
+            return v; // Supported encoding.
+        }
+        else
+        {
+            //
+            // Unsupported but compatible, use the currently supported
+            // encoding, that's the best we can do.
+            //
+            return currentEncoding; 
+        }
+    }
+
     static public boolean
     isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported)
     {

@@ -426,7 +426,7 @@ IceInternal::OutgoingAsync::OutgoingAsync(const ObjectPrx& prx,
                                           const Ice::LocalObjectPtr& cookie) :
     AsyncResult(prx->ice_getCommunicator(), prx->__reference()->getInstance(), operation, delegate, cookie),
     _proxy(prx),
-    _encoding(prx->__reference()->getEncoding())
+    _encoding(checkForCompatibleEncoding(prx->__reference()->getEncoding()))
 {
 }
 

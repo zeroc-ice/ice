@@ -798,7 +798,7 @@ namespace IceInternal
                  cookie)
         {
             proxy_ = (Ice.ObjectPrxHelperBase)prx;
-            _encoding = proxy_.reference__().getEncoding();
+            _encoding = Protocol.checkForCompatibleEncoding(proxy_.reference__().getEncoding());
         }
 
         public void prepare__(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
