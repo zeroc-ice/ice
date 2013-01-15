@@ -2131,6 +2131,22 @@ public class SessionKeeper
                             {
                                 inf.setHost(_directDefaultEndpointHost.getText());
                                 inf.setSSL(_directDefaultEndpointSSL.isSelected());
+                                String port = _directDefaultEndpointPort.getText();
+                                if(port != null && !port.isEmpty())
+                                {
+                                    try
+                                    {
+                                        inf.setPort(Integer.parseInt(port));
+                                        inf.setDefaultPort(false);
+                                    }
+                                    catch(NumberFormatException ex)
+                                    {
+                                    }
+                                }
+                                else
+                                {
+                                    inf.setDefaultPort(true);
+                                }
                             }
                             else
                             {
@@ -2176,6 +2192,22 @@ public class SessionKeeper
                             {
                                 inf.setHost(_routedDefaultEndpointHost.getText());
                                 inf.setSSL(_routedDefaultEndpointSSL.isSelected());
+                                String port = _routedDefaultEndpointPort.getText();
+                                if(port != null && !port.isEmpty())
+                                {
+                                    try
+                                    {
+                                        inf.setPort(Integer.parseInt(port));
+                                        inf.setDefaultPort(false);
+                                    }
+                                    catch(NumberFormatException ex)
+                                    {
+                                    }
+                                }
+                                else
+                                {
+                                    inf.setDefaultPort(true);
+                                }
                             }
                             else
                             {
