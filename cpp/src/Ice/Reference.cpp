@@ -290,13 +290,21 @@ IceInternal::Reference::toString() const
 
     if(_protocol != Ice::Protocol_1_0)
     {
+        //
+        // We only print the protocol if it's not 1.0. It's fine as
+        // long as we don't add Ice.Default.ProtocolVersion, a
+        // stringified proxy will convert back to the same proxy with
+        // stringToProxy.
+        //
         s << " -p " << _protocol;
     }
 
-    if(_encoding != Ice::Encoding_1_0)
-    {
-        s << " -e " << _encoding;
-    }
+    //
+    // Always print the encoding version to ensure a stringified proxy
+    // will convert back to a proxy with the same encoding with
+    // stringToProxy (and won't use Ice.Default.EncodingVersion).
+    // 
+    s << " -e " << _encoding;
 
     return s.str();
 

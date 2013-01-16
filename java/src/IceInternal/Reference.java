@@ -363,15 +363,23 @@ public abstract class Reference implements Cloneable
 
         if(!_protocol.equals(Ice.Util.Protocol_1_0))
         {
+            //
+            // We only print the protocol if it's not 1.0. It's fine as
+            // long as we don't add Ice.Default.ProtocolVersion, a
+            // stringified proxy will convert back to the same proxy with
+            // stringToProxy.
+            //
             s.append(" -p ");
             s.append(Ice.Util.protocolVersionToString(_protocol));
         }
 
-        if(!_encoding.equals(Ice.Util.Encoding_1_0))
-        {
-            s.append(" -e ");
-            s.append(Ice.Util.encodingVersionToString(_encoding));
-        }
+        //
+        // Always print the encoding version to ensure a stringified proxy
+        // will convert back to a proxy with the same encoding with
+        // stringToProxy (and won't use Ice.Default.EncodingVersion).
+        // 
+        s.append(" -e ");
+        s.append(Ice.Util.encodingVersionToString(_encoding));
 
         return s.toString();
 

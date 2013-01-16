@@ -228,10 +228,10 @@ public class AllTests : TestCommon.TestApp
         test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-        test(b1.ToString().Equals("test -t"));
+        test(b1.ToString().Equals("test -t -e 1.0"));
         
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-        test(b1.ToString().Equals("test -t -p 6.5"));
+        test(b1.ToString().Equals("test -t -p 6.5 -e 1.0"));
 
         try
         {
@@ -388,7 +388,7 @@ public class AllTests : TestCommon.TestApp
         Dictionary<string, string> proxyProps = communicator.proxyToProperty(b1, "Test");
         test(proxyProps.Count == 18);
 
-        test(proxyProps["Test"].Equals("test -t"));
+        test(proxyProps["Test"].Equals("test -t -e 1.0"));
         test(proxyProps["Test.CollocationOptimized"].Equals("1"));
         test(proxyProps["Test.ConnectionCached"].Equals("1"));
         test(proxyProps["Test.PreferSecure"].Equals("0"));
@@ -797,18 +797,18 @@ public class AllTests : TestCommon.TestApp
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
             pstr = communicator.proxyToString(p1);
-            test(pstr.Equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+            test(pstr.Equals("test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
             // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
             pstr = communicator.proxyToString(p1);
             if(!ssl)
             {
-                test(pstr.Equals("test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
+                test(pstr.Equals("test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
             }
             else
             {
-                test(pstr.Equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
+                test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
             }
         }
 

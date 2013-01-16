@@ -11,6 +11,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Base64.h>
 #include <Ice/HashUtil.h>
 
@@ -18,16 +19,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str, const InstancePtr& instance) : 
+    EndpointI("")
 {
-const Ice::ProtocolVersion Protocol_0_0 = { 0, 0 };
-const Ice::EncodingVersion Encoding_0_0 = { 0, 0 };
-}
+    _rawEncoding = instance->defaultsAndOverrides()->defaultEncoding;
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : 
-    EndpointI(""),
-    _rawEncoding(Ice::currentEncoding)
-{
     const string delim = " \t\n\r";
 
     string::size_type beg;

@@ -16,8 +16,10 @@ namespace IceInternal
 
     sealed class OpaqueEndpointI : EndpointI
     {
-        public OpaqueEndpointI(string str) : base("")
+        public OpaqueEndpointI(string str, Instance instance) : base("")
         {
+            _rawEncoding = instance.defaultsAndOverrides().defaultEncoding;
+
             int topt = 0;
             int vopt = 0;
 

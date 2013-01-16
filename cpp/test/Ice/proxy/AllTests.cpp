@@ -221,10 +221,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getEncodingVersion().major == 6 && b1->ice_getEncodingVersion().minor == 5);
 
     b1 = communicator->stringToProxy("test -p 1.0 -e 1.0");
-    test(b1->ice_toString() == "test -t");
+    test(b1->ice_toString() == "test -t -e 1.0");
 
     b1 = communicator->stringToProxy("test -p 6.5 -e 1.0");
-    test(b1->ice_toString() == "test -t -p 6.5");
+    test(b1->ice_toString() == "test -t -p 6.5 -e 1.0");
 
     try
     {
@@ -373,7 +373,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::PropertyDict proxyProps = communicator->proxyToProperty(b1, "Test");
     test(proxyProps.size() == 18);
 
-    test(proxyProps["Test"] == "test -t");
+    test(proxyProps["Test"] == "test -t -e 1.0");
     test(proxyProps["Test.CollocationOptimized"] == "1");
     test(proxyProps["Test.ConnectionCached"] == "1");
     test(proxyProps["Test.PreferSecure"] == "0");
@@ -875,7 +875,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
         pstr = communicator->proxyToString(p1);
-        test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+        test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
         //
         // Test that an SSL endpoint and a nonsense endpoint get written
@@ -885,11 +885,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pstr = communicator->proxyToString(p1);
         if(!ssl)
         {
-            test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
+            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
         else
         {
-            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
         }
 
         //
@@ -921,11 +921,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pstr = communicator->proxyToString(p2);
         if(!ssl)
         {
-            test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
+            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
         else
         {
-            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
         }
     }
 
