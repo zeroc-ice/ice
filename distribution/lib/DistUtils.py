@@ -705,7 +705,7 @@ class Platform:
     def copyThirdPartyDependencies(self, buildDir):
         for t in filter(ThirdParty.includeInDistribution, self.thirdParties): t.copyToDistribution(self, buildDir)
 
-    def completeDistribution(self, buildDir, version):
+    def completeDistribution(self, buildDir, frameworksDir, version):
         pass
 
     def getPackageName(self, prefix, version):
@@ -768,19 +768,23 @@ class Darwin(Platform):
     def getMakeEnvs(self, version, language):
         envs = Platform.getMakeEnvs(self, version, language)
         # Build fat binaries by default.
+        mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
+
         if not os.environ.has_key("CXXARCHFLAGS"):
             envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
+            envs += " embedded_runpath_prefix=\"/Library/Developer/Ice-" + mmversion + "\""
         return envs
 
     def getMakeOptions(self):
         return "-j 8"
 
-    def completeDistribution(self, buildDir, version):
+    def completeDistribution(self, buildDir, frameworksDir, version):
 
         print "Fixing install names...",
         sys.stdout.flush()
 
-        isLib = lambda f: (fnmatch.fnmatch(f, "*dylib") or fnmatch.fnmatch(f, "*jnilib")) and not os.path.islink(f)
+        isLib = lambda f: (fnmatch.fnmatch(f, "*dylib") or fnmatch.fnmatch(f, "*so") \
+            or fnmatch.fnmatch(f, "*jnilib")) and not os.path.islink(f)
         isExe = lambda f : os.system('file -b ' + f + ' | grep -q "Mach-O"') == 0
 
         #
@@ -799,11 +803,13 @@ class Darwin(Platform):
         #
         binFiles = [ f for f in glob.glob(os.path.join(buildDir, "bin", "*")) if isExe(f)]
         binFiles += [ f for f in glob.glob(os.path.join(buildDir, "lib", "*")) if isLib(f)]
+        binFiles += [ f for f in glob.glob(os.path.join(buildDir, "python", "*")) if isLib(f)]
 
         #
         # Fix the install names in each binary.
         #
         mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
+
         for oldName in oldInstallNames:
             libName = os.path.basename(oldName)
             newName = '/Library/Developer/Ice-' + mmversion + '/lib/' + libName
@@ -811,6 +817,23 @@ class Darwin(Platform):
             for f in binFiles:
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
 
+        #
+        # Replace the names in frameworks binaries.
+        #
+        names = ["IceUtil", "Ice", "IceSSL", "Glacier2", "IcePatch2", "IceStorm", "IceGrid"]
+        for name in names:
+            f = frameworksDir + "/" + name + ".framework/" + name
+            newName = "/Library/Frameworks/" + name + ".framework/Versions/" + mmversion + "/" + name
+            os.system('install_name_tool -id ' + newName + ' ' + f)
+            for component in names:
+                oldPath = frameworksDir + "/" + component + ".framework/Versions/" + mmversion + "/" + component
+                newPath = "/Library/Frameworks/" + component + ".framework/Versions/" + mmversion + "/" + component
+                os.system('install_name_tool -change ' + oldPath + ' ' + newPath + ' ' + f)
+
+        print "ok"
+
+        print "Fixing python location"
+        move(buildDir + '/python', buildDir + '/../python')
         print "ok"
 
         print "Fixing IceGrid Admin.app location"

@@ -12,7 +12,7 @@ top_srcdir	= ../..
 LIBFILENAME     = $(call mklibfilename,Glacier2,$(VERSION))
 SONAME          = $(call mksoname,Glacier2,$(SOVERSION))  
 LIBNAME		= $(call mklibname,Glacier2)
-
+FRAMEWORK	= Glacier2
 
 TARGETS         = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 

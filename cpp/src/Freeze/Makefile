@@ -12,6 +12,7 @@ top_srcdir	= ../..
 LIBFILENAME     = $(call mklibfilename,Freeze,$(VERSION))
 SONAME          = $(call mksoname,Freeze,$(SOVERSION))  
 LIBNAME		= $(call mklibname,Freeze)
+FRAMEWORK	= Freeze
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 

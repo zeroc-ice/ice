@@ -13,6 +13,8 @@ LIBFILENAME	= $(call mklibfilename,IceUtil,$(VERSION))
 SONAME		= $(call mksoname,IceUtil,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceUtil)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+FRAMEWORK	= IceUtil
+
 
 OBJS		= ArgVector.o \
 		  Cond.o \
