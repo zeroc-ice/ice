@@ -50,13 +50,6 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
 IceInternal::DynamicLibrary::symbol_type
 IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIceVersion)
 {
-
-#ifdef _WIN32
-    bool isFilePath = entryPoint.find('\\') != string::npos || entryPoint.find('/') != string::npos;
-#else
-    bool isFilePath = entryPoint.find('/') != string::npos;
-#endif
-
     string::size_type colon = entryPoint.rfind(':');
 
 #ifdef _WIN32
@@ -84,12 +77,18 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     string funcName = entryPoint.substr(colon + 1);
     string libPath, libName, version, debug;
 
+#ifdef _WIN32
+    bool isFilePath = libSpec.find('\\') != string::npos || entryPoint.find('/') != string::npos;
+#else
+    bool isFilePath = libSpec.find('/') != string::npos;
+#endif
+
     if(isFilePath)
     {
 #ifdef _WIN32
-        string::size_type separator = entryPoint.find_last_of("/\\");
+        string::size_type separator = libSpec.find_last_of("/\\");
 #else
-        string::size_type separator = entryPoint.rfind('/');
+        string::size_type separator = libSpec.rfind('/');
 #endif
         libPath = libSpec.substr(0, separator + 1);
         libSpec = libSpec.substr(separator + 1);
