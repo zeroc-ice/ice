@@ -34,6 +34,8 @@ if not os.path.exists(node1Dir):
 else:
     IceGridAdmin.cleanDbDir(node1Dir)
 
+print("Running test with default encoding...")
+
 sys.stdout.write("starting admin permissions verifier... ")
 verifierProc = TestUtil.startServer(os.path.join(os.getcwd(), "verifier"), config=TestUtil.DriverConfig("server"))
 print("ok")
@@ -49,6 +51,18 @@ IceGridAdmin.registryOptions += \
 
 IceGridAdmin.iceGridTest("application.xml",
     '--IceBinDir="%s" --TestDir="%s"' % (TestUtil.getCppBinDir(), os.getcwd()),
+    'properties-override=\'%s\'' % IceGridAdmin.iceGridNodePropertiesOverride())
+
+verifierProc.waitTestSuccess()
+
+print("Running test with 1.0 encoding...")
+
+sys.stdout.write("starting admin permissions verifier... ")
+verifierProc = TestUtil.startServer(os.path.join(os.getcwd(), "verifier"), config=TestUtil.DriverConfig("server"))
+print("ok")
+
+IceGridAdmin.iceGridTest("application.xml",
+    '--Ice.Default.EncodingVersion=1.0 --IceBinDir="%s" --TestDir="%s"' % (TestUtil.getCppBinDir(), os.getcwd()),
     'properties-override=\'%s\'' % IceGridAdmin.iceGridNodePropertiesOverride())
 
 verifierProc.waitTestSuccess()

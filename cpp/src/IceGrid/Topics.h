@@ -43,9 +43,19 @@ protected:
     void updateSerial(int);
     Ice::Context getContext(int) const;
 
+    template<typename T> std::vector<T> getPublishers() const
+    {
+        std::vector<T> publishers;
+        for(std::vector<Ice::ObjectPrx>::const_iterator p = _basePublishers.begin(); p != _basePublishers.end(); ++p)
+        {
+            publishers.push_back(T::uncheckedCast(*p));
+        }
+        return publishers;
+    }
+
     Ice::LoggerPtr _logger;
-    IceStorm::TopicPrx _topic;
-    Ice::ObjectPrx _basePublisher;
+    std::map<Ice::EncodingVersion, IceStorm::TopicPrx> _topics;
+    std::vector<Ice::ObjectPrx> _basePublishers;
     int _serial;
 
     std::set<std::string> _syncSubscribers;
@@ -67,7 +77,7 @@ public:
 
 private:
 
-    const RegistryObserverPrx _publisher;
+    std::vector<RegistryObserverPrx> _publishers;
     std::map<std::string, RegistryInfo> _registries;
 };
 typedef IceUtil::Handle<RegistryObserverTopic> RegistryObserverTopicPtr;
@@ -92,7 +102,7 @@ public:
 private:
 
     const NodeObserverPrx _externalPublisher;
-    const NodeObserverPrx _publisher;
+    std::vector<NodeObserverPrx> _publishers;
     std::map<std::string, NodeDynamicInfo> _nodes;
 };
 typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
@@ -112,7 +122,7 @@ public:
 
 private:
 
-    const ApplicationObserverPrx _publisher;
+    std::vector<ApplicationObserverPrx> _publishers;
     std::map<std::string, ApplicationInfo> _applications;
 };
 typedef IceUtil::Handle<ApplicationObserverTopic> ApplicationObserverTopicPtr;
@@ -132,7 +142,7 @@ public:
 
 private:
 
-    const AdapterObserverPrx _publisher;
+    std::vector<AdapterObserverPrx> _publishers;
     std::map<std::string, AdapterInfo> _adapters;
 };
 typedef IceUtil::Handle<AdapterObserverTopic> AdapterObserverTopicPtr;
@@ -155,7 +165,7 @@ public:
 
 private:
 
-    const ObjectObserverPrx _publisher;
+    std::vector<ObjectObserverPrx> _publishers;
     std::map<Ice::Identity, ObjectInfo> _objects;
 };
 typedef IceUtil::Handle<ObjectObserverTopic> ObjectObserverTopicPtr;

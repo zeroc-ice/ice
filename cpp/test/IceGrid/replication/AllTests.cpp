@@ -91,7 +91,7 @@ waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bo
             return;
         } 
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
         ++nRetry;
     }
     test(false);
@@ -118,7 +118,7 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
             }
         }
         
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
         ++nRetry;
     }
     try
@@ -218,7 +218,7 @@ waitAndPing(const Ice::ObjectPrx& obj)
         }
         catch(const Ice::LocalException&)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             ++nRetry;
         }
     }
@@ -336,7 +336,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         int nRetry = 0;
         while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             ++nRetry;
         }
         test(slave2Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
@@ -352,7 +352,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         nRetry = 0;
         while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 30)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             ++nRetry;
         }
         test(slave2Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
@@ -371,7 +371,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         nRetry = 0;
         while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             ++nRetry;
         }
         test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
@@ -385,7 +385,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         nRetry = 0;
         while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 30)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             ++nRetry;
         }
         test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
@@ -1236,20 +1236,94 @@ allTests(const Ice::CommunicatorPtr& comm)
         masterAdmin->removeApplication("TestApp");
     }
     cout << "ok" << endl;
+
+    cout << "testing interop with registry and node using the 1.0 encoding... " << flush;
+    {
+        params.clear();
+        params["id"] = "Slave3";
+        params["replicaName"] = "Slave3";
+        params["port"] = "12053";
+        params["encoding"] = "1.0";
+        instantiateServer(admin, "IceGridRegistry", params);
+
+        params.clear();
+        params["id"] = "Node2";
+        params["encoding"] = "1.0";
+        instantiateServer(admin, "IceGridNode", params);
+
+        admin->startServer("Slave3");
+        waitForServerState(admin, "Slave3", true);
+        int nRetry = 0;
+        while(nRetry < 30)
+        {
+            try
+            {
+                test(masterAdmin->pingRegistry("Slave3"));
+                break;
+            }
+            catch(const IceGrid::RegistryNotExistException&)
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+                ++nRetry;
+            }
+        }
+
+        admin->startServer("Node2");
+        waitForNodeState(masterAdmin, "Node2", true);
+
+        Ice::LocatorPrx slave3Locator = 
+            Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Slave3 -e 1.0:default -p 12053"));
+        IceGrid::AdminPrx slave3Admin = createAdminSession(slave3Locator, "Slave3");
+        test(slave3Admin->pingNode("Node2"));
+
+        ApplicationDescriptor app;
+        app.name = "TestApp";
+        app.description = "added application";
+
+        ServerDescriptorPtr server = new ServerDescriptor();
+        server->id = "Server";
+        server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
+        server->pwd = ".";
+        server->applicationDistrib = false;
+        server->allocatable = false;
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
+        server->activation = "on-demand";
+        AdapterDescriptor adapter;
+        adapter.name = "TestAdapter";
+        adapter.id = "TestAdapter.Server";
+        adapter.serverLifetime = true;
+        adapter.registerProcess = false;
+        PropertyDescriptor property;
+        property.name = "TestAdapter.Endpoints";
+        property.value = "default";
+        server->propertySet.properties.push_back(property);
+        property.name = "Identity";
+        property.value = "test";
+        server->propertySet.properties.push_back(property);
+        ObjectDescriptor object;
+        object.id = comm->stringToIdentity("test");
+        object.type = "::Test::TestIntf";
+        adapter.objects.push_back(object);
+        server->adapters.push_back(adapter);
+        app.nodes["Node2"].servers.push_back(server);
+
+        masterAdmin->addApplication(app);
+
+        comm->stringToProxy("test -e 1.0")->ice_locator(
+            masterLocator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+        comm->stringToProxy("test -e 1.0")->ice_locator(
+            slave1Locator->ice_encodingVersion(Ice::Encoding_1_0))->ice_locatorCacheTimeout(0)->ice_ping();
+        comm->stringToProxy("test -e 1.0")->ice_locator(slave3Locator)->ice_locatorCacheTimeout(0)->ice_ping();
+        masterAdmin->stopServer("Server");
+
+    }
+    cout << "ok" << endl;
     
     
-    cout << "shutting down Node1... " << flush;
     slave1Admin->shutdownNode("Node1");
-    cout << "ok" << endl;
-
-    cout << "removing Node1 server... " << flush;
     removeServer(admin, "Node1");
-    cout << "ok" << endl;
 
-    cout << "removing Slave2 server..." << flush;
     removeServer(admin, "Slave2");
-    cout << "ok" << endl;
-
 
     slave1Admin->shutdown();
     removeServer(admin, "Slave1");

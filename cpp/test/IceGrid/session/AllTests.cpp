@@ -556,6 +556,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         communicator->getLogger(), IceUtil::Time::seconds(5));
     keepAlive->start();
 
+    bool encoding10 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
+
     RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
     test(registry);
 
@@ -905,7 +907,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Test::ExtendedPermissionDeniedException& ex)
         {
-            test(ex.reason == "reason");
+            test(!encoding10 && ex.reason == "reason");
+        }
+        catch(const Glacier2::PermissionDeniedException& ex)
+        {
+            test(encoding10 && ex.reason == "reason");
         }
 
         session1->ice_ping();
@@ -978,7 +984,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Test::ExtendedPermissionDeniedException& ex)
         {
-            test(ex.reason == "reason");
+            test(!encoding10 && ex.reason == "reason");
+        }
+        catch(const Glacier2::PermissionDeniedException& ex)
+        {
+            test(encoding10 && ex.reason == "reason");
         }
 
         admSession1->ice_ping();
@@ -1066,7 +1076,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Test::ExtendedPermissionDeniedException& ex)
         {
-            test(ex.reason == "reason");
+            test(!encoding10 && ex.reason == "reason");
+        }
+        catch(const Glacier2::PermissionDeniedException& ex)
+        {
+            test(encoding10 && ex.reason == "reason");
         }
 
         try
@@ -1137,7 +1151,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Test::ExtendedPermissionDeniedException& ex)
         {
-            test(ex.reason == "reason");
+            test(!encoding10 && ex.reason == "reason");
+        }
+        catch(const Glacier2::PermissionDeniedException& ex)
+        {
+            test(encoding10 && ex.reason == "reason");
         }
 
         Ice::ObjectPrx admin1 = admSession1->getAdmin()->ice_router(adminRouter1)->ice_connectionId("admRouter11");
@@ -1965,7 +1983,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         cout << "ok" << endl;
     }
-
 
     admin->stopServer("PermissionsVerifierServer");
 

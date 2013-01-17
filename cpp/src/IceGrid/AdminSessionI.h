@@ -66,7 +66,7 @@ public:
 private:
 
     void setupObserverSubscription(TopicName, const Ice::ObjectPrx&);
-    Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&);
+    Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&, const Ice::EncodingVersion&);
     FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
 
     virtual void destroyImpl(bool);

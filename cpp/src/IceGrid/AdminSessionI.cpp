@@ -185,11 +185,11 @@ AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
         throw ex;
     }
 
-    setupObserverSubscription(RegistryObserverTopicName, toProxy(registryObserver, current.con));
-    setupObserverSubscription(NodeObserverTopicName, toProxy(nodeObserver, current.con));
-    setupObserverSubscription(ApplicationObserverTopicName, toProxy(appObserver, current.con));
-    setupObserverSubscription(AdapterObserverTopicName, toProxy(adapterObserver, current.con));
-    setupObserverSubscription(ObjectObserverTopicName, toProxy(objectObserver, current.con));
+    setupObserverSubscription(RegistryObserverTopicName, toProxy(registryObserver, current.con, current.encoding));
+    setupObserverSubscription(NodeObserverTopicName, toProxy(nodeObserver, current.con, current.encoding));
+    setupObserverSubscription(ApplicationObserverTopicName, toProxy(appObserver, current.con, current.encoding));
+    setupObserverSubscription(AdapterObserverTopicName, toProxy(adapterObserver, current.con, current.encoding));
+    setupObserverSubscription(ObjectObserverTopicName, toProxy(objectObserver, current.con, current.encoding));
 
 }
 
@@ -335,9 +335,9 @@ AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& o
 }
 
 Ice::ObjectPrx
-AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connection)
+AdminSessionI::toProxy(const Ice::Identity& id, const Ice::ConnectionPtr& connection, const Ice::EncodingVersion& v)
 {
-    return id.name.empty() ? Ice::ObjectPrx() : connection->createProxy(id);
+    return id.name.empty() ? Ice::ObjectPrx() : connection->createProxy(id)->ice_encodingVersion(v);
 }
 
 FileIteratorPrx

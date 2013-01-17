@@ -27,6 +27,8 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- IceGrid should now interoperate with IceGrid node versions >= 3.2.
+
 - Fixed issue where defining an IceUtil::Handle for a specialization
   of a generated Slice class would fail to compile because the Slice
   class privately inherited from IceInternal::GCShared.

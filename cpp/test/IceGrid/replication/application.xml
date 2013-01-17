@@ -4,6 +4,7 @@
 
     <server-template id="IceGridNode">
       <parameter name="id"/>
+      <parameter name="encoding" default=""/>
       <server id="${id}" exe="${ice.bindir}/icegridnode" activation="manual">
         <option>--nowarn</option>
         <dbenv name="data"/>
@@ -19,6 +20,8 @@
         <property name="Ice.Trace.Network" value="0"/>
         <property name="Ice.Warn.Connections" value="0"/>
         <property name="Ice.Admin.Endpoints" value=""/>
+
+        <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
       </server>
     </server-template>
 
@@ -26,6 +29,7 @@
       <parameter name="id"/>
       <parameter name="port"/>
       <parameter name="replicaName"/>
+      <parameter name="encoding" default=""/>
       <server id="${id}" exe="${ice.bindir}/icegridregistry" activation="manual">
         <option>--nowarn</option>
         <dbenv name="data">
@@ -55,6 +59,8 @@
         <property name="Ice.Admin.Endpoints" value=""/>
         <property name="Ice.Plugin.DB" value="${db-plugin}"/>
         <property name="IceGrid.SQL.DatabaseType" value="QSQLITE"/>
+
+        <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
       </server>
     </server-template>
 
