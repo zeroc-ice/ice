@@ -33,7 +33,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
     _logger(topicManager->ice_getCommunicator()->getLogger()),
     _serial(0)
 {
-    for(int i = 0; i < sizeof(encodings) / sizeof(Ice::EncodingVersion); ++i)
+    for(int i = 0; i < static_cast<int>(sizeof(encodings) / sizeof(Ice::EncodingVersion)); ++i)
     {
         ostringstream os;
         os << name << "-" << Ice::encodingVersionToString(encodings[i]);
