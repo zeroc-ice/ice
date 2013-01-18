@@ -370,7 +370,7 @@ generated from the section label.
         <property name="TCP.Backlog" />
         <property name="TCP.RcvSize" />
         <property name="TCP.SndSize" />
-        <property name="UseServantClassLoader" />
+        <property name="UseApplicationClassLoader" />
         <property name="UseSyslog" />
         <property name="Warn.AMICallback" />
         <property name="Warn.Connections" />

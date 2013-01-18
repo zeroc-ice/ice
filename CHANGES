@@ -77,10 +77,10 @@ General Changes
 Java Changes
 ============
 
-- Added support for Ice.UseServantClassLoader configuration
+- Added support for Ice.UseApplicationClassLoader configuration
   property. When set to 1, the Ice core will set the thread context
-  class loader to the class loader of the servant before dispatching
-  the call.
+  class loader to the class loader of the servant or AMI callback
+  before dispatching the call.
 
 
 ======================================================================

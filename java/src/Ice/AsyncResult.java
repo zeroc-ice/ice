@@ -278,6 +278,11 @@ public class AsyncResult
 
         if(_callback != null)
         {
+            if(_instance.useApplicationClassLoader())
+            {
+                Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
+            }
+
             try
             {
                 _callback.__completed(this);
@@ -293,6 +298,13 @@ public class AsyncResult
             catch(OutOfMemoryError exc)
             {
                 __error(exc);
+            }
+            finally
+            {
+                if(_instance.useApplicationClassLoader())
+                {
+                    Thread.currentThread().setContextClassLoader(null);
+                }
             }
         }
 
@@ -312,6 +324,11 @@ public class AsyncResult
 
         if(_callback != null)
         {
+            if(_instance.useApplicationClassLoader())
+            {
+                Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
+            }
+
             try
             {
                 _callback.__sent(this);
@@ -327,6 +344,13 @@ public class AsyncResult
             catch(OutOfMemoryError exc)
             {
                 __error(exc);
+            }
+            finally
+            {
+                if(_instance.useApplicationClassLoader())
+                {
+                    Thread.currentThread().setContextClassLoader(null);
+                }
             }
         }
 
@@ -436,6 +460,11 @@ public class AsyncResult
 
         if(_callback != null)
         {
+            if(_instance.useApplicationClassLoader())
+            {
+                Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
+            }
+
             try
             {
                 _callback.__completed(this);
@@ -451,6 +480,13 @@ public class AsyncResult
             catch(OutOfMemoryError exc)
             {
                 __error(exc);
+            }
+            finally
+            {
+                if(_instance.useApplicationClassLoader())
+                {
+                    Thread.currentThread().setContextClassLoader(null);
+                }
             }
         }
 

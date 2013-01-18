@@ -208,7 +208,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         {
             if(_servant != null)
             {
-                if(_instance.useServantClassLoader())
+                if(_instance.useApplicationClassLoader())
                 {
                     Thread.currentThread().setContextClassLoader(_servant.getClass().getClassLoader());
                 }
@@ -229,7 +229,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 }
                 finally
                 {
-                    if(_instance.useServantClassLoader())
+                    if(_instance.useApplicationClassLoader())
                     {
                         Thread.currentThread().setContextClassLoader(null);
                     }
