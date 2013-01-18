@@ -28,16 +28,52 @@ public class ServiceBean implements Service
     public final Account 
     getAccount(String id)
     {
-        try
+        final AccountHolder holder = new AccountHolder();
+        database.begin_getAccount(id, new Callback_Database_getAccount() {
+                public void 
+                response(Account a)
+                {
+                    synchronized(holder)
+                    {
+                        holder.value = a;
+                        holder.notify();
+                    }
+                }
+
+                public void 
+                exception(Ice.LocalException ex)
+                {
+                    ex.printStackTrace();
+                    assert(false);
+                }
+
+                public void 
+                exception(Ice.UserException ex)
+                {
+                    Account a = new Account(((AccountNotExistException)ex).id, "");
+                    database.begin_addAccount(a);
+                    synchronized(holder)
+                    {
+                        holder.value = a;
+                        holder.notify();
+                    }
+                }
+            });
+        
+        synchronized(holder)
         {
-            return database.getAccount(id);
+            while(holder.value == null)
+            {
+                try
+                {
+                    holder.wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
         }
-        catch(AccountNotExistException ex)
-        {
-            Account a = new Account(id, "");
-            database.addAccount(a);
-            return a;
-        }
+        return holder.value;
     }
 
     public final void

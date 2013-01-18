@@ -11,38 +11,6 @@ package com.zeroc.ice;
 
 public class IceAdapter 
 {
-    //
-    // This interceptor wraps the servant dispatch to setup the thread
-    // context class loader. This is required with Ice 3.5b but won't
-    // be necessary with 3.5 where the thread context class loader
-    // will be set automatically to the servant class loader if the
-    // Ice.UseServantClassLoader property is set to 1.
-    //
-    public static class InterceptorI extends Ice.DispatchInterceptor
-    {
-        public InterceptorI(Ice.Object servant)
-        {
-            _servant = servant;
-        }
-
-        public Ice.DispatchStatus
-        dispatch(Ice.Request request)
-        {
-            final Thread thread = Thread.currentThread();
-            thread.setContextClassLoader(_servant.getClass().getClassLoader());
-            try
-            {
-                return _servant.ice_dispatch(request);
-            }
-            finally
-            {
-                thread.setContextClassLoader(null);
-            }
-        }
-
-        final private Ice.Object _servant;
-    };
-
     synchronized static public void
     add(Ice.Object servant, Ice.Identity id)
     {
@@ -51,14 +19,13 @@ public class IceAdapter
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Default.Package", "com.zeroc.ice");
-            //initData.properties.setProperty("Ice.UseServantClassLoader", "1");
+            initData.properties.setProperty("Ice.UseApplicationClassLoader", "1");
             Ice.Communicator communicator = Ice.Util.initialize(initData);
             _objectAdapter = communicator.createObjectAdapterWithEndpoints("EJB", "tcp -h localhost -p 10000");
             _objectAdapter.activate();
         }
         ++_servantCount;
-        _objectAdapter.add(new InterceptorI(servant), id);
-        //_objectAdapter.add(servant, id);
+        _objectAdapter.add(servant, id);
     }
 
     synchronized static public void
