@@ -11,22 +11,40 @@ package com.zeroc.ejb;
 
 import javax.annotation.*;
 import javax.ejb.*;
-import com.zeroc.ice.Test.Account;
+import com.zeroc.ice.IceAdapter;
+import com.zeroc.ice.Test.*;
 
 @Stateless(name="EJB1ServiceBean")
 public class ServiceBean implements Service
 {
-    public final Account 
-    getAccount()
+    @PostConstruct
+    public void 
+    create()
     {
-        return this.account;
+        Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10001");
+        database = DatabasePrxHelper.uncheckedCast(db);
+    }
+
+    public final Account 
+    getAccount(String id)
+    {
+        try
+        {
+            return database.getAccount(id);
+        }
+        catch(AccountNotExistException ex)
+        {
+            Account a = new Account(id);
+            database.addAccount(a);
+            return a;
+        }
     }
 
     public final void
-    setAccount(Account s)
+    addAccount(Account s)
     {
-        this.account = s;
+        database.addAccount(s);
     }
 
-    private Account account;
+    private DatabasePrx database;
 }

@@ -11,11 +11,12 @@ package com.zeroc.ejb;
 
 import javax.ejb.Local;
 import com.zeroc.ice.Test.Account;
+import com.zeroc.ice.Test.AccountNotExistException;
 
 @Local
 public interface Service
 {
-    Account getAccount();
+    Account getAccount(String id);
 
-    void setAccount(Account s);
+    void addAccount(Account s);
 }

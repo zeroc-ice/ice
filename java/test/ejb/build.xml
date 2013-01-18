@@ -123,6 +123,22 @@
     </java>
   </target>
 
+  <target name="run.server1" depends="deploy">
+    <java classname="com.zeroc.ejb.DatabaseServer" fork="yes" dir=".">
+      <classpath refid="ice.classpath" />
+      <classpath path="${build.dir}/${ant.project.name}-common.jar"/>
+      <classpath path="${build.dir}/${ant.project.name}-ejb1.jar"/>
+    </java>
+  </target>
+
+  <target name="run.server2" depends="deploy">
+    <java classname="com.zeroc.ejb.DatabaseServer" fork="yes" dir=".">
+      <classpath refid="ice.classpath" />
+      <classpath path="${build.dir}/${ant.project.name}-common.jar"/>
+      <classpath path="${build.dir}/${ant.project.name}-ejb2.jar"/>
+    </java>
+  </target>
+
   <target name="clean.db">
     <delete dir="${jboss.base}/data/hypersonic" />
   </target>

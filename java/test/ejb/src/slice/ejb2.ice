@@ -13,17 +13,30 @@
 module Test
 {
 
+exception AccountNotExistException
+{
+    string id;
+};
+
 class Account extends Base
 {
     string id;
     string foo;
 };
 
+interface Database
+{
+    void addAccount(Account s);
+
+    Account getAccount(string id)
+        throws AccountNotExistException;
+};
+
 interface Service
 {
-    void setAccount(Account s);
+    void addAccount(Account s);
 
-    Account getAccount();
+    Account getAccount(string id);
 };
 
 };

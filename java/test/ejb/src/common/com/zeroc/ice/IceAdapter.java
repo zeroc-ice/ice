@@ -73,6 +73,13 @@ public class IceAdapter
         }
     }
 
+    synchronized static public Ice.ObjectPrx
+    stringToProxy(String str)
+    {
+        assert _objectAdapter != null;
+        return _objectAdapter.getCommunicator().stringToProxy(str);
+    }
+
     static private Ice.ObjectAdapter _objectAdapter = null;
     static private int _servantCount;
 };

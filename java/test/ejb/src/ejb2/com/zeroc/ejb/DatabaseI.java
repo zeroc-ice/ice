@@ -9,33 +9,27 @@
 
 package com.zeroc.ejb;
 
-import javax.ejb.*;
+import com.zeroc.ice.Test.*;
 
-import com.zeroc.ice.Test._ServiceDisp;
-import com.zeroc.ice.Test.Account;
-import com.zeroc.ice.Test.AccountNotExistException;
-
-//
-// This Ice servant delegates the calls to the Service EJB
-//
-public class ServiceI extends _ServiceDisp
+public class DatabaseI extends _DatabaseDisp
 {
-    final private Service service;
-
-    public ServiceI(Service service)
-    {
-        this.service = service;
-    }
-
     public final Account 
     getAccount(String id, Ice.Current current)
+        throws AccountNotExistException
     {
-        return service.getAccount(id);
+        Account account = accounts.get(id);
+        if(account == null)
+        {
+            throw new AccountNotExistException(id);
+        }
+        return account;
     }
 
     public final void
     addAccount(Account s, Ice.Current current)
     {
-        service.addAccount(s);
+        accounts.put(s.id, s);
     }
+
+    private java.util.Map<String, Account> accounts = new java.util.HashMap<String, Account>();
 }

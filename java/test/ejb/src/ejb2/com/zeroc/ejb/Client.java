@@ -38,12 +38,19 @@ public class Client extends Ice.Application
         System.out.flush();
         String str = "ejb2/service:tcp -h localhost -p 10000";
         ServicePrx proxy = ServicePrxHelper.checkedCast(communicator().stringToProxy(str));
-        proxy.setAccount(new Account("id2", "foo"));
-        Account s = proxy.getAccount();
-        if(!s.id.equals("id2") || !s.foo.equals("foo"))
+        proxy.addAccount(new Account("id1", "foo"));
+        Account s = proxy.getAccount("id1");
+        if(!s.id.equals("id1") || !s.foo.equals("foo"))
         {
-            throw new RuntimeException("invalid value");
+            throw new RuntimeException("invalid value: " + s.id);
         }
+
+        s = proxy.getAccount("id2");
+        if(!s.id.equals("id2"))
+        {
+            throw new RuntimeException("invalid value: " + s.id);
+        }
+
         System.out.println("ok");
         return 0;
     }

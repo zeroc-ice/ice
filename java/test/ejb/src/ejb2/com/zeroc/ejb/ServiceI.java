@@ -11,8 +11,9 @@ package com.zeroc.ejb;
 
 import javax.ejb.*;
 
-import com.zeroc.ice.Test.Account;
 import com.zeroc.ice.Test._ServiceDisp;
+import com.zeroc.ice.Test.Account;
+import com.zeroc.ice.Test.AccountNotExistException;
 
 //
 // This Ice servant delegates the calls to the Service EJB
@@ -27,14 +28,14 @@ public class ServiceI extends _ServiceDisp
     }
 
     public final Account 
-    getAccount(Ice.Current current)
+    getAccount(String id, Ice.Current current)
     {
-        return service.getAccount();
+        return service.getAccount(id);
     }
 
     public final void
-    setAccount(Account s, Ice.Current current)
+    addAccount(Account s, Ice.Current current)
     {
-        service.setAccount(s);
+        service.addAccount(s);
     }
 }
