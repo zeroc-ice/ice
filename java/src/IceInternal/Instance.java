@@ -616,9 +616,9 @@ public final class Instance
     }
 
     public boolean
-    useServantClassLoader()
+    useApplicationClassLoader()
     {
-        return _useServantClassLoader;
+        return _useApplicationClassLoader;
     }
 
     //
@@ -717,7 +717,7 @@ public final class Instance
 
             _packages = validatePackages();
 
-            _useServantClassLoader = _initData.properties.getPropertyAsInt("Ice.UseServantClassLoader") > 0;
+            _useApplicationClassLoader = _initData.properties.getPropertyAsInt("Ice.UseApplicationClassLoader") > 0;
 
             _traceLevels = new TraceLevels(_initData.properties);
 
@@ -1218,7 +1218,7 @@ public final class Instance
 
     private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<String, String>();
     final private String[] _packages;
-    final private boolean _useServantClassLoader;
+    final private boolean _useApplicationClassLoader;
 
     private static boolean _oneOffDone = false;
 }
