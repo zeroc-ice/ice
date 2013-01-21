@@ -70,7 +70,7 @@ uninstallPackage ()
             fi
         fi
 
-        if [[ "$PACKAGE" == "com.zeroc.iceframeworks.pkg" || "$PACKAGE" == "com.zeroc.icepython.pkg" ]]; then
+        if [[ "$PACKAGE" == "com.zeroc.icepython.pkg" ]]; then
             BASE_PATH=$VOLUME$LOCATION
             for i in `pkgutil --files $PACKAGE`
             do
@@ -84,8 +84,7 @@ uninstallPackage ()
             done
         fi
 
-        rm "/var/db/receipts/$PACKAGE.bom"
-        rm "/var/db/receipts/$PACKAGE.plist"
+        pkgutil --forget $PACKAGE
 
         echo "$PACKAGE - uninstalled from $BASE_PATH"
 
@@ -155,7 +154,6 @@ fi
 
 uninstallPackage "com.zeroc.ice.pkg"
 uninstallPackage "com.zeroc.icegridadmin.pkg"
-uninstallPackage "com.zeroc.iceframeworks.pkg"
 uninstallPackage "com.zeroc.icepython.pkg"
 
 echo "Ice @ver@ uninstallation completed successfully"

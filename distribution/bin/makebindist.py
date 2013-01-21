@@ -124,7 +124,6 @@ if not platform.checkAndPrintThirdParties():
 buildRootDir = os.path.join(distDir, "..", os.path.join("build-" + platform.pkgPlatform + "-" + version))
 srcDir = os.path.join(buildRootDir, "Ice-" + version + "-src")
 buildDir = os.path.join(buildRootDir, "Ice-" + version)
-frameworksDir = os.path.join(buildRootDir, "Frameworks")
 
 if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
     if os.path.exists(buildRootDir):
@@ -185,8 +184,7 @@ for l in buildLanguages:
 
     if l != "java":
 
-        makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + \
-            " frameworks_prefix=" + frameworksDir
+        makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
 
         if l != "py":
             buildCmd = "gmake -C src " + makeOptions
@@ -234,7 +232,7 @@ if os.path.exists(os.path.join(buildDir, "doc")):
 print "Copying third party dependencies..."
 sys.stdout.flush()
 platform.copyThirdPartyDependencies(buildDir)
-platform.completeDistribution(buildDir, frameworksDir, version)
+platform.completeDistribution(buildDir, version)
 
 #
 # Copy platform specific files (README, SOURCES, etc)

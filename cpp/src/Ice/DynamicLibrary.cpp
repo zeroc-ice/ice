@@ -170,9 +170,8 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef __APPLE__
     //
-    // On OS X fallback to .so and .bundle extensions, we also fallback
-    // to use the library name without an extesion in case is an OS X 
-    // Framework, if the default .dylib fails.
+    // On OS X fallback to .so and .bundle extensions, if the default
+    // .dylib fails.
     //
     if(!load(lib + ".dylib"))
     {
@@ -183,12 +182,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             if(!load(lib + ".bundle"))
             {
                 _err = errMsg + "; " + _err;
-
-                if(!load(libPath + libName))
-                {
-                    _err = errMsg + "; " + _err;
-                    return 0;
-                }
+                return 0;
             }
         }
         _err = "";

@@ -13,7 +13,6 @@ LIBFILENAME	= $(call mklibfilename,Ice,$(VERSION))
 SONAME		= $(call mksoname,Ice,$(SOVERSION))  
 LIBNAME		= $(call mklibname,Ice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
-FRAMEWORK	= Ice
 
 OBJS		= Acceptor.o \
 		  Application.o \

@@ -12,7 +12,6 @@ top_srcdir	= ../..
 LIBFILENAME     = $(call mklibfilename,IcePatch2,$(VERSION))
 SONAME          = $(call mksoname,IcePatch2,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IcePatch2)
-FRAMEWORK	= IcePatch2
 
 TARGETS         = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 

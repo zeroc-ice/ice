@@ -705,7 +705,7 @@ class Platform:
     def copyThirdPartyDependencies(self, buildDir):
         for t in filter(ThirdParty.includeInDistribution, self.thirdParties): t.copyToDistribution(self, buildDir)
 
-    def completeDistribution(self, buildDir, frameworksDir, version):
+    def completeDistribution(self, buildDir, version):
         pass
 
     def getPackageName(self, prefix, version):
@@ -778,7 +778,7 @@ class Darwin(Platform):
     def getMakeOptions(self):
         return "-j 8"
 
-    def completeDistribution(self, buildDir, frameworksDir, version):
+    def completeDistribution(self, buildDir, version):
 
         print "Fixing install names...",
         sys.stdout.flush()
@@ -816,19 +816,6 @@ class Darwin(Platform):
             os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/' + libName)
             for f in binFiles:
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
-
-        #
-        # Replace the names in frameworks binaries.
-        #
-        names = ["IceUtil", "Ice", "IceSSL", "Glacier2", "IcePatch2", "IceStorm", "IceGrid"]
-        for name in names:
-            f = frameworksDir + "/" + name + ".framework/" + name
-            newName = "/Library/Frameworks/" + name + ".framework/Versions/" + mmversion + "/" + name
-            os.system('install_name_tool -id ' + newName + ' ' + f)
-            for component in names:
-                oldPath = frameworksDir + "/" + component + ".framework/Versions/" + mmversion + "/" + component
-                newPath = "/Library/Frameworks/" + component + ".framework/Versions/" + mmversion + "/" + component
-                os.system('install_name_tool -change ' + oldPath + ' ' + newPath + ' ' + f)
 
         print "ok"
 

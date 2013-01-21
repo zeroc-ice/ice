@@ -12,7 +12,6 @@ top_srcdir	= ../..
 LIBFILENAME     = $(call mklibfilename,IceStorm,$(VERSION))
 SONAME          = $(call mksoname,IceStorm,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceStorm)
-FRAMEWORK	= IceStorm
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 

@@ -12,7 +12,6 @@ top_srcdir	= ../..
 LIBFILENAME     = $(call mklibfilename,IceGrid,$(VERSION))
 SONAME          = $(call mksoname,IceGrid,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceGrid)
-FRAMEWORK	= IceGrid
 
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)

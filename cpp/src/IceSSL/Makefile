@@ -13,7 +13,6 @@ top_srcdir	= ../..
 LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
 SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceSSL)
-FRAMEWORK	= IceSSL
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
