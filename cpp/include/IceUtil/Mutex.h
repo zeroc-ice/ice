@@ -211,7 +211,11 @@ Mutex::lock(LockState&) const
 #else
 
 inline void
-Mutex::init(MutexProtocol protocol)
+Mutex::init(MutexProtocol 
+#if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT > 0
+            protocol
+#endif
+            )
 {
     int rc;
     pthread_mutexattr_t attr;
