@@ -169,8 +169,7 @@ IceUtil::RecMutex::~RecMutex()
 {
     assert(_count == 0);
 #ifndef NDEBUG
-    int rc = 0;
-    rc = pthread_mutex_destroy(&_mutex);
+    int rc = pthread_mutex_destroy(&_mutex);
     assert(rc == 0);
 #else
     pthread_mutex_destroy(&_mutex);

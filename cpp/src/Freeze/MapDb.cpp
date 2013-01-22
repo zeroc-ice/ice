@@ -229,7 +229,7 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
                 }
                 
 #ifdef NDEBUG
-		_indices.insert(IndexMap::value_type(indexBase->name(), indexI.get()));
+                _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get()));
 #else
                 bool inserted = 
                     _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;

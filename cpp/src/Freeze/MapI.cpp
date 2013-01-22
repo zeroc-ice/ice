@@ -760,8 +760,7 @@ Freeze::IteratorHelperI::set(const Value& value)
     try
     {
 #ifndef NDEBUG
-        int err;
-        err = _dbc->put(&dbKey, &dbValue, DB_CURRENT);
+        int err = _dbc->put(&dbKey, &dbValue, DB_CURRENT);
         assert(err == 0);
 #else
         _dbc->put(&dbKey, &dbValue, DB_CURRENT);
@@ -1386,8 +1385,7 @@ Freeze::MapHelperI::clear()
         {
             u_int32_t count;
 #ifndef NDEBUG
-            int err;
-            err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
+            int err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
             assert(err == 0);
 #else
             _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);

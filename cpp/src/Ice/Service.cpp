@@ -1706,8 +1706,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             //
             // Associate stdin, stdout and stderr with /dev/null.
             //
-            int fd;
-            fd = open("/dev/null", O_RDWR);
+            int fd = open("/dev/null", O_RDWR);
             assert(fd == 0);
             if(fd != 0)
             {

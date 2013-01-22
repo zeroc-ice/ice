@@ -324,11 +324,9 @@ IceUtil::Cond::timedDowait(const Time& timeout) const
 
 IceUtil::Cond::Cond()
 {
-    int rc;
-
     pthread_condattr_t attr;
 
-    rc = pthread_condattr_init(&attr);
+    int rc = pthread_condattr_init(&attr);
     if(rc != 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
@@ -358,8 +356,7 @@ IceUtil::Cond::Cond()
 IceUtil::Cond::~Cond()
 {
 #ifndef NDEBUG
-    int rc = 0;
-    rc = pthread_cond_destroy(&_cond);
+    int rc = pthread_cond_destroy(&_cond);
     assert(rc == 0);
 #else
     pthread_cond_destroy(&_cond);

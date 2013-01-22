@@ -49,8 +49,7 @@ IceUtilInternal::CountDownLatch::~CountDownLatch()
     CloseHandle(_event);
 #else
 #  ifndef NDEBUG
-    int rc = 0;
-    rc = pthread_mutex_destroy(&_mutex);
+    int rc = pthread_mutex_destroy(&_mutex);
     assert(rc == 0);
     rc = pthread_cond_destroy(&_cond);
     assert(rc == 0);
