@@ -23,4 +23,4 @@ IceSSL.CertAuthFile=ca_cert.pem
 # Java configuration
 Ice.Plugin.IceSSL.java=IceSSL.PluginFactory
 IceSSL.Alias=ca_cert
-IceSSL.Keystore=certs.jks
+IceSSL.Truststore=certs.jks
