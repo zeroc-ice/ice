@@ -27,6 +27,7 @@ Windows version
 Ice for WinRT has been extensively tested on:
 
  - Windows 8 (x86 & x64)
+ - Windows RT (ARM)
 
 
 C++ compiler
@@ -49,7 +50,9 @@ Using your favorite Zip tool, unzip the Ice source archive anywhere
 you like.
 
 To build Ice for WinRT you first need to build Ice for Windows. Refer
-to INSTALL.WINDOWS for instructions on how to build Ice for Windows.
+to INSTALL.WINDOWS for instructions on how to build Ice for
+Windows. The build of Ice for Windows is required to compile the slice
+translators which are required to build Ice for WinRT.
 
 Open a command prompt that is configured for your target architecture.
 For example, Visual Studio 2012 gives you several alternatives:
@@ -57,16 +60,11 @@ For example, Visual Studio 2012 gives you several alternatives:
  - Visual Studio Command Prompt
  - Visual Studio x64 Win64 Command Prompt
  - Visual Studio x64 Cross Tools Command Prompt
+ - Visual Studio ARM Cross Tools Command Prompt
 
 Using the first configuration produces 32-bit binaries, while the
-second produces 64-bit binaries. In order to build a 64-bit version of
-Ice using a "Cross Tools" command prompt, you must set the following
-environment variable:
-
-> set XTARGET=x64
-
-Note that you must be using a Windows 8 x64 platform when compiling a
-64-bit version of Ice.
+second and third produces 64-bit binaries and the fourth produces ARM
+binaries.
 
 Change the working directory to Ice-@ver@. For example:
 
@@ -136,6 +134,16 @@ directory. At the command prompt, execute:
 
 Then open the "Ice Test Suite" Windows Store application, check "Enable
 SSL", and click the "Run" button.
+
+To run the tests on a remote device such as the Surface, you will need
+to install the Remote Debugger Tools. Instructions on the Remote
+Debugger Tools are available at this link:
+
+  http://msdn.microsoft.com/en-us/library/vstudio/bt727f1t.aspx
+
+Note: some tests might fail if you run the tests with the debugger
+attached. You shoud choose "Start without Debugging" from the Debug
+menu to run the tests.
 
 
 ======================================================================

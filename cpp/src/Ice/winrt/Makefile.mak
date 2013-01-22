@@ -160,12 +160,14 @@ SLICE_SSL_SRCS	= $(slicedir)\IceSSL\EndpointInfo.ice \
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
 SRCS		= $(SRCS:x64\=)
+SRCS		= $(SRCS:arm\=)
 SRCS		= $(SRCS:Retail\=..\)
 SRCS		= $(SRCS:Debug\=..\)
 
 LOCAL_SRCS	= $(LOCAL_OBJS:.obj=.cpp)
 LOCAL_SRCS	= $(LOCAL_SRCS:x86\=)
 LOCAL_SRCS	= $(LOCAL_SRCS:x64\=)
+LOCAL_SRCS	= $(LOCAL_SRCS:arm\=)
 LOCAL_SRCS	= $(LOCAL_SRCS:Retail\=.\)
 LOCAL_SRCS	= $(LOCAL_SRCS:Debug\=.\)
 

@@ -31,9 +31,11 @@ OBJEXT			= .obj
 ice_bin_dist = 1
 !endif
 
-!if "$(AS)" == "ml64" || "$(XTARGET)" == "x64"
+!if "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64" || "$(AS)" == "ml64"
 x64suffix		= \x64
 ARCH			= x64
+!elseif "$(PLATFORM)" == "ARM"
+ARCH			= arm
 !else
 ARCH			= x86
 !endif

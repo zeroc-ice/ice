@@ -167,7 +167,7 @@ $(SDK_BASE_PATH)\$(SDK_MANIFEST): $(SDK_BASE_PATH)
   ProductFamiliyName = "ZeroC SDKs"
   MinVSVersion = "11.0"
   AppliesTo = "WindowsAppContainer + VisualC"
-  SupportedArchitecture = "x86;x64"
+  SupportedArchitecture = "x86;x64;ARM"
   SupportsMultipleVersion = "Error"
   MoreInfo = "http://doc.zeroc.com">
 </FileList>

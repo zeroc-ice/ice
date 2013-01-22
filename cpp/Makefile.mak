@@ -21,10 +21,10 @@ install:: install-common
 	    @if not exist %i \
 		@echo "Creating %i..." && \
 		mkdir %i
-		
+
 test::
 	@python $(top_srcdir)/allTests.py
-	
+
 !else
 SUBDIRS		= src include test
 
@@ -47,7 +47,7 @@ unregister-sdk:
 	@echo Unregister SDK "$(SDK_NAME)" delete Windows registry key "$(SDK_KEY)"
 	@reg DELETE "$(SDK_KEY)" /f || \
 	@echo "Registry Keyword $(SDK_KEY) not exists"
-	
+
 install:: install-common all
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \

@@ -39,6 +39,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
 SRCS		= $(SRCS:x64\=)
+SRCS		= $(SRCS:arm\=)
 SRCS		= $(SRCS:Retail\=..\)
 SRCS		= $(SRCS:Debug\=..\)
 

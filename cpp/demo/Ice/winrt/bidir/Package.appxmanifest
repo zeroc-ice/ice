@@ -22,6 +22,7 @@
     </Application>
   </Applications>
   <Capabilities>
+    <Capability Name="privateNetworkClientServer" />
     <Capability Name="internetClientServer" />
     <Capability Name="internetClient" />
   </Capabilities>
