@@ -1960,8 +1960,8 @@ FreezeScript::RecordDescriptor::transformRecord(const Ice::ByteSeq& inKeyBytes,
                                                 Ice::ByteSeq& outKeyBytes,
                                                 Ice::ByteSeq& outValueBytes)
 {
-    Ice::InputStreamPtr inKey = Ice::createInputStream(_info->communicator, inKeyBytes);
-    Ice::InputStreamPtr inValue = Ice::createInputStream(_info->communicator, inValueBytes);
+    Ice::InputStreamPtr inKey = Ice::createInputStream(_info->communicator, inKeyBytes, false);
+    Ice::InputStreamPtr inValue = Ice::createInputStream(_info->communicator, inValueBytes, false);
     inValue->startEncapsulation();
 
     Ice::OutputStreamPtr outKey = Ice::createOutputStream(_info->communicator);

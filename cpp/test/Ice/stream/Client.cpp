@@ -183,6 +183,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         in->read(v);
         test(v);
         in->endEncapsulation();
+
+        in = Ice::createInputStream(communicator, data, false);
+        in->startEncapsulation();
+        in->read(v);
+        test(v);
+        in->endEncapsulation();
     }
 
     {

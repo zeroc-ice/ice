@@ -83,49 +83,21 @@ UserExceptionReader::__read(BasicStream* is)
 //
 // InputStreamI
 //
-InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const vector<Byte>& data) :
+InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data, 
+                           bool copyData) :
     _communicator(communicator),
     _closure(0)
 {
     Instance* instance = getInstance(communicator).get();
-    _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
-    _is->closure(this);
-    _is->writeBlob(data);
-    _is->i = _is->b.begin();
-}
-
-InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const vector<Byte>& data, const EncodingVersion& v) :
-    _communicator(communicator),
-    _closure(0)
-{
-    Instance* instance = getInstance(communicator).get();
-    _is = new BasicStream(instance, v, true);
-    _is->closure(this);
-    _is->writeBlob(data);
-    _is->i = _is->b.begin();
-}
-
-InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data) :
-    _communicator(communicator),
-    _closure(0)
-{
-    Instance* instance = getInstance(communicator).get();
-    _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
-    _is->closure(this);
-    _is->writeBlob(data.first, data.second - data.first);
-    _is->i = _is->b.begin();
+    initialize(instance, data, instance->defaultsAndOverrides()->defaultEncoding, copyData);
 }
 
 InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data,
-                           const EncodingVersion& v) :
+                           const EncodingVersion& v, bool copyData) :
     _communicator(communicator),
     _closure(0)
 {
-    Instance* instance = getInstance(communicator).get();
-    _is = new BasicStream(instance, v, true);
-    _is->closure(this);
-    _is->writeBlob(data.first, data.second - data.first);
-    _is->i = _is->b.begin();
+    initialize(getInstance(communicator).get(), data, v, copyData);
 }
 
 InputStreamI::~InputStreamI()
@@ -413,6 +385,23 @@ void*
 InputStreamI::closure() const
 {
     return _closure;
+}
+
+void
+InputStreamI::initialize(Instance* instance, const pair<const Byte*, const Byte*>& buf, const EncodingVersion& v, 
+                         bool copyData)
+{
+    if(copyData)
+    {
+        _is = new BasicStream(instance, v, true);
+        _is->writeBlob(buf.first, buf.second - buf.first);
+        _is->i = _is->b.begin();
+    }
+    else
+    {
+        _is = new BasicStream(instance, v, buf.first, buf.second);
+    }
+    _is->closure(this);
 }
 
 //

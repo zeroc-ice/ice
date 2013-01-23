@@ -53,6 +53,17 @@ namespace IceInternal
             return ret;
         }
 
+        public static ByteBuffer wrap(byte[] bytes)
+        {
+            ByteBuffer ret = new ByteBuffer();
+            ret._position = 0;
+            ret._limit = bytes.Length;
+            ret._capacity = bytes.Length;
+            ret._bytes = bytes;
+            ret._valBytes = new ValBytes();
+            return ret;
+        }
+
         public int position()
         {
             return _position;

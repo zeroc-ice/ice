@@ -360,14 +360,11 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
       << "const Ice::EncodingVersion& encoding)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance.get(), encoding, true);";
+    C << nl << "IceInternal::BasicStream stream(instance.get(), encoding, &bytes[0], &bytes[0] + bytes.size());";
     if(type->usesClasses())
     {
         C << nl << "stream.sliceObjects(false);";
     }
-    C << nl << "stream.b.resize(bytes.size());";
-    C << nl << "::memcpy(&stream.b[0], &bytes[0], bytes.size());";
-    C << nl << "stream.i = stream.b.begin();";
     if(encaps)
     {
         C << nl << "stream.startReadEncaps();";
@@ -754,11 +751,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         else
         {
             C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-            C << nl << "IceInternal::BasicStream __stream(__instance.get(), __encoding, true);";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get(), __encoding, ";
+            C << "&__bytes[0], &__bytes[0] + __bytes.size());";
             
-            C << nl << "__stream.b.resize(__bytes.size());";
-            C << nl << "::memcpy(&__stream.b[0], &__bytes[0], __bytes.size());";
-            C << nl << "__stream.i = __stream.b.begin();";
             writeMarshalUnmarshalCode(C, indexTypes[i].type, false, 0, "__index", false, indexTypes[i].metaData, 0,
                                       "__stream", false);
         }

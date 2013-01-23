@@ -440,7 +440,7 @@ public final class Util
     public static InputStream
     createInputStream(Communicator communicator, byte[] bytes)
     {
-        return new InputStreamI(communicator, bytes);
+        return createInputStream(communicator, bytes, true);
     }
 
     /**
@@ -455,7 +455,40 @@ public final class Util
     public static InputStream
     createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
     {
-        return new InputStreamI(communicator, bytes, v);
+        return createInputStream(communicator, bytes, v, true);
+    }
+
+    /**
+     * Creates an input stream for dynamic invocation and dispatch. The stream uses
+     * the communicator's default encoding version.
+     *
+     * @param communicator The communicator for the stream.
+     * @param bytes An encoded request or reply.
+     * @param copyBytes True if the given bytes should be copied,
+     * false otherwise.
+     * @return The input stream.
+     **/
+    public static InputStream
+    createInputStream(Communicator communicator, byte[] bytes, boolean copyBytes)
+    {
+        return new InputStreamI(communicator, bytes, copyBytes);
+    }
+
+    /**
+     * Creates an input stream for dynamic invocation and dispatch. The stream uses
+     * the given encoding version.
+     *
+     * @param communicator The communicator for the stream.
+     * @param bytes An encoded request or reply.
+     * @param v The desired encoding version.
+     * @param copyBytes True if the given bytes should be copied,
+     * false otherwise.
+     * @return The input stream.
+     **/
+    public static InputStream
+    createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v, boolean copyBytes)
+    {
+        return new InputStreamI(communicator, bytes, v, copyBytes);
     }
 
     /**

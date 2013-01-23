@@ -39,6 +39,24 @@ extern IceUtil::Handle<IceInternal::GC> theCollector;
 
 }
 
+namespace
+{
+
+pair<const Byte*, const Byte*>
+makePair(const vector<Byte>& v)
+{
+    if(v.empty())
+    {
+        return pair<const Byte*, const Byte*>(0, 0);
+    }
+    else
+    {
+        return pair<const Byte*, const Byte*>(&v[0], &v[0] + v.size());
+    }
+}
+
+}
+
 void
 Ice::collectGarbage()
 {
@@ -253,26 +271,53 @@ Ice::initialize(const InitializationData& initData, Int version)
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
 {
-    return new InputStreamI(communicator, bytes);
+    return createInputStream(communicator, makePair(bytes));
 }
 
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v)
 {
-    return new InputStreamI(communicator, bytes, v);
+    return createInputStream(communicator, makePair(bytes), v);
+}
+
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, bool copyBytes)
+{
+    return createInputStream(communicator, makePair(bytes), copyBytes);
+}
+
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v,
+                       bool copyBytes)
+{
+    return createInputStream(communicator, makePair(bytes), v, copyBytes);
 }
 
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    return new InputStreamI(communicator, bytes);
+    return createInputStream(communicator, bytes, true);
 }
 
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
                        const EncodingVersion& v)
 {
-    return new InputStreamI(communicator, bytes, v);
+    return createInputStream(communicator, bytes, v, true);
+}
+
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
+                       bool copyBytes)
+{
+    return new InputStreamI(communicator, bytes, copyBytes);
+}
+
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
+                       const EncodingVersion& v, bool copyBytes)
+{
+    return new InputStreamI(communicator, bytes, v, copyBytes);
 }
 
 OutputStreamPtr

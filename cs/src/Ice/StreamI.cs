@@ -11,30 +11,35 @@ namespace Ice
 {
     public class InputStreamI : InputStream
     {
-        public InputStreamI(Communicator communicator, byte[] data)
+        public InputStreamI(Communicator communicator, byte[] data, bool copyData)
         {
             _communicator = communicator;
             IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            _is = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true);
-            initialize(data);
+            initialize(instance, data, instance.defaultsAndOverrides().defaultEncoding, copyData);
         }
 
-        public InputStreamI(Communicator communicator, byte[] data, EncodingVersion v)
+        public InputStreamI(Communicator communicator, byte[] data, EncodingVersion v, bool copyData)
         {
             _communicator = communicator;
-            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-            _is = new IceInternal.BasicStream(instance, v, true);
-            initialize(data);
+            initialize(IceInternal.Util.getInstance(communicator), data, v, copyData);
         }
 
-        private void initialize(byte[] data)
+        private void initialize(IceInternal.Instance instance, byte[] data, EncodingVersion v, bool copyData)
         {
+            if(copyData)
+            {
+                _is = new IceInternal.BasicStream(instance, v, true);
+                _is.resize(data.Length, true);
+                IceInternal.Buffer buf = _is.getBuffer();
+                buf.b.position(0);
+                buf.b.put(data);
+                buf.b.position(0);
+            }
+            else
+            {
+                _is = new IceInternal.BasicStream(instance, v, data);
+            }
             _is.closure(this);
-            _is.resize(data.Length, true);
-            IceInternal.Buffer buf = _is.getBuffer();
-            buf.b.position(0);
-            buf.b.put(data);
-            buf.b.position(0);
         }
 
         public Communicator communicator()

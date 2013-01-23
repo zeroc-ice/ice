@@ -25,6 +25,17 @@ public class Buffer
         _direct = direct;
     }
 
+    public
+    Buffer(byte[] data)
+    {
+        b = java.nio.ByteBuffer.wrap(data);
+        b.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        _size = data.length;
+        _capacity = 0;
+        _maxCapacity = 0;
+        _direct = false;
+    }
+
     public int
     size()
     {
@@ -64,6 +75,8 @@ public class Buffer
     public void
     resize(int n, boolean reading)
     {
+        assert(b == _emptyBuffer || _capacity > 0);
+
         if(n == 0)
         {
             clear();

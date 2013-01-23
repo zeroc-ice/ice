@@ -310,13 +310,8 @@ class ObjectStore implements IceUtil.Store
     static Ice.Identity
     unmarshalKey(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding)
     {
-        IceInternal.BasicStream is =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);
-        is.resize(b.length, true);
-        IceInternal.Buffer buf = is.getBuffer();
-        buf.b.position(0);
-        buf.b.put(b);
-        buf.b.position(0);
+        IceInternal.BasicStream is = 
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, b);
         Ice.Identity key = new Ice.Identity();
         key.__read(is);
         return key;
@@ -349,13 +344,8 @@ class ObjectStore implements IceUtil.Store
     unmarshalValue(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding, boolean keepStats)
     {
         IceInternal.BasicStream is =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, b);
         is.sliceObjects(false);
-        is.resize(b.length, true);
-        IceInternal.Buffer buf = is.getBuffer();
-        buf.b.position(0);
-        buf.b.put(b);
-        buf.b.position(0);
         ObjectRecord rec = new ObjectRecord();
         is.startReadEncaps();
         if(keepStats)

@@ -560,7 +560,7 @@ void
 IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
                                           const pair<const Ice::Byte*, const Ice::Byte*>& bytes TSRMLS_DC)
 {
-    Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes);
+    Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes, false);
 
     //
     // Store a pointer to a local SlicedDataUtil object as the stream's closure.
@@ -667,7 +667,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
 zval*
 IcePHP::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes TSRMLS_DC)
 {
-    Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes);
+    Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes, false);
 
     //
     // Store a pointer to a local SlicedDataUtil object as the stream's closure.

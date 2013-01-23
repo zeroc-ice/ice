@@ -55,6 +55,7 @@ public:
     typedef void (*PatchFunc)(void*, const Ice::ObjectPtr&);
 
     BasicStream(Instance*, const Ice::EncodingVersion&, bool = false);
+    BasicStream(Instance*, const Ice::EncodingVersion&, const Ice::Byte*, const Ice::Byte*);
     ~BasicStream()
     {
         // Inlined for performance reasons.

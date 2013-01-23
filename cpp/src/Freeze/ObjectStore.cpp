@@ -346,10 +346,7 @@ Freeze::ObjectStoreBase::unmarshal(Identity& ident,
                                    const EncodingVersion& encoding)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    IceInternal::BasicStream stream(instance.get(), encoding, true);
-    stream.b.resize(bytes.size());
-    memcpy(&stream.b[0], &bytes[0], bytes.size());
-    stream.i = stream.b.begin();
+    IceInternal::BasicStream stream(instance.get(), encoding, &bytes[0], &bytes[0] + bytes.size());
     stream.read(ident);
 }
 
@@ -385,11 +382,8 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
                                    bool keepStats)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    IceInternal::BasicStream stream(instance.get(), encoding, true);
+    IceInternal::BasicStream stream(instance.get(), encoding, &bytes[0], &bytes[0] + bytes.size());
     stream.sliceObjects(false);
-    stream.b.resize(bytes.size());
-    memcpy(&stream.b[0], &bytes[0], bytes.size());
-    stream.i = stream.b.begin();
     stream.startReadEncaps();
     
     if(keepStats)

@@ -20,6 +20,7 @@ class ICE_API Buffer : private IceUtil::noncopyable
 public:
 
     Buffer(size_t maxCapacity) : b(maxCapacity), i(b.begin()) { }
+    Buffer(const Ice::Byte* beg, const Ice::Byte* end) : b(beg, end), i(b.begin()) { }
     virtual ~Buffer() { }
 
     void swapBuffer(Buffer&);
@@ -41,6 +42,7 @@ public:
         typedef size_t size_type;
 
         Container(size_type maxCapacity);
+        Container(const_iterator, const_iterator);
 
         ~Container();
 
@@ -80,6 +82,8 @@ public:
 
         void resize(size_type n) // Inlined for performance reasons.
         {
+            assert(!_buf || _capacity > 0);
+
             if(n == 0)
             {
                 clear();
@@ -93,6 +97,8 @@ public:
 
         void reset()
         {
+            assert(!_buf || _capacity > 0);
+
             if(_size > 0 && _size * 2 < _capacity)
             {
                 //

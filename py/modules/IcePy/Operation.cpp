@@ -1602,7 +1602,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
     PyObjectHandle results = PyTuple_New(numResults);
     if(results.get() && numResults > 0)
     {
-        Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
+        Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes, false);
 
         //
         // Store a pointer to a local SlicedDataUtil object as the stream's closure.
@@ -1676,7 +1676,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 PyObject*
 IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
+    Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes, false);
 
     //
     // Store a pointer to a local SlicedDataUtil object as the stream's closure.
@@ -3227,7 +3227,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
 
     if(!_op->inParams.empty())
     {
-        Ice::InputStreamPtr is = Ice::createInputStream(_communicator, inBytes);
+        Ice::InputStreamPtr is = Ice::createInputStream(_communicator, inBytes, false);
 
         //
         // Store a pointer to a local SlicedDataUtil object as the stream's closure.

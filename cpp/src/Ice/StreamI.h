@@ -30,10 +30,8 @@ class InputStreamI : public InputStream
 {
 public:
 
-    InputStreamI(const CommunicatorPtr&, const std::vector<Byte>&);
-    InputStreamI(const CommunicatorPtr&, const std::vector<Byte>&, const EncodingVersion&);
-    InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&);
-    InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&, const EncodingVersion&);
+    InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&, bool);
+    InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&, const EncodingVersion&, bool);
     virtual ~InputStreamI();
 
     virtual CommunicatorPtr communicator() const;
@@ -102,6 +100,8 @@ public:
 
 private:
 
+    void initialize(IceInternal::Instance*, const std::pair<const Byte*, const Byte*>&, const EncodingVersion&, bool);
+    
     const CommunicatorPtr _communicator;
     IceInternal::BasicStream* _is;
     std::vector< ReadObjectCallbackPtr > _callbacks;

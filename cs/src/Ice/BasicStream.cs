@@ -104,17 +104,24 @@ namespace IceInternal
         public BasicStream(Instance instance, Ice.EncodingVersion encoding)
         {
             initialize(instance, encoding, false);
+            _buf = new Buffer(instance.messageSizeMax());
         }
 
         public BasicStream(Instance instance, Ice.EncodingVersion encoding, bool unlimited)
         {
             initialize(instance, encoding, unlimited);
+            _buf = new Buffer(instance.messageSizeMax());
+        }
+
+        public BasicStream(Instance instance, Ice.EncodingVersion encoding, byte[] data)
+        {
+            initialize(instance, encoding, false);
+            _buf = new Buffer(data);
         }
 
         private void initialize(Instance instance, Ice.EncodingVersion encoding, bool unlimited)
         {
             instance_ = instance;
-            _buf = new Buffer(instance_.messageSizeMax());
             _closure = null;
             _encoding = encoding;
 

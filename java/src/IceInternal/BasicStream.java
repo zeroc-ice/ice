@@ -20,20 +20,27 @@ public class BasicStream
     public
     BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean unlimited)
     {
-        initialize(instance, encoding, unlimited, instance.cacheMessageBuffers() > 1);
+        this(instance, encoding, unlimited, instance.cacheMessageBuffers() > 1);
     }
 
     public
     BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean unlimited, boolean direct)
     {
-        initialize(instance, encoding, unlimited, direct);
+        initialize(instance, encoding, unlimited);
+        _buf = new Buffer(_instance.messageSizeMax(), direct);
+    }
+
+    public
+    BasicStream(Instance instance, Ice.EncodingVersion encoding, byte[] data)
+    {
+        initialize(instance, encoding, true);
+        _buf = new Buffer(data);
     }
 
     private void
-    initialize(Instance instance, Ice.EncodingVersion encoding, boolean unlimited, boolean direct)
+    initialize(Instance instance, Ice.EncodingVersion encoding, boolean unlimited)
     {
         _instance = instance;
-        _buf = new Buffer(_instance.messageSizeMax(), direct);
         _closure = null;
         _encoding = encoding;
 

@@ -112,6 +112,30 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _preAllocatedWriteEncaps.encoding = encoding;
 }
 
+IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion& encoding, const Byte* begin, 
+                                      const Byte* end) :
+    IceInternal::Buffer(begin, end),
+    _instance(instance),
+    _closure(0),
+    _encoding(encoding),
+    _currentReadEncaps(0),
+    _currentWriteEncaps(0),
+    _sliceObjects(true),
+    _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
+    _unlimited(false),
+    _stringConverter(instance->initializationData().stringConverter),
+    _wstringConverter(instance->initializationData().wstringConverter),
+    _startSeq(-1),
+    _sizePos(-1)
+{
+    //
+    // Initialize the encoding members of our pre-allocated encapsulations, in case
+    // this stream is used without an explicit encapsulation.
+    //
+    _preAllocatedReadEncaps.encoding = encoding;
+    _preAllocatedWriteEncaps.encoding = encoding;
+}
+
 void
 IceInternal::BasicStream::clear()
 {

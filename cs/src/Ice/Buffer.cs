@@ -25,6 +25,15 @@ namespace IceInternal
             _maxCapacity = maxCapacity;
         }
 
+        public Buffer(byte[] data)
+        {
+            b = ByteBuffer.wrap(data);
+            b.order(ByteBuffer.ByteOrder.LITTLE_ENDIAN);
+            _size = data.Length;
+            _capacity = 0;
+            _maxCapacity = 0;
+        }
+
         public int size()
         {
             return _size;
@@ -59,6 +68,8 @@ namespace IceInternal
 
         public void resize(int n, bool reading)
         {
+            Debug.Assert(b == _emptyBuffer || _capacity > 0);
+
             if(n == 0)
             {
                 clear();

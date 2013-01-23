@@ -495,7 +495,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     // Unmarshal the results. If there is more than one value to be returned, then return them
     // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
     //
-    Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
+    Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes, false);
 
     //
     // Store a pointer to a local SlicedDataUtil object as the stream's closure.
@@ -564,7 +564,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 VALUE
 IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
-    Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
+    Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes, false);
 
     //
     // Store a pointer to a local SlicedDataUtil object as the stream's closure.

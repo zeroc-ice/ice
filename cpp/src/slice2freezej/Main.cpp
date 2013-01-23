@@ -930,16 +930,11 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             << "(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
         out << sb;
         out << nl << "IceInternal.BasicStream __is = "
-            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
+            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, b);";
         if(type->usesClasses())
         {
             out << nl << "__is.sliceObjects(false);";
         }
-        out << nl << "__is.resize(b.length, true);";
-        out << nl << "IceInternal.Buffer __buf = __is.getBuffer();";
-        out << nl << "__buf.b.position(0);";
-        out << nl << "__buf.b.put(b);";
-        out << nl << "__buf.b.position(0);";
         if(encaps)
         {
             out << nl << "__is.startReadEncaps();";
@@ -1101,12 +1096,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         else
         {
             out << nl << "IceInternal.BasicStream __is = "
-                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
-            out << nl << "__is.resize(bytes.length, true);";
-            out << nl << "IceInternal.Buffer buf = __is.getBuffer();";
-            out << nl << "buf.b.position(0);";
-            out << nl << "buf.b.put(bytes);";
-            out << nl << "buf.b.position(0);";
+                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, bytes);";
 
             int iter = 0;
             list<string> metaData;

@@ -207,6 +207,12 @@ public class AllTests : TestCommon.TestApp
             test(@in.readBool());
             @in.endEncapsulation();
             @in.destroy();
+
+            @in = Ice.Util.createInputStream(communicator, data, false);
+            @in.startEncapsulation();
+            test(@in.readBool());
+            @in.endEncapsulation();
+            @in.destroy();
         }
 
         {

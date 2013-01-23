@@ -179,6 +179,12 @@ public class Client extends test.Util.Application
             test(in.readBool());
             in.endEncapsulation();
             in.destroy();
+
+            in = Ice.Util.createInputStream(comm, data, false);
+            in.startEncapsulation();
+            test(in.readBool());
+            in.endEncapsulation();
+            in.destroy();
         }
 
         {

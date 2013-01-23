@@ -1269,12 +1269,12 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& /*sym*/, ExecuteIn
             Ice::ByteSeq keyBytes;
             keyBytes.resize(dbKey.get_size());
             memcpy(&keyBytes[0], dbKey.get_data(), dbKey.get_size());
-            Ice::InputStreamPtr inKey = Ice::createInputStream(info->communicator, keyBytes);
+            Ice::InputStreamPtr inKey = Ice::createInputStream(info->communicator, keyBytes, false);
 
             Ice::ByteSeq valueBytes;
             valueBytes.resize(dbValue.get_size());
             memcpy(&valueBytes[0], dbValue.get_data(), dbValue.get_size());
-            Ice::InputStreamPtr inValue = Ice::createInputStream(info->communicator, valueBytes);
+            Ice::InputStreamPtr inValue = Ice::createInputStream(info->communicator, valueBytes, false);
             inValue->startEncapsulation();
 
             //
