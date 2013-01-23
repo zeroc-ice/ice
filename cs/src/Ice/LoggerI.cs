@@ -13,7 +13,7 @@ namespace Ice
 {
     using System.Diagnostics;
     using System.Globalization;
-#if COMPACT
+#if !SILVERLIGHT && !UNITY
     using System.IO;
 #endif
 
@@ -187,12 +187,27 @@ namespace Ice
 
             if(file.Length != 0)
             {
+                //
+                // Don't use a trace listener when writing to a file, which allows
+                // to have several log files in the same process.
+                //
                 _file = file;
-                Trace.Listeners.Add(new TextWriterTraceListener(file));
+                System.IO.FileStream fs = new System.IO.FileStream(_file, FileMode.Append, FileAccess.Write, FileShare.None);
+                System.IO.StreamWriter writer = new System.IO.StreamWriter(fs);
+                _writer = (string message) => 
+                    {
+                        writer.WriteLine(message);
+                        writer.Flush();
+                    };
             }
             if(console && !Trace.Listeners.Contains(_consoleListener))
             {
                 Trace.Listeners.Add(_consoleListener);
+                _writer = (string message) => 
+                    {
+                        Trace.WriteLine(message);
+                        Trace.Flush();
+                    };
             }
         }
 
@@ -203,10 +218,10 @@ namespace Ice
 
         protected override void write(string message)
         {
-            Trace.WriteLine(message);
-            Trace.Flush();
+            _writer(message);
         }
 
+        private System.Action<string> _writer;
         private string _file = "";
         private bool _console = false;
         internal static ConsoleTraceListener _consoleListener = new ConsoleTraceListener(true);

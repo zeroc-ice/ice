@@ -696,7 +696,8 @@ public final class Instance
             if(_initData.logger == null)
             {
                 String logfile = _initData.properties.getProperty("Ice.LogFile");
-                if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+                if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0 &&
+                   !System.getProperty("os.name").startsWith("Windows"))
                 {
                     if(logfile.length() != 0)
                     {

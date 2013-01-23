@@ -733,7 +733,8 @@ namespace IceInternal
                 {
 #if !SILVERLIGHT
                     string logfile = _initData.properties.getProperty("Ice.LogFile");
-                    if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+                    if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0 &&
+                       AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
                     {
                         if(logfile.Length != 0)
                         {

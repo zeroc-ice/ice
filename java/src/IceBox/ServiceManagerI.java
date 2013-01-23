@@ -598,9 +598,15 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 }
                 
                 //
-                // Clone the logger to assign a new prefix.
+                // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
+                // don't set any logger.
                 //
-                initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
+                if(initData.properties.getProperty("Ice.LogFile").length() == 0 &&
+                   (initData.properties.getPropertyAsInt("Ice.UseSyslog") == 0 ||
+                    System.getProperty("os.name").startsWith("Windows")))
+                {
+                    initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
+                }
 
                 //
                 // If Ice metrics are enabled on the IceBox communicator, we also enable them on
