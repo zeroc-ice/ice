@@ -3951,6 +3951,32 @@ public class SessionKeeper
                     }
                     _keyStore.setKeyEntry(newAlias, key, password, chain);
                 }
+                else if(keyStore.isCertificateEntry(alias))
+                {
+                    String newAlias = alias;                                     
+                    if(newAlias == null || newAlias.length() == 0 || _keyStore.containsAlias(newAlias))
+                    {
+                        newAlias = JOptionPane.showInputDialog(KeyStorePanel.this, 
+                                                        "Certificate Alias For <" + alias + ">", 
+                                                        "certificate alias for <" + alias + ">:",
+                                                        JOptionPane.INFORMATION_MESSAGE);
+                    }
+
+                    if(_keyStore.containsAlias(newAlias))
+                    {
+                        if(JOptionPane.showConfirmDialog(
+                            KeyStorePanel.this, 
+                            "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
+                            "Do you want to update the certificate?</html>",
+                            "Confirm Certificate Update - IceGrid Admin", 
+                            JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
+                        {
+                            continue;
+                        }
+                    }
+
+                    _keyStore.setCertificateEntry(newAlias, keyStore.getCertificate(alias));
+                }
             }
             _keyStore.store(new FileOutputStream(_keyStorePath), new char[]{});
             load(_keyStorePath);
