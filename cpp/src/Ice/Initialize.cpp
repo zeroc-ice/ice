@@ -271,53 +271,51 @@ Ice::initialize(const InitializationData& initData, Int version)
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
 {
-    return createInputStream(communicator, makePair(bytes));
+    return new InputStreamI(communicator, makePair(bytes), true);
 }
 
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v)
 {
-    return createInputStream(communicator, makePair(bytes), v);
+    return new InputStreamI(communicator, makePair(bytes), v, true);
 }
 
 InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, bool copyBytes)
+Ice::wrapInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
 {
-    return createInputStream(communicator, makePair(bytes), copyBytes);
+    return new InputStreamI(communicator, makePair(bytes), false);
 }
 
 InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v,
-                       bool copyBytes)
+Ice::wrapInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v)
 {
-    return createInputStream(communicator, makePair(bytes), v, copyBytes);
+    return new InputStreamI(communicator, makePair(bytes), v, false);
 }
 
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    return createInputStream(communicator, bytes, true);
+    return new InputStreamI(communicator, bytes, true);
 }
 
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
                        const EncodingVersion& v)
 {
-    return createInputStream(communicator, bytes, v, true);
+    return new InputStreamI(communicator, bytes, v, true);
 }
 
 InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
-                       bool copyBytes)
+Ice::wrapInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    return new InputStreamI(communicator, bytes, copyBytes);
+    return new InputStreamI(communicator, bytes, false);
 }
 
 InputStreamPtr
-Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
-                       const EncodingVersion& v, bool copyBytes)
+Ice::wrapInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
+                     const EncodingVersion& v)
 {
-    return new InputStreamI(communicator, bytes, v, copyBytes);
+    return new InputStreamI(communicator, bytes, v, false);
 }
 
 OutputStreamPtr

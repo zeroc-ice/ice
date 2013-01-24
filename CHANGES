@@ -27,6 +27,12 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- Added support for wrapInputStream function. Unlike the
+  createInputStream function, the returned input stream wraps the
+  provided encoded data rather than copying it. While it avoids
+  copying the data, care must be taken to not modify the data while
+  the input stream is being used.
+
 - The IceBox server no longer configures a service's logger if the
   service defines Ice.LogFile or Ice.UseSyslog.
 

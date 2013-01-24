@@ -438,14 +438,14 @@ namespace Ice
 
         /// <summary>
         /// Creates an input stream for dynamic invocation and dispatch. The stream uses
-        /// the communicator's default encoding version.
+        /// the communicator's default encoding version. The given data is copied.
         /// </summary>
         /// <param name="communicator">The communicator for the stream.</param>
         /// <param name="bytes">An encoded request or reply.</param>
         /// <returns>The input stream.</returns>
         public static InputStream createInputStream(Communicator communicator, byte[] bytes)
         {
-            return createInputStream(communicator, bytes, true);
+            return new InputStreamI(communicator, bytes, true);
         }
 
         /// <summary>
@@ -458,35 +458,32 @@ namespace Ice
         /// <returns>The input stream.</returns>
         public static InputStream createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
         {
-            return createInputStream(communicator, bytes, v, true);
+            return new InputStreamI(communicator, bytes, v, true);
         }
 
         /// <summary>
-        /// Creates an input stream for dynamic invocation and dispatch. The stream uses
-        /// the communicator's default encoding version.
+        /// Wraps encoded data with an input stream for dynamic invocation and dispatch. 
+        /// The stream uses the communicator's default encoding version.
         /// </summary>
         /// <param name="communicator">The communicator for the stream.</param>
         /// <param name="bytes">An encoded request or reply.</param>
-        /// <param name="copyBytes">True if the given bytes should be copied, false otherwise.</param>
         /// <returns>The input stream.</returns>
-        public static InputStream createInputStream(Communicator communicator, byte[] bytes, bool copyBytes)
+        public static InputStream wrapInputStream(Communicator communicator, byte[] bytes)
         {
-            return new InputStreamI(communicator, bytes, copyBytes);
+            return new InputStreamI(communicator, bytes, false);
         }
 
         /// <summary>
-        /// Creates an input stream for dynamic invocation and dispatch. The stream uses
-        /// the given encoding version.
+        /// Wraps encoded data with an input stream for dynamic invocation and dispatch. 
+        /// The stream uses the given encoding version.
         /// </summary>
         /// <param name="communicator">The communicator for the stream.</param>
         /// <param name="bytes">An encoded request or reply.</param>
         /// <param name="v">The desired encoding version.</param>
-        /// <param name="copyBytes">True if the given bytes should be copied, false otherwise.</param>
         /// <returns>The input stream.</returns>
-        public static InputStream createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v, 
-                                                    bool copyBytes)
+        public static InputStream wrapInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
         {
-            return new InputStreamI(communicator, bytes, v, copyBytes);
+            return new InputStreamI(communicator, bytes, v, false);
         }
 
         /// <summary>

@@ -208,7 +208,7 @@ public class AllTests : TestCommon.TestApp
             @in.endEncapsulation();
             @in.destroy();
 
-            @in = Ice.Util.createInputStream(communicator, data, false);
+            @in = Ice.Util.wrapInputStream(communicator, data);
             @in.startEncapsulation();
             test(@in.readBool());
             @in.endEncapsulation();

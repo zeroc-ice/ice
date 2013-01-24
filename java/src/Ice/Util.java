@@ -440,7 +440,7 @@ public final class Util
     public static InputStream
     createInputStream(Communicator communicator, byte[] bytes)
     {
-        return createInputStream(communicator, bytes, true);
+        return new InputStreamI(communicator, bytes, true);
     }
 
     /**
@@ -455,12 +455,13 @@ public final class Util
     public static InputStream
     createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
     {
-        return createInputStream(communicator, bytes, v, true);
+        return new InputStreamI(communicator, bytes, v, true);
     }
 
     /**
-     * Creates an input stream for dynamic invocation and dispatch. The stream uses
-     * the communicator's default encoding version.
+     * Wraps encoded data with an input stream for dynamic invocation
+     * and dispatch. The stream uses the communicator's default
+     * encoding version.
      *
      * @param communicator The communicator for the stream.
      * @param bytes An encoded request or reply.
@@ -469,14 +470,14 @@ public final class Util
      * @return The input stream.
      **/
     public static InputStream
-    createInputStream(Communicator communicator, byte[] bytes, boolean copyBytes)
+    wrapInputStream(Communicator communicator, byte[] bytes)
     {
-        return new InputStreamI(communicator, bytes, copyBytes);
+        return new InputStreamI(communicator, bytes, false);
     }
 
     /**
-     * Creates an input stream for dynamic invocation and dispatch. The stream uses
-     * the given encoding version.
+     * Wraps encoded data with an input stream for dynamic invocation
+     * and dispatch. The stream uses the given encoding version.
      *
      * @param communicator The communicator for the stream.
      * @param bytes An encoded request or reply.
@@ -486,9 +487,9 @@ public final class Util
      * @return The input stream.
      **/
     public static InputStream
-    createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v, boolean copyBytes)
+    wrapInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
     {
-        return new InputStreamI(communicator, bytes, v, copyBytes);
+        return new InputStreamI(communicator, bytes, v, false);
     }
 
     /**

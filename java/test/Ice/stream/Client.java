@@ -180,7 +180,7 @@ public class Client extends test.Util.Application
             in.endEncapsulation();
             in.destroy();
 
-            in = Ice.Util.createInputStream(comm, data, false);
+            in = Ice.Util.wrapInputStream(comm, data);
             in.startEncapsulation();
             test(in.readBool());
             in.endEncapsulation();
