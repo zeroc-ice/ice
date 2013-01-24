@@ -47,7 +47,7 @@ makePair(const vector<Byte>& v)
 {
     if(v.empty())
     {
-        return pair<const Byte*, const Byte*>(0, 0);
+        return pair<const Byte*, const Byte*>(static_cast<Byte*>(0), static_cast<Byte*>(0));
     }
     else
     {
