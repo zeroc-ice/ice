@@ -1262,6 +1262,11 @@ public class Coordinator
           final Cursor oldCursor,
           Ice.LongHolder keepAlivePeriodHolder)
     {
+
+        //
+        // Keep certificates arround for connection retry
+        //
+        _trasientCert = null;
         _liveDeploymentRoot.clear();
 
         AdminSessionPrx session = null;
@@ -1415,6 +1420,20 @@ public class Coordinator
                 catch(java.security.GeneralSecurityException ex)
                 {
                     return false;
+                }
+
+                //
+                // Compare the server certificate with a previous accepted certificate if
+                // any, the trasient certificate is reset by Coordinator.login, and is only 
+                // ussefull in case the connection is retry, because a timeout or ACM closed
+                // it while the certificate verifier was waiting for the user decission.
+                //
+                // This avoids to show the dialog again if the user already granted the cert for
+                // this login operation.
+                //
+                if(_trasientCert != null && _trasientCert.equals(cert))
+                {
+                    return true;
                 }
 
                 //
@@ -1576,8 +1595,10 @@ public class Coordinator
             
                 TrustDecision decision = new AcceptInvalidCertDialog().show(info, validDate, validAlternateName, 
                                                                             trustedCA);
+
                 if(decision == TrustDecision.YesThisTime)
                 {
+                    _trasientCert = (X509Certificate) info.nativeCerts[0];
                     return true;
                 }
                 else if(decision == TrustDecision.YesAlways)
@@ -3793,6 +3814,8 @@ public class Coordinator
     private Process _icegridadminProcess;
     private String _fileParser;
     private boolean _connected;
+
+    private X509Certificate _trasientCert;
 
     private java.util.List<GraphView> _graphViews = new java.util.ArrayList<GraphView>();
 
