@@ -51,8 +51,8 @@ you like.
 
 To build Ice for WinRT you first need to build Ice for Windows. Refer
 to INSTALL.WINDOWS for instructions on how to build Ice for
-Windows. The build of Ice for Windows is required to compile the slice
-translators which are required to build Ice for WinRT.
+Windows. The build of Ice for Windows is necessary to create the Slice
+translators that we need to build Ice for WinRT.
 
 Open a command prompt that is configured for your target architecture.
 For example, Visual Studio 2012 gives you several alternatives:
@@ -63,7 +63,7 @@ For example, Visual Studio 2012 gives you several alternatives:
  - Visual Studio ARM Cross Tools Command Prompt
 
 Using the first configuration produces 32-bit binaries, while the
-second and third produces 64-bit binaries and the fourth produces ARM
+second and third produce 64-bit binaries and the fourth produces ARM
 binaries.
 
 Change the working directory to Ice-@ver@. For example:
@@ -142,7 +142,7 @@ Debugger Tools are available at this link:
   http://msdn.microsoft.com/en-us/library/vstudio/bt727f1t.aspx
 
 Note: some tests might fail if you run the tests with the debugger
-attached. You shoud choose "Start without Debugging" from the Debug
+attached. You should choose "Start without Debugging" from the Debug
 menu to run the tests.
 
 

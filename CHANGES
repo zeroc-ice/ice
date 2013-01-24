@@ -27,6 +27,9 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- The IceBox server no longer configures a service's logger if the
+  service defines Ice.LogFile or Ice.UseSyslog.
+
 - IceGrid should now interoperate with IceGrid node versions >= 3.2.
 
 - Fixed issue where defining an IceUtil::Handle for a specialization
@@ -36,7 +39,7 @@ General Changes
 - Fixed client side checks for encoding version. An invocation on a
   proxy with a compatible encoding (same major version) will now
   succeed even if the encoding minor version isn't supported. In this
-  case, the Ice runtime uses the greatest supported encoding.
+  case, the Ice run time uses the greatest supported encoding.
 
 - Fixed bug where the retry of an AMI invocation could trigger an
   assertion.
@@ -44,7 +47,7 @@ General Changes
 - Improved the dispatch and remote invocation metrics classes to
   support additional size and replySize data members.
 
-- Improved the 1.1 encoding to reduce further more the size of encoded
+- Improved the 1.1 encoding to further reduce the size of encoded
   objects. Objects are no longer encoded at the end of the
   encapsulation. Instead, an object is encoded as soon as it's written
   and it hasn't already been encoded within the encapsulation.
@@ -61,7 +64,7 @@ General Changes
       string v;
   };
 
-  When using the 1.1 encoding, Ice will transmit this numerical value
+  When using the 1.1 encoding, Ice will marshal this numeric value
   instead of the string type ID of the class.
 
 - Fixed bugs in the Slice parser related to optional values:
