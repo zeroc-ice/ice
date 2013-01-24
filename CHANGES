@@ -92,6 +92,12 @@ Java Changes
   before dispatching the call.
 
 
+Python Changes
+==============
+
+- Added "self" to the Slice compiler's list of Python keywords.
+
+
 ======================================================================
 Changes since version 3.4.2
 ======================================================================
