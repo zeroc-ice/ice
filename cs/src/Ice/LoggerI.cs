@@ -122,47 +122,43 @@ namespace Ice
         }
     }
 
-#if COMPACT
-    public sealed class TraceLoggerI : LoggerI
+#if !SILVERLIGHT && !UNITY
+    public sealed class FileLoggerI : LoggerI
     {
-        public TraceLoggerI(string prefix, string file, bool console)
-            : base(prefix)
+        public FileLoggerI(string prefix, string file) :
+            base(prefix)
         {
-            _console = console;
-
-            if(file.Length != 0)
-            {
-                _file = file;
-                FileStream fs = new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.None);
-                _writer = new StreamWriter(fs);
-            }
-            else
-            {
-                _writer = System.Console.Error;
-            }
+            _file = file;
+            _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.None));
         }
 
         public override Logger cloneWithPrefix(string prefix)
         {
-            return new TraceLoggerI(prefix, _file, _console);
+            return new FileLoggerI(prefix, _file);
         }
 
         protected override void write(string message)
         {
             _writer.WriteLine(message);
+            _writer.Flush();
         }
 
-        private string _file = "";
-        private bool _console = false;
+        private string _file;
         private TextWriter _writer;
     }
-#elif SILVERLIGHT || UNITY
+
+
+#  if !COMPACT
     public sealed class TraceLoggerI : LoggerI
     {
         public TraceLoggerI(string prefix, bool console)
             : base(prefix)
         {
             _console = console;
+            if(console && !Trace.Listeners.Contains(_consoleListener))
+            {
+                Trace.Listeners.Add(_consoleListener);
+            }
         }
 
         public override Logger cloneWithPrefix(string prefix)
@@ -172,59 +168,13 @@ namespace Ice
 
         protected override void write(string message)
         {
-            System.Console.Error.WriteLine(message);
+            Trace.WriteLine(message);
+            Trace.Flush();
         }
 
-        private bool _console = false;
-    }
-#else
-    public sealed class TraceLoggerI : LoggerI
-    {
-        public TraceLoggerI(string prefix, string file, bool console)
-            : base(prefix)
-        {
-            _console = console;
-
-            if(file.Length != 0)
-            {
-                //
-                // Don't use a trace listener when writing to a file, which allows
-                // to have several log files in the same process.
-                //
-                _file = file;
-                System.IO.FileStream fs = new System.IO.FileStream(_file, FileMode.Append, FileAccess.Write, FileShare.None);
-                System.IO.StreamWriter writer = new System.IO.StreamWriter(fs);
-                _writer = (string message) => 
-                    {
-                        writer.WriteLine(message);
-                        writer.Flush();
-                    };
-            }
-            if(console && !Trace.Listeners.Contains(_consoleListener))
-            {
-                Trace.Listeners.Add(_consoleListener);
-                _writer = (string message) => 
-                    {
-                        Trace.WriteLine(message);
-                        Trace.Flush();
-                    };
-            }
-        }
-
-        public override Logger cloneWithPrefix(string prefix)
-        {
-            return new TraceLoggerI(prefix, _file, _console);
-        }
-
-        protected override void write(string message)
-        {
-            _writer(message);
-        }
-
-        private System.Action<string> _writer;
-        private string _file = "";
-        private bool _console = false;
+        private bool _console;
         internal static ConsoleTraceListener _consoleListener = new ConsoleTraceListener(true);
     }
+#  endif
 #endif
 }

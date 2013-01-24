@@ -731,7 +731,7 @@ namespace IceInternal
 
                 if(_initData.logger == null)
                 {
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !UNITY
                     string logfile = _initData.properties.getProperty("Ice.LogFile");
                     if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0 &&
                        AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
@@ -743,24 +743,32 @@ namespace IceInternal
                         _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"),
                             _initData.properties.getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
                     }
-#   if !UNITY
-                    else if(logfile.Length != 0 || Ice.Util.getProcessLogger() is Ice.LoggerI) 
+                    else if(logfile.Length != 0) 
+                    {
+                        
+                        _initData.logger =
+                            new Ice.FileLoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile);
+                    }
+                    else if(Ice.Util.getProcessLogger() is Ice.LoggerI)
                     {
                         //
-                        // Ice.ConsoleListener is enabled by default unless Ice.LogFile is set.
+                        // Ice.ConsoleListener is enabled by default.
                         //
+#  if COMPACT
+                        _initData.logger = 
+                            new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+#  else
                         bool console = 
-                            _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener",
-                                                                             logfile.Length == 0 ? 1 : 0) > 0;
+                            _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener", 1) == 1;
                         _initData.logger =
-                            new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile, console);
+                            new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), console);
+#  endif
                     }
-#   endif
 #else
                     if(Ice.Util.getProcessLogger() is Ice.LoggerI)
                     {
                         _initData.logger = 
-                            new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), true);
+                            new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
                     }
 #endif
                     else
