@@ -82,6 +82,12 @@ General Changes
   * The parser did not detect duplicate tags among the optional
     parameters in an operation.
 
+- The properties IcePatch2.ChunkSize, IcePatch2.Directory, 
+  IcePatch2.Remove and IcePatch2.Thorough have been deprecated for
+  IcePatch2 clients, instead you must use IcePatch2Client.ChunkSize, 
+  IcePatch2Client.Directory, IcePatch2Client.Remove and
+  IcePatch2Client.Thorough properties respectively.
+
 
 Java Changes
 ============
