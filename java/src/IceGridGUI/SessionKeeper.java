@@ -2897,12 +2897,18 @@ public class SessionKeeper
 
     private boolean containsSecureEndpoints(String str)
     {
-        for(Ice.Endpoint endpoint : _coordinator.getWizardCommunicator().stringToProxy(str).ice_getEndpoints())
+        try
         {
-            if(endpoint.getInfo().secure())
+            for(Ice.Endpoint endpoint : _coordinator.getWizardCommunicator().stringToProxy(str).ice_getEndpoints())
             {
-                return true;
+                if(endpoint.getInfo().secure())
+                {
+                    return true;
+                }
             }
+        }
+        catch(Ice.EndpointParseException ex)
+        {
         }
         return false;
     }
