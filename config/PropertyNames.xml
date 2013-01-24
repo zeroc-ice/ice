@@ -487,6 +487,7 @@ generated from the section label.
     </section>
     
     <section name="IcePatch2Client">
+        <property name="ChunkSize" />
         <property name="Directory" />
         <property name="Proxy" />
         <property name="Remove" />

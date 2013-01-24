@@ -145,12 +145,117 @@ private:
 
 }
 
+namespace
+{
+
+string
+getDataDir(const CommunicatorPtr& communicator, const string& defaultValue)
+{
+    const string property = "IcePatch2Client.Directory";
+    const string deprecatedProperty = "IcePatch2.Directory";
+
+    if(communicator->getProperties()->getProperty(property).empty() &&
+       communicator->getProperties()->getProperty(deprecatedProperty).empty())
+    {
+        return defaultValue;
+    }
+
+    string value = communicator->getProperties()->getProperty(property);
+    if(value.empty())
+    {
+        value = communicator->getProperties()->getProperty(deprecatedProperty);
+        ostringstream os;
+        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
+        communicator->getLogger()->warning(os.str());
+    }
+    assert(!value.empty());
+    return value;
+}
+
+int
+getThorough(const CommunicatorPtr& communicator, int defaultValue)
+{
+    const string property = "IcePatch2Client.Thorough";
+    const string deprecatedProperty = "IcePatch2.Thorough";
+
+    if(communicator->getProperties()->getProperty(property).empty() &&
+       communicator->getProperties()->getProperty(deprecatedProperty).empty())
+    {
+        return defaultValue;
+    }
+
+    if(!communicator->getProperties()->getProperty(property).empty())
+    {
+        return communicator->getProperties()->getPropertyAsInt(property);
+    }
+    else
+    {
+        ostringstream os;
+        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
+        communicator->getLogger()->warning(os.str());
+        return communicator->getProperties()->getPropertyAsInt(deprecatedProperty);
+    }
+}
+
+int
+getChunkSize(const CommunicatorPtr& communicator, int defaultValue)
+{
+    const string property = "IcePatch2Client.ChunkSize";
+    const string deprecatedProperty = "IcePatch2.ChunkSize";
+
+    if(communicator->getProperties()->getProperty(property).empty() &&
+       communicator->getProperties()->getProperty(deprecatedProperty).empty())
+    {
+        return defaultValue;
+    }
+
+    if(!communicator->getProperties()->getProperty(property).empty())
+    {
+        return communicator->getProperties()->getPropertyAsInt(property);
+    }
+    else
+    {
+        ostringstream os;
+        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
+        communicator->getLogger()->warning(os.str());
+        return communicator->getProperties()->getPropertyAsInt(deprecatedProperty);
+    }
+}
+
+int
+getRemove(const CommunicatorPtr& communicator, int defaultValue)
+{
+    const string property = "IcePatch2Client.Remove";
+    const string deprecatedProperty = "IcePatch2.Remove";
+
+    if(communicator->getProperties()->getProperty(property).empty() &&
+       communicator->getProperties()->getProperty(deprecatedProperty).empty())
+    {
+        return defaultValue;
+    }
+
+    if(!communicator->getProperties()->getProperty(property).empty())
+    {
+        return communicator->getProperties()->getPropertyAsInt(property);
+    }
+    else
+    {
+        ostringstream os;
+        os << "The property " << deprecatedProperty << " is deprecated, use " << property << " instead.";
+        communicator->getLogger()->warning(os.str());
+        return communicator->getProperties()->getPropertyAsInt(deprecatedProperty);
+    }
+}
+
+}
+
+
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
-    _dataDir(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", ".")),
-    _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
-    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1)),
+    _dataDir(getDataDir(communicator, ".")),
+    _thorough(getThorough(communicator, 0) > 0),
+    _chunkSize(getChunkSize(communicator, 100)),
+    _remove(getRemove(communicator, 1)),
     _log(0)
 {
     const PropertiesPtr properties = communicator->getProperties();
@@ -601,7 +706,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
         }
         catch(...)
         {
-            if(_remove < 2) // We ignore errors if IcePatch2.Remove >= 2.
+            if(_remove < 2) // We ignore errors if IcePatch2Client.Remove >= 2.
             {
                 throw;
             }

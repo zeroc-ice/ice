@@ -294,13 +294,13 @@ CPatchDlg::OnInitDialog()
     // Set the patch directory and thorough flag from properties.
     //
     Ice::PropertiesPtr properties = _communicator->getProperties();
-    CString path = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2.Directory", "")).c_str();
+    CString path = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2Client.Directory", "")).c_str();
     _path->SetWindowText(path);
 
-    CString thorough = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2.Thorough", "0")).c_str();
+    CString thorough = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2Client.Thorough", "0")).c_str();
     _thorough->SetCheck(thorough != "0");
 
-    CString remove = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2.Remove", "0")).c_str();
+    CString remove = IceUtil::stringToWstring(properties->getPropertyWithDefault("IcePatch2Client.Remove", "0")).c_str();
     _remove->SetCheck(remove != "0");
 
     //
@@ -395,19 +395,19 @@ CPatchDlg::OnStartPatch()
             AfxMessageBox(CString(L"Please select a patch directory."), MB_OK|MB_ICONEXCLAMATION);
             return;
         }
-        properties->setProperty("IcePatch2.Directory", IceUtil::wstringToString(wstring(path)));
+        properties->setProperty("IcePatch2Client.Directory", IceUtil::wstringToString(wstring(path)));
 
         //
         // Set the thorough patch flag.
         //
         string thorough = _thorough->GetCheck() == BST_CHECKED ? "1" : "0";
-        properties->setProperty("IcePatch2.Thorough", thorough);
+        properties->setProperty("IcePatch2Client.Thorough", thorough);
 
         //
         // Set the remove orphan flag.
         //
         string remove = _remove->GetCheck() == BST_CHECKED ? "1" : "0";
-        properties->setProperty("IcePatch2.Remove", remove);
+        properties->setProperty("IcePatch2Client.Remove", remove);
 
         DialogPatcherFeedbackPtr feedback = new DialogPatcherFeedback(this);
         IcePatch2::PatcherPtr patcher = new IcePatch2::Patcher(_communicator, feedback);

@@ -263,7 +263,7 @@ Client::run(int argc, char* argv[])
     }
     if(opts.isSet("thorough"))
     {
-        properties->setProperty("IcePatch2.Thorough", "1");
+        properties->setProperty("IcePatch2Client.Thorough", "1");
     }
 
     if(args.size() > 1)
@@ -274,7 +274,7 @@ Client::run(int argc, char* argv[])
     }
     if(args.size() == 1)
     {
-        properties->setProperty("IcePatch2.Directory", simplify(args[0]));
+        properties->setProperty("IcePatch2Client.Directory", simplify(args[0]));
     }
 
     bool aborted = false;
