@@ -1733,8 +1733,8 @@ def processCmdLine():
             iceHome = "/usr"
 
     if not x64:
-        x64 = isWin32() and os.environ.get("PLATFORM").upper() == "X64" or os.environ.get("LP64") == "yes"
-
+        x64 = isWin32() and ("PLATFORM" in os.environ and os.environ.get("PLATFORM").upper() == "X64") \
+                        or ("LP64" in os.environ and os.environ.get("LP64") == "yes")
     if iceHome:
         sys.stdout.write("*** using Ice installation from " + iceHome + " ")
         if x64:
