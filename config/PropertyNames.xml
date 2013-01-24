@@ -479,15 +479,18 @@ generated from the section label.
     
     <section name="IcePatch2">
         <property class="objectadapter" />
-        <property name="ChunkSize" />
+        <property name="ChunkSize" deprecated="true" deprecatedBy="IcePatch2Client.ChunkSize"/>
         <property name="Directory" />
         <property name="InstanceName" />
-        <property name="Remove" />
-        <property name="Thorough" />
+        <property name="Remove" deprecated="true" deprecatedBy="IcePatch2Client.Remove"/>
+        <property name="Thorough" deprecated="true" deprecatedBy="IcePatch2Client.Thorough"/>
     </section>
     
     <section name="IcePatch2Client">
+        <property name="Directory" />
         <property name="Proxy" />
+        <property name="Remove" />
+        <property name="Thorough" />
     </section>
 
     <section name="IceSSL">

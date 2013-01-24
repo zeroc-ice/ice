@@ -7,6 +7,17 @@
 //
 // **********************************************************************
 
+//
+// Disable unreferenced formal parameter warnings
+// for VC90 binary_search.
+//
+#if defined(_MSC_VER) && (_MSC_VER <= 1500)
+#  pragma warning( push )
+#  pragma warning( disable : 4100 )
+#  include <algorithm>
+#  pragma warning( pop )
+#endif
+
 #include <Slice/CsUtil.h>
 #include <Slice/DotNetNames.h>
 #include <Slice/Util.h>
