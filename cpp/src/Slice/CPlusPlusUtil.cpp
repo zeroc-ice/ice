@@ -126,7 +126,7 @@ dictionaryTypeToString(const DictionaryPtr& dict, const StringList& metaData, in
 
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& fixedName,
-                       const StringList& metaData, int typeCtx)
+                       const StringList& metaData, int typeCtx, bool endArg)
 {
     string s = typeToString(type, metaData, typeCtx);
     if(optional)
@@ -135,7 +135,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     }
     out << nl << s << ' ' << fixedName << ';';
 
-    if(!(typeCtx & TypeContextInParam))
+    if(!(typeCtx & TypeContextInParam) || !endArg)
     {
         return; // We're done.
     }
@@ -946,11 +946,13 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), fixKwd((*p)->name()), (*p)->getMetaData(), typeCtx);
+        writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), fixKwd((*p)->name()), (*p)->getMetaData(), typeCtx, 
+                               getEndArg((*p)->type(),(*p)->getMetaData(), (*p)->name()) != (*p)->name());
     }
     if(op && op->returnType())
-    {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), "__ret", op->getMetaData(), typeCtx);
+    {        
+        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), "__ret", op->getMetaData(), typeCtx, 
+                               getEndArg(op->returnType(), op->getMetaData(), "__ret") != "__ret");
     }
 }
 
