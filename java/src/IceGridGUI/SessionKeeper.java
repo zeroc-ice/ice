@@ -1904,6 +1904,7 @@ public class SessionKeeper
                                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
+                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
                                     if(containsSecureEndpoints(endpoint.toString()))
                                     {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
@@ -1959,6 +1960,7 @@ public class SessionKeeper
                                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
+                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
                                     if(containsSecureEndpoints(endpoint.toString()))
                                     {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
@@ -2908,6 +2910,9 @@ public class SessionKeeper
             }
         }
         catch(Ice.EndpointParseException ex)
+        {
+        }
+        catch(Ice.ProxyParseException ex)
         {
         }
         return false;
