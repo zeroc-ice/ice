@@ -12,6 +12,10 @@
 
 #include <IceUtil/Config.h>
 
+#if defined(_MSC_VER)
+#  pragma warning( disable : 4800 )
+#endif
+
 namespace Test
 {
 
@@ -69,13 +73,13 @@ public:
         return _buf;
     }
 
-    void set(T* buf, int count)
+    void set(T* buf, size_t count)
     {
         _buf = buf;
         _count = count;
     }
 
-    void setAndInit(T* buf, int count)
+    void setAndInit(T* buf, size_t count)
     {
         _buf = buf;
         _count = count;
@@ -166,7 +170,7 @@ struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
         std::pair<const T*, const T*> a;
         stream->read(a, p);
         T* b = p.release();
-        int count = (a.second - a.first) / sizeof(T);
+        size_t count = (a.second - a.first) / sizeof(T);
         if(b == 0)
         {
             b = new T[count];
