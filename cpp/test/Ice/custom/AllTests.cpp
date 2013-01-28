@@ -2116,6 +2116,49 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
 
     cout << "ok" << endl;
+
+    cout << "testing alternate custom sequences... " << flush;
+    {
+        Test::ShortBuffer inS;
+        inS.setAndInit(new Ice::Short[3], 3);
+        Test::ShortBuffer outS;
+        Test::ShortBuffer ret = t->opShortBuffer(inS, outS);
+
+        test(outS == inS);
+        test(ret == inS);
+
+        Test::CustomBuffer<bool> inBS;
+        inBS.setAndInit(new bool[2], 2);
+        
+        Test::CustomBuffer<bool> outBS;
+        Test::CustomBuffer<bool> retBS = t->opBoolBuffer(inBS, outBS);
+
+        test(outBS == inBS);
+        test(retBS == inBS);
+
+        Test::BufferStruct bs;
+        bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
+        bs.boolBuf.setAndInit(new bool[10], 10);
+        bs.shortBuf.setAndInit(new Ice::Short[10], 10);
+        bs.intBuf.setAndInit(new Ice::Int[10], 10);
+        bs.longBuf.setAndInit(new Ice::Long[10], 10);
+        bs.floatBuf.setAndInit(new Ice::Float[10], 10);
+        bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
+
+        Test::BufferStruct rs = t->opBufferStruct(bs);
+        test(rs == bs);
+
+        Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
+        os->write(rs);
+        Ice::ByteSeq bytes;
+        os->finished(bytes);
+
+        Ice::InputStreamPtr is = Ice::wrapInputStream(communicator, bytes);
+        Test::BufferStruct rs2;
+        is->read(rs2);
+        test(rs == rs2);
+    }
+    cout << "ok" << endl;
     
     if(!collocated)
     {

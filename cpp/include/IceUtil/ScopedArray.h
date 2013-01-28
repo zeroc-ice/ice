@@ -49,7 +49,7 @@ public:
         _ptr = ptr;
     }
 
-    const ScopedArray& operator=(const ScopedArray& other)
+    ScopedArray& operator=(const ScopedArray& other)
     {
         if(_ptr != 0)
         {
@@ -78,6 +78,13 @@ public:
         T* tmp = a._ptr;
         a._ptr = _ptr;
         _ptr = tmp;
+    }
+
+    T* release()
+    {
+        T* tmp = _ptr;
+        _ptr = 0;
+        return tmp;
     }
 
 private:

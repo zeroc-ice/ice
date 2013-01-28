@@ -203,7 +203,7 @@ public:
     // std::vector<bool> is a special C++ type, so we give it its own read function
     //
     virtual void read(::std::vector<bool>&) = 0;
-    
+
     virtual void read(::std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&) = 0;
     virtual void read(::std::pair<const Byte*, const Byte*>&) = 0;
     virtual void read(::std::pair<const Short*, const Short*>&, ::IceUtil::ScopedArray<Short>&) = 0;
@@ -211,6 +211,13 @@ public:
     virtual void read(::std::pair<const Long*, const Long*>&, ::IceUtil::ScopedArray<Long>&) = 0;
     virtual void read(::std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&) = 0;
     virtual void read(::std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&) = 0;
+
+    // This method is useful for generic stream helpers
+    void read(::std::pair<const Byte*, const Byte*>& p, ::IceUtil::ScopedArray<Byte>& result)
+    {
+        result.reset();
+        read(p);
+    }
 
     virtual bool readOptional(Int, OptionalFormat) = 0; 
 

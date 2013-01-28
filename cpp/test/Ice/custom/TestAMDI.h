@@ -159,7 +159,14 @@ public:
                                  const ::Test::CustomMap<std::string, Ice::Int>&,                          
                                  const ::Ice::Current&);
     
+    void opShortBuffer_async(const ::Test::AMD_TestIntf_opShortBufferPtr&,
+                             const Test::ShortBuffer&, const Ice::Current&);
 
+    void opBoolBuffer_async(const ::Test::AMD_TestIntf_opBoolBufferPtr&,
+                            const Test::CustomBuffer<bool>&, const Ice::Current&);
+
+    void opBufferStruct_async(const ::Test::AMD_TestIntf_opBufferStructPtr&, const Test::BufferStruct&,
+                              const Ice::Current&);
 
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&,
                                 const Ice::Current&);

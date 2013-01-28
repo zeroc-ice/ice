@@ -171,6 +171,12 @@ public:
                                                             Test::CustomMap<std::string, Ice::Int>&,
                                                             const Ice::Current&);
 
+    Test::ShortBuffer opShortBuffer(const Test::ShortBuffer&, Test::ShortBuffer&, const Ice::Current&);
+
+    Test::CustomBuffer<bool> opBoolBuffer(const Test::CustomBuffer<bool>&, Test::CustomBuffer<bool>&, 
+                                          const Ice::Current&);
+
+    Test::BufferStruct opBufferStruct(const Test::BufferStruct&, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 

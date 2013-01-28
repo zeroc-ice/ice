@@ -329,6 +329,26 @@ TestIntfI::opVarDict_async(const ::Test::AMD_TestIntf_opVarDictPtr& cb,
     cb->ice_response(result, inDict);
 }
 
+void
+TestIntfI::opShortBuffer_async(const ::Test::AMD_TestIntf_opShortBufferPtr& cb, const Test::ShortBuffer& inS, 
+                               const Ice::Current&)
+{
+    cb->ice_response(inS, inS);
+}
+
+void
+TestIntfI::opBoolBuffer_async(const ::Test::AMD_TestIntf_opBoolBufferPtr& cb, const Test::CustomBuffer<bool>& inS, 
+                              const Ice::Current&)
+{
+    cb->ice_response(inS, inS);
+}
+
+void 
+TestIntfI::opBufferStruct_async(const ::Test::AMD_TestIntf_opBufferStructPtr& cb,
+                                const Test::BufferStruct& s, const Ice::Current&)
+{
+    cb->ice_response(s);
+}
 
 void
 TestIntfI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& shutdownCB,

@@ -550,21 +550,20 @@ struct BasicStreamReadBoolHelper<1>
 
 }
 
-bool*
-IceInternal::BasicStream::read(pair<const bool*, const bool*>& v)
+void
+IceInternal::BasicStream::read(pair<const bool*, const bool*>& v, IceUtil::ScopedArray<bool>& result)
 {
-    bool* result = 0;
     Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
-        result = BasicStreamReadBoolHelper<sizeof(bool)>::read(v, sz, i);
+        result.reset(BasicStreamReadBoolHelper<sizeof(bool)>::read(v, sz, i));
         i += sz;
     }
     else
     {
+        result.reset();
         v.first = v.second = reinterpret_cast<bool*>(i);
     }
-    return result;
 }
 
 void
@@ -656,10 +655,9 @@ IceInternal::BasicStream::read(vector<Short>& v)
     }
 }
 
-Short*
-IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
+void
+IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray<Short>& result)
 {
-    Short* result = 0;
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
@@ -668,9 +666,9 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
         i += sz * static_cast<int>(sizeof(Short));
         v.second = reinterpret_cast<Short*>(i);
 #else
-        result = new Short[sz];
-        v.first = result;
-        v.second = result + sz;
+        result.reset(new Short[sz]);
+        v.first = result.get();
+        v.second = result.get() + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Short));
@@ -690,9 +688,9 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
     }
     else
     {
+        result.reset();
         v.first = v.second = 0;
     }
-    return result;
 }
 
 void
@@ -751,10 +749,9 @@ IceInternal::BasicStream::read(vector<Int>& v)
     }
 }
 
-Int*
-IceInternal::BasicStream::read(pair<const Int*, const Int*>& v)
+void
+IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<Int>& result)
 {
-    Int* result = 0;
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
     if(sz > 0)
     {
@@ -763,9 +760,9 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v)
         i += sz * static_cast<int>(sizeof(Int));
         v.second = reinterpret_cast<Int*>(i);
 #else
-        result = new Int[sz];
-        v.first = result;
-        v.second = result + sz;
+        result.reset(new Int[sz]);
+        v.first = result.get();
+        v.second = result.get() + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Int));
@@ -787,9 +784,9 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v)
     }
     else
     {
+        result.reset();
         v.first = v.second = 0;
     }
-    return result;
 }
 
 void
@@ -917,10 +914,9 @@ IceInternal::BasicStream::read(vector<Long>& v)
     }
 }
 
-Long*
-IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
+void
+IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<Long>& result)
 {
-    Long* result = 0;
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
     if(sz > 0)
     {
@@ -929,9 +925,9 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
         i += sz * static_cast<int>(sizeof(Long));
         v.second = reinterpret_cast<Long*>(i);
 #else
-        result = new Long[sz];
-        v.first = result;
-        v.second = result + sz;
+        result.reset(new Long[sz]);
+        v.first = result.get();
+        v.second = result.get() + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Long));
@@ -957,9 +953,9 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
     }
     else
     {
+        result.reset();
         v.first = v.second = 0;
     }
-    return result;
 }
 
 void
@@ -1063,10 +1059,9 @@ IceInternal::BasicStream::read(vector<Float>& v)
     }
 }
 
-Float*
-IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
+void
+IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray<Float>& result)
 {
-    Float* result = 0;
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
@@ -1075,9 +1070,9 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
         i += sz * static_cast<int>(sizeof(Float));
         v.second = reinterpret_cast<Float*>(i);
 #else
-        result = new Float[sz];
-        v.first = result;
-        v.second = result + sz;
+        result.reset(new Float[sz]);
+        v.first = result.get();
+        v.second = result.get() + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Float));
@@ -1099,9 +1094,9 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
     }
     else
     {
+        result.reset();
         v.first = v.second = 0;
     }
-    return result;
 }
 
 void
@@ -1281,10 +1276,9 @@ IceInternal::BasicStream::read(vector<Double>& v)
     }
 }
 
-Double*
-IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
+void
+IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArray<Double>& result)
 {
-    Double* result = 0;
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
@@ -1293,9 +1287,9 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
         i += sz * static_cast<int>(sizeof(Double));
         v.second = reinterpret_cast<Double*>(i);
 #else
-        result = new Double[sz];
-        v.first = result;
-        v.second = result + sz;
+        result.reset(new Double[sz]);
+        v.first = result.get();
+        v.second = result.get() + sz;
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Double));
@@ -1337,9 +1331,9 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
     }
     else
     {
+        result.reset();
         v.first = v.second = 0;
     }
-    return result;
 }
 
 //

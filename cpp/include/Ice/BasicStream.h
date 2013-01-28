@@ -557,6 +557,13 @@ public:
     void read(std::vector<Ice::Byte>&);
     void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
+    // This method is useful for generic stream helpers
+    void read(std::pair<const Ice::Byte*, const Ice::Byte*>& p, ::IceUtil::ScopedArray<Ice::Byte>& result)
+    {
+        result.reset();
+        read(p);
+    }
+
     // Bool
     void write(bool v)
     {
@@ -573,14 +580,14 @@ public:
         v = (0 != *i++);
     }
     void read(std::vector<bool>&);
-    bool* read(std::pair<const bool*, const bool*>&);
+    void read(std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&);
 
     // Short
     void write(Ice::Short);
     void write(const Ice::Short*, const Ice::Short*);
     void read(Ice::Short&);
     void read(std::vector<Ice::Short>&);
-    Ice::Short* read(std::pair<const Ice::Short*, const Ice::Short*>&);
+    void read(std::pair<const Ice::Short*, const Ice::Short*>&, ::IceUtil::ScopedArray<Ice::Short>&);
 
     // Int
     void write(Ice::Int v) // Inlined for performance reasons.
@@ -631,28 +638,28 @@ public:
 
     void write(const Ice::Int*, const Ice::Int*);
     void read(std::vector<Ice::Int>&);
-    Ice::Int* read(std::pair<const Ice::Int*, const Ice::Int*>&);
+    void read(std::pair<const Ice::Int*, const Ice::Int*>&, ::IceUtil::ScopedArray<Ice::Int>&);
 
     // Long
     void write(Ice::Long);
     void write(const Ice::Long*, const Ice::Long*);
     void read(Ice::Long&);
     void read(std::vector<Ice::Long>&);
-    Ice::Long* read(std::pair<const Ice::Long*, const Ice::Long*>&);
+    void read(std::pair<const Ice::Long*, const Ice::Long*>&, ::IceUtil::ScopedArray<Ice::Long>&);
 
     // Float
     void write(Ice::Float);
     void write(const Ice::Float*, const Ice::Float*);
     void read(Ice::Float&);
     void read(std::vector<Ice::Float>&);
-    Ice::Float* read(std::pair<const Ice::Float*, const Ice::Float*>&);
+    void read(std::pair<const Ice::Float*, const Ice::Float*>&, ::IceUtil::ScopedArray<Ice::Float>&);
 
     // Double
     void write(Ice::Double);
     void write(const Ice::Double*, const Ice::Double*);
     void read(Ice::Double&);
     void read(std::vector<Ice::Double>&);
-    Ice::Double* read(std::pair<const Ice::Double*, const Ice::Double*>&);
+    void read(std::pair<const Ice::Double*, const Ice::Double*>&, ::IceUtil::ScopedArray<Ice::Double>&);
 
     //
     // NOTE: This function is not implemented. It is declared here to

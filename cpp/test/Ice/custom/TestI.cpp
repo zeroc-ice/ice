@@ -358,6 +358,26 @@ TestIntfI::opVarDict(const Test::CustomMap<std::string, Ice::Int>& data,
     return result;
 }
 
+Test::ShortBuffer 
+TestIntfI::opShortBuffer(const Test::ShortBuffer& inS, Test::ShortBuffer& outS, const Ice::Current&)
+{
+    outS = inS;
+    return outS;
+}
+
+Test::CustomBuffer<bool> 
+TestIntfI::opBoolBuffer(const Test::CustomBuffer<bool>& inS, Test::CustomBuffer<bool>& outS, const Ice::Current&)
+{
+    outS = inS;
+    return outS;
+}
+
+Test::BufferStruct
+TestIntfI::opBufferStruct(const Test::BufferStruct& bs, const Ice::Current&)
+{
+    return bs;
+}
+
 void
 TestIntfI::shutdown(const Ice::Current&)
 {

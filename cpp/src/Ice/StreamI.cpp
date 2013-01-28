@@ -226,7 +226,7 @@ InputStreamI::read(vector<bool>& v)
 void
 InputStreamI::read(pair<const bool*, const bool*>& p, ::IceUtil::ScopedArray<bool>& result)
 {
-    result.reset(_is->read(p));
+    _is->read(p, result);
 }
 
 void
@@ -237,32 +237,31 @@ InputStreamI::read(pair<const Byte*, const Byte*>& p)
 void
 InputStreamI::read(pair<const Short*, const Short*>& p, ::IceUtil::ScopedArray<Short>& result)
 {
-    result.reset(_is->read(p));
+    _is->read(p, result);
 }
 
 void
 InputStreamI::read(pair<const Int*, const Int*>& p, ::IceUtil::ScopedArray<Int>& result)
 {
-    result.reset(_is->read(p));
+    _is->read(p, result);
 }
 
 void
 InputStreamI::read(pair<const Long*, const Long*>& p, ::IceUtil::ScopedArray<Long>& result)
 {
-    result.reset(_is->read(p));
+    _is->read(p, result);
 }
 
 void
 InputStreamI::read(pair<const Float*, const Float*>& p, ::IceUtil::ScopedArray<Float>& result)
 {
-    result.reset(_is->read(p));
+    _is->read(p, result);
 }
 
 void
-InputStreamI::read(pair<const Double*, const Double*>& p, 
-                        ::IceUtil::ScopedArray<Double>& result)
+InputStreamI::read(pair<const Double*, const Double*>& p, ::IceUtil::ScopedArray<Double>& result)
 {
-    result.reset(_is->read(p));
+    _is->read(p, result);
 }
 
 bool

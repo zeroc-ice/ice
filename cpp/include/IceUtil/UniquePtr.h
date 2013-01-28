@@ -60,7 +60,7 @@ public:
     void reset(T* ptr = 0)
     {
         assert(ptr == 0 || ptr != _ptr);
-        
+
         if(_ptr != 0)
         {
             delete _ptr;

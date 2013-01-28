@@ -436,7 +436,7 @@ struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const
     template<class S> static inline void 
     read(S* stream, std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >& v)
     {
-        v.first.reset(stream->read(v.second));
+        stream->read(v.second, v.first);
     }
 
     // no write: only used for unmarshaling

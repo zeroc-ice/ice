@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h"]]
+[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h",
+  "cpp:include:CustomBuffer.h"]]
 
 module Test
 {
@@ -117,6 +118,24 @@ class DictClass
     IntStringDict isdict;
 };
 
+["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
+["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
+["cpp:type:Test::CustomBuffer<Ice::Int>"] sequence<int> IntBuffer;
+["cpp:type:Test::CustomBuffer<Ice::Long>"] sequence<long> LongBuffer;
+["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;
+["cpp:type:Test::CustomBuffer<Ice::Double>"] sequence<double> DoubleBuffer;
+["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
+struct BufferStruct
+{
+    ByteBuffer byteBuf;
+    BoolBuffer boolBuf;
+    ShortBuffer shortBuf;
+    IntBuffer intBuf;
+    LongBuffer longBuf;
+    FloatBuffer floatBuf;
+    DoubleBuffer doubleBuf;
+};
+
 ["amd", "ami"] class TestIntf
 {
     DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
@@ -205,6 +224,14 @@ class DictClass
     ["cpp:type:::Test::CustomMap< ::Ice::Long, ::Ice::Long>"] LongLongDict 
     opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
               out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
+
+    ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
+
+    ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq opBoolBuffer(
+        ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq inS,
+        out ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq outS);
+
+    BufferStruct opBufferStruct(BufferStruct s);
 
     void shutdown();
 };
