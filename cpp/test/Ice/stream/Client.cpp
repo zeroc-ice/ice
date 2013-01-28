@@ -176,7 +176,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out->endEncapsulation();
         out->finished(data);
         pair<const Ice::Byte*, const Ice::Byte*> d = out->finished();
-        test(d.second - d.first == data.size());
+        test(d.second - d.first == static_cast<int>(data.size()));
         test(vector<Ice::Byte>(d.first, d.second) == data);
         out = 0;
 
