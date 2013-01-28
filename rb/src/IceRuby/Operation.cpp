@@ -71,7 +71,7 @@ private:
 
     void convertParams(VALUE, ParamInfoList&, int, bool&);
     ParamInfoPtr convertParam(VALUE, int);
-    void prepareRequest(const Ice::ObjectPrx&, VALUE, vector<Ice::Byte>&);
+    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStreamPtr&, pair<const Ice::Byte*, const Ice::Byte*>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
@@ -295,8 +295,9 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::ByteSeq params;
-    prepareRequest(proxy, args, params);
+    Ice::OutputStreamPtr os;
+    pair<const Ice::Byte*, const Ice::Byte*> params;
+    prepareRequest(proxy, args, os, params);
 
     if(!_deprecateMessage.empty())
     {
@@ -404,8 +405,11 @@ IceRuby::OperationI::convertParam(VALUE v, int pos)
 }
 
 void
-IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vector<Ice::Byte>& bytes)
+IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, Ice::OutputStreamPtr& os,
+                                    pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
+    params.first = params.second = static_cast<const Ice::Byte*>(0);
+
     //
     // Validate the number of arguments.
     //
@@ -422,7 +426,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
         //
         // Marshal the in parameters.
         //
-        Ice::OutputStreamPtr os = Ice::createOutputStream(proxy->ice_getCommunicator());
+        os = Ice::createOutputStream(proxy->ice_getCommunicator());
         os->startEncapsulation(proxy->ice_getEncodingVersion(), _format);
 
         ObjectMap objectMap;
@@ -475,7 +479,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
         }
 
         os->endEncapsulation();
-        os->finished(bytes);
+        params = os->finished();
     }
 }
 

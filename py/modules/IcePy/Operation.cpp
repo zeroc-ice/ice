@@ -124,7 +124,7 @@ protected:
 
     enum MappingType { SyncMapping, AsyncMapping, OldAsyncMapping };
 
-    bool prepareRequest(PyObject*, MappingType, vector<Ice::Byte>&);
+    bool prepareRequest(PyObject*, MappingType, Ice::OutputStreamPtr&, pair<const Ice::Byte*, const Ice::Byte*>&);
     PyObject* unmarshalResults(const pair<const Ice::Byte*, const Ice::Byte*>&);
     PyObject* unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>&);
     bool validateException(PyObject*) const;
@@ -1470,9 +1470,11 @@ IcePy::TypedInvocation::TypedInvocation(const Ice::ObjectPrx& prx, const Operati
 }
 
 bool
-IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vector<Ice::Byte>& bytes)
+IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, Ice::OutputStreamPtr& os,
+                                       pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     assert(PyTuple_Check(args));
+    params.first = params.second = static_cast<const Ice::Byte*>(0);
 
     //
     // Validate the number of arguments.
@@ -1506,7 +1508,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             //
             // Marshal the in parameters.
             //
-            Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
+            os = Ice::createOutputStream(_communicator);
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
@@ -1573,7 +1575,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             }
 
             os->endEncapsulation();
-            os->finished(bytes);
+            params = os->finished();
         }
         catch(const AbortMarshaling&)
         {
@@ -1770,8 +1772,9 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::ByteSeq params;
-    if(!prepareRequest(pyparams, SyncMapping, params))
+    Ice::OutputStreamPtr os;
+    pair<const Ice::Byte*, const Ice::Byte*> params;
+    if(!prepareRequest(pyparams, SyncMapping, os, params))
     {
         return 0;
     }
@@ -1973,8 +1976,9 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::ByteSeq params;
-    if(!prepareRequest(pyparams, AsyncMapping, params))
+    Ice::OutputStreamPtr os;
+    pair<const Ice::Byte*, const Ice::Byte*> params;
+    if(!prepareRequest(pyparams, AsyncMapping, os, params))
     {
         return 0;
     }
@@ -1983,13 +1987,6 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkAsyncTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),
-                                                         static_cast<const Ice::Byte*>(0));
-        if(!params.empty())
-        {
-            pparams.first = &params[0];
-            pparams.second = &params[0] + params.size();
-        }
 
         Ice::Callback_Object_ice_invokePtr cb;
         if(_response || _ex || _sent)
@@ -2012,11 +2009,11 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             if(cb)
             {
-                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, pparams, ctx, cb);
+                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, params, ctx, cb);
             }
             else
             {
-                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, pparams, ctx);
+                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, params, ctx);
             }
         }
         else
@@ -2024,11 +2021,11 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             if(cb)
             {
-                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, pparams, cb);
+                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, params, cb);
             }
             else
             {
-                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, pparams);
+                result = _prx->begin_ice_invoke(_op->name, _op->sendMode, params);
             }
         }
     }
@@ -2264,8 +2261,9 @@ IcePy::OldAsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     //
     // Marshal the input parameters to a byte sequence.
     //
-    Ice::ByteSeq params;
-    if(!prepareRequest(pyparams, OldAsyncMapping, params))
+    Ice::OutputStreamPtr os;
+    pair<const Ice::Byte*, const Ice::Byte*> params;
+    if(!prepareRequest(pyparams, OldAsyncMapping, os, params))
     {
         return 0;
     }
@@ -2274,13 +2272,6 @@ IcePy::OldAsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),
-                                                         static_cast<const Ice::Byte*>(0));
-        if(!params.empty())
-        {
-            pparams.first = &params[0];
-            pparams.second = &params[0] + params.size();
-        }
 
         Ice::Callback_Object_ice_invokePtr cb =
             Ice::newCallback_Object_ice_invoke(this, &OldAsyncTypedInvocation::response,
@@ -2307,12 +2298,12 @@ IcePy::OldAsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
             }
 
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            result = _prx->begin_ice_invoke(_op->name, _op->sendMode, pparams, ctx, cb);
+            result = _prx->begin_ice_invoke(_op->name, _op->sendMode, params, ctx, cb);
         }
         else
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            result = _prx->begin_ice_invoke(_op->name, _op->sendMode, pparams, cb);
+            result = _prx->begin_ice_invoke(_op->name, _op->sendMode, params, cb);
         }
 
         sentSynchronously = result->sentSynchronously();
@@ -3492,18 +3483,8 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
 
             os->endEncapsulation();
 
-            Ice::ByteSeq bytes;
-            os->finished(bytes);
-            pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0),
-                                                        static_cast<const Ice::Byte*>(0));
-            if(!bytes.empty())
-            {
-                ob.first = &bytes[0];
-                ob.second = &bytes[0] + bytes.size();
-            }
-
             AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-            _callback->ice_response(true, ob);
+            _callback->ice_response(true, os->finished());
         }
         catch(const AbortMarshaling&)
         {
@@ -3568,18 +3549,8 @@ IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encod
 
                     os->endEncapsulation();
 
-                    Ice::ByteSeq bytes;
-                    os->finished(bytes);
-                    pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0),
-                                                                static_cast<const Ice::Byte*>(0));
-                    if(!bytes.empty())
-                    {
-                        ob.first = &bytes[0];
-                        ob.second = &bytes[0] + bytes.size();
-                    }
-
                     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                    _callback->ice_response(false, ob);
+                    _callback->ice_response(false, os->finished());
                 }
             }
             else

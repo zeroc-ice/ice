@@ -129,7 +129,7 @@ protected:
 
     OperationIPtr _op;
 
-    bool prepareRequest(int, zval**, Ice::ByteSeq& TSRMLS_DC);
+    bool prepareRequest(int, zval**, Ice::OutputStreamPtr&, pair<const Ice::Byte*, const Ice::Byte*>& TSRMLS_DC);
     void unmarshalResults(int, zval**, zval*, const pair<const Ice::Byte*, const Ice::Byte*>& TSRMLS_DC);
     zval* unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& TSRMLS_DC);
     bool validateException(const ExceptionInfoPtr& TSRMLS_DC) const;
@@ -460,7 +460,8 @@ IcePHP::TypedInvocation::TypedInvocation(const Ice::ObjectPrx& prx, const Commun
 }
 
 bool
-IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& bytes TSRMLS_DC)
+IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::OutputStreamPtr& os, 
+                                        pair<const Ice::Byte*, const Ice::Byte*>& params TSRMLS_DC)
 {
     //
     // Verify that the expected number of arguments are supplied. The context argument is optional.
@@ -487,7 +488,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
             //
             // Marshal the in parameters.
             //
-            Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator->getCommunicator());
+            os = Ice::createOutputStream(_communicator->getCommunicator());
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
@@ -540,7 +541,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
             }
 
             os->endEncapsulation();
-            os->finished(bytes);
+            params = os->finished();
         }
         catch(const AbortMarshaling&)
         {
@@ -769,9 +770,10 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         runtimeError("unable to get arguments" TSRMLS_CC);
         return;
     }
-
-    Ice::ByteSeq params;
-    if(!prepareRequest(ZEND_NUM_ARGS(), *args, params TSRMLS_CC))
+    
+    Ice::OutputStreamPtr os;
+    pair<const Ice::Byte*, const Ice::Byte*> params;
+    if(!prepareRequest(ZEND_NUM_ARGS(), *args, os, params TSRMLS_CC))
     {
         return;
     }
