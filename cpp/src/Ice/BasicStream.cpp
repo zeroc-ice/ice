@@ -661,7 +661,7 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::Sco
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86)
+#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
         v.first = reinterpret_cast<Short*>(i);
         i += sz * static_cast<int>(sizeof(Short));
         v.second = reinterpret_cast<Short*>(i);
@@ -755,7 +755,7 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, ::IceUtil::Scope
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86)
+#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
         v.first = reinterpret_cast<Int*>(i);
         i += sz * static_cast<int>(sizeof(Int));
         v.second = reinterpret_cast<Int*>(i);
@@ -920,7 +920,7 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::Scope
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86)
+#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
         v.first = reinterpret_cast<Long*>(i);
         i += sz * static_cast<int>(sizeof(Long));
         v.second = reinterpret_cast<Long*>(i);
@@ -1065,7 +1065,7 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::Sco
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86)
+#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
         v.first = reinterpret_cast<Float*>(i);
         i += sz * static_cast<int>(sizeof(Float));
         v.second = reinterpret_cast<Float*>(i);
@@ -1282,7 +1282,7 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::S
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
-#if defined(__i386) || defined(_M_IX86)
+#if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
         v.first = reinterpret_cast<Double*>(i);
         i += sz * static_cast<int>(sizeof(Double));
         v.second = reinterpret_cast<Double*>(i);

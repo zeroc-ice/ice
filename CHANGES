@@ -89,6 +89,13 @@ General Changes
   IcePatch2Client.Thorough properties respectively.
 
 
+C++ Changes
+===========
+
+- Added support for zero-copy on x86_64 processors when using the
+  sequence C++ array mapping.
+
+
 Java Changes
 ============
 
@@ -1070,7 +1077,7 @@ noted.
 
 
 C++ Changes
-============
+===========
 
 - Added a new demo named "interleaved" that shows how to use
   asynchronous invocation and dispatch to achieve maximum throughput
