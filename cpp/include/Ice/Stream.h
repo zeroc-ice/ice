@@ -175,17 +175,17 @@ public:
     virtual void endSlice() = 0;
     virtual void skipSlice() = 0;
 
-    virtual Ice::EncodingVersion startEncapsulation() = 0;
+    virtual EncodingVersion startEncapsulation() = 0;
     virtual void endEncapsulation() = 0;
-    virtual Ice::EncodingVersion skipEncapsulation() = 0;
+    virtual EncodingVersion skipEncapsulation() = 0;
 
-    virtual Ice::EncodingVersion getEncoding() const = 0;
+    virtual EncodingVersion getEncoding() const = 0;
 
     virtual void readPendingObjects() = 0;
 
     virtual void rewind() = 0;
 
-    virtual void skip(Ice::Int) = 0;
+    virtual void skip(Int) = 0;
     virtual void skipSize() = 0;
 
     virtual void read(bool&) = 0;
@@ -226,14 +226,14 @@ public:
         StreamHelper<T, StreamableTraits<T>::helper>::read(this, v);
     }
 
-    template<typename T> inline void read(Ice::Int tag, IceUtil::Optional<T>& v)
+    template<typename T> inline void read(Int tag, IceUtil::Optional<T>& v)
     {
         if(readOptional(tag, StreamOptionalHelper<T, 
-                                                  Ice::StreamableTraits<T>::helper, 
-                                                  Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
+                                                  StreamableTraits<T>::helper, 
+                                                  StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
-            StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::read(this, *v);
+            StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::read(this, *v);
         }
     }
 
@@ -298,15 +298,16 @@ public:
     virtual void startSlice(const ::std::string&, int, bool) = 0;
     virtual void endSlice() = 0;
 
-    virtual void startEncapsulation(const Ice::EncodingVersion&, FormatType) = 0;
+    virtual void startEncapsulation(const EncodingVersion&, FormatType) = 0;
     virtual void startEncapsulation() = 0;
     virtual void endEncapsulation() = 0;
 
-    virtual Ice::EncodingVersion getEncoding() const = 0;
+    virtual EncodingVersion getEncoding() const = 0;
 
     virtual void writePendingObjects() = 0;
 
     virtual void finished(::std::vector<Byte>&) = 0;
+    virtual std::pair<const Byte*, const Byte*> finished() = 0;
 
     virtual size_type pos() = 0;
     virtual void rewrite(Int, size_type) = 0;
@@ -348,14 +349,14 @@ public:
         StreamHelper<T, StreamableTraits<T>::helper>::write(this, v);
     }
 
-    template<typename T> inline void write(Ice::Int tag, const IceUtil::Optional<T>& v)
+    template<typename T> inline void write(Int tag, const IceUtil::Optional<T>& v)
     {
         if(v)
         {
             writeOptional(tag, StreamOptionalHelper<T,
-                                                    Ice::StreamableTraits<T>::helper, 
-                                                    Ice::StreamableTraits<T>::fixedLength>::optionalFormat);
-            StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::write(this, *v);
+                                                    StreamableTraits<T>::helper, 
+                                                    StreamableTraits<T>::fixedLength>::optionalFormat);
+            StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::write(this, *v);
         }
     }
 
@@ -364,7 +365,7 @@ public:
     // 
     template<typename T> void write(const T* begin, const T* end)
     {
-        writeSize(static_cast<Ice::Int>(end - begin));
+        writeSize(static_cast<Int>(end - begin));
         for(const T* p = begin; p != end; ++p)
         {
             write(*p);

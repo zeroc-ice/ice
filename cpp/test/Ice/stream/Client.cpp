@@ -175,6 +175,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out->write(true);
         out->endEncapsulation();
         out->finished(data);
+        pair<const Ice::Byte*, const Ice::Byte*> d = out->finished();
+        test(d.second - d.first == data.size());
+        test(vector<Ice::Byte>(d.first, d.second) == data);
         out = 0;
 
         in = Ice::createInputStream(communicator, data);

@@ -57,17 +57,17 @@ public:
     virtual void endSlice();
     virtual void skipSlice();
 
-    virtual Ice::EncodingVersion startEncapsulation();
+    virtual EncodingVersion startEncapsulation();
     virtual void endEncapsulation();
-    virtual Ice::EncodingVersion skipEncapsulation();
+    virtual EncodingVersion skipEncapsulation();
 
-    virtual Ice::EncodingVersion getEncoding() const;
+    virtual EncodingVersion getEncoding() const;
 
     virtual void readPendingObjects();
 
     virtual void rewind();
 
-    virtual void skip(Ice::Int);
+    virtual void skip(Int);
     virtual void skipSize();
     
     virtual void read(bool&);
@@ -163,15 +163,16 @@ public:
     virtual void startSlice(const std::string&, int, bool);
     virtual void endSlice();
 
-    virtual void startEncapsulation(const Ice::EncodingVersion&, FormatType);
+    virtual void startEncapsulation(const EncodingVersion&, FormatType);
     virtual void startEncapsulation();
     virtual void endEncapsulation();
 
-    virtual Ice::EncodingVersion getEncoding() const;
+    virtual EncodingVersion getEncoding() const;
 
     virtual void writePendingObjects();
 
     virtual void finished(std::vector< Byte >&);
+    virtual std::pair<const Byte*, const Byte*> finished();
 
     virtual void reset(bool);
 

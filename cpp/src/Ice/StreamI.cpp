@@ -671,6 +671,19 @@ OutputStreamI::finished(vector<Byte>& bytes)
     vector<Byte>(_os->b.begin(), _os->b.end()).swap(bytes);
 }
 
+pair<const Byte*, const Byte*>
+OutputStreamI::finished()
+{
+    if(_os->b.empty())
+    {
+        return pair<const Byte*, const Byte*>(reinterpret_cast<Ice::Byte*>(0), reinterpret_cast<Ice::Byte*>(0));
+    }
+    else
+    {
+        return pair<const Byte*, const Byte*>(&_os->b[0], &_os->b[0] + _os->b.size());
+    }
+}
+
 void
 OutputStreamI::reset(bool clearBuffer)
 {

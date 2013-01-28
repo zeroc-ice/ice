@@ -92,6 +92,12 @@ General Changes
 C++ Changes
 ===========
 
+- Added support for zero-copy Ice::OutputStream::finished() method. If
+  supported by the stream implementation, the memory returned by this
+  method points to the output stream internal buffer. Special care
+  must be taken to ensure the memory isn't accessed after the
+  de-allocation of the output stream object.
+
 - Added support for zero-copy on x86_64 processors when using the
   sequence C++ array mapping.
 
