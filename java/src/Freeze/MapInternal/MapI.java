@@ -757,8 +757,8 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsValue while " + "iterating over Db \"" +
-                                              _dbName  + "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsValue while " + 
+                                              "iterating over Db \"" + _dbName  + "\"; retrying...");
                     }
 
                     //
@@ -898,13 +898,55 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
 
         com.sleepycat.db.Transaction txn = _connection.dbTxn();
+        if(txn == null)
+        {
+            closeAllIterators();
+        }
 
+        com.sleepycat.db.DatabaseEntry keyEntry = new com.sleepycat.db.DatabaseEntry();
+        keyEntry.setPartial(true);
+
+        com.sleepycat.db.DatabaseEntry valueEntry = new com.sleepycat.db.DatabaseEntry();
+        valueEntry.setPartial(true);
+        
         for(;;)
         {
             try
             {
-                _db.db().truncate(txn, false);
-                break;
+                com.sleepycat.db.Cursor dbc = null;
+                Transaction tx = null;
+                try
+                {
+                    if(txn == null)
+                    {
+                        tx = _connection.beginTransaction();
+                        txn = _connection.dbTxn();
+                    }
+
+                    dbc = _db.db().openCursor(txn, null);
+                    while(dbc.getNext(keyEntry, valueEntry, null) == com.sleepycat.db.OperationStatus.SUCCESS)
+                    {
+                        dbc.delete();
+                    }
+                    break;
+                }
+                finally
+                {
+                    try
+                    {
+                        if(dbc != null)
+                        {
+                            dbc.close();
+                        }
+                    }
+                    finally 
+                    {
+                        if(tx != null)
+                        {
+                            tx.commit();
+                        }
+                    }
+                }
             }
             catch(com.sleepycat.db.DeadlockException e)
             {

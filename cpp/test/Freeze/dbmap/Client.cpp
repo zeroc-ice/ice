@@ -612,6 +612,12 @@ run(const CommunicatorPtr& communicator, const string& envName)
     }
     cout << "ok" << endl;
 
+    cout << "testing clear... " << flush;
+    test(m.size() > 0);
+    m.clear();
+    test(m.size() == 0);
+    cout << "ok" << endl;
+
     cout << "testing index ... " << flush;
     m.clear();
     populateDB(connection, m);

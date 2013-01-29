@@ -448,6 +448,7 @@ public class Client
             }
 
             m.clear();
+            test(m.size() == 0);
             try
             {
                 nm.firstKey();
@@ -767,6 +768,15 @@ public class Client
             test(e != null);
             test(e.getValue().intValue() == -1);
 
+            System.out.println("ok");
+        }
+
+        {
+            System.out.print("testing clear... ");
+            System.out.flush();
+            test(m.size() > 0);
+            m.clear();
+            test(m.size() == 0);
             System.out.println("ok");
         }
 

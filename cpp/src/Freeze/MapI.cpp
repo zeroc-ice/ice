@@ -1379,29 +1379,65 @@ Freeze::MapHelperI::clear()
         closeAllIterators();
     }
 
-    for(;;)
+    Dbt dbKey;
+    dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+    
+    Dbt dbValue;
+    dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+
+    try
     {
-        try
+        for(;;)
         {
-            u_int32_t count;
-#ifndef NDEBUG
-            int err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
-            assert(err == 0);
+            Dbc* dbc = 0;
+     
+            try
+            {
+                IteratorHelperI::TxPtr tx;
+                if(txn == 0)
+                {
+#ifdef ICE_CPP11
+                    tx.reset(new IteratorHelperI::Tx(*this));
 #else
-            _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
+                    tx = new IteratorHelperI::Tx(*this);
 #endif
-            break;
-        }
-        catch(const ::DbDeadlockException& dx)
-        {
-            if(txn != 0)
-            {
-                DeadlockException ex(__FILE__, __LINE__);
-                ex.message = dx.what();
-                throw ex;
+                    txn = tx->getTxn();
+                }
+
+                _db->cursor(txn, &dbc, 0);
+                while(dbc->get(&dbKey, &dbValue, DB_NEXT | DB_RMW) == 0)
+                {
+                    dbc->del(0);
+                }
+
+                Dbc* toClose = dbc;
+                dbc = 0;
+                toClose->close();
+                break; // for (;;)
             }
-            else
+            catch(const DbDeadlockException&)
             {
+                if(dbc != 0)
+                {
+                    try
+                    {
+                        dbc->close();
+                    }
+                    catch(const DbDeadlockException&)
+                    {
+                        if(txn != 0)
+                        {
+                            throw;
+                        }
+                        else
+                        {
+                            //
+                            // Ignored
+                            //
+                        }
+                    }
+                }
+
                 if(_connection->deadlockWarning())
                 {
                     Warning out(_connection->communicator()->getLogger());
@@ -1409,17 +1445,47 @@ Freeze::MapHelperI::clear()
                         << _dbName << "\"; retrying ...";
                 }
 
+                if(txn != 0)
+                {
+                    throw;
+                }
                 //
-                // Ignored, try again
+                // Otherwise retry
                 //
             }
+            catch(...)
+            {
+                if(dbc != 0)
+                {
+                    try
+                    {
+                        dbc->close();
+                    }
+                    catch(const DbDeadlockException&)
+                    {
+                        if(txn != 0)
+                        {
+                            throw;
+                        }
+                        else
+                        {
+                            //
+                            // Ignored
+                            //
+                        }
+                    }
+                }
+                throw;
+            }
         }
-        catch(const ::DbException& dx)
-        {
-            DatabaseException ex(__FILE__, __LINE__);
-            ex.message = dx.what();
-            throw ex;
-        }
+    }
+    catch(const DbDeadlockException& dx)
+    {
+        throw DeadlockException(__FILE__, __LINE__, dx.what(), _connection->currentTransaction());
+    }
+    catch(const DbException& dx)
+    {
+        throw DatabaseException(__FILE__, __LINE__, dx.what());
     }
 }
 

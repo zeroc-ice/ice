@@ -27,6 +27,9 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- Fixed Freeze map issue where the clear method could throw an
+  exception if active cursors were still opened.
+
 - Added support for wrapInputStream function. Unlike the
   createInputStream function, the returned input stream wraps the
   provided encoded data rather than copying it. While it avoids
