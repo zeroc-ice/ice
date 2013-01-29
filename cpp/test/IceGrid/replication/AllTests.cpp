@@ -22,6 +22,13 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
+namespace 
+{
+
+const int sleepTime = 100; // 100ms
+const int maxRetry = 240000 / sleepTime; // 4 minutes
+
+
 class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -84,14 +91,14 @@ void
 waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bool up)
 {
     int nRetry = 0;
-    while(nRetry < 30)
+    while(nRetry < maxRetry) // One minute
     {
         if(admin->getServerState(server) == (up ? Active : Inactive))
         {
             return;
         } 
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
         ++nRetry;
     }
     test(false);
@@ -101,7 +108,7 @@ void
 waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool up)
 {
     int nRetry = 0;
-    while(nRetry < 30)
+    while(nRetry < maxRetry)
     {
         try
         {
@@ -118,7 +125,7 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
             }
         }
         
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
         ++nRetry;
     }
     try
@@ -209,7 +216,7 @@ bool
 waitAndPing(const Ice::ObjectPrx& obj)
 {
     int nRetry = 0;
-    while(nRetry < 100)
+    while(nRetry < sleepTime)
     {
         try
         {
@@ -218,7 +225,7 @@ waitAndPing(const Ice::ObjectPrx& obj)
         }
         catch(const Ice::LocalException&)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
     }
@@ -242,6 +249,8 @@ createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
     AdminSessionPrx session = AdminSessionPrx::checkedCast(registry->createAdminSession("foo", "bar"));
     test(session);
     return session->getAdmin();
+}
+
 }
 
 void
@@ -334,9 +343,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         int nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
+        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < maxRetry)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
         test(slave2Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
@@ -350,9 +359,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 30)
+        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < maxRetry)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
         test(slave2Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
@@ -369,9 +378,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator"));
         // We eventually need to wait here for the update of the replicated objects to propagate to the replica.
         nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < 30)
+        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) != info && nRetry < maxRetry)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
         test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Locator")) == info);
@@ -383,9 +392,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
         nRetry = 0;
-        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < 30)
+        while(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) != info && nRetry < maxRetry)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
             ++nRetry;
         }
         test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
@@ -1254,7 +1263,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         admin->startServer("Slave3");
         waitForServerState(admin, "Slave3", true);
         int nRetry = 0;
-        while(nRetry < 30)
+        while(nRetry < maxRetry)
         {
             try
             {
@@ -1263,7 +1272,7 @@ allTests(const Ice::CommunicatorPtr& comm)
             }
             catch(const IceGrid::RegistryNotExistException&)
             {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
                 ++nRetry;
             }
         }
