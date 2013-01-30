@@ -39,6 +39,11 @@ else:
     variables += " db-plugin=IceStormFreezeDB:createFreezeDB"
 
 #
+# Don't use a slave registry for this test.
+#
+IceGridAdmin.nreplicas=0
+
+#
 # Test client/server without on demand activation.
 #
 IceGridAdmin.iceGridTest("application.xml", "", variables)
