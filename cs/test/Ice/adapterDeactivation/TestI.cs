@@ -24,6 +24,6 @@ public sealed class TestI : TestIntfDisp_
     public override void deactivate(Ice.Current current)
     {
         current.adapter.deactivate();
-        System.Threading.Thread.Sleep(10 * 1000);
+        System.Threading.Thread.Sleep(100);
     }
 }

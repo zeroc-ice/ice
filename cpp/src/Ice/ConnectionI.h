@@ -368,6 +368,7 @@ private:
 
     State _state; // The current state.
     bool _shutdownInitiated;
+    bool _validated;
 };
 
 }

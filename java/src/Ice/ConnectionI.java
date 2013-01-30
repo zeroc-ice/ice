@@ -1264,24 +1264,18 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 if(--_dispatchCount == 0)
                 {
-                    if(_state == StateClosing)
+                    //
+                    // Only initiate shutdown if not already done. It
+                    // might have already been done if the sent
+                    // callback or AMI callback was dispatched when
+                    // the connection was already in the closing
+                    // state.
+                    //
+                    if(_state == StateClosing && !_shutdownInitiated)
                     {
-                        //
-                        // Only initiate shutdown if not already done. It
-                        // might have already been done if the sent callback
-                        // or AMI callback was dispatched when the connection
-                        // was already in the closing state.
-                        //
                         try
                         {
-                            if(!_shutdownInitiated)
-                            {
-                                initiateShutdown();
-                            }
-                            else
-                            {
-                                setState(StateClosed);
-                            }
+                            initiateShutdown();
                         }
                         catch(Ice.LocalException ex)
                         {
@@ -1664,25 +1658,22 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             _exception = ex;
 
-            if(_warn)
+            //
+            // We don't warn if we are not validated.
+            //
+            if(_warn && _validated)
             {
                 //
-                // We don't warn if we are not validated.
+                // Don't warn about certain expected exceptions.
                 //
-                if(_state > StateNotValidated)
+                if(!(_exception instanceof CloseConnectionException ||
+                     _exception instanceof ForcedCloseConnectionException ||
+                     _exception instanceof ConnectionTimeoutException ||
+                     _exception instanceof CommunicatorDestroyedException ||
+                     _exception instanceof ObjectAdapterDeactivatedException ||
+                     (_exception instanceof ConnectionLostException && _state == StateClosing)))
                 {
-                    //
-                    // Don't warn about certain expected exceptions.
-                    //
-                    if(!(_exception instanceof CloseConnectionException ||
-                         _exception instanceof ForcedCloseConnectionException ||
-                         _exception instanceof ConnectionTimeoutException ||
-                         _exception instanceof CommunicatorDestroyedException ||
-                         _exception instanceof ObjectAdapterDeactivatedException ||
-                         (_exception instanceof ConnectionLostException && _state == StateClosing)))
-                    {
-                        warning("connection exception", _exception);
-                    }
+                    warning("connection exception", _exception);
                 }
             }
         }
@@ -2031,6 +2022,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     throw new IllegalMessageSizeException();
                 }
                 IceInternal.TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
+
+                _validated = true;
             }
         }
 
@@ -2040,7 +2033,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _readStream.resize(IceInternal.Protocol.headerSize, true);
         _readHeader = true;
         _readStream.pos(0);
-
+        
         return true;
     }
 
@@ -2291,6 +2284,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _readStream.resize(IceInternal.Protocol.headerSize, true);
         _readStream.pos(0);
         _readHeader = true;
+
+        //
+        // Connection is validated on first message. This is only used by
+        // setState() to check wether or not we can print a connection
+        // warning (a client might close the connection forcefully if the
+        // connection isn't validated).
+        //
+        _validated = true;
 
         assert(info.stream.pos() == info.stream.size());
 
@@ -2892,6 +2893,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private int _state; // The current state.
     private boolean _shutdownInitiated = false;
+    private boolean _validated = false;
 
     private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();

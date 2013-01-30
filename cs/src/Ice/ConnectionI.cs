@@ -1483,24 +1483,17 @@ namespace Ice
                 {
                     if(--_dispatchCount == 0)
                     {
-                        if(_state == StateClosing)
+                        //
+                        // Only initiate shutdown if not already done. It
+                        // might have already been done if the sent callback
+                        // or AMI callback was dispatched when the connection
+                        // was already in the closing state.
+                        //
+                        if(_state == StateClosing && !_shutdownInitiated)
                         {
-                            //
-                            // Only initiate shutdown if not already done. It
-                            // might have already been done if the sent callback
-                            // or AMI callback was dispatched when the connection
-                            // was already in the closing state.
-                            //
                             try
                             {
-                                if(!_shutdownInitiated)
-                                {
-                                    initiateShutdown();
-                                }
-                                else
-                                {
-                                    setState(StateClosed);
-                                }
+                                initiateShutdown();
                             }
                             catch(Ice.LocalException ex)
                             {
@@ -1894,25 +1887,22 @@ namespace Ice
             {
                 _exception = ex;
 
-                if(_warn)
+                //
+                // We don't warn if we are not validated.
+                //
+                if(_warn && _validated)
                 {
                     //
-                    // We don't warn if we are not validated.
+                    // Don't warn about certain expected exceptions.
                     //
-                    if(_state > StateNotValidated)
+                    if(!(_exception is CloseConnectionException ||
+                         _exception is ForcedCloseConnectionException ||
+                         _exception is ConnectionTimeoutException ||
+                         _exception is CommunicatorDestroyedException ||
+                         _exception is ObjectAdapterDeactivatedException ||
+                         (_exception is ConnectionLostException && _state == StateClosing)))
                     {
-                        //
-                        // Don't warn about certain expected exceptions.
-                        //
-                        if(!(_exception is CloseConnectionException ||
-                             _exception is ForcedCloseConnectionException ||
-                             _exception is ConnectionTimeoutException ||
-                             _exception is CommunicatorDestroyedException ||
-                             _exception is ObjectAdapterDeactivatedException ||
-                             (_exception is ConnectionLostException && _state == StateClosing)))
-                        {
-                            warning("connection exception", _exception);
-                        }
+                        warning("connection exception", _exception);
                     }
                 }
             }
@@ -2254,6 +2244,8 @@ namespace Ice
                         throw new IllegalMessageSizeException();
                     }
                     IceInternal.TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
+
+                    _validated = true;
                 }
             }
 
@@ -2500,6 +2492,14 @@ namespace Ice
             _readStream.resize(IceInternal.Protocol.headerSize, true);
             _readStream.pos(0);
             _readHeader = true;
+
+            //
+            // Connection is validated on first message. This is only used by
+            // setState() to check wether or not we can print a connection
+            // warning (a client might close the connection forcefully if the
+            // connection isn't validated).
+            //
+            _validated = true;
 
             try
             {
@@ -3049,6 +3049,7 @@ namespace Ice
 
         private int _state; // The current state.
         private bool _shutdownInitiated = false;
+        private bool _validated = false;
 
         private IceInternal.Incoming _incomingCache;
         private object _incomingCacheMutex = new object();

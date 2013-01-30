@@ -27,6 +27,10 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- Fixed bug where an erroneous connection warning could be printed on
+  the server side if the client closed the connection before receiving
+  the connection validation message.
+
 - Fixed Freeze map issue where the clear method could throw an
   exception if active cursors were still opened.
 

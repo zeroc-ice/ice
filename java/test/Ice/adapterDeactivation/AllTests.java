@@ -69,6 +69,20 @@ public class AllTests
         obj._transient();
         out.println("ok");
 
+        {
+            out.print("testing connection closure... ");
+            out.flush();
+            for(int i = 0; i < 10; ++i)
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                comm.stringToProxy("test:default -p 12010").begin_ice_ping();
+                comm.destroy();
+            }
+            out.println("ok");
+        }
+
         out.print("deactivating object adapter in the server... ");
         out.flush();
         obj.deactivate();

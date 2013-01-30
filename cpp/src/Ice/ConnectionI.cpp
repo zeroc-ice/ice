@@ -1604,24 +1604,17 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingAsyn
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         if(--_dispatchCount == 0)
         {
-            if(_state == StateClosing)
+            //
+            // Only initiate shutdown if not already done. It might
+            // have already been done if the sent callback or AMI
+            // callback was dispatched when the connection was already
+            // in the closing state.
+            //
+            if(_state == StateClosing && !_shutdownInitiated)
             {
-                //
-                // Only initiate shutdown if not already done. It
-                // might have already been done if the sent callback
-                // or AMI callback was dispatched when the connection
-                // was already in the closing state.
-                //
                 try
                 {
-                    if(!_shutdownInitiated)
-                    {
-                        initiateShutdown();
-                    }
-                    else
-                    {
-                        setState(StateClosed);
-                    }
+                    initiateShutdown();
                 }
                 catch(const LocalException& ex)
                 {
@@ -1901,7 +1894,8 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _writeStream(_instance.get(), Ice::currentProtocolEncoding),
     _dispatchCount(0),
     _state(StateNotInitialized),
-    _shutdownInitiated(false)
+    _shutdownInitiated(false),
+    _validated(false)
 {
     int& compressionLevel = const_cast<int&>(_compressionLevel);
     compressionLevel = _instance->initializationData().properties->getPropertyAsIntWithDefault(
@@ -1991,27 +1985,24 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
         assert(_state != StateClosed);
 
         _exception.reset(ex.ice_clone());
-
-        if(_warn)
+        
+        //
+        // We don't warn if we are not validated.
+        //
+        if(_warn && _validated)
         {
             //
-            // We don't warn if we are not validated.
+            // Don't warn about certain expected exceptions.
             //
-            if(_state > StateNotValidated)
+            if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
+                 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
+                 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
+                 (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
             {
-                //
-                // Don't warn about certain expected exceptions.
-                //
-                if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
-                     dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
-                     dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
-                     dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
-                     dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
-                     (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
-                {
-                    Warning out(_logger);
-                    out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
-                }
+                Warning out(_logger);
+                out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
             }
         }
     }
@@ -2371,6 +2362,8 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw IllegalMessageSizeException(__FILE__, __LINE__);
             }
             traceRecv(_readStream, _logger, _traceLevels);
+
+            _validated = true;
         }
     }
 
@@ -2830,6 +2823,14 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
     _readHeader = true;
 
     assert(stream.i == stream.b.end());
+
+    //
+    // Connection is validated on first message. This is only used by
+    // setState() to check wether or not we can print a connection
+    // warning (a client might close the connection forcefully if the
+    // connection isn't validated).
+    //
+    _validated = true;
 
     try
     {

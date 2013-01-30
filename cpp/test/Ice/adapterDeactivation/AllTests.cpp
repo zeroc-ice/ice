@@ -55,6 +55,19 @@ allTests(const CommunicatorPtr& communicator)
     obj->transient();
     cout << "ok" << endl;
 
+    {
+        cout << "testing connection closure... " << flush;
+        for(int i = 0; i < 10; ++i)
+        {
+            Ice::InitializationData initData;
+            initData.properties = communicator->getProperties()->clone();
+            Ice::CommunicatorPtr comm = Ice::initialize(initData);
+            comm->stringToProxy("test:default -p 12010")->begin_ice_ping();
+            comm->destroy();
+        }
+        cout << "ok" << endl;
+    }
+
     cout << "deactivating object adapter in the server... " << flush;
     obj->deactivate();
     cout << "ok" << endl;

@@ -51,6 +51,16 @@ def allTests(communicator):
     obj.deactivate()
     print("ok")
 
+    sys.stdout.write("testing connection closure... ");
+    sys.stdout.flush();
+    for x in range(10):
+        initData = Ice.InitializationData();
+        initData.properties = communicator.getProperties().clone();
+        comm = Ice.initialize(initData);
+        comm.stringToProxy("test:default -p 12010").begin_ice_ping();
+        comm.destroy();
+    print("ok");
+
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
     try:

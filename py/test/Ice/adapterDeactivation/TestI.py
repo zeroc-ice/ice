@@ -23,7 +23,7 @@ class TestI(Test.TestIntf):
 
     def deactivate(self, current=None):
         current.adapter.deactivate()
-        time.sleep(1)
+        time.sleep(0.1)
 
 class CookieI(Test.Cookie):
     def message(self):

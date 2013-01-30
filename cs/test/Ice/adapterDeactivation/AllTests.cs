@@ -75,6 +75,20 @@ public class AllTests : TestCommon.TestApp
         obj.transient();
         WriteLine("ok");
 
+        {
+            Write("testing connection closure... ");
+            Flush();
+            for(int i = 0; i < 10; ++i)
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties().ice_clone_();
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                comm.stringToProxy("test:default -p 12010").begin_ice_ping();
+                comm.destroy();
+            }
+            WriteLine("ok");
+        }
+
         Write("deactivating object adapter in the server... ");
         Flush();
         obj.deactivate();

@@ -30,7 +30,7 @@ public final class TestI extends _TestIntfDisp
         current.adapter.deactivate();
         try
         {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         }
         catch(InterruptedException ex)
         {
