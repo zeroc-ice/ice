@@ -19,8 +19,3 @@ IceSSL.TrustOnly.Client=CN="Master";CN="Slave";CN="Glacier2"
 # C++ configuration
 Ice.Plugin.IceSSL.cpp=IceSSL:createIceSSL
 IceSSL.CertAuthFile=ca_cert.pem
-
-# Java configuration
-Ice.Plugin.IceSSL.java=IceSSL.PluginFactory
-IceSSL.Alias=ca_cert
-IceSSL.Truststore=certs.jks
