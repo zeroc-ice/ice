@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-ROUTER		= $(top_srcdir)/bin/glacier2router
+ROUTER		= $(bindir)/glacier2router
 TARGETS         = $(ROUTER)
 
 OBJS		= Blobject.o \

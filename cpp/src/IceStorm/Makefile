@@ -13,7 +13,7 @@ LIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
 SONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
 LIBNAME	= $(call mklibname,IceStormService)
 
-ADMIN		= $(top_srcdir)/bin/icestormadmin
+ADMIN		= $(bindir)/icestormadmin
 
 LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ADMIN)

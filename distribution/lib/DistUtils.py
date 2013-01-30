@@ -16,7 +16,7 @@ from stat import *
 #
 languages = { \
     'SunOS' : ['cpp', 'cpp-64', 'java'], \
-    'Darwin' : ['cpp', 'java', 'py'], \
+    'Darwin' : ['cpp', 'cpp-11', 'java', 'py'], \
     'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
 }
 
@@ -596,6 +596,7 @@ class ThirdParty :
 
     def getFiles(self, platform):
         files = self.getFilesFromSubDirs(platform, "bin", "lib", False)
+        files = self.getFilesFromSubDirs(platform, "bin/c++11", "lib/c++11", False)
         if platform.lp64subdir:
             files += self.getFilesFromSubDirs(platform, \
                                               os.path.join("bin", platform.lp64subdir), \
@@ -773,12 +774,23 @@ class Darwin(Platform):
         if not os.environ.has_key("CXXARCHFLAGS"):
             envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
             envs += " embedded_runpath_prefix=\"/Library/Developer/Ice-" + mmversion + "\""
+
+        if language == "cpp-11":
+            envs += " CPP11=yes"
+
         return envs
 
     def getMakeOptions(self):
         return "-j 8"
 
     def completeDistribution(self, buildDir, version):
+
+        print "Remove c++11 executables other than icebox",
+        for root, dirnames, filenames in os.walk(os.path.join(buildDir, "bin", "c++11")):
+            for f in filenames:
+                if f != "icebox":
+                    os.remove(os.path.join(buildDir, "bin", "c++11", f))
+        print "ok"
 
         print "Fixing install names...",
         sys.stdout.flush()
@@ -814,6 +826,19 @@ class Darwin(Platform):
             libName = os.path.basename(oldName)
             newName = '/Library/Developer/Ice-' + mmversion + '/lib/' + libName
             os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/' + libName)
+            for f in binFiles:
+                os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
+
+        #
+        # Fix C++11 binaries and libraries
+        #
+        binFiles = [ f for f in glob.glob(os.path.join(buildDir, "bin", "c++11", "*")) if isExe(f)]
+        binFiles += [ f for f in glob.glob(os.path.join(buildDir, "lib", "c++11", "*")) if isLib(f)]
+
+        for oldName in oldInstallNames:
+            libName = os.path.basename(oldName)
+            newName = '/Library/Developer/Ice-' + mmversion + '/lib/c++11/' + libName
+            os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/c++11/' + libName)
             for f in binFiles:
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
 
@@ -921,7 +946,7 @@ class SunOS(Platform):
 class BerkeleyDB(ThirdParty):
     def __init__(self, platform):
         global berkeleydb, berkeleydbjar
-        ThirdParty.__init__(self, platform, "BerkeleyDB", berkeleydb, ["cpp", "cpp-64", "java"], None, "DB_HOME")
+        ThirdParty.__init__(self, platform, "BerkeleyDB", berkeleydb, ["cpp", "cpp-11", "cpp-64", "java"], None, "DB_HOME")
         if not self.location: # BerkeleyDB is installed with the system (Linux)
             self.languages = ["java"]
             self.location = berkeleydbjar.get(str(platform), None)

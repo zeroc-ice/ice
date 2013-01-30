@@ -11,7 +11,7 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-CXX			?= xcrun clang++
+CXX			= xcrun clang++
 
 CXXFLAGS		= -Wall -Werror -D_REENTRANT
 
@@ -31,7 +31,6 @@ ifeq ($(CPP11), yes)
 ifeq ($(CXX), xcrun clang++)
     CPPFLAGS += --std=c++11
     CXXFLAGS += --stdlib=libc++
-    CPP11LIBSUFFIX = -c++11
 endif
 endif
 

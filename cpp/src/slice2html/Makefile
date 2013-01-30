@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2html
+NAME		= $(bindir)/slice2html
 
 TARGETS		= $(NAME)
 

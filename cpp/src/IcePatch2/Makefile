@@ -9,9 +9,9 @@
 
 top_srcdir	= ../..
 
-SERVER		= $(top_srcdir)/bin/icepatch2server
-CLIENT		= $(top_srcdir)/bin/icepatch2client
-CALC		= $(top_srcdir)/bin/icepatch2calc
+SERVER		= $(bindir)/icepatch2server
+CLIENT		= $(bindir)/icepatch2client
+CALC		= $(bindir)/icepatch2calc
 
 TARGETS         = $(SERVER) $(CLIENT) $(CALC)
 

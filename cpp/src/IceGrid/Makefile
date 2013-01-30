@@ -9,9 +9,9 @@
 
 top_srcdir	= ../..
 
-ADMIN		= $(top_srcdir)/bin/icegridadmin
-NODE_SERVER	= $(top_srcdir)/bin/icegridnode
-REGISTRY_SERVER	= $(top_srcdir)/bin/icegridregistry
+ADMIN		= $(bindir)/icegridadmin
+NODE_SERVER	= $(bindir)/icegridnode
+REGISTRY_SERVER	= $(bindir)/icegridregistry
 
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 

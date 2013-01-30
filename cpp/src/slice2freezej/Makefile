@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2freezej
+NAME		= $(bindir)/slice2freezej
 
 TARGETS		= $(NAME)
 

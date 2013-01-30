@@ -69,16 +69,26 @@ ifeq ($(UNAME),Linux)
    endif
 endif
 
+ifeq ($(UNAME),Darwin)
+    ifeq ($(CPP11),yes)
+      cpp11suffix    = /c++11
+    endif
+endif
+
 ifneq ($(findstring MINGW,$(UNAME)),)
     UNAME	:= MINGW
 endif
 
 ifeq ($(LP64),yes)
-    libsubdir		:= lib$(lp64suffix)
+	libsubdir		:= lib$(lp64suffix)
     binsubdir		:= bin$(lp64binsuffix)
+    tp_libsubdir	:= $(libsubdir)
+    tp_binsubdir	:= $(binsubdir)
 else
-    libsubdir		:= lib
-    binsubdir		:= bin
+	libsubdir		:= lib$(cpp11suffix)
+	binsubdir		:= bin$(cpp11suffix)
+	tp_libsubdir	:= lib
+	tp_binsubdir	:= bin
 endif
 
 #
@@ -234,9 +244,9 @@ install_slicedir = $(prefix)/slice
 ifneq ($(ice_dir), /usr)
     ifdef ice_src_dist
 	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-	    ice_lib_dir = $(ice_cpp_dir)/lib
+	    ice_lib_dir = $(ice_cpp_dir)/lib$(cpp11suffix)
 	else
-            ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
+    	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
 	endif
     else
         ice_lib_dir = $(ice_dir)/$(libsubdir)

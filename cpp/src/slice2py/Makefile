@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2py
+NAME		= $(bindir)/slice2py
 
 TARGETS		= $(NAME)
 

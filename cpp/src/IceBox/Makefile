@@ -13,8 +13,8 @@ LIBFILENAME     = $(call mklibfilename,IceBox,$(VERSION))
 SONAME          = $(call mksoname,IceBox,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceBox)
 
-SERVER		= $(top_srcdir)/bin/icebox
-ADMIN		= $(top_srcdir)/bin/iceboxadmin
+SERVER		= $(bindir)/icebox
+ADMIN		= $(bindir)/iceboxadmin
 
 LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(SERVER) $(ADMIN)

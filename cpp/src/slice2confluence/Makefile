@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2confluence
+NAME		= $(bindir)/slice2confluence
 
 TARGETS		= $(NAME)
 

@@ -9,8 +9,8 @@
 
 top_srcdir	= ../..
 
-TRANSFORMDB	= $(top_srcdir)/bin/transformdb
-DUMPDB		= $(top_srcdir)/bin/dumpdb
+TRANSFORMDB	= $(bindir)/transformdb
+DUMPDB		= $(bindir)/dumpdb
 
 TARGETS		= $(TRANSFORMDB) $(DUMPDB)
 

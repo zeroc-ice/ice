@@ -164,6 +164,12 @@ if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
             sys.exit(1)
         os.rename("Ice-" + version, srcDir + "-64")
 
+    if "cpp-11" in buildLanguages:
+        if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
+            print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
+            sys.exit(1)
+        os.rename("Ice-" + version, srcDir + "-11")
+
     os.chdir(cwd)
     print "ok"
 
@@ -177,10 +183,12 @@ for l in buildLanguages:
     print "============= Building " + l + " sources ============="
     print
 
-    if l != "cpp-64":
-        os.chdir(os.path.join(srcDir, l))
-    else:
+    if l == "cpp-64":
         os.chdir(os.path.join(srcDir + "-64", "cpp"))
+    elif l == "cpp-11":
+        os.chdir(os.path.join(srcDir + "-11", "cpp"))
+    else:
+        os.chdir(os.path.join(srcDir, l))
 
     if l != "java":
 
