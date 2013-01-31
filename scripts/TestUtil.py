@@ -272,7 +272,7 @@ def run(tests, root = False):
           --no-ipv6               Don't use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
-          --cpp11                 Binary distribution is C++11.
+          --c++11                 Binary distribution is c++11.
           --cross=lang            Run cross language test.
           --client-home=<dir>     Run cross test clients from the given Ice source distribution.
           --script                Generate a script to run the tests.
@@ -298,7 +298,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "client-home=", "x64", "script", "env", 
                                     "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", 
-                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", "cpp11"])
+                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -364,7 +364,7 @@ def run(tests, root = False):
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
                   "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
-                  "--server", "--mx", "--client-home", "--cpp11"):
+                  "--server", "--mx", "--client-home", "--c++11"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -1409,8 +1409,6 @@ def createConfig(path, lines, enc=None):
 
 def getCppBinDir(lang = None):
     binDir = os.path.join(getIceDir("cpp"), "bin")
-    if isDarwin() and cpp11:
-        binDir = os.path.join(binDir, "c++11")
     if iceHome:
         if lang == None:
             lang = getDefaultMapping()
@@ -1424,6 +1422,8 @@ def getCppBinDir(lang = None):
                     binDir = os.path.join(binDir, "amd64")
             elif isWin32():
                 binDir = os.path.join(binDir, "x64")
+        if isDarwin() and cpp11:
+          binDir = os.path.join(binDir, "c++11")
     return binDir
 
 def getServiceDir():
@@ -1468,9 +1468,8 @@ def getTestEnv(lang, testdir):
         libDir = getCppBinDir(lang)
     else:
         libDir = os.path.join(getIceDir("cpp", testdir), "lib")
-        if isDarwin() and cpp11:
-            libDir = os.path.join(libDir, "c++11")
-        if iceHome and x64:
+        if iceHome:
+          if x64:
             if isSolaris():
                 if isSparc():
                     libDir = os.path.join(libDir, "64")
@@ -1478,6 +1477,9 @@ def getTestEnv(lang, testdir):
                     libDir = os.path.join(libDir, "amd64")
             elif not isDarwin():
                 libDir = libDir + "64"
+          if isDarwin() and cpp11:
+            libDir = os.path.join(libDir, "c++11")
+
     addLdPath(libDir, env)
 
     if lang == "javae":
@@ -1602,7 +1604,7 @@ def processCmdLine():
           --ipv6                  Use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
-          --cpp11                 Binary distribution is c++11.
+          --c++11                 Binary distribution is c++11.
           --env                   Print important environment variables.
           --cross=lang            Run cross language test.
           --client-home=<dir>      Run cross test clients from the given Ice source distribution.
@@ -1626,7 +1628,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "ice-home=", "x64", "cross=", "client-home=", "env", "sql-type=", "sql-db=", \
                                "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=", "appverifier", \
-                               "compact", "silverlight", "winrt", "server", "mx", "cpp11"])
+                               "compact", "silverlight", "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -1654,7 +1656,7 @@ def processCmdLine():
         elif o == "--x64":
             global x64
             x64 = True
-        elif o == "--cpp11":
+        elif o == "--c++11":
             global cpp11
             cpp11 = True
         elif o == "--compress":

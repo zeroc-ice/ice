@@ -161,8 +161,8 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-bindir			= $(top_srcdir)/bin$(cpp11suffix)
-libdir			= $(top_srcdir)/lib$(cpp11suffix)
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
 headerdir		= $(top_srcdir)/include
 
 #

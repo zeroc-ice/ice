@@ -244,7 +244,7 @@ install_slicedir = $(prefix)/slice
 ifneq ($(ice_dir), /usr)
     ifdef ice_src_dist
 	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-	    ice_lib_dir = $(ice_cpp_dir)/lib$(cpp11suffix)
+	    ice_lib_dir = $(ice_cpp_dir)/lib
 	else
     	ice_lib_dir = $(ice_cpp_dir)/$(libsubdir)
 	endif

@@ -135,15 +135,12 @@ def configurePaths():
     libDir = None
     if not isWin32():
         libDir = os.path.join(getIceDir("cpp"), "lib")
-        if isDarwin() and cpp11:
-            libDir = os.path.join(libDir, "c++11")
 
     # 64-bits binaries are located in a subdirectory with binary
     # distributions.
     binDir = os.path.join(getIceDir("cpp"), "bin")
-    if isDarwin():
-        binDir = os.path.join(binDir, "c++11")
     addenv("PATH", binDir)
+
     if iceHome:
         if isWin32():
             subdir = None
@@ -168,6 +165,10 @@ def configurePaths():
             else:
                 libDir = libDir + "64"
                 binDir = binDir + "64"
+            addenv("PATH", binDir)
+        elif isDarwin() and cpp11:
+            libDir = os.path.join(libDir, "c++11")
+            binDir = os.path.join(binDir, "c++11")
             addenv("PATH", binDir)
 
     # Only add the lib directory to the shared library path if we're
@@ -393,7 +394,7 @@ def run(demos, protobufDemos = [], root = False):
         --continue              Keep running when a demo fails."
         --ice-home=<path>       Use the binary distribution from the given path."
         --x64                   Binary distribution is 64-bit."
-        --cpp11                 Binary distribution is C++11."
+        --c++11                 Binary distribution is C++11."
         --preferIPv4            Prefer IPv4 stack (java only)."
         --fast                  Run an abbreviated version of the demos."
         --script                Generate a script to run the demos.
@@ -407,7 +408,7 @@ def run(demos, protobufDemos = [], root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script", "protobuf", "service-dir=", "cpp11"])
+                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script", "protobuf", "service-dir=", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -427,7 +428,7 @@ def run(demos, protobufDemos = [], root = False):
             global x64
             x64 = True
             arg += " " + o
-        elif o == "--cpp11":
+        elif o == "--c++11":
             global cpp11
             cpp11 = True
             arg += " " + o
@@ -659,10 +660,10 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-        print("usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>", "--cpp11")
+        print("usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>", "--c++11")
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir=", "cpp11"])
+        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir=", "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -705,8 +706,7 @@ def processCmdLine():
             fast = True
         if o == "--x64":
             x64 = True
-        if o == "--cpp11":
-
+        if o == "--c++11":
             cpp11 = True
         if o == "--preferIPv4":
             preferIPv4 = True
