@@ -105,8 +105,6 @@ Building Ice
 Using your favorite Zip tool, unzip the Ice source archive anywhere 
 you like.
 
-Add the "bin" directory of the third-party libraries to your PATH.
-
 Open a command prompt that is configured for your target architecture.
 For example, when using Visual Studio 2010 or Visual Studio 2012, you
 have several alternatives:
@@ -140,8 +138,19 @@ Python is required to run the test suite:
 
   http://www.python.org/download
 
-You can now run the test suite. Open a command prompt and change to
-the top-level Ice directory. At the command prompt, execute:
+Open a command prompt and change to the top-level Ice directory.
+
+Add the "bin" directory of the third-party libraries to your PATH.
+
+For x86 builds:
+
+> set PATH=<ThirdPartyHome>\bin;%PATH%
+
+For x64 builds:
+
+> set PATH=<ThirdPartyHome>\bin\x64;%PATH%
+
+You can now run the test suite. At the command prompt, execute:
 
 > python allTests.py
 
@@ -179,5 +188,6 @@ Ice project, make sure to add the bin directory to the Visual C++
 "Executable files", the include directory to the "Include files" and
 the lib directory to the "Library files" in the IDE.
 
-If you built Ice on x64, the binaries are installed in the bin\x64
-directory and the libraries are installed in the lib\x64 directory.
+If you built a 64-bit version of Ice, the binaries are installed in 
+the bin\x64 directory and the libraries are installed in the lib\x64
+directory.
