@@ -28,10 +28,8 @@ else
 endif
 
 ifeq ($(CPP11), yes)
-ifeq ($(CXX), xcrun clang++)
     CPPFLAGS += --std=c++11
     CXXFLAGS += --stdlib=libc++
-endif
 endif
 
 #

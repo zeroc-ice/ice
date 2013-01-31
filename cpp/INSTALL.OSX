@@ -15,7 +15,7 @@ C++ compiler
 
 Ice is supported with:
 
-- Apple clang 4.1 provided with Xcode 4.5
+- Apple clang 4.2 provided with Xcode 4.6
 
 
 Third-party libraries
@@ -34,7 +34,7 @@ packages that are not installed or have an older version than what
 is listed above, we recommend downloading the Ice third-party source
 archive from
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 This archive contains the source distributions for each of the
 third-party dependencies, as well as required source patches and 
@@ -100,14 +100,20 @@ Simply run "make install". This will install Ice in the directory
 specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
-your PATH. 
+your PATH. For C++11 builds binaries are installed in <prefix>/bin/c++11.
+
 
 If you choose to not embed a runpath into executables at build time
 (see your build settings in cpp/config/Make.rules) or didn't create a
 symbolic link from the runpath directory to the installation
 directory, you also need to add the <prefix>/lib directory to your
-DYLD_LIBRARY_PATH.
+DYLD_LIBRARY_PATH. For C++11 builds use <prefix>/lib/c++11 instead of
+<prefix>/lib.
 
 When compiling Ice programs, you must pass the location of the
 <prefix>/include directory to the compiler with the -I option, and the
-location of the <prefix>/lib directory with the -L option.
+location of the <prefix>/lib directory with the -L option. If you are
+using C++11 use <prefix>/lib/c++11 instead of <prefix>/lib with the -L
+option.
+
+

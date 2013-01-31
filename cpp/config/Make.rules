@@ -142,6 +142,13 @@ THIRDPARTY_HOME	?= "C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty"
 #
 #DEFAULT_MUTEX_PROTOCOL  ?= PrioNone
 
+
+#
+# Define CPP11 as yes if you want to enable C++11 features in GCC or 
+# Clang.
+#
+#CPP11     ?= yes
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
