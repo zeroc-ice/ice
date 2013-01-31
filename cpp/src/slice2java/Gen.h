@@ -204,7 +204,7 @@ private:
     {
     public:
 
-        HolderVisitor(const std::string&, bool);
+        HolderVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -215,8 +215,6 @@ private:
     private:
 
         void writeHolder(const TypePtr&);
-
-        bool _stream;
     };
 
     class HelperVisitor : public JavaVisitor

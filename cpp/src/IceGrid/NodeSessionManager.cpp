@@ -228,7 +228,6 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
 }
 
 NodeSessionManager::NodeSessionManager() : 
-    _serial(1), 
     _destroyed(false),
     _activated(false)
 {

@@ -127,7 +127,6 @@ private:
     ThreadPtr _thread;
     std::vector<QueryPrx> _queryObjects;
     InternalRegistryPrx _master;
-    unsigned long _serial;
     bool _destroyed;
     bool _activated;
 

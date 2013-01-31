@@ -45,7 +45,6 @@ public:
         _mediumBegin(0),
         _mediumEnd(0),
         _highBegin(0),
-        _highEnd(0),
         _cores(cores),
         _high(high),
         _medium(medium),
@@ -117,7 +116,6 @@ private:
     int _mediumBegin;
     int _mediumEnd;
     int _highBegin;
-    int _highEnd;
     int _cores;
     int _high;
     int _medium;

@@ -145,8 +145,6 @@ private:
     TransactionIPtr _tx;
     IceUtil::ThreadControl _owner;
 
-    bool _rollbackOnly;
-
     IceUtil::UniquePtr<DeadlockException> _deadlockException;
     IceUtil::UniquePtr<TransactionalEvictorDeadlockException> _nestedCallDeadlockException;
   

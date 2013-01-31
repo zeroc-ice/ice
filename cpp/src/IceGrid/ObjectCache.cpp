@@ -86,7 +86,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
         return;
     }
 
-    ObjectEntryPtr entry = new ObjectEntry(*this, info, application);
+    ObjectEntryPtr entry = new ObjectEntry(info, application);
     addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
@@ -194,8 +194,7 @@ ObjectCache::getAllByType(const string& type)
     return infos;
 }
 
-ObjectEntry::ObjectEntry(ObjectCache& cache, const ObjectInfo& info, const string& application) :
-    _cache(cache),
+ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application) :
     _info(info),
     _application(application)
 {

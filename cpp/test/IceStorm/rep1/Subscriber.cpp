@@ -69,7 +69,6 @@ private:
     const string _name;
     const int _max;
     int _count;
-    bool _ordered;
     int _last;
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;

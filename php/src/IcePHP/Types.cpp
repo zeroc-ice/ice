@@ -246,7 +246,6 @@ private:
 #if ZTS
     TSRMLS_D;
 #endif
-zend_object_handle _h;
 };
 
 }

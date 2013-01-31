@@ -98,7 +98,6 @@ private:
     CommunicatorPtr _communicator;
     const string _name;
     int _count;
-    bool _ordered;
     int _last;
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;

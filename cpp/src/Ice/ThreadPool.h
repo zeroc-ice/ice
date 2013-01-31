@@ -193,7 +193,7 @@ class ThreadPoolWorkQueue : public EventHandler, public IceUtil::Mutex
 {
 public:
 
-    ThreadPoolWorkQueue(ThreadPool*, const InstancePtr&, Selector&);
+    ThreadPoolWorkQueue(const InstancePtr&, Selector&);
     ~ThreadPoolWorkQueue();
 
     void destroy();
@@ -212,7 +212,6 @@ public:
 
 private:
 
-    const ThreadPool* _threadPool;
     const InstancePtr _instance;
     Selector& _selector;
     bool _destroyed;

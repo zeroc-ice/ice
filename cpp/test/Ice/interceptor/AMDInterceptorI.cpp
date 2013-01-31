@@ -28,11 +28,6 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     {
     public:
         
-        CallbackI(AMDInterceptorI& interceptor) :
-            _interceptor(interceptor)
-        {
-        }
-        
         virtual bool response(bool ok)
         {
             test(ok);
@@ -53,17 +48,13 @@ AMDInterceptorI::dispatch(Ice::Request& request)
             test(false);
             return false;
         }
-
-    private:
-        
-        AMDInterceptorI& _interceptor;
     };
 
 
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
     _lastOperation = current.operation;
     
-    Ice::DispatchInterceptorAsyncCallbackPtr cb = new CallbackI(*this);
+    Ice::DispatchInterceptorAsyncCallbackPtr cb = new CallbackI();
 
     if(_lastOperation == "amdAddWithRetry")
     {

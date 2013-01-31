@@ -2023,7 +2023,7 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
     CompactIdVisitor compactIdVisitor(_dir);
     p->visit(&compactIdVisitor, false);
 
-    HolderVisitor holderVisitor(_dir, stream);
+    HolderVisitor holderVisitor(_dir);
     p->visit(&holderVisitor, false);
 
     HelperVisitor helperVisitor(_dir, stream);
@@ -4173,8 +4173,8 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::HolderVisitor::HolderVisitor(const string& dir, bool stream) :
-    JavaVisitor(dir), _stream(stream)
+Slice::Gen::HolderVisitor::HolderVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 

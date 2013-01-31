@@ -344,10 +344,16 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
     {
     public:
 
+#ifndef NDEBUG
         CtxHolder(bool ownCtx, const TransactionalEvictorContextPtr& ctx, const SharedDbEnvPtr& dbEnv) :
             _ownCtx(ownCtx),
             _ctx(ctx),
             _dbEnv(dbEnv)
+#else
+        CtxHolder(bool ownCtx, const TransactionalEvictorContextPtr& ctx) :
+            _ownCtx(ownCtx),
+            _ctx(ctx)
+#endif
         {
         }
         
@@ -371,7 +377,9 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
     private:
         const bool _ownCtx;
         const TransactionalEvictorContextPtr _ctx;
+#ifndef NDEBUG
         const SharedDbEnvPtr& _dbEnv;
+#endif
     };
     
 
@@ -517,7 +525,11 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                     ctx = _dbEnv->createCurrent();
                 }
                 
+#ifndef NDEBUG
                 CtxHolder ctxHolder(ownCtx, ctx, _dbEnv);
+#else
+                CtxHolder ctxHolder(ownCtx, ctx);
+#endif
                 tx = ctx->transaction();
 
                 try

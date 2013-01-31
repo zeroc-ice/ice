@@ -119,7 +119,6 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
     };
@@ -165,7 +164,6 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
         int _useWstring;
@@ -288,7 +286,6 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
         int _useWstring;
@@ -314,7 +311,6 @@ private:
         void generateOperation(const OperationPtr&, bool);
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
         int _useWstring;
@@ -367,7 +363,6 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
         int _useWstring;

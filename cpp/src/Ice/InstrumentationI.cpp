@@ -559,7 +559,25 @@ private:
 
     const ConnectionInfoPtr& _connectionInfo;
     const EndpointPtr& _endpoint;
+
+//
+// Clang 4.2 reports unused-private-field for the _requestId
+// field that is only used in the nested Attributes class.
+//
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
+
     const int _requestId;
+
+//
+// Restore diagnostic to previous state.
+//
+#ifdef __clang__
+#  pragma clang diagnostic pop
+#endif
+
     const int _size;
     mutable string _id;
     mutable EndpointInfoPtr _endpointInfo;

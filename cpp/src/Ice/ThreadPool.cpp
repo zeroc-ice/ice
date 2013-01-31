@@ -156,10 +156,8 @@ IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
     }    
 }
 
-IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool* threadPool,
-                                                      const InstancePtr& instance,
+IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(const InstancePtr& instance,
                                                       Selector& selector) :
-    _threadPool(threadPool),
     _instance(instance),
     _selector(selector),
     _destroyed(false)
@@ -480,7 +478,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         const_cast<int&>(_priority) = properties->getPropertyAsInt("Ice.ThreadPriority");
     }
     
-    _workQueue = new ThreadPoolWorkQueue(this, _instance, _selector);
+    _workQueue = new ThreadPoolWorkQueue(_instance, _selector);
 
     if(_instance->traceLevels()->threadPool >= 1)
     {
