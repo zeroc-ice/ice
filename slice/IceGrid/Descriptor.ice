@@ -58,6 +58,7 @@ struct PropertyDescriptor
  * A property set descriptor.
  *
  **/
+["cpp:comparable"]
 struct PropertySetDescriptor
 {
     /**
@@ -125,6 +126,7 @@ struct ObjectDescriptor
  * An Ice object adapter descriptor.
  *
  **/
+["cpp:comparable"]
 struct AdapterDescriptor
 {
     /**
@@ -208,6 +210,7 @@ struct AdapterDescriptor
  * A Freeze database environment descriptor.
  *
  **/
+["cpp:comparable"]
 struct DbEnvDescriptor
 {
     /**
@@ -298,6 +301,7 @@ class CommunicatorDescriptor
  * directories to retrieve from the patch server.
  *
  **/
+["cpp:comparable"]
 struct DistributionDescriptor
 {
     /** The proxy of the IcePatch2 server. */
@@ -455,6 +459,7 @@ class ServiceDescriptor extends CommunicatorDescriptor
  * A server template instance descriptor.
  *
  **/
+["cpp:comparable"]
 struct ServerInstanceDescriptor
 {
     /**

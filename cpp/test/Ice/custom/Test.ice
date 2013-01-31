@@ -50,7 +50,7 @@ sequence<Fixed> FixedSeq;
 sequence<FixedList> FixedListSeq;
 ["cpp:type:std::list< ::Test::FixedSeq>"] sequence<FixedSeq> FixedSeqList;
 
-struct Variable
+["cpp:comparable"] struct Variable
 {
     string s;
     BoolList bl;
@@ -103,7 +103,7 @@ sequence<double> DoubleSeq;
 };
 sequence<ClassOtherStruct> ClassOtherStructSeq;
 
-["cpp:class"] struct ClassStruct
+["cpp:class", "cpp:comparable"] struct ClassStruct
 {
     ClassOtherStructSeq otherSeq;
     ClassOtherStruct other;
@@ -127,7 +127,7 @@ class DictClass
 ["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Double>"] sequence<double> DoubleBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
-struct BufferStruct
+["cpp:comparable"] struct BufferStruct
 {
     ByteBuffer byteBuf;
     BoolBuffer boolBuf;

@@ -95,6 +95,7 @@ dictionary<string, Object*> StringObjectProxyDict;
  * Information about an Ice object.
  *
  **/
+["cpp:comparable"]
 struct ObjectInfo
 {
     /**
@@ -124,6 +125,7 @@ sequence<ObjectInfo> ObjectInfoSeq;
  * Information about an adapter registered with the IceGrid registry.
  *
  **/
+["cpp:comparable"]
 struct AdapterInfo
 {
     /** 

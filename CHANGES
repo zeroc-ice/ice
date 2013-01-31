@@ -99,6 +99,16 @@ General Changes
 C++ Changes
 ===========
 
+- The operator== and operator< are no longer generated for Slice
+  structures which can't be used as dictionary keys. You will need to
+  define the stucture with the metadata ["cpp:comparable"] if you need
+  these operators. For example:
+  
+  ["cpp:comparable"]
+  struct MyStruct {
+     Ice::StringSeq ids;
+  };
+
 - Added support for zero-copy Ice::OutputStream::finished() method. If
   supported by the stream implementation, the memory returned by this
   method points to the output stream internal buffer. Special care

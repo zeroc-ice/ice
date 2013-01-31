@@ -1169,58 +1169,62 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         params.push_back(fixKwd((*q)->name()));
     }
-
-    H << sp << nl << "bool operator==(const " << name << "& __rhs) const";
-    H << sb;
-    H << nl << "if(this == &__rhs)";
-    H << sb;
-    H << nl << "return true;";
-    H << eb;
-    for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
+ 
+    bool containsSequence = false;
+    if((Dictionary::legalKeyType(p, containsSequence) && !containsSequence) || p->hasMetaData("cpp:comparable"))
     {
-        H << nl << "if(" << *pi << " != __rhs." << *pi << ')';
+        H << sp << nl << "bool operator==(const " << name << "& __rhs) const";
         H << sb;
-        H << nl << "return false;";
-        H << eb;
-    }
-    H << nl << "return true;";
-    H << eb;
-    H << sp << nl << "bool operator<(const " << name << "& __rhs) const";
-    H << sb;
-    H << nl << "if(this == &__rhs)";
-    H << sb;
-    H << nl << "return false;";
-    H << eb;
-    for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
-    {
-        H << nl << "if(" << *pi << " < __rhs." << *pi << ')';
+        H << nl << "if(this == &__rhs)";
         H << sb;
         H << nl << "return true;";
         H << eb;
-        H << nl << "else if(__rhs." << *pi << " < " << *pi << ')';
+        for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
+        {
+            H << nl << "if(" << *pi << " != __rhs." << *pi << ')';
+            H << sb;
+            H << nl << "return false;";
+            H << eb;
+        }
+        H << nl << "return true;";
+        H << eb;
+        H << sp << nl << "bool operator<(const " << name << "& __rhs) const";
+        H << sb;
+        H << nl << "if(this == &__rhs)";
         H << sb;
         H << nl << "return false;";
         H << eb;
+        for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
+        {
+            H << nl << "if(" << *pi << " < __rhs." << *pi << ')';
+            H << sb;
+            H << nl << "return true;";
+            H << eb;
+            H << nl << "else if(__rhs." << *pi << " < " << *pi << ')';
+            H << sb;
+            H << nl << "return false;";
+            H << eb;
+        }
+        H << nl << "return false;";
+        H << eb;
+        
+        H << sp << nl << "bool operator!=(const " << name << "& __rhs) const";
+        H << sb;
+        H << nl << "return !operator==(__rhs);";
+        H << eb;
+        H << nl << "bool operator<=(const " << name << "& __rhs) const";
+        H << sb;
+        H << nl << "return operator<(__rhs) || operator==(__rhs);";
+        H << eb;
+        H << nl << "bool operator>(const " << name << "& __rhs) const";
+        H << sb;
+        H << nl << "return !operator<(__rhs) && !operator==(__rhs);";
+        H << eb;
+        H << nl << "bool operator>=(const " << name << "& __rhs) const";
+        H << sb;
+        H << nl << "return !operator<(__rhs);";
+        H << eb;
     }
-    H << nl << "return false;";
-    H << eb;
-
-    H << sp << nl << "bool operator!=(const " << name << "& __rhs) const";
-    H << sb;
-    H << nl << "return !operator==(__rhs);";
-    H << eb;
-    H << nl << "bool operator<=(const " << name << "& __rhs) const";
-    H << sb;
-    H << nl << "return operator<(__rhs) || operator==(__rhs);";
-    H << eb;
-    H << nl << "bool operator>(const " << name << "& __rhs) const";
-    H << sb;
-    H << nl << "return !operator<(__rhs) && !operator==(__rhs);";
-    H << eb;
-    H << nl << "bool operator>=(const " << name << "& __rhs) const";
-    H << sb;
-    H << nl << "return !operator<(__rhs);";
-    H << eb;
     H << eb << ';';
 
     if(findMetaData(p->getMetaData()) == "%class")
@@ -6408,7 +6412,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 {
                     continue;
                 }
-                if(StructPtr::dynamicCast(cont) && ss.find("class") == 0)
+                if(StructPtr::dynamicCast(cont) && (ss.find("class") == 0 || ss.find("comparable") == 0))
                 {
                     continue;
                 }

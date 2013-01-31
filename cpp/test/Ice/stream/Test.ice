@@ -23,7 +23,7 @@ enum MyEnum
 
 class MyClass;
 
-struct SmallStruct
+["cpp:comparable"] struct SmallStruct
 {
     bool bo;
     byte by;
@@ -108,7 +108,7 @@ module Sub
         nestedEnum3
     };
 
-    struct NestedStruct
+    ["cpp:comparable"] struct NestedStruct
     {
         bool bo;
         byte by;
@@ -144,7 +144,7 @@ module Sub2
         nestedEnum6
     };
 
-    struct NestedStruct2
+    ["cpp:comparable"] struct NestedStruct2
     {
         bool bo;
         byte by;
