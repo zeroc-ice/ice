@@ -82,13 +82,9 @@ endif
 ifeq ($(LP64),yes)
 	libsubdir		:= lib$(lp64suffix)
     binsubdir		:= bin$(lp64binsuffix)
-    tp_libsubdir	:= $(libsubdir)
-    tp_binsubdir	:= $(binsubdir)
 else
 	libsubdir		:= lib$(cpp11suffix)
 	binsubdir		:= bin$(cpp11suffix)
-	tp_libsubdir	:= lib
-	tp_binsubdir	:= bin
 endif
 
 #

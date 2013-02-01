@@ -205,18 +205,18 @@ endif
 
 OPENSSL_FLAGS           += $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
 ifeq ($(OPENSSL_LIBS),)
-    OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(tp_libsubdir)) -lssl -lcrypto
+    OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
 endif
-OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(tp_libsubdir)))
+OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
 
 BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
 ifeq ($(BZIP2_LIBS),)
-    BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(tp_libsubdir)) -lbz2
+    BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 endif
-BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(tp_libsubdir)))
+BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
 
 ifeq ($(ICONV_LIBS),)
-    ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(tp_libsubdir)) $(ICONV_LIB)
+    ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
 endif
 
 ifneq ($(DB_HOME),)
@@ -228,7 +228,7 @@ ifneq ($(DB_HOME),)
 else
    ifeq ($(shell if [ -d /usr/include/db53 -a -d /usr/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
       DB_FLAGS          = -I/usr/include/db53
-      DB_LIBS           = -L/usr/$(tp_libsubdir)/db53 -ldb_cxx
+      DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx
    else
       ifeq ($(shell if [ -d /usr/local/include/db53 -a -d /usr/local/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
           DB_FLAGS          = -I/usr/local/include/db53
@@ -241,20 +241,20 @@ endif
 
 EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
 ifeq ($(EXPAT_LIBS),)
-    EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(tp_libsubdir)) -lexpat
+    EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
 endif
-EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(tp_libsubdir)))
+EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
 ifeq ($(MCPP_LIBS),)
-    MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(tp_libsubdir)) -lmcpp
+    MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
 endif
-MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(tp_libsubdir)))
+MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
 
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
 	READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
-	READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(tp_libsubdir)) -lreadline -lncurses        
+	READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline -lncurses        
     endif
 endif
 
