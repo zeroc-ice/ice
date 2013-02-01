@@ -37,13 +37,8 @@ endif
 #
 CXXLIBS		=
 
-ifneq ($(embedded_runpath_prefix),)
-    # Only use -rpath if OS X >= 10.5
-    release = $(shell uname -r)
-    ifeq ($(shell test $(firstword $(subst ., ,$(release))) -ge 9 && echo 0),0)
-			LDPLATFORMFLAGS     = -Wl,-rpath,$(runpath_libdir)
-    endif
-endif
+
+LDPLATFORMFLAGS     = -Wl,-rpath,$(RPATH_DIR)
 
 ifeq ($(CXX),g++)
      LDPLATFORMFLAGS		+= -rdynamic
@@ -53,7 +48,7 @@ endif
 ifdef ice_src_dist
     shlibldflags    = $(CXXFLAGS) -L$(libdir)
 else
-    shlibldflags    = $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)
+    shlibldflags    = $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
 endif
 
 mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
@@ -62,27 +57,7 @@ mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 mklibname           	= lib$(1).dylib
 curdir			= $(shell pwd)
 
-ifneq ($(embedded_runpath_prefix),)
-   mkshlib                 = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name $(runpath_libdir)/$(2) $(3) $(4)
-else
-   mkshlib                 = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name $(2) $(3) $(4)
-endif
-
-ifeq ($(DB_HOME),)
-   #
-   # If DB_HOME is not set and the BerkeleyDB library is not at the expected location
-   # but in the ICE_DIR/lib directory, we set DB_RPATH_LINK to tell the linker where 
-   # to find it.
-   #
-   ifndef ice_src_dist
-       ifeq ($(shell test -f $(ice_dir)/$(libsubdir)/libFreeze.$(VERSION).dylib && echo 0),0)
-          dblib_install_name=$(firstword $(strip $(shell otool -L $(ice_dir)/$(libsubdir)/libFreeze.$(VERSION).dylib | grep libdb_cxx)))
-          ifeq ($(shell test ! -f $(dblib_install_name) -a -f $(ice_dir)/$(libsubdir)/$(notdir $(dblib_install_name)) && echo 0),0)
-             DB_RPATH_LINK=-dylib_file $(dblib_install_name):$(ice_dir)/$(libsubdir)/$(notdir $(dblib_install_name))
-	   endif
-       endif
-   endif
-endif
+mkshlib     = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name @rpath/$(2) $(3) $(4)
 
 #
 # Avoid OpenSSL deprecation warnings on OS X

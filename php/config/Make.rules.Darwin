@@ -13,4 +13,4 @@
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-shlibldflags = ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
+shlibldflags = ${wl}-flat_namespace ${wl}-undefined ${wl}suppress -Wl,-rpath,$(embedded_runpath_prefix)/$(libsubdir)

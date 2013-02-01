@@ -67,7 +67,7 @@ includedir		= $(ice_dir)/include
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
 ifneq ($(embedded_runpath_prefix),)
-    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)$(cpp11suffix)
 endif
 
 ICECPPFLAGS		= -I$(slicedir)
@@ -78,7 +78,7 @@ ifeq ($(ice_dir), /usr)
     LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
     CPPFLAGS	= -I$(includedir)
-    LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir) 
+    LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
 endif
 
 ifeq ($(FLEX_NOLINE),yes)
@@ -97,9 +97,10 @@ ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
 endif
 
-SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-SLICE2CPP	= $(ice_dir)/$(binsubdir)/slice2cpp
-SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
+SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)$(cpp11suffix)/$(call mklibfilename,Slice,$(VERSION))
+SLICE2CPP	= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2cpp
+SLICE2FREEZE	= $(ice_dir)/$(binsubdir)$(cpp11suffix)/slice2freeze
+RPATH_DIR	= $(ice_dir)/$(libsubdir)$(cpp11suffix)
 
 EVERYTHING		= all clean
 EVERYTHING_EXCEPT_ALL   = clean

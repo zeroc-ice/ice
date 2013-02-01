@@ -31,6 +31,7 @@ OBJS		= Blobject.o \
 SRCS		= $(OBJS:.o=.cpp)
 
 SLICE_SRCS	= Instrumentation.ice
+RPATH_DIR	= @loader_path/../lib
 
 include $(top_srcdir)/config/Make.rules
 

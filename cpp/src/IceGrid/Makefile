@@ -91,6 +91,12 @@ SLICE_SRCS	= ../IceGrid/Internal.ice
 HDIR		= $(headerdir)/IceGrid
 SDIR		= $(slicedir)/IceGrid
 
+ifeq ($(CPP11),yes)
+RPATH_DIR	= @loader_path/../../lib/c++11
+else
+RPATH_DIR	= @loader_path/../lib
+endif
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(OPENSSL_FLAGS) $(READLINE_FLAGS)

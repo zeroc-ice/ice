@@ -83,8 +83,8 @@ ifeq ($(LP64),yes)
 	libsubdir		:= lib$(lp64suffix)
     binsubdir		:= bin$(lp64binsuffix)
 else
-	libsubdir		:= lib$(cpp11suffix)
-	binsubdir		:= bin$(cpp11suffix)
+	libsubdir		:= lib
+	binsubdir		:= bin
 endif
 
 #
@@ -147,10 +147,10 @@ $(warning Ignoring ICE_HOME environment variable to build current source tree.)
         #
 	ifneq ($(ICE_HOME),)
 	    ifdef slice_translator
-		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)$(cpp11suffix)/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir)$(cpp11suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.)
 		endif
-		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+		ifeq ($(shell test -f $(ice_dir)/cpp/bin$(cpp11suffix)/$(slice_translator) && echo 0), 0)
 $(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
 		endif
 		ice_cpp_dir = $(ICE_HOME)
@@ -174,8 +174,8 @@ $(error slice_translator must be defined)
     endif
 
     ifneq ($(ICE_HOME),)
-        ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+        ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)$(cpp11suffix)/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir)$(cpp11suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.)
         endif
         ice_dir = $(ICE_HOME)
     else
@@ -260,8 +260,10 @@ ifneq ($(ice_dir), /usr)
 	endif
     endif
 
-    ifeq ($(UNAME),Darwin)
-        export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
+    ifdef ice_src_dist
+	    ifeq ($(UNAME),Darwin)
+	        export DYLD_LIBRARY_PATH := $(ice_lib_dir):$(DYLD_LIBRARY_PATH)
+	    endif
     endif
 
     ifeq ($(UNAME),AIX)

@@ -784,66 +784,7 @@ class Darwin(Platform):
         return "-j 8"
 
     def completeDistribution(self, buildDir, version):
-
-        print "Remove c++11 executables other than icebox",
-        for root, dirnames, filenames in os.walk(os.path.join(buildDir, "bin", "c++11")):
-            for f in filenames:
-                if f != "icebox":
-                    os.remove(os.path.join(buildDir, "bin", "c++11", f))
-        print "ok"
-
-        print "Fixing install names...",
-        sys.stdout.flush()
-
-        isLib = lambda f: (fnmatch.fnmatch(f, "*dylib") or fnmatch.fnmatch(f, "*so") \
-            or fnmatch.fnmatch(f, "*jnilib")) and not os.path.islink(f)
-        isExe = lambda f : os.system('file -b ' + f + ' | grep -q "Mach-O"') == 0
-
-        #
-        # Find the install names of the third party libraries included with the distribution.
-        #
-        oldInstallNames = []
-        for t in self.thirdParties:
-            if t.includeInDistribution():
-                for l in filter(isLib, [os.path.join(buildDir, l) for l in t.getFiles(self)]):
-                    p = os.popen('otool -D ' + l + ' | tail -1')
-                    oldInstallNames.append(p.readline().strip())
-                    p.close()
-                    
-        #
-        # Find the binary files included with this distribution.
-        #
-        binFiles = [ f for f in glob.glob(os.path.join(buildDir, "bin", "*")) if isExe(f)]
-        binFiles += [ f for f in glob.glob(os.path.join(buildDir, "lib", "*")) if isLib(f)]
-        binFiles += [ f for f in glob.glob(os.path.join(buildDir, "python", "*")) if isLib(f)]
-
-        #
-        # Fix the install names in each binary.
-        #
-        mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
-
-        for oldName in oldInstallNames:
-            libName = os.path.basename(oldName)
-            newName = '/Library/Developer/Ice-' + mmversion + '/lib/' + libName
-            os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/' + libName)
-            for f in binFiles:
-                os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
-
-        #
-        # Fix C++11 binaries and libraries
-        #
-        binFiles = [ f for f in glob.glob(os.path.join(buildDir, "bin", "c++11", "*")) if isExe(f)]
-        binFiles += [ f for f in glob.glob(os.path.join(buildDir, "lib", "c++11", "*")) if isLib(f)]
-
-        for oldName in oldInstallNames:
-            libName = os.path.basename(oldName)
-            newName = '/Library/Developer/Ice-' + mmversion + '/lib/c++11/' + libName
-            os.system('install_name_tool -id ' + newName + ' ' + buildDir + '/lib/c++11/' + libName)
-            for f in binFiles:
-                os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
-
-        print "ok"
-
+        
         print "Fixing python location"
         move(buildDir + '/python', buildDir + '/../python')
         print "ok"

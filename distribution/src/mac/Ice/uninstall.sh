@@ -78,7 +78,7 @@ uninstallPackage ()
                     rm -rf $VOLUME$LOCATION/$i
                 fi
 
-                if [[ -f $BASE_PATH/$i ]]; then
+                if [[ -f $BASE_PATH/$i ]] || [[ -L $BASE_PATH/$i ]]; then
                     rm -f $VOLUME$LOCATION/$i
                 fi
             done

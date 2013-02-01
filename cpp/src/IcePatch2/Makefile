@@ -26,6 +26,12 @@ SRCS		= $(SOBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(CALCOBJS:.o=.cpp)
 
+ifeq ($(CPP11),yes)
+RPATH_DIR	= @loader_path/../../lib/c++11
+else
+RPATH_DIR	= @loader_path/../lib
+endif
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(OPENSSL_FLAGS) $(BZIP2_FLAGS)

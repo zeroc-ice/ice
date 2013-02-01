@@ -13,8 +13,9 @@
 
 include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 
-mksoname           	= $(if $(2),lib$(1).$(2).so,lib$(1).so)
-mklibname           	= lib$(1).so
+shlibldflags    += -Wl,-rpath,$(embedded_runpath_prefix)/$(libsubdir)
+mksoname		= $(if $(2),lib$(1).$(2).so,lib$(1).so)
+mklibname       = lib$(1).so
 
 #
 # We require Python to be built as a Framework for the IcePy plug-in.
