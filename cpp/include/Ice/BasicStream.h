@@ -11,7 +11,7 @@
 #define ICE_BASIC_STREAM_H
 
 #include <Ice/InstanceF.h>
-#include <Ice/ObjectF.h>
+#include <Ice/Object.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/ObjectFactoryManagerF.h>

@@ -107,7 +107,7 @@ namespace IceInternal
                 //
                 if(protocol.Equals("opaque"))
                 {
-                    EndpointI ue = new OpaqueEndpointI(s.Substring(m.Index + m.Length), instance_);
+                    EndpointI ue = new OpaqueEndpointI(s.Substring(m.Index + m.Length));
                     for(int i = 0; i < _factories.Count; i++)
                     {
                         EndpointFactory f = (EndpointFactory)_factories[i];

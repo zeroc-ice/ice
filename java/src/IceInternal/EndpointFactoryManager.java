@@ -97,7 +97,7 @@ public final class EndpointFactoryManager
         //
         if(protocol.equals("opaque"))
         {
-            EndpointI ue = new OpaqueEndpointI(s.substring(m.end()), _instance);
+            EndpointI ue = new OpaqueEndpointI(s.substring(m.end()));
             for(int i = 0; i < _factories.size(); i++)
             {
                 EndpointFactory f = _factories.get(i);

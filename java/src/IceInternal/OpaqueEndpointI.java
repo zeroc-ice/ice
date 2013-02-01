@@ -12,11 +12,11 @@ package IceInternal;
 final class OpaqueEndpointI extends EndpointI
 {
     public
-    OpaqueEndpointI(String str, Instance instance)
+    OpaqueEndpointI(String str)
     {
         super("");
 
-        _rawEncoding = instance.defaultsAndOverrides().defaultEncoding;
+        _rawEncoding = Ice.Util.Encoding_1_0;
 
         int topt = 0;
         int vopt = 0;

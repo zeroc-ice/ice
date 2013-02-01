@@ -12,7 +12,6 @@
 
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
-#include <Ice/InstanceF.h>
 
 namespace IceInternal
 {
@@ -21,7 +20,7 @@ class OpaqueEndpointI : public EndpointI
 {
 public:
 
-    OpaqueEndpointI(const ::std::string&, const InstancePtr&);
+    OpaqueEndpointI(const ::std::string&);
     OpaqueEndpointI(Ice::Short, BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;

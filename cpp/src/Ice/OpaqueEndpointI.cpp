@@ -10,20 +10,18 @@
 #include <Ice/OpaqueEndpointI.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
-#include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Base64.h>
 #include <Ice/HashUtil.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str, const InstancePtr& instance) : 
-    EndpointI("")
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : 
+    EndpointI(""), _rawEncoding(Encoding_1_0)
 {
-    _rawEncoding = instance->defaultsAndOverrides()->defaultEncoding;
-
     const string delim = " \t\n\r";
 
     string::size_type beg;

@@ -131,7 +131,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     //
     if(protocol == "opaque")
     {
-        EndpointIPtr ue = new OpaqueEndpointI(str.substr(end), _instance);
+        EndpointIPtr ue = new OpaqueEndpointI(str.substr(end));
         factory = get(ue->type());
         if(factory)
         {
