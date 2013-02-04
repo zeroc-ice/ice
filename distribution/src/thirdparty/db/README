@@ -1,9 +1,0 @@
-To apply the patch for db 4.8.30, run this command:
-
-  patch -p0 < patch.db-4.8.30.17646
-
-If you are running patch on Windows, add the --binary option:
-
-  patch --binary -p0 < patch.db-4.8.30.17646
-
-Note that patch.db-4.8.30.17646 is only relevant for Windows builds.
