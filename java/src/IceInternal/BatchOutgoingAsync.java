@@ -21,6 +21,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         synchronized(_monitor)
         {
             _state |= Done | OK | Sent;
+            _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
             if(_remoteObserver != null)
             {
                 _remoteObserver.detach();

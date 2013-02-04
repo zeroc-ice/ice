@@ -272,6 +272,7 @@ public class AsyncResult
         synchronized(_monitor)
         {
             _state |= Done;
+            _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
             _exception = ex;
             _monitor.notifyAll();
         }

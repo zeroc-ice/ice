@@ -275,6 +275,7 @@ Ice::AsyncResult::__exception(const Ice::Exception& ex)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         _state |= Done;
+        _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
         _exception.reset(ex.ice_clone());
         _monitor.notifyAll();
     }
@@ -521,6 +522,7 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
                 _observer.detach();
             }
             _state |= Done | OK;
+            _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
         }
         else if(connection->timeout() > 0)
         {
@@ -749,6 +751,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
         }
 
         _state |= Done;
+        _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
         if(replyStatus == replyOK)
         {
             _state |= OK;
@@ -904,6 +907,7 @@ IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* /*connection*/)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(!_exception.get());
     _state |= Done | OK | Sent;
+    _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
     _remoteObserver.detach();
     _monitor.notifyAll();
     if(!_callback || !_callback->__hasSentCallback())
@@ -1107,6 +1111,7 @@ IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
             return;
         }         
         _state |= Done | OK | Sent;
+        _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
         _monitor.notifyAll();
     }
 

@@ -121,6 +121,7 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
                 return;
             }
             _state |= Done | OK | Sent;
+            _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
             _monitor.notifyAll();
         }
 

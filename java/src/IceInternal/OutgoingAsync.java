@@ -116,6 +116,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                         _remoteObserver = null;
                     }
                     _state |= Done | OK;
+                    _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                 }
                 else if(connection.timeout() > 0)
                 {
@@ -370,6 +371,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 }
 
                 _state |= Done;
+                _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                 if(replyStatus == ReplyStatus.replyOK)
                 {
                     _state |= OK;

@@ -704,6 +704,7 @@ namespace IceInternal
             try
             {
                 state_ |= Done;
+                os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                 exception_ = ex;
                 monitor_.NotifyAll();
                 if(waitHandle_ != null)
@@ -904,6 +905,7 @@ namespace IceInternal
                             remoteObserver_ = null;
                         }
                         state_ |= Done | OK;
+                        os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                         if(waitHandle_ != null)
                         {
                             waitHandle_.Set();
@@ -1165,6 +1167,7 @@ namespace IceInternal
                     }
 
                     state_ |= Done;
+                    os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                     if(waitHandle_ != null)
                     {
                         waitHandle_.Set();
@@ -1551,6 +1554,7 @@ namespace IceInternal
             {
                 Debug.Assert((state_ & (Done | OK | Sent)) == 0);
                 state_ |= (Done | OK | Sent);
+                os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                 if(remoteObserver_ != null)
                 {
                     remoteObserver_.detach();
@@ -1731,6 +1735,7 @@ namespace IceInternal
                 }
 
                 state_ |= (Done | OK | Sent);
+                os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                 sentCallback = sentCallback_;
                 monitor_.NotifyAll();
                 if(waitHandle_ != null)
