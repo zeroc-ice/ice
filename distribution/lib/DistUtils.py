@@ -596,7 +596,7 @@ class ThirdParty :
 
     def getFiles(self, platform):
         files = self.getFilesFromSubDirs(platform, "bin", "lib", False)
-        files = self.getFilesFromSubDirs(platform, "bin/c++11", "lib/c++11", False)
+        files += self.getFilesFromSubDirs(platform, "bin/c++11", "lib/c++11", False)
         if platform.lp64subdir:
             files += self.getFilesFromSubDirs(platform, \
                                               os.path.join("bin", platform.lp64subdir), \
