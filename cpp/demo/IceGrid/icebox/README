@@ -32,10 +32,10 @@ We suggest using the graphical IceGrid administration tool with this
 demo. Follow these steps to log into the IceGrid registry and view
 the application you deployed above:
 
-  - Launch the application. Windows users can double-click on the
-    file IceGridGUI.jar located in <Ice installation directory>\bin.
-    Users with a Linux RPM installation can use a script to start the
-    program:
+  - Launch the application. Windows users can use the IceGrid Admin
+    icon from the Start menu, OS X users can use the IceGrid Admin
+    icon from Finder Applications folder and users with a Linux RPM 
+    installation can use icegridgui script to start the program:
 
     $ icegridgui
 
