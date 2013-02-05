@@ -1346,7 +1346,7 @@ Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& cal
       << call;
 }
 
-Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output&, const string& dllExport) :
     H(h), _dllExport(dllExport)
 {
 }
@@ -2446,7 +2446,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output&, const string& dllExport) :
     H(h), _dllExport(dllExport), _useWstring(false)
 {
 }
@@ -4859,7 +4859,7 @@ Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& cal
     C << nl << (base ? fixKwd(base->scoped()) : string("::Ice::Object")) << call;
 }
 
-Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output&, const string& dllExport) :
     H(h), _dllExport(dllExport), _useWstring(false)
 {
 }
@@ -4919,7 +4919,7 @@ Slice::Gen::AsyncCallbackVisitor::visitOperation(const OperationPtr& p)
 }
 
 Slice::Gen::AsyncCallbackTemplateVisitor::AsyncCallbackTemplateVisitor(Output& h, 
-                                                                       Output& c,
+                                                                       Output&,
                                                                        const string& dllExport)
     : H(h), _dllExport(dllExport), _useWstring(false)
 {
@@ -5627,7 +5627,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output&, const string& dllExport) :
     H(h), _dllExport(dllExport), _useWstring(false)
 {
 }
