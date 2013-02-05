@@ -5,6 +5,7 @@ CHANGES for Slice2Java Eclipse Plug-in 3.5.0.XXX
 This file describes the change history for the Slice2Java Eclipse
 plug-in.
 
+
 ======================================================================
 Changes since version 3.5.0.20121212
 ======================================================================
@@ -17,11 +18,13 @@ Changes since version 3.5.0.20121212
    It allows the project to refer to Ice.jar symbolically as 
    "ICE_JAR_HOME/Ice.jar".
 
+
 ======================================================================
 Changes since version 3.4.2.20111017
 ======================================================================
 
 - Support for Ice 3.5b.
+
 
 ======================================================================
 Changes since version 3.4.1.20110201
