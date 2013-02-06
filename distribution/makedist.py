@@ -31,6 +31,8 @@ certsFiles = [ \
     "*.jks", \
     "*.pem", \
     "*.pfx", \
+    "makewinrtcerts.py", \
+    "winrt", \
 ]
 
 #

@@ -54,12 +54,12 @@ IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
 
 #
-# Verify the client certificate by default. Uncomment this property
-# setting if you run the demo with a client which doesn't support
-# client certificates (such as a Windows Store App clients for
-# example).
+# Uncomment the properties below if you want run the demo with the
+# Windows Store App chat client. 
 #
+#Glacier2.Client.Endpoints=ssl -p 4064
 #IceSSL.VerifyPeer=0
+#IceSSL.DefaultDir=../../../../certs/winrt
 
 #
 # IceMX configuration.

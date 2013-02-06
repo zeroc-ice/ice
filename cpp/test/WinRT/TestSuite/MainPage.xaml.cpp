@@ -121,6 +121,11 @@ public:
         }
 
         vector<string> args;
+        //
+        // NOTE: When testing for SSL on a WinRT device, this needs to
+        // be set to the IP addresse of the host running the SSL
+        // server.
+        //
         args.push_back("--Ice.Default.Host=127.0.0.1");
         args.push_back("--Ice.NullHandleAbort=1");
         args.push_back("--Ice.Warn.Connections=1");

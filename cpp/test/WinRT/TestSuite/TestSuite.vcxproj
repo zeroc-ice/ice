@@ -367,7 +367,7 @@
     <None Include="..\..\Ice\udp\Ice_udp_server.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="..\..\..\..\certs\cacert.pem">
+    <None Include="..\..\..\..\certs\winrt\cacert.pem">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="TestSuite_TemporaryKey.pfx" />

@@ -44,12 +44,6 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=server.jks
 IceSSL.Password=password
 
-#
-# Verify the client certificate by default. Uncomment this property
-# setting if you run the demo with a client which doesn't support
-# client certificates (such as the Windows Store App client for
-# example).
-#
 #IceSSL.VerifyPeer=0
 
 #

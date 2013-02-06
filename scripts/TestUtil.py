@@ -836,11 +836,12 @@ def getCommandLineProperties(exe, config):
     #
     if config.protocol == "ssl":
         sslenv = {}
-        sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
         sslenv["icesslcs"] = quoteArgument("\\\"" + os.path.join(getIceDir("cs"), "Assemblies", "IceSSL.dll") + "\\\"")
         if winrt:
+            sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs", "winrt")))
             sslenv["verifyPeer"] = "0"
         else:
+            sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
             sslenv["verifyPeer"] = "2"
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
