@@ -10,7 +10,7 @@ If you prefer, you can download a Windows installer that contains
 pre-compiled debug and release libraries, executables, and everything
 else necessary to build Ice applications on Windows at the link below:
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 
 ======================================================================
@@ -29,12 +29,11 @@ Ice has been extensively tested on:
  - Windows 7 (x86 & x64)
  - Windows 8 (x86 & x64)
 
-
 The Ice binary distribution for Windows can be downloaded from:
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
-The distribution includes everything necessary to build Ice 
+The distribution includes everything necessary to build Ice
 applications and requires one of the Windows platforms listed above.
 
 
@@ -66,10 +65,10 @@ the third-party dependencies.
 If you intend to build the third-party dependencies from source, we
 recommend downloading the Ice third-party source archive from
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 This archive contains the source distributions for each of the
-third-party dependencies, as well as required source patches and 
+third-party dependencies, as well as required source patches and
 configuration instructions.
 
 For more information about these dependencies, please refer to
@@ -102,7 +101,7 @@ Compilation and Testing
 Building Ice
 ------------
 
-Using your favorite Zip tool, unzip the Ice source archive anywhere 
+Using your favorite Zip tool, unzip the Ice source archive anywhere
 you like.
 
 Open a command prompt that is configured for your target architecture.
@@ -114,7 +113,7 @@ have several alternatives:
  - Visual Studio x64 Cross Tools Command Prompt
 
 Using the first configuration produces 32-bit binaries, while the
-second produces 64-bit binaries. 
+second produces 64-bit binaries.
 
 Note that you must be using a Windows x64 platform when compiling a
 64-bit version of Ice.
@@ -188,6 +187,6 @@ Ice project, make sure to add the bin directory to the Visual C++
 "Executable files", the include directory to the "Include files" and
 the lib directory to the "Library files" in the IDE.
 
-If you built a 64-bit version of Ice, the binaries are installed in 
+If you built a 64-bit version of Ice, the binaries are installed in
 the bin\x64 directory and the libraries are installed in the lib\x64
 directory.

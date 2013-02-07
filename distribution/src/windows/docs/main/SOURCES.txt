@@ -5,4 +5,4 @@ The source distributions of Ice, Berkeley DB, bzip2/libbzip2, OpenSSL,
 Expat, MCPP, JGoodies Common, JGoodies Forms and JGoodies Looks used 
 to build this distribution can be downloaded at no cost from
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html

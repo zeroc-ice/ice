@@ -15,14 +15,14 @@ only on:
 
  - SuSE Linux Enterprise Server 11 SP2 for i586 or x86_64 (SLES 11)
 
-You need to install the mono-core and the mono-devel RPMs to build Ice 
+You need to install the mono-core and the mono-devel RPMs to build Ice
 for .NET on Linux.
 
 
 Build instructions
 ------------------
 
-Unpack the source archive. The .NET sources will be contained in the 
+Unpack the source archive. The .NET sources will be contained in the
 Ice-@ver@/cs subdirectory.
 
 You will need the Slice to C# translator (slice2cs) and supporting
@@ -31,7 +31,7 @@ the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 To build Ice for .NET, run
 
@@ -99,7 +99,7 @@ Running the tests
 Some of the Ice for .NET tests employ applications that are part of the
 Ice for C++ distribution. If you have not built Ice for C++ from the cpp
 subdirectory then you need to set the ICE_HOME environment variable to
-the path where these applications are installed for these tests to run 
+the path where these applications are installed for these tests to run
 properly:
 
 $ export ICE_HOME=/opt/Ice-@ver@
@@ -154,5 +154,3 @@ correctly without having to set environment variables.
 
 Finally, you could also copy the necessary libraries into the
 directory that contains the .exe for your application.
-
-

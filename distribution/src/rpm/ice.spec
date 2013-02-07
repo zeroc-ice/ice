@@ -44,7 +44,7 @@
 %endif
 
 Name: ice
-Version: 3.5b
+Version: 3.5.0
 Summary: Files common to all Ice packages 
 Release: 1%{?dist}
 License: GPL with exceptions
@@ -56,8 +56,8 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%define soversion 35b
-%define dotnetversion 3.5.51
+%define soversion 35
+%define dotnetversion 3.5.0
 %define dotnetpolicyversion 3.5
 
 %define commonversion 1.4.0
@@ -856,6 +856,9 @@ fi
 %endif
 
 %changelog
+
+* Thu Feb 7 2013 Mark Spruiell <mes@zeroc.com> 3.5.0
+- Updates for the Ice 3.5.0 release.
 
 * Mon Nov 19 2012 Mark Spruiell <mes@zeroc.com> 3.5b
 - Updates for the Ice 3.5b release.

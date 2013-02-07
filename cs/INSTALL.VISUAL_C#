@@ -24,7 +24,7 @@ from the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 Follow these steps to build the source:
 
@@ -323,5 +323,3 @@ Ice for the Unity API, open config\Make.rules.mak.cs and set
 UNITY=yes. Run nmake as before:
 
  > nmake /f Makefile.mak
-
-

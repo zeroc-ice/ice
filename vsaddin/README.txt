@@ -6,4 +6,4 @@ available at ZeroC's web site (http://www.zeroc.com).
 
 For usage instructions, please refer to the Ice manual:
  
-  http://doc.zeroc.com/display/Ice35/Visual+Studio+Add-in
+  http://doc.zeroc.com/display/Ice/Visual+Studio+Add-in

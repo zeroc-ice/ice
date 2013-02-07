@@ -4,7 +4,7 @@ code.
 If you prefer, you can download binary distributions for supported
 platforms at the link below:
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 
 ======================================================================
@@ -79,7 +79,7 @@ web site, or you can build Ice for C++ yourself.
 
 Binary distributions for supported platforms are available at
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 
 Berkeley DB
@@ -93,12 +93,12 @@ or 5.3 (the recommended version is 5.3.21).
 ZeroC includes a Berkeley DB binary distribution with Java support
 in the Ice distribution on all platforms except Solaris 11:
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 The corresponding source distribution with build instructions is
 available at:
 
-  http://www.zeroc.com/download_beta.html#src_third_party
+  http://www.zeroc.com/download.html#src_third_party
 
 In order to run an application that uses Freeze, you must add db.jar
 to your CLASSPATH and verify that the Berkeley DB shared libraries are
@@ -154,14 +154,15 @@ ProGuard is available here:
 
 Ice for Java has been tested with ProGuard 4.8.
 
+
 Java Application Bundler
 ------------------------
 
-The Java Application Bundler is used to create the OS X application bundle
-for the graphical IceGrid administrative tool (see "IceGrid Administrative
-Console").
+The Java Application Bundler is used to create the OS X application
+bundle for the graphical IceGrid administrative tool (see "IceGrid
+Administrative Console").
 
-The Java Application Bundle is available here:
+The Java Application Bundler is available here:
 
   http://java.net/projects/appbundler
 
@@ -229,6 +230,7 @@ In OS X you have one more option to create an Application Bundle. The
 Java Application Bundler must be present in your CLASSPATH. After build
 the application bundle will be placed in "lib/IceGrid Admin.app". During
 installation the bundle is copied to the Ice-@ver@/bin subdirectory.
+
 
 Building Ice for Java
 ---------------------
@@ -301,7 +303,7 @@ link below:
 
 The Ice manual provides usage instructions for the plug-in:
 
-  http://doc.zeroc.com/display/Ice35/Eclipse+Plug-in
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
 
 
 ======================================================================
@@ -329,7 +331,7 @@ The sample projects are configured to locate the Ice run time JAR file
 (Ice.jar) via the ICE_HOME classpath variable, as described in the Ice
 manual:
 
-  http://doc.zeroc.com/display/Ice35/Eclipse+Plug-in
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
 
 If you installed Ice.jar in a different location, you will need to add
 it as an external JAR file in each sample project:
@@ -446,7 +448,6 @@ command:
 
   java IceGridGUI.Main
 
-In OS X there is also an application bundle named "IceGrid Admin" you
-can start the IceGrid Administrative Console by double click the "IceGrid
-Admin" icon from Finder.
-
+In OS X there is also an application bundle named "IceGrid Admin". You
+can start the IceGrid Administrative Console by double-clicking the
+"IceGrid Admin" icon in Finder.

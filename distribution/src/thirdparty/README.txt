@@ -15,7 +15,7 @@ not need to build these packages yourself, as ZeroC supplies a Windows
 installer that contains release and debug libraries for all of the
 third-party dependencies. The installer is available at
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 If you prefer to compile the third-party packages from source code, we
 recommend that you use the same Visual C++ version to build all of the
@@ -125,7 +125,7 @@ Berkeley DB
 -----------
 
 When building the debug version of the Berkeley DB DLL, you should
-remove the "DIAGNOSTIC" and "CONFIG_TEST" defines and the 
+remove the "DIAGNOSTIC" and "CONFIG_TEST" defines and the
 /export:__db_assert linker option. Without these modifications,
 database environments created by the debug DLL are not compatible with
 environments created by the release DLL.
@@ -216,7 +216,7 @@ Follow these instructions for building mcpp:
      would run:
 
      > patch --binary -p0 < ..\noconfig\vc2010.dif
- 
+
   3) Build the mcpp release library:
 
      > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib

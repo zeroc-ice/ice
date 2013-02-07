@@ -3,9 +3,9 @@ as well as how to make oneway, datagram, secure, and batched
 invocations.
 
 First follow the instructions from the C++ Ice hello demo README to
-start the server. Since the WinRT SSL transport doesn't support client
-side SSL authentication, you also need to edit the hello server
-config.server configuration file to uncomment the IceSSL.VerifyPeer=0
+start the server. Since the WinRT SSL transport doesn't support
+client-side SSL authentication, you also need to edit the hello server
+configuration file config.server to uncomment the IceSSL.VerifyPeer=0
 property. If you run the client from a remote device such as the
 Surface, you will also need to regenerate the server certificate to
 ensure the certificate common name is set to the IP address of the
@@ -19,7 +19,7 @@ this distribution. For example:
 This will regenerate a server certificate with a common name set to
 192.168.1.53. This can either be set to an IP address or DNS name, the
 only requirement is that it matches the value that will be used by the
-chat client to connect to the Glacier2 router.
+client to connect to the Glacier2 router.
 
 Build and deploy the demo using "Deploy hello" from the "Build" menu.
 

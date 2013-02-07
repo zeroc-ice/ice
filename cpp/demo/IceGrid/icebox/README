@@ -1,5 +1,5 @@
 This demo shows a very simple IceGrid deployment, with a single
-IceBox server hosting a number of IceBox services. 
+IceBox server hosting a number of IceBox services.
 
 The demo also demonstrates how to use an environment variable in a
 server descriptor.
@@ -34,8 +34,9 @@ the application you deployed above:
 
   - Launch the application. Windows users can use the IceGrid Admin
     icon from the Start menu, OS X users can use the IceGrid Admin
-    icon from Finder Applications folder and users with a Linux RPM 
-    installation can use icegridgui script to start the program:
+    icon from the Finder Applications folder, and users with a Linux
+    RPM installation can use the icegridgui script to start the
+    program:
 
     $ icegridgui
 
@@ -146,7 +147,7 @@ Follow these steps:
    In the IceGrid GUI, use the Routed tab of the Login dialog. Change
    the Glacier2 instance name to "DemoGlacier2" and the endpoints to
    "tcp -h localhost -p 4063".
-   
+
    DemoGlacier2 is configured to use a built-in permissions verifier
    that does not validate passwords, so you can log in using any
    username/password combination.

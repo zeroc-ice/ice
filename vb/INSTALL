@@ -7,7 +7,7 @@ The Visual Basic demos have been built and tested with:
 
 - Microsoft Visual Studio 2012 and .NET Framework Version 4.5
 
-Unpack the archive. The Visual Basic demo sources will be 
+Unpack the archive. The Visual Basic demo sources will be
 contained in the Ice-@ver@\vb subdirectory.
 
 You will need the Slice to C# translator and supporting executables
@@ -16,7 +16,7 @@ from the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 To use Visual Basic (or other .NET languages) with Ice, you need
 the run-time support provided by the Ice for .NET assembly (Ice.dll).

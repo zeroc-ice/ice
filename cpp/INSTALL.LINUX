@@ -43,13 +43,13 @@ distribution. For those packages that are not installed or have an
 older version than what is listed above, we recommend downloading the
 Ice third-party source archive from
 
-  http://www.zeroc.com/download_beta.html
+  http://www.zeroc.com/download.html
 
 This archive contains the source distributions for each of the
-third-party dependencies, as well as required source patches and 
+third-party dependencies, as well as required source patches and
 configuration instructions.
 
-ZeroC also supplies RPMs at the link above for Berkeley DB on RHEL 6, 
+ZeroC also supplies RPMs at the link above for Berkeley DB on RHEL 6,
 AMZN and SLES 11.
 
 For more information about these dependencies, please refer to
