@@ -99,7 +99,7 @@ BuildRequires: php-devel >= 5.3.2
 BuildRequires: python-devel >= 2.6.5
 %endif
 %if "%{dist}" == ".sles11"
-BuildRequires: php5-devel >= 5.2.6
+BuildRequires: php53-devel >= 5.3.0
 BuildRequires: python-devel >= 2.6.0
 %endif
 
@@ -241,7 +241,7 @@ Summary: The Ice run time for PHP
 Group: System Environment/Libraries
 Requires: ice-libs = %{version}-%{release}
 %if "%{dist}" == ".sles11"
-Requires: php5
+Requires: php53
 %endif
 %if "%{dist}" == ".el6"
 Requires: php
