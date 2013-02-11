@@ -149,6 +149,12 @@ Python Changes
 - Added "self" to the Slice compiler's list of Python keywords.
 
 
+PHP Changes
+===========
+
+- SLES 11 RPMs now require PHP 5.3.
+
+
 ======================================================================
 Changes since version 3.4.2
 ======================================================================
