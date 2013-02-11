@@ -71,9 +71,9 @@ install::$(TARGETS)
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033\"
 
-	@echo Adding key "$(DOTNET_ASSEMBLEIS_KEY)" in Windows registry
-	@reg ADD "$(DOTNET_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
-	echo "Could not add registry keyword $(DOTNET_ASSEMBLEIS_KEY)" && exit 1
+	@echo Adding key "$(DOTNET_ASSEMBLIES_KEY)" in Windows registry
+	@reg ADD "$(DOTNET_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
+	echo "Could not add registry keyword $(DOTNET_ASSEMBLIES_KEY)" && exit 1
 
 !if "$(VS)" == "VS2010" || "$(VS)" == "VS2012"
 install::
@@ -104,9 +104,9 @@ install::
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Code\1033\"
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033\"
-		@echo Adding key "$(SILVERLIGH_ASSEMBLEIS_KEY)" in Windows registry
-		@reg ADD "$(SILVERLIGH_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\sl" /f || \
-		echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLEIS_KEY)" && exit 1
+		@echo Adding key "$(SILVERLIGH_ASSEMBLIES_KEY)" in Windows registry
+		@reg ADD "$(SILVERLIGH_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\sl" /f || \
+		echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLIES_KEY)" && exit 1
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"
 	devenv.exe /installvstemplates
@@ -116,17 +116,17 @@ install::
 # Registry keywords to locate .NET CF assemblies
 #
 !if "$(VS)" == "VS2008"
-	@echo Adding key "$(POCKETPC_ASSEMBLEIS_KEY)" in Windows registry
-	@reg ADD "$(POCKETPC_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(POCKETPC_ASSEMBLEIS_KEY)" && exit 1
+	@echo Adding key "$(POCKETPC_ASSEMBLIES_KEY)" in Windows registry
+	@reg ADD "$(POCKETPC_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(POCKETPC_ASSEMBLIES_KEY)" && exit 1
 
-	@echo Adding key "$(SMARTPHONE_ASSEMBLEIS_KEY)" in Windows registry
-	@reg ADD "$(SMARTPHONE_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(SMARTPHONE_ASSEMBLEIS_KEY)" && exit 1
+	@echo Adding key "$(SMARTPHONE_ASSEMBLIES_KEY)" in Windows registry
+	@reg ADD "$(SMARTPHONE_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(SMARTPHONE_ASSEMBLIES_KEY)" && exit 1
 
-	@echo Adding key "$(WINDOWSCE_ASSEMBLEIS_KEY)" in Windows registry
-	@reg ADD "$(WINDOWSCE_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(WINDOWSCE_ASSEMBLEIS_KEY)" && exit 1
+	@echo Adding key "$(WINDOWSCE_ASSEMBLIES_KEY)" in Windows registry
+	@reg ADD "$(WINDOWSCE_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(WINDOWSCE_ASSEMBLIES_KEY)" && exit 1
 	devenv.exe /installvstemplates
 !endif
 

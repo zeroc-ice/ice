@@ -63,20 +63,17 @@ EVERYTHING      = all install clean
 # Registry keywords required by Visual Studio and Ice Visual Studio Add-in.
 #
 !if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
-INSTALL_KEY 				= HKLM\Software\Wow6432Node\ZeroC\Ice $(VERSION)
-DOTNET_ASSEMBLEIS_KEY		= HKLM\Software\Wow6432Node\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
-POCKETPC_ASSEMBLEIS_KEY		= HKLM\Software\Wow6432Node\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
-SMARTPHONE_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432Node\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
-WINDOWSCE_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432Node\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
-SILVERLIGH_ASSEMBLEIS_KEY	= HKLM\Software\Wow6432Node\Microsoft\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
+REGISTRY_PREFIX				= HKLM\Software\Wow6432Node
 !else
-INSTALL_KEY 				= HKLM\Software\ZeroC\Ice $(VERSION)
-DOTNET_ASSEMBLEIS_KEY		= HKLM\Software\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
-POCKETPC_ASSEMBLEIS_KEY		= HKLM\Software\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
-SMARTPHONE_ASSEMBLEIS_KEY	= HKLM\Software\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
-WINDOWSCE_ASSEMBLEIS_KEY	= HKLM\Software\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
-SILVERLIGH_ASSEMBLEIS_KEY	= HKLM\Software\Microsoft\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
+REGISTRY_PREFIX				= HKLM\Software
 !endif
+
+INSTALL_KEY					= $(REGISTRY_PREFIX)\ZeroC\Ice $(VERSION)
+DOTNET_ASSEMBLIES_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
+POCKETPC_ASSEMBLIES_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
+SMARTPHONE_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
+WINDOWSCE_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
+SILVERLIGH_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
 
 #
 # Visual Studio version

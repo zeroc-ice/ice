@@ -365,8 +365,8 @@ REGISTRY_PREFIX				= HKLM\Software\Wow6432Node
 REGISTRY_PREFIX				= HKLM\Software
 !endif
 
-DOTNET_ASSEMBLEIS_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
-POCKETPC_ASSEMBLEIS_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
-SMARTPHONE_ASSEMBLEIS_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
-WINDOWSCE_ASSEMBLEIS_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
-SILVERLIGH_ASSEMBLEIS_KEY	= $(REGISTRY_PREFIX)\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
+DOTNET_ASSEMBLIES_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice
+POCKETPC_ASSEMBLIES_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
+SMARTPHONE_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
+WINDOWSCE_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
+SILVERLIGH_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
