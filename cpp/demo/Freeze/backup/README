@@ -19,9 +19,9 @@ db utility names
 ----------------
 
 The Berkeley DB utilities are usually named db_hotbackup, db_archive,
-db_recover, etc. If you use the Berkeley DB 5.3.21 RPMs provided by
-ZeroC, the utility names are db53_hotbackup, db53_archive, etc. Please
-adjust the instructions below accordingly.
+db_recover, etc. If you use the Berkeley DB 5.3.21 RPMs or Solaris 
+binaries provided by ZeroC, the utility names are db53_hotbackup, 
+db53_archive, etc. Please adjust the instructions below accordingly.
 
 
 Backup

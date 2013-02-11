@@ -13,7 +13,7 @@
 # named db53_xxx
 #
 db="db"
-if [ -f /usr/bin/db53_hotbackup ]; then db="db53"; fi
+if `command -v db53_hotbackup > /dev/null 2>&1`; then db="db53"; fi
 
 case $1 in
   "full" | "incremental") echo "Performing $1 backup"
