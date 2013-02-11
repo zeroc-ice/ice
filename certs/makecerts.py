@@ -350,17 +350,13 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
     if os.path.exists(truststore):
         os.remove(truststore)
 
-    tmpFile = os.path.join(certs, "cacert.der")
-    cmd = "openssl x509 -in " + caCert + " -outform DER -out " + tmpFile
-    if debug:
-        print "[debug]", cmd
-    os.system(cmd)
-    cmd = "keytool -import -alias cacert -file " + tmpFile + " -keystore " + truststore + \
+    cacert = os.path.join(certs, "cacert.der")
+
+    cmd = "keytool -import -alias cacert -file " + cacert + " -keystore " + truststore + \
           " -storepass password -noprompt"
     if debug:
         print "[debug]", cmd
     os.system(cmd)
-    os.remove(tmpFile)
 
     if os.path.exists("certs.bks"):
         os.remove("certs.bks")
@@ -389,7 +385,7 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
             print "         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE"
             print "         and run this script again."
             print ""
-        elif: e.output.find("java.security.InvalidKeyException: Illegal key size") != -1:
+        elif e.output.find("java.security.InvalidKeyException: Illegal key size") != -1:
             print ""
             print "WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength."
             print "         You can download it from Additional Resources section in Orcale Java Download page at:"
