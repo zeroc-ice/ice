@@ -202,31 +202,8 @@ namespace IceInternal
                     //
                     // Create connectors for the endpoint.
                     //
-                    List<Connector> cons = endpoint.connectors();
+                    List<Connector> cons = endpoint.connectors(selType);
                     Debug.Assert(cons.Count > 0);
-
-                    //
-                    // Shuffle connectors if endpoint selection type is Random.
-                    //
-                    if(selType == Ice.EndpointSelectionType.Random)
-                    {
-                        lock(rand_)
-                        {
-                            for(int j = 0; j < cons.Count - 1; ++j)
-                            {
-                                int r = rand_.Next(cons.Count - j) + j;
-                                Debug.Assert(r >= j && r < cons.Count);
-                                if(r != j)
-                                {
-                                    Connector tmp = cons[j];
-                                    cons[j] = cons[r];
-                                    cons[r] = tmp;
-                                }
-                            }
-
-                        }
-                    }
-
                     foreach(Connector conn in cons)
                     {
                         connectors.Add(new ConnectorInfo(conn, endpoint));
@@ -1118,27 +1095,6 @@ namespace IceInternal
             //
             public void connectors(List<Connector> cons)
             {
-                //
-                // Shuffle connectors if endpoint selection type is Random.
-                //
-                if(_selType == Ice.EndpointSelectionType.Random)
-                {
-                    lock(rand_)
-                    {
-                        for(int j = 0; j < cons.Count - 1; ++j)
-                        {
-                            int r = OutgoingConnectionFactory.rand_.Next(cons.Count - j) + j;
-                            Debug.Assert(r >= j && r < cons.Count);
-                            if(r != j)
-                            {
-                                Connector tmp = cons[j];
-                                cons[j] = cons[r];
-                                cons[r] = tmp;
-                            }
-                        }
-                    }
-                }
-
                 foreach(Connector connector in cons)
                 {
                     _connectors.Add(new ConnectorInfo(connector, _currentEndpoint));
@@ -1248,7 +1204,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_endpointsIter < _endpoints.Count);
                     _currentEndpoint = _endpoints[_endpointsIter++];
-                    _currentEndpoint.connectors_async(this);
+                    _currentEndpoint.connectors_async(_selType, this);
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -1340,8 +1296,6 @@ namespace IceInternal
         private Dictionary<Connector, HashSet<ConnectCallback>> _pending =
             new Dictionary<Connector, HashSet<ConnectCallback>>();
         private int _pendingConnectCount;
-
-        private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }

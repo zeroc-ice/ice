@@ -68,6 +68,12 @@ IceInternal::ProtocolPluginFacade::getProtocolSupport() const
     return _instance->protocolSupport();
 }
 
+bool
+IceInternal::ProtocolPluginFacade::preferIPv6() const
+{
+    return _instance->preferIPv6();
+}
+
 void
 IceInternal::ProtocolPluginFacade::addEndpointFactory(const EndpointFactoryPtr& factory) const
 {

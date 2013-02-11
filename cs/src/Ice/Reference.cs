@@ -1550,11 +1550,11 @@ namespace IceInternal
             }
             else if(getPreferSecure())
             {
-                Sort(ref endpoints, _preferSecureEndpointComparator);
+                IceUtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
             }
             else
             {
-                Sort(ref endpoints, _preferNonSecureEndpointComparator);
+                IceUtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
             }
 
             EndpointI[] arr = new EndpointI[endpoints.Count];
@@ -1759,63 +1759,6 @@ namespace IceInternal
             }
 
             private bool _preferSecure;
-        }
-
-        private static void Sort(ref List<IceInternal.EndpointI> array, IComparer<IceInternal.EndpointI> comparator)
-        {
-            //
-            // This Sort method implements the merge sort algorithm
-            // which is a stable sort (unlike the Sort method of the
-            // System.Collections.ArrayList which is unstable).
-            //
-            Sort1(ref array, 0, array.Count, comparator);
-        }
-
-        private static void Sort1(ref List<IceInternal.EndpointI> array, int begin, int end, IComparer<IceInternal.EndpointI> comparator)
-        {
-            int mid;
-            if(end - begin <= 1)
-            {
-                return;
-            }
-
-            mid = (begin + end) / 2;
-            Sort1(ref array, begin, mid, comparator);
-            Sort1(ref array, mid, end, comparator);
-            Merge(ref array, begin, mid, end, comparator);
-        }
-
-        private static void Merge(ref List<IceInternal.EndpointI> array, int begin, int mid, int end, IComparer<IceInternal.EndpointI> comparator)
-        {
-            int i = begin;
-            int j = mid;
-            int k = 0;
-
-            IceInternal.EndpointI[] tmp = new IceInternal.EndpointI[end - begin];
-            while(i < mid && j < end)
-            {
-                if(comparator.Compare(array[i], array[j]) <= 0)
-                {
-                    tmp[k++] = array[i++];
-                }
-                else
-                {
-                    tmp[k++] = array[j++];
-                }
-            }
-
-            while(i < mid)
-            {
-                tmp[k++] = array[i++];
-            }
-            while(j < end) 
-            {
-                tmp[k++] = array[j++];
-            }
-            for(i = 0; i < (end - begin); ++i) 
-            {
-                array[begin + i] = tmp[i];
-            }
         }
         
         private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);

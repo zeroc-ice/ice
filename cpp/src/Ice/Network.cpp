@@ -32,6 +32,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h> // For setTcpBufSize
 #include <Ice/LoggerUtil.h> // For setTcpBufSize
+#include <IceUtil/Random.h>
 
 #if defined(ICE_OS_WINRT)
 #   include <IceUtil/InputUtil.h>
@@ -68,6 +69,47 @@ namespace
 {
 
 #ifndef ICE_OS_WINRT
+struct AddressIsIPv6 : public unary_function<Address, bool>
+{
+public:
+
+    bool
+    operator()(const Address& ss) const
+    {
+        return ss.saStorage.ss_family == AF_INET6;
+    }
+};
+
+struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
+{
+    ptrdiff_t operator()(ptrdiff_t d)
+    {
+        return IceUtilInternal::random(static_cast<int>(d));
+    }
+};
+
+void
+sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
+{
+    if(selType == Ice::Random)
+    {
+        RandomNumberGenerator rng;
+        random_shuffle(addrs.begin(), addrs.end(), rng);
+    }
+
+    if(protocol == EnableBoth)
+    {
+        if(preferIPv6)
+        {
+            stable_partition(addrs.begin(), addrs.end(), AddressIsIPv6());
+        }
+        else
+        {
+            stable_partition(addrs.begin(), addrs.end(), not1(AddressIsIPv6()));
+        }
+    }
+}
+
 void
 setTcpNoDelay(SOCKET fd)
 {
@@ -144,122 +186,6 @@ createSocketImpl(bool udp, int family)
     }
 
     return fd;
-}
-#endif
-
-#ifdef ICE_OS_WINRT
-Address
-getAddressImpl(const string& host, int port, ProtocolSupport, bool server)
-{
-    Address addr;
-    ostringstream os;
-    os << port;
-    addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
-    if(host.empty())
-    {
-        if(server)
-        {
-            addr.host = nullptr; // Equivalent of inaddr_any, see doBind implementation.
-        }
-        else
-        {
-            addr.host = ref new HostName("localhost");
-        }
-    }
-    else
-    {
-        addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
-    }
-    return addr;
-}
-#else
-Address
-getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool server)
-{
-    Address addr;
-    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
-
-    //
-    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
-    // versions don't support it).
-    //
-    if(host.empty())
-    {
-        if(protocol == EnableIPv6)
-        {
-            addr.saIn6.sin6_family = AF_INET6;
-            addr.saIn6.sin6_port = htons(port);
-            addr.saIn6.sin6_addr = server ? in6addr_any : in6addr_loopback;
-        }
-        else
-        {
-            addr.saIn.sin_family = AF_INET;
-            addr.saIn.sin_port = htons(port);
-            addr.saIn.sin_addr.s_addr = server ? htonl(INADDR_ANY) : htonl(INADDR_LOOPBACK);
-        }
-        return addr;
-    }
-
-    struct addrinfo* info = 0;
-    int retry = 5;
-
-    struct addrinfo hints = { 0 };
-
-    if(server)
-    {
-        //
-        // If host is empty, getaddrinfo will return the wildcard
-        // address instead of the loopack address.
-        //
-        hints.ai_flags |= AI_PASSIVE;
-    }
-
-    if(protocol == EnableIPv4)
-    {
-        hints.ai_family = PF_INET;
-    }
-    else if(protocol == EnableIPv6)
-    {
-        hints.ai_family = PF_INET6;
-    }
-    else
-    {
-        hints.ai_family = PF_UNSPEC;
-    }
-
-    int rs = 0;
-    do
-    {
-        rs = getaddrinfo(host.c_str(), 0, &hints, &info);
-    }
-    while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
-
-    if(rs != 0)
-    {
-        DNSException ex(__FILE__, __LINE__);
-        ex.error = rs;
-        ex.host = host;
-        throw ex;
-    }
-
-    memcpy(&addr.saStorage, info->ai_addr, info->ai_addrlen);
-    if(info->ai_family == PF_INET)
-    {
-        addr.saIn.sin_port = htons(port);
-    }
-    else if(info->ai_family == PF_INET6)
-    {
-        addr.saIn6.sin6_port = htons(port);
-    }
-    else // Unknown address family.
-    {
-        freeaddrinfo(info);
-        DNSException ex(__FILE__, __LINE__);
-        ex.host = host;
-        throw ex;
-    }
-    freeaddrinfo(info);
-    return addr;
 }
 #endif
 
@@ -502,7 +428,7 @@ isWildcard(const string& host, ProtocolSupport protocol)
 {
     try
     {
-        Address addr = getAddressImpl(host, 0, protocol, false);
+        Address addr = getAddressForServer(host, 0, protocol, true);
         if(addr.saStorage.ss_family == AF_INET)
         {
             if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
@@ -647,7 +573,7 @@ IceInternal::errorToStringDNS(int error)
 
 #ifdef ICE_OS_WINRT
 vector<Address>
-IceInternal::getAddresses(const string& host, int port, ProtocolSupport, bool)
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::EndpointSelectionType, bool, bool)
 {
     vector<Address> result;
     Address addr;
@@ -660,7 +586,8 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport, bool)
 }
 #else
 vector<Address>
-IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, bool blocking)
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, Ice::EndpointSelectionType selType,
+                          bool preferIPv6, bool blocking)
 {
     vector<Address> result;
     Address addr;
@@ -687,6 +614,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
             addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
             result.push_back(addr);
         }
+        sortAddresses(result, protocol, selType, preferIPv6);
         return result;
     }
 
@@ -768,12 +696,13 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 
     freeaddrinfo(info);
 
-    if(result.size() == 0)
+    if(result.empty())
     {
         DNSException ex(__FILE__, __LINE__);
         ex.host = host;
         throw ex;
     }
+    sortAddresses(result, protocol, selType, preferIPv6);
     return result;
 }
 #endif
@@ -793,17 +722,53 @@ IceInternal::getProtocolSupport(const Address& addr)
 }
 #endif
 
+#ifdef ICE_OS_WINRT
 Address
-IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol)
+IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport, bool)
 {
-    return getAddressImpl(host, port, protocol, true);
+    Address addr;
+    ostringstream os;
+    os << port;
+    addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
+    if(host.empty())
+    {
+        addr.host = nullptr; // Equivalent of inaddr_any, see doBind implementation.
+    }
+    else
+    {
+        addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
+    }
+    return addr;
 }
-
+#else
 Address
-IceInternal::getAddress(const string& host, int port, ProtocolSupport protocol)
+IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6)
 {
-    return getAddressImpl(host, port, protocol, false);
+    //
+    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
+    // versions don't support it).
+    //
+    if(host.empty())
+    {
+        Address addr;
+        memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
+        if(protocol != EnableIPv4)
+        {
+            addr.saIn6.sin6_family = AF_INET6;
+            addr.saIn6.sin6_port = htons(port);
+            addr.saIn6.sin6_addr = in6addr_any;
+        }
+        else
+        {
+            addr.saIn.sin_family = AF_INET;
+            addr.saIn.sin_port = htons(port);
+            addr.saIn.sin_addr.s_addr = htonl(INADDR_ANY);
+        }
+        return addr;
+    }
+    return getAddresses(host, port, protocol, Ice::Ordered, preferIPv6, true)[0];
 }
+#endif
 
 int
 IceInternal::compareAddress(const Address& addr1, const Address& addr2)
@@ -882,6 +847,32 @@ SOCKET
 IceInternal::createSocket(bool udp, const Address& addr)
 {
     return createSocketImpl(udp, addr.saStorage.ss_family);
+}
+#endif
+
+#ifndef ICE_OS_WINRT
+SOCKET
+IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport protocol)
+{
+    SOCKET fd = createSocket(udp, addr);
+    if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
+    {
+        int flag = protocol == EnableIPv6 ? 1 : 0;
+        if(setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
+        {
+            closeSocketNoThrow(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+    }
+    return fd;
+}
+#else
+SOCKET
+IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport)
+{
+    return createSocket(udp, addr);
 }
 #endif
 
@@ -1109,7 +1100,7 @@ vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
     vector<string> hosts;
-    if(host.empty() || isWildcard(host, protocolSupport))
+    if(isWildcard(host, protocolSupport))
     {
         vector<Address> addrs = getLocalAddresses(protocolSupport);
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
@@ -1471,7 +1462,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
             mreq.imr_interface = getInterfaceAddress(intf);
             if(mreq.imr_interface.s_addr == INADDR_ANY)
             {
-                Address addr = getAddressForServer(intf, 0, EnableIPv4);
+                Address addr = getAddressForServer(intf, 0, EnableIPv4, false);
                 mreq.imr_interface = addr.saIn.sin_addr;
             }
         }
@@ -1546,7 +1537,7 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
         struct in_addr iface = getInterfaceAddress(intf);
         if(iface.s_addr == INADDR_ANY)
         {
-            Address addr = getAddressForServer(intf, 0, EnableIPv4);
+            Address addr = getAddressForServer(intf, 0, EnableIPv4, false);
             iface = addr.saIn.sin_addr;
         }
         rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));

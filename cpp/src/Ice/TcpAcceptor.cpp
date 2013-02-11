@@ -180,12 +180,11 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port, 
-                                      ProtocolSupport protocol) :
+IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
-    _addr(getAddressForServer(host, port, protocol))
+    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6()))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET),
     _info(SocketOperationRead)
@@ -197,9 +196,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
-
-    _fd = createSocket(false, _addr);
-
+    _fd = createServerSocket(false, _addr, instance->protocolSupport());
 #ifdef ICE_USE_IOCP
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif

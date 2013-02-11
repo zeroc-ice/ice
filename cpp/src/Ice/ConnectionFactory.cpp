@@ -188,15 +188,8 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         //
         try
         {
-            vector<ConnectorPtr> cons = (*p)->connectors();
+            vector<ConnectorPtr> cons = (*p)->connectors(selType);
             assert(!cons.empty());
-            
-            if(selType == Random)
-            {
-                RandomNumberGenerator rng;
-                random_shuffle(cons.begin(), cons.end(), rng);
-            }
-            
             for(vector<ConnectorPtr>::const_iterator r = cons.begin(); r != cons.end(); ++r)
             {
                 assert(*r);
@@ -1009,14 +1002,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(c
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector<ConnectorPtr>& connectors)
 {
-    vector<ConnectorPtr> cons = connectors;
-    if(_selType == Random)
-    {
-        RandomNumberGenerator rng;
-        random_shuffle(cons.begin(), cons.end(), rng);
-    }
-
-    for(vector<ConnectorPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
+    for(vector<ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
     {
         _connectors.push_back(ConnectorInfo(*p, *_endpointsIter));
     }
@@ -1089,7 +1075,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextEndpoint()
     try
     {
         assert(_endpointsIter != _endpoints.end());
-        (*_endpointsIter)->connectors_async(this);
+        (*_endpointsIter)->connectors_async(_selType, this);
     }
     catch(const Ice::LocalException& ex)
     {

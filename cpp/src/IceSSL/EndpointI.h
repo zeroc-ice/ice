@@ -40,8 +40,8 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual IceInternal::TransceiverPtr transceiver(IceInternal::EndpointIPtr&) const;
-    virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
-    virtual void connectors_async(const IceInternal::EndpointI_connectorsPtr&) const;
+    virtual std::vector<IceInternal::ConnectorPtr> connectors(Ice::EndpointSelectionType) const;
+    virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;

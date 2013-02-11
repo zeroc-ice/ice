@@ -143,8 +143,8 @@ namespace IceInternal
         // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public abstract List<Connector> connectors();
-        public abstract void connectors_async(EndpointI_connectors callback);
+        public abstract List<Connector> connectors(Ice.EndpointSelectionType selType);
+        public abstract void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback);
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors

@@ -90,6 +90,8 @@ IceInternal::EndpointI::EndpointI() :
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
     IceUtil::Thread("Ice.HostResolver"),
     _instance(instance),
+    _protocol(instance->protocolSupport()),
+    _preferIPv6(instance->preferIPv6()),
     _destroyed(false)
 {
     __setNoDelete(true);
@@ -119,13 +121,14 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 }
 
 vector<ConnectorPtr>
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint)
+IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType, 
+                                           const EndpointIPtr& endpoint)
 {
     //
     // Try to get the addresses without DNS lookup. If this doesn't
     // work, we retry with DNS lookup (and observer).
     //
-    vector<Address> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
+    vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
     if(!addrs.empty())
     {
         return endpoint->connectors(addrs);
@@ -141,7 +144,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     vector<ConnectorPtr> connectors;
     try 
     {
-        connectors = endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), true));
+        connectors = endpoint->connectors(getAddresses(host, port, _protocol, selType, _preferIPv6, true));
     }
     catch(const Ice::LocalException& ex)
     {
@@ -152,8 +155,8 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
 }
 
 void
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint,
-                                           const EndpointI_connectorsPtr& callback)
+IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType, 
+                                           const EndpointIPtr& endpoint, const EndpointI_connectorsPtr& callback)
 {
     //
     // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
@@ -161,7 +164,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     //
     try
     {
-        vector<Address> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
+        vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
         if(!addrs.empty())
         {
             callback->connectors(endpoint->connectors(addrs));
@@ -180,6 +183,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     ResolveEntry entry;
     entry.host = host;
     entry.port = port;
+    entry.selType = selType;
     entry.endpoint = endpoint;
     entry.callback = callback;
 
@@ -230,7 +234,6 @@ IceInternal::EndpointHostResolver::run()
             threadObserver = _observer.get();
         }
 
-        const ProtocolSupport protocol = _instance->protocolSupport();
         try
         {
             if(threadObserver)
@@ -238,7 +241,11 @@ IceInternal::EndpointHostResolver::run()
                 threadObserver->stateChanged(ThreadStateIdle, ThreadStateInUseForOther);
             }
 
-            r.callback->connectors(r.endpoint->connectors(getAddresses(r.host, r.port, protocol, true)));
+            r.callback->connectors(r.endpoint->connectors(getAddresses(r.host, 
+                                                                       r.port, 
+                                                                       _protocol,
+                                                                       r.selType, 
+                                                                       _preferIPv6, true)));
 
             if(threadObserver)
             {
@@ -297,20 +304,23 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 }
 
 vector<ConnectorPtr>
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint)
+IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType, 
+                                           const EndpointIPtr& endpoint)
 {
-    return endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), false));
+    return endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), selType, 
+                                             _instance->preferIPv6(), false));
 }
 
 void
 IceInternal::EndpointHostResolver::resolve(const string&, int,
+                                           Ice::EndpointSelectionType selType, 
                                            const EndpointIPtr& endpoint, 
                                            const EndpointI_connectorsPtr& callback)
 {
     //
     // No DNS lookup support with WinRT.
     //
-    callback->connectors(endpoint->connectors());
+    callback->connectors(endpoint->connectors(selType));
 }
 
 void

@@ -133,8 +133,9 @@ namespace IceInternal
 
             try
             {
-                _addr = (IPEndPoint)Network.getAddressForServer(host, port, instance_.protocolSupport());
-                _fd = Network.createSocket(false, _addr.AddressFamily);
+                int protocol = instance_.protocolSupport();
+                _addr = (IPEndPoint)Network.getAddressForServer(host, port, protocol, instance_.preferIPv6());
+                _fd = Network.createServerSocket(false, _addr.AddressFamily, protocol);
                 Network.setBlock(_fd, false);
 #  if !COMPACT
                 Network.setTcpBufSize(_fd, instance_.initializationData().properties, _logger);

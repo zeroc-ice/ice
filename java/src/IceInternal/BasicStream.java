@@ -4006,7 +4006,6 @@ public class BasicStream
         void startInstance(SliceType sliceType, Ice.SlicedData sliceData)
         {
             _sliceType = sliceType;
-            _firstSlice = true;
         }
 
         void endInstance()
@@ -4052,7 +4051,6 @@ public class BasicStream
             _stream.writeInt(0); // Placeholder for the slice length.
 
             _writeSlice = _stream.pos();
-            _firstSlice = false;
         }
 
         void endSlice()
@@ -4136,7 +4134,6 @@ public class BasicStream
 
         // Instance attributes
         private SliceType _sliceType;
-        private boolean _firstSlice;
 
         // Slice attributes
         private int _writeSlice;        // Position of the slice data members

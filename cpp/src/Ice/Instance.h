@@ -72,6 +72,7 @@ public:
     ObjectFactoryManagerPtr servantFactoryManager() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
+    bool preferIPv6() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool(bool create = true);
     EndpointHostResolverPtr endpointHostResolver();
@@ -134,6 +135,7 @@ private:
     ObjectFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ProtocolSupport _protocolSupport;
+    bool _preferIPv6;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;

@@ -69,7 +69,7 @@ tests = [
     ("Ice/invoke", ["core"]),
     ("Ice/plugin", ["core", "nomingw"]),
     ("Ice/hash", ["once"]),
-    ("Ice/admin", ["core"]),
+    ("Ice/admin", ["core", "noipv6"]),
     ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress", "nomingw"]),
     ("Ice/enums", ["once"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
@@ -79,10 +79,10 @@ tests = [
     ("Freeze/complex", ["once", "novc90", "nomingw"]),
     ("Freeze/evictor", ["core", "novc90", "nomingw"]),
     ("Freeze/fileLock", ["core", "novc90", "nomingw"]),
-    ("IceStorm/single", ["service", "novc90", "noappverifier", "nomingw"]), # This test doesn't work with appverifier is sensitive to timeouts.
+    ("IceStorm/single", ["service", "novc90", "noappverifier", "nomingw"]), # This test doesn't work with appverifier
     ("IceStorm/federation", ["service", "novc90", "nomingw"]),
     ("IceStorm/federation2", ["service", "novc90", "nomingw"]),
-    ("IceStorm/stress", ["service", "stress", "novc90", "noappverifier", "nomingw"]), # This test is very slow with appverifier.
+    ("IceStorm/stress", ["service", "stress", "novc90", "noappverifier", "nomingw"]), # Too slow with appverifier.
     ("IceStorm/rep1", ["service", "novc90", "nomingw"]),
     ("IceStorm/repgrid", ["service", "novc90", "nomingw"]),
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc90", "nomingw"]),

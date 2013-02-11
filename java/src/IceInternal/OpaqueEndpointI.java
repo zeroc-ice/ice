@@ -319,13 +319,13 @@ final class OpaqueEndpointI extends EndpointI
     // is available.
     //
     public java.util.List<Connector>
-    connectors()
+    connectors(Ice.EndpointSelectionType selType)
     {
         return new java.util.ArrayList<Connector>();
     }
 
     public void
-    connectors_async(EndpointI_connectors callback)
+    connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
     {
         callback.connectors(new java.util.ArrayList<Connector>());
     }

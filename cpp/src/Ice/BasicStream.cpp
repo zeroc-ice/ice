@@ -2944,7 +2944,6 @@ void
 IceInternal::BasicStream::EncapsEncoder10::startInstance(SliceType sliceType, const SlicedDataPtr&)
 {
     _sliceType = sliceType;
-    _firstSlice = true;
 }
 
 void
@@ -2992,7 +2991,6 @@ IceInternal::BasicStream::EncapsEncoder10::startSlice(const string& typeId, int,
     _stream->write(Int(0)); // Placeholder for the slice length.
 
     _writeSlice = _stream->b.size();
-    _firstSlice = false;
 }
 
 void

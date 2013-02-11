@@ -850,6 +850,125 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
+        {
+            Write("testing ipv4 & ipv6 connections... ");
+            Flush();
+
+            Ice.Properties ipv4 = Ice.Util.createProperties();
+            ipv4.setProperty("Ice.IPv4", "1");
+            ipv4.setProperty("Ice.IPv6", "0");
+            ipv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
+
+            Ice.Properties ipv6 = Ice.Util.createProperties();
+            ipv6.setProperty("Ice.IPv4", "0");
+            ipv6.setProperty("Ice.IPv6", "1");
+            ipv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
+
+            Ice.Properties bothPreferIPv4 = Ice.Util.createProperties();
+            bothPreferIPv4.setProperty("Ice.IPv4", "1");
+            bothPreferIPv4.setProperty("Ice.IPv6", "1");
+            bothPreferIPv4.setProperty("Ice.PreferIPv6Address", "0");
+            bothPreferIPv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
+
+            Ice.Properties bothPreferIPv6 = Ice.Util.createProperties();
+            bothPreferIPv6.setProperty("Ice.IPv4", "1");
+            bothPreferIPv6.setProperty("Ice.IPv6", "1");
+            bothPreferIPv6.setProperty("Ice.PreferIPv6Address", "1");
+            bothPreferIPv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
+
+            List<Ice.Properties> clientProps = new List<Ice.Properties>();
+            clientProps.Add(ipv4);
+            clientProps.Add(ipv6);
+            clientProps.Add(bothPreferIPv4);
+            clientProps.Add(bothPreferIPv6);
+
+            Ice.Properties anyipv4 = ipv4.ice_clone_();
+            anyipv4.setProperty("Adapter.Endpoints", "tcp -p 12012");
+            anyipv4.setProperty("Adapter.PublishedEndpoints", "tcp -h 127.0.0.1 -p 12012");
+
+            Ice.Properties anyipv6 = ipv6.ice_clone_();
+            anyipv6.setProperty("Adapter.Endpoints", "tcp -p 12012");
+            anyipv6.setProperty("Adapter.PublishedEndpoints", "tcp -h \".1\" -p 12012");
+
+            Ice.Properties anyboth = Ice.Util.createProperties();
+            anyboth.setProperty("Ice.IPv4", "1");
+            anyboth.setProperty("Ice.IPv6", "1");
+            anyboth.setProperty("Adapter.Endpoints", "tcp -p 12012");
+            anyboth.setProperty("Adapter.PublishedEndpoints", "tcp -h \"::1\" -p 12012:tcp -h 127.0.0.1 -p 12012");
+
+            Ice.Properties localipv4 = ipv4.ice_clone_();
+            localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
+
+            Ice.Properties localipv6 = ipv6.ice_clone_();
+            localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
+
+            List<Ice.Properties> serverProps = new List<Ice.Properties>(clientProps);
+            serverProps.Add(anyipv4);
+            serverProps.Add(anyipv6);
+            serverProps.Add(anyboth);
+            serverProps.Add(localipv4);
+            serverProps.Add(localipv6);
+        
+            foreach(Ice.Properties p in serverProps)
+            {
+                Ice.InitializationData serverInitData = new Ice.InitializationData();
+                serverInitData.properties = p;
+                Ice.Communicator serverCommunicator = Ice.Util.initialize(serverInitData);
+                Ice.ObjectAdapter oa;
+                try
+                {
+                    oa = serverCommunicator.createObjectAdapter("Adapter");
+                    oa.activate();
+                }
+                catch(Ice.DNSException)
+                {
+                    continue; // IP version not supported.
+                }
+                catch(Ice.SocketException)
+                {
+                    continue; // IP version not supported.
+                }
+
+                string strPrx = oa.createProxy(serverCommunicator.stringToIdentity("dummy")).ToString();
+                foreach(Ice.Properties q in clientProps)
+                {
+                    Ice.InitializationData clientInitData = new Ice.InitializationData();
+                    clientInitData.properties = q;
+                    Ice.Communicator clientCommunicator = Ice.Util.initialize(clientInitData);
+                    Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
+                    try
+                    {
+                        prx.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.ObjectNotExistException)
+                    {
+                        // Expected, no object registered.
+                    }
+                    catch(Ice.DNSException)
+                    {
+                        // Expected if no IPv4 or IPv6 address is
+                        // associated to localhost or if trying to connect
+                        // to an any endpoint with the wrong IP version,
+                        // e.g.: resolving an IPv4 address when only IPv6
+                        // is enabled fails with a DNS exception.
+                    }
+                    catch(Ice.SocketException)
+                    {
+                        test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
+                             (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
+                             (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
+                             (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4));
+                        continue;
+                    }
+                    clientCommunicator.destroy();
+                }
+                serverCommunicator.destroy();
+            }
+            
+            WriteLine("ok");
+        }
+
         com.shutdown();
     }
 

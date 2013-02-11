@@ -181,17 +181,8 @@ public final class OutgoingConnectionFactory
             //
             try
             {
-                java.util.List<Connector> cons = endpoint.connectors();
+                java.util.List<Connector> cons = endpoint.connectors(selType);
                 assert(cons.size() > 0);
-
-                //
-                // Shuffle connectors if endpoint selection type is Random.
-                //
-                if(selType == Ice.EndpointSelectionType.Random)
-                {
-                    java.util.Collections.shuffle(cons);
-                }
-
                 for(Connector c : cons)
                 {
                     connectors.add(new ConnectorInfo(c, endpoint));
@@ -312,8 +303,7 @@ public final class OutgoingConnectionFactory
     }
 
     public void
-    create(EndpointI[] endpts, boolean hasMore, Ice.EndpointSelectionType selType,
-           CreateConnectionCallback callback)
+    create(EndpointI[] endpts, boolean hasMore, Ice.EndpointSelectionType selType, CreateConnectionCallback callback)
     {
         assert(endpts.length > 0);
 
@@ -1058,14 +1048,6 @@ public final class OutgoingConnectionFactory
         public void
         connectors(java.util.List<Connector> cons)
         {
-            //
-            // Shuffle connectors if endpoint selection type is Random.
-            //
-            if(_selType == Ice.EndpointSelectionType.Random)
-            {
-                java.util.Collections.shuffle(cons);
-            }
-
             for(Connector p : cons)
             {
                 _connectors.add(new ConnectorInfo(p, _currentEndpoint));
@@ -1181,7 +1163,7 @@ public final class OutgoingConnectionFactory
             {
                 assert(_endpointsIter.hasNext());
                 _currentEndpoint = _endpointsIter.next();
-                _currentEndpoint.connectors_async(this);
+                _currentEndpoint.connectors_async(_selType, this);
             }
             catch(Ice.LocalException ex)
             {

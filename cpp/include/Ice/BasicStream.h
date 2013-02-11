@@ -1088,7 +1088,6 @@ private:
 
         // Instance attributes
         SliceType _sliceType;
-        bool _firstSlice;
 
         // Slice attributes
         Container::size_type _writeSlice; // Position of the slice data members

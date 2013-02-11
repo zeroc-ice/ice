@@ -19,6 +19,7 @@
 #include <Ice/PropertiesF.h> // For setTcpBufSize
 #include <Ice/LoggerF.h> // For setTcpBufSize
 #include <Ice/Protocol.h> 
+#include <Ice/EndpointTypes.h>
 
 #ifdef ICE_OS_WINRT
 #   include <Ice/EventHandlerF.h>
@@ -188,13 +189,14 @@ typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
 
 ICE_API bool noMoreFds(int);
 ICE_API std::string errorToStringDNS(int);
-ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, bool);
+ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool, 
+                                          bool);
 ICE_API ProtocolSupport getProtocolSupport(const Address&);
-ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport);
-ICE_API Address getAddress(const std::string&, int, ProtocolSupport);
+ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool);
 ICE_API int compareAddress(const Address&, const Address&);
 
 ICE_API SOCKET createSocket(bool, const Address&);
+ICE_API SOCKET createServerSocket(bool, const Address&, ProtocolSupport);
 ICE_API void closeSocketNoThrow(SOCKET);
 ICE_API void closeSocket(SOCKET);
 

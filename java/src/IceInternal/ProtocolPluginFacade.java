@@ -28,6 +28,11 @@ public interface ProtocolPluginFacade
     int getProtocolSupport();
 
     //
+    // Get the protocol support.
+    //
+    boolean getPreferIPv6();
+
+    //
     // Get the default encoding to be used in endpoints.
     //
     Ice.EncodingVersion getDefaultEncoding();

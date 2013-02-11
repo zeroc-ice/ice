@@ -132,7 +132,9 @@ Client::run(int, char*[])
     //
     // Create server communicator and OA
     //
-    Ice::CommunicatorPtr serverCommunicator = Ice::initialize();
+    Ice::InitializationData initData;
+    initData.properties = communicator()->getProperties()->clone();
+    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(initData);
     Ice::ObjectAdapterPtr oa = serverCommunicator->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
     
     Ice::ObjectPtr servant = new MyObjectI;

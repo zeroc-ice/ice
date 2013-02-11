@@ -14,6 +14,8 @@ public class EndpointHostResolver
     EndpointHostResolver(Instance instance)
     {
         _instance = instance;
+        _protocol = instance.protocolSupport();
+        _preferIPv6 = instance.preferIPv6();
         try
         {
             _thread = new HelperThread();
@@ -33,7 +35,7 @@ public class EndpointHostResolver
     }
 
     public java.util.List<Connector> 
-    resolve(String host, int port, EndpointI endpoint)
+    resolve(String host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint)
     {
         Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         Ice.Instrumentation.Observer observer = null;
@@ -49,7 +51,7 @@ public class EndpointHostResolver
         java.util.List<Connector> connectors = null;
         try 
         {
-            connectors = endpoint.connectors(Network.getAddresses(host, port, _instance.protocolSupport()));
+            connectors = endpoint.connectors(Network.getAddresses(host, port, _protocol, selType, _preferIPv6));
         }
         catch(Ice.LocalException ex)
         {
@@ -70,7 +72,7 @@ public class EndpointHostResolver
     }
     
     synchronized public void
-    resolve(String host, int port, EndpointI endpoint, EndpointI_connectors callback)
+    resolve(String host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint, EndpointI_connectors callback)
     {
         //
         // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6
@@ -83,6 +85,7 @@ public class EndpointHostResolver
         ResolveEntry entry = new ResolveEntry();
         entry.host = host;
         entry.port = port;
+        entry.selType = selType;
         entry.endpoint = endpoint;
         entry.callback = callback;
 
@@ -156,7 +159,6 @@ public class EndpointHostResolver
                 threadObserver = _observer;
             }
 
-            int protocol = _instance.protocolSupport();
             try
             {
                 if(threadObserver != null)
@@ -165,7 +167,11 @@ public class EndpointHostResolver
                                                 Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                 }
 
-                r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, r.port, protocol)));
+                r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, 
+                                                                                 r.port, 
+                                                                                 _protocol, 
+                                                                                 r.selType,
+                                                                                 _preferIPv6)));
 
                 if(threadObserver != null)
                 {
@@ -224,12 +230,15 @@ public class EndpointHostResolver
     {
         String host;
         int port;
+        Ice.EndpointSelectionType selType;
         EndpointI endpoint;
         EndpointI_connectors callback;
         Ice.Instrumentation.Observer observer;
     }
 
     private final Instance _instance;
+    private final int _protocol;
+    private final boolean _preferIPv6;
     private boolean _destroyed;
     private java.util.LinkedList<ResolveEntry> _queue = new java.util.LinkedList<ResolveEntry>();
     private Ice.Instrumentation.ThreadObserver _observer;

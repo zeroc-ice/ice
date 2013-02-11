@@ -29,6 +29,11 @@ namespace IceInternal
         int getProtocolSupport();
 
         //
+        // Get the protocol support.
+        //
+        bool getPreferIPv6();
+
+        //
         // Get the default encoding to be used in endpoints.
         //
         Ice.EncodingVersion getDefaultEncoding();
@@ -93,6 +98,14 @@ namespace IceInternal
         public int getProtocolSupport()
         {
             return _instance.protocolSupport();
+        }
+
+        //
+        // Get the protocol support.
+        //
+        public bool getPreferIPv6()
+        {
+            return _instance.preferIPv6();
         }
 
         //

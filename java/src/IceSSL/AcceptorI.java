@@ -133,7 +133,8 @@ final class AcceptorI implements IceInternal.Acceptor
                 //
                 IceInternal.Network.setReuseAddress(_fd, true);
             }
-            _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
+            _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport(), 
+                                                            _instance.preferIPv6());
             if(_instance.networkTraceLevel() >= 2)
             {
                 String s = "attempting to bind to ssl socket " + toString();

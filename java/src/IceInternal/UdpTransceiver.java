@@ -350,7 +350,7 @@ final class UdpTransceiver implements Transceiver
 
         try
         {
-             _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
+            _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
             _fd = Network.createUdpSocket(_addr);
             setBufSize(instance);
             Network.setBlock(_fd, false);
@@ -375,7 +375,7 @@ final class UdpTransceiver implements Transceiver
                     //
                     int protocol = 
                         _mcastAddr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
-                    _addr = Network.getAddressForServer("", port, protocol);
+                    _addr = Network.getAddressForServer("", port, protocol, instance.preferIPv6());
                 }
                 _addr = Network.doBind(_fd, _addr);
                 configureMulticast(_mcastAddr, mcastInterface, -1);
@@ -563,7 +563,8 @@ final class UdpTransceiver implements Transceiver
                     intf = java.net.NetworkInterface.getByName(interfaceAddr);
                     if(intf == null)
                     {
-                        java.net.InetSocketAddress addr = Network.getAddress(interfaceAddr, 0, Network.EnableIPv4);
+                        java.net.InetSocketAddress addr = Network.getAddressForServer(interfaceAddr, 0, 
+                                                                                      Network.EnableIPv4, false);
                         intf = java.net.NetworkInterface.getByInetAddress(addr.getAddress());
                     }
                 }

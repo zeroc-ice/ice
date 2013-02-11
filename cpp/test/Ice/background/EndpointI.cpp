@@ -142,10 +142,10 @@ EndpointI::transceiver(IceInternal::EndpointIPtr& endpoint) const
 }
 
 vector<IceInternal::ConnectorPtr>
-EndpointI::connectors() const
+EndpointI::connectors(Ice::EndpointSelectionType selType) const
 {
     _configuration->checkConnectorsException();
-    vector<IceInternal::ConnectorPtr> c = _endpoint->connectors();
+    vector<IceInternal::ConnectorPtr> c = _endpoint->connectors(selType);
     for(vector<IceInternal::ConnectorPtr>::iterator p = c.begin(); p != c.end(); ++p)
     {
         *p = new Connector(*p);
@@ -154,7 +154,7 @@ EndpointI::connectors() const
 }
 
 void
-EndpointI::connectors_async(const IceInternal::EndpointI_connectorsPtr& cb) const
+EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
 {
     class Callback : public IceInternal::EndpointI_connectors
     {
@@ -189,7 +189,7 @@ EndpointI::connectors_async(const IceInternal::EndpointI_connectorsPtr& cb) cons
     try
     {
         _configuration->checkConnectorsException();
-        _endpoint->connectors_async(new Callback(cb));
+        _endpoint->connectors_async(selType, new Callback(cb));
     }
     catch(const Ice::LocalException& ex)
     {

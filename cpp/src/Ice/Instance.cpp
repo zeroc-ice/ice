@@ -300,14 +300,13 @@ IceInternal::Instance::objectAdapterFactory() const
 ProtocolSupport
 IceInternal::Instance::protocolSupport() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
-
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
     return _protocolSupport;
+}
+
+bool
+IceInternal::Instance::preferIPv6() const
+{
+    return _preferIPv6;
 }
 
 ThreadPoolPtr
@@ -1047,7 +1046,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _proxyFactory = new ProxyFactory(this);
 
         bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", 0) > 0;
+        bool ipv6 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
         if(!ipv4 && !ipv6)
         {
             throw InitializationException(__FILE__, __LINE__, "Both IPV4 and IPv6 support cannot be disabled.");
@@ -1064,6 +1063,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             _protocolSupport = EnableIPv6;
         }
+        _preferIPv6 = _initData.properties->getPropertyAsInt("Ice.PreferIPv6Address") > 0;
         _endpointFactoryManager = new EndpointFactoryManager(this);
 #ifndef ICE_OS_WINRT
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(this);

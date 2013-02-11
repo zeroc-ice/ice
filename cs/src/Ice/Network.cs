@@ -96,119 +96,6 @@ namespace IceInternal
         }
 #endif
 
-        private static EndPoint getAddressImpl(string host, int port, int protocol, bool server)
-        {
-            if(host.Length == 0)
-            {
-#if SILVERLIGHT
-                if(server)
-                {
-                    if(protocol != EnableIPv4)
-                    {
-                        return new DnsEndPoint(IPAddress.IPv6Any.ToString(), port);
-                    }
-                    else
-                    {
-                        return new DnsEndPoint(IPAddress.Any.ToString(), port);
-                    }
-                }
-                else
-                {
-                    if(protocol != EnableIPv4)
-                    {
-                        return new DnsEndPoint(IPAddress.IPv6Loopback.ToString(), port);
-                    }
-                    else
-                    {
-                        return new DnsEndPoint(IPAddress.Loopback.ToString(), port);
-                    }
-                }
-#else
-                if(server)
-                {
-                    if(protocol != EnableIPv4)
-                    {
-                        return new IPEndPoint(IPAddress.IPv6Any, port);
-                    }
-                    else
-                    {
-                        return new IPEndPoint(IPAddress.Any, port);
-                    }
-                }
-                else
-                {
-                    if(protocol != EnableIPv4)
-                    {
-                        return new IPEndPoint(IPAddress.IPv6Loopback, port);
-                    }
-                    else
-                    {
-                        return new IPEndPoint(IPAddress.Loopback, port);
-                    }
-                }
-#endif
-            }
-
-#if SILVERLIGHT
-            return new DnsEndPoint(host, port);
-#else
-            int retry = 5;
-
-            repeatGetHostByName:
-            try
-            {
-                try
-                {
-                    IPAddress addr = IPAddress.Parse(host);
-                    if((addr.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (addr.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
-                    {
-                        return new IPEndPoint(addr, port);
-                    }
-                }
-                catch (FormatException)
-                {
-                }
-
-#  if COMPACT
-                foreach(IPAddress a in Dns.GetHostEntry(host).AddressList)
-#  else
-                foreach(IPAddress a in Dns.GetHostAddresses(host))
-#  endif
-                {
-                    if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
-                    {
-                        return new IPEndPoint(a, port);
-                    }
-                }
-            }
-            catch(SocketException ex)
-            {
-                if(socketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
-                {
-                    goto repeatGetHostByName;
-                }
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
-            }
-            catch(System.Exception ex)
-            {
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
-            }
-
-            //
-            // No InterNetwork/InterNetworkV6 address available.
-            //
-            Ice.DNSException dns = new Ice.DNSException();
-            dns.host = host;
-            throw dns;
-#endif
-        }
-
         public static bool interrupted(SocketException ex)
         {
             return socketErrorCode(ex) == SocketError.Interrupted;
@@ -426,6 +313,27 @@ namespace IceInternal
             return socket;
         }
 
+        public static Socket createServerSocket(bool udp, AddressFamily family, int protocol)
+        {
+            Socket socket = createSocket(udp, family);
+#  if !COMPACT && !UNITY && !__MonoCS__ && !SILVERLIGHT
+            if(family == AddressFamily.InterNetworkV6 && protocol != EnableIPv4)
+            {
+                try
+                {
+                    int flag = protocol == EnableIPv6 ? 1 : 0;
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, flag);
+                }
+                catch(SocketException ex)
+                {
+                    closeSocketNoThrow(socket);
+                    throw new Ice.SocketException(ex);
+                }
+            }
+#endif
+            return socket;
+        }
+
         public static void closeSocketNoThrow(Socket socket)
         {
             if(socket == null)
@@ -601,7 +509,7 @@ namespace IceInternal
                         ifaceAddr = getInterfaceAddress(iface);
                         if(ifaceAddr == IPAddress.Any)
                         {
-                            ifaceAddr = ((IPEndPoint)getAddress(iface, 0, EnableIPv4)).Address;
+                            ifaceAddr = ((IPEndPoint)getAddressForServer(iface, 0, EnableIPv4, false)).Address;
                         }
                     }
                     socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
@@ -848,22 +756,40 @@ namespace IceInternal
         }
 #endif
 
-        public static EndPoint getAddress(string host, int port, int protocol)
+        public static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
         {
-            return getAddressImpl(host, port, protocol, false);
+            if(host.Length == 0)
+            {
+#if SILVERLIGHT
+                if(protocol != EnableIPv4)
+                {
+                    return new DnsEndPoint(IPAddress.IPv6Any.ToString(), port);
+                }
+                else
+                {
+                    return new DnsEndPoint(IPAddress.Any.ToString(), port);
+                }
+#else
+                if(protocol != EnableIPv4)
+                {
+                    return new IPEndPoint(IPAddress.IPv6Any, port);
+                }
+                else
+                {
+                    return new IPEndPoint(IPAddress.Any, port);
+                }
+#endif
+            }
+
+#if SILVERLIGHT
+            return new DnsEndPoint(host, port);
+#else
+            return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
+#endif
         }
 
-        public static EndPoint getAddressForServer(string host, int port, int protocol)
-        {
-            return getAddressImpl(host, port, protocol, true);
-        }
-
-        public static List<EndPoint> getAddresses(string host, int port, int protocol)
-        {
-            return getAddresses(host, port, protocol, true);
-        }
-
-        public static List<EndPoint> getAddresses(string host, int port, int protocol, bool blocking)
+        public static List<EndPoint> getAddresses(string host, int port, int protocol, 
+                                                  Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
         {
             List<EndPoint> addresses = new List<EndPoint>();
 #if SILVERLIGHT
@@ -914,6 +840,12 @@ namespace IceInternal
                             addresses.Add(new IPEndPoint(addr, port));
                             return addresses;
                         }
+                        else
+                        {
+                            Ice.DNSException e = new Ice.DNSException();
+                            e.host = host;
+                            throw e;
+                        }
                     }
                     catch(FormatException)
                     {
@@ -933,6 +865,23 @@ namespace IceInternal
                            (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
                             addresses.Add(new IPEndPoint(a, port));
+                        }
+                    }
+
+                    if(selType == Ice.EndpointSelectionType.Random)
+                    {
+                        IceUtilInternal.Collections.Shuffle(ref addresses);
+                    }
+
+                    if(protocol == EnableBoth)
+                    {
+                        if(preferIPv6)
+                        {
+                             IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                        }
+                        else
+                        {
+                            IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
                         }
                     }
                 }
@@ -1334,5 +1283,36 @@ namespace IceInternal
             }
             return port;
         }
+
+        private class EndPointComparator : IComparer<EndPoint>
+        {
+            public EndPointComparator(bool ipv6)
+            {
+                _ipv6 = ipv6;
+            }
+
+            public int Compare(EndPoint lhs, EndPoint rhs)
+            {
+                if(lhs.AddressFamily == AddressFamily.InterNetwork && 
+                   rhs.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    return _ipv6 ? 1 : -1;
+                }
+                else if(lhs.AddressFamily == AddressFamily.InterNetworkV6 && 
+                        rhs.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return _ipv6 ? -1 : 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            
+            private bool _ipv6;
+        };
+
+        private readonly static EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
+        private readonly static EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);
     }
 }

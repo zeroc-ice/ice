@@ -316,16 +316,16 @@ IceInternal::OpaqueEndpointI::transceiver(EndpointIPtr& endp) const
 }
 
 vector<ConnectorPtr>
-IceInternal::OpaqueEndpointI::connectors() const
+IceInternal::OpaqueEndpointI::connectors(Ice::EndpointSelectionType) const
 {
     vector<ConnectorPtr> ret;
     return ret;
 }
 
 void
-IceInternal::OpaqueEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+IceInternal::OpaqueEndpointI::connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr& cb) const
 {
-    callback->connectors(vector<ConnectorPtr>());
+    cb->connectors(vector<ConnectorPtr>());
 }
 
 AcceptorPtr

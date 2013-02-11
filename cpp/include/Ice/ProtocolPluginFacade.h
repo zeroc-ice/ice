@@ -69,6 +69,11 @@ public:
     ProtocolSupport getProtocolSupport() const;
 
     //
+    // Get the IP address preference
+    //
+    bool preferIPv6() const;
+
+    //
     // Register an EndpointFactory.
     //
     void addEndpointFactory(const EndpointFactoryPtr&) const;

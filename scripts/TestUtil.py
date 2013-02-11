@@ -13,7 +13,7 @@ import sys, os, re, getopt, time, string, threading, atexit, platform
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
 compress = False                # Set to True to enable bzip2 compression.
 serialize = False               # Set to True to have tests use connection serialization
-host = "127.0.0.1"              # Default to loopback.
+host = None                     # Will default to loopback.
 debug = False                   # Set to True to enable test suite debugging.
 mono = False                    # Set to True when not on Windows
 keepGoing = False               # Set to True to have the tests continue on failure.
@@ -298,7 +298,8 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "client-home=", "x64", "script", "env", 
                                     "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", 
-                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", "c++11"])
+                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", 
+                                    "c++11"])
     except getopt.GetoptError:
         usage()
 
@@ -873,8 +874,15 @@ def getCommandLineProperties(exe, config):
         components.append("--IceMX.Metrics.All.GroupBy=none")
 
     if config.ipv6:
-        components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1 --Ice.IPv6=1")
-    elif config.host != None and len(config.host) != 0:
+        components.append("--Ice.IPv4=1 --Ice.IPv6=1 --Ice.PreferIPv6Address=1")
+        if config.host == None:
+            components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1")
+    else:
+        components.append("--Ice.IPv4=1 --Ice.IPv6=0")
+        if config.host == None:
+            components.append("--Ice.Default.Host=127.0.0.1")
+
+    if config.host != None and len(config.host) != 0:
         components.append("--Ice.Default.Host=%s" % config.host)
 
     #

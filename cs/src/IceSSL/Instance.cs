@@ -329,6 +329,11 @@ namespace IceSSL
             return _facade.getProtocolSupport();
         }
 
+        internal bool preferIPv6()
+        {
+            return _facade.getPreferIPv6();
+        }
+
         internal Ice.EncodingVersion defaultEncoding()
         {
             return _facade.getDefaultEncoding();

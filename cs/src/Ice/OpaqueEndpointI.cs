@@ -310,12 +310,12 @@ namespace IceInternal
         // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override List<Connector> connectors()
+        public override List<Connector> connectors(Ice.EndpointSelectionType endSel)
         {
             return new List<Connector>();
         }
 
-        public override void connectors_async(EndpointI_connectors callback)
+        public override void connectors_async(Ice.EndpointSelectionType endSel, EndpointI_connectors callback)
         {
             callback.connectors(new List<Connector>());
         }

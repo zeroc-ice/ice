@@ -160,14 +160,13 @@ IceInternal::StreamAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::StreamAcceptor::StreamAcceptor(const InstancePtr& instance, Ice::Short type, const string& host, int port, 
-                                            ProtocolSupport protocol) :
-    _instance(instance),
-    _type(type),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->initializationData().logger),
-    _addr(getAddressForServer(host, port, protocol)),
-    _acceptPending(false)
+IceInternal::StreamAcceptor::StreamAcceptor(const InstancePtr& instance, Ice::Short type, const string& host, int port)
+    : _instance(instance),
+      _type(type),
+      _traceLevels(instance->traceLevels()),
+      _logger(instance->initializationData().logger),
+      _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6())),
+      _acceptPending(false)
 {
     _fd = ref new StreamSocketListener();
 

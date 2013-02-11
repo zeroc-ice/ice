@@ -46,6 +46,12 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
         return _instance.protocolSupport();
     }    
 
+    public boolean
+    getPreferIPv6()
+    {
+        return _instance.preferIPv6();
+    }
+
     //
     // Get the default encoding to be used in endpoints.
     //

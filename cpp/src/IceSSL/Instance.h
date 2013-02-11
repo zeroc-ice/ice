@@ -39,6 +39,7 @@ public:
     Ice::CommunicatorPtr communicator() const;
     IceInternal::EndpointHostResolverPtr endpointHostResolver() const;
     IceInternal::ProtocolSupport protocolSupport() const;
+    bool preferIPv6() const;
     std::string defaultHost() const;
     Ice::EncodingVersion defaultEncoding() const;
     int networkTraceLevel() const;

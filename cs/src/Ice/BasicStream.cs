@@ -4807,7 +4807,6 @@ namespace IceInternal
             internal override void startInstance(SliceType sliceType, Ice.SlicedData sliceData)
             {
                 _sliceType = sliceType;
-                _firstSlice = true;
             }
 
             internal override void endInstance()
@@ -4853,7 +4852,6 @@ namespace IceInternal
                 _stream.writeInt(0); // Placeholder for the slice length.
 
                 _writeSlice = _stream.pos();
-                _firstSlice = false;
             }
 
             internal override void endSlice()
@@ -4939,7 +4937,6 @@ namespace IceInternal
 
             // Instance attributes
             private SliceType _sliceType;
-            private bool _firstSlice;
 
             // Slice attributes
             private int _writeSlice;        // Position of the slice data members

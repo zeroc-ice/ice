@@ -394,21 +394,22 @@ IceInternal::StreamEndpointI::transceiver(EndpointIPtr& endp) const
 }
 
 vector<ConnectorPtr>
-IceInternal::StreamEndpointI::connectors() const
+IceInternal::StreamEndpointI::connectors(Ice::EndpointSelectionType selType) const
 {
-    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), selType, _instance->preferIPv6(), true));
 }
 
 void
-IceInternal::StreamEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+IceInternal::StreamEndpointI::connectors_async(Ice::EndpointSelectionType selType,
+                                               const EndpointI_connectorsPtr& callback) const
 {
-    callback->connectors(connectors());
+    callback->connectors(connectors(selType));
 }
 
 AcceptorPtr
 IceInternal::StreamEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
-    StreamAcceptor* p = new StreamAcceptor(_instance, _type, _host, _port, _instance->protocolSupport());
+    StreamAcceptor* p = new StreamAcceptor(_instance, _type, _host, _port);
     endp = new StreamEndpointI(_instance, _type, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }

@@ -46,7 +46,7 @@ public:
 
 private:
 
-    StreamAcceptor(const InstancePtr&, Ice::Short, const std::string&, int, ProtocolSupport);
+    StreamAcceptor(const InstancePtr&, Ice::Short, const std::string&, int);
     virtual ~StreamAcceptor();
     friend class StreamEndpointI;
 

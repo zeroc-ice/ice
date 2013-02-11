@@ -392,14 +392,16 @@ namespace IceSSL
         // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override List<IceInternal.Connector> connectors()
+        public override List<IceInternal.Connector> connectors(Ice.EndpointSelectionType selType)
         {
-            return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport()));
+            return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport(), selType,
+                                                               _instance.preferIPv6(), true));
         }
 
-        public override void connectors_async(IceInternal.EndpointI_connectors callback)
+        public override void connectors_async(Ice.EndpointSelectionType selType,
+                                              IceInternal.EndpointI_connectors callback)
         {
-            _instance.endpointHostResolver().resolve(_host, _port, this, callback);
+            _instance.endpointHostResolver().resolve(_host, _port, selType, this, callback);
         }
 
         //

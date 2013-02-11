@@ -15,6 +15,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/Endpoint.h>
+#include <Ice/EndpointTypes.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
@@ -114,11 +115,13 @@ public:
     virtual TransceiverPtr transceiver(EndpointIPtr&) const = 0;
 
     //
-    // Return connectors for this endpoint, or empty vector if no 
-    // connector is available.
+    // Return connectors for this endpoint, or empty vector if no
+    // connector is available. Implementation is responsible for
+    // returning connectors sorted according to the endpoint selection
+    // type.
     //
-    virtual std::vector<ConnectorPtr> connectors() const = 0;
-    virtual void connectors_async(const EndpointI_connectorsPtr&) const = 0;
+    virtual std::vector<ConnectorPtr> connectors(Ice::EndpointSelectionType) const = 0;
+    virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const = 0;
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -188,8 +191,9 @@ public:
 
     EndpointHostResolver(const InstancePtr&);
 
-    std::vector<ConnectorPtr> resolve(const std::string&, int, const EndpointIPtr&);
-    void resolve(const std::string&, int, const EndpointIPtr&, const EndpointI_connectorsPtr&);
+    std::vector<ConnectorPtr> resolve(const std::string&, int, Ice::EndpointSelectionType, const EndpointIPtr&);
+    void resolve(const std::string&, int, Ice::EndpointSelectionType, const EndpointIPtr&, 
+                 const EndpointI_connectorsPtr&);
     void destroy();
 
     virtual void run();
@@ -202,12 +206,15 @@ private:
     {
         std::string host;
         int port;
+        Ice::EndpointSelectionType selType;
         EndpointIPtr endpoint;
         EndpointI_connectorsPtr callback;
         Ice::Instrumentation::ObserverPtr observer;
     };
 
     const InstancePtr _instance;
+    const IceInternal::ProtocolSupport _protocol;
+    const bool _preferIPv6;
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;

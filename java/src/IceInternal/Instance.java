@@ -177,15 +177,16 @@ public final class Instance
         return _objectAdapterFactory;
     }
 
-    public synchronized int
+    public int
     protocolSupport()
     {
-        if(_state == StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
-
         return _protocolSupport;
+    }
+
+    public boolean
+    preferIPv6()
+    {
+        return _preferIPv6;
     }
 
     public synchronized ThreadPool
@@ -760,7 +761,7 @@ public final class Instance
             _proxyFactory = new ProxyFactory(this);
 
             boolean ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-            boolean ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 0) > 0;
+            boolean ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
             if(!ipv4 && !ipv6)
             {
                 throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
@@ -777,6 +778,7 @@ public final class Instance
             {
                 _protocolSupport = Network.EnableIPv6;
             }
+            _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
             _endpointFactoryManager = new EndpointFactoryManager(this);
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
             _endpointFactoryManager.add(tcpEndpointFactory);
@@ -1204,6 +1206,7 @@ public final class Instance
     private ObjectFactoryManager _servantFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private int _protocolSupport;
+    private boolean _preferIPv6;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
     private EndpointHostResolver _endpointHostResolver;

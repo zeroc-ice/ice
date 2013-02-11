@@ -211,7 +211,7 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     _instance(instance),
     _adapterName(adapterName),
     _logger(instance->communicator()->getLogger()),
-    _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport()))
+    _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6()))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET),
     _info(IceInternal::SocketOperationRead)
@@ -223,7 +223,8 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
-    _fd = IceInternal::createSocket(false, _addr);
+    IceInternal::ProtocolSupport protocol = instance->protocolSupport();
+    _fd = IceInternal::createServerSocket(false, _addr, protocol);
 #ifdef ICE_USE_IOCP
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif

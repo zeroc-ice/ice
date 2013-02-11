@@ -493,18 +493,19 @@ namespace IceInternal
         // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public override List<Connector> connectors()
+        public override List<Connector> connectors(Ice.EndpointSelectionType selType)
         {
-            return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport()));
+            return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport(), selType,
+                                                   instance_.preferIPv6(), true));
         }
 
 
-        public override void connectors_async(EndpointI_connectors callback)
+        public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
         {
 #if SILVERLIGHT
-            callback.connectors(connectors());
+            callback.connectors(connectors(selType));
 #else
-            instance_.endpointHostResolver().resolve(_host, _port, this, callback);
+            instance_.endpointHostResolver().resolve(_host, _port, selType, this, callback);
 #endif
         }
         

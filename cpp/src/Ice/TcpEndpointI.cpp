@@ -363,22 +363,21 @@ IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
 }
 
 vector<ConnectorPtr>
-IceInternal::TcpEndpointI::connectors() const
+IceInternal::TcpEndpointI::connectors(EndpointSelectionType selType) const
 {
-    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<TcpEndpointI*>(this));
+    return _instance->endpointHostResolver()->resolve(_host, _port, selType, const_cast<TcpEndpointI*>(this));
 }
 
 void
-IceInternal::TcpEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+IceInternal::TcpEndpointI::connectors_async(EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
 {
-    _instance->endpointHostResolver()->resolve(_host, _port, const_cast<TcpEndpointI*>(this), callback);
+    _instance->endpointHostResolver()->resolve(_host, _port, selType, const_cast<TcpEndpointI*>(this), cb);
 }
 
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
-    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port, _instance->protocolSupport());
-
+    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
     endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }

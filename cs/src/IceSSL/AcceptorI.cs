@@ -161,8 +161,9 @@ namespace IceSSL
 
             try
             {
-                _addr = (IPEndPoint)IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
-                _fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
+                int protocol = instance.protocolSupport();
+                _addr = (IPEndPoint)IceInternal.Network.getAddressForServer(host, port, protocol, instance.preferIPv6());
+                _fd = IceInternal.Network.createServerSocket(false, _addr.AddressFamily, protocol);
                 IceInternal.Network.setBlock(_fd, false);
                 IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);
                 if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)

@@ -361,15 +361,16 @@ IceSSL::EndpointI::transceiver(IceInternal::EndpointIPtr& endp) const
 }
 
 vector<IceInternal::ConnectorPtr>
-IceSSL::EndpointI::connectors() const
+IceSSL::EndpointI::connectors(Ice::EndpointSelectionType selType) const
 {
-    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<EndpointI*>(this));
+    return _instance->endpointHostResolver()->resolve(_host, _port, selType, const_cast<EndpointI*>(this));
 }
 
 void
-IceSSL::EndpointI::connectors_async(const IceInternal::EndpointI_connectorsPtr& callback) const
+IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType, 
+                                    const IceInternal::EndpointI_connectorsPtr& callback) const
 {
-    _instance->endpointHostResolver()->resolve(_host, _port, const_cast<EndpointI*>(this), callback);
+    _instance->endpointHostResolver()->resolve(_host, _port, selType, const_cast<EndpointI*>(this), callback);
 }
 
 IceInternal::AcceptorPtr

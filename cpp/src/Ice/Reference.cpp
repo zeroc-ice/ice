@@ -2041,7 +2041,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-        stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
+         stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
     }
     else
     {

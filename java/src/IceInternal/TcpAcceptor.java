@@ -110,7 +110,7 @@ class TcpAcceptor implements Acceptor
                 //
                 Network.setReuseAddress(_fd, true);
             }
-            _addr = Network.getAddressForServer(host, port, _instance.protocolSupport());
+            _addr = Network.getAddressForServer(host, port, _instance.protocolSupport(), _instance.preferIPv6());
             if(_traceLevels.network >= 2)
             {
                 String s = "attempting to bind to tcp socket " + toString();

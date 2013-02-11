@@ -345,6 +345,7 @@ generated from the section label.
         <property name="Package.[any]" />
         <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
+        <property name="PreferIPv6Address" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
         <property name="PrintStackTraces" />

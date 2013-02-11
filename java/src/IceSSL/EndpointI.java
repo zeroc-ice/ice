@@ -390,15 +390,16 @@ final class EndpointI extends IceInternal.EndpointI
     // is available.
     //
     public java.util.List<IceInternal.Connector>
-    connectors()
+    connectors(Ice.EndpointSelectionType selType)
     {
-        return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport()));
+        return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport(), selType,
+                                                           _instance.preferIPv6()));
     }
 
     public void
-    connectors_async(IceInternal.EndpointI_connectors callback)
+    connectors_async(Ice.EndpointSelectionType selType, IceInternal.EndpointI_connectors callback)
     {
-        _instance.endpointHostResolver().resolve(_host, _port, this, callback);
+        _instance.endpointHostResolver().resolve(_host, _port, selType, this, callback);
     }
 
     //

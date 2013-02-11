@@ -489,6 +489,21 @@ public class AllTests
         test(cm2.sentBytes - cm1.sentBytes == requestSz + bs.length + 4); // 4 is for the seq variable size
         test(cm2.receivedBytes - cm1.receivedBytes == replySz);
         test(sm2.receivedBytes - sm1.receivedBytes == requestSz + bs.length + 4);
+        if(sm2.sentBytes - sm1.sentBytes != replySz)
+        {
+            // On some platforms, it's necessary to wait a little before obtaining the server metrics
+            // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+            // to the operation is sent and getMetricsView can be dispatched before the metric is really
+            // updated.
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch(InterruptedException ex)
+            {
+            }
+            sm2 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+        }
         test(sm2.sentBytes - sm1.sentBytes == replySz);
 
         cm1 = cm2;

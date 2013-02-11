@@ -656,6 +656,12 @@ class Instance
         return _facade.getProtocolSupport();
     }
 
+    boolean
+    preferIPv6()
+    {
+        return _facade.getPreferIPv6();
+    }
+
     Ice.EncodingVersion
     defaultEncoding()
     {

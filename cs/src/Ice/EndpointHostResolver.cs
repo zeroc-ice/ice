@@ -21,6 +21,8 @@ namespace IceInternal
         internal EndpointHostResolver(Instance instance)
         {
             _instance = instance;
+            _protocol = instance.protocolSupport();
+            _preferIPv6 = instance.preferIPv6();
             _thread = new HelperThread(this);
             updateObserver();
             if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
@@ -36,13 +38,13 @@ namespace IceInternal
         }
 
         
-        public List<Connector> resolve(string host, int port, EndpointI endpoint)
+        public List<Connector> resolve(string host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint)
         {
             //
             // Try to get the addresses without DNS lookup. If this doesn't
             // work, we retry with DNS lookup (and observer).
             //
-            List<EndPoint> addrs = Network.getAddresses(host, port, _instance.protocolSupport(), false);
+            List<EndPoint> addrs = Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
             if(addrs.Count > 0)
             {
                 return endpoint.connectors(addrs);
@@ -62,7 +64,8 @@ namespace IceInternal
             List<Connector> connectors = null;
             try 
             {
-                connectors = endpoint.connectors(Network.getAddresses(host, port, _instance.protocolSupport(), true));
+                connectors = endpoint.connectors(Network.getAddresses(host, port, _protocol, selType, _preferIPv6, 
+                                                                      true));
             }
             catch(Ice.LocalException ex)
             {
@@ -82,7 +85,8 @@ namespace IceInternal
             return connectors;
         }
 
-        public void resolve(string host, int port, EndpointI endpoint, EndpointI_connectors callback)
+        public void resolve(string host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint, 
+                            EndpointI_connectors callback)
         {
             //
             // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
@@ -90,7 +94,7 @@ namespace IceInternal
             //
             try
             {
-                List<EndPoint> addrs = Network.getAddresses(host, port, _instance.protocolSupport(), false);
+                List<EndPoint> addrs = Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
                 if(addrs.Count > 0)
                 {
                     callback.connectors(endpoint.connectors(addrs));
@@ -111,6 +115,7 @@ namespace IceInternal
                 ResolveEntry entry = new ResolveEntry();
                 entry.host = host;
                 entry.port = port;
+                entry.selType = selType;
                 entry.endpoint = endpoint;
                 entry.callback = callback;
 
@@ -185,7 +190,6 @@ namespace IceInternal
                     _m.Unlock();
                 }
 
-                int protocol = _instance.protocolSupport();
                 try
                 {
                     if(threadObserver != null)
@@ -194,7 +198,12 @@ namespace IceInternal
                                                     Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                     }
 
-                    r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, r.port, protocol, true)));
+                    r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, 
+                                                                                     r.port, 
+                                                                                     _protocol, 
+                                                                                     r.selType, 
+                                                                                     _preferIPv6, 
+                                                                                     true)));
 
                     if(threadObserver != null)
                     {
@@ -266,12 +275,15 @@ namespace IceInternal
         {
             internal string host;
             internal int port;
+            internal Ice.EndpointSelectionType selType;
             internal EndpointI endpoint;
             internal EndpointI_connectors callback;
             internal Ice.Instrumentation.Observer observer;
         }
 
-        private Instance _instance;
+        private readonly Instance _instance;
+        private readonly int _protocol;
+        private readonly bool _preferIPv6;
         private bool _destroyed;
         private LinkedList<ResolveEntry> _queue = new LinkedList<ResolveEntry>();
         private Ice.Instrumentation.ThreadObserver _observer;

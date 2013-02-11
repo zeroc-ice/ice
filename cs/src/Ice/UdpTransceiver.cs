@@ -856,7 +856,7 @@ namespace IceInternal
             
             try
             {
-                _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
+                _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
 
 #if ICE_SOCKET_ASYNC_API
                 _readEventArgs = new SocketAsyncEventArgs();
@@ -868,7 +868,7 @@ namespace IceInternal
                 _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 #endif
 
-                _fd = Network.createSocket(true, _addr.AddressFamily);
+                _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.protocolSupport());
                 setBufSize(instance);
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);

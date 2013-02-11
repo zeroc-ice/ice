@@ -442,15 +442,15 @@ IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 }
 
 vector<ConnectorPtr>
-IceInternal::UdpEndpointI::connectors() const
+IceInternal::UdpEndpointI::connectors(Ice::EndpointSelectionType selType) const
 {
-    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<UdpEndpointI*>(this));
+    return _instance->endpointHostResolver()->resolve(_host, _port, selType, const_cast<UdpEndpointI*>(this));
 }
 
 void
-IceInternal::UdpEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+IceInternal::UdpEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
 {
-    _instance->endpointHostResolver()->resolve(_host, _port, const_cast<UdpEndpointI*>(this), callback);
+    _instance->endpointHostResolver()->resolve(_host, _port, selType, const_cast<UdpEndpointI*>(this), cb);
 }
 
 AcceptorPtr

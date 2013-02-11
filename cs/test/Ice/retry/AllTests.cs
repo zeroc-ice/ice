@@ -102,7 +102,24 @@ public class AllTests : TestCommon.TestApp
         private Callback callback = new Callback();
     }
 
+
 #if SILVERLIGHT
+    public override Ice.InitializationData initData()
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        //
+        // For this test, we want to disable retries.
+        //
+        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return initData;
+    }
+
     override
     public void run(Ice.Communicator communicator)
 #else

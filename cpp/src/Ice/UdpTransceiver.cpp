@@ -965,7 +965,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(true),
-    _addr(getAddressForServer(host, port, instance->protocolSupport())),
+    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6())),
     _state(connect ? StateNeedConnect : StateNotConnected)
 #ifdef ICE_OS_WINRT
     , _readPending(false)
@@ -975,6 +975,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 #endif
 {
     _fd = createSocket(true, _addr);
+    _fd = createServerSocket(true, _addr, instance->protocolSupport());
     setBufSize(instance);
     setBlock(_fd, false);
 
@@ -1011,7 +1012,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         // address won't be the multicast address and the client will
         // therefore reject the datagram.
         //
-        const_cast<Address&>(_addr) = getAddressForServer("", port, getProtocolSupport(_addr));
+        const_cast<Address&>(_addr) = getAddressForServer("", port, getProtocolSupport(_addr), false);
 #endif
 
         const_cast<Address&>(_addr) = doBind(_fd, _addr);

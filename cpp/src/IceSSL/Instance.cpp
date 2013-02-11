@@ -806,6 +806,12 @@ IceSSL::Instance::protocolSupport() const
     return _facade->getProtocolSupport();
 }
 
+bool
+IceSSL::Instance::preferIPv6() const
+{
+    return _facade->preferIPv6();
+}
+
 string
 IceSSL::Instance::defaultHost() const
 {
