@@ -17,11 +17,11 @@ Building the demo
 
 1. Install mysql if necessary.
 
-2. Download version 5.0.8 of the mysql JDBC connector here:
+2. Download version 5.1.23 of the mysql JDBC connector here:
 
-   http://dev.mysql.com/downloads/connector/j/5.0.html
+   http://dev.mysql.com/downloads/connector/j/5.1.html
 
-   After extracting the archive, add mysql-connector-java-5.0.8-bin.jar
+   After extracting the archive, add mysql-connector-java-5.1.23-bin.jar
    to your CLASSPATH.
 
 3. Create a database named "library" and grant privileges to a user. In
