@@ -32,3 +32,31 @@ $(EVERYTHING)::
 
 test::
 	@python $(top_srcdir)/allTests.py
+
+
+SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
+
+!if "$(SILVERLIGHT)" == "yes"
+register-assembleis::
+	@echo Adding key "$(DOTNET_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(SILVERLIGH_ASSEMBLEIS_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\sl" /f || \
+	echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLEIS_KEY)" && exit 1
+!elseif "$(COMPACT)" == "yes"
+register-assembleis::
+	@echo Adding key "$(POCKETPC_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(POCKETPC_ASSEMBLEIS_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(POCKETPC_ASSEMBLEIS_KEY)" && exit 1
+
+	@echo Adding key "$(SMARTPHONE_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(SMARTPHONE_ASSEMBLEIS_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(SMARTPHONE_ASSEMBLEIS_KEY)" && exit 1
+
+	@echo Adding key "$(WINDOWSCE_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(WINDOWSCE_ASSEMBLEIS_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(WINDOWSCE_ASSEMBLEIS_KEY)" && exit 1
+!else
+register-assembleis::
+	@echo Adding key "$(DOTNET_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(DOTNET_ASSEMBLEIS_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies" /f || \
+	echo "Could not add registry keyword $(DOTNET_ASSEMBLEIS_KEY)" && exit 1
+!endif
