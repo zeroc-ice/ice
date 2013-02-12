@@ -7,7 +7,7 @@ Operating System
 ----------------
 
 Ice is supported on:
- - Solaris 11 for SPARC.
+ - Solaris 11.1 for SPARC.
 
 
 C++ compiler
@@ -22,14 +22,14 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 5.1 or 5.3
+- Berkeley DB 5.3
 - expat 2.0
 - OpenSSL 1.0
 - bzip2 1.0
 - mcpp 2.7.2 (with patches)
 
-All these libraries, with the exception of mcpp, are available from
-pkg.oracle.com.
+All these libraries, with the exception of Berkeley DB and mcpp, are 
+available from pkg.oracle.com.
 
 For more information about these dependencies, please refer to
 the links below:
