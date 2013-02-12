@@ -66,8 +66,11 @@
 #   define ICE_NOEXCEPT_FALSE /**/
 #endif
 
+//
+// Visual Studio 2012 or later, without Windows XP/2003 support
+//
+#if defined(_MSC_VER) && (_MSC_VER >= 1700) && !defined(_USING_V110_SDK71_)
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1700) // Visual Studio 2012 or later
 //
 // Check if building for WinRT
 //
@@ -76,11 +79,13 @@
 #      define ICE_OS_WINRT
 #      define ICE_STATIC_LIBS
 #   endif
+
 //
 // Windows provides native condition variables on Vista and later,
-// and Visual Studio 2012 no longer supports Windows XP or Windows Server 2003.
+// and Visual Studio 2012 with the default Platform Toolset (vc100) no 
+// longer supports Windows XP or Windows Server 2003.
 //
-// You can also "switch-on" this macro to use native condition variables with
+// You can "switch-on" this macro to use native condition variables with
 // other C++ compilers on Windows.
 //
 #   define ICE_HAS_WIN32_CONDVAR 
