@@ -1739,7 +1739,7 @@ namespace IceInternal
                     return;
                 }
 
-                if(_warn)
+                if(_warn && !(ex is Ice.SocketException))
                 {
                     warning(ex);
                 }

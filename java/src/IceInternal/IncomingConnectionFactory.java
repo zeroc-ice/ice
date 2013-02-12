@@ -331,7 +331,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             return;
         }
 
-        if(_warn)
+        if(_warn && !(ex instanceof Ice.SocketException))
         {
             warning(ex);
         }
