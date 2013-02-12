@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("bidir.Web")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ZeroC")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyProduct("bidir.Web")]
-[assembly: AssemblyCopyright("Copyright © ZeroC 2012")]
+[assembly: AssemblyCopyright("Copyright © 2012-2013 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

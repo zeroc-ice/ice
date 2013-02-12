@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("Ice.wpf.client")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyProduct("Ice.wpf.client")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2012 ZeroC, Inc.")]
+[assembly: AssemblyCopyright("Copyright (c) 2003-2013 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("enums")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("ZeroC, Inc.");
 [assembly: AssemblyProduct("enums")]
-[assembly: AssemblyCopyright("Copyright ©  ZeroC 2012")]
+[assembly: AssemblyCopyright("Copyright © 2012-2013 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

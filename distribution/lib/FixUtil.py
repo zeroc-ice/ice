@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -155,7 +155,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
                 else:
                     line = oldLine.replace(match.group(1), replace)
                 #print oldLine + line
-                updated = True
+                updated |= oldLine != line
                 break
         newConfigFile.write(line)
 
@@ -175,7 +175,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
 #
 # Replace all occurences of a regular expression in a file
 #
-def fileMatchAllAndReplace(filename, matchAndReplaceExps):
+def fileMatchAllAndReplace(filename, matchAndReplaceExps, verbose=True):
 
     oldFile = open(filename, "r")
     newFile = open(filename + ".new", "w")
@@ -197,18 +197,23 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps):
             match = regexp.search(line)
             if match != None:
                 oldLine = line
-                line = oldLine.replace(match.group(1), replace)
-                updated = True
+                if len(match.groups()) == 0:
+                    line = oldLine.replace(match.group(), replace)
+                else:
+                    line = oldLine.replace(match.group(1), replace)
+                updated |= oldLine != line
         newFile.write(line)
 
     newFile.close()
     oldFile.close()
 
     if updated:
-        print "updated " + filename
+        if verbose:
+            print "updated " + filename
         os.rename(filename + ".new", filename)
     else:
-        print "warning: " + filename + " didn't contain any match"
+        if verbose:
+            print "warning: " + filename + " didn't contain any match"
         os.unlink(filename + ".new")
 
 def checkVersion(version):

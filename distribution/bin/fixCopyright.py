@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -29,7 +29,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
 
-cpatMatch = "Copyright \\(c\\) 20[0-9][0-9]-(20[0-9][0-9]) ZeroC"
-copyright = "2012"
+cpatMatch = "Copyright .+ 20[0-9][0-9]-(20[0-9][0-9]) ZeroC"
+copyright = "2013"
 for f in FixUtil.getTrackedFiles():
-    FixUtil.fileMatchAndReplace(f, [(cpatMatch, copyright)], False)
+    FixUtil.fileMatchAllAndReplace(f, [(cpatMatch, copyright)], False)
