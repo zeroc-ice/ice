@@ -67,6 +67,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ObjectFactory.obj \
 		  $(ARCH)\$(CONFIG)\Object.obj \
 		  $(ARCH)\$(CONFIG)\Instrumentation.obj \
+		  $(ARCH)\$(CONFIG)\InstrumentationF.obj \
 		  $(ARCH)\$(CONFIG)\ObserverHelper.obj \
 		  $(ARCH)\$(CONFIG)\InstrumentationI.obj \
 		  $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj \

@@ -58,7 +58,7 @@ for line in fileinput.input("-"):
     line = line.replace("/", "\\")
     if line.startswith("Note: including file:"):
         line = line[len("Note: including file:"):].strip()
-        (i, l) = contains (line, ["IceUtil\\", "Ice\\", "Glacier2\\", "Glacier2Lib\\", "IceStorm\\", "IceGrid\\", "IceGridLib\\", "IceStormLib\\"])
+        (i, l) = contains(line, ["IceUtil\\", "Ice\\", "Glacier2\\", "Glacier2Lib\\", "IceStorm\\", "IceGrid\\", "IceGridLib\\", "IceStormLib\\"])
         if i >= 0:
             j = line.find("winrt\\")
             if j < 0:
@@ -67,7 +67,7 @@ for line in fileinput.input("-"):
                     j = i + l
                     line = line[j:]
                     if not line in includes:
-                        print >>dependmak, '"..\\' + line + '"',
+                        print('"..\\' + line + '"', end = " ", file = dependmak)
                         includes.append(line)
                     continue
             if j < 0:
@@ -80,22 +80,22 @@ for line in fileinput.input("-"):
             line = line.replace("cpp\\include\\", "$(includedir)\\")
             line = line.strip()
             if not line in includes:
-                print >>dependmak, '"' + line + '"',
+                print('"' + line + '"', end = " ", file = dependmak)
                 includes.append(line)
     elif line.endswith(".cpp") and not line.endswith(".cpp:"):
         line = "$(ARCH)\\$(CONFIG)\\" + line.replace(".cpp", "$(OBJEXT):") + " " + sys.argv[1]
-        print >>dependmak, line,
+        print(line, end = " ", file = dependmak)
     elif line.find("slice\\") >= 0:
         for s in line.split():
             i = s.find("slice\\")
             if i >= 0:
                 s = "$(slicedir)\\" + s[i + len("slice\\"):]
-                print >>dependmak, '"' + s + '"',
+                print('"' + s + '"', end = " ", file = dependmak)
             elif s.endswith(".cpp:"):
-                print >>dependmak, CPPDIR + "\\" + s,
+                print(CPPDIR + "\\" + s, end = " ", file = dependmak)
             elif s.endswith(".h"):
-                print >>dependmak, HDIR + "\\" + s,
-        print >>dependmak, "\"$(SLICE2CPP)\""
+                print(HDIR + "\\" + s, end = " ", file = dependmak)
+        print("\"$(SLICE2CPP)\"", file = dependmak)
 
-print >>dependmak
+print("", file=dependmak)
 dependmak.close()
