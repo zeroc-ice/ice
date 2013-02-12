@@ -124,21 +124,5 @@ interface FileServer
         throws FileAccessException;
 };
 
-/**
- *
- * The IcePatch administrative interface. This must only be
- * accessible from inside the firewall.
- *
- **/
-interface Admin
-{
-    /**
-     *
-     * Shut down the IcePatch server.
-     *
-     **/
-    void shutdown();
-};
-
 };
 

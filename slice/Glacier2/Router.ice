@@ -160,21 +160,5 @@ interface Router extends Ice::Router
     ["nonmutating", "cpp:const"] idempotent long getSessionTimeout();
 };
 
-/**
- *
- * The Glacier2 administrative interface. This must only be
- * accessible from inside the firewall.
- *
- **/
-interface Admin
-{
-    /**
-     *
-     * Shut down the Glacier2 router.
-     *
-     **/
-    void shutdown();
-};
-
 };
 

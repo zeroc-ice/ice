@@ -186,7 +186,8 @@ FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "IceBox", "Makefile.
 
 for f in FixUtil.find("AssemblyInfo*.cs"):
     if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
-        FixUtil.fileMatchAndReplace(f, [("AssemblyVersion\(\"" + FixUtil.vpatMatch + "\"", newVersion)])
+        FixUtil.fileMatchAndReplace(f, [("AssemblyVersion\(\"" + FixUtil.vpatMatch + "\"", newVersion),
+                                        ("AssemblyFileVersion\(\"" + FixUtil.vpatMatch + "\"", newVersion)])
 
 for f in FixUtil.find("*.pc"):
     FixUtil.fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + FixUtil.vpatMatch, newVersion)], False)

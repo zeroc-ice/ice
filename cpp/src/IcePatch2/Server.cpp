@@ -21,26 +21,6 @@ using namespace IcePatch2;
 namespace IcePatch2
 {
 
-class AdminI : public Admin
-{
-public:
-    
-    AdminI(const CommunicatorPtr& communicator) :
-        _communicator(communicator)
-    {
-    }
-
-    virtual void
-    shutdown(const Current&)
-    {
-        _communicator->shutdown();
-    }
-
-private:
-
-    const CommunicatorPtr _communicator;
-};
-
 class PatcherService : public Service
 {
 public:
@@ -153,12 +133,6 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
     }
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch2");
 
-    ObjectAdapterPtr adminAdapter;
-    if(!properties->getProperty("IcePatch2.Admin.Endpoints").empty())
-    {
-        adminAdapter = communicator()->createObjectAdapter("IcePatch2.Admin");
-    }
-
     const string instanceNameProperty = "IcePatch2.InstanceName";
     string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IcePatch2");
 
@@ -167,19 +141,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
     id.name = "server";
     adapter->add(new FileServerI(dataDir, infoSeq), id);
 
-    if(adminAdapter)
-    {
-        Identity adminId;
-        adminId.category = instanceName;
-        adminId.name = "admin";
-        adminAdapter->add(new AdminI(communicator()), adminId);
-    }
-
     adapter->activate();
-    if(adminAdapter)
-    {
-        adminAdapter->activate();
-    }
 
     return true;
 }
