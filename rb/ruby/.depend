@@ -35,7 +35,7 @@ Ice/InstrumentationF.rb: $(slicedir)/Ice/InstrumentationF.ice
 Ice/Instrumentation.rb: $(slicedir)/Ice/Instrumentation.ice $(slicedir)/Ice/EndpointF.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Version.ice
 Ice/Metrics.rb: $(slicedir)/Ice/Metrics.ice $(slicedir)/Ice/BuiltinSequences.ice
 Glacier2/RouterF.rb: $(slicedir)/Glacier2/RouterF.ice
-Glacier2/Router.rb: $(slicedir)/Glacier2/Router.ice $(slicedir)/Ice/Router.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice
+Glacier2/Router.rb: $(slicedir)/Glacier2/Router.ice $(slicedir)/Ice/Router.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice $(slicedir)/Glacier2/PermissionsVerifier.ice
 Glacier2/Session.rb: $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice
 Glacier2/PermissionsVerifierF.rb: $(slicedir)/Glacier2/PermissionsVerifierF.ice
 Glacier2/PermissionsVerifier.rb: $(slicedir)/Glacier2/PermissionsVerifier.ice $(slicedir)/Glacier2/SSLInfo.ice $(slicedir)/Ice/BuiltinSequences.ice
@@ -54,5 +54,5 @@ IceGrid/Session.rb: $(slicedir)/IceGrid/Session.ice $(slicedir)/Glacier2/Session
 IceGrid/UserAccountMapper.rb: $(slicedir)/IceGrid/UserAccountMapper.ice
 IcePatch2/FileInfo.rb: $(slicedir)/IcePatch2/FileInfo.ice $(slicedir)/Ice/BuiltinSequences.ice
 IcePatch2/FileServer.rb: $(slicedir)/IcePatch2/FileServer.ice $(slicedir)/IcePatch2/FileInfo.ice $(slicedir)/Ice/BuiltinSequences.ice
-IceStorm/IceStorm.rb: $(slicedir)/IceStorm/IceStorm.ice $(slicedir)/Ice/SliceChecksumDict.ice
+IceStorm/IceStorm.rb: $(slicedir)/IceStorm/IceStorm.ice $(slicedir)/Ice/SliceChecksumDict.ice $(slicedir)/IceStorm/Metrics.ice $(slicedir)/Ice/Metrics.ice $(slicedir)/Ice/BuiltinSequences.ice
 IceStorm/Metrics.rb: $(slicedir)/IceStorm/Metrics.ice $(slicedir)/Ice/Metrics.ice $(slicedir)/Ice/BuiltinSequences.ice
