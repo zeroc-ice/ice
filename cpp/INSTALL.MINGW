@@ -6,7 +6,7 @@ This file describes the Ice source distribution, including information
 about compiler requirements, third-party dependencies, and
 instructions for building and testing the distribution.
 
-  http://www.zeroc.com/downloadhtml
+  http://www.zeroc.com/download.html
 
 MinGW is only supported for building the Ice extension for Ruby. It is
 not supported for general application development.
