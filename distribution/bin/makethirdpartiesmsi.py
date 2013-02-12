@@ -15,7 +15,7 @@ import textwrap
 resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "src", "windows")
 sys.path.append(resources)
 
-iceVersion = '3.5b'
+iceVersion = '3.5.0'
 
 #
 # Current default third party library versions.

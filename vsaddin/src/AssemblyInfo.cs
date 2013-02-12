@@ -21,7 +21,7 @@ using System.Resources;
 [assembly: AssemblyCopyright("Copyright (c) 2003-2013 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("3.5.51")]
+[assembly: AssemblyVersion("3.5.0")]
 [assembly: AssemblyDelaySign(false)]
 [assembly: ComVisible(false)]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
