@@ -27,6 +27,9 @@ Changes since version 3.5b
 General Changes
 ===============
 
+- Fixed a bug where the CtrlCHandler destruction would cause a
+  segfault on some recent Linux distributions with GCC 4.7.
+
 - IPv6 is now enabled by default. A server listening on an endpoint
   with the wildcard address will therefore now accept connections from
   both IPv4 and IPv6 clients. It will also publish endpoints with IPv6
@@ -162,6 +165,14 @@ Changes since version 3.4.2
 
 General Changes
 ===============
+
+- The Ice::ConnectionInfo class supports an additional connectionId
+  field. This ID matches the connection ID set on a proxy with the
+  ice_connectionId proxy method.
+
+- The Ice::UDPEndpointInfo class no longer supports encoding and
+  protocol version members. These members have been deprecated with
+  the 1.1 encoding.
 
 - Added support for TLS 1.1 and TLS 1.2 in IceSSL for C++ and Java.
 
