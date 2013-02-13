@@ -126,7 +126,6 @@ public:
         // be set to the IP addresse of the host running the SSL
         // server.
         //
-        args.push_back("--Ice.Default.Host=127.0.0.1");
         args.push_back("--Ice.NullHandleAbort=1");
         args.push_back("--Ice.Warn.Connections=1");
         //args.push_back("--Ice.Trace.Network=2");
@@ -140,7 +139,15 @@ public:
         if(_config.ipv6)
         {
             args.push_back("--Ice.Default.Host=0:0:0:0:0:0:0:1");
+            args.push_back("--Ice.IPv4=1");
             args.push_back("--Ice.IPv6=1");
+            args.push_back("--Ice.PreferIPv6Address=1");
+        }
+        else
+        {
+            args.push_back("--Ice.Default.Host=127.0.0.1");
+            args.push_back("--Ice.IPv4=1");
+            args.push_back("--Ice.IPv6=0");
         }
 
         if(_config.type != TestConfigTypeClient)
