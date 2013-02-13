@@ -1283,7 +1283,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         Ice::LocatorPrx slave3Locator = 
             Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Slave3 -e 1.0:default -p 12053"));
         IceGrid::AdminPrx slave3Admin = createAdminSession(slave3Locator, "Slave3");
-        test(slave3Admin->pingNode("Node2"));
+        waitForNodeState(slave3Admin, "Node2", true);
 
         ApplicationDescriptor app;
         app.name = "TestApp";
