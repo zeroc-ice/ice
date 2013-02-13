@@ -18,13 +18,6 @@ IceStorm.TopicManager.Endpoints=default -h localhost -p 10000
 IceStorm.Publish.Endpoints=tcp -h localhost -p 10001:udp -h localhost -p 10001
 
 #
-# IceStorm SQL configuration if using SQL database.
-#
-#Ice.Plugin.DB=IceStormSqlDB:createSqlDB
-#IceStorm.SQL.DatabaseType=QSQLITE
-#IceStorm.SQL.DatabaseName=db/IceStorm.db
-
-#
 # TopicManager Tracing
 #
 # 0 = no tracing
