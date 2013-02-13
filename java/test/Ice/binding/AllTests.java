@@ -901,7 +901,8 @@ public class AllTests
             serverProps.add(anyboth);
             serverProps.add(localipv4);
             serverProps.add(localipv6);
-        
+
+            boolean ipv6NotSupported = false;
             for(Ice.Properties p : serverProps)
             {
                 Ice.InitializationData serverInitData = new Ice.InitializationData();
@@ -919,6 +920,10 @@ public class AllTests
                 }
                 catch(Ice.SocketException ex)
                 {
+                    if(p == ipv6)
+                    {
+                        ipv6NotSupported = true;
+                    }
                     continue; // IP version not supported.
                 }
 
@@ -950,6 +955,7 @@ public class AllTests
                     {
                         test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
                              (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
+                             (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
                              (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
                              (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4));
                         continue;

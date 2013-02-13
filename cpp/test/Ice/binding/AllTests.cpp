@@ -846,6 +846,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         serverProps.push_back(localipv4);
         serverProps.push_back(localipv6);
         
+        bool ipv6NotSupported = false;
         for(vector<Ice::PropertiesPtr>::const_iterator p = serverProps.begin(); p != serverProps.end(); ++p)
         {
             Ice::InitializationData serverInitData;
@@ -863,6 +864,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
             catch(const Ice::SocketException&)
             {
+                if(*p == ipv6)
+                {
+                    ipv6NotSupported = true;
+                }
                 continue; // IP version not supported.
             }
 
@@ -894,6 +899,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     test((*p == ipv4 && *q == ipv6) || (*p == ipv6 && *q == ipv4) ||
                          (*p == bothPreferIPv4 && *q == ipv6) || (*p == bothPreferIPv6 && *q == ipv4) ||
+                         (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) ||
                          (*p == anyipv4 && *q == ipv6) || (*p == anyipv6 && *q == ipv4) ||
                          (*p == localipv4 && *q == ipv6) || (*p == localipv6 && *q == ipv4));
                     continue;
