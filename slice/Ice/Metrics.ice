@@ -12,11 +12,17 @@
 module IceMX
 {
 
+/**
+ *
+ * A dictionnary of strings to integers.
+ *
+ **/
 dictionary<string, int> StringIntDict;
 
 /**
  *
- * The base class for metrics.
+ * The base class for metrics. A metrics object represents a
+ * collection of measurements associated to a given a system.
  *
  **/ 
 class Metrics
@@ -58,11 +64,18 @@ class Metrics
     int failures = 0;
 };
 
+/**
+ *
+ * A structure to keep track of failures associated with a given
+ * metrics.
+ *
+ **/
 struct MetricsFailures
 {
     /**
      *
-     * The metrics id.
+     * The identifier of the metrics object associated to the
+     * failures.
      *
      **/
     string id;
@@ -74,6 +87,12 @@ struct MetricsFailures
      **/
     StringIntDict failures;
 };
+
+/**
+ *
+ * A sequence of {@link MetricsFailures}.
+ *
+ **/
 sequence<MetricsFailures> MetricsFailuresSeq;
 
 /**
@@ -103,10 +122,12 @@ exception UnknownMetricsView
 {
 };
 
-
 /**
  *
- * The MetricsAdmin facet interface.
+ * The metrics administrative facet interface. This interface allows
+ * remote administrative clients to access metrics of an application
+ * that enabled the Ice administrative facility and configured some
+ * metrics views.
  *
  **/ 
 interface MetricsAdmin
@@ -127,6 +148,9 @@ interface MetricsAdmin
      * Enables a metrics view.
      *
      * @param name The metrics view name.
+     * 
+     * @throws UnknownMetricsView Raised if the metrics view cannot be
+     * found.
      *
      **/
     void enableMetricsView(string name)
@@ -137,6 +161,9 @@ interface MetricsAdmin
      * Disable a metrics view.
      *
      * @param name The metrics view name.
+     * 
+     * @throws UnknownMetricsView Raised if the metrics view cannot be
+     * found.
      *
      **/
     void disableMetricsView(string name)
@@ -145,12 +172,12 @@ interface MetricsAdmin
     /**
      *
      * Get the metrics objects for the given metrics view. This
-     * returns a map of metric maps for each metrics class configured
-     * with the view. The timestamp allows the client to compute
-     * averages which are not dependent of the invocation latency for
-     * this operation.
+     * returns a dictionnary of metric maps for each metrics class
+     * configured with the view. The timestamp allows the client to
+     * compute averages which are not dependent of the invocation
+     * latency for this operation.
      *
-     * @param view The name of the metrics view to retrieve.
+     * @param view The name of the metrics view.
      *
      * @param timestamp The local time of the process when the metrics
      * object were retrieved.
@@ -203,22 +230,23 @@ interface MetricsAdmin
 
 /**
  *
- * Thread metrics.
+ * Thread metrics. A thread metrics provides information on the number
+ * of threads currently in use and their activity.
  *
  **/
 class ThreadMetrics extends Metrics
 {
     /**
      *
-     * Number of threads which are currently performing socket read or
-     * writes.
+     * The number of threads which are currently performing socket
+     * read or writes.
      *
      **/
     int inUseForIO = 0;
 
     /**
      *
-     * Number of threads which are currently calling user code
+     * The number of threads which are currently calling user code
      * (servant dispatch, AMI callbacks, etc).
      *
      **/
@@ -226,50 +254,68 @@ class ThreadMetrics extends Metrics
     
     /**
      *
-     * Number of threads which are currently performing other
-     * activities than the activities listed above (among others, this
-     * is for example DNS lookups, garbage collection).
+     * The number of threads which are currently performing other
+     * activities. These are all other that are not counted with
+     * {@link inUseForUser} or {@link inUseForIO}, such as DNS
+     * lookups, garbage collection).
      *
      **/
     int inUseForOther = 0;
 };
 
+/**
+ *
+ * Dispatch metrics. A dispatch metrics provides information on
+ * servant dispatch, such as the size of the dispatch and its reply.
+ * 
+ **/
 class DispatchMetrics extends Metrics
 {
     /**
      *
-     * Number of dispatch that failed with a user exception.
+     * The number of dispatch that failed with a user exception.
      *
      **/
     int userException = 0;
 
     /**
      *
-     * The size of the dispatch.
+     * The size of the dispatch. This corresponds to the size of the
+     * marshalled input parameters.
      *
      **/
     long size = 0;
 
     /**
      *
-     * The size of the dispatch reply.
+     * The size of the dispatch reply. This corresponds to the size of
+     * the marshalled output and return parameters.
      *
      **/
     long replySize = 0;
 };
 
+/**
+ *
+ * Remote metrics. Remote metrics are embedded within {@link
+ * InvocationMetrics} and provide information on invocations that are
+ * specifically sent over Ice connections.
+ *
+ **/
 class RemoteMetrics extends Metrics
 {
     /**
      *
-     * The size of the invocation.
+     * The size of the invocation. This corresponds to the size of the
+     * marshalled input parameters.
      *
      **/
     long size = 0;
 
     /**
      *
-     * The size of the invocation reply.
+     * The size of the invocation reply. This corresponds to the size
+     * of the marshalled output and return parameters.
      * 
      **/
     long replySize = 0;
@@ -277,28 +323,33 @@ class RemoteMetrics extends Metrics
 
 /**
  *
- * Invocation metrics.
+ * Invocation metrics. Invocation metrics provide measurements for
+ * proxy invocation which can either be sent over the wire or
+ * collocated. The metrics for invocations sent over the wire are
+ * specifically measured with remote metrics.
  *
  **/
 class InvocationMetrics extends Metrics
 {
     /**
      *
-     * Number of retries.
+     * The number of retries for the invocation(s).
      *
      **/
     int retry = 0;
 
     /**
      *
-     * Number of invocations that failed with a user exception.
+     * The number of invocations that failed with a user exception.
      *
      **/
     int userException = 0;
 
     /**
      *
-     * Remote invocations metrics map.
+     * The remote invocation metrics map.
+     *
+     * @see RemoteMetrics
      *
      **/
     MetricsMap remotes;
@@ -306,7 +357,8 @@ class InvocationMetrics extends Metrics
 
 /**
  *
- * Connection metrics.
+ * Connection metrics. It measures the data sent and received over Ice
+ * connections.
  *
  **/
 class ConnectionMetrics extends Metrics

@@ -99,9 +99,9 @@ local enum ThreadState
 
 /**
  *
- * The Ice thread observer interface to instrument Ice threads. This
- * can be threads from the Ice thread pool or utility threads used by
- * the Ice core.
+ * The thread observer interface to instrument Ice threads. This can
+ * be threads from the Ice thread pool or utility threads used by the
+ * Ice core.
  * 
  **/
 local interface ThreadObserver extends Observer
@@ -166,8 +166,7 @@ local enum ConnectionState
 
 /**
  *
- * The Ice connection observer interface to instrument Ice
- * connections.
+ * The connection observer interface to instrument Ice connections.
  * 
  **/
 local interface ConnectionObserver extends Observer
@@ -193,7 +192,7 @@ local interface ConnectionObserver extends Observer
 
 /**
  *
- * The dispatch observer.
+ * The dispatch observer to instrument servant dispatch.
  *
  **/
 local interface DispatchObserver extends Observer
@@ -217,7 +216,8 @@ local interface DispatchObserver extends Observer
 
 /**
  *
- * The remote invocation observer.
+ * The remote invocation observer to instrument invocations that go
+ * over the wire.
  *
  **/
 local interface RemoteObserver extends Observer
@@ -226,13 +226,18 @@ local interface RemoteObserver extends Observer
      *
      * Reply notification.
      *
+     * @param size The size of the reply.
+     *
      **/
     void reply(int size);
 };
 
 /**
  *
- * The invocation observer.
+ * The invocation observer to instrument invocations on proxies. A
+ * proxy invocation can either result in a collocated or remote
+ * invocation. If it results in a remote invocation, a sub-observer is
+ * requested for the remote invocation.
  *
  **/
 local interface InvocationObserver extends Observer
@@ -263,19 +268,24 @@ local interface InvocationObserver extends Observer
      *
      * @param size The size of the invocation.
      *
+     * @return The observer to instrument the remote invocation.
+     *
      **/
     RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint endpt, int requestId, int size);
 };
 
 /**
  *
- * The ObserverUpdater interface is implemented by the Ice run-time
- * and an instance of this interface is provided by the Ice
- * communicator on initialization to the CommunicatorObserver object
- * set with the communicator initialization data.
+ * The observer updater interface. This interface is implemented by
+ * the Ice run-time and an instance of this interface is provided by
+ * the Ice communicator on initialization to the {@link
+ * CommunicatorObserver} object set with the communicator
+ * initialization data. The Ice communicator calls {@link
+ * CommunicatorObserver#setObserverUpdater} to provide the observer
+ * updater.
  *
- * This interface can be used by add-ins implementing the
- * CommunicatorObserver interface to update the observers of
+ * This interface can be used by add-ins implementing the {@link
+ * CommunicatorObserver} interface to update the observers of
  * connections and threads.
  *
  **/
@@ -287,7 +297,7 @@ local interface ObserverUpdater
      * connection from the communicator and its object adapters.
      *
      * When called, this method goes through all the connections and
-     * for each connection CommunicatorObserver::getConnectionObserver
+     * for each connection {@link CommunicatorObserver#getConnectionObserver}
      * is called. The implementation of getConnectionObserver has the
      * possibility to return an updated observer if necessary.
      * 
@@ -300,7 +310,7 @@ local interface ObserverUpdater
      * from the communicator and its object adapters.
      *
      * When called, this method goes through all the threads and for
-     * each thread CommunicatorObserver::getThreadObserver is
+     * each thread {@link CommunicatorObserver#getThreadObserver} is
      * called. The implementation of getThreadObserver has the
      * possibility to return an updated observer if necessary.
      * 
@@ -331,6 +341,8 @@ local interface CommunicatorObserver
      * @param connector The description of the connector. For IP
      * transports, this is typically the IP address to connect to.
      *
+     * @return The observer to instrument the connection establishment.
+     *
      **/
     Observer getConnectionEstablishmentObserver(Endpoint endpt, string connector);
 
@@ -345,6 +357,8 @@ local interface CommunicatorObserver
      *
      * @param endpt The endpoint.
      *
+     * @return The observer to instrument the endpoint lookup.
+     *
      **/
     Observer getEndpointLookupObserver(Endpoint endpt);
 
@@ -353,18 +367,18 @@ local interface CommunicatorObserver
      * This method should return a connection observer for the given
      * connection. The Ice run-time calls this method for each new
      * connection and for all the Ice communicator connections when
-     * ObserverUpdater::updateConnections is called.
+     * {@link ObserverUpdater#updateConnections} is called.
      *
      * @param c The connection information.
      *
      * @param e The connection endpoint.
      *
-     * @param s The state of the connection
+     * @param s The state of the connection.
      *
      * @param o The old connection observer if one is already set or a
      * null reference otherwise.
      *
-     * @return The connection observer object.
+     * @return The connection observer to instrument the connection.
      *
      **/
     ConnectionObserver getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver o);
@@ -374,18 +388,18 @@ local interface CommunicatorObserver
      * This method should return a thread observer for the given
      * thread. The Ice run-time calls this method for each new thread
      * and for all the Ice communicator threads when
-     * ObserverUpdater::updateThreads is called.
+     * {@link ObserverUpdater#updateThreads} is called.
      *
      * @param parent The parent of the thread.
      *
-     * @param id The ID of the thread to observe
+     * @param id The ID of the thread to observe.
      *
-     * @param s The state of the thread
+     * @param s The state of the thread.
      *
      * @param o The old thread observer if one is already set or a
      * null reference otherwise.
      *
-     * @return The thread observer object.
+     * @return The thread observer to instrument the thread.
      *
      **/
     ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver o);
@@ -396,13 +410,13 @@ local interface CommunicatorObserver
      * invocation. The Ice run-time calls this method for each new
      * invocation on a proxy.
      *
-     * @param prx The proxy used for the invocation
+     * @param prx The proxy used for the invocation.
      *
-     * @param operation The name of the invocation
+     * @param operation The name of the invocation.
      *
-     * @param ctx The context specified by the user
+     * @param ctx The context specified by the user.
      *
-     * @return The invocation observer object.
+     * @return The invocation observer to instrument the invocation.
      *
      **/
     InvocationObserver getInvocationObserver(Object* prx, string operation, Context ctx);
@@ -414,12 +428,12 @@ local interface CommunicatorObserver
      * receives an incoming invocation to be dispatched for an Ice
      * object.
      *
-     * @param c The Ice::Current object as provided to the Ice
-     * servant dispatching the invocation.
+     * @param c The current object as provided to the Ice servant
+     * dispatching the invocation.
      *
      * @param size The size of the dispatch.
      *
-     * @return The observer object.
+     * @return The dispatch observer to instrument the dispatch.
      *
      **/
     DispatchObserver getDispatchObserver(Current c, int size); 
