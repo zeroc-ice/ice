@@ -29,6 +29,7 @@ bzip2 = { \
 
 berkeleydb = { \
     'Darwin' : '/opt/db', \
+    'SunOS'  : '/opt/db', \
 }
 
 berkeleydbjar = { \
@@ -547,7 +548,10 @@ class ThirdParty :
         # Get the location of the third party dependency. We first check if the environment
         # variable (e.g.: DB_HOME) is set, if not we use the platform specific location.
         #
-        self.location = os.environ.get(self.buildEnv, platform.getLocation(locations))
+
+        self.defaultLocation = platform.getLocation(locations)
+        self.location = os.environ.get(self.buildEnv, self.defaultLocation)
+
 
         if self.location and os.path.islink(self.location):
             self.location = os.path.normpath(os.path.join(os.path.dirname(self.location), os.readlink(self.location)))
@@ -605,7 +609,7 @@ class ThirdParty :
 
     def includeInDistribution(self):
         # Only copy third party files installed in /opt
-        return self.location and self.location.startswith("/opt")
+        return self.defaultLocation and self.defaultLocation.startswith("/opt")
 
     def copyToDistribution(self, platform, buildDir):
         if not self.location:
@@ -900,12 +904,13 @@ class BerkeleyDB(ThirdParty):
                 return os.path.join(self.location, "lib", "db.jar")
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
-        files = [ os.path.join(bindir, "db_*") ]
+        files = [ os.path.join(bindir, "db*") ]
         if not x64:
             files += [ os.path.join(libdir, "db.jar") ]
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
         files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"), "jnilib")
         return files
+
 
 class Bzip2(ThirdParty):
     def __init__(self, platform):
