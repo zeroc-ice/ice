@@ -23,6 +23,9 @@
 //
 #if defined(__MINGW32__)
 #   define _WIN32_WINNT 0x0501
+#   ifndef IPV6_V6ONLY
+#       define IPV6_V6ONLY 27
+#   endif
 #endif
 
 #include <IceUtil/DisableWarnings.h>
