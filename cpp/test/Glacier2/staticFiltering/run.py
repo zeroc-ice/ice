@@ -319,8 +319,8 @@ for testcase in testcases:
     # it is set to loopback.
     #
     routerDriver = TestUtil.DriverConfig("server")
-    if routerDriver.host == "127.0.0.1":
-        routerDriver.host = None
+    if routerDriver.host == None:
+        routerDriver.host = ""
     routerDriver.overrides = commonServerOptions + routerArgs
     
     starterProc = TestUtil.startServer(router, config=routerDriver, count=2)
@@ -335,8 +335,8 @@ for testcase in testcases:
         serverOptions = ""
 
     serverDriver = TestUtil.DriverConfig("server")
-    if serverDriver.host == "127.0.0.1":
-        serverDriver.host = None
+    if serverDriver.host == None:
+        serverDriver.host = ""
     serverDriver.overrides = commonServerOptions
     serverProc = TestUtil.startServer(serverCmd, serverOptions, serverDriver)
     pingProgress()
@@ -349,8 +349,8 @@ for testcase in testcases:
     # failure will result in an assertion and the test will abort.
     #
     clientDriver = TestUtil.DriverConfig("client")
-    if clientDriver.host == "127.0.0.1":
-        clientDriver.host = None
+    if clientDriver.host == None:
+        clientDriver.host = ""
     clientDriver.host = commonClientOptions
     clientArgs = ' --Ice.Config="%s"' % os.path.join(os.getcwd(), 'attack.cfg')
     clientProc = TestUtil.startClient(clientCmd, clientArgs, clientDriver)
