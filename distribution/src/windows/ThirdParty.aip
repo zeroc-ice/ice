@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="9.7" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="9.9" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="32767" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="2" ColumnIndex="7" ColumnSize="2" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="32767" Description="File sequence number for the last file for this media." Options="0" ColumnType="2" ColumnIndex="1" ColumnSize="2" MsiKey="Media#LastSequence"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
-    <ROW Property="AI_PRODUCTNAME_ARP" Value="Ice 3.5 Third Party Packages"/>
+    <ROW Property="AI_PRODUCTNAME_ARP" Value="[|ProductName]"/>
     <ROW Property="AI_ThemeStyle" Value="default" MsiKey="AI_ThemeStyle"/>
     <ROW Property="AI_UNINSTALLER" Value="msiexec.exe"/>
     <ROW Property="AI_UPGRADE" Value="No"/>
@@ -26,10 +26,10 @@
     <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="Manufacturer" Value="Zeroc, Inc" ValueLocId="*"/>
     <ROW Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
-    <ROW Property="ProductCode" Value="1033:{E8F09560-2AB1-4DAB-8E46-B4D74DF9FE71} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{73777D6D-98A0-4644-B1C9-3DA16ADABA74} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
-    <ROW Property="ProductName" Value="Ice 3.5 Third Party Packages" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="3.5" Type="32"/>
+    <ROW Property="ProductName" Value="Ice 3.5.0 Third Party Packages" ValueLocId="*"/>
+    <ROW Property="ProductVersion" Value="3.5.0" Type="32"/>
     <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
@@ -55,122 +55,122 @@
     <ROW Directory="x64_Dir" Directory_Parent="vc110_Dir" DefaultDir="x64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="AI_CustomARPName" ComponentId="{0A663383-C42D-40D8-AD9C-81DE1149D554}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
-    <ROW Component="InstallDir" ComponentId="{E8EADA76-73DD-4058-88D3-48041AE8D5C8}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
-    <ROW Component="SOURCES" ComponentId="{4A00AD90-1640-41FB-B253-344C68E196DD}" Directory_="APPDIR" Attributes="0" KeyPath="README.txt" Type="0"/>
-    <ROW Component="aes.h" ComponentId="{385C8625-C252-4ACD-87EC-49AA54609503}" Directory_="openssl_Dir" Attributes="0" KeyPath="aes.h" Type="0"/>
-    <ROW Component="bzip2.dll" ComponentId="{A265C4BF-26C0-415B-8E6E-A202D4E685C5}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2.dll"/>
-    <ROW Component="bzip2.dll_1" ComponentId="{626CB4E6-0311-4D13-B1CC-5DDFC4DCF555}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2.dll_1"/>
-    <ROW Component="bzip2.dll_2" ComponentId="{CDB2140C-FDD2-4854-9DBE-3CBB4E5B62EB}" Directory_="vc110_Dir" Attributes="0" KeyPath="bzip2.dll_2"/>
-    <ROW Component="bzip2.dll_3" ComponentId="{6AD062E7-0A34-4574-A8C2-CFE7C751185F}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2.dll_3"/>
-    <ROW Component="bzip2_mingw.dll" ComponentId="{120FE5DD-75A2-44AD-8508-F354FEE1BC57}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_mingw.dll"/>
-    <ROW Component="bzip2_vc90.dll" ComponentId="{6A89320A-0437-4243-AA84-BD3757DAF8BE}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc90.dll"/>
-    <ROW Component="bzip2_vc90d.dll" ComponentId="{4C18772E-892B-459C-81A9-1C05E1E7E3B2}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc90d.dll"/>
-    <ROW Component="bzip2d.dll" ComponentId="{CBF25764-4338-4C90-88C8-A0D1B46C0D05}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2d.dll"/>
-    <ROW Component="bzip2d.dll_1" ComponentId="{E6C2E8DB-96B6-407B-8697-47E2D7BA3CCF}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2d.dll_1"/>
-    <ROW Component="bzip2d.dll_2" ComponentId="{14E19360-76F6-47C5-8C07-6E6DD79FF680}" Directory_="vc110_Dir" Attributes="0" KeyPath="bzip2d.dll_2"/>
-    <ROW Component="bzip2d.dll_3" ComponentId="{E5FA7AC3-9D5C-49DD-95AD-8F459CA3DE19}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2d.dll_3"/>
-    <ROW Component="bzlib.h" ComponentId="{ECE51671-18E8-433E-9BFF-FD264065C908}" Directory_="include_Dir" Attributes="0" KeyPath="bzlib.h" Type="0"/>
-    <ROW Component="db.jar" ComponentId="{8099A10F-E44B-41AB-9268-09728609EBC7}" Directory_="lib_DIR" Attributes="0" KeyPath="db.jar" Type="0"/>
-    <ROW Component="db_archive.exe" ComponentId="{70011A28-0FB7-47C8-A42D-289DD03110CF}" Directory_="bin_DIR" Attributes="0" KeyPath="db_archive.exe"/>
-    <ROW Component="db_archive.exe_1" ComponentId="{4BD9F3F4-DCF6-4FDE-835B-2E9E5316E0D9}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_archive.exe_1"/>
-    <ROW Component="db_archive.exe_2" ComponentId="{A5E26431-BF62-4669-9003-2E492BC5F7D9}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_archive.exe_2"/>
-    <ROW Component="db_archive.exe_3" ComponentId="{4C3A64F5-22BF-4A78-96B8-E4A687D1F0F2}" Directory_="x64_Dir" Attributes="256" KeyPath="db_archive.exe_3"/>
-    <ROW Component="db_checkpoint.exe" ComponentId="{A0E94E16-827B-4A80-860E-D1A9569930F4}" Directory_="bin_DIR" Attributes="0" KeyPath="db_checkpoint.exe"/>
-    <ROW Component="db_checkpoint.exe_1" ComponentId="{7DFA5AF2-96BD-4724-A587-190DD1A9C15B}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
-    <ROW Component="db_checkpoint.exe_2" ComponentId="{75C518FA-F239-4F4A-9F77-E4B6E9FA34E6}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_checkpoint.exe_2"/>
-    <ROW Component="db_checkpoint.exe_3" ComponentId="{82FCC121-110F-4121-BC0E-6F2F51BCC3C1}" Directory_="x64_Dir" Attributes="256" KeyPath="db_checkpoint.exe_3"/>
-    <ROW Component="db_deadlock.exe" ComponentId="{0BAB1E7F-7A34-4394-8C64-CBED7ED79EDA}" Directory_="bin_DIR" Attributes="0" KeyPath="db_deadlock.exe"/>
-    <ROW Component="db_deadlock.exe_1" ComponentId="{6EDA2F53-A607-4965-9F0F-2C509FECDEF4}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_deadlock.exe_1"/>
-    <ROW Component="db_deadlock.exe_2" ComponentId="{908A65DE-BCF9-496D-8D69-D12BD456E0C0}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_deadlock.exe_2"/>
-    <ROW Component="db_deadlock.exe_3" ComponentId="{11FE22BA-15B5-4B61-8D67-EB0FB16AC28B}" Directory_="x64_Dir" Attributes="256" KeyPath="db_deadlock.exe_3"/>
-    <ROW Component="db_dump.exe" ComponentId="{DBB4E726-EE62-4E0F-855D-0CC70E6DB85F}" Directory_="bin_DIR" Attributes="0" KeyPath="db_dump.exe"/>
-    <ROW Component="db_dump.exe_1" ComponentId="{CFA55F65-1082-4B57-B8C3-709C13CE8737}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_dump.exe_1"/>
-    <ROW Component="db_dump.exe_2" ComponentId="{F6237742-30BA-4A53-A01B-17B4EFBBCF27}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_dump.exe_2"/>
-    <ROW Component="db_dump.exe_3" ComponentId="{DCFC1DD1-823A-4805-9F0A-05F2965BF419}" Directory_="x64_Dir" Attributes="256" KeyPath="db_dump.exe_3"/>
-    <ROW Component="db_hotbackup.exe" ComponentId="{C7D91CA0-A1A9-4802-A0E6-2DE1A55CE657}" Directory_="bin_DIR" Attributes="0" KeyPath="db_hotbackup.exe"/>
-    <ROW Component="db_hotbackup.exe_1" ComponentId="{FB21F075-A524-4ED2-9F8E-2611B657E424}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
-    <ROW Component="db_hotbackup.exe_2" ComponentId="{04E5349B-713A-4E66-A617-ED6F9AC5FF69}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_hotbackup.exe_2"/>
-    <ROW Component="db_hotbackup.exe_3" ComponentId="{1FFAD334-2248-4FA7-BB7F-1F635DE4FCDA}" Directory_="x64_Dir" Attributes="256" KeyPath="db_hotbackup.exe_3"/>
-    <ROW Component="db_load.exe" ComponentId="{657CBE37-79BD-415B-A6F0-CA195F077F6A}" Directory_="bin_DIR" Attributes="0" KeyPath="db_load.exe"/>
-    <ROW Component="db_load.exe_1" ComponentId="{0915A289-AEDF-4FBB-AA77-039B7EC012B9}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_load.exe_1"/>
-    <ROW Component="db_load.exe_2" ComponentId="{539BB794-3E71-4AB4-993B-137EE5EFE86E}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_load.exe_2"/>
-    <ROW Component="db_load.exe_3" ComponentId="{3394F31F-0DB1-4403-A733-E8446465A745}" Directory_="x64_Dir" Attributes="256" KeyPath="db_load.exe_3"/>
-    <ROW Component="db_log_verify.exe" ComponentId="{8C1A0F2C-29A9-432C-A5DC-385380644E2C}" Directory_="bin_DIR" Attributes="0" KeyPath="db_log_verify.exe"/>
-    <ROW Component="db_log_verify.exe_1" ComponentId="{8C064DF1-F3E5-4DDE-BF3D-22CDEDECFFE4}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_log_verify.exe_1"/>
-    <ROW Component="db_log_verify.exe_2" ComponentId="{04E0D846-94E1-43BF-8C3C-C35330FCD73B}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_log_verify.exe_2"/>
-    <ROW Component="db_log_verify.exe_3" ComponentId="{B0FB944E-8556-4F42-A698-D70A56888940}" Directory_="x64_Dir" Attributes="256" KeyPath="db_log_verify.exe_3"/>
-    <ROW Component="db_printlog.exe" ComponentId="{18D6A5F7-4565-4443-B7C6-7C73BAC40527}" Directory_="bin_DIR" Attributes="0" KeyPath="db_printlog.exe"/>
-    <ROW Component="db_printlog.exe_1" ComponentId="{F7BB5C48-4259-4CCB-BAC8-64AAD3BD81AA}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_printlog.exe_1"/>
-    <ROW Component="db_printlog.exe_2" ComponentId="{A647BB5A-945A-4B91-B167-DB712648CEB3}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_printlog.exe_2"/>
-    <ROW Component="db_printlog.exe_3" ComponentId="{A0741079-2CC9-4BA9-8A32-1DE3E0F05664}" Directory_="x64_Dir" Attributes="256" KeyPath="db_printlog.exe_3"/>
-    <ROW Component="db_recover.exe" ComponentId="{871F4AB2-FC45-4824-A12E-A40267AE10F0}" Directory_="bin_DIR" Attributes="0" KeyPath="db_recover.exe"/>
-    <ROW Component="db_recover.exe_1" ComponentId="{BCBCA259-B808-4446-BDDF-939B2BE2A4AE}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_recover.exe_1"/>
-    <ROW Component="db_recover.exe_2" ComponentId="{59155967-C222-4EEA-B80E-967D33B69A00}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_recover.exe_2"/>
-    <ROW Component="db_recover.exe_3" ComponentId="{AF3D20FF-7844-4CAA-8D29-01BC3242D18C}" Directory_="x64_Dir" Attributes="256" KeyPath="db_recover.exe_3"/>
-    <ROW Component="db_stat.exe" ComponentId="{C2E9B725-FB0C-4246-BDF4-14B2ED11B309}" Directory_="bin_DIR" Attributes="0" KeyPath="db_stat.exe"/>
-    <ROW Component="db_stat.exe_1" ComponentId="{4FDE31ED-90ED-4E08-9A00-4785CADDF2E6}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_stat.exe_1"/>
-    <ROW Component="db_stat.exe_2" ComponentId="{8BF47A87-BB60-4CB8-9F45-225B12BBA7CC}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_stat.exe_2"/>
-    <ROW Component="db_stat.exe_3" ComponentId="{88B54E42-CF20-4F28-A419-224E23329E74}" Directory_="x64_Dir" Attributes="256" KeyPath="db_stat.exe_3"/>
-    <ROW Component="db_tuner.exe" ComponentId="{1078A2BC-7913-4819-9668-9839080EB5BD}" Directory_="bin_DIR" Attributes="0" KeyPath="db_tuner.exe"/>
-    <ROW Component="db_tuner.exe_1" ComponentId="{490A980D-8453-4DF8-A567-B18E7966D656}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_tuner.exe_1"/>
-    <ROW Component="db_tuner.exe_2" ComponentId="{3CE658A6-39EE-445F-B1B7-54963F2DF5B1}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_tuner.exe_2"/>
-    <ROW Component="db_tuner.exe_3" ComponentId="{1FA0ED40-44EE-40D7-B286-24E6990CE89F}" Directory_="x64_Dir" Attributes="256" KeyPath="db_tuner.exe_3"/>
-    <ROW Component="db_upgrade.exe" ComponentId="{7B637B69-CBBF-4042-8029-88ED2EB535DC}" Directory_="bin_DIR" Attributes="0" KeyPath="db_upgrade.exe"/>
-    <ROW Component="db_upgrade.exe_1" ComponentId="{C38D977A-CAD1-4E23-A99A-9002BD50B7D4}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_upgrade.exe_1"/>
-    <ROW Component="db_upgrade.exe_2" ComponentId="{76F25470-4BFE-45DE-9587-9F7C9F54EDAC}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_upgrade.exe_2"/>
-    <ROW Component="db_upgrade.exe_3" ComponentId="{0428A0EE-61C7-4267-AF81-5A4A21EF4F1A}" Directory_="x64_Dir" Attributes="256" KeyPath="db_upgrade.exe_3"/>
-    <ROW Component="db_verify.exe" ComponentId="{FD23AC5D-C459-43C3-A657-E2EB83D05896}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
-    <ROW Component="db_verify.exe_1" ComponentId="{0BD75DC5-43E9-4A7F-956B-B00A28DEA0A5}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
-    <ROW Component="db_verify.exe_2" ComponentId="{F3880C5A-8E5B-4916-9788-206AABCE5345}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_verify.exe_2"/>
-    <ROW Component="db_verify.exe_3" ComponentId="{30AFE373-C49A-4CAB-A6E1-21C411434324}" Directory_="x64_Dir" Attributes="256" KeyPath="db_verify.exe_3"/>
-    <ROW Component="libbz2.lib" ComponentId="{8B5D5870-7B6F-4E36-8947-3826B9C5724A}" Directory_="vc9_Dir" Attributes="0" KeyPath="libbz2.lib" Type="0"/>
-    <ROW Component="libbz2.lib_1" ComponentId="{3D05FFED-B290-4FF0-8199-98FF8A9F8008}" Directory_="vc110_1_Dir" Attributes="0" KeyPath="libbz2.lib_1" Type="0"/>
-    <ROW Component="libbz2.lib_2" ComponentId="{E5F0A679-0DC3-4CD5-9E3A-D6642B5D7300}" Directory_="x64_1_Dir" Attributes="0" KeyPath="libbz2.lib_2" Type="0"/>
-    <ROW Component="libbz2.lib_3" ComponentId="{49CAA38E-5BB5-433A-BCA1-3AED8322ECB5}" Directory_="x64_DIR" Attributes="0" KeyPath="libbz2.lib_4" Type="0"/>
-    <ROW Component="libdb53.dll" ComponentId="{9B1E6910-2700-4C27-943D-80EA1D389CA3}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb53.dll"/>
-    <ROW Component="libdb53.dll_1" ComponentId="{961F757C-DB36-4474-A588-ACD9DAF17457}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb53.dll_1"/>
-    <ROW Component="libdb53.dll_2" ComponentId="{1F1A439E-37C4-4EC1-B38C-9DD8AFF063C0}" Directory_="vc110_Dir" Attributes="0" KeyPath="libdb53.dll_2"/>
-    <ROW Component="libdb53.dll_3" ComponentId="{DE30863B-F50A-4DE1-B309-38E8972C3DC9}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb53.dll_3"/>
-    <ROW Component="libdb53d.dll" ComponentId="{9E3ACC1E-CF05-4F39-A530-298B51EFFEF7}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb53d.dll"/>
-    <ROW Component="libdb53d.dll_1" ComponentId="{66AF6178-AC47-4977-B7A5-3F42DDD400DD}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb53d.dll_1"/>
-    <ROW Component="libdb53d.dll_2" ComponentId="{0BBCC780-06A8-4955-8D25-452B3AC87F15}" Directory_="vc110_Dir" Attributes="0" KeyPath="libdb53d.dll_2"/>
-    <ROW Component="libdb53d.dll_3" ComponentId="{13B92881-3407-4EC5-ADD2-3CBD73D4FD4F}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb53d.dll_3"/>
-    <ROW Component="libdb_java53.dll" ComponentId="{0731C262-A39F-465E-ACC1-588810E1FA0A}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java53.dll"/>
-    <ROW Component="libdb_java53.dll_1" ComponentId="{E1442FAD-AC83-4CA5-93AC-A9CD7D9BB9CC}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb_java53.dll_1"/>
-    <ROW Component="libdb_java53.dll_2" ComponentId="{F630B5E3-9A6F-4EB1-B5C5-9DEE7BE531CA}" Directory_="vc110_Dir" Attributes="0" KeyPath="libdb_java53.dll_2"/>
-    <ROW Component="libdb_java53.dll_3" ComponentId="{560EC603-57C8-489B-894E-0BE3268B9F12}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb_java53.dll_3"/>
-    <ROW Component="libeay32.dll" ComponentId="{DC617C9B-D2BE-4CA3-BB58-65299B4E8FEE}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
-    <ROW Component="libeay32.dll_1" ComponentId="{4B5BCAAC-869B-4565-9DBB-442864220EDE}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libeay32.dll_1"/>
-    <ROW Component="libeay32.dll_2" ComponentId="{99283A18-137E-40DD-B9B1-8DAA270E07B8}" Directory_="vc110_Dir" Attributes="0" KeyPath="libeay32.dll_2"/>
-    <ROW Component="libeay32.dll_3" ComponentId="{2E7B46B4-86B0-45A0-8098-E5B9ACACFC98}" Directory_="x64_Dir" Attributes="256" KeyPath="libeay32.dll_3"/>
-    <ROW Component="libeay32_mingw.dll" ComponentId="{71C82EF6-457B-44A0-8B65-2A0C76FEE1A0}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_mingw.dll"/>
-    <ROW Component="libeay32_vc90.dll" ComponentId="{79842C9A-3A3A-4D5F-B5B3-A5396093507D}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_vc90.dll"/>
-    <ROW Component="libexpat.dll" ComponentId="{56021BA7-5C02-4B51-B042-7D569BB1EEC3}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
-    <ROW Component="libexpat.dll_1" ComponentId="{51CAE732-86D7-4ADA-90D1-B87DAA4E51F0}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libexpat.dll_1"/>
-    <ROW Component="libexpat.dll_2" ComponentId="{C2D203E1-05B2-470A-8CA8-90ADBCB7F7DB}" Directory_="vc110_Dir" Attributes="0" KeyPath="libexpat.dll_2"/>
-    <ROW Component="libexpat.dll_3" ComponentId="{1FEAC0CF-7538-4F43-9DB6-9E5A4F9F4767}" Directory_="x64_Dir" Attributes="256" KeyPath="libexpat.dll_3"/>
-    <ROW Component="libmcpp.a" ComponentId="{9A7DFF6B-12D3-4B4E-84B1-99BF42F838AC}" Directory_="NewFolder_Dir" Attributes="0" KeyPath="libmcpp.a" Type="0"/>
-    <ROW Component="openssl.cnf" ComponentId="{0E06EE2B-79BF-48D1-B083-F06D671B4C02}" Directory_="config_Dir" Attributes="0" KeyPath="openssl.cnf" Type="0"/>
-    <ROW Component="openssl.exe" ComponentId="{AE727A35-B978-460C-9E24-D0E3847C99B5}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
-    <ROW Component="openssl.exe_1" ComponentId="{7BA42F75-C845-49D2-8CA6-99B3B1E47FA6}" Directory_="x64_1_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
-    <ROW Component="openssl.exe_2" ComponentId="{1E6C06C6-B0CF-4230-8F6D-BECE14255678}" Directory_="vc110_Dir" Attributes="0" KeyPath="openssl.exe_2"/>
-    <ROW Component="openssl.exe_3" ComponentId="{A757FA1F-C079-4524-8B40-60CCE140369C}" Directory_="x64_Dir" Attributes="256" KeyPath="openssl.exe_3"/>
-    <ROW Component="ssleay32.dll" ComponentId="{2C7C0FF6-B1CA-49F9-B1A9-BC6E1AB35F1C}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32.dll"/>
-    <ROW Component="ssleay32.dll_1" ComponentId="{A319CEFB-CB9C-44AF-B7F8-6F9D2EE1C28E}" Directory_="x64_1_DIR" Attributes="256" KeyPath="ssleay32.dll_1"/>
-    <ROW Component="ssleay32.dll_2" ComponentId="{47B4305F-2D91-4EE8-9A03-92F4A7DD982B}" Directory_="vc110_Dir" Attributes="0" KeyPath="ssleay32.dll_2"/>
-    <ROW Component="ssleay32.dll_3" ComponentId="{2E6BC771-668B-41BA-BFDC-7D2D80F9B688}" Directory_="x64_Dir" Attributes="256" KeyPath="ssleay32.dll_3"/>
-    <ROW Component="ssleay32_mingw.dll" ComponentId="{629C4C5E-AFC7-4213-A322-C30AC0078957}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_mingw.dll"/>
-    <ROW Component="ssleay32_vc90.dll" ComponentId="{764C196B-F882-43A7-B3B2-B86390A5AAAB}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc90.dll"/>
+    <ROW Component="AI_CustomARPName" ComponentId="{74659A2F-8256-480F-BE50-F3E668D02D8B}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
+    <ROW Component="InstallDir" ComponentId="{0BD670EE-B611-4691-A494-6AE217C9094A}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
+    <ROW Component="SOURCES" ComponentId="{E8F36A42-F93B-44AC-A974-7B1BF78D2392}" Directory_="APPDIR" Attributes="0" KeyPath="README.txt" Type="0"/>
+    <ROW Component="aes.h" ComponentId="{D8B2499E-2E5D-4A30-A3B9-E35B6E9094CF}" Directory_="openssl_Dir" Attributes="0" KeyPath="aes.h" Type="0"/>
+    <ROW Component="bzip2.dll" ComponentId="{6107BFCD-D54B-4CC1-8A48-45A46CCB5469}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2.dll"/>
+    <ROW Component="bzip2.dll_1" ComponentId="{60D9EE82-F278-4A0C-8485-AB6539893808}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2.dll_1"/>
+    <ROW Component="bzip2.dll_2" ComponentId="{B86F633C-4A64-45A6-83DD-25A49D4976AA}" Directory_="vc110_Dir" Attributes="0" KeyPath="bzip2.dll_2"/>
+    <ROW Component="bzip2.dll_3" ComponentId="{C6D43CB0-A492-4F35-A6E6-01DCF5ACA2F3}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2.dll_3"/>
+    <ROW Component="bzip2_mingw.dll" ComponentId="{AF200D03-50FF-4FDE-BE70-D91AF667567A}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_mingw.dll"/>
+    <ROW Component="bzip2_vc90.dll" ComponentId="{A6BD3919-3567-4919-AD64-A0447113F37C}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc90.dll"/>
+    <ROW Component="bzip2_vc90d.dll" ComponentId="{915C632B-C1BE-4EF2-A82E-CF593F011436}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc90d.dll"/>
+    <ROW Component="bzip2d.dll" ComponentId="{8D9457B2-9D1E-4FEB-8987-196C5D5C3C64}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2d.dll"/>
+    <ROW Component="bzip2d.dll_1" ComponentId="{4921C8B0-2324-4DE4-AC5B-6346E626845A}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2d.dll_1"/>
+    <ROW Component="bzip2d.dll_2" ComponentId="{AFB2D316-CC25-4C60-9BC8-58D9B0A4593B}" Directory_="vc110_Dir" Attributes="0" KeyPath="bzip2d.dll_2"/>
+    <ROW Component="bzip2d.dll_3" ComponentId="{7F2C928B-2941-41E5-B9CD-2AA597858A68}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2d.dll_3"/>
+    <ROW Component="bzlib.h" ComponentId="{D8568CA0-AF8B-4CE3-8D00-5595A9434DEA}" Directory_="include_Dir" Attributes="0" KeyPath="bzlib.h" Type="0"/>
+    <ROW Component="db.jar" ComponentId="{B3984E08-A310-4135-B8AC-21614211AB94}" Directory_="lib_DIR" Attributes="0" KeyPath="db.jar" Type="0"/>
+    <ROW Component="db_archive.exe" ComponentId="{1A445117-9C97-46CE-84B1-CFB562595BE3}" Directory_="bin_DIR" Attributes="0" KeyPath="db_archive.exe"/>
+    <ROW Component="db_archive.exe_1" ComponentId="{B8F2398F-C5B2-42AC-AA0E-F4F6567CD115}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_archive.exe_1"/>
+    <ROW Component="db_archive.exe_2" ComponentId="{A4E62D23-D94A-40BB-BCA0-64D422F501BD}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_archive.exe_2"/>
+    <ROW Component="db_archive.exe_3" ComponentId="{A3DA1633-A19E-4D93-8ABA-04D0C326A2E6}" Directory_="x64_Dir" Attributes="256" KeyPath="db_archive.exe_3"/>
+    <ROW Component="db_checkpoint.exe" ComponentId="{F4BC1C08-5BD8-4F36-B784-C56B7D9388CB}" Directory_="bin_DIR" Attributes="0" KeyPath="db_checkpoint.exe"/>
+    <ROW Component="db_checkpoint.exe_1" ComponentId="{AE0FEF5D-DC99-4FBF-8D62-99D5EB56813A}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
+    <ROW Component="db_checkpoint.exe_2" ComponentId="{7C0EDD5D-64F6-440C-92EF-AECC24778CA9}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_checkpoint.exe_2"/>
+    <ROW Component="db_checkpoint.exe_3" ComponentId="{8986AD7F-C144-4087-82AE-94DFCE7F1923}" Directory_="x64_Dir" Attributes="256" KeyPath="db_checkpoint.exe_3"/>
+    <ROW Component="db_deadlock.exe" ComponentId="{B717D3F3-09C7-4E5C-B2F6-F06A590FBD78}" Directory_="bin_DIR" Attributes="0" KeyPath="db_deadlock.exe"/>
+    <ROW Component="db_deadlock.exe_1" ComponentId="{8DB1D045-95B5-4BCC-AE3A-838DD79B4695}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_deadlock.exe_1"/>
+    <ROW Component="db_deadlock.exe_2" ComponentId="{FA1F9A55-9DAD-4C68-809A-B0C55CCA5416}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_deadlock.exe_2"/>
+    <ROW Component="db_deadlock.exe_3" ComponentId="{5FB338F7-0181-491F-A3A4-47F56FEF5EE3}" Directory_="x64_Dir" Attributes="256" KeyPath="db_deadlock.exe_3"/>
+    <ROW Component="db_dump.exe" ComponentId="{4D947492-C132-4398-B18A-682D22CAE877}" Directory_="bin_DIR" Attributes="0" KeyPath="db_dump.exe"/>
+    <ROW Component="db_dump.exe_1" ComponentId="{EB33EB2E-E9F7-49EF-A2D7-2BC5AF30AD99}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_dump.exe_1"/>
+    <ROW Component="db_dump.exe_2" ComponentId="{CC311ADF-AE61-4268-B43C-B8770325F847}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_dump.exe_2"/>
+    <ROW Component="db_dump.exe_3" ComponentId="{745C61E5-9CD0-4BCD-969E-448A2B5898FB}" Directory_="x64_Dir" Attributes="256" KeyPath="db_dump.exe_3"/>
+    <ROW Component="db_hotbackup.exe" ComponentId="{19F369AA-5057-4418-91D9-6E0C774F125B}" Directory_="bin_DIR" Attributes="0" KeyPath="db_hotbackup.exe"/>
+    <ROW Component="db_hotbackup.exe_1" ComponentId="{F81BF55A-2AC4-4CD6-B04F-F73B1A49C93E}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
+    <ROW Component="db_hotbackup.exe_2" ComponentId="{F282864C-1F93-4808-819E-D59E6AA9A5CE}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_hotbackup.exe_2"/>
+    <ROW Component="db_hotbackup.exe_3" ComponentId="{91D5A3B4-CDB3-497D-BCF3-FED377380E8F}" Directory_="x64_Dir" Attributes="256" KeyPath="db_hotbackup.exe_3"/>
+    <ROW Component="db_load.exe" ComponentId="{2A06D520-ABD4-4FB4-ABF6-E2BB77D2B648}" Directory_="bin_DIR" Attributes="0" KeyPath="db_load.exe"/>
+    <ROW Component="db_load.exe_1" ComponentId="{A29DE8DF-7138-45F9-9F20-945181FA052F}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_load.exe_1"/>
+    <ROW Component="db_load.exe_2" ComponentId="{F9AC5A35-E40F-41EB-931F-574ECBB0A831}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_load.exe_2"/>
+    <ROW Component="db_load.exe_3" ComponentId="{F0059A97-92FC-4135-A514-51FA7550F3FF}" Directory_="x64_Dir" Attributes="256" KeyPath="db_load.exe_3"/>
+    <ROW Component="db_log_verify.exe" ComponentId="{68343220-1B86-486A-BF6E-0D653E2C72E2}" Directory_="bin_DIR" Attributes="0" KeyPath="db_log_verify.exe"/>
+    <ROW Component="db_log_verify.exe_1" ComponentId="{53BCD06B-D5BE-451C-962D-8AC42EB4EB57}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_log_verify.exe_1"/>
+    <ROW Component="db_log_verify.exe_2" ComponentId="{33D24BA5-D5DC-448E-95D1-09F37124C47D}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_log_verify.exe_2"/>
+    <ROW Component="db_log_verify.exe_3" ComponentId="{66601492-4572-4685-AE0F-F29503531B16}" Directory_="x64_Dir" Attributes="256" KeyPath="db_log_verify.exe_3"/>
+    <ROW Component="db_printlog.exe" ComponentId="{AA539A7F-AD72-467A-9394-BE74DA787B26}" Directory_="bin_DIR" Attributes="0" KeyPath="db_printlog.exe"/>
+    <ROW Component="db_printlog.exe_1" ComponentId="{2717AD17-D938-4B05-B0EA-33735F80D907}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_printlog.exe_1"/>
+    <ROW Component="db_printlog.exe_2" ComponentId="{29D50441-0BEF-4179-81D5-BA891CFE3EC2}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_printlog.exe_2"/>
+    <ROW Component="db_printlog.exe_3" ComponentId="{3F28E02B-7F5C-4363-B78D-9BF970FA2B5D}" Directory_="x64_Dir" Attributes="256" KeyPath="db_printlog.exe_3"/>
+    <ROW Component="db_recover.exe" ComponentId="{B3E8C825-2022-452D-83BC-E635C5763110}" Directory_="bin_DIR" Attributes="0" KeyPath="db_recover.exe"/>
+    <ROW Component="db_recover.exe_1" ComponentId="{774AC613-7D68-456E-8384-C2EBC30EF78F}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_recover.exe_1"/>
+    <ROW Component="db_recover.exe_2" ComponentId="{8D0957E9-9A1D-4644-B70D-12980B8D8B12}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_recover.exe_2"/>
+    <ROW Component="db_recover.exe_3" ComponentId="{CB509B81-2DCE-4203-BCCD-E4739CA37577}" Directory_="x64_Dir" Attributes="256" KeyPath="db_recover.exe_3"/>
+    <ROW Component="db_stat.exe" ComponentId="{63CEBD41-FFEE-453D-9A19-EC212FACA9F4}" Directory_="bin_DIR" Attributes="0" KeyPath="db_stat.exe"/>
+    <ROW Component="db_stat.exe_1" ComponentId="{7E8AF87A-4189-4A1D-B178-CAC80EEB39C1}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_stat.exe_1"/>
+    <ROW Component="db_stat.exe_2" ComponentId="{0919A350-A417-4159-815E-A0F4461EAD05}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_stat.exe_2"/>
+    <ROW Component="db_stat.exe_3" ComponentId="{4369E985-C681-42C4-BFEB-B64C77077F25}" Directory_="x64_Dir" Attributes="256" KeyPath="db_stat.exe_3"/>
+    <ROW Component="db_tuner.exe" ComponentId="{E7ED380F-D04A-48B8-B807-2CF60C81BC51}" Directory_="bin_DIR" Attributes="0" KeyPath="db_tuner.exe"/>
+    <ROW Component="db_tuner.exe_1" ComponentId="{8E80F477-EBC0-485E-B37A-B600EB153B32}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_tuner.exe_1"/>
+    <ROW Component="db_tuner.exe_2" ComponentId="{48DD5250-CE29-4A4A-A026-8A3647FD4E8E}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_tuner.exe_2"/>
+    <ROW Component="db_tuner.exe_3" ComponentId="{EDBE76B4-8C75-4883-BC8B-AA7C01DFB42A}" Directory_="x64_Dir" Attributes="256" KeyPath="db_tuner.exe_3"/>
+    <ROW Component="db_upgrade.exe" ComponentId="{63D2B4BF-A9B1-429F-99F9-03D365AEF6AB}" Directory_="bin_DIR" Attributes="0" KeyPath="db_upgrade.exe"/>
+    <ROW Component="db_upgrade.exe_1" ComponentId="{7E0595CF-A2CF-49E0-B29B-0E4C095CB3F6}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_upgrade.exe_1"/>
+    <ROW Component="db_upgrade.exe_2" ComponentId="{630D5F04-EDA8-4414-ABD4-25F0CC5F2230}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_upgrade.exe_2"/>
+    <ROW Component="db_upgrade.exe_3" ComponentId="{BD0C59EE-6239-4713-AC73-9BBC9B740D25}" Directory_="x64_Dir" Attributes="256" KeyPath="db_upgrade.exe_3"/>
+    <ROW Component="db_verify.exe" ComponentId="{6BDD2E2F-44F1-49C1-975C-2E874A794946}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
+    <ROW Component="db_verify.exe_1" ComponentId="{55356696-B6A3-45F0-A237-3B853404DD6B}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
+    <ROW Component="db_verify.exe_2" ComponentId="{8B4610F9-5271-417B-B358-3FC07B5D4A47}" Directory_="vc110_Dir" Attributes="0" KeyPath="db_verify.exe_2"/>
+    <ROW Component="db_verify.exe_3" ComponentId="{3ADC2A94-0233-486C-B046-74A61332C022}" Directory_="x64_Dir" Attributes="256" KeyPath="db_verify.exe_3"/>
+    <ROW Component="libbz2.lib" ComponentId="{845052F0-F6B0-4927-9FBC-113B0F09E21E}" Directory_="vc9_Dir" Attributes="0" KeyPath="libbz2.lib" Type="0"/>
+    <ROW Component="libbz2.lib_1" ComponentId="{9A048D9F-C458-4EF6-8B0D-442D21F60598}" Directory_="vc110_1_Dir" Attributes="0" KeyPath="libbz2.lib_1" Type="0"/>
+    <ROW Component="libbz2.lib_2" ComponentId="{199BF402-B8EF-4FA5-8109-1B690E5C4949}" Directory_="x64_1_Dir" Attributes="0" KeyPath="libbz2.lib_2" Type="0"/>
+    <ROW Component="libbz2.lib_3" ComponentId="{4A9812D2-4233-45B6-9F18-D7B651B845C7}" Directory_="x64_DIR" Attributes="0" KeyPath="libbz2.lib_4" Type="0"/>
+    <ROW Component="libdb53.dll" ComponentId="{ADE5523F-1ABF-4F3A-B7AE-30CC0270A994}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb53.dll"/>
+    <ROW Component="libdb53.dll_1" ComponentId="{5DEA84E3-8D61-4259-B326-E8FBFE74DDFA}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb53.dll_1"/>
+    <ROW Component="libdb53.dll_2" ComponentId="{869F4727-4789-47F8-AF9F-72FE409E40EE}" Directory_="vc110_Dir" Attributes="0" KeyPath="libdb53.dll_2"/>
+    <ROW Component="libdb53.dll_3" ComponentId="{0CFF5358-34FC-409C-9BFB-116510A54C8F}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb53.dll_3"/>
+    <ROW Component="libdb53d.dll" ComponentId="{1F9005F4-F085-4F8D-B1EB-079F375D0F6A}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb53d.dll"/>
+    <ROW Component="libdb53d.dll_1" ComponentId="{3DBAAB80-AF12-4878-924F-1389A874670F}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb53d.dll_1"/>
+    <ROW Component="libdb53d.dll_2" ComponentId="{E7B4C306-9EDA-4050-8EBD-B19A01DEF20D}" Directory_="vc110_Dir" Attributes="0" KeyPath="libdb53d.dll_2"/>
+    <ROW Component="libdb53d.dll_3" ComponentId="{E3423448-855E-4A84-84A6-17CB6DC93375}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb53d.dll_3"/>
+    <ROW Component="libdb_java53.dll" ComponentId="{BF01E5B9-613C-43BB-AC8A-EA30335C5752}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java53.dll"/>
+    <ROW Component="libdb_java53.dll_1" ComponentId="{C1D13946-F799-404B-907D-704CB2AB0724}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb_java53.dll_1"/>
+    <ROW Component="libdb_java53.dll_2" ComponentId="{759C137B-B408-4189-A87D-A207FB2159E0}" Directory_="vc110_Dir" Attributes="0" KeyPath="libdb_java53.dll_2"/>
+    <ROW Component="libdb_java53.dll_3" ComponentId="{B471FB9A-B6C2-48F6-92DD-FB8C90E9C16C}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb_java53.dll_3"/>
+    <ROW Component="libeay32.dll" ComponentId="{C197B074-A931-420C-8E15-DCCBAC995F5B}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
+    <ROW Component="libeay32.dll_1" ComponentId="{1056378F-D32E-4E38-AAAF-00C3E98D220D}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libeay32.dll_1"/>
+    <ROW Component="libeay32.dll_2" ComponentId="{57BB3A06-AE95-4540-83A7-34A59A64B533}" Directory_="vc110_Dir" Attributes="0" KeyPath="libeay32.dll_2"/>
+    <ROW Component="libeay32.dll_3" ComponentId="{907CE945-024B-4487-B77F-1976B9107328}" Directory_="x64_Dir" Attributes="256" KeyPath="libeay32.dll_3"/>
+    <ROW Component="libeay32_mingw.dll" ComponentId="{E0F29FC5-A55F-48EA-8A88-AA6D57E93C11}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_mingw.dll"/>
+    <ROW Component="libeay32_vc90.dll" ComponentId="{B727D329-D052-4FD5-9695-E19611FDDFB1}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_vc90.dll"/>
+    <ROW Component="libexpat.dll" ComponentId="{C4CB7615-A99D-4B18-8178-CC4ABED5B0F5}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
+    <ROW Component="libexpat.dll_1" ComponentId="{FEBF57FC-736C-4085-869D-7A8331BD633A}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libexpat.dll_1"/>
+    <ROW Component="libexpat.dll_2" ComponentId="{9CB4A0A6-AD88-45C1-A302-AF447022903E}" Directory_="vc110_Dir" Attributes="0" KeyPath="libexpat.dll_2"/>
+    <ROW Component="libexpat.dll_3" ComponentId="{86EC6569-7664-436F-91BF-E2A47495F3DD}" Directory_="x64_Dir" Attributes="256" KeyPath="libexpat.dll_3"/>
+    <ROW Component="libmcpp.a" ComponentId="{87A01F69-A17B-4F2F-AA2E-86633F8328E4}" Directory_="NewFolder_Dir" Attributes="0" KeyPath="libmcpp.a" Type="0"/>
+    <ROW Component="openssl.cnf" ComponentId="{E6649F0F-6B74-4634-B0EA-71A27FBC047C}" Directory_="config_Dir" Attributes="0" KeyPath="openssl.cnf" Type="0"/>
+    <ROW Component="openssl.exe" ComponentId="{5922A415-F776-438C-9078-8139C9892767}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
+    <ROW Component="openssl.exe_1" ComponentId="{D7C8E393-2AAB-49CB-B18F-798D088BB2A5}" Directory_="x64_1_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
+    <ROW Component="openssl.exe_2" ComponentId="{C1CED81D-28A2-41E3-B12E-6906C9FB8FED}" Directory_="vc110_Dir" Attributes="0" KeyPath="openssl.exe_2"/>
+    <ROW Component="openssl.exe_3" ComponentId="{DFB523C7-9C37-4237-95A1-A417006362FF}" Directory_="x64_Dir" Attributes="256" KeyPath="openssl.exe_3"/>
+    <ROW Component="ssleay32.dll" ComponentId="{CB3DFE66-A38C-498B-B50F-F65FCD26FA11}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32.dll"/>
+    <ROW Component="ssleay32.dll_1" ComponentId="{1ACB5B0E-10D6-4FB9-97D7-122AAB412DC0}" Directory_="x64_1_DIR" Attributes="256" KeyPath="ssleay32.dll_1"/>
+    <ROW Component="ssleay32.dll_2" ComponentId="{1B9CF719-D59C-4FF7-88C9-BD9F5F2A37E5}" Directory_="vc110_Dir" Attributes="0" KeyPath="ssleay32.dll_2"/>
+    <ROW Component="ssleay32.dll_3" ComponentId="{8836D258-8D84-4F03-9E26-1D8CAE9C9F33}" Directory_="x64_Dir" Attributes="256" KeyPath="ssleay32.dll_3"/>
+    <ROW Component="ssleay32_mingw.dll" ComponentId="{77CBF7AA-7B27-42F1-8971-C17AB48286C7}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_mingw.dll"/>
+    <ROW Component="ssleay32_vc90.dll" ComponentId="{D5D86917-EF64-4100-B900-C2D2459E6111}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc90.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="AI_CustomARPName InstallDir SOURCES aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_vc90.dll bzip2_vc90d.dll bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libeay32_mingw.dll libeay32_vc90.dll libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a openssl.cnf openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3 ssleay32_mingw.dll ssleay32_vc90.dll"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5\src\windows\docs\thirdparty\README.txt" SelfReg="false" NextFile="bzip2.dll"/>
-    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5\src\windows\docs\main\SOURCES.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
-    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="SOURCES" FileName="THIRD_~1.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5\src\windows\docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="libbz2.lib_4"/>
+    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5.0\src\windows\docs\thirdparty\README.txt" SelfReg="false" NextFile="bzip2.dll"/>
+    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5.0\src\windows\docs\main\SOURCES.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
+    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="SOURCES" FileName="THIRD_~1.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5.0\src\windows\docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="libbz2.lib_4"/>
     <ROW File="aes.h" Component_="aes.h" FileName="aes.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\aes.h" SelfReg="false" NextFile="applink.c"/>
     <ROW File="applink.c" Component_="aes.h" FileName="applink.c" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\applink.c" SelfReg="false" NextFile="asn1.h"/>
     <ROW File="asn1.h" Component_="aes.h" FileName="asn1.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\asn1.h" SelfReg="false" NextFile="asn1t.h"/>
@@ -399,7 +399,7 @@
     <ROW File="x509v3.h" Component_="aes.h" FileName="x509v3.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\x509v3.h" SelfReg="false" NextFile="x509_vfy.h"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="dist\distfiles-3.5\src\windows" Languages="en" InstallationType="4"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="dist\distfiles-3.5.0\src\windows" Languages="en" InstallationType="4"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -425,8 +425,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="installerheader.bmp" SourcePath="dist\distfiles-3.5\src\windows\installer-header.bmp"/>
-    <ROW Name="installermain.bmp" SourcePath="dist\distfiles-3.5\src\windows\installer-main.bmp"/>
+    <ROW Name="installerheader.bmp" SourcePath="dist\distfiles-3.5.0\src\windows\installer-header.bmp"/>
+    <ROW Name="installermain.bmp" SourcePath="dist\distfiles-3.5.0\src\windows\installer-main.bmp"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="AdminBrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="AdminBrowseDlg#OK"/>
@@ -457,7 +457,7 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Berkeley DB License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\BERKEYLEY_DB_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\BERKEYLEY_DB_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="BrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="BrowseDlg#OK"/>
     <ROW Dialog_="BrowseDlg" Control="Cancel" Type="PushButton" X="240" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="400" TextLocId="-" MsiKey="BrowseDlg#Cancel"/>
@@ -479,7 +479,7 @@
     <ROW Dialog_="Bzip2LicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Bzip2 License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="CustomizeDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="600" TextLocId="-" MsiKey="CustomizeDlg#Back" Options="1"/>
     <ROW Dialog_="CustomizeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="700" TextLocId="-" MsiKey="CustomizeDlg#Next" Options="1"/>
@@ -508,7 +508,7 @@
     <ROW Dialog_="ExpatLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Expat License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="FatalError" Control="LogCheckBox" Type="CheckBox" X="135" Y="158" Width="10" Height="10" Attributes="2" Property="AI_LOG_CHECKBOX" Order="800" MsiKey="FatalError#LogCheckBox"/>
     <ROW Dialog_="FatalError" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="The [ProductName] [Wizard] ended prematurely" TextStyle="DlgFontBold8" Order="900" TextLocId="Control.Text.FatalError#Title" MsiKey="FatalError#Title"/>
@@ -532,7 +532,7 @@
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Common License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\JGOODIES_COMMON_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\JGOODIES_COMMON_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -542,7 +542,7 @@
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Forms License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -552,7 +552,7 @@
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Looks License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="MaintenanceTypeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Attributes="196611" Text="Select the operation you wish to perform." Order="1200" TextLocId="Control.Text.MaintenanceTypeDlg#Description" MsiKey="MaintenanceTypeDlg#Description"/>
     <ROW Dialog_="MaintenanceTypeDlg" Control="ChangeText" Type="Text" X="105" Y="78" Width="230" Height="20" Attributes="3" Text="Allows users to change the way features are installed." Order="1300" TextLocId="Control.Text.MaintenanceTypeDlg#ChangeText" MsiKey="MaintenanceTypeDlg#ChangeText"/>
@@ -569,7 +569,7 @@
     <ROW Dialog_="McppLicensDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="McppLicensDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="McppLicensDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="MCPP License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -579,7 +579,7 @@
     <ROW Dialog_="OpensslLicesneDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="OpenSSL License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="OutOfDiskDlg" Control="VolumeList" Type="VolumeCostList" X="20" Y="100" Width="330" Height="120" Attributes="393223" Text="{120}{70}{70}{70}{70}" Order="400" TextLocId="Control.Text.OutOfDiskDlg#VolumeList" MsiKey="OutOfDiskDlg#VolumeList"/>
     <ROW Dialog_="OutOfDiskDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Out of Disk Space" TextStyle="[DlgTitleFont]" Order="500" TextLocId="Control.Text.OutOfDiskDlg#Title" MsiKey="OutOfDiskDlg#Title"/>
@@ -610,7 +610,7 @@
     <ROW Dialog_="QtLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="QtLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="QtLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Qt License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5\src\windows\docs\thirdparty\QT_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5.0\src\windows\docs\thirdparty\QT_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Text="RadioButtonGroup" Order="1000"/>
     <ROW Dialog_="ResumeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Resuming the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.ResumeDlg#Title" MsiKey="ResumeDlg#Title"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
@@ -621,7 +621,7 @@
     <ROW Dialog_="STLportLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="STLport License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
-    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5\src\windows\docs\thirdparty\STLPORT_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5.0\src\windows\docs\thirdparty\STLPORT_LICENSE.rtf" Order="900"/>
     <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
     <ROW Dialog_="UserExit" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="The [ProductName] [Wizard] was interrupted" TextStyle="DlgFontBold8" Order="500" TextLocId="Control.Text.UserExit#Title" MsiKey="UserExit#Title"/>
     <ROW Dialog_="VerifyReadyDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="VerifyReadyDlg#Back" Options="1"/>
@@ -726,7 +726,7 @@
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="AI_ViewReadme" Type="1" Source="aicustact.dll" Target="[#README.txt]"/>
-    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\ZeroC\Ice-3.5-ThirdParty"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\ZeroC\Ice-3.5.0-ThirdParty"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
   </COMPONENT>
