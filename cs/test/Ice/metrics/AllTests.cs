@@ -452,6 +452,16 @@ public class AllTests : TestCommon.TestApp
         test(cm2.sentBytes - cm1.sentBytes == 45); // 45 for ice_ping request
         test(cm2.receivedBytes - cm1.receivedBytes == 25); // 25 bytes for ice_ping response
         test(sm2.receivedBytes - sm1.receivedBytes == 45);
+        int nRetry = 30;
+        while(sm2.sentBytes - sm1.sentBytes != 25 && nRetry-- > 0)
+        {
+            // On some platforms, it's necessary to wait a little before obtaining the server metrics
+            // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+            // to the operation is sent and getMetricsView can be dispatched before the metric is really
+            // updated.
+            System.Threading.Thread.Sleep(100);
+            sm2 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+        }
         test(sm2.sentBytes - sm1.sentBytes == 25);
 
         cm1 = cm2;
@@ -477,6 +487,16 @@ public class AllTests : TestCommon.TestApp
         test(cm2.sentBytes - cm1.sentBytes == requestSz + bs.Length + 4); // 4 is for the seq variable size
         test(cm2.receivedBytes - cm1.receivedBytes == replySz);
         test(sm2.receivedBytes - sm1.receivedBytes == requestSz + bs.Length + 4);
+        nRetry = 30;
+        while(sm2.sentBytes - sm1.sentBytes != replySz && nRetry-- > 0)
+        {
+            // On some platforms, it's necessary to wait a little before obtaining the server metrics
+            // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+            // to the operation is sent and getMetricsView can be dispatched before the metric is really
+            // updated.
+            System.Threading.Thread.Sleep(100);
+            sm2 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+        }
         test(sm2.sentBytes - sm1.sentBytes == replySz);
 
         cm1 = cm2;
@@ -491,7 +511,8 @@ public class AllTests : TestCommon.TestApp
         test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
         test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
         test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.Length + 4));
-        if(sm2.sentBytes - sm1.sentBytes != replySz)
+        nRetry = 30;
+        while(sm2.sentBytes - sm1.sentBytes != replySz && nRetry-- > 0)
         {
             // On some platforms, it's necessary to wait a little before obtaining the server metrics
             // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
