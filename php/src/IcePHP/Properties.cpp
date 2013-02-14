@@ -590,7 +590,9 @@ ZEND_FUNCTION(Ice_createProperties)
 //
 // Necessary to suppress warnings from zend_function_entry in php-5.2.
 //
-#pragma GCC diagnostic ignored "-Wwrite-strings"
+#if defined(__GNUC__)
+#  pragma GCC diagnostic ignored "-Wwrite-strings"
+#endif
 
 //
 // Predefined methods for Properties.
@@ -622,7 +624,9 @@ static zend_function_entry _classMethods[] =
 //
 // enable warning again
 //
-#pragma GCC diagnostic error "-Wwrite-strings"
+#if defined(__GNUC__)
+#  pragma GCC diagnostic error "-Wwrite-strings"
+#endif
 
 bool
 IcePHP::propertiesInit(TSRMLS_D)

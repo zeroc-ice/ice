@@ -917,7 +917,7 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    initData.compactIdResolver = new IdResolver;
+    initData.compactIdResolver = new IdResolver(TSRMLS_C);
 
     CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, hasArgs, initData TSRMLS_CC);
     if(!info)

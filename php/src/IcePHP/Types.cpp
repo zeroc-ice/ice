@@ -3831,7 +3831,9 @@ ZEND_FUNCTION(IcePHP_stringifyException)
 //
 // Necessary to suppress warnings from zend_function_entry in php-5.2.
 //
-#pragma GCC diagnostic ignored "-Wwrite-strings"
+#if defined(__GNUC__)
+#  pragma GCC diagnostic ignored "-Wwrite-strings"
+#endif
 
 //
 // Predefined methods for IcePHP_TypeInfo.
@@ -3898,7 +3900,9 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
 //
 // enable warning again
 //
-#pragma GCC diagnostic error "-Wwrite-strings"
+#if defined(__GNUC__)
+#  pragma GCC diagnostic error "-Wwrite-strings"
+#endif
 
 bool
 IcePHP::typesRequestInit(TSRMLS_D)
