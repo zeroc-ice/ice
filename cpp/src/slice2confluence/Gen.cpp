@@ -696,22 +696,22 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p)
 
     if(!metaData.empty())
     {
-        string metaP;
-        if (p->findMetaData(DEP_MARKER, metaP)) {
-            //don't print metadata if deprecated is the only tag
-            return;
-        }
         string outString = "";
         list<string>::const_iterator q = metaData.begin();
         while(q != metaData.end())
         {
+            cout << "LOOP:" << q->c_str() << endl;
             if (strncmp(q->c_str(), DEP_MARKER.c_str(), strlen(DEP_MARKER.c_str()))) {
                 //if not deprecated
-		outString += " \"" + removeNewlines(*q) + "\"";
+                string stripped = removeNewlines(*q);
+                cout << "METADATA: " << stripped << endl;
+                outString += " \"" + stripped + "\"";
                 if(++q != metaData.end())
                 {
                     outString += ",";
                 }
+            } else {
+                ++q;
             }
         }
         if (!outString.empty()) {
@@ -2896,6 +2896,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
         {
             start("h3", "Synopsis");
+            printMetaData(*q);
             TypePtr returnType = (*q)->returnType();
             _out << (returnType ? toString(returnType, c, false) : string("void"))
                  << " " << trim(toString(*q, c)) << "(";
