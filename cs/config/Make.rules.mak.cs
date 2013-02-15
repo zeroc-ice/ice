@@ -164,7 +164,7 @@ MCS			= csc -nologo
 MANAGED			= yes
 !endif
 
-MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
+MCSFLAGS = -warnaserror
 
 !if "$(DEBUG)" == "yes"
 !if "$(OPTIMIZE)" == "yes"
