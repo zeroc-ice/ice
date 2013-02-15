@@ -700,11 +700,9 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p)
         list<string>::const_iterator q = metaData.begin();
         while(q != metaData.end())
         {
-            cout << "LOOP:" << q->c_str() << endl;
             if (strncmp(q->c_str(), DEP_MARKER.c_str(), strlen(DEP_MARKER.c_str()))) {
                 //if not deprecated
                 string stripped = removeNewlines(*q);
-                cout << "METADATA: " << stripped << endl;
                 outString += " \"" + stripped + "\"";
                 if(++q != metaData.end())
                 {
@@ -3193,6 +3191,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
         for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
         {
             start("h3");
+            printMetaData(*q);
             _out << toString(*q, e->container(), true, true);
             end();
             _out << "\n";
