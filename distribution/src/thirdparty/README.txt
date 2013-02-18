@@ -112,7 +112,7 @@ DLLs.
 After extracting the OpenSSL source distribution, change to the
 top-level directory and apply the patch as shown below:
 
-  > cd openssl-1.0.1c
+  > cd openssl-1.0.1e
   > patch -p1 < ..\openssl\patch.mingw
 
 
@@ -160,7 +160,7 @@ section above before continuing.
 
 3) Run the OpenSSL configure script:
 
-   > cd openssl-1.0.1c
+   > cd openssl-1.0.1e
    > perl Configure mingw shared
 
 4) Run make

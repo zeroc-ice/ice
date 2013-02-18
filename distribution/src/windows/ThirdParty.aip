@@ -320,8 +320,13 @@
     <ROW File="libeay32.lib_2" Component_="libbz2.lib_2" FileName="libeay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\lib\x64\libeay32.lib" SelfReg="false" NextFile="libexpat.lib_1"/>
     <ROW File="libeay32.lib_3" Component_="db.jar" FileName="libeay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\lib\libeay32.lib" SelfReg="false" NextFile="libexpat.lib_2"/>
     <ROW File="libeay32.lib_4" Component_="libbz2.lib_3" FileName="libeay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\TP\VC100\lib\x64\libeay32.lib" SelfReg="false" NextFile="libexpat.lib_3"/>
+    <ROW File="libeay32.pdb" Component_="libeay32.dll" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\libeay32.pdb" SelfReg="false" NextFile="ssleay32.pdb"/>
+    <ROW File="libeay32.pdb_1" Component_="libeay32.dll_1" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\x64\libeay32.pdb" SelfReg="false" NextFile="ssleay32.pdb_1"/>
+    <ROW File="libeay32.pdb_2" Component_="libeay32.dll_2" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\libeay32.pdb" SelfReg="false" NextFile="ssleay32.pdb_2"/>
+    <ROW File="libeay32.pdb_3" Component_="libeay32.dll_3" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\x64\libeay32.pdb" SelfReg="false" NextFile="ssleay32.pdb_3"/>
     <ROW File="libeay32_mingw.dll" Component_="libeay32_mingw.dll" FileName="libeay~1.dll|libeay32_mingw.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\MinGW\bin\libeay32_mingw.dll" SelfReg="false" NextFile="ssleay32_mingw.dll"/>
     <ROW File="libeay32_vc90.dll" Component_="libeay32_vc90.dll" FileName="libeay~2.dll|libeay32_vc90.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC90\bin\libeay32_vc90.dll" SelfReg="false" NextFile="ssleay32_vc90.dll"/>
+    <ROW File="libeay32_vc90.pdb" Component_="libeay32_vc90.dll" FileName="libeay~1.pdb|libeay32_vc90.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC90\bin\libeay32_vc90.pdb" SelfReg="false" NextFile="ssleay32_vc90.pdb"/>
     <ROW File="libexpat.dll" Component_="libexpat.dll" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\libexpat.dll" SelfReg="false" NextFile="openssl.exe"/>
     <ROW File="libexpat.dll_1" Component_="libexpat.dll_1" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\x64\libexpat.dll" SelfReg="false" NextFile="openssl.exe_1"/>
     <ROW File="libexpat.dll_2" Component_="libexpat.dll_2" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\libexpat.dll" SelfReg="false" NextFile="openssl.exe_2"/>
@@ -348,7 +353,7 @@
     <ROW File="obj_mac.h" Component_="aes.h" FileName="obj_mac.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\obj_mac.h" SelfReg="false" NextFile="ocsp.h"/>
     <ROW File="objects.h" Component_="aes.h" FileName="objects.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\objects.h" SelfReg="false" NextFile="obj_mac.h"/>
     <ROW File="ocsp.h" Component_="aes.h" FileName="ocsp.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\ocsp.h" SelfReg="false" NextFile="opensslconf.h"/>
-    <ROW File="openssl.cnf" Component_="openssl.cnf" FileName="openssl.cnf" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\config\openssl.cnf" SelfReg="false"/>
+    <ROW File="openssl.cnf" Component_="openssl.cnf" FileName="openssl.cnf" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\config\openssl.cnf" SelfReg="false" NextFile="libeay32.pdb"/>
     <ROW File="openssl.exe" Component_="openssl.exe" FileName="openssl.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\openssl.exe" SelfReg="false" NextFile="ssleay32.dll" DigSign="true"/>
     <ROW File="openssl.exe_1" Component_="openssl.exe_1" FileName="openssl.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\x64\openssl.exe" SelfReg="false" NextFile="ssleay32.dll_1" DigSign="true"/>
     <ROW File="openssl.exe_2" Component_="openssl.exe_2" FileName="openssl.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\openssl.exe" SelfReg="false" NextFile="ssleay32.dll_2" DigSign="true"/>
@@ -384,8 +389,13 @@
     <ROW File="ssleay32.lib_2" Component_="libbz2.lib_2" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\lib\x64\ssleay32.lib" SelfReg="false" NextFile="libbz2.lib_3"/>
     <ROW File="ssleay32.lib_3" Component_="db.jar" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\lib\ssleay32.lib" SelfReg="false" NextFile="SOURCES.txt"/>
     <ROW File="ssleay32.lib_4" Component_="libbz2.lib_3" FileName="ssleay32.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\TP\VC100\lib\x64\ssleay32.lib" SelfReg="false" NextFile="openssl.cnf"/>
+    <ROW File="ssleay32.pdb" Component_="ssleay32.dll" FileName="ssleay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\ssleay32.pdb" SelfReg="false" NextFile="libeay32.pdb_1"/>
+    <ROW File="ssleay32.pdb_1" Component_="ssleay32.dll_1" FileName="ssleay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC100\bin\x64\ssleay32.pdb" SelfReg="false" NextFile="libeay32.pdb_2"/>
+    <ROW File="ssleay32.pdb_2" Component_="ssleay32.dll_2" FileName="ssleay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\ssleay32.pdb" SelfReg="false" NextFile="libeay32.pdb_3"/>
+    <ROW File="ssleay32.pdb_3" Component_="ssleay32.dll_3" FileName="ssleay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC110\bin\x64\ssleay32.pdb" SelfReg="false" NextFile="libeay32_vc90.pdb"/>
     <ROW File="ssleay32_mingw.dll" Component_="ssleay32_mingw.dll" FileName="ssleay~1.dll|ssleay32_mingw.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\MinGW\bin\ssleay32_mingw.dll" SelfReg="false" NextFile="bzip2_vc90.dll"/>
     <ROW File="ssleay32_vc90.dll" Component_="ssleay32_vc90.dll" FileName="ssleay~2.dll|ssleay32_vc90.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC90\bin\ssleay32_vc90.dll" SelfReg="false" NextFile="libbz2.lib"/>
+    <ROW File="ssleay32_vc90.pdb" Component_="ssleay32_vc90.dll" FileName="ssleay~1.pdb|ssleay32_vc90.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\VC90\bin\ssleay32_vc90.pdb" SelfReg="false"/>
     <ROW File="stack.h" Component_="aes.h" FileName="stack.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\stack.h" SelfReg="false" NextFile="symhacks.h"/>
     <ROW File="symhacks.h" Component_="aes.h" FileName="symhacks.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\symhacks.h" SelfReg="false" NextFile="tls1.h"/>
     <ROW File="tls1.h" Component_="aes.h" FileName="tls1.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\tls1.h" SelfReg="false" NextFile="ts.h"/>

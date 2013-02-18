@@ -9,7 +9,7 @@ The following versions of the third party software were used to
 create this package:
 
  - Berkeley 5.3.21
- - OpenSSL 1.0.1c
+ - OpenSSL 1.0.1e
  - Expat 2.0.1
  - Bzip2 1.0.6
  - MCPP 2.7.2
