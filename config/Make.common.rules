@@ -182,16 +182,23 @@ $(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir)$(cpp11suf
         ifeq ($(shell test -f $(top_srcdir)/bin/$(slice_translator) && echo 0), 0)
             ice_dir = $(top_srcdir)
         else 
-	    ifeq ($(shell test -f /usr/bin/$(slice_translator) && echo 0), 0)
-	        ice_dir = /usr
-	        ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
-$(warning Found $(slice_translator) in both /usr/bin and /opt/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
-		endif
-	    else
-	        ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
-	            ice_dir = /opt/Ice-$(VERSION)
-		endif
-	    endif
+	        ifeq ($(shell test -f /usr/bin/$(slice_translator) && echo 0), 0)
+                ice_dir = /usr
+                ifeq ($(shell test -f /opt/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
+                   $(warning Found $(slice_translator) in both /usr/bin and /opt/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
+                endif
+                ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/bin/$(slice_translator) && echo 0), 0)
+                   $(warning Found $(slice_translator) in both /usr/bin and /Library/Developer/Ice-$(VERSION)/bin, /usr/bin/$(slice_translator) will be used!)
+                endif
+            else
+                ifeq ($(shell test -f /opt/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+                    ice_dir = /opt/Ice-$(VERSION)
+                else
+                    ifeq ($(shell test -f /Library/Developer/Ice-$(VERSION)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+                        ice_dir = /Library/Developer/Ice-$(VERSION)
+                    endif
+                endif
+            endif
         endif
     endif
 
