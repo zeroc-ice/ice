@@ -46,7 +46,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        FixedReference ref = new FixedReference(
+        return new FixedReference(
             _instance, 
             _communicator, 
             ident, 
@@ -55,7 +55,6 @@ public final class ReferenceFactory
             fixedConnection.endpoint().secure(),
             _instance.defaultsAndOverrides().defaultEncoding,
             fixedConnection);
-        return updateCache(ref);
     }
 
     public Reference
@@ -667,47 +666,6 @@ public final class ReferenceFactory
         _communicator = communicator;
     }
 
-    synchronized void
-    destroy()
-    {
-        _references.clear();
-    }
-
-    synchronized private Reference
-    updateCache(Reference ref)
-    {
-        //
-        // If we already have an equivalent reference, use such equivalent
-        // reference. Otherwise add the new reference to the reference
-        // set.
-        //
-        // Java implementation note: A WeakHashMap is used to hold References,
-        // allowing References to be garbage collected automatically. A
-        // Reference serves as both key and value in the map. The
-        // WeakHashMap class internally creates a weak reference for the
-        // key, and we use a weak reference for the value as well.
-        //
-        java.lang.ref.WeakReference<Reference> w = _references.get(ref);
-        if(w != null)
-        {
-            Reference r = w.get();
-            if(r != null)
-            {
-                ref = r;
-            }
-            else
-            {
-                _references.put(ref, new java.lang.ref.WeakReference<Reference>(ref));
-            }
-        }
-        else
-        {
-            _references.put(ref, new java.lang.ref.WeakReference<Reference>(ref));
-        }
-
-        return ref;
-    }
-
     static private String[] _suffixes =
     {
         "EndpointSelection",
@@ -882,29 +840,27 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return updateCache(new RoutableReference(_instance, 
-                                                 _communicator,
-                                                 ident,
-                                                 facet,
-                                                 mode,
-                                                 secure,
-                                                 protocol,
-                                                 encoding,
-                                                 endpoints,
-                                                 adapterId,
-                                                 locatorInfo,
-                                                 routerInfo,
-                                                 collocationOptimized,
-                                                 cacheConnection,
-                                                 preferSecure,
-                                                 endpointSelection,
-                                                 locatorCacheTimeout));
+        return new RoutableReference(_instance, 
+                                     _communicator,
+                                     ident,
+                                     facet,
+                                     mode,
+                                     secure,
+                                     protocol,
+                                     encoding,
+                                     endpoints,
+                                     adapterId,
+                                     locatorInfo,
+                                     routerInfo,
+                                     collocationOptimized,
+                                     cacheConnection,
+                                     preferSecure,
+                                     endpointSelection,
+                                     locatorCacheTimeout);
     }
 
     final private Instance _instance;
     final private Ice.Communicator _communicator;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
-    private java.util.WeakHashMap<Reference, java.lang.ref.WeakReference<Reference> > _references =
-        new java.util.WeakHashMap<Reference, java.lang.ref.WeakReference<Reference> >();
 }

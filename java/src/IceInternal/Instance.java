@@ -1068,12 +1068,9 @@ public final class Instance
                 _servantFactoryManager.destroy();
                 _servantFactoryManager = null;
             }
-
-            if(_referenceFactory != null)
-            {
-                _referenceFactory.destroy();
-                _referenceFactory = null;
-            }
+            
+            //_referenceFactory.destroy(); // No destroy function defined.
+            _referenceFactory = null;
 
             // _proxyFactory.destroy(); // No destroy function defined.
             _proxyFactory = null;

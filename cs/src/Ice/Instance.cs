@@ -1133,11 +1133,9 @@ namespace IceInternal
                     _servantFactoryManager = null;
                 }
                 
-                if(_referenceFactory != null)
-                {
-                    _referenceFactory.destroy();
-                    _referenceFactory = null;
-                }
+                // No destroy function defined.
+                //_referenceFactory.destroy();
+                _referenceFactory = null;
                 
                 // No destroy function defined.
                 // _proxyFactory.destroy();

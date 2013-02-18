@@ -55,7 +55,7 @@ namespace IceInternal
             //
             // Create new reference
             //
-            FixedReference r = new FixedReference(
+            return new FixedReference(
                 instance_, 
                 _communicator, 
                 ident,
@@ -64,7 +64,6 @@ namespace IceInternal
                 connection.endpoint().secure(),
                 instance_.defaultsAndOverrides().defaultEncoding,
                 connection);
-            return updateCache(r);
         }
 
         public Reference copy(Reference r)
@@ -669,42 +668,6 @@ namespace IceInternal
             _communicator = communicator;
         }
 
-        internal void destroy()
-        {
-            lock(this)
-            {
-                _references.Clear();
-            }
-        }
-
-        private Reference updateCache(Reference @ref)
-        {
-            lock(this)
-            {
-                //
-                // If we already have an equivalent reference, use such equivalent
-                // reference. Otherwise add the new reference to the reference
-                // set.
-                //
-                WeakReference w = new WeakReference(@ref);
-                object v;
-                if(_references.TryGetValue(w, out v))
-                {
-                    WeakReference val = (WeakReference)v;
-                    if(val != null)
-                    {
-                        Reference r = (Reference)val.Target;
-                        if(r != null && r.Equals(@ref))
-                        {
-                            return r;
-                        }
-                    }
-                }
-                _references[w] = w;
-                return @ref;
-            }
-        }
-
         static private readonly string[] _suffixes =
         {
             "EndpointSelection",
@@ -884,30 +847,29 @@ namespace IceInternal
             //
             // Create new reference
             //
-            return updateCache(new RoutableReference(instance_, 
-                                                     _communicator,
-                                                     ident,
-                                                     facet,
-                                                     mode,
-                                                     secure,
-                                                     protocol,
-                                                     encoding,
-                                                     endpoints,
-                                                     adapterId,
-                                                     locatorInfo,
-                                                     routerInfo,
-                                                     collocOptimized,
-                                                     cacheConnection,
-                                                     preferSecure,
-                                                     endpointSelection,
-                                                     locatorCacheTimeout));
+            return new RoutableReference(instance_, 
+                                         _communicator,
+                                         ident,
+                                         facet,
+                                         mode,
+                                         secure,
+                                         protocol,
+                                         encoding,
+                                         endpoints,
+                                         adapterId,
+                                         locatorInfo,
+                                         routerInfo,
+                                         collocOptimized,
+                                         cacheConnection,
+                                         preferSecure,
+                                         endpointSelection,
+                                         locatorCacheTimeout);
         }
 
         private Instance instance_;
         private Ice.Communicator _communicator;
         private Ice.RouterPrx _defaultRouter;
         private Ice.LocatorPrx _defaultLocator;
-        private Dictionary<Object, Object> _references = new Dictionary<Object, Object>();
     }
 
 }

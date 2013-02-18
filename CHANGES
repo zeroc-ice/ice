@@ -344,6 +344,10 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- Fixed potential leak which could eventually result in an
+  OutOfMemoryException for applications creating proxies on a regular
+  basis.
+
 - Added the properties IceSSL.KeySet and IceSSL.PersistKeySet to
   control how and where to import private keys of X.509 certificates.
 
