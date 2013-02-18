@@ -543,7 +543,13 @@ public class SessionKeeper
                 {
                     name += "tcp";
                 }
-                name += " -h " + getHost() + " -p " + Integer.toString(getPort());
+                String host = getHost();
+                if(host.indexOf('"') == -1)
+                {
+                    host = "\"" + host + "\"";
+                }
+
+                name += " -h " + host + " -p " + Integer.toString(getPort());
             }
             else
             {

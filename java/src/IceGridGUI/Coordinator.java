@@ -1766,7 +1766,12 @@ public class Coordinator
                 {
                     str += "tcp";
                 }
-                str += " -h " + info.getHost() + " -p " + info.getPort();
+                String host = info.getHost();
+                if(host.indexOf('"') == -1)
+                {
+                    host = "\"" + host + "\"";
+                }
+                str += " -h " + host + " -p " + info.getPort();
             }
             else
             {
@@ -1987,7 +1992,12 @@ public class Coordinator
                 {
                     str += "tcp";
                 }
-                str += " -h " + info.getHost() + " -p " + info.getPort();
+                String host = info.getHost();
+                if(host.indexOf('"') == -1)
+                {
+                    host = "\"" + host + "\"";
+                }
+                str += " -h " + host + " -p " + info.getPort();
             }
             else
             {
