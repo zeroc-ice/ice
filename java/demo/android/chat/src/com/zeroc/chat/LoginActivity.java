@@ -281,32 +281,6 @@ public class LoginActivity extends Activity
             return builder.create();
         }
 
-        case DIALOG_CONFIRM:
-        {
-            final String msg = "The server certificate does not match the official ZeroC chat server "
-                    + "certificate, do you want to continue and connect to this chat server?";
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-            builder.setTitle("Warning");
-            builder.setMessage(msg);
-            builder.setCancelable(false);
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    _service.confirmConnection(true);
-                }
-            });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int whichButton)
-                {
-                    _service.confirmConnection(false);
-                }
-            });
-            return builder.create();
-        }
-
         case DIALOG_INVALID_HOST:
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -54,16 +54,6 @@ public interface Service
 
     /**
      *
-     * Called to confirm a connection establishment.
-     *
-     * @param confirm
-     *            True if the connection should be established, false otherwise.
-     *
-     */
-    void confirmConnection(boolean confirm);
-
-    /**
-     *
      * Called to logout from the current session.
      *
      */

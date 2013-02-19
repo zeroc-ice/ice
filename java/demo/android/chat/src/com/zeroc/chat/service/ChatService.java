@@ -8,10 +8,6 @@
 // **********************************************************************
 package com.zeroc.chat.service;
 
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -31,9 +27,6 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
     private static final int CHATACTIVE_NOTIFICATION = 0;
     private static final String REFRESH_EXTRA = "refresh";
     private AppSession _session = null;
-    private CertificateVerifier _verifier;
-    private boolean _confirmConnectionResult = false;
-    private boolean _confirmConnection = false;
     private boolean _confirmConnectionInProgress = false;
     private SessionListener _listener;
     private boolean _loginInProgress;
@@ -59,19 +52,6 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
     {
         super.onCreate();
         _handler = new Handler();
-
-        //
-        // Read the CA certificate embedded in the Jar file.
-        //
-        try
-        {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            Certificate caCert = cf.generateCertificate(getResources().openRawResource(R.raw.client));
-            _verifier = new CertificateVerifier(caCert);
-        }
-        catch(CertificateException e)
-        {
-        }
     }
 
     @Override
@@ -127,13 +107,6 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
         return _loginInProgress;
     }
 
-    synchronized public void confirmConnection(boolean confirm)
-    {
-        _confirmConnectionResult = true;
-        _confirmConnection = confirm;
-        notify();
-    }
-
     synchronized public void logout()
     {
         if(_session != null)
@@ -153,8 +126,6 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
 
         _loginError = null;
         _loginInProgress = true;
-        _confirmConnectionResult = false;
-        assert !_confirmConnectionInProgress;
 
         new Thread(new Runnable()
         {
@@ -162,7 +133,7 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
             {
                 try
                 {
-                    loginComplete(new AppSession(_handler, _verifier, hostname, username, password, secure), hostname);
+                    loginComplete(new AppSession(getResources(), _handler, hostname, username, password, secure), hostname);
                 }
                 catch(final Glacier2.CannotCreateSessionException ex)
                 {
@@ -239,65 +210,6 @@ public class ChatService extends Service implements com.zeroc.chat.service.Servi
                 }
             });
         }
-    }
-
-    private class CertificateVerifier implements IceSSL.CertificateVerifier
-    {
-        public CertificateVerifier(Certificate caCert)
-        {
-            _caCert = caCert;
-        }
-
-        public boolean verify(IceSSL.NativeConnectionInfo info)
-        {
-            try
-            {
-                if(info.certs != null && info.certs.length > 0)
-                {
-                    info.nativeCerts[0].verify(_caCert.getPublicKey());
-                    return true;
-                }
-            }
-            catch(Exception ex)
-            {
-                return waitConfirmConnection();
-            }
-            return false;
-        }
-
-        final private Certificate _caCert;
-    };
-
-    synchronized private boolean waitConfirmConnection()
-    {
-        _confirmConnectionInProgress = true;
-        if(_listener != null)
-        {
-            final SessionListener listener = _listener;
-
-            _handler.post(new Runnable()
-            {
-                public void run()
-                {
-                    listener.onConnectConfirm();
-                }
-            });
-        }
-
-        while(!_confirmConnectionResult)
-        {
-            try
-            {
-                // We don't want to block the connection process forever.
-                wait(10 * 1000);
-            }
-            catch(InterruptedException e)
-            {
-            }
-        }
-
-        _confirmConnectionInProgress = false;
-        return _confirmConnection;
     }
 
     synchronized private void loginComplete(AppSession session, String hostname)
