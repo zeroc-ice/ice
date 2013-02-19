@@ -1114,7 +1114,9 @@ ZEND_FUNCTION(Ice_getProperties)
 // Necessary to suppress warnings from zend_function_entry in php-5.2
 // and INI_STR macro.
 //
-#pragma GCC diagnostic ignored "-Wwrite-strings"
+#ifdef __GNUC__
+#   pragma GCC diagnostic ignored "-Wwrite-strings"
+#endif
 
 //
 // Predefined methods for Communicator.
