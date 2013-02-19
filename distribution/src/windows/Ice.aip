@@ -5642,8 +5642,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
-    <ROW Action="fixinstalldir.vbs" Condition="( NOT Installed )" Sequence="5940"/>
-    <ROW Action="AI_DATA_SETTER" Condition="( NOT Installed )" Sequence="5939"/>
+    <ROW Action="fixinstalldir.vbs" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) )" Sequence="5940"/>
+    <ROW Action="AI_DATA_SETTER" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) )" Sequence="5939"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
     <ROW Action="removeaddins.vbs" Condition="( NOT Installed )" Sequence="5936"/>
     <ROW Action="AI_DATA_SETTER_1" Condition="NOT Installed" Sequence="5935"/>
