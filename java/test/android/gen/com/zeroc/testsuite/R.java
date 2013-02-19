@@ -11,6 +11,7 @@ public final class R {
     public static final class attr {
     }
     public static final class id {
+        public static final int ipv6=0x7f050002;
         public static final int next=0x7f050000;
         public static final int secure=0x7f050001;
     }
@@ -25,6 +26,7 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f040000;
+        public static final int ipv6=0x7f040003;
         public static final int next=0x7f040001;
         public static final int ssl=0x7f040002;
     }

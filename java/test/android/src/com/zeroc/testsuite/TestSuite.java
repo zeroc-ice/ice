@@ -89,6 +89,15 @@ public class TestSuite extends ListActivity
         {
             secure.setEnabled(false);
         }
+        
+        CheckBox ipv6 = (CheckBox)findViewById(R.id.ipv6);
+        ipv6.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                app.setIPv6(isChecked);
+            }
+        });
     }
 
     protected void onListItemClick(ListView l, View v, int position, long id)

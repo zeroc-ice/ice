@@ -3,4 +3,5 @@
     <string name="app_name">Test Suite</string>
     <string name="next">Next</string>
     <string name="ssl">SSL</string>
+    <string name="ipv6">IPv6</string>
 </resources>

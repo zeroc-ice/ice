@@ -252,6 +252,7 @@ public class TestApp extends Application
     private boolean _ssl = false;
     private boolean _sslInitialized = false;
     private boolean _sslSupported = false;
+    private boolean _ipv6 = false;
     private SSLContext _clientContext = null;
     private SSLContext _serverContext = null;
     private SSLInitializationListener _ssllistener;
@@ -269,6 +270,39 @@ public class TestApp extends Application
         public int getStatus()
         {
             return _status;
+        }
+        
+        protected String[] setupAddress(String[] args, boolean ipv6)
+        {
+            if(ipv6)
+            {
+                String[] ipv6Args =
+                {
+                    "--Ice.Default.Host=0:0:0:0:0:0:0:1",
+                    "--Ice.IPv4=1",
+                    "--Ice.IPv6=1",
+                    "--Ice.PreferIPv6Address=1",
+                };
+                
+                String[] nargs = new String[args.length + ipv6Args.length];
+                System.arraycopy(args, 0, nargs, 0, args.length);
+                System.arraycopy(ipv6Args, 0, nargs, args.length, ipv6Args.length);
+                return nargs;
+            }
+            else
+            {
+                String[] ipv4Args =
+                {
+                    "--Ice.Default.Host=127.0.0.1",
+                    "--Ice.IPv4=1",
+                    "--Ice.IPv6=0"
+                };
+                
+                String[] nargs = new String[args.length + ipv4Args.length];
+                System.arraycopy(args, 0, nargs, 0, args.length);
+                System.arraycopy(ipv4Args, 0, nargs, args.length, ipv4Args.length);
+                return nargs;
+            }
         }
 
         protected String[] setupssl(String[] args, final SSLContext context)
@@ -322,8 +356,11 @@ public class TestApp extends Application
         {
             String[] args =
             {
-                "--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1", "--Ice.Default.Host=127.0.0.1"
+                "--Ice.NullHandleAbort=1", "--Ice.Warn.Connections=1"
             };
+            
+            args = setupAddress(args, _ipv6);
+            
             if(_ssl)
             {
                 args = setupssl(args, _clientContext);
@@ -357,9 +394,11 @@ public class TestApp extends Application
                 "--Ice.Warn.Connections=1",
                 "--Ice.ThreadPool.Server.Size=1",
                 "--Ice.ThreadPool.Server.SizeMax=3",
-                "--Ice.ThreadPool.Server.SizeWarn=0",
-                "--Ice.Default.Host=127.0.0.1"
+                "--Ice.ThreadPool.Server.SizeWarn=0"
             };
+            
+            args = setupAddress(args, _ipv6);
+            
             if(_ssl)
             {
                 args = setupssl(args, _serverContext);
@@ -411,6 +450,9 @@ public class TestApp extends Application
             {
                 "--Ice.NullHandleAbort=1"
             };
+            
+            args = setupAddress(args, _ipv6);
+            
             if(_ssl)
             {
                 args = setupssl(args, _clientContext);
@@ -655,6 +697,11 @@ public class TestApp extends Application
     public boolean isSSLSupported()
     {
         return _sslSupported;
+    }
+    
+    public void setIPv6(boolean ipv6)
+    {
+        _ipv6 = ipv6;
     }
 
     public void setSSL(boolean ssl)
