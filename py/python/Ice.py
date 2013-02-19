@@ -324,6 +324,14 @@ def getSliceDir():
         if os.path.exists(dir):
             return dir
 
+    elif sys.platform == "darwin":
+        #
+        # Check the default OS X location.
+        #
+        dir = os.path.join("/", "Library", "Developer", "Ice-" + iceVer, "slice")
+        if os.path.exists(dir):
+            return dir
+
     return None
 
 #
