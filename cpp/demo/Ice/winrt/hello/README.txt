@@ -19,7 +19,7 @@ this distribution. For example:
 This will regenerate a server certificate with a common name set to
 192.168.1.53. This can either be set to an IP address or DNS name, the
 only requirement is that it matches the value that will be used by the
-client to connect to the Glacier2 router.
+hello client to connect to the hello server.
 
 Build and deploy the demo using "Deploy hello" from the "Build" menu.
 
