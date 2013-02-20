@@ -290,34 +290,36 @@ struct TestCase
     const char* serverAMD;
     const char* collocated;
     bool sslSupport;
+    bool ipv6Support;
 };
 
 }
 static const TestCase allTest[] =
 {
-    {"Ice\\adapterDeactivation", "Ice_adapterDeactivation_", "client.dll", "server.dll", 0, "collocated.dll", true},
-    {"Ice\\ami", "Ice_ami_", "client.dll", "server.dll", 0, 0, true },
-    {"Ice\\binding", "Ice_binding_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\dispatcher", "Ice_dispatcher_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\exceptions", "Ice_exceptions_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true},
-    {"Ice\\facets", "Ice_facets_", "client.dll", "server.dll", 0, "collocated.dll", true},
-    {"Ice\\hold", "Ice_hold_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\info", "Ice_info_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\inheritance", "Ice_inheritance_", "client.dll", "server.dll", 0, "collocated.dll", true},
-    {"Ice\\invoke", "Ice_invoke_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\location", "Ice_location_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\objects", "Ice_objects_", "client.dll", "server.dll", 0, "collocated.dll", true},
-    {"Ice\\operations", "Ice_operations_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true},
-    {"Ice\\proxy", "Ice_proxy_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true},
-    {"Ice\\retry", "Ice_retry_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\stream", "Ice_stream_", "client.dll", 0, 0, 0, true},
-    {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0, false},
-    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0, true},
-    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0, false},
-    {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0, true},
-    {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0, true}
+    {"Ice\\adapterDeactivation", "Ice_adapterDeactivation_", "client.dll", "server.dll", 0, "collocated.dll", true, 
+     true },
+    {"Ice\\ami", "Ice_ami_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\binding", "Ice_binding_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\dispatcher", "Ice_dispatcher_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\exceptions", "Ice_exceptions_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true, true },
+    {"Ice\\facets", "Ice_facets_", "client.dll", "server.dll", 0, "collocated.dll", true, true },
+    {"Ice\\hold", "Ice_hold_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\info", "Ice_info_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\inheritance", "Ice_inheritance_", "client.dll", "server.dll", 0, "collocated.dll", true, true },
+    {"Ice\\invoke", "Ice_invoke_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\location", "Ice_location_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\objects", "Ice_objects_", "client.dll", "server.dll", 0, "collocated.dll", true, true },
+    {"Ice\\operations", "Ice_operations_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true, true },
+    {"Ice\\proxy", "Ice_proxy_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true, true },
+    {"Ice\\retry", "Ice_retry_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\stream", "Ice_stream_", "client.dll", 0, 0, 0, true, true },
+    {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0, false, true },
+    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0, true, true },
+    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0, false, false },
+    {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0, true, true },
+    {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0, true, true }
 };
 
 class TestRunner : public IceUtil::Thread
@@ -336,6 +338,10 @@ public:
             if(_config.ssl && !_test.sslSupport)
             {
                 printLineToConsoleOutput("**** test " + _test.name + " not supported with SSL");   
+            }
+            else if(_config.ipv6 && !_test.ipv6Support)
+            {
+                printLineToConsoleOutput("**** test " + _test.name + " not supported with IPv6");
             }
             else if(_config.ssl && _config.ipv6)
             {
