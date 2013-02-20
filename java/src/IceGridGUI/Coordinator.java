@@ -3552,7 +3552,7 @@ public class Coordinator
                     {
                         throw new Exception("Could not get Documents dir from Windows registry key `" + regKey + "'");
                     }
-                    _dataDir += File.separator + "ZeroC" + File.separator + "IceGridGUI" + File.separator + "KeyStore";
+                    _dataDir += File.separator + "ZeroC" + File.separator + "IceGrid Admin" + File.separator + "KeyStore";
                 }
                 catch(java.io.IOException ex)
                 {
@@ -3565,7 +3565,7 @@ public class Coordinator
             }
             else
             {
-                _dataDir = System.getProperty("user.home") + File.separator + ".ZeroC" + File.separator + "IceGridGUI" + 
+                _dataDir = System.getProperty("user.home") + File.separator + ".ZeroC" + File.separator + "IceGrid Admin" + 
                                                                                             File.separator + "KeyStore";
             }
         }
