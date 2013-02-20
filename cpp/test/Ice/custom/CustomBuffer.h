@@ -160,7 +160,7 @@ struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
     template<class S> static inline void 
     write(S* stream, const ::Test::CustomBuffer<T>& v)
     {
-        stream->write(v.get(), v.get() + v.count() * sizeof(T));
+        stream->write(v.get(), v.get() + v.count());
     }
 
     template<class S> static inline void 
@@ -170,7 +170,7 @@ struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
         std::pair<const T*, const T*> a;
         stream->read(a, p);
         T* b = p.release();
-        size_t count = (a.second - a.first) / sizeof(T);
+        size_t count = a.second - a.first;
         if(b == 0)
         {
             b = new T[count];
