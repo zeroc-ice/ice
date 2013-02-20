@@ -578,14 +578,32 @@ IceInternal::errorToStringDNS(int error)
 vector<Address>
 IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::EndpointSelectionType, bool, bool)
 {
-    vector<Address> result;
-    Address addr;
-    addr.host = ref new HostName(host.empty() ? "localhost" : ref new String(IceUtil::stringToWstring(host).c_str()));
-    stringstream os;
-    os << port;
-    addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
-    result.push_back(addr);
-    return result;
+    try
+    {
+        vector<Address> result;
+        Address addr;
+        if(host.empty())
+        {
+            addr.host = ref new HostName("localhost");
+        }
+        else
+        {
+            addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
+        }
+        stringstream os;
+        os << port;
+        addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
+        result.push_back(addr);
+        return result;
+    }
+    catch(Platform::Exception^ pex)
+    {
+        DNSException ex(__FILE__, __LINE__);
+        ex.error = (int)SocketError::GetStatus(pex->HResult);
+        ex.host = host;
+        throw ex;
+    }
+
 }
 #else
 vector<Address>
@@ -725,25 +743,6 @@ IceInternal::getProtocolSupport(const Address& addr)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
-Address
-IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport, bool)
-{
-    Address addr;
-    ostringstream os;
-    os << port;
-    addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
-    if(host.empty())
-    {
-        addr.host = nullptr; // Equivalent of inaddr_any, see doBind implementation.
-    }
-    else
-    {
-        addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
-    }
-    return addr;
-}
-#else
 Address
 IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6)
 {
@@ -754,6 +753,12 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
     if(host.empty())
     {
         Address addr;
+#ifdef ICE_OS_WINRT
+        ostringstream os;
+        os << port;
+        addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
+        addr.host = nullptr; // Equivalent of inaddr_any, see doBind implementation.
+#else
         memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
         if(protocol != EnableIPv4)
         {
@@ -767,11 +772,11 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
             addr.saIn.sin_port = htons(port);
             addr.saIn.sin_addr.s_addr = htonl(INADDR_ANY);
         }
+#endif
         return addr;
     }
     return getAddresses(host, port, protocol, Ice::Ordered, preferIPv6, true)[0];
 }
-#endif
 
 int
 IceInternal::compareAddress(const Address& addr1, const Address& addr2)
