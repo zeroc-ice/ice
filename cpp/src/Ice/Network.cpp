@@ -868,6 +868,12 @@ IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport p
         int flag = protocol == EnableIPv6 ? 1 : 0;
         if(setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
         {
+#ifdef _WIN32
+            if(getSocketErrno() == WSAENOPROTOOPT)
+            {
+                return fd; // Windows XP doesn't support IPV6_V6ONLY
+            }
+#endif
             closeSocketNoThrow(fd);
             SocketException ex(__FILE__, __LINE__);
             ex.error = getSocketErrno();
