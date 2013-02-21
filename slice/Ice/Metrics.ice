@@ -9,6 +9,13 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+/**
+ *
+ * The Ice Management eXtension facility. It provides the {@link
+ * IceMX#MetricsAdmin} interface for management clients to retrieve
+ * metrics from Ice applications.
+ * 
+ **/
 module IceMX
 {
 
@@ -230,8 +237,8 @@ interface MetricsAdmin
 
 /**
  *
- * Thread metrics. A thread metrics provides information on the number
- * of threads currently in use and their activity.
+ * Provides information on the number of threads currently in use and
+ * their activity.
  *
  **/
 class ThreadMetrics extends Metrics
@@ -265,8 +272,7 @@ class ThreadMetrics extends Metrics
 
 /**
  *
- * Dispatch metrics. A dispatch metrics provides information on
- * servant dispatch, such as the size of the dispatch and its reply.
+ * Provides information on servant dispatch.
  * 
  **/
 class DispatchMetrics extends Metrics
@@ -297,9 +303,9 @@ class DispatchMetrics extends Metrics
 
 /**
  *
- * Remote metrics. Remote metrics are embedded within {@link
- * InvocationMetrics} and provide information on invocations that are
- * specifically sent over Ice connections.
+ * Provides information on invocations that are specifically sent over
+ * Ice connections. Remote metrics are embedded within {@link
+ * InvocationMetrics}.
  *
  **/
 class RemoteMetrics extends Metrics
@@ -323,10 +329,10 @@ class RemoteMetrics extends Metrics
 
 /**
  *
- * Invocation metrics. Invocation metrics provide measurements for
- * proxy invocation which can either be sent over the wire or
- * collocated. The metrics for invocations sent over the wire are
- * specifically measured with remote metrics.
+ * Provide measurements for proxy invocations. Proxy invocations can
+ * either be sent over the wire or be collocated. The metrics for
+ * invocations sent over the wire are specifically measured with
+ * {@link RemoteMetrics}.
  *
  **/
 class InvocationMetrics extends Metrics
@@ -357,7 +363,7 @@ class InvocationMetrics extends Metrics
 
 /**
  *
- * Connection metrics. It measures the data sent and received over Ice
+ * Provides information on the data sent and received over Ice
  * connections.
  *
  **/

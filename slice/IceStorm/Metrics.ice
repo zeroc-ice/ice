@@ -14,7 +14,7 @@ module IceMX
 
 /**
  *
- * Topic metrics.
+ * Provides information on IceStorm topics.
  *
  **/
 class TopicMetrics extends Metrics
@@ -36,7 +36,7 @@ class TopicMetrics extends Metrics
 
 /**
  *
- * Subscriber metrics.
+ * Provides information on IceStorm subscribers.
  *
  **/
 class SubscriberMetrics extends Metrics

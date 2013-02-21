@@ -14,7 +14,7 @@ module IceMX
 
 /**
  *
- * Topic metrics.
+ * Provides information on Glacier2 sessions.
  *
  **/
 class SessionMetrics extends Metrics

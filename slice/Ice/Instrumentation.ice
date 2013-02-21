@@ -18,6 +18,12 @@
 module Ice
 {
 
+/**
+ *
+ * The Instrumentation local interfaces enable observing a number of
+ * Ice core internal components (threads, connections, etc).
+ *
+ **/
 module Instrumentation
 {
 
