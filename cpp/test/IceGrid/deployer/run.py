@@ -22,8 +22,27 @@ import TestUtil, IceGridAdmin
 
 os.environ["MY_FOO"] = "12"
 
-IceGridAdmin.iceGridTest("application.xml", '--TestDir="%s"' % os.getcwd(), "icebox.exe='%s'" % TestUtil.getIceBox())
+if TestUtil.isDarwin():
+    #
+    # On OS X, make sure to also run the IceBox services in 32bits mode if
+    # x64 isn't specified and the service is built for 32bits.
+    #
+    iceBox = os.path.join(os.getcwd(), "iceboxwrapper")
+    iceBoxWrapper = open(iceBox, "w")
+    if TestUtil.x64:
+        iceBoxWrapper.write("#!/bin/sh\narch -x86_64 " + TestUtil.getIceBox() + " \"$@\"\n")
+    else:
+        iceBoxWrapper.write("#!/bin/sh\narch -i386 -x86_64 " + TestUtil.getIceBox() + " \"$@\"\n")
+    iceBoxWrapper.close()
+    os.chmod(iceBox, 0700)
+else:
+    iceBox = TestUtil.getIceBox()
+
+IceGridAdmin.iceGridTest("application.xml", '--TestDir="%s"' % os.getcwd(), "icebox.exe='%s'" % iceBox)
 
 # Tests with targets
 IceGridAdmin.iceGridTest("application.xml", '-t --TestDir="%s"' % os.getcwd(),
-                         "icebox.exe='%s' moreservers moreservices moreproperties" % TestUtil.getIceBox())
+                         "icebox.exe='%s' moreservers moreservices moreproperties" % iceBox)
+
+if TestUtil.isDarwin():
+    os.unlink("iceboxwrapper")
