@@ -14,14 +14,14 @@ import os, sys, shutil, subprocess
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] [cpp|java|.net]"
-    print
-    print "Options:"
-    print "-h    Show this message."
-    print "-f    Force updates to files that otherwise would be skipped."
-    print "-d    Debugging output."
-    print
-    print "The certificates for all languages are updated if you do not specify one."
+    print("Usage: " + sys.argv[0] + " [options] [cpp|java|.net]")
+    print("")
+    print("Options:")
+    print("-h    Show this message.")
+    print("-f    Force updates to files that otherwise would be skipped.")
+    print("-d    Debugging output.")
+    print("")
+    print("The certificates for all languages are updated if you do not specify one.")
 
 def newer(file1, file2):
     file1info = os.stat(file1)
@@ -58,8 +58,8 @@ for x in sys.argv[1:]:
     elif x == "-d":
         debug = True
     elif x.startswith("-"):
-        print sys.argv[0] + ": unknown option `" + x + "'"
-        print
+        print(sys.argv[0] + ": unknown option `" + x + "'")
+        print("")
         usage()
         sys.exit(1)
     else:
@@ -78,7 +78,7 @@ caKey = os.path.join(certs, "cakey.pem")
 caCert = os.path.join(certs, "cacert.pem")
 if not os.path.exists(caKey) or force:
 
-    print "Generating new CA certificate and key..."
+    print("Generating new CA certificate and key...")
     if os.path.exists(caKey):
         os.remove(caKey)
     if os.path.exists(caCert):
@@ -90,18 +90,18 @@ if not os.path.exists(caKey) or force:
     cmd = "openssl req -config " + config + " -x509 -days 1825 -newkey rsa:1024 -out " + \
            os.path.join(caHome, "cacert.pem") + " -outform PEM -nodes"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     shutil.copyfile(os.path.join(caHome, "cakey.pem"), caKey)
     shutil.copyfile(os.path.join(caHome, "cacert.pem"), caCert)
 
     cmd = "openssl x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "cacert.der")
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 
 else:
-    print "Skipping CA certificate and key."
+    print("Skipping CA certificate and key.")
 
 #
 # C++ server RSA certificate and key.
@@ -111,7 +111,7 @@ cppServerKey = os.path.join(certs, "s_rsa1024_priv.pem")
 if force or not os.path.exists(cppServerCert) or not os.path.exists(cppServerKey) or \
    (os.path.exists(cppServerCert) and newer(caCert, cppServerCert)):
 
-    print "Generating new C++ server RSA certificate and key..."
+    print("Generating new C++ server RSA certificate and key...")
 
     if os.path.exists(cppServerCert):
         os.remove(cppServerCert)
@@ -132,19 +132,19 @@ if force or not os.path.exists(cppServerCert) or not os.path.exists(cppServerKey
     cmd = "openssl req -config " + config + " -newkey rsa:1024 -nodes -keyout " + tmpKey + " -keyform PEM" + \
            " -out " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 
     cmd = "openssl ca -config " + config + " -batch -in " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
     shutil.copyfile(tmpKey, cppServerKey)
     shutil.copyfile(tmpCert, cppServerCert)
     os.remove(req)
 else:
-    print "Skipping C++ server RSA certificate and key."
+    print("Skipping C++ server RSA certificate and key.")
 
 #
 # C++ client RSA certificate and key.
@@ -154,7 +154,7 @@ cppClientKey = os.path.join(certs, "c_rsa1024_priv.pem")
 if force or not os.path.exists(cppClientCert) or not os.path.exists(cppClientKey) or \
    (os.path.exists(cppClientCert) and newer(caCert, cppClientCert)):
 
-    print "Generating new C++ client RSA certificate and key..."
+    print("Generating new C++ client RSA certificate and key...")
 
     if os.path.exists(cppClientCert):
         os.remove(cppClientCert)
@@ -175,19 +175,19 @@ if force or not os.path.exists(cppClientCert) or not os.path.exists(cppClientKey
     cmd = "openssl req -config " + config + " -newkey rsa:1024 -nodes -keyout " + tmpKey + " -keyform PEM" + \
            " -out " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 
     cmd = "openssl ca -config " + config + " -batch -in " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
     shutil.copyfile(tmpKey, cppClientKey)
     shutil.copyfile(tmpCert, cppClientCert)
     os.remove(req)
 else:
-    print "Skipping C++ client RSA certificate and key."
+    print("Skipping C++ client RSA certificate and key.")
 
 #
 # C++ DSA parameters.
@@ -195,7 +195,7 @@ else:
 dsaParams = os.path.join(certs, "dsaparam1024.pem")
 if (lang == "cpp" or lang == None) and (force or not os.path.exists(dsaParams)):
 
-    print "Generating new C++ DSA parameters..."
+    print("Generating new C++ DSA parameters...")
 
     if os.path.exists(dsaParams):
         os.remove(dsaParams)
@@ -204,10 +204,10 @@ if (lang == "cpp" or lang == None) and (force or not os.path.exists(dsaParams)):
 
     cmd = "openssl dsaparam -out " + dsaParams + " -outform PEM 1024"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 else:
-    print "Skipping C++ DSA parameters."
+    print("Skipping C++ DSA parameters.")
 
 #
 # C++ server DSA certificate and key.
@@ -219,7 +219,7 @@ if (lang == "cpp" or lang == None) and \
    (os.path.exists(cppServerCertDSA) and newer(caCert, cppServerCertDSA)) or \
    (os.path.exists(cppServerCertDSA) and newer(dsaParams, cppServerCertDSA))):
 
-    print "Generating new C++ server DSA certificate and key..."
+    print("Generating new C++ server DSA certificate and key...")
 
     if os.path.exists(cppServerCertDSA):
         os.remove(cppServerCertDSA)
@@ -240,19 +240,19 @@ if (lang == "cpp" or lang == None) and \
     cmd = "openssl req -config " + config + " -newkey dsa:" + dsaParams + " -nodes -keyout " + tmpKey + \
           " -keyform PEM -out " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 
     cmd = "openssl ca -config " + config + " -batch -in " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
     shutil.copyfile(tmpKey, cppServerKeyDSA)
     shutil.copyfile(tmpCert, cppServerCertDSA)
     os.remove(req)
 else:
-    print "Skipping C++ server DSA certificate and key."
+    print("Skipping C++ server DSA certificate and key.")
 
 #
 # C++ client DSA certificate and key.
@@ -264,7 +264,7 @@ if (lang == "cpp" or lang == None) and \
    (os.path.exists(cppClientCertDSA) and newer(caCert, cppClientCertDSA)) or \
    (os.path.exists(cppClientCertDSA) and newer(dsaParams, cppClientCertDSA))):
 
-    print "Generating new C++ client DSA certificate and key..."
+    print("Generating new C++ client DSA certificate and key...")
 
     if os.path.exists(cppClientCertDSA):
         os.remove(cppClientCertDSA)
@@ -285,19 +285,19 @@ if (lang == "cpp" or lang == None) and \
     cmd = "openssl req -config " + config + " -newkey dsa:" + dsaParams + " -nodes -keyout " + tmpKey + \
           " -keyform PEM -out " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 
     cmd = "openssl ca -config " + config + " -batch -in " + req
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     shutil.move(os.path.join(caHome, serialNum + ".pem"), tmpCert)
     shutil.copyfile(tmpKey, cppClientKeyDSA)
     shutil.copyfile(tmpCert, cppClientCertDSA)
     os.remove(req)
 else:
-    print "Skipping C++ client DSA certificate and key."
+    print("Skipping C++ client DSA certificate and key.")
 
 #
 # .NET server RSA certificate and key.
@@ -305,7 +305,7 @@ else:
 csServer = os.path.join(certs, "s_rsa1024.pfx")
 if (lang == ".net" or lang == None) and (force or not os.path.exists(csServer) or newer(cppServerCert, csServer)):
 
-    print "Generating new .NET server RSA certificate and key..."
+    print("Generating new .NET server RSA certificate and key...")
 
     if os.path.exists(csServer):
         os.remove(csServer)
@@ -313,10 +313,10 @@ if (lang == ".net" or lang == None) and (force or not os.path.exists(csServer) o
     cmd = "openssl pkcs12 -in " + cppServerCert + " -inkey " + cppServerKey + " -export -out " + csServer + \
           " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 else:
-    print "Skipping .NET server certificate and key."
+    print("Skipping .NET server certificate and key.")
 
 #
 # .NET client RSA certificate and key.
@@ -325,7 +325,7 @@ csClient = os.path.join(certs, "c_rsa1024.pfx")
 if (lang == ".net" or lang == None) and (force or not os.path.exists(csClient) or \
    (os.path.exists(csClient) and newer(cppClientCert, csClient))):
 
-    print "Generating new .NET client RSA certificate and key..."
+    print("Generating new .NET client RSA certificate and key...")
 
     if os.path.exists(csClient):
         os.remove(csClient)
@@ -333,10 +333,10 @@ if (lang == ".net" or lang == None) and (force or not os.path.exists(csClient) o
     cmd = "openssl pkcs12 -in " + cppClientCert + " -inkey " + cppClientKey + " -export -out " + csClient + \
           " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 else:
-    print "Skipping .NET client certificate and key."
+    print("Skipping .NET client certificate and key.")
 
 #
 # Java truststore.
@@ -345,7 +345,7 @@ truststore = "certs.jks"
 if (lang == "java" or lang == None) and (force or not os.path.exists(truststore) or \
    (os.path.exists(truststore) and newer(caCert, truststore))):
 
-    print "Generating Java truststore..."
+    print("Generating Java truststore...")
 
     if os.path.exists(truststore):
         os.remove(truststore)
@@ -355,17 +355,17 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
     cmd = "keytool -import -alias cacert -file " + cacert + " -keystore " + truststore + \
           " -storepass password -noprompt"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
 
     if os.path.exists("certs.bks"):
         os.remove("certs.bks")
 
-    print "Converting Java truststore to BKS..."
+    print("Converting Java truststore to BKS...")
     cmd = "keytool -importkeystore -srckeystore client.jks -destkeystore client.bks -srcstoretype JKS -deststoretype BKS " + \
           "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
 
     try:
         subprocess.check_output(cmd, shell=True)
@@ -379,22 +379,22 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
                     shutil.copyfile("client.bks", os.path.join(root, f))
     except subprocess.CalledProcessError as e:
         if e.output.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
-            print ""
-            print "WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format."
-            print "         You can download BKS provider from http://www.bouncycastle.org/latest_releases.html."
-            print "         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE"
-            print "         and run this script again."
-            print ""
+            print("")
+            print("WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format.")
+            print("         You can download BKS provider from http://www.bouncycastle.org/latest_releases.html.")
+            print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE")
+            print("         and run this script again.")
+            print("")
         elif e.output.find("java.security.InvalidKeyException: Illegal key size") != -1:
-            print ""
-            print "WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength."
-            print "         You can download it from Additional Resources section in Orcale Java Download page at:"
-            print "             http://www.oracle.com/technetwork/java/javase/downloads/index.html."
-            print ""
+            print("")
+            print("WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength.")
+            print("         You can download it from Additional Resources section in Orcale Java Download page at:")
+            print("             http://www.oracle.com/technetwork/java/javase/downloads/index.html.")
+            print("")
         else:
             raise
 else:
-    print "Skipping Java truststore."
+    print("Skipping Java truststore.")
 
 #
 # Java server keystore.
@@ -403,7 +403,7 @@ serverKeystore = "server.jks"
 if (lang == "java" or lang == None) and (force or not os.path.exists(serverKeystore) or \
    (os.path.exists(serverKeystore) and newer(cppServerCert, serverKeystore))):
 
-    print "Generating Java server keystore..."
+    print("Generating Java server keystore...")
 
     if os.path.exists(serverKeystore):
         os.remove(serverKeystore)
@@ -416,15 +416,15 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(serverKeyst
     cmd = "openssl pkcs12 -in " + cppServerCert + " -inkey " + cppServerKey + " -export -out " + tmpFile + \
           " -name rsakey -passout pass:password -certfile " + caCert
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     cmd = "java -classpath . ImportKey " + tmpFile + " rsakey " + caCert + " " + serverKeystore + " password"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     os.remove(tmpFile)
 else:
-    print "Skipping Java server keystore."
+    print("Skipping Java server keystore.")
 
 #
 # Java client keystore.
@@ -433,7 +433,7 @@ clientKeystore = "client.jks"
 if (lang == "java" or lang == None) and (force or not os.path.exists(clientKeystore) or \
    (os.path.exists(clientKeystore) and newer(cppClientCert, clientKeystore))):
 
-    print "Generating Java client keystore..."
+    print("Generating Java client keystore...")
 
     if os.path.exists(clientKeystore):
         os.remove(clientKeystore)
@@ -446,17 +446,17 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(clientKeyst
     cmd = "openssl pkcs12 -in " + cppClientCert + " -inkey " + cppClientKey + " -export -out " + tmpFile + \
           " -name rsakey -passout pass:password -certfile " + caCert
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     cmd = "java -classpath . ImportKey " + tmpFile + " rsakey " + caCert + " " + clientKeystore + " password"
     if debug:
-        print "[debug]", cmd
+        print("[debug]", cmd)
     os.system(cmd)
     os.remove(tmpFile)
 else:
-    print "Skipping Java client keystore."
+    print("Skipping Java client keystore.")
 
 #
 # Done.
 #
-print "Done."
+print("Done.")
