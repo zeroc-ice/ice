@@ -850,6 +850,7 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
+#if !SILVERLIGHT
         {
             Write("testing ipv4 & ipv6 connections... ");
             Flush();
@@ -974,6 +975,7 @@ public class AllTests : TestCommon.TestApp
             
             WriteLine("ok");
         }
+#endif
 
         com.shutdown();
     }
