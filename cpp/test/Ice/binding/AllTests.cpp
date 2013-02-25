@@ -846,7 +846,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         serverProps.push_back(localipv4);
         serverProps.push_back(localipv6);
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
         OSVERSIONINFO ver;
         ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
         GetVersionEx(&ver);

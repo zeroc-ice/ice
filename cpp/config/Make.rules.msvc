@@ -47,18 +47,18 @@ CPPFLAGS        = $(CPPFLAGS) -MP
 !if "$(OPTIMIZE)" == "yes"
 
 CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
+CONFIG		= Retail	
 
 !if "$(RELEASEPDBS)" == "yes"
 CPPFLAGS        = $(CPPFLAGS) -Zi -Oy-
 !endif
 
-ARFLAGS	        = $(ARFLAGS) /LTCG
-CONFIG		= Retail	
 
 !else
 
 CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd -RTC1
 CONFIG		= Debug
+
 !endif
 
 !if "$(STATICLIBS)" == "yes"

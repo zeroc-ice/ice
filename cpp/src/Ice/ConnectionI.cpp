@@ -25,7 +25,9 @@
 #include <Ice/LocalException.h>
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
-#include <bzlib.h>
+#ifndef ICE_OS_WINRT
+#    include <bzlib.h>
+#endif
 
 using namespace std;
 using namespace Ice;
