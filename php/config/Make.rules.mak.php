@@ -74,6 +74,8 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+!if "$(USE_BIN_DIST)" != "yes"
+
 #
 # Check CPP_COMPILER
 #
@@ -93,6 +95,8 @@ CPP_COMPILER            = VC90
 
 !elseif "$(CPP_COMPILER)" != "VC90"
 !error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC90.
+!endif
+
 !endif
 
 #
