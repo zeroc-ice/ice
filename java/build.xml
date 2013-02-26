@@ -766,7 +766,7 @@
 
             <!-- Customize jar manifest (optional) -->
             <manifest>
-                <attribute name="Class-Path" value="../help/ ../resources/ ../doc/ice-${ice.version}/help/ ../doc/packages/ice-${ice.version}/help/"/>
+                <attribute name="Class-Path" value="../resources/"/>
             </manifest>
         </fx:jar>
 
@@ -845,11 +845,7 @@
     </target>
 
     <target name="install-icegridgui-jar" if="build-icegridadmin" unless="ice.bin.dist">
-        <mkdir dir="${prefix}/help"/>
         <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
-        <copy todir="${prefix}/help">
-            <fileset dir="resources" includes="IceGridAdmin/**"/>
-        </copy>
     </target>
 
     <target name="install-icegridgui-bundle" if="build-icegridadmin-bundle">
