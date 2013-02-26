@@ -38,10 +38,10 @@ General Changes
 
   Ice will still prefer IPv4 addresses when resolving hostnames from
   endpoints (and if the hostname resolves to both type of
-  address). This behavior can be changed by setting Ice.PreferIPv6 to
-  1. In this case, Ice will first prefer the IPv6 address over the
-  IPv4 address if the hostname resolves to both an IPv4 and IPv6
-  address.
+  address). This behavior can be changed by setting
+  Ice.PreferIPv6Address to 1. In this case, Ice will first prefer the
+  IPv6 address over the IPv4 address if the hostname resolves to both
+  an IPv4 and IPv6 address.
 
   IPv6 can be disabled by setting Ice.IPv6 to 0.
 
