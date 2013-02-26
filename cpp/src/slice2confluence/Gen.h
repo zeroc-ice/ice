@@ -67,7 +67,9 @@ protected:
     bool hasEnding(const std::string&, const std::string&);
     
     void printComment(const ContainedPtr&, const ContainerPtr&, const ::std::string&, bool = false);
-    void printMetaData(const ContainedPtr&);
+    bool isTagged(const std::string& tag, std::string& comment);
+    bool isUserImplemented(const ContainedPtr& p, const ContainerPtr& container);
+    void printMetaData(const ContainedPtr&, bool isUserImplemented);
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool, bool);
     std::string getSummary(const ContainedPtr&, const ContainerPtr&, bool, bool);
 

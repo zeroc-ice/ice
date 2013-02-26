@@ -456,7 +456,10 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
     StringList ret = getTagged("return", comment);
     StringList throws = getTagged("throws", comment);
     StringList see = getTagged("see", comment);
-
+    
+    //strip out any "@userImplemented" doc tags that remain
+    isTagged("userImplemented", comment);
+    
     string::size_type pos = comment.find_last_not_of(" \t\r\n");
     if(pos != string::npos)
     {
@@ -688,31 +691,70 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
     assert(_out.currIndent() == indent);
 }
 
-void
-Slice::GeneratorBase::printMetaData(const ContainedPtr& p)
+bool
+Slice::GeneratorBase::isUserImplemented(const ContainedPtr& p, const ContainerPtr& container)
 {
-    list<string> metaData = p->getMetaData();
-    string DEP_MARKER = "deprecate";
+    string comment = getComment(p, container, false, true);
+    return isTagged("userImplemented", comment);
+}
 
-    if(!metaData.empty())
+void
+Slice::GeneratorBase::printMetaData(const ContainedPtr& p, bool isUserImplemented)
+{
+    StringList metaData = p->getMetaData();
+    string DEP_MARKER = "deprecate";
+    StringList userImplementedOnly;
+    userImplementedOnly.push_back("cpp:const");
+    userImplementedOnly.push_back("cpp:ice_print");
+    userImplementedOnly.push_back("java:serialVersionUID");
+    userImplementedOnly.push_back("UserException");
+
+    if (isUserImplemented)
+    {
+        
+    }
+    
+    if (!metaData.empty())
     {
         string outString = "";
-        list<string>::const_iterator q = metaData.begin();
+        StringList::const_iterator q = metaData.begin();
         while(q != metaData.end())
         {
-            if (strncmp(q->c_str(), DEP_MARKER.c_str(), strlen(DEP_MARKER.c_str()))) {
-                //if not deprecated
+            //if not deprecated
+            if (strncmp(q->c_str(), DEP_MARKER.c_str(), strlen(DEP_MARKER.c_str())))
+            {
+                //for non-user-implemented items, do not print the restricted metadata
+                if (!isUserImplemented)
+                {
+                    bool filterOutMetaData = false;
+                    for (StringList::const_iterator r = userImplementedOnly.begin(); r != userImplementedOnly.end(); ++r) {
+                        if ( !strncmp(q->c_str(), r->c_str(), strlen(q->c_str())) )
+                        {
+                            filterOutMetaData = true;
+                            break;
+                        }
+                    }
+                    if (filterOutMetaData)
+                    {
+                        ++q;
+                        continue;
+                    }
+                }
+                
                 string stripped = removeNewlines(*q);
                 outString += " \"" + stripped + "\"";
                 if(++q != metaData.end())
                 {
                     outString += ",";
                 }
-            } else {
+            }
+            else
+            {
                 ++q;
             }
         }
-        if (!outString.empty()) {
+        if (!outString.empty())
+        {
             _out << "[ " << outString << " ] ";
         }
     }
@@ -1464,7 +1506,7 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
         string::size_type pos2 = comment.find('@', pos1);
         string line = comment.substr(pos1, pos2 - pos1);
         comment.erase(begin, pos2 - 1 - begin);
-
+        
         string::size_type pos3 = line.find_last_not_of(" \t\r\n");
         if(pos3 != string::npos)
         {
@@ -1472,9 +1514,22 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
         }
         result.push_back(line);
     }
-
+    
     return result;
 }
+
+bool
+Slice::GeneratorBase::isTagged(const string& tag, string& comment)
+{
+    string::size_type begin = comment.find("@" + tag, 0);
+    if (begin != string::npos)
+    {
+        comment.erase(begin, tag.size()+1);
+        return true;
+    }
+    return false;
+}
+
 
 string
 Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container, bool shortName)
@@ -2188,11 +2243,12 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
             deprecateReason = "_" + trim(metadata.substr(10)) + "_";
         }
     }
+
     start("h2");
     _out << "Overview";
     end();
     start("h3", "Synopsis");
-    printMetaData(m);
+    printMetaData(m, isUserImplemented(m, m));
     _out << "module " << m->name();
     end();
 
@@ -2524,7 +2580,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
         {
             start("h3");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, p));
             if((*q)->isLocal())
             {
                 _out << "local ";
@@ -2561,7 +2617,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
         {
             start("h3");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, p));
             if((*q)->isLocal())
             {
                 _out << "local ";
@@ -2665,7 +2721,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     end();
 
     start("h3", "Synopsis");
-    printMetaData(e);
+    printMetaData(e, isUserImplemented(e, e));
     if(e->isLocal())
     {
         _out << "local ";
@@ -2725,7 +2781,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("h3");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, e));
             TypePtr type = (*q)->type();
             _out << toString(type, e, false) << " " << trim(toString(*q, e)) << ";";
             end();
@@ -2795,7 +2851,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     _out << "Overview";
     end();
     start("h3", "Synopsis");
-    printMetaData(c);
+    printMetaData(c, isUserImplemented(c, c));
     if(c->isLocal())
     {
         _out << "local ";
@@ -2894,7 +2950,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
         {
             start("h3", "Synopsis");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, c));
             TypePtr returnType = (*q)->returnType();
             _out << (returnType ? toString(returnType, c, false) : string("void"))
                  << " " << trim(toString(*q, c)) << "(";
@@ -2955,7 +3011,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("h3");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, c));
             TypePtr type = (*q)->type();
             _out << toString(type, c, false) << " " << trim(toString(*q, c)) << ";";
             end();
@@ -3024,7 +3080,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
     end();
 
     start("h3", "Synopsis");
-    printMetaData(s);
+    printMetaData(s, isUserImplemented(s, s));
     if(s->isLocal())
     {
         _out << "local ";
@@ -3073,7 +3129,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             start("h3");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, s));
             TypePtr type = (*q)->type();
             _out << toString(type, s, false) << " " << trim(toString(*q, s)) << ";";
             end();
@@ -3142,7 +3198,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     end();
 
     start("h3", "Synopsis");
-    printMetaData(e);
+    printMetaData(e, isUserImplemented(e, e->container()));
     if(e->isLocal())
     {
         _out << "local ";
@@ -3191,7 +3247,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
         for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
         {
             start("h3");
-            printMetaData(*q);
+            printMetaData(*q, isUserImplemented(*q, e->container()));
             _out << toString(*q, e->container(), true, true);
             end();
             _out << "\n";

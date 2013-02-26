@@ -85,7 +85,6 @@ local interface Connection
      * connection.
      *
      * @see #setAdapter
-     *
      **/
     ["cpp:const"] Object* createProxy(Identity id);
 
