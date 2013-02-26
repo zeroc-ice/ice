@@ -34,6 +34,6 @@ MyGreeting.dll: MyGreeting.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:MyGreeting.dll MyGreeting.cs
 
 clean::
-	del /q Serializable.dll
+	del /q MyGreeting.dll
 
 !include .depend.mak

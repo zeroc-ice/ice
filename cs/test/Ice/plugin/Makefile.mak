@@ -34,3 +34,8 @@ client.exe: $(C_SRCS)
 
 plugins\Plugin.dll: $(P_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:plugins\Plugin.dll -r:"$(refdir)\Ice.dll" /keyfile:$(KEYFILE) $(P_SRCS)
+
+!if "$(DEBUG)" == "yes"
+clean::
+	del /q plugins\Plugin.pdb
+!endif

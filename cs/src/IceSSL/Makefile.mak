@@ -45,11 +45,11 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb
+	del /q $(assembliesdir)\$(PKG).pdb
 !endif
 
 clean::
-	del /q $(bindir)\$(PKG).xml
+	del /q $(assembliesdir)\$(PKG).xml
 
 install:: all
 	copy $(assembliesdir)\$(LIBNAME) "$(install_assembliesdir)"

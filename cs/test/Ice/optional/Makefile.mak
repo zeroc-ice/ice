@@ -50,6 +50,9 @@ serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SERIAL_DLL)
 !if "$(COMPACT)" != "yes"
 $(SERIAL_DLL): SerializableClass.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:$(SERIAL_DLL) /keyfile:$(KEYFILE) SerializableClass.cs
+
+clean::
+	del /q $(SERIAL_DLL)
 !endif
 
 !include .depend.mak
