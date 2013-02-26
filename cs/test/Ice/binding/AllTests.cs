@@ -850,7 +850,7 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !COMPACT && !UNITY
         {
             Write("testing ipv4 & ipv6 connections... ");
             Flush();

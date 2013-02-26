@@ -14,7 +14,7 @@ instructions to build and run the server:
    Compact Framework libraries. Furthermore, the Ice Visual Studio
    Add-in detects a Smart Device project and automatically
    configures the project to compile against the Ice for .NET CF
-   DLL in <Ice installation directory>\bin\cf\Ice.dll.
+   DLL in <Ice installation directory>\Assemblies\cf\Ice.dll.
 
 2) Build the server by right-clicking on the project and choosing
    "Build".
