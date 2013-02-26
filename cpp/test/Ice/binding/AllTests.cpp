@@ -869,6 +869,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
             catch(const Ice::DNSException&)
             {
+                serverCommunicator->destroy();
                 continue; // IP version not supported.
             }
             catch(const Ice::SocketException&)
@@ -877,6 +878,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     ipv6NotSupported = true;
                 }
+                serverCommunicator->destroy();
                 continue; // IP version not supported.
             }
 
@@ -912,7 +914,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
                          (*p == anyipv4 && *q == ipv6) || (*p == anyipv6 && *q == ipv4) ||
                          (*p == anyboth && *q == ipv4 && !dualStack) ||
                          (*p == localipv4 && *q == ipv6) || (*p == localipv6 && *q == ipv4));
-                    continue;
                 }
                 clientCommunicator->destroy();
             }

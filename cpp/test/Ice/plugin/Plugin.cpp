@@ -279,6 +279,8 @@ public:
         //
         test(!_three->isDestroyed());
         _destroyed = true;
+        _two = 0;
+        _three = 0;
     }
 
     ~PluginOneFail()
@@ -313,6 +315,8 @@ public:
     {
         _destroyed = true;
         test(!_one->isDestroyed());
+        _one = 0;
+        _three = 0;
     }
 
     ~PluginTwoFail()

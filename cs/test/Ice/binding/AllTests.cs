@@ -924,6 +924,7 @@ public class AllTests : TestCommon.TestApp
                 }
                 catch(Ice.DNSException)
                 {
+                    serverCommunicator.destroy();
                     continue; // IP version not supported.
                 }
                 catch(Ice.SocketException)
@@ -932,6 +933,7 @@ public class AllTests : TestCommon.TestApp
                     {
                         ipv6NotSupported = true;
                     }
+                    serverCommunicator.destroy();
                     continue; // IP version not supported.
                 }
 
@@ -966,7 +968,6 @@ public class AllTests : TestCommon.TestApp
                              (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
                              (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
                              (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4));
-                        continue;
                     }
                     clientCommunicator.destroy();
                 }

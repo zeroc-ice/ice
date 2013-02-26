@@ -175,6 +175,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Plugin.PluginThreeFail", "plugins/TestPlugin:createPluginThreeFail");
         initData.properties->setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
         communicator = Ice::initialize(argc, argv, initData);
+        test(false);
     }
     catch(const std::exception& ex)
     {
