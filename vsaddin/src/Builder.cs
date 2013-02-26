@@ -109,6 +109,9 @@ namespace Ice.VisualStudio
                 _solutionEvents.ProjectAdded += new _dispSolutionEvents_ProjectAddedEventHandler(projectAdded);
                 _solutionEvents.ProjectRemoved += new _dispSolutionEvents_ProjectRemovedEventHandler(projectRemoved);
                 _solutionEvents.ProjectRenamed += new _dispSolutionEvents_ProjectRenamedEventHandler(projectRenamed);
+
+                _selectionEvents = application.Events.SelectionEvents;
+                _selectionEvents.OnChange += new _dispSelectionEvents_OnChangeEventHandler(selectionChange);
             }
 
             _buildEvents = _applicationObject.Events.BuildEvents;
@@ -175,21 +178,33 @@ namespace Ice.VisualStudio
                     {
                         _debugStartEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStartEvent.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDotNetDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
                     }
-                    else if(c.Name.Equals("Debug.StartWithoutDebugging"))
+                    else if(c.Name.Equals("Debug.StepInto"))
+                    {
+                        _debugStepIntoEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                        _debugStepIntoEvent.BeforeExecute +=
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                    }
+                    else if(c.Name.Equals("ClassViewContextMenus.ClassViewProject.Debug.StepIntonewinstance"))
+                    {
+                        _debugStepIntoNewInstance = application.Events.get_CommandEvents(c.Guid, c.ID);
+                        _debugStepIntoNewInstance.BeforeExecute +=
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                    }
+                    else if (c.Name.Equals("Debug.StartWithoutDebugging"))
                     {
                         _debugStartWithoutDebuggingEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStartWithoutDebuggingEvent.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDotNetDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
                     }
-                    else if(c.Name.Equals("ClassViewContextMenus.ClassViewProject.Debug.Startnewinstance"))
+                    else if (c.Name.Equals("ClassViewContextMenus.ClassViewProject.Debug.Startnewinstance"))
                     {
                         _debugStartNewInstance = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStartNewInstance.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDotNetDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
                     }
-                    else if(c.Guid.Equals(Util.refreshCommandGUID) && c.ID == Util.refreshCommandID)
+                    else if (c.Guid.Equals(Util.refreshCommandGUID) && c.ID == Util.refreshCommandID)
                     {
                         Util.setRefreshCommand(c);
                     }
@@ -203,6 +218,45 @@ namespace Ice.VisualStudio
             if(connectMode != ext_ConnectMode.ext_cm_CommandLine)
             {
                 setupCommandBars();
+            }
+        }
+
+        void selectionChange()
+        {
+            try
+            {
+                Project p = getActiveProject();
+                initializeProject(p);
+            }
+            catch(Exception ex)
+            {
+                Util.unexpectedExceptionWarning(ex);
+                throw;
+            }
+        }
+
+        void initializeProject(Project p)
+        {
+            DependenciesMap dependenciesMap = getDependenciesMap();
+            if(p != null && !dependenciesMap.ContainsKey(p.FullName))
+            {
+                if((Util.isCSharpProject(p) || Util.isCppProject(p)) && Util.isSliceBuilderEnabled(p))
+                {
+                    Util.fix(p);
+
+                    Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: checking/updating settings for project '" + p.FullName + "'";
+                    Util.verifyProjectSettings(p);
+                    Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: loading project '" + p.FullName + "'";
+                    if(!Util.isVBProject(p))
+                    {
+                        dependenciesMap[p.FullName] = new Dictionary<string, List<string>>();
+                        buildProject(p, true, vsBuildScope.vsBuildScopeSolution, false);
+                    }
+                }
+            }
+            if(hasErrors())
+            {
+                bringErrorsToFront();
             }
         }
 
@@ -454,11 +508,27 @@ namespace Ice.VisualStudio
             }
         }
 
-        public void setDotNetDebugEnvironment(string Guid, int ID, object obj, object CustomOut, ref bool done)
+        public void setDebugEnvironment(string Guid, int ID, object obj, object CustomOut, ref bool done)
         {
             try
             {
-                setDotNetDebugEnvironment();
+                Project project = getActiveProject();
+                if(Util.isSliceBuilderEnabled(project))
+                {
+                    if(Util.isCppProject(project))
+                    {
+                        VCProject vcProject = (VCProject)project.Object;
+                        IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+                        foreach(VCConfiguration conf in configurations)
+                        {
+                            Util.addIceCppEnvironment((VCDebugSettings)conf.DebugSettings, project);
+                        }
+                    }
+                    else if(Util.isCSharpProject(project) || Util.isVBProject(project))
+                    {
+                        setDotNetDebugEnvironment(project);
+                    }
+                }
             }
             catch(Exception ex)
             {
@@ -473,18 +543,12 @@ namespace Ice.VisualStudio
         //
         // NOTE: for Silverlight projects we don't need to set DEVPATH.
         //
-        private void setDotNetDebugEnvironment()
+        private void setDotNetDebugEnvironment(Project project)
         {
-            Project p = getActiveProject();
-            if((!Util.isCSharpProject(p) && !Util.isVBProject(p)) || Util.isSilverlightProject(p))
-            {
-                return;
-            }
-
             //
             // If development mode isn't enabled then don't set DEVPATH.
             //
-            if(!Util.developmentMode(p))
+            if(!Util.developmentMode(project))
             {
                 return;
             }
@@ -494,13 +558,13 @@ namespace Ice.VisualStudio
             // environment variables. If it is running it will be stopped.
             //
             bool vsHosting = false;
-            if(Util.useVSHostingProcess(p))
+            if(Util.useVSHostingProcess(project))
             {
-                Util.setVsHostingProcess(p, false);
+                Util.setVsHostingProcess(project, false);
                 vsHosting = true;
             }
 
-            setDotNetDevPath(Util.getCsBinDir(p));
+            setDotNetDevPath(Util.getCsBinDir(project));
 
             //
             // Re-enable the vshosting process if it was previously enabled, 
@@ -508,7 +572,7 @@ namespace Ice.VisualStudio
             //
             if(vsHosting)
             {
-                Util.setVsHostingProcess(p, true);
+                Util.setVsHostingProcess(project, true);
             }
         }
 
@@ -663,28 +727,6 @@ namespace Ice.VisualStudio
                 _opening = true;
                 DependenciesMap dependenciesMap = getDependenciesMap();
                 initDocumentEvents();
-                List<Project> projects = Util.buildOrder(_applicationObject.Solution);
-                foreach(Project p in projects)
-                {
-                    if((Util.isCSharpProject(p) || Util.isVBProject(p) || Util.isCppProject(p)) &&
-                        Util.isSliceBuilderEnabled(p))
-                    {
-                        Util.fix(p);
-
-                        Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: checking/updating settings for project '" + p.FullName + "'";
-                        Util.verifyProjectSettings(p);
-                        Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: loading project '" + p.FullName + "'";
-                        if(!Util.isVBProject(p))
-                        {
-                            dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
-                            buildProject(p, true, vsBuildScope.vsBuildScopeSolution, false);
-                        }
-                    }
-                }
-                if(hasErrors())
-                {
-                    bringErrorsToFront();
-                }
             }
             catch(Exception ex)
             {
@@ -914,9 +956,9 @@ namespace Ice.VisualStudio
             try
             {
                 DependenciesMap dependenciesMap = getDependenciesMap();
-                if(dependenciesMap.ContainsKey(project.Name))
+                if(dependenciesMap.ContainsKey(project.FullName))
                 {
-                    dependenciesMap.Remove(project.Name);
+                    dependenciesMap.Remove(project.FullName);
                 }
 
                 List<Project> rebuildProjects = getRebuildProjects();
@@ -941,9 +983,10 @@ namespace Ice.VisualStudio
             try
             {
                 DependenciesMap dependenciesMap = getDependenciesMap();
-                if(dependenciesMap.ContainsKey(oldName))
+                String oldPath = Path.Combine(Path.GetDirectoryName(project.FullName), oldName);
+                if(dependenciesMap.ContainsKey(oldPath))
                 {
-                    dependenciesMap.Remove(oldName);
+                    dependenciesMap.Remove(oldPath);
                 }
                 updateDependencies(project);
             }
@@ -1048,6 +1091,9 @@ namespace Ice.VisualStudio
             {
                 return;
             }
+
+            initializeProject(project);
+
             builded.Add(project);
 
             List<ProjectItem> buildItems = new List<ProjectItem>();
@@ -1270,16 +1316,15 @@ namespace Ice.VisualStudio
                 // Now check if any of the dependencies have changed.
                 //
                 DependenciesMap solutionDependenciesMap = getDependenciesMap();
-                if(solutionDependenciesMap.ContainsKey(project.Name))
+                if(solutionDependenciesMap.ContainsKey(project.FullName))
                 {
-                    Dictionary<string, List<string>> dependenciesMap = solutionDependenciesMap[project.Name];
+                    Dictionary<string, List<string>> dependenciesMap = solutionDependenciesMap[project.FullName];
                     if(dependenciesMap.ContainsKey(ice.FullName))
                     {
                         List<string> fileDependencies = dependenciesMap[ice.FullName];
                         foreach(string name in fileDependencies)
                         {
-                            FileInfo dependency =
-                                new FileInfo(Util.absolutePath(project, name));
+                            FileInfo dependency = new FileInfo(Util.absolutePath(project, name));
                             if(!dependency.Exists)
                             {
                                 updated = true;
@@ -1536,9 +1581,9 @@ namespace Ice.VisualStudio
                 // Now check if any of the dependencies have changed.
                 //
                 DependenciesMap solutionDependenciesMap = getDependenciesMap();
-                if(solutionDependenciesMap.ContainsKey(project.Name))
+                if(solutionDependenciesMap.ContainsKey(project.FullName))
                 {
-                    Dictionary<string, List<string>> dependenciesMap = solutionDependenciesMap[project.Name];
+                    Dictionary<string, List<string>> dependenciesMap = solutionDependenciesMap[project.FullName];
                     if(dependenciesMap.ContainsKey(iceFileInfo.FullName))
                     {
                         List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
@@ -1725,7 +1770,7 @@ namespace Ice.VisualStudio
         public bool updateDependencies(Project project, ProjectItem excludeItem)
         {
             DependenciesMap dependenciesMap = getDependenciesMap();
-            dependenciesMap[project.Name] = new Dictionary<string, List<string>>();
+            dependenciesMap[project.FullName] = new Dictionary<string, List<string>>();
             string sliceCompiler = getSliceCompilerPath(project);
             return updateDependencies(project, project.ProjectItems, sliceCompiler, excludeItem);
         }
@@ -1737,24 +1782,24 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if(String.IsNullOrEmpty(project.Name))
+            if(String.IsNullOrEmpty(project.FullName))
             {
                 return;
             }
 
             DependenciesMap dependenciesMap = getDependenciesMap();
-            if(!dependenciesMap.ContainsKey(project.Name))
+            if(!dependenciesMap.ContainsKey(project.FullName))
             {
                 return;
             }
 
-            Dictionary<string, List<string>> projectDependencies = dependenciesMap[project.Name];
+            Dictionary<string, List<string>> projectDependencies = dependenciesMap[project.FullName];
             if(!projectDependencies.ContainsKey(file))
             {
                 return;
             }
             projectDependencies.Remove(file);
-            dependenciesMap[project.Name] = projectDependencies;
+            dependenciesMap[project.FullName] = projectDependencies;
         }
 
         public bool updateDependencies(Project project, ProjectItems items, string sliceCompiler,
@@ -1892,12 +1937,12 @@ namespace Ice.VisualStudio
             string line = null;
 
             DependenciesMap dependenciesMap = getDependenciesMap();
-            if(!dependenciesMap.ContainsKey(project.Name))
+            if(!dependenciesMap.ContainsKey(project.FullName))
             {
-                dependenciesMap[project.Name] = new Dictionary<string,List<string>>();
+                dependenciesMap[project.FullName] = new Dictionary<string, List<string>>();
             }
-            
-            Dictionary<string, List<string>> projectDeps = dependenciesMap[project.Name];
+
+            Dictionary<string, List<string>> projectDeps = dependenciesMap[project.FullName];
             bool firstLine = true;
             while((line = output.ReadLine()) != null)
             {
@@ -1932,7 +1977,7 @@ namespace Ice.VisualStudio
                 }
             }
             projectDeps[file] = dependencies;
-            dependenciesMap[project.Name] = projectDeps;
+            dependenciesMap[project.FullName] = projectDeps;
             process.Close();
 
             return true;
@@ -2078,11 +2123,11 @@ namespace Ice.VisualStudio
         private void removeDependency(Project project, String path)
         {
             DependenciesMap dependenciesMap = getDependenciesMap();
-            if(dependenciesMap.ContainsKey(project.Name))
+            if(dependenciesMap.ContainsKey(project.FullName))
             {
-                if(dependenciesMap[project.Name].ContainsKey(path))
+                if(dependenciesMap[project.FullName].ContainsKey(path))
                 {
-                    dependenciesMap[project.Name].Remove(path);
+                    dependenciesMap[project.FullName].Remove(path);
                 }
             }
         }
@@ -3453,6 +3498,7 @@ namespace Ice.VisualStudio
         private AddIn _addInInstance;
         private ext_ConnectMode _connectMode;
         private SolutionEvents _solutionEvents;
+        private SelectionEvents _selectionEvents;
         private BuildEvents _buildEvents;
         private DocumentEvents _docEvents;
         private ProjectItemsEvents _csProjectItemsEvents;
@@ -3475,6 +3521,8 @@ namespace Ice.VisualStudio
         private CommandEvents _editDeleteEvent;
         private CommandEvents _buildCancelEvent;
         private CommandEvents _debugStartEvent;
+        private CommandEvents _debugStepIntoEvent;
+        private CommandEvents _debugStepIntoNewInstance;
         private CommandEvents _debugStartWithoutDebuggingEvent;
         private CommandEvents _debugStartNewInstance;
         private List<String> _deleted = new List<String>();

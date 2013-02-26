@@ -2282,7 +2282,6 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            VCProject vcProject = (VCProject)project.Object;
             Util.addCppIncludes(project);
             bool winrt = isWinRTProject(project);
             if(!winrt)
@@ -2292,14 +2291,10 @@ namespace Ice.VisualStudio
 #if VS2012
             if(winrt)
             {
+                VCProject vcProject = (VCProject)project.Object;
                 addSdkReference(vcProject, "Ice");
             }
 #endif
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            foreach(VCConfiguration conf in configurations)
-            {
-                Util.addIceCppEnvironment((VCDebugSettings)conf.DebugSettings, project);
-            }
         }
 
         public static void removeIceCppConfigurations(Project project)
@@ -3521,8 +3516,7 @@ namespace Ice.VisualStudio
 
         public static string projectFullName(Project p)
         {
-            if(p.ParentProjectItem != null &&
-               p.ParentProjectItem.ContainingProject != null)
+            if(p.ParentProjectItem != null && p.ParentProjectItem.ContainingProject != null)
             {
                 return projectFullName(p.ParentProjectItem.ContainingProject) + "/" + p.Name;
             }

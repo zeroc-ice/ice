@@ -34,18 +34,18 @@ namespace Ice.VisualStudio
                 return false;
             }
 
-            if(String.IsNullOrEmpty(project.Name))
+            if(String.IsNullOrEmpty(project.FullName))
             {
                 return false;
             }
 
-            if(!_files.ContainsKey(project.Name))
+            if (!_files.ContainsKey(project.FullName))
             {
                 return false;
             }
 
             bool found = false;
-            Dictionary<String, List<String>> projectFiles = _files[project.Name];
+            Dictionary<String, List<String>> projectFiles = _files[project.FullName];
 
             foreach(KeyValuePair<String, List<String>> k in projectFiles)
             {
@@ -72,11 +72,11 @@ namespace Ice.VisualStudio
 
         public void trackFile(Project project, String slice, String generated)
         {
-            if(!_files.ContainsKey(project.Name))
+            if(!_files.ContainsKey(project.FullName))
             {
-                _files[project.Name] = new Dictionary<string, List<string>>();
+                _files[project.FullName] = new Dictionary<string, List<string>>();
             }
-            Dictionary<String, List<String>> _projectFiles = _files[project.Name];
+            Dictionary<String, List<String>> _projectFiles = _files[project.FullName];
             if(!_projectFiles.ContainsKey(slice))
             {
                 _projectFiles[slice] = new List<string>();
@@ -106,12 +106,12 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                if(!_files.ContainsKey(project.Name))
+                if(!_files.ContainsKey(project.FullName))
                 {
                     return;
                 }
 
-                Dictionary<string, List<string>> projectFiles = _files[project.Name];
+                Dictionary<string, List<string>> projectFiles = _files[project.FullName];
                 List<String> removedSlice = new List<String>();
                 foreach(KeyValuePair<string, List<string>> i in projectFiles)
                 {
