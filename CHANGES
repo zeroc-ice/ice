@@ -37,19 +37,18 @@ General Changes
   addresses.
 
   Ice will still prefer IPv4 addresses when resolving hostnames from
-  endpoints (and if the hostname resolves to both type of
-  address). This behavior can be changed by setting
-  Ice.PreferIPv6Address to 1. In this case, Ice will first prefer the
-  IPv6 address over the IPv4 address if the hostname resolves to both
-  an IPv4 and IPv6 address.
+  endpoints and the result includes both types of addresses. This
+  behavior can be changed by setting Ice.PreferIPv6Address to 1. In
+  this case, Ice prefers the IPv6 address over the IPv4 address if the
+  hostname resolves to both IPv4 and IPv6 addresses.
 
   IPv6 can be disabled by setting Ice.IPv6 to 0.
 
-- Fixed bug where an erroneous connection warning could be printed on
-  the server side if the client closed the connection before receiving
-  the connection validation message.
+- Fixed a bug where an erroneous connection warning could be printed
+  on the server side if the client closed the connection before
+  receiving the connection validation message.
 
-- Fixed Freeze map issue where the clear method could throw an
+- Fixed a Freeze map issue where the clear method could throw an
   exception if active cursors were still opened.
 
 - Added support for wrapInputStream function. Unlike the
@@ -69,7 +68,7 @@ General Changes
 
 - Fixed client side checks for encoding version. An invocation on a
   proxy with a compatible encoding (same major version) will now
-  succeed even if the encoding minor version isn't supported. In this
+  succeed even if the encoding minor version is not supported. In this
   case, the Ice run time uses the greatest supported encoding.
 
 - Fixed bug where the retry of an AMI invocation could trigger an
@@ -81,14 +80,14 @@ General Changes
 - Improved the 1.1 encoding to further reduce the size of encoded
   objects. Objects are no longer encoded at the end of the
   encapsulation. Instead, an object is encoded as soon as it's written
-  and it hasn't already been encoded within the encapsulation.
-  
+  and it has not already been encoded within the encapsulation.
+
   IMPORTANT: This change implies that the 1.1 class encoding from Ice
   3.5.0 is incompatible with the encoding from the 3.5 beta version.
 
 - Added support for Slice class compact IDs. A compact ID is defined
   as a numeric value in the Slice class definition. For example:
-   
+
   // Slice
   class Compact(1)
   {
@@ -107,11 +106,11 @@ General Changes
   * The parser did not detect duplicate tags among the optional
     parameters in an operation.
 
-- The properties IcePatch2.ChunkSize, IcePatch2.Directory, 
+- The properties IcePatch2.ChunkSize, IcePatch2.Directory,
   IcePatch2.Remove and IcePatch2.Thorough have been deprecated for
-  IcePatch2 clients, instead you must use IcePatch2Client.ChunkSize, 
+  IcePatch2 clients. The replacements are IcePatch2Client.ChunkSize,
   IcePatch2Client.Directory, IcePatch2Client.Remove and
-  IcePatch2Client.Thorough properties respectively.
+  IcePatch2Client.Thorough, respectively.
 
 
 C++ Changes
@@ -121,7 +120,7 @@ C++ Changes
   structures that can be used as dictionary keys. For other structures
   you will need to add the metadata ["cpp:comparable"] if you need
   these operators. For example:
-  
+
   ["cpp:comparable"]
   struct MyStruct {
       Ice::StringSeq ids;
@@ -140,7 +139,7 @@ C++ Changes
 Java Changes
 ============
 
-- Added support for Ice.UseApplicationClassLoader configuration
+- Added support for the Ice.UseApplicationClassLoader configuration
   property. When set to 1, the Ice core will set the thread context
   class loader to the class loader of the servant or AMI callback
   before dispatching the call.
@@ -336,9 +335,9 @@ Visual Studio Add-in Changes
 
 - Fixed a bug during project cleaning in which an exception was thrown
   when trying to remove generated files and the user is not authorized
-  to remove the files.  
+  to remove the files.
 
-- Fixed a bug with solutions that contain unloaded projects. 
+- Fixed a bug with solutions that contain unloaded projects.
 
 
 C# Changes
@@ -739,7 +738,7 @@ Java Changes
   callback facility, applications should derive their classes from
   Ice.Callback.
 
-- The size method on a Freeze.Map and on the value of an indexed 
+- The size method on a Freeze.Map and on the value of an indexed
   submap now use the current transaction associated with the
   connection, if any.
 
