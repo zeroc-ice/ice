@@ -226,7 +226,10 @@ namespace Ice.VisualStudio
             try
             {
                 Project p = getActiveProject();
-                initializeProject(p);
+                if(p != null && Util.isSliceBuilderEnabled(project))
+                {
+                    initializeProject(p);
+                }
             }
             catch(Exception ex)
             {
