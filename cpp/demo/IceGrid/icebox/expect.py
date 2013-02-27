@@ -34,7 +34,7 @@ if Util.isDarwin():
     else:
         iceBoxWrapper.write("#!/bin/sh\narch -i386 -x86_64 icebox \"$@\"\n")
     iceBoxWrapper.close()
-    os.chmod(iceBox, 0700)
+    os.chmod(iceBox, 0o700)
 
 desc = 'application.xml'
 if Util.isDebugBuild() or Util.isDarwin():

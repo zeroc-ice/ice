@@ -40,7 +40,7 @@ if TestUtil.isDarwin():
     else:
         iceBoxWrapper.write("#!/bin/sh\narch -i386 -x86_64 " + TestUtil.getIceBox() + " \"$@\"\n")
     iceBoxWrapper.close()
-    os.chmod(iceBox, 0700)
+    os.chmod(iceBox, 0o700)
 else:
     iceBox = TestUtil.getIceBox()
 
