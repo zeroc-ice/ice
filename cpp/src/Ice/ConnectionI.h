@@ -94,6 +94,26 @@ public:
     };
     typedef IceUtil::Handle<StartCallback> StartCallbackPtr;
 
+    struct SentCallback
+    {
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+        SentCallback(const IceInternal::OutgoingAsyncMessageCallbackPtr& outAsync,
+                     const IceInternal::OutgoingAsyncPtr& replyOutAsync) : 
+            outAsync(outAsync), replyOutAsync(replyOutAsync)
+        {
+        }
+#else
+        SentCallback(const IceInternal::OutgoingAsyncMessageCallbackPtr& outAsync) : outAsync(outAsync)
+        {
+        }
+#endif
+
+        IceInternal::OutgoingAsyncMessageCallbackPtr outAsync;
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+        IceInternal::OutgoingAsyncPtr replyOutAsync;
+#endif
+    };
+
     enum DestructionReason
     {
         ObjectAdapterDeactivated,
@@ -178,9 +198,9 @@ public:
     void exception(const LocalException&);
     void invokeException(const LocalException&, int);
 
-    void dispatch(const StartCallbackPtr&, const std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&,
-                  Byte, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
-                  const IceInternal::OutgoingAsyncPtr&, IceInternal::BasicStream&);
+    void dispatch(const StartCallbackPtr&, const std::vector<SentCallback>&, Byte, Int, Int,
+                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&, 
+                  IceInternal::BasicStream&);
     void finish();
 
 private:
@@ -223,6 +243,9 @@ private:
         IceInternal::BasicStream* stream;
         IceInternal::OutgoingMessageCallback* out;
         IceInternal::OutgoingAsyncMessageCallbackPtr outAsync;
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+        IceInternal::OutgoingAsyncPtr replyOutAsync;
+#endif
         bool compress;
         int requestId;
         bool adopted;
@@ -244,7 +267,7 @@ private:
 
     bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
     bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
-    void sendNextMessage(std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&);
+    void sendNextMessage(std::vector<SentCallback>&);
     IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
 #ifndef ICE_OS_WINRT

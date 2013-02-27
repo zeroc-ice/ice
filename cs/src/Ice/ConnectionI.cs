@@ -1104,7 +1104,7 @@ namespace Ice
 
                     bool completed;
                     completedSynchronously = _transceiver.startWrite(_writeStream.getBuffer(), cb, this, out completed);
-                    if(!completed && _sendStreams.Count > 0)
+                    if(completed && _sendStreams.Count > 0)
                     {
                         // The whole message is written, assume it's sent now for at-most-once semantics.
                         _sendStreams.Peek().isSent = true;
@@ -1318,8 +1318,7 @@ namespace Ice
                         // 
                         if((current.operation & IceInternal.SocketOperation.Read) != 0)
                         {
-                            parseMessage(new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding),
-                                         ref info);
+                            parseMessage(ref info);
                         }
 
                         if((current.operation & IceInternal.SocketOperation.Write) != 0)
@@ -1449,7 +1448,14 @@ namespace Ice
             {
                 foreach(OutgoingMessage m in sentCBs)
                 {
-                    m.outAsync.sent__(m.sentCallback);
+                    if(m.sentCallback != null)
+                    {
+                        m.outAsync.sent__(m.sentCallback);
+                    }
+                    if(m.replyOutAsync != null)
+                    {
+                        m.replyOutAsync.finished__();
+                    }
                 }
             }
 
@@ -1459,7 +1465,7 @@ namespace Ice
             //
             if(info.outAsync != null)
             {
-                info.outAsync.finished__(info.stream);
+                info.outAsync.finished__();
             }
 
             if(info.invokeNum > 0)
@@ -2275,7 +2281,7 @@ namespace Ice
                     OutgoingMessage message = _sendStreams.Peek();
                     _writeStream.swap(message.stream);
                     Debug.Assert(_writeStream.isEmpty());
-                    if(message.sent(this, true))
+                    if(message.sent(this, true) || message.replyOutAsync != null)
                     {
                         Debug.Assert(message.outAsync != null);
                         if(callbacks == null)
@@ -2483,11 +2489,11 @@ namespace Ice
             public IceInternal.OutgoingAsync outAsync;
         }
 
-        private void parseMessage(IceInternal.BasicStream stream, ref MessageInfo info)
+        private void parseMessage(ref MessageInfo info)
         {
             Debug.Assert(_state > StateNotValidated && _state < StateClosed);
 
-            info.stream = stream;
+            info.stream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
             _readStream.swap(info.stream);
             _readStream.resize(IceInternal.Protocol.headerSize, true);
             _readStream.pos(0);
@@ -2605,6 +2611,20 @@ namespace Ice
                                 throw new UnknownRequestIdException();
                             }
                             _asyncRequests.Remove(info.requestId);
+
+                            info.outAsync.istr__.swap(info.stream);
+
+                            //
+                            // If we just received the reply for a request which isn't acknowledge as 
+                            // sent yet, we queue the reply instead of processing it right away. It 
+                            // will be processed once the write callback is invoked for the message.
+                            //
+                            OutgoingMessage message = _sendStreams.Count > 0 ? _sendStreams.Peek() : null;
+                            if(message != null && message.outAsync == info.outAsync)
+                            {
+                                message.replyOutAsync = info.outAsync;
+                                info.outAsync = null;
+                            }
                         }
                         _m.NotifyAll(); // Notify threads blocked in close(false)
                         break;
@@ -2980,6 +3000,7 @@ namespace Ice
             internal IceInternal.BasicStream stream;
             internal IceInternal.OutgoingMessageCallback @out;
             internal IceInternal.OutgoingAsyncMessageCallback outAsync;
+            internal IceInternal.OutgoingAsync replyOutAsync;
             internal bool compress;
             internal int requestId;
             internal bool _adopt;

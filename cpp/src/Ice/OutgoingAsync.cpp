@@ -507,30 +507,23 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
     bool alreadySent = _state & Sent; // Expected in case of a retry.
     _state |= Sent;
 
-    //
-    // It's possible for the request to be done already when using IOCP. This
-    // is the case for example if the send callback is dispatched after the
-    // read callback for the response/exception.
-    //
-    if(!(_state & Done))
+    assert(!(_state & Done));
+    if(!_proxy->ice_isTwoway())
     {
-        if(!_proxy->ice_isTwoway())
+        _remoteObserver.detach();
+        if(!_callback || !_callback->__hasSentCallback())
         {
-            _remoteObserver.detach();
-            if(!_callback || !_callback->__hasSentCallback())
-            {
-                _observer.detach();
-            }
-            _state |= Done | OK;
-            _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
+            _observer.detach();
         }
-        else if(connection->timeout() > 0)
-        {
-            assert(!_timerTaskConnection);
-            _timerTaskConnection = connection;
+        _state |= Done | OK;
+        _os.resize(0); // Clear buffer now, instead of waiting for AsyncResult deallocation
+    }
+    else if(connection->timeout() > 0)
+    {
+        assert(!_timerTaskConnection);
+        _timerTaskConnection = connection;
             IceUtil::Time timeout = IceUtil::Time::milliSeconds(connection->timeout());
             _instance->timer()->schedule(this, timeout);
-        }
     }
     _monitor.notifyAll();
     return !alreadySent && _callback && _callback->__hasSentCallback();
@@ -610,7 +603,7 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& exc)
 }
 
 void
-IceInternal::OutgoingAsync::__finished(BasicStream& is)
+IceInternal::OutgoingAsync::__finished()
 {
     assert(_proxy->ice_isTwoway()); // Can only be called for twoways.
 
@@ -619,9 +612,11 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(!_exception.get() && !(_state & Done));
+        assert(!_is.b.empty());
+
         if(_remoteObserver)
         {
-            _remoteObserver->reply(static_cast<Int>(is.b.size() - headerSize - 4));
+            _remoteObserver->reply(static_cast<Int>(_is.b.size() - headerSize - 4));
         }
         _remoteObserver.detach();
 
@@ -631,7 +626,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
             _timerTaskConnection = 0;
         }
 
-        _is.swap(is);
         _is.read(replyStatus);
 
         switch(replyStatus)

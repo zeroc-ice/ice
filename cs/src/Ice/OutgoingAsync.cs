@@ -890,34 +890,27 @@ namespace IceInternal
                 bool alreadySent = (state_ & Sent) != 0;
                 state_ |= Sent;
 
-                //
-                // It's possible for the request to be done already when using IOCP. This
-                // is the case for example if the send callback is dispatched after the
-                // read callback for the response/exception.
-                //
-                if((state_ & Done) == 0)
+                Debug.Assert((state_ & Done) == 0);
+                if(!proxy_.ice_isTwoway())
                 {
-                    if(!proxy_.ice_isTwoway())
+                    if(remoteObserver_ != null)
                     {
-                        if(remoteObserver_ != null)
-                        {
-                            remoteObserver_.detach();
-                            remoteObserver_ = null;
-                        }
-                        state_ |= Done | OK;
-                        os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
-                        if(waitHandle_ != null)
-                        {
-                            waitHandle_.Set();
-                        }
+                        remoteObserver_.detach();
+                        remoteObserver_ = null;
                     }
-                    else if(connection.timeout() > 0)
+                    state_ |= Done | OK;
+                    os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
+                    if(waitHandle_ != null)
                     {
-                        Debug.Assert(_timerTaskConnection == null && _timerTask == null);
-                        _timerTaskConnection = connection;
-                        _timerTask = new TaskI(this);
-                        proxy_.reference__().getInstance().timer().schedule(_timerTask, connection.timeout());
+                        waitHandle_.Set();
                     }
+                }
+                else if(connection.timeout() > 0)
+                {
+                    Debug.Assert(_timerTaskConnection == null && _timerTask == null);
+                    _timerTaskConnection = connection;
+                    _timerTask = new TaskI(this);
+                    proxy_.reference__().getInstance().timer().schedule(_timerTask, connection.timeout());
                 }
                 monitor_.NotifyAll();
                 return alreadySent ? null : sentCallback_; // Don't call the sent call is already sent.
@@ -926,7 +919,7 @@ namespace IceInternal
             {
                 monitor_.Unlock();
             }
-        }
+    }
 
         public new void sent__(Ice.AsyncCallback cb)
         {
@@ -1014,7 +1007,7 @@ namespace IceInternal
             }
         }
 
-        public void finished__(BasicStream istr)
+        public void finished__()
         {
             Debug.Assert(proxy_.ice_isTwoway()); // Can only be called for twoways.
 
@@ -1026,10 +1019,11 @@ namespace IceInternal
                 try
                 {
                     Debug.Assert(exception_ == null && (state_ & Done) == 0);
+                    Debug.Assert(is_ != null);
 
                     if(remoteObserver_ != null)
                     {
-                        remoteObserver_.reply(istr.size() - Protocol.headerSize - 4);
+                        remoteObserver_.reply(is_.size() - Protocol.headerSize - 4);
                         remoteObserver_.detach();
                         remoteObserver_ = null;
                     }
@@ -1042,11 +1036,6 @@ namespace IceInternal
                         _timerTask = null;
                     }
 
-                    if(is_ == null) // _is can already be initialized if the invocation is retried
-                    {
-                        is_ = new IceInternal.BasicStream(instance_, Ice.Util.currentProtocolEncoding);
-                    }
-                    is_.swap(istr);
                     replyStatus = is_.readByte();
 
                     switch(replyStatus)
@@ -1281,6 +1270,18 @@ namespace IceInternal
             else
             {
                 os_.writeEncaps(encaps);
+            }
+        }
+
+        public IceInternal.BasicStream istr__
+        {
+            get
+            {
+                if(is_ == null) // _is can already be initialized if the invocation is retried
+                {
+                    is_ = new IceInternal.BasicStream(instance_, Ice.Util.currentProtocolEncoding);
+                }
+                return is_;
             }
         }
 

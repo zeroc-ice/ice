@@ -234,7 +234,7 @@ public:
     virtual void __finished(const Ice::LocalException&, bool);
 
     void __finished(const LocalExceptionWrapper&);
-    void __finished(BasicStream&);
+    void __finished();
 
     bool __send(bool);
 
@@ -261,6 +261,12 @@ public:
         {
             _os.writeEncaps(encaps, size);
         }
+    }
+
+    ::IceInternal::BasicStream*
+    __getIs()
+    {
+        return &_is;
     }
 
 protected:
