@@ -205,7 +205,7 @@ Ice::ConnectionI::Observer::finishWrite(Ice::Byte* i)
 void
 Ice::ConnectionI::Observer::attach(const Ice::Instrumentation::ConnectionObserverPtr& observer)
 {
-    ObserverHelperT::attach(observer);
+    ObserverHelperT<Ice::Instrumentation::ConnectionObserver>::attach(observer);
     if(!observer)
     {
         _writeStreamPos = 0;
