@@ -77,6 +77,8 @@ class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
         void startWrite(Ice::Byte*);
         void finishWrite(Ice::Byte*);
 
+        void attach(const Ice::Instrumentation::ConnectionObserverPtr&);
+
     private:
 
         Ice::Byte* _readStreamPos;

@@ -171,6 +171,10 @@ Ice::ConnectionI::Observer::startRead(Ice::Byte* i)
 void 
 Ice::ConnectionI::Observer::finishRead(Ice::Byte* i)
 {
+    if(_readStreamPos == 0)
+    {
+        return;
+    }
     assert(i >= _readStreamPos);
     _observer->receivedBytes(static_cast<int>(i - _readStreamPos));
     _readStreamPos = 0;
@@ -189,10 +193,26 @@ Ice::ConnectionI::Observer::startWrite(Ice::Byte* i)
 void 
 Ice::ConnectionI::Observer::finishWrite(Ice::Byte* i)
 {
+    if(_writeStreamPos == 0)
+    {
+        return;
+    }
     assert(i >= _writeStreamPos);
     _observer->sentBytes(static_cast<int>(i - _writeStreamPos));
     _writeStreamPos = 0;
 }
+
+void
+Ice::ConnectionI::Observer::attach(const Ice::Instrumentation::ConnectionObserverPtr& observer)
+{
+    ObserverHelperT::attach(observer);
+    if(!observer)
+    {
+        _writeStreamPos = 0;
+        _readStreamPos = 0;
+    }
+}
+
 
 void
 Ice::ConnectionI::OutgoingMessage::adopt(BasicStream* str)

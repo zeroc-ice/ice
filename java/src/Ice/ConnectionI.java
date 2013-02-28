@@ -266,6 +266,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             _observer.attach();
         }
+        else
+        {
+            _writeStreamPos = -1;
+            _readStreamPos = -1;
+        }
     }
 
     synchronized public void
@@ -1840,6 +1845,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     _observer.attach();
                 }
+                else
+                {
+                    _writeStreamPos = -1;
+                    _readStreamPos = -1;
+                }
             }
             if(_observer != null && state == StateClosed && _exception != null)
             {
@@ -2623,6 +2633,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     observerFinishRead(int pos)
     {
+        if(_readStreamPos == -1)
+        {
+            return;
+        }
         assert(pos >= _readStreamPos);
         _observer.receivedBytes(pos - _readStreamPos);
         _readStreamPos = -1;
@@ -2641,6 +2655,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     observerFinishWrite(int pos)
     {
+        if(_writeStreamPos == -1)
+        {
+            return;
+        }
         assert(pos >= _writeStreamPos);
         _observer.sentBytes(pos - _writeStreamPos);
         _writeStreamPos = -1;
