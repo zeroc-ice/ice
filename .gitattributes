@@ -9,10 +9,10 @@
 *.utf8 text eol=lf
 
 # Files which are never exported.
-/ndk export-ignore
-/objc export-ignore
-/perf export-ignore
-/eclipse export-ignore
+/ndk/ export-ignore
+/objc/ export-ignore
+/perf/ export-ignore
+/eclipse/ export-ignore
 
 .gitignore export-ignore
 .gitattributes export-ignore
@@ -23,5 +23,5 @@ distribution/lib/FixUtil.py export-ignore
 distribution/makedist.py export-ignore
 cpp/config/makegitignore.py export-ignore
 rb/config/Make.rules.Darwin export-ignore
-cpp/src/slice2confluence export-ignore
-java/test/ejb export-ignore
+cpp/src/slice2confluence/ export-ignore
+java/test/ejb/ export-ignore

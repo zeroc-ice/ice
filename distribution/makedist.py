@@ -207,20 +207,20 @@ def fixGitAttributes(checkout, autocrlf, addText):
 
 ###### UNIX distfiles 
 fixGitAttributes(True, False, """
-/certs export-ignore
-/config export-ignore
-/cpp export-ignore
-/cs export-ignore
-/demoscript export-ignore
-/dists export-ignore
-/java export-ignore export-ignore
-/php export-ignore
-/py export-ignore
-/rb export-ignore
-/scripts export-ignore
-/slice export-ignore
-/vb export-ignore
-/vsaddin export-ignore
+/certs/ export-ignore
+/config/ export-ignore
+/cpp/ export-ignore
+/cs/ export-ignore
+/demoscript/ export-ignore
+/dists/ export-ignore
+/java/ export-ignore export-ignore
+/php/ export-ignore
+/py/ export-ignore
+/rb/ export-ignore
+/scripts/ export-ignore
+/slice/ export-ignore
+/vb/ export-ignore
+/vsaddin/ export-ignore
 """)
 
 createDistfiles("UNIX", distFilesDir)
@@ -233,18 +233,32 @@ createDistfiles("Windows", winDistFilesDir)
 
 ###### UNIX source code distribution
 fixGitAttributes(True, False, """
-/distribution export-ignore
-/vsaddin export-ignore
+/distribution/ export-ignore
+/vsaddin/ export-ignore
 
+INSTALL.WIN* export-ignore
+*.rc export-ignore
 *.sln export-ignore
 *.csproj export-ignore
 *.vbproj export-ignore
 *.vcproj export-ignore
+*.vcxproj export-ignore
+*.vcxproj.filters export-ignore
 Make*mak* export-ignore
-Make.rules.msvc export-ignore
+Make.rules.msvc export-ignoreq
 .depend.mak export-ignore
 *.exe.config export-ignore
-/cpp/demo/Ice/MFC export-ignore
+/cpp/test/WinRT/ export-ignore
+/cpp/demo/*/*/generated/ export-ignore
+generated/client/ export-ignore
+generated/server/ export-ignore
+/cpp/demo/Ice/MFC/ export-ignore
+/cpp/demo/IcePatch2/MFC/ export-ignore
+/cpp/demo/Ice/winrt/ export-ignore
+/cpp/demo/Glacier/winrt/ export-ignore
+/cs/demo/Ice/sl/ export-ignore
+/cs/demo/Ice/compact/ export-ignore
+/cs/demo/Glacier2/sl/ export-ignore
 """)
 
 #
@@ -300,8 +314,8 @@ print "ok"
 
 ###### Windows source code distribution
 fixGitAttributes(True, True, """
-/distribution export-ignore
-/demoscript export-ignore
+/distribution/ export-ignore
+/demoscript/ export-ignore
 allDemos.py export-ignore
 """)
 
