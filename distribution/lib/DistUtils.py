@@ -601,10 +601,10 @@ class ThirdParty :
     def getFiles(self, platform):
         files = self.getFilesFromSubDirs(platform, "bin", "lib", False)
         files += self.getFilesFromSubDirs(platform, "bin/c++11", "lib/c++11", False)
-        if platform.lp64subdir:
+        if platform.lp64Libdir:
             files += self.getFilesFromSubDirs(platform, \
-                                              os.path.join("bin", platform.lp64subdir), \
-                                              os.path.join("lib", platform.lp64subdir), True)
+                                              os.path.join("bin", platform.lp64Bindir), \
+                                              os.path.join("lib", platform.lp64Libdir), True)
         return files
 
     def includeInDistribution(self):
@@ -631,12 +631,13 @@ class ThirdParty :
 # Platform helper classes
 #
 class Platform:
-    def __init__(self, uname, pkgPlatform, pkgArch, languages, lp64subdir, shlibExtension):
+    def __init__(self, uname, pkgPlatform, pkgArch, languages, lp64Libdir, lp64Bindir, shlibExtension):
         self.uname = uname
         self.pkgPlatform = pkgPlatform
         self.pkgArch = pkgArch
         self.languages = languages
-        self.lp64subdir = lp64subdir
+        self.lp64Libdir = lp64Libdir
+        self.lp64Bindir = lp64Bindir
         self.shlibExtension = shlibExtension
         self.thirdParties = []
 
@@ -754,7 +755,7 @@ class Platform:
 
 class Darwin(Platform):
     def __init__(self, uname, arch, languages):
-        Platform.__init__(self, uname, "osx", None, languages, "", "dylib")
+        Platform.__init__(self, uname, "osx", None, languages, "", "", "dylib")
 
     def getSharedLibraryFiles(self, root, path, extension = None) : 
         libraries = Platform.getSharedLibraryFiles(self, root, path, extension)
@@ -873,14 +874,14 @@ class Darwin(Platform):
 
 class Linux(Platform):
     def __init__(self, uname, arch, languages):
-        Platform.__init__(self, uname, "linux", arch, languages, "", "so")
+        Platform.__init__(self, uname, "linux", arch, languages, "", "", "so")
 
 class SunOS(Platform):
     def __init__(self, uname, arch, languages):
         if arch == "i86pc":
-            Platform.__init__(self, uname, "solaris", "x86", languages, "amd64", "so")
+            Platform.__init__(self, uname, "solaris", "x86", languages, "64", "amd64", "so")
         else:
-            Platform.__init__(self, uname, "solaris", "sparc", languages, "sparcv9", "so")
+            Platform.__init__(self, uname, "solaris", "sparc", languages, "64", "sparcv9", "so")
 
     def getMakeOptions(self):
         return "-j 40"
