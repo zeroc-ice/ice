@@ -1300,7 +1300,6 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     if (DictionaryPtr::dynamicCast(p) || SequencePtr::dynamicCast(p))
     {
         string path = ContainedPtr::dynamicCast(ContainedPtr::dynamicCast(p)->container())->name() + MODULE_SUFFIX;
-        cout << "DICT: " << path << "-" << ContainedPtr::dynamicCast(p)->name() << endl;
         return path;
     }
     
