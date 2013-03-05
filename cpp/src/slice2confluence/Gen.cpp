@@ -742,16 +742,13 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p, bool isUserImplemente
                 }
                 
                 string stripped = removeNewlines(*q);
-                outString += " \"" + stripped + "\"";
-                if(++q != metaData.end())
+                if (outString != "")
                 {
                     outString += ",";
                 }
+                outString += " \"" + stripped + "\"";
             }
-            else
-            {
-                ++q;
-            }
+            ++q;
         }
         if (!outString.empty())
         {
@@ -1119,18 +1116,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
                 anchor = getAnchor(contained);
             }
 
-            //
-            // Sequences and dictionaries are documented on the page for their
-            // enclosing module.
-            //
-            if(SequencePtr::dynamicCast(p) || DictionaryPtr::dynamicCast(p))
-            {
-                linkpath = getLinkPath(contained->container(), container, forIndex);
-            }
-            else
-            {
-                linkpath = getLinkPath(contained, container, forIndex);
-            }
+            linkpath = getLinkPath(contained, container, forIndex);
         }
         s = getScopedMinimized(contained, container, shortName);
     }
@@ -1309,6 +1295,15 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     ContainerPtr c = container;
     string path = "";
 
+    // Sequences and dictionaries are documented on the page for
+    // their enclosing module
+    if (DictionaryPtr::dynamicCast(p) || SequencePtr::dynamicCast(p))
+    {
+        string path = ContainedPtr::dynamicCast(ContainedPtr::dynamicCast(p)->container())->name() + MODULE_SUFFIX;
+        cout << "DICT: " << path << "-" << ContainedPtr::dynamicCast(p)->name() << endl;
+        return path;
+    }
+    
     //
     // If we are in a sub-index, we need to "step up" one level, because the links all
     // point at a section in the same file.
@@ -1359,7 +1354,7 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     {
         from.pop_front();
     }
-
+    
     //
     // For each component in the source path, step up a level.
     //
@@ -1384,7 +1379,7 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
         target.pop_front();
     }
     
-    if ((forIndex && path == parent) || (parent.empty() && path.find("-") == string::npos))
+    if ((forIndex && path == parent) || (parent.empty() && path.find("-") == string::npos) || DictionaryPtr::dynamicCast(p))
     {
         //link to parent, add suffix
         path += MODULE_SUFFIX;
