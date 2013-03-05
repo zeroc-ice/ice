@@ -17,20 +17,6 @@ using namespace Test;
 namespace
 {
 
-// void
-// printMetricsView(const IceMX::MetricsView& view)
-// {
-//     for(IceMX::MetricsView::const_iterator q = view.begin(); q != view.end(); ++q)
-//     {
-//         cout << endl << q->first << " Map:" << endl;
-//         for(IceMX::MetricsMap::const_iterator p = q->second.begin(); p != q->second.end(); ++p)
-//         {
-//             cout << (*p)->id << " current = " << (*p)->current << " total = " << (*p)->total << " failures = "
-//                  << (*p)->failures << endl;
-//         }
-//     }
-// }
-
 class Callback : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -111,6 +97,25 @@ getServerProps(const Ice::PropertiesAdminPrx& p, const Ice::PropertyDict& orig, 
     props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
     props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = "12010";
     return props;
+}
+
+IceMX::ConnectionMetricsPtr
+getServerConnectionMetrics(const IceMX::MetricsAdminPrx& metrics, Ice::Long expected)
+{
+    IceMX::ConnectionMetricsPtr s;
+    int nRetry = 30;
+    Ice::Long timestamp;
+    s = IceMX::ConnectionMetricsPtr::dynamicCast(metrics->getMetricsView("View", timestamp)["Connection"][0]);
+    while(s->sentBytes != expected && nRetry-- > 0)
+    {
+        // On some platforms, it's necessary to wait a little before obtaining the server metrics
+        // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+        // to the operation is sent and getMetricsView can be dispatched before the metric is really
+        // updated.
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        s = IceMX::ConnectionMetricsPtr::dynamicCast(metrics->getMetricsView("View", timestamp)["Connection"][0]);
+    }
+    return s;
 }
 
 class UpdateCallbackI : public Ice::PropertiesAdminUpdateCallback, private IceUtil::Monitor<IceUtil::Mutex>
@@ -456,27 +461,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IceMX::ConnectionMetricsPtr cm1, sm1, cm2, sm2;
     cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm1 = getServerConnectionMetrics(serverMetrics, 25);
     test(cm1->total == 1 && sm1->total == 1);
 
     metrics->ice_ping();
 
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
     test(cm2->sentBytes - cm1->sentBytes == 45); // 45 for ice_ping request
     test(cm2->receivedBytes - cm1->receivedBytes == 25); // 25 bytes for ice_ping response
     test(sm2->receivedBytes - sm1->receivedBytes == 45);
-    int nRetry = 30;
-    while(sm2->sentBytes - sm1->sentBytes != 25 && nRetry-- > 0)
-    {
-        // On some platforms, it's necessary to wait a little before obtaining the server metrics
-        // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
-        // to the operation is sent and getMetricsView can be dispatched before the metric is really
-        // updated.
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(
-            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    }
     test(sm2->sentBytes - sm1->sentBytes == 25);
 
     cm1 = cm2;
@@ -486,7 +481,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     metrics->opByteS(bs);
 
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + cm2->receivedBytes - cm1->receivedBytes);
     Ice::Long requestSz = cm2->sentBytes - cm1->sentBytes;
     Ice::Long replySz = cm2->receivedBytes - cm1->receivedBytes;
 
@@ -497,23 +492,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     metrics->opByteS(bs);
 
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + replySz);
 
     // 4 is for the seq variable size
     test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4);
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
     test(sm2->receivedBytes - sm1->receivedBytes == requestSz + static_cast<int>(bs.size()) + 4);
-    nRetry = 30;
-    while(sm2->sentBytes - sm1->sentBytes != replySz && nRetry-- > 0)
-    {
-        // On some platforms, it's necessary to wait a little before obtaining the server metrics
-        // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
-        // to the operation is sent and getMetricsView can be dispatched before the metric is really
-        // updated.
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(
-            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    }
     test(sm2->sentBytes - sm1->sentBytes == replySz);
 
     cm1 = cm2;
@@ -523,23 +507,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     metrics->opByteS(bs);
 
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + replySz);
 
     // 4 is for the seq variable size
     test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4);
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
     test(sm2->receivedBytes - sm1->receivedBytes == requestSz + static_cast<int>(bs.size()) + 4);
-    nRetry = 30;
-    while(sm2->sentBytes - sm1->sentBytes != replySz && nRetry-- > 0)
-    {
-        // On some platforms, it's necessary to wait a little before obtaining the server metrics
-        // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
-        // to the operation is sent and getMetricsView can be dispatched before the metric is really
-        // updated.
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(
-            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-    }
     test(sm2->sentBytes - sm1->sentBytes == replySz);
     
     props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
