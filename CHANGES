@@ -148,6 +148,9 @@ Java Changes
 Python Changes
 ==============
 
+- Fixed a bug in the Glacier2.Application class where the code was
+  using the old asynchronous API.
+
 - Added "self" to the Slice compiler's list of Python keywords.
 
 

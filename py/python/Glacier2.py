@@ -33,22 +33,6 @@ class RestartSessionException(Exception):
     def __init__(self):
         pass
 
-class AMI_Router_refreshSessionI:
-    def __init__(self, app, pinger):
-        self._app = app
-        self._pinger = pinger
-
-    def ice_response(self):
-        pass
-
-    def ice_exception(self, ex):
-        # Here the session has gone. The thread
-        # terminates, and we notify the
-        # application that the session has been
-        # destroyed.
-        self._pinger.done()
-        self._app.sessionDestroyed()
-
 class SessionPingThread(threading.Thread):
     def __init__(self, app, router, period):
         threading.Thread.__init__(self)
@@ -62,7 +46,7 @@ class SessionPingThread(threading.Thread):
         self._cond.acquire()
         try:
             while not self._done:
-                self._router.refreshSession_async(AMI_Router_refreshSessionI(self._app, self))
+                self._router.begin_refreshSession(self.response, self.exception)
 
                 if not self._done:
                     self._cond.wait(self._period)
@@ -77,6 +61,20 @@ class SessionPingThread(threading.Thread):
                 self._cond.notify()
         finally:
             self._cond.release()
+
+    def response(self):
+        #
+        # Ignore successful call to refreshSession.
+        #
+        pass
+
+    def exception(self, ex):
+        #
+        # Here the session has gone. The thread terminates, and we notify the
+        # application that the session has been destroyed.
+        #
+        self.done()
+        self._app.sessionDestroyed()
 
 class Application(Ice.Application):
 
