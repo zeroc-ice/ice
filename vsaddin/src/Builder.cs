@@ -437,6 +437,12 @@ namespace Ice.VisualStudio
             {
                 foreach(String path in _deleted)
                 {
+                    ProjectItem item = Util.findItem(path);
+                    if(item != null)
+                    {
+                        item.Remove();
+                    }
+
                     if(String.IsNullOrEmpty(path))
                     {
                         continue;
@@ -472,6 +478,14 @@ namespace Ice.VisualStudio
         {
             try
             {
+                foreach (String path in _deleted)
+                {
+                    ProjectItem item = Util.findItem(path);
+                    if(item != null)
+                    {
+                        item.Remove();
+                    }
+                }
                 _deleted.Clear();
             }
             catch(Exception ex)
@@ -1091,6 +1105,11 @@ namespace Ice.VisualStudio
             }
 
             if(builded.Contains(project))
+            {
+                return;
+            }
+
+            if(_deleted.Count > 0)
             {
                 return;
             }
@@ -2172,8 +2191,10 @@ namespace Ice.VisualStudio
                     return;
                 }
                 clearErrors(file.FullPath);
-                removeCppGeneratedItems(project, file.FullPath, true);
-
+                if(!_deleted.Contains(file.FullPath))
+                {
+                    removeCppGeneratedItems(project, file.FullPath, true);
+                }
                 //
                 // It appears that the file is not actually removed from disk at this
                 // point. Thus we need to delay dependency updates until after delete,
@@ -2249,7 +2270,6 @@ namespace Ice.VisualStudio
                                         MessageBoxDefaultButton.Button1,
                                         (MessageBoxOptions)0);
                         _deleted.Add(fullPath);
-                        item.Remove();
                         return;
                     }
 
@@ -2266,7 +2286,6 @@ namespace Ice.VisualStudio
                                         MessageBoxDefaultButton.Button1,
                                         (MessageBoxOptions)0);
                         _deleted.Add(fullPath);
-                        item.Remove();
                         return;
                     }
                 }
