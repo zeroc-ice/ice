@@ -2150,31 +2150,24 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                if(_applicationObject.ActiveSolutionProjects == null)
+                if(file.project == null)
                 {
                     return;
                 }
 
-                Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-                if(projects == null)
+                if(!Util.isSliceFilename(file.Name))
                 {
                     return;
                 }
 
-                if(projects.Length <= 0)
-                {
-                    return;
-                }
-                Project project = projects.GetValue(0) as Project;
+                Project project = Util.findProject(file.project);
+
                 if(project == null)
                 {
                     return;
                 }
+
                 if(!Util.isSliceBuilderEnabled(project))
-                {
-                    return;
-                }
-                if(!Util.isSliceFilename(file.Name))
                 {
                     return;
                 }
@@ -2203,13 +2196,14 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
+
                 VCFile file = obj as VCFile;
                 if(file == null)
                 {
                     return;
                 }
 
-                if(_applicationObject.ActiveSolutionProjects == null)
+                if(file.project == null)
                 {
                     return;
                 }
@@ -2219,31 +2213,25 @@ namespace Ice.VisualStudio
                     return;
                 }
 
+                Project project = Util.findProject(file.project);
+                if (project == null)
+                {
+                    return;
+                }
+
                 string fullPath = file.FullPath;
 
-                Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-                if(projects == null)
-                {
-                    return;
-                }
-                if(projects.Length <= 0)
-                {
-                    return;
-                }
-                Project project = projects.GetValue(0) as Project;
-                if(project == null)
-                {
-                    return;
-                }
                 if(!Util.isSliceBuilderEnabled(project))
                 {
                     return;
                 }
+
                 ProjectItem item = Util.findItem(fullPath, project.ProjectItems);
                 if(item == null)
                 {
                     return;
                 }
+
                 if(Util.isCppProject(project))
                 {
                     string cppPath = getCppGeneratedFileName(project, file.FullPath, Util.getSourceExt(project));

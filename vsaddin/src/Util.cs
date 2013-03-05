@@ -1315,6 +1315,39 @@ namespace Ice.VisualStudio
             return found;
         }
 
+        public static Project findProject(VCProject vcProject)
+        {
+            if(vcProject == null)
+            {
+                return null;
+            }
+
+            Builder builder = Connect.getBuilder();
+            DTE dte = builder.getCurrentDTE();
+
+            if(dte == null)
+            {
+                return null;
+            }
+
+            if(dte.Solution == null)
+            {
+                return null;
+            }
+
+            List<Project> projects = Util.getProjects(dte.Solution);
+            Project project = null;
+            foreach(Project p in projects)
+            {
+                if(p.Object != null && p.Object.Equals(vcProject))
+                {
+                    project = p;
+                    break;
+                }
+            }
+            return project;
+        }
+
         public static ProjectItem findItem(string path)
         {
             Builder builder = Connect.getBuilder();
