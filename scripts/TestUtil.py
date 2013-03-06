@@ -426,13 +426,13 @@ def run(tests, root = False):
             # This is all eligible cross tests for the current mapping.
             # Now expand out the tests. We run only tcp for most cross tests.
             for c in crossLang:
-                a = "--cross=%s --protocol=tcp" % c
+                a = "--cross=%s --protocol=tcp %s" % (c, arg)
                 expanded.append([ ( "%s/test/%s" % (lang, test), a, []) for test in crossTests])
 
                 # Add ssl & compress for the operations test.
                 if (compact or mono or silverlight) and c == "cs": # Don't add the ssl tests.
                     continue
-                a = "--cross=%s --protocol=ssl --compress" % c
+                a = "--cross=%s --protocol=ssl --compress %s" % (c, arg)
                 expanded.append([("%s/test/Ice/operations" % lang, a, [])])
 
     # Apply filters after expanding.
