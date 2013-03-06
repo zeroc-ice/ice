@@ -46,6 +46,12 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 #DB_HOME		?= /opt/db
 
+#
+# Define CPP11 as yes if you want to enable C++11 features in GCC or 
+# Clang.
+#
+#CPP11     ?= yes
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -71,13 +77,13 @@ ifneq ($(embedded_runpath_prefix),)
 endif
 
 ICECPPFLAGS		= -I$(slicedir)
+
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), /usr) 
-    CPPFLAGS	= 
     LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
-    CPPFLAGS	= -I$(includedir)
+    CPPFLAGS	+= -I$(includedir)
     LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
 endif
 
