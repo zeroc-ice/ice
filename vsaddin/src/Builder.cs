@@ -2179,7 +2179,7 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                Project project = Util.findProject(file.project);
+                Project project = Util.findProject((VCProject)file.project);
 
                 if(project == null)
                 {
@@ -2234,7 +2234,7 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                Project project = Util.findProject(file.project);
+                Project project = Util.findProject((VCProject)file.project);
                 if (project == null)
                 {
                     return;
