@@ -178,31 +178,31 @@ namespace Ice.VisualStudio
                     {
                         _debugStartEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStartEvent.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironmentStartupProject);
                     }
                     else if(c.Name.Equals("Debug.StepInto"))
                     {
                         _debugStepIntoEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStepIntoEvent.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironmentStartupProject);
                     }
                     else if(c.Name.Equals("ClassViewContextMenus.ClassViewProject.Debug.StepIntonewinstance"))
                     {
                         _debugStepIntoNewInstance = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStepIntoNewInstance.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironmentActiveProject);
                     }
                     else if (c.Name.Equals("Debug.StartWithoutDebugging"))
                     {
                         _debugStartWithoutDebuggingEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStartWithoutDebuggingEvent.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironmentStartupProject);
                     }
                     else if (c.Name.Equals("ClassViewContextMenus.ClassViewProject.Debug.Startnewinstance"))
                     {
                         _debugStartNewInstance = application.Events.get_CommandEvents(c.Guid, c.ID);
                         _debugStartNewInstance.BeforeExecute +=
-                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironment);
+                                        new _dispCommandEvents_BeforeExecuteEventHandler(setDebugEnvironmentActiveProject);
                     }
                     else if (c.Guid.Equals(Util.refreshCommandGUID) && c.ID == Util.refreshCommandID)
                     {
@@ -525,12 +525,21 @@ namespace Ice.VisualStudio
             }
         }
 
-        public void setDebugEnvironment(string Guid, int ID, object obj, object CustomOut, ref bool done)
+        public void setDebugEnvironmentStartupProject(string Guid, int ID, object obj, object CustomOut, ref bool done)
+        {
+            setDebugEnvironment(getStartupProject());
+        }
+
+        public void setDebugEnvironmentActiveProject(string Guid, int ID, object obj, object CustomOut, ref bool done)
+        {
+            setDebugEnvironment(getActiveProject());
+        }
+
+        public void setDebugEnvironment(Project project)
         {
             try
             {
-                Project project = getActiveProject();
-                if(Util.isSliceBuilderEnabled(project))
+                if(project != null && Util.isSliceBuilderEnabled(project))
                 {
                     if(Util.isCppProject(project))
                     {
@@ -2087,6 +2096,44 @@ namespace Ice.VisualStudio
             return Util.getSelectedProject(_applicationObject.DTE);
         }
 
+        public Project getStartupProject()
+        {
+            try
+            {
+                Array projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
+                Project p = Util.getProjectByNameOrFile(_applicationObject.Solution, projects.GetValue(0) as String);
+                if (p != null)
+                {
+                    return p;
+                }
+            }
+            catch (COMException)
+            {
+                //
+                // Ignore could happen if called while solution is being initialized.
+                //
+            }
+
+            try
+            {
+                if(_applicationObject.Solution.Projects != null)
+                {
+                    if(_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
+                    {
+                        return _applicationObject.Solution.Projects.Item(1) as Project;
+                    }
+                }
+            }
+            catch(COMException)
+            {
+                //
+                // Ignore could happen if called while solution is being initialized.
+                //
+            }
+
+            return null;
+        }
+
         public Project getActiveProject()
         {
             Array projects = null;
@@ -2099,21 +2146,6 @@ namespace Ice.VisualStudio
                     {
                         return projects.GetValue(0) as Project;
                     }
-                }
-            }
-            catch(COMException)
-            {
-                //
-                // Ignore could happen if called while solution is being initialized.
-                //
-            }
-
-            try
-            {
-                projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
-                if(projects != null && projects.Length > 0)
-                {
-                    return projects.GetValue(0) as Project;
                 }
             }
             catch(COMException)
@@ -2139,6 +2171,7 @@ namespace Ice.VisualStudio
                 // Ignore could happen if called while solution is being initialized.
                 //
             }
+
             return null;
         }
         

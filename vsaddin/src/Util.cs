@@ -3148,7 +3148,8 @@ namespace Ice.VisualStudio
             List<Project> projects = getProjects(solution);
             foreach(Project p in projects)
             {
-                if(p.Name.Equals(name) ||
+                if(p.UniqueName.Equals(name) ||
+                   p.Name.Equals(name) ||
                    Path.GetFullPath(Path.Combine(Path.GetDirectoryName(solution.FullName), name)).Equals(
                                                                                     Path.GetFullPath(p.FullName)))
                 {
