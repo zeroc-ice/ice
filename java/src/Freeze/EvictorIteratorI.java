@@ -123,7 +123,7 @@ class EvictorIteratorI implements EvictorIterator
 
                             if(_batch.size() < _batchSize)
                             {
-                                Ice.Identity ident = ObjectStore.unmarshalKey(_key.getData(), communicator, encoding);
+                                Ice.Identity ident = ObjectStore.unmarshalKey(_key, communicator, encoding);
                                 _batch.add(ident);
                             }
                             else

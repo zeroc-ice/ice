@@ -36,6 +36,17 @@ public class Buffer
         _direct = false;
     }
 
+    public
+    Buffer(java.nio.ByteBuffer data)
+    {
+        b = data;
+        b.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        _size = data.remaining();
+        _capacity = 0;
+        _maxCapacity = 0;
+        _direct = false;
+    }
+
     public int
     size()
     {

@@ -37,6 +37,13 @@ public class BasicStream
         _buf = new Buffer(data);
     }
 
+    public
+    BasicStream(Instance instance, Ice.EncodingVersion encoding, java.nio.ByteBuffer data)
+    {
+        initialize(instance, encoding, true);
+        _buf = new Buffer(data);
+    }
+
     private void
     initialize(Instance instance, Ice.EncodingVersion encoding, boolean unlimited)
     {

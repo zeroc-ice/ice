@@ -1505,8 +1505,8 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
     static private class StreamedObject
     {
-        byte[] key = null;
-        byte[] value = null;
+        com.sleepycat.db.DatabaseEntry key = null;
+        com.sleepycat.db.DatabaseEntry value = null;
         byte status = dead;
         ObjectStore store = null;
     }

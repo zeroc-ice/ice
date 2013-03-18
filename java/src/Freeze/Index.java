@@ -24,7 +24,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
     {
         Ice.Communicator communicator = _store.communicator();
         Ice.EncodingVersion encoding = _store.encoding();
-        ObjectRecord rec = ObjectStore.unmarshalValue(value.getData(), communicator, encoding, _store.keepStats());
+        ObjectRecord rec = ObjectStore.unmarshalValue(value, communicator, encoding, _store.keepStats());
 
         byte[] secondaryKey = marshalKey(rec.servant);
         if(secondaryKey != null)
@@ -133,7 +133,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 
                         if(found)
                         {
-                            Ice.Identity ident = ObjectStore.unmarshalKey(pkey.getData(), communicator, encoding);
+                            Ice.Identity ident = ObjectStore.unmarshalKey(pkey, communicator, encoding);
                             identities.add(ident);
                             first = false;
                         }
