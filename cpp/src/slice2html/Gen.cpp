@@ -1108,7 +1108,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             if(_warnOldCommentFiles.find(fileName) == _warnOldCommentFiles.end())
             {
                 _warnOldCommentFiles.insert(fileName);
-                cerr << fileName << ": warning: file contains old-style javadoc link syntax: `[" << literal << "]'"
+                cerr << fileName << ": warning: file contains old-style link syntax: `[" << literal << "]'"
                      << endl;
             }
         }
@@ -1507,7 +1507,7 @@ Slice::GeneratorBase::warnOldStyleIdent(const string& str, const string& fileNam
             lastName = newName.substr(pos + 1);
         }
 
-        cerr << fileName << ": warning: file contains old-style javadoc identifier syntax: `" << str << "'."
+        cerr << fileName << ": warning: file contains old-style identifier syntax: `" << str << "'."
              << " Use `'" << newName << "'";
         if(!alternateName.empty())
         {
