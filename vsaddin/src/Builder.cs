@@ -2102,7 +2102,7 @@ namespace Ice.VisualStudio
             {
                 Array projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
                 Project p = Util.getProjectByNameOrFile(_applicationObject.Solution, projects.GetValue(0) as String);
-                if (p != null)
+                if(p != null)
                 {
                     return p;
                 }
@@ -2116,12 +2116,9 @@ namespace Ice.VisualStudio
 
             try
             {
-                if(_applicationObject.Solution.Projects != null)
+                if(_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
                 {
-                    if(_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
-                    {
-                        return _applicationObject.Solution.Projects.Item(1) as Project;
-                    }
+                    return _applicationObject.Solution.Projects.Item(1) as Project;
                 }
             }
             catch(COMException)
@@ -2157,12 +2154,10 @@ namespace Ice.VisualStudio
 
             try
             {
-                if(_applicationObject.Solution.Projects != null)
+
+                if(_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
                 {
-                    if(_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
-                    {
-                        return _applicationObject.Solution.Projects.Item(1) as Project;
-                    }
+                    return _applicationObject.Solution.Projects.Item(1) as Project;
                 }
             }
             catch(COMException)
