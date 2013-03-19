@@ -18,6 +18,7 @@ debug = False                   # Set to True to enable test suite debugging.
 mono = False                    # Set to True when not on Windows
 keepGoing = False               # Set to True to have the tests continue on failure.
 ipv6 = False                    # Default to use IPv4 only
+socksProxy = False              # Use SOCKS proxy running on localhost
 iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
 cpp11 = False                   # Binary distribution is c++ 11
@@ -53,7 +54,7 @@ def isWin32():
     return sys.platform == "win32" or isCygwin()
     
 def isVista():
-    return isWin32() and sys.getwindowsversion()[0] == 6
+    return isWin32() and sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] == 0
 
 def isWin9x():
     if isWin32():
@@ -269,6 +270,7 @@ def run(tests, root = False):
           --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
+          --socks                 Use SOCKS proxy running on localhost.
           --no-ipv6               Don't use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
@@ -296,7 +298,8 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "client-home=", "x64", "script", "env", 
+                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", 
+                                    "script", "env", 
                                     "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", 
                                     "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", 
                                     "c++11"])
@@ -363,7 +366,8 @@ def run(tests, root = False):
                     sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
+                  "--socks", "--ice-home", "--x64", "--env", \
+                  "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
                   "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
                   "--server", "--mx", "--client-home", "--c++11"):
             arg += " " + o
@@ -741,6 +745,7 @@ class DriverConfig:
     type = None
     overrides = None
     ipv6 = False
+    socksProxy = False
     x64 = False
     cpp11 = False
     sqlType = None
@@ -761,6 +766,7 @@ class DriverConfig:
         global valgrind
         global appverifier
         global ipv6
+        global socksProxy
         global x64
         global cpp11
         global sqlType
@@ -783,6 +789,7 @@ class DriverConfig:
         self.appverifier = appverifier
         self.type = type
         self.ipv6 = ipv6
+        self.socksProxy = socksProxy
         self.x64 = x64
         self.cpp11 = cpp11
         self.sqlType = sqlType
@@ -872,6 +879,9 @@ def getCommandLineProperties(exe, config):
         components.append("--IceMX.Metrics.Debug.GroupBy=id")
         components.append("--IceMX.Metrics.Parent.GroupBy=parent")
         components.append("--IceMX.Metrics.All.GroupBy=none")
+
+    if config.socksProxy:
+        components.append("--Ice.SOCKSProxyHost=127.0.0.1")
 
     if config.ipv6:
         components.append("--Ice.IPv4=1 --Ice.IPv6=1 --Ice.PreferIPv6Address=1")
@@ -1611,6 +1621,7 @@ def processCmdLine():
           --host=host             Set --Ice.Default.Host=<host>.
           --serialize             Run with connection serialization.
           --ipv6                  Use IPv6 addresses.
+          --socks                 Use SOCKS proxy running on localhost.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
           --c++11                 Binary distribution is c++11.
@@ -1635,7 +1646,7 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                               "ice-home=", "x64", "cross=", "client-home=", "env", "sql-type=", "sql-db=", \
+                               "socks", "ice-home=", "x64", "cross=", "client-home=", "env", "sql-type=", "sql-db=", \
                                "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=", "appverifier", \
                                "compact", "silverlight", "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
@@ -1689,6 +1700,9 @@ def processCmdLine():
         elif o == "--ipv6":
             global ipv6
             ipv6 = True
+        elif o == "--socks":
+            global socksProxy
+            socksProxy = True
         if o == "--trace":
             global tracefile
             if a == "stdout":
@@ -1816,6 +1830,10 @@ def runTests(start, expanded, num = 0, script = False):
 
             if args.find("compress") != -1 and "nocompress" in config:
                 print("%s*** test not supported with compression%s" % (prefix, suffix))
+                continue
+
+            if args.find("socks") != -1 and "nosocks" in config:
+                print("%s*** test not supported with SOCKS%s" % (prefix, suffix))
                 continue
 
             if args.find("compact") != -1 and "nocompact" in config:

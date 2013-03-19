@@ -394,8 +394,7 @@ namespace IceSSL
         //
         public override List<IceInternal.Connector> connectors(Ice.EndpointSelectionType selType)
         {
-            return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport(), selType,
-                                                               _instance.preferIPv6(), true));
+            return _instance.endpointHostResolver().resolve(_host, _port, selType, this);
         }
 
         public override void connectors_async(Ice.EndpointSelectionType selType,
@@ -455,12 +454,12 @@ namespace IceSSL
             return sslEndpointI._host.Equals(_host) && sslEndpointI._port == _port;
         }
 
-        public override List<IceInternal.Connector> connectors(List<EndPoint> addresses)
+        public override List<IceInternal.Connector> connectors(List<EndPoint> addresses, IceInternal.NetworkProxy proxy)
         {
             List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
             foreach(EndPoint addr in addresses)
             {
-                connectors.Add(new ConnectorI(_instance, _host, addr, _timeout, connectionId_));
+                connectors.Add(new ConnectorI(_instance, _host, addr, proxy, _timeout, connectionId_));
             }
             return connectors;
         }

@@ -23,6 +23,133 @@ namespace IceInternal
     using System.Threading;
     using System.Globalization;
 
+    public interface NetworkProxy
+    {
+        //
+        // Write the connection request on the connection established
+        // with the network proxy server, this is called right after
+        // the connection establishment succeeds.
+        //
+        void beginWriteConnectRequest(EndPoint endpoint, Buffer buf);
+        void endWriteConnectRequest(Buffer buf);
+        
+        //
+        // Once the connection request has been sent, this is called
+        // to prepare and read the response from the proxy server.
+        //
+        void beginReadConnectRequestResponse(Buffer buf);
+        void endReadConnectRequestResponse(Buffer buf);
+
+        //
+        // If the proxy host needs to be resolved, this should return
+        // a new NetworkProxy containing the IP address of the proxy.
+        // This is called from the endpoint host resolver thread, so
+        // it's safe if this this method blocks.
+        //
+        NetworkProxy resolveHost();
+
+        //
+        // Returns the IP address of the network proxy. This can't
+        // block. It's only called on a network proxy object returned
+        // by resolveHost().
+        //
+        EndPoint getAddress();
+    };
+
+    public sealed class SOCKS4NetworkProxy : NetworkProxy
+    {
+        public SOCKS4NetworkProxy(string host, int port)
+        {
+#if SILVERLIGHT
+            _address = new DnsEndPoint(host, port, AddressFamily.InterNetwork);
+#else
+            _host = host;
+            _port = port;
+#endif
+        }
+
+        private SOCKS4NetworkProxy(EndPoint address)
+        {
+            _address = address;
+        }
+
+        public void beginWriteConnectRequest(EndPoint endpoint, Buffer buf)
+        {
+            if(!(endpoint is IPEndPoint))
+            {
+                throw new Ice.FeatureNotSupportedException("SOCKS4 doesn't support domain names");
+            }
+            else if(endpoint.AddressFamily != AddressFamily.InterNetwork)
+            {
+                throw new Ice.FeatureNotSupportedException("SOCKS4 only supports IPv4 addresses");
+            }
+
+            //
+            // SOCKS connect request
+            //
+            IPEndPoint addr = (IPEndPoint)endpoint;
+            buf.resize(9, false);
+            ByteBuffer.ByteOrder order = buf.b.order();
+            buf.b.order(ByteBuffer.ByteOrder.BIG_ENDIAN); // Network byte order.
+            buf.b.position(0);
+            buf.b.put(0x04); // SOCKS version 4.
+            buf.b.put(0x01); // Command, establish a TCP/IP stream connection
+            buf.b.putShort((short)addr.Port); // Port
+            buf.b.put(addr.Address.GetAddressBytes()); // IPv4 address
+            buf.b.put(0x00); // User ID.
+            buf.b.position(0);
+            buf.b.limit(buf.size());
+            buf.b.order(order);
+        }
+
+        public void endWriteConnectRequest(Buffer buf)
+        {
+            buf.reset();
+        }
+
+        public void beginReadConnectRequestResponse(Buffer buf)
+        {
+            //
+            // Read the SOCKS4 response whose size is 8 bytes.
+            //
+            buf.resize(8, true);
+            buf.b.position(0);
+        }
+
+        public void endReadConnectRequestResponse(Buffer buf)
+        {
+            buf.b.position(0);
+            byte b1 = buf.b.get();
+            byte b2 = buf.b.get();
+            if(b1 != 0x00 || b2 != 0x5a)
+            {
+                throw new Ice.ConnectFailedException();
+            }
+            buf.reset();
+        }
+
+        public NetworkProxy resolveHost()
+        {
+            Debug.Assert(_host != null);
+            return new SOCKS4NetworkProxy(Network.getAddresses(_host, 
+                                                               _port, 
+                                                               Network.EnableIPv4, 
+                                                               Ice.EndpointSelectionType.Random, 
+                                                               false, 
+                                                               true)[0]);
+        }
+
+        public EndPoint getAddress()
+        {
+            Debug.Assert(_address != null); // Host must be resolved.
+            return _address;
+        }
+
+        private readonly string _host;
+        private readonly int _port;
+        private readonly EndPoint _address;
+    }
+
     public sealed class Network
     {
         // ProtocolSupport
@@ -763,11 +890,11 @@ namespace IceInternal
 #if SILVERLIGHT
                 if(protocol != EnableIPv4)
                 {
-                    return new DnsEndPoint(IPAddress.IPv6Any.ToString(), port);
+                    return new DnsEndPoint(IPAddress.IPv6Any.ToString(), port, AddressFamily.InterNetwork);
                 }
                 else
                 {
-                    return new DnsEndPoint(IPAddress.Any.ToString(), port);
+                    return new DnsEndPoint(IPAddress.Any.ToString(), port, AddressFamily.InterNetwork);
                 }
 #else
                 if(protocol != EnableIPv4)
@@ -782,7 +909,7 @@ namespace IceInternal
             }
 
 #if SILVERLIGHT
-            return new DnsEndPoint(host, port);
+            return new DnsEndPoint(host, port, AddressFamily.InterNetwork);
 #else
             return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
 #endif
@@ -797,16 +924,16 @@ namespace IceInternal
             {
                 if(protocol != EnableIPv4)
                 {
-                    addresses.Add(new DnsEndPoint(IPAddress.IPv6Loopback.ToString(), port));
+                    addresses.Add(new DnsEndPoint(IPAddress.IPv6Loopback.ToString(), port, AddressFamily.InterNetwork));
                 }
                 else
                 {
-                    addresses.Add(new DnsEndPoint(IPAddress.Loopback.ToString(), port));
+                    addresses.Add(new DnsEndPoint(IPAddress.Loopback.ToString(), port, AddressFamily.InterNetwork));
                 }
             }
             else
             {
-                addresses.Add(new DnsEndPoint(host, port));
+                addresses.Add(new DnsEndPoint(host, port, AddressFamily.InterNetwork));
             }
 #else
             if(host.Length == 0)
@@ -1164,6 +1291,13 @@ namespace IceInternal
         public static string
         addrToString(EndPoint addr)
         {
+#if !COMPACT
+            if(addr is DnsEndPoint)
+            {
+                DnsEndPoint e = (DnsEndPoint)addr;
+                return e.Host + ":" + e.Port;
+            }
+#endif
             return addr.ToString();
         }
 

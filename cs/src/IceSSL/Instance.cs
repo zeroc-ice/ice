@@ -334,6 +334,11 @@ namespace IceSSL
             return _facade.getPreferIPv6();
         }
 
+        internal IceInternal.NetworkProxy networkProxy()
+        {
+            return _facade.getNetworkProxy();
+        }
+
         internal Ice.EncodingVersion defaultEncoding()
         {
             return _facade.getDefaultEncoding();

@@ -27,14 +27,14 @@ namespace IceInternal
     {
         public int initialize()
         {
-            if(_state == StateNeedConnect)
+            try
             {
-                _state = StateConnectPending;
-                return SocketOperation.Connect;
-            }
-            else if(_state <= StateConnectPending)
-            {
-                try
+                if(_state == StateNeedConnect)
+                {
+                    _state = StateConnectPending;
+                    return SocketOperation.Connect;
+                }
+                else if(_state <= StateConnectPending)
                 {
 #if ICE_SOCKET_ASYNC_API
                     if(_writeEventArgs.SocketError != SocketError.Success)
@@ -53,31 +53,57 @@ namespace IceInternal
                     Network.doFinishConnectAsync(_fd, _writeResult);
                     _writeResult = null;
 #endif
-                    _state = StateConnected;
                     _desc = Network.fdToString(_fd);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    if(_traceLevels.network >= 2)
+                    if(_proxy != null)
                     {
-                        System.Text.StringBuilder s = new System.Text.StringBuilder();
-                        s.Append("failed to establish tcp connection\n");
-                        s.Append(Network.fdLocalAddressToString(_fd));
-                        Debug.Assert(_addr != null);
-                        s.Append("\nremote address = " + _addr.ToString() + "\n");
-                        s.Append(ex.ToString());
-                        _logger.trace(_traceLevels.networkCat, s.ToString());
+                        _desc += "\ntarget address = " + Network.addrToString(_addr);
+                        _state = StateProxyConnectRequest; // Send proxy connect request
+                        return SocketOperation.Write; 
                     }
-                    throw;
-                }
 
-                if(_traceLevels.network >= 1)
+                    _state = StateConnected;
+                }
+                else if(_state == StateProxyConnectRequest)
                 {
-                    string s = "tcp connection established\n" + _desc;
-                    _logger.trace(_traceLevels.networkCat, s);
+                    _state = StateProxyConnectRequestPending; // Wait for proxy response
+                    return SocketOperation.Read;
+                }
+                else if(_state == StateProxyConnectRequestPending)
+                {
+                    _state = StateConnected;
                 }
             }
+            catch(Ice.LocalException ex)
+            {
+                if(_traceLevels.network >= 2)
+                {
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("failed to establish tcp connection\n");
+                    s.Append(Network.fdLocalAddressToString(_fd));
+                    if(_proxy == null)
+                    {
+                        EndPoint addr = _addr == null ? Network.getRemoteAddress(_fd) : _addr;
+                        s.Append("\nremote address = " + Network.addrToString(addr));
+                    }
+                    else
+                    {
+                        Debug.Assert(_addr != null);
+                        s.Append("\nremote address = " + Network.addrToString(_proxy.getAddress()));
+                        s.Append("\ntarget address = " + Network.addrToString(_addr));
+                    }
+                    s.Append("\n");
+                    s.Append(ex.ToString());
+                    _logger.trace(_traceLevels.networkCat, s.ToString());
+                }
+                throw;
+            }
+
             Debug.Assert(_state == StateConnected);
+            if(_traceLevels.network >= 1)
+            {
+                string s = "tcp connection established\n" + _desc;
+                _logger.trace(_traceLevels.networkCat, s);
+            }
             return SocketOperation.None;
         }
 
@@ -113,8 +139,8 @@ namespace IceInternal
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Frameworks don't support the use of synchronous socket
-            // operations on a non-blocking socket. Returning false here forces the
-            // caller to schedule an asynchronous operation.
+            // operations on a non-blocking socket. Returning false here forces the caller to schedule
+            // an asynchronous operation.
             //
             return false;
 #else
@@ -283,6 +309,10 @@ namespace IceInternal
 #else
             Debug.Assert(_fd != null && _readResult == null);
 #endif
+            if(_state == StateProxyConnectRequestPending)
+            {
+                _proxy.beginReadConnectRequestResponse(buf);
+            }
 
             int packetSize = buf.b.remaining();
             if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
@@ -370,6 +400,11 @@ namespace IceInternal
                 }
 
                 buf.b.position(buf.b.position() + ret);
+
+                if(_state == StateProxyConnectRequestPending)
+                {
+                    _proxy.endReadConnectRequestResponse(buf);
+                }
             }
             catch(SocketException ex)
             {
@@ -397,14 +432,30 @@ namespace IceInternal
             if(_state < StateConnected)
             {
                 completed = false;
-                _writeCallback = callback;
+                if(_state == StateConnectPending)
+                {
+                    _writeCallback = callback;
+                    try
+                    {
+                        EndPoint addr = _proxy != null ? _proxy.getAddress() : _addr;
 #if ICE_SOCKET_ASYNC_API
-                _writeEventArgs.UserToken = state;
-                return !_fd.ConnectAsync(_writeEventArgs);
+                        _writeEventArgs.RemoteEndPoint = addr;
+                        _writeEventArgs.UserToken = state;
+                        return !_fd.ConnectAsync(_writeEventArgs);
 #else
-                _writeResult = Network.doConnectAsync(_fd, _addr, callback, state);
-                return _writeResult.CompletedSynchronously;
+                        _writeResult = Network.doConnectAsync(_fd, addr, callback, state);
+                        return _writeResult.CompletedSynchronously;
 #endif
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new Ice.SocketException(ex);
+                    }
+                }
+                else if(_state == StateProxyConnectRequest)
+                {
+                    _proxy.beginWriteConnectRequest(_addr, buf);
+                }
             }
 
             //
@@ -469,11 +520,11 @@ namespace IceInternal
             Debug.Assert(_fd != null && _writeResult != null);
 #endif
 
-            if(_state < StateConnected)
+            if(_state < StateConnected && _state != StateProxyConnectRequest)
             {
                 return;
-            }
-
+            } 
+            
             try
             {
 #if ICE_SOCKET_ASYNC_API
@@ -511,6 +562,11 @@ namespace IceInternal
                 }
 
                 buf.b.position(buf.b.position() + ret);
+
+                if(_state == StateProxyConnectRequest)
+                {
+                    _proxy.endWriteConnectRequest(buf);
+                }
             }
             catch(SocketException ex)
             {
@@ -564,11 +620,12 @@ namespace IceInternal
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(Instance instance, Socket fd, EndPoint addr, bool connected)
+        internal TcpTransceiver(Instance instance, Socket fd, EndPoint addr, NetworkProxy proxy, bool connected)
         {
             _fd = fd;
             _addr = addr;
-
+            _proxy = proxy;
+            
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
@@ -577,11 +634,9 @@ namespace IceInternal
             
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
-            _readEventArgs.RemoteEndPoint = _addr;
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
-            _writeEventArgs.RemoteEndPoint = _addr;
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 #if SILVERLIGHT
             String policy = instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol");
@@ -646,6 +701,7 @@ namespace IceInternal
 
         private Socket _fd;
         private EndPoint _addr;
+        private NetworkProxy _proxy;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
@@ -667,6 +723,8 @@ namespace IceInternal
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;
-        private const int StateConnected = 2;
+        private const int StateProxyConnectRequest = 2;
+        private const int StateProxyConnectRequestPending = 3; 
+        private const int StateConnected = 4;
     }
 }

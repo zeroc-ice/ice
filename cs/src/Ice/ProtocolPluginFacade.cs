@@ -34,6 +34,11 @@ namespace IceInternal
         bool getPreferIPv6();
 
         //
+        // Get the proxy address.
+        //
+        NetworkProxy getNetworkProxy();
+
+        //
         // Get the default encoding to be used in endpoints.
         //
         Ice.EncodingVersion getDefaultEncoding();
@@ -106,6 +111,14 @@ namespace IceInternal
         public bool getPreferIPv6()
         {
             return _instance.preferIPv6();
+        }
+
+        //
+        // Get the proxy address.
+        //
+        public NetworkProxy getNetworkProxy()
+        {
+            return _instance.networkProxy();
         }
 
         //

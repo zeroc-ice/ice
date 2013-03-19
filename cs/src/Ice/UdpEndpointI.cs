@@ -496,7 +496,8 @@ namespace IceInternal
         public override List<Connector> connectors(Ice.EndpointSelectionType selType)
         {
             return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport(), selType,
-                                                   instance_.preferIPv6(), true));
+                                                   instance_.preferIPv6(), true),
+                              instance_.networkProxy());
         }
 
 
@@ -560,7 +561,7 @@ namespace IceInternal
             return udpEndpointI._host.Equals(_host) && udpEndpointI._port == _port;
         }
 
-        public override List<Connector> connectors(List<EndPoint> addresses)
+        public override List<Connector> connectors(List<EndPoint> addresses, NetworkProxy networkProxy)
         {
             List<Connector> connectors = new List<Connector>();
             foreach(EndPoint addr in addresses)

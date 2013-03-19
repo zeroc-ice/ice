@@ -220,6 +220,11 @@ namespace IceInternal
         {
             return _preferIPv6;
         }
+
+        public NetworkProxy networkProxy()
+        {
+            return _networkProxy;
+        }
         
         public ThreadPool clientThreadPool()
         {
@@ -814,9 +819,18 @@ namespace IceInternal
                 _referenceFactory = new ReferenceFactory(this, communicator);
                 
                 _proxyFactory = new ProxyFactory(this);
-                
+
+                string proxyHost = _initData.properties.getProperty("Ice.SOCKSProxyHost");
+                int defaultIPv6 = 1; // IPv6 enabled by default.
+                if(proxyHost.Length > 0)
+                {
+                    int proxyPort = _initData.properties.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
+                    _networkProxy = new SOCKS4NetworkProxy(proxyHost, proxyPort);
+                    defaultIPv6 = 0; // IPv6 is not supported with SOCKS
+                }
+
                 bool ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-                bool ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", 1) > 0;
+                bool ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", defaultIPv6) > 0;
                 if(!ipv4 && !ipv6)
                 {
                     throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");
@@ -834,6 +848,12 @@ namespace IceInternal
                     _protocolSupport = Network.EnableIPv6;
                 }
                 _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+
+                if(ipv6 && _networkProxy is SOCKS4NetworkProxy)
+                {
+                    throw new Ice.InitializationException("IPv6 is not supported with SOCKS4 proxies.");
+                }
+                
                 _endpointFactoryManager = new EndpointFactoryManager(this);
                 EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
                 _endpointFactoryManager.add(tcpEndpointFactory);
@@ -1234,6 +1254,7 @@ namespace IceInternal
         private ObjectAdapterFactory _objectAdapterFactory;
         private int _protocolSupport;
         private bool _preferIPv6;
+        private NetworkProxy _networkProxy;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
         private AsyncIOThread _asyncIOThread;

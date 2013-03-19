@@ -55,7 +55,7 @@ namespace IceSSL
                 //
                 // Nonblocking connect is handled by the transceiver.
                 //
-                return new TransceiverI(_instance, fd, _host, false, false, null, _addr);
+                return new TransceiverI(_instance, fd, _host, false, false, null, _addr, _proxy);
             }
             catch(Ice.LocalException ex)
             {
@@ -76,14 +76,16 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, EndPoint addr, int timeout, string connectionId)
+        internal ConnectorI(Instance instance, string host, EndPoint addr, IceInternal.NetworkProxy proxy, int timeout, 
+                            string conId)
         {
             _instance = instance;
             _host = host;
             _logger = instance.communicator().getLogger();
             _addr = (IPEndPoint)addr;
+            _proxy = proxy; 
             _timeout = timeout;
-            _connectionId = connectionId;
+            _connectionId = conId;
 
             _hashCode = 5381;
             IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
@@ -119,7 +121,7 @@ namespace IceSSL
 
         public override string ToString()
         {
-            return IceInternal.Network.addrToString(_addr);
+            return IceInternal.Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
         }
 
         public override int GetHashCode()
@@ -131,6 +133,7 @@ namespace IceSSL
         private Ice.Logger _logger;
         private string _host;
         private IPEndPoint _addr;
+        private IceInternal.NetworkProxy _proxy;
         private int _timeout;
         private string _connectionId;
         private int _hashCode;

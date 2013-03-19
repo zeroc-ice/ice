@@ -160,7 +160,7 @@ public class AllTests : TestCommon.TestApp
                 test3.ice_ping();
                 test(false);
             }
-            catch(Ice.ConnectionRefusedException)
+            catch(Ice.ConnectFailedException)
             {
             }
         }
@@ -520,7 +520,7 @@ public class AllTests : TestCommon.TestApp
             {
                 obj.getAdapterName();
             }
-            catch(Ice.ConnectionRefusedException)
+            catch(Ice.ConnectFailedException)
             {
             }
 
@@ -569,7 +569,7 @@ public class AllTests : TestCommon.TestApp
                 test(test3.ice_getConnection() == test1.ice_getConnection());
                 test(false);
             }
-            catch(Ice.ConnectionRefusedException)
+            catch(Ice.ConnectFailedException)
             {
             }
         }
@@ -685,7 +685,7 @@ public class AllTests : TestCommon.TestApp
             {
                 obj.getAdapterName();
             }
-            catch(Ice.ConnectionRefusedException)
+            catch(Ice.ConnectFailedException)
             {
             }
 
@@ -745,7 +745,7 @@ public class AllTests : TestCommon.TestApp
             {
                 obj.getAdapterName();
             }
-            catch(Ice.ConnectionRefusedException)
+            catch(Ice.ConnectFailedException)
             {
             }
 
@@ -841,7 +841,7 @@ public class AllTests : TestCommon.TestApp
                     testSecure.ice_ping();
                     test(false);
                 }
-                catch(Ice.ConnectionRefusedException)
+                catch(Ice.ConnectFailedException)
                 {
                 }
 

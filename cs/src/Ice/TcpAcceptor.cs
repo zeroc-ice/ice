@@ -111,7 +111,7 @@ namespace IceInternal
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TcpTransceiver(instance_, acceptFd, null, true);
+            return new TcpTransceiver(instance_, acceptFd, null, null, true);
         }
 
         public override string ToString()

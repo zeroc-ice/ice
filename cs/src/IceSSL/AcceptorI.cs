@@ -128,7 +128,7 @@ namespace IceSSL
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TransceiverI(_instance, acceptFd, "", true, true, _adapterName, null);
+            return new TransceiverI(_instance, acceptFd, "", true, true, _adapterName, null, null);
         }
 
         public override string ToString()

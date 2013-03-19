@@ -29,15 +29,10 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal UdpConnector(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl,
-                              string connectionId)
+        internal UdpConnector(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl, string connectionId)
         {
             instance_ = instance;
-#if SILVERLIGHT
-            _addr = (DnsEndPoint)addr;
-#else
-            _addr = (IPEndPoint)addr;
-#endif
+            _addr = addr;
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
             _connectionId = connectionId;
@@ -91,11 +86,7 @@ namespace IceInternal
         }
 
         private Instance instance_;
-#if SILVERLIGHT
-        private DnsEndPoint _addr;
-#else
-        private IPEndPoint _addr;
-#endif
+        private EndPoint _addr;
         private string _mcastInterface;
         private int _mcastTtl;
         private string _connectionId;

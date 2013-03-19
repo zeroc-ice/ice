@@ -29,10 +29,8 @@ namespace IceInternal
             try
             {
 
-#if SILVERLIGHT
-                Socket fd = Network.createSocket(false, AddressFamily.InterNetwork);
-#else
                 Socket fd = Network.createSocket(false, _addr.AddressFamily);
+#if !SILVERLIGHT
                 Network.setBlock(fd, false);
 #endif
 #if !COMPACT
@@ -42,7 +40,7 @@ namespace IceInternal
                 //
                 // Nonblocking connect is handled by the transceiver.
                 //
-                return new TcpTransceiver(_instance, fd, _addr, false);
+                return new TcpTransceiver(_instance, fd, _addr, _proxy, false);
             }
             catch(Ice.LocalException ex)
             {
@@ -63,16 +61,13 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(Instance instance, EndPoint addr, int timeout, string connectionId)
+        internal TcpConnector(Instance instance, EndPoint addr, NetworkProxy proxy, int timeout, string connectionId)
         {
             _instance = instance;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-#if SILVERLIGHT
-            _addr = (DnsEndPoint)addr;
-#else
-            _addr = (IPEndPoint)addr;
-#endif
+            _addr = addr;
+            _proxy = proxy;
             _timeout = timeout;
             _connectionId = connectionId;
 
@@ -110,7 +105,7 @@ namespace IceInternal
 
         public override string ToString()
         {
-            return Network.addrToString(_addr);
+            return Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
         }
 
         public override int GetHashCode()
@@ -121,11 +116,8 @@ namespace IceInternal
         private Instance _instance;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
-#if SILVERLIGHT
-        private DnsEndPoint _addr;
-#else
-        private IPEndPoint _addr;
-#endif
+        private EndPoint _addr;
+        private NetworkProxy _proxy;
         private int _timeout;
         private string _connectionId;
         private int _hashCode;

@@ -167,7 +167,7 @@ namespace IceInternal
         //
         public abstract bool equivalent(EndpointI endpoint);
 
-        public virtual List<Connector> connectors(List<EndPoint> addresses)
+        public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
         {
             Debug.Assert(false);
             return null;

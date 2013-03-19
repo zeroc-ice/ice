@@ -786,7 +786,7 @@ Confluence::ConfluenceOutput::getMarkerLimits(const string& str)
         end = str.find(TEMP_ESCAPER_END, start+TEMP_ESCAPER_START.size());
         if(end != string::npos)
         {
-            pair<unsigned int, unsigned int> p = make_pair((unsigned int)start, (unsigned int)end+TEMP_ESCAPER_END.size());
+            pair<unsigned int, unsigned int> p = make_pair(static_cast<unsigned int>(start), static_cast<unsigned int>(end+TEMP_ESCAPER_END.size()));
             pairs.push_back(p);
             start = str.find(TEMP_ESCAPER_START, end+TEMP_ESCAPER_END.size());
         }

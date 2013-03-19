@@ -38,11 +38,29 @@ namespace IceSSL
                 {
                     IceInternal.Network.doFinishConnectAsync(_fd, _writeResult);
                     _writeResult = null;
-                    _state = StateAuthenticatePending;
+
                     _desc = IceInternal.Network.fdToString(_fd);
+                    if(_proxy != null)
+                    {
+                        _desc += "\ntarget address = " + IceInternal.Network.addrToString(_addr);
+                        _state = StateProxyConnectRequest; // Send proxy connect request
+                        return IceInternal.SocketOperation.Write; 
+                    }
+
+                    _state = StateAuthenticatePending;
                     return IceInternal.SocketOperation.Connect;
                 }
-                if(_state == StateNeedAuthenticate)
+                else if(_state == StateProxyConnectRequest)
+                {
+                    _state = StateProxyConnectRequestPending; // Wait for proxy response
+                    return IceInternal.SocketOperation.Read;
+                }
+                else if(_state == StateProxyConnectRequestPending)
+                {
+                    _state = StateAuthenticatePending;
+                    return IceInternal.SocketOperation.Connect;
+                }
+                else if(_state == StateNeedAuthenticate)
                 {
                     _state = StateAuthenticatePending;
                     return IceInternal.SocketOperation.Connect;
@@ -61,16 +79,17 @@ namespace IceSSL
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("failed to establish ssl connection\n");
-                    if(_incoming)
+                    s.Append(IceInternal.Network.fdLocalAddressToString(_fd));
+                    if(_proxy == null)
                     {
-                        s.Append(IceInternal.Network.addressesToString(IceInternal.Network.getLocalAddress(_fd),
-                                                                       IceInternal.Network.getRemoteAddress(_fd)));
+                        EndPoint addr = _addr == null ? IceInternal.Network.getRemoteAddress(_fd) : _addr;
+                        s.Append("\nremote address = " + IceInternal.Network.addrToString(addr));
                     }
                     else
                     {
                         Debug.Assert(_addr != null);
-                        s.Append(IceInternal.Network.addressesToString(IceInternal.Network.getLocalAddress(_fd),
-                                                                       _addr));
+                        s.Append("\nremote address = " + IceInternal.Network.addrToString(_proxy.getAddress()));
+                        s.Append("\ntarget address = " + IceInternal.Network.addrToString(_addr));
                     }
                     s.Append("\n");
                     s.Append(e.ToString());
@@ -130,6 +149,11 @@ namespace IceSSL
         {
             Debug.Assert(_fd != null);
 
+            if(_state == StateProxyConnectRequestPending)
+            {
+                _proxy.beginReadConnectRequestResponse(buf);
+            }
+
             int packetSize = buf.b.remaining();
             if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
             {
@@ -139,7 +163,16 @@ namespace IceSSL
             try
             {
                 _readCallback = callback;
-                _readResult = _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSize, readCompleted, state);
+                if(_stream != null)
+                {
+                    _readResult = _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSize, readCompleted,
+                                                    state);
+                }
+                else
+                {
+                    _readResult = _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
+                                                   readCompleted, state);
+                }
                 return _readResult.CompletedSynchronously;
             }
             catch(IOException ex)
@@ -180,7 +213,7 @@ namespace IceSSL
 
             try
             {
-                int ret = _stream.EndRead(_readResult);
+                int ret = _stream != null ? _stream.EndRead(_readResult) : _fd.EndReceive(_readResult);
                 _readResult = null;
                 if(ret == 0)
                 {
@@ -208,6 +241,11 @@ namespace IceSSL
                 }
 
                 buf.b.position(buf.b.position() + ret);
+
+                if(_state == StateProxyConnectRequestPending)
+                {
+                    _proxy.endReadConnectRequestResponse(buf);
+                }
             }
             catch(IOException ex)
             {
@@ -242,15 +280,26 @@ namespace IceSSL
             
             if(_state < StateConnected)
             {
+                completed = false;
                 if(_state == StateConnectPending)
                 {
-                    _writeResult = IceInternal.Network.doConnectAsync(_fd, _addr, callback, state);
-                    completed = false;
-                    return _writeResult.CompletedSynchronously;
+                    try
+                    {
+                        EndPoint addr = _proxy != null ? _proxy.getAddress() : _addr;
+                        _writeResult = IceInternal.Network.doConnectAsync(_fd, addr, callback, state);
+                        return _writeResult.CompletedSynchronously;
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new Ice.SocketException(ex);
+                    }
+                }
+                else if(_state == StateProxyConnectRequest)
+                {
+                    _proxy.beginWriteConnectRequest(_addr, buf);
                 }
                 else if(_state == StateAuthenticatePending)
                 {
-                    completed = false;
                     return beginAuthenticate(callback, state);
                 }
             }
@@ -268,7 +317,16 @@ namespace IceSSL
             try
             {
                 _writeCallback = callback;
-                _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted, state);
+                if(_stream != null)
+                {
+                    _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted, 
+                                                      state);
+                }
+                else
+                {
+                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, 
+                                                 writeCompleted, state);
+                }
                 completed = packetSize == buf.b.remaining();
                 return _writeResult.CompletedSynchronously;
             }
@@ -310,7 +368,7 @@ namespace IceSSL
                 return; 
             }
             
-            if(_state < StateConnected)
+            if(_state < StateConnected && _state != StateProxyConnectRequest)
             {
                 return;
             }
@@ -319,7 +377,14 @@ namespace IceSSL
 
             try
             {
-                _stream.EndWrite(_writeResult);
+                if(_stream != null)
+                {
+                    _stream.EndWrite(_writeResult);
+                }
+                else
+                {
+                    _fd.EndSend(_writeResult);
+                }
                 _writeResult = null;
 
                 int packetSize = buf.b.remaining();
@@ -342,6 +407,11 @@ namespace IceSSL
                 }
 
                 buf.b.position(buf.b.position() + packetSize);
+
+                if(_state == StateProxyConnectRequest)
+                {
+                    _proxy.endWriteConnectRequest(buf);
+                }
             }
             catch(IOException ex)
             {
@@ -396,7 +466,7 @@ namespace IceSSL
         // Only for use by ConnectorI, AcceptorI.
         //
         internal TransceiverI(Instance instance, Socket fd, string host, bool connected,
-                              bool incoming, string adapterName, IPEndPoint addr)
+                              bool incoming, string adapterName, IPEndPoint addr, IceInternal.NetworkProxy proxy)
         {
             _instance = instance;
             _fd = fd;
@@ -404,6 +474,7 @@ namespace IceSSL
             _incoming = incoming;
             _adapterName = adapterName;
             _addr = addr;
+            _proxy = proxy;
             _stream = null;
             _logger = instance.communicator().getLogger();
             _stats = instance.communicator().getStats();
@@ -780,6 +851,7 @@ namespace IceSSL
         private bool _incoming;
         private string _adapterName;
         private IPEndPoint _addr;
+        private IceInternal.NetworkProxy _proxy;
         private SslStream _stream;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
@@ -796,8 +868,10 @@ namespace IceSSL
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;
-        private const int StateNeedAuthenticate = 2;
-        private const int StateAuthenticatePending = 3;
-        private const int StateConnected = 4;
+        private const int StateProxyConnectRequest = 2;
+        private const int StateProxyConnectRequestPending = 3; 
+        private const int StateNeedAuthenticate = 4;
+        private const int StateAuthenticatePending = 5;
+        private const int StateConnected = 6;
     }
 }

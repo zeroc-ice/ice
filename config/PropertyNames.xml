@@ -352,6 +352,8 @@ generated from the section label.
         <property name="ProgramName" />
         <property name="RetryIntervals" />
         <property name="ServerIdleTime" />
+        <property name="SOCKSProxyHost" />
+        <property name="SOCKSProxyPort" />
         <property name="StdErr" />
         <property name="StdOut" />
         <property name="SyslogFacility" />
