@@ -236,6 +236,13 @@
             <not><isset property="ice.dir"/></not>
         </and>
     </condition>
+    <condition property="ice.dir" value="/Library/Developer/Ice-${ice.version}">
+        <and>
+            <os family="mac"/>
+            <not><isset property="ice.dir"/></not>
+            <available file="/Library/Developer/Ice-${ice.version}/bin/${slice.translator}"/>
+        </and>
+    </condition>
     <condition property="ice.dir" value="/opt/Ice-${ice.version}">
         <and>
             <not><os family="windows"/></not>
