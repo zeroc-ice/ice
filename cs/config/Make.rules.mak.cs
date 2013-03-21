@@ -313,7 +313,7 @@ clean::
 $(assembliesdir)/$(POLICY_TARGET):
 !if "$(PUBLIC_KEY_TOKEN)" == ""
 !if "$(ice_src_dist)" != ""
-	@sn -q -p $(KEYFILE) tmp.pub && \
+	@sn -q -p "$(KEYFILE)" tmp.pub && \
 	sn -q -t tmp.pub > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
@@ -344,7 +344,7 @@ policy:
   </runtime>
 </configuration>
 <<KEEP
-	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:"$(KEYFILE)"
 	move $(POLICY) $(assembliesdir)
 	move $(POLICY_TARGET) $(assembliesdir)
 

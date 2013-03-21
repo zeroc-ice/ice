@@ -149,7 +149,7 @@ GDIR		= generated
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
-MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
+MCSFLAGS	= $(MCSFLAGS) -keyfile:"$(KEYFILE)"
 MCSFLAGS	= $(MCSFLAGS) /doc:$(assembliesdir)\$(PKG).xml /nowarn:1591
 
 !if "$(MANAGED)" == "yes"

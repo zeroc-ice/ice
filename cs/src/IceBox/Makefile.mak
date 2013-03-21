@@ -31,7 +31,7 @@ all:: $(ICEBOXNET).config
 EXE_MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 LIB_MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(LIBNAME)
-LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(KEYFILE)
+LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:"$(KEYFILE)"
 LIB_MCSFLAGS	= $(LIB_MCSFLAGS) /doc:$(assembliesdir)\$(PKG).xml /nowarn:1591
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
