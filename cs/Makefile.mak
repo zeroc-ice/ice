@@ -38,9 +38,9 @@ SRC_FULL_PATH	= $(MAKEDIR:\.\=\)
 
 !if "$(SILVERLIGHT)" == "yes"
 register-assemblies::
-	@echo Adding key "$(DOTNET_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(SILVERLIGH_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\sl" /f || \
-	echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLIES_KEY)" && exit 1
+	@echo Adding key "$(SILVERLIGHT_ASSEMBLIES_KEY)" in Windows registry
+	@reg ADD "$(SILVERLIGHT_ASSEMBLIES_KEY)" /ve /d "$(SRC_FULL_PATH)\Assemblies\sl" /f || \
+	echo "Could not add registry keyword $(SILVERLIGHT_ASSEMBLIES_KEY)" && exit 1
 !elseif "$(COMPACT)" == "yes"
 register-assemblies::
 	@echo Adding key "$(POCKETPC_ASSEMBLIES_KEY)" in Windows registry

@@ -395,7 +395,13 @@ namespace IceInternal
         public override List<Connector> connectors(Ice.EndpointSelectionType selType)
         {
 #if SILVERLIGHT
-            return connectors(selType, _instance.networkProxy());
+            return connectors(Network.getAddresses(_host, 
+                                                   _port,
+                                                   _instance.protocolSupport(), 
+                                                   selType, 
+                                                   _instance.preferIPv6(), 
+                                                   false),
+                              _instance.networkProxy());
 #else
             return _instance.endpointHostResolver().resolve(_host, _port, selType, this);
 #endif
@@ -405,7 +411,7 @@ namespace IceInternal
         public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
         {
 #if SILVERLIGHT
-            callback.connectors(connectors(selType, _instance.networkProxy()));
+            callback.connectors(connectors(selType));
 #else
             _instance.endpointHostResolver().resolve(_host, _port, selType, this, callback);
 #endif

@@ -53,10 +53,9 @@ namespace IceInternal
                     Network.doFinishConnectAsync(_fd, _writeResult);
                     _writeResult = null;
 #endif
-                    _desc = Network.fdToString(_fd);
+                    _desc = Network.fdToString(_fd, _proxy, _addr);
                     if(_proxy != null)
                     {
-                        _desc += "\ntarget address = " + Network.addrToString(_addr);
                         _state = StateProxyConnectRequest; // Send proxy connect request
                         return SocketOperation.Write; 
                     }
@@ -79,18 +78,7 @@ namespace IceInternal
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("failed to establish tcp connection\n");
-                    s.Append(Network.fdLocalAddressToString(_fd));
-                    if(_proxy == null)
-                    {
-                        EndPoint addr = _addr == null ? Network.getRemoteAddress(_fd) : _addr;
-                        s.Append("\nremote address = " + Network.addrToString(addr));
-                    }
-                    else
-                    {
-                        Debug.Assert(_addr != null);
-                        s.Append("\nremote address = " + Network.addrToString(_proxy.getAddress()));
-                        s.Append("\ntarget address = " + Network.addrToString(_addr));
-                    }
+                    s.Append(Network.fdToString(_fd, _proxy, _addr));
                     s.Append("\n");
                     s.Append(ex.ToString());
                     _logger.trace(_traceLevels.networkCat, s.ToString());
@@ -630,7 +618,7 @@ namespace IceInternal
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
             _state = connected ? StateConnected : StateNeedConnect;
-            _desc = connected ? Network.fdToString(_fd) : "<not connected>";
+            _desc = connected ? Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
             
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();

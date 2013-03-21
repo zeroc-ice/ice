@@ -825,7 +825,7 @@ namespace IceInternal
                 if(proxyHost.Length > 0)
                 {
                     int proxyPort = _initData.properties.getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
-                    _networkProxy = new SOCKS4NetworkProxy(proxyHost, proxyPort);
+                    _networkProxy = new SOCKSNetworkProxy(proxyHost, proxyPort);
                     defaultIPv6 = 0; // IPv6 is not supported with SOCKS
                 }
 
@@ -849,7 +849,7 @@ namespace IceInternal
                 }
                 _preferIPv6 = _initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
 
-                if(ipv6 && _networkProxy is SOCKS4NetworkProxy)
+                if(ipv6 && _networkProxy is SOCKSNetworkProxy)
                 {
                     throw new Ice.InitializationException("IPv6 is not supported with SOCKS4 proxies.");
                 }

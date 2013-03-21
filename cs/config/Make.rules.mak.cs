@@ -369,4 +369,4 @@ DOTNET_ASSEMBLIES_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETFramework\v2.0.50727\A
 POCKETPC_ASSEMBLIES_KEY		= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice
 SMARTPHONE_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice
 WINDOWSCE_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\.NETCompactFramework\v3.5.0.0\WindowsCE\AssemblyFoldersEx\Ice
-SILVERLIGH_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice
+SILVERLIGHT_ASSEMBLIES_KEY	= $(REGISTRY_PREFIX)\Microsoft\Microsoft SDKs\Silverlight\v5.0\AssemblyFoldersEx\Ice

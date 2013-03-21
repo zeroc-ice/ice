@@ -746,7 +746,7 @@ namespace IceInternal
             string s;
             if(_state == StateNotConnected)
             {
-                s = "local address = " + Network.addrToString(Network.getLocalAddress(_fd));
+                s = "local address = " + Network.localAddrToString(Network.getLocalAddress(_fd));
                 if(_peerAddr != null)
                 {
                     s += "\nremote address = " + Network.addrToString(_peerAddr);
@@ -768,11 +768,7 @@ namespace IceInternal
 
         public int effectivePort()
         {
-#if SILVERLIGHT
-            return ((DnsEndPoint)_addr).Port;
-#else
-            return ((IPEndPoint)_addr).Port;
-#endif
+            return Network.endpointPort(_addr);
         }
 
         //
@@ -935,17 +931,13 @@ namespace IceInternal
                 {
                     StringBuilder s = new StringBuilder("starting to receive udp packets\n");
                     s.Append(ToString());
-#if SILVERLIGHT
-                    s.Append("\nlocal interfaces: " + ((DnsEndPoint)_addr).Host);
-#else
-                    List<string> interfaces = Network.getHostsForEndpointExpand(((IPEndPoint)_addr).Address.ToString(), 
-                                                                                instance.protocolSupport(), true);
+                    List<string> interfaces = Network.getHostsForEndpointExpand(
+                        Network.endpointAddressToString(_addr),  instance.protocolSupport(), true);
                     if(interfaces.Count != 0)
                     {
                         s.Append("\nlocal interfaces: ");
                         s.Append(String.Join(", ", interfaces.ToArray()));
                     }
-#endif
                     _logger.trace(_traceLevels.networkCat, s.ToString());
                 }
             }

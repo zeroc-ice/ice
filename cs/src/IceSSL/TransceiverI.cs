@@ -39,10 +39,9 @@ namespace IceSSL
                     IceInternal.Network.doFinishConnectAsync(_fd, _writeResult);
                     _writeResult = null;
 
-                    _desc = IceInternal.Network.fdToString(_fd);
+                    _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
                     if(_proxy != null)
                     {
-                        _desc += "\ntarget address = " + IceInternal.Network.addrToString(_addr);
                         _state = StateProxyConnectRequest; // Send proxy connect request
                         return IceInternal.SocketOperation.Write; 
                     }
@@ -79,18 +78,7 @@ namespace IceSSL
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("failed to establish ssl connection\n");
-                    s.Append(IceInternal.Network.fdLocalAddressToString(_fd));
-                    if(_proxy == null)
-                    {
-                        EndPoint addr = _addr == null ? IceInternal.Network.getRemoteAddress(_fd) : _addr;
-                        s.Append("\nremote address = " + IceInternal.Network.addrToString(addr));
-                    }
-                    else
-                    {
-                        Debug.Assert(_addr != null);
-                        s.Append("\nremote address = " + IceInternal.Network.addrToString(_proxy.getAddress()));
-                        s.Append("\ntarget address = " + IceInternal.Network.addrToString(_addr));
-                    }
+                    s.Append(IceInternal.Network.fdToString(_fd, _proxy, _addr));
                     s.Append("\n");
                     s.Append(e.ToString());
                     _logger.trace(_instance.networkTraceCategory(), s.ToString());
@@ -478,7 +466,7 @@ namespace IceSSL
             _stream = null;
             _logger = instance.communicator().getLogger();
             _stats = instance.communicator().getStats();
-            _desc = connected ? IceInternal.Network.fdToString(_fd) : "<not connected>";
+            _desc = connected ? IceInternal.Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
             _state = connected ? StateNeedAuthenticate : StateNeedConnect;
 
             _maxSendPacketSize = IceInternal.Network.getSendBufferSize(fd);
