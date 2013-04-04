@@ -44,6 +44,7 @@ public:
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
     virtual std::vector<EndpointIPtr> expand() const;
     virtual bool equivalent(const EndpointIPtr&) const;
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
 
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
@@ -55,7 +56,6 @@ public:
 private:
 
     virtual ::Ice::Int hashInit() const;
-    virtual std::vector<ConnectorPtr> connectors(const std::vector<IceInternal::Address>&) const;
 
     //
     // All members are const, because endpoints are immutable.

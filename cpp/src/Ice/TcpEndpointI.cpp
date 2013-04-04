@@ -413,6 +413,17 @@ IceInternal::TcpEndpointI::equivalent(const EndpointIPtr& endpoint) const
     return tcpEndpointI->_host == _host && tcpEndpointI->_port == _port;
 }
 
+vector<ConnectorPtr>
+IceInternal::TcpEndpointI::connectors(const vector<Address>& addresses, const NetworkProxyPtr& proxy) const
+{
+    vector<ConnectorPtr> connectors;
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new TcpConnector(_instance, addresses[i], proxy, _timeout, _connectionId));
+    }
+    return connectors;
+}
+
 bool
 IceInternal::TcpEndpointI::operator==(const LocalObject& r) const
 {
@@ -533,17 +544,6 @@ IceInternal::TcpEndpointI::hashInit() const
     hashAdd(h, _connectionId);
     hashAdd(h, _compress);
     return h;
-}
-
-vector<ConnectorPtr>
-IceInternal::TcpEndpointI::connectors(const vector<Address>& addresses) const
-{
-    vector<ConnectorPtr> connectors;
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _connectionId));
-    }
-    return connectors;
 }
 
 IceInternal::TcpEndpointFactory::TcpEndpointFactory(const InstancePtr& instance)

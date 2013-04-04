@@ -11,7 +11,7 @@
 // .NET and Silverlight use the new socket asynchronous APIs whereas
 // the compact framework and mono still use the old Begin/End APIs.
 //
-#if !COMPACT && !__MonoCS__
+#if !COMPACT && !__MonoCS__ && !UNITY
 #define ICE_SOCKET_ASYNC_API
 #endif
 

@@ -34,6 +34,7 @@
 #include <Ice/RetryQueueF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
+#include <Ice/NetworkF.h>
 #include <Ice/Initialize.h>
 #include <Ice/ImplicitContextI.h>
 #include <Ice/FacetMap.h>
@@ -73,6 +74,7 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
     bool preferIPv6() const;
+    NetworkProxyPtr networkProxy() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool(bool create = true);
     EndpointHostResolverPtr endpointHostResolver();
@@ -136,6 +138,7 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ProtocolSupport _protocolSupport;
     bool _preferIPv6;
+    NetworkProxyPtr _networkProxy;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;

@@ -2280,7 +2280,7 @@ Ice::ConnectionI::initiateShutdown()
 bool
 Ice::ConnectionI::initialize(SocketOperation operation)
 {
-    SocketOperation s = _transceiver->initialize();
+    SocketOperation s = _transceiver->initialize(_readStream, _writeStream);
     if(s != SocketOperationNone)
     {
         scheduleTimeout(s, connectTimeout());

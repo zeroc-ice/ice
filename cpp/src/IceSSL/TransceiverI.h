@@ -33,6 +33,8 @@ class TransceiverI : public IceInternal::Transceiver, public IceInternal::Native
     {
         StateNeedConnect,
         StateConnectPending,
+        StateProxyConnectRequest,
+        StateProxyConnectRequestPending,
         StateConnected,
         StateHandshakeComplete
     };
@@ -44,7 +46,7 @@ public:
     virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
 #endif
     
-    virtual IceInternal::SocketOperation initialize();
+    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
     virtual void close();
     virtual bool write(IceInternal::Buffer&);
     virtual bool read(IceInternal::Buffer&);
@@ -61,16 +63,22 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, SOCKET, const std::string&, const IceInternal::Address&);
+    TransceiverI(const InstancePtr&, SOCKET, const IceInternal::NetworkProxyPtr&, const std::string&,
+                 const IceInternal::Address&);
     TransceiverI(const InstancePtr&, SOCKET, const std::string&);
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
  
 #ifdef ICE_USE_IOCP
-    bool send();
     bool receive();
+    bool send();
+    int writeAsync(char*, int);
+    int readAsync(char*, int);
 #endif
+
+    bool writeRaw(IceInternal::Buffer&);
+    bool readRaw(IceInternal::Buffer&);
 
     friend class ConnectorI;
     friend class AcceptorI;
@@ -79,16 +87,17 @@ private:
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
     
-    SSL* _ssl;
-
+    const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
+    const IceInternal::Address _addr;
 
-    const bool _incoming;
     const std::string _adapterName;
+    const bool _incoming;
+
+    SSL* _ssl;
 
     State _state;
     std::string _desc;
-    IceInternal::Address _connectAddr;
 #ifdef ICE_USE_IOCP
     int _maxSendPacketSize;
     int _maxReceivePacketSize;

@@ -36,7 +36,7 @@ public:
 
 private:
     
-    TcpConnector(const InstancePtr&, const Address&, Ice::Int, const std::string&);
+    TcpConnector(const InstancePtr&, const Address&, const NetworkProxyPtr&, Ice::Int, const std::string&);
     virtual ~TcpConnector();
     friend class TcpEndpointI;
 
@@ -44,6 +44,7 @@ private:
     const TraceLevelsPtr _traceLevels;
     const ::Ice::LoggerPtr _logger;
     const Address _addr;
+    const NetworkProxyPtr _proxy;
     const Ice::Int _timeout;
     const std::string _connectionId;
 };

@@ -25,7 +25,7 @@ class ICE_API Transceiver : virtual public ::IceUtil::Shared
 public:
     
     virtual NativeInfoPtr getNativeInfo() = 0;
-    virtual SocketOperation initialize() = 0;
+    virtual SocketOperation initialize(Buffer&, Buffer&) = 0;
     virtual void close() = 0;
     virtual bool write(Buffer&) = 0;
     virtual bool read(Buffer&) = 0;

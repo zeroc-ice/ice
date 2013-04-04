@@ -851,7 +851,7 @@ namespace IceInternal
 
                 if(ipv6 && _networkProxy is SOCKSNetworkProxy)
                 {
-                    throw new Ice.InitializationException("IPv6 is not supported with SOCKS4 proxies.");
+                    throw new Ice.InitializationException("IPv6 is not supported with SOCKS4 proxies");
                 }
                 
                 _endpointFactoryManager = new EndpointFactoryManager(this);

@@ -812,6 +812,12 @@ IceSSL::Instance::preferIPv6() const
     return _facade->preferIPv6();
 }
 
+IceInternal::NetworkProxyPtr
+IceSSL::Instance::networkProxy() const
+{
+    return _facade->getNetworkProxy();
+}
+
 string
 IceSSL::Instance::defaultHost() const
 {

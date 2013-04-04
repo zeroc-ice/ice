@@ -16,6 +16,7 @@
 
 #include <Ice/Config.h>
 
+#include <Ice/NetworkF.h>
 #include <Ice/PropertiesF.h> // For setTcpBufSize
 #include <Ice/LoggerF.h> // For setTcpBufSize
 #include <Ice/Protocol.h> 
@@ -187,6 +188,71 @@ protected:
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
 
+class ICE_API Buffer;
+
+class ICE_API NetworkProxy : virtual public IceUtil::Shared
+{
+public:
+
+    //
+    // Write the connection request on the connection established
+    // with the network proxy server. This is called right after
+    // the connection establishment succeeds.
+    //
+    virtual void beginWriteConnectRequest(const Address&, Buffer&) = 0;
+    virtual void endWriteConnectRequest(Buffer&) = 0;
+
+    //
+    // Once the connection request has been sent, this is called
+    // to prepare and read the response from the proxy server.
+    //
+    virtual void beginReadConnectRequestResponse(Buffer&) = 0;
+    virtual void endReadConnectRequestResponse(Buffer&) = 0;
+
+    //
+    // If the proxy host needs to be resolved, this should return
+    // a new NetworkProxy containing the IP address of the proxy.
+    // This is called from the endpoint host resolver thread, so
+    // it's safe if this this method blocks.
+    //
+    virtual NetworkProxyPtr resolveHost() const = 0;
+
+    //
+    // Returns the IP address of the network proxy. This method
+    // must not block. It's only called on a network proxy object
+    // returned by resolveHost().
+    //
+    virtual Address getAddress() const = 0;
+
+    //
+    // Returns the name of the proxy, used for tracing purposes.
+    //
+    virtual std::string getName() const = 0;
+};
+
+class ICE_API SOCKSNetworkProxy : virtual public NetworkProxy
+{
+public:
+
+    SOCKSNetworkProxy(const std::string&, int);
+    SOCKSNetworkProxy(const Address&);
+
+    virtual void beginWriteConnectRequest(const Address&, Buffer&);
+    virtual void endWriteConnectRequest(Buffer&);
+    virtual void beginReadConnectRequestResponse(Buffer&);
+    virtual void endReadConnectRequestResponse(Buffer&);
+    virtual NetworkProxyPtr resolveHost() const;
+    virtual Address getAddress() const;
+    virtual std::string getName() const;
+
+private:
+
+    std::string _host;
+    int _port;
+    Address _address;
+    bool _haveAddress;
+};
+
 ICE_API bool noMoreFds(int);
 ICE_API std::string errorToStringDNS(int);
 ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool, 
@@ -203,6 +269,7 @@ ICE_API void closeSocket(SOCKET);
 ICE_API std::string addrToString(const Address&);
 ICE_API void fdToLocalAddress(SOCKET, Address&);
 ICE_API bool fdToRemoteAddress(SOCKET, Address&);
+ICE_API std::string fdToString(SOCKET, const NetworkProxyPtr&, const Address&, bool);
 ICE_API std::string fdToString(SOCKET);
 ICE_API void fdToAddressAndPort(SOCKET, std::string&, int&, std::string&, int&);
 ICE_API void addrToAddressAndPort(const Address&, std::string&, int&);

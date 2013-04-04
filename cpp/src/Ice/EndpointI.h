@@ -143,6 +143,8 @@ public:
     //
     virtual bool equivalent(const EndpointIPtr&) const = 0;
     
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
+
     //
     // Compare endpoints for sorting purposes.
     //
@@ -155,7 +157,6 @@ protected:
     
     virtual ::Ice::Int internal_getHash() const;
 
-    virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&) const;
     friend class EndpointHostResolver;
 
     EndpointI(const std::string&);

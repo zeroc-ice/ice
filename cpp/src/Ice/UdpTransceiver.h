@@ -47,7 +47,7 @@ public:
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 #endif
 
-    virtual SocketOperation initialize();
+    virtual SocketOperation initialize(Buffer&, Buffer&);
     virtual void close();
     virtual bool write(Buffer&);
     virtual bool read(Buffer&);

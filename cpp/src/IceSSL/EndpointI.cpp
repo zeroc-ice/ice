@@ -411,6 +411,18 @@ IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
     return sslEndpointI->_host == _host && sslEndpointI->_port == _port;
 }
 
+vector<IceInternal::ConnectorPtr>
+IceSSL::EndpointI::connectors(const vector<IceInternal::Address>& addresses,
+                              const IceInternal::NetworkProxyPtr& proxy) const
+{
+    vector<IceInternal::ConnectorPtr> connectors;
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], proxy, _timeout, _connectionId));
+    }
+    return connectors;
+}
+
 bool
 IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 {
@@ -531,17 +543,6 @@ IceSSL::EndpointI::hashInit() const
     IceInternal::hashAdd(h, _connectionId);
     IceInternal::hashAdd(h, _compress);
     return h;
-}
-
-vector<IceInternal::ConnectorPtr>
-IceSSL::EndpointI::connectors(const vector<IceInternal::Address>& addresses) const
-{
-    vector<IceInternal::ConnectorPtr> connectors;
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], _timeout, _connectionId));
-    }
-    return connectors;
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance)

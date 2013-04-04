@@ -35,6 +35,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h> // For setTcpBufSize
 #include <Ice/LoggerUtil.h> // For setTcpBufSize
+#include <Ice/Buffer.h>
 #include <IceUtil/Random.h>
 
 #if defined(ICE_OS_WINRT)
@@ -544,6 +545,114 @@ IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
 }
 #endif
 
+IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(SOCKSNetworkProxy* p) { return p; }
+
+IceInternal::SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) :
+    _host(host), _port(port), _haveAddress(false)
+{
+    memset(&_address, 0, sizeof(_address));
+}
+
+IceInternal::SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) :
+    _port(0), _address(addr), _haveAddress(true)
+{
+}
+
+void
+IceInternal::SOCKSNetworkProxy::beginWriteConnectRequest(const Address& addr, Buffer& buf)
+{
+    if(addr.saStorage.ss_family != AF_INET)
+    {
+        throw FeatureNotSupportedException(__FILE__, __LINE__, "SOCKS4 only supports IPv4 addresses");
+    }
+
+    //
+    // SOCKS connect request
+    //
+    buf.b.resize(9);
+    buf.i = buf.b.begin();
+    Byte* dest = &buf.b[0];
+    *dest++ = 0x04; // SOCKS version 4.
+    *dest++ = 0x01; // Command, establish a TCP/IP stream connection
+
+    const Byte* src;
+
+    //
+    // Port (already in big-endian order)
+    //
+    src = reinterpret_cast<const Byte*>(&addr.saIn.sin_port);
+    *dest++ = *src++;
+    *dest++ = *src;
+
+    //
+    // IPv4 address (already in big-endian order)
+    //
+    src = reinterpret_cast<const Ice::Byte*>(&addr.saIn.sin_addr.s_addr);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src;
+
+    *dest = 0x00; // User ID.
+}
+
+void
+IceInternal::SOCKSNetworkProxy::endWriteConnectRequest(Buffer& buf)
+{
+    buf.b.reset();
+}
+
+void
+IceInternal::SOCKSNetworkProxy::beginReadConnectRequestResponse(Buffer& buf)
+{
+    //
+    // Read the SOCKS4 response whose size is 8 bytes.
+    //
+    buf.b.resize(8);
+    buf.i = buf.b.begin();
+}
+
+void
+IceInternal::SOCKSNetworkProxy::endReadConnectRequestResponse(Buffer& buf)
+{
+    buf.i = buf.b.begin();
+
+    if(buf.b.end() - buf.i < 2)
+    {
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+
+    const Byte* src = &(*buf.i);
+    const Byte b1 = *src++;
+    const Byte b2 = *src++;
+    if(b1 != 0x00 || b2 != 0x5a)
+    {
+        throw ConnectFailedException(__FILE__, __LINE__);
+    }
+    buf.b.reset();
+}
+
+NetworkProxyPtr
+IceInternal::SOCKSNetworkProxy::resolveHost() const
+{
+    assert(!_host.empty());
+    return new SOCKSNetworkProxy(getAddresses(_host, _port, EnableIPv4, Random, false, true)[0]);
+}
+
+Address
+IceInternal::SOCKSNetworkProxy::getAddress() const
+{
+    assert(_haveAddress); // Host must be resolved.
+    return _address;
+}
+
+string
+IceInternal::SOCKSNetworkProxy::getName() const
+{
+    return "SOCKS";
+}
+
 bool
 IceInternal::noMoreFds(int error)
 {
@@ -1020,6 +1129,64 @@ IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 #endif
 }
 
+std::string
+IceInternal::fdToString(SOCKET fd, const NetworkProxyPtr& proxy, const Address& target,
+#if defined(_WIN32)
+                        bool connected)
+#else
+                        bool /*connected*/)
+#endif
+{
+    if(fd == INVALID_SOCKET)
+    {
+        return "<closed>";
+    }
+
+    ostringstream s;
+
+#if defined(_WIN32)
+    if(!connected)
+    {
+        //
+        // The local address is only accessible with connected sockets on Windows.
+        //
+        s << "local address = <not available>";
+    }
+    else
+    {
+        Address localAddr;
+        fdToLocalAddress(fd, localAddr);
+        s << "local address = " << addrToString(localAddr);
+    }
+#else
+    Address localAddr;
+    fdToLocalAddress(fd, localAddr);
+    s << "local address = " << addrToString(localAddr);
+#endif
+
+    Address remoteAddr;
+    bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
+
+    if(proxy)
+    {
+        if(!peerConnected)
+        {
+            remoteAddr = proxy->getAddress();
+        }
+        s << "\n" + proxy->getName() + " proxy address = " << addrToString(remoteAddr);
+        s << "\nremote address = " << addrToString(target);
+    }
+    else
+    {
+        if(!peerConnected)
+        {
+            remoteAddr = target;
+        }
+        s << "\nremote address = " << addrToString(remoteAddr);
+    }
+
+    return s.str();
+}
 
 std::string
 IceInternal::fdToString(SOCKET fd)
@@ -1036,7 +1203,7 @@ IceInternal::fdToString(SOCKET fd)
     bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
     return addressesToString(localAddr, remoteAddr, peerConnected);
-};
+}
 
 void
 IceInternal::fdToAddressAndPort(SOCKET fd, string& localAddress, int& localPort, string& remoteAddress, int& remotePort)

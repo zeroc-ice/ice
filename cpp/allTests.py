@@ -40,7 +40,7 @@ tests = [
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
     ("Ice/ami", ["core"]),
-    ("Ice/info", ["core", "noipv6", "nocompress"]),
+    ("Ice/info", ["core", "noipv6", "nocompress", "nosocks"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
     ("Ice/objects", ["core"]),
@@ -70,7 +70,7 @@ tests = [
     ("Ice/plugin", ["core", "nomingw"]),
     ("Ice/hash", ["once"]),
     ("Ice/admin", ["core", "noipv6"]),
-    ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress", "nomingw"]),
+    ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress", "nomingw", "nosocks"]),
     ("Ice/enums", ["once"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc90", "nomingw", "nomx"]),

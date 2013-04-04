@@ -27,12 +27,12 @@ namespace IceInternal
     {
         //
         // Write the connection request on the connection established
-        // with the network proxy server, this is called right after
+        // with the network proxy server. This is called right after
         // the connection establishment succeeds.
         //
         void beginWriteConnectRequest(EndPoint endpoint, Buffer buf);
         void endWriteConnectRequest(Buffer buf);
-        
+
         //
         // Once the connection request has been sent, this is called
         // to prepare and read the response from the proxy server.
@@ -49,9 +49,9 @@ namespace IceInternal
         NetworkProxy resolveHost();
 
         //
-        // Returns the IP address of the network proxy. This can't
-        // block. It's only called on a network proxy object returned
-        // by resolveHost().
+        // Returns the IP address of the network proxy. This method
+        // must not block. It's only called on a network proxy object
+        // returned by resolveHost().
         //
         EndPoint getAddress();
 
@@ -59,7 +59,7 @@ namespace IceInternal
         // Returns the name of the proxy, used for tracing purposes.
         //
         string getName();
-    };
+    }
 
     public sealed class SOCKSNetworkProxy : NetworkProxy
     {
@@ -82,7 +82,7 @@ namespace IceInternal
         {
             if(!(endpoint is IPEndPoint))
             {
-                throw new Ice.FeatureNotSupportedException("SOCKS4 doesn't support domain names");
+                throw new Ice.FeatureNotSupportedException("SOCKS4 does not support domain names");
             }
             else if(endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
@@ -136,11 +136,11 @@ namespace IceInternal
         public NetworkProxy resolveHost()
         {
             Debug.Assert(_host != null);
-            return new SOCKSNetworkProxy(Network.getAddresses(_host, 
-                                                              _port, 
-                                                              Network.EnableIPv4, 
-                                                              Ice.EndpointSelectionType.Random, 
-                                                              false, 
+            return new SOCKSNetworkProxy(Network.getAddresses(_host,
+                                                              _port,
+                                                              Network.EnableIPv4,
+                                                              Ice.EndpointSelectionType.Random,
+                                                              false,
                                                               true)[0]);
         }
 
@@ -166,7 +166,7 @@ namespace IceInternal
         public const int EnableIPv4 = 0;
         public const int EnableIPv6 = 1;
         public const int EnableBoth = 2;
-    
+
 #if COMPACT
         public static SocketError socketErrorCode(SocketException ex)
         {
@@ -178,12 +178,12 @@ namespace IceInternal
             return ex.SocketErrorCode;
         }
 #endif
-    
+
 #if COMPACT
         //
         // SocketError enumeration isn't available with Silverlight
         //
-        public enum SocketError 
+        public enum SocketError
         {
             Interrupted = 10004,                    // A blocking Socket call was canceled.
             //AccessDenied =10013,                  // An attempt was made to access a Socket in a way that is forbidden by its access permissions.
@@ -202,7 +202,7 @@ namespace IceInternal
             //SocketNotSupported = 10044,           // The support for the specified socket type does not exist in this address family.
             //OperationNotSupported = 10045,        // The address family is not supported by the protocol family.
             //ProtocolFamilyNotSupported = 10046,   // The protocol family is not implemented or has not been configured.
-            //AddressFamilyNotSupported = 10047,    // The address family specified is not supported. 
+            //AddressFamilyNotSupported = 10047,    // The address family specified is not supported.
             //AddressAlreadyInUse = 10048,          // Only one use of an address is normally permitted.
             //AddressNotAvailable = 10049,          // The selected IP address is not valid in this context.
             NetworkDown = 10050,                    // The network is not available.
@@ -330,7 +330,7 @@ namespace IceInternal
         {
             return socketErrorCode(ex) == SocketError.ConnectionRefused;
         }
-        
+
         public static bool notConnected(SocketException ex)
         {
             // BUGFIX: SocketError.InvalidArgument because shutdown() under OS X returns EINVAL
@@ -583,7 +583,7 @@ namespace IceInternal
             }
             return sz;
         }
-        
+
         public static void setRecvBufferSize(Socket socket, int sz)
         {
             try
@@ -633,7 +633,7 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
         }
-        
+
         public static void setMcastGroup(Socket socket, IPAddress group, string iface)
         {
             try
@@ -649,7 +649,7 @@ namespace IceInternal
                             ifaceAddr = ((IPEndPoint)getAddressForServer(iface, 0, EnableIPv4, false)).Address;
                         }
                     }
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
+                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
                                            new MulticastOption(group, ifaceAddr));
                 }
                 else
@@ -671,7 +671,7 @@ namespace IceInternal
                             }
                         }
                     }
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, 
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
                                            new IPv6MulticastOption(group, ifaceIndex));
                 }
             }
@@ -682,7 +682,7 @@ namespace IceInternal
             }
         }
 #endif
-        
+
         public static void setMcastTtl(Socket socket, int ttl, AddressFamily family)
         {
             try
@@ -721,7 +721,7 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
         }
-        
+
         public static void doListen(Socket socket, int backlog)
         {
         repeatListen:
@@ -822,7 +822,7 @@ namespace IceInternal
                 //
                 IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
                 fd.Bind(new IPEndPoint(any, 0));
-                return fd.BeginConnect(addr, 
+                return fd.BeginConnect(addr,
                                        delegate(IAsyncResult result)
                                        {
                                            if(!result.CompletedSynchronously)
@@ -914,7 +914,7 @@ namespace IceInternal
 #endif
         }
 
-        public static List<EndPoint> getAddresses(string host, int port, int protocol, 
+        public static List<EndPoint> getAddresses(string host, int port, int protocol,
                                                   Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
         {
             List<EndPoint> addresses = new List<EndPoint>();
@@ -932,7 +932,7 @@ namespace IceInternal
                 return addresses;
             }
 
-            
+
             int retry = 5;
 
             repeatGetHostByName:
@@ -1133,7 +1133,7 @@ namespace IceInternal
                                    size);
                 }
             }
-            
+
             sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
             if(sizeRequested > 0)
             {
@@ -1181,7 +1181,7 @@ namespace IceInternal
                         hosts.Add(a.ToString());
                     }
                 }
-                
+
                 if(includeLoopback || hosts.Count == 0)
                 {
                     if(protocol != EnableIPv6)
@@ -1210,7 +1210,7 @@ namespace IceInternal
 
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
                 s.Append("local address = " + localAddrToString(getLocalAddress(socket)));
-                if(proxy != null) 
+                if(proxy != null)
                 {
                     if(remote == null)
                     {
@@ -1258,7 +1258,7 @@ namespace IceInternal
         {
             return "local address = " + localAddrToString(getLocalAddress(socket));
         }
-        
+
         public static string
         addrToString(EndPoint addr)
         {
@@ -1274,11 +1274,11 @@ namespace IceInternal
                 return "<not available>";
 #else
                 return "<not bound>";
-#endif          
-            }  
+#endif
+            }
             return endpointAddressToString(endpoint) + ":" + endpointPort(endpoint);
         }
-        
+
         public static string
         remoteAddrToString(EndPoint endpoint)
         {
@@ -1309,7 +1309,7 @@ namespace IceInternal
 
         public static EndPoint
         getRemoteAddress(Socket socket)
-        { 
+        {
             try
             {
                 return (EndPoint)socket.RemoteEndPoint;
@@ -1422,12 +1422,12 @@ namespace IceInternal
 
             public int Compare(EndPoint lhs, EndPoint rhs)
             {
-                if(lhs.AddressFamily == AddressFamily.InterNetwork && 
+                if(lhs.AddressFamily == AddressFamily.InterNetwork &&
                    rhs.AddressFamily == AddressFamily.InterNetworkV6)
                 {
                     return _ipv6 ? 1 : -1;
                 }
-                else if(lhs.AddressFamily == AddressFamily.InterNetworkV6 && 
+                else if(lhs.AddressFamily == AddressFamily.InterNetworkV6 &&
                         rhs.AddressFamily == AddressFamily.InterNetwork)
                 {
                     return _ipv6 ? -1 : 1;
@@ -1437,9 +1437,9 @@ namespace IceInternal
                     return 0;
                 }
             }
-            
+
             private bool _ipv6;
-        };
+        }
 
         private readonly static EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
         private readonly static EndPointComparator _preferIPv6Comparator = new EndPointComparator(true);

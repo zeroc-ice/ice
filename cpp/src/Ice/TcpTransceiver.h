@@ -29,6 +29,8 @@ class TcpTransceiver : public Transceiver, public NativeInfo
     {
         StateNeedConnect,
         StateConnectPending,
+        StateProxyConnectRequest,
+        StateProxyConnectRequestPending,
         StateConnected
     };
 
@@ -39,7 +41,7 @@ public:
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
     
-    virtual SocketOperation initialize();
+    virtual SocketOperation initialize(Buffer&, Buffer&);
     virtual void close();
     virtual bool write(Buffer&);
     virtual bool read(Buffer&);
@@ -56,21 +58,23 @@ public:
 
 private:
 
-    TcpTransceiver(const InstancePtr&, SOCKET, bool);
+    TcpTransceiver(const InstancePtr&, SOCKET, const NetworkProxyPtr&, const Address&);
+    TcpTransceiver(const InstancePtr&, SOCKET);
     virtual ~TcpTransceiver();
 
-    void connect(const Address&);
+    void connect();
 
     friend class TcpConnector;
     friend class TcpAcceptor;
 
+    const NetworkProxyPtr _proxy;
+    const Address _addr;
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
     
     State _state;
     std::string _desc;
-    Address _connectAddr;
 
 #ifdef ICE_USE_IOCP
     AsyncInfo _read;

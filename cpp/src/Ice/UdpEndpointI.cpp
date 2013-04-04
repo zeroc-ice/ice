@@ -491,6 +491,17 @@ IceInternal::UdpEndpointI::equivalent(const EndpointIPtr& endpoint) const
     return udpEndpointI->_host == _host && udpEndpointI->_port == _port;
 }
 
+vector<ConnectorPtr>
+IceInternal::UdpEndpointI::connectors(const vector<Address>& addresses, const NetworkProxyPtr&) const
+{
+    vector<ConnectorPtr> connectors;
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _connectionId));
+    }
+    return connectors;
+}
+
 bool
 IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
 {
@@ -641,17 +652,6 @@ IceInternal::UdpEndpointI::hashInit() const
     hashAdd(h, _connectionId);
     hashAdd(h, _compress);
     return h;
-}
-
-vector<ConnectorPtr>
-IceInternal::UdpEndpointI::connectors(const vector<Address>& addresses) const
-{
-    vector<ConnectorPtr> connectors;
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _connectionId));
-    }
-    return connectors;
 }
 
 

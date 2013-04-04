@@ -80,7 +80,7 @@ IceInternal::UdpTransceiver::setCompletedHandler(SocketOperationCompletedHandler
 #endif
 
 SocketOperation
-IceInternal::UdpTransceiver::initialize()
+IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
     if(_state == StateNeedConnect)
     {

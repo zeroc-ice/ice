@@ -34,7 +34,7 @@ namespace IceInternal
         bool getPreferIPv6();
 
         //
-        // Get the proxy address.
+        // Get the network proxy.
         //
         NetworkProxy getNetworkProxy();
 
@@ -114,7 +114,7 @@ namespace IceInternal
         }
 
         //
-        // Get the proxy address.
+        // Get the network proxy.
         //
         public NetworkProxy getNetworkProxy()
         {

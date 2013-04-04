@@ -18,7 +18,7 @@ Transceiver::getNativeInfo()
 }
 
 IceInternal::SocketOperation
-Transceiver::initialize()
+Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
 #ifndef ICE_USE_IOCP
     IceInternal::SocketOperation status = _configuration->initializeSocketOperation();
@@ -48,7 +48,7 @@ Transceiver::initialize()
     _configuration->checkInitializeException();
     if(!_initialized)
     {
-        IceInternal::SocketOperation status = _transceiver->initialize();
+        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer);
         if(status != IceInternal::SocketOperationNone)
         {
             return status;

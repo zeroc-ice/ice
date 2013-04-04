@@ -74,6 +74,12 @@ IceInternal::ProtocolPluginFacade::preferIPv6() const
     return _instance->preferIPv6();
 }
 
+NetworkProxyPtr
+IceInternal::ProtocolPluginFacade::getNetworkProxy() const
+{
+    return _instance->networkProxy();
+}
+
 void
 IceInternal::ProtocolPluginFacade::addEndpointFactory(const EndpointFactoryPtr& factory) const
 {

@@ -83,7 +83,7 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
     {
         _observers->replicaAdded(session->getInternalRegistry());
     }
-    catch(const Ice::ConnectionRefusedException&)
+    catch(const Ice::ConnectFailedException&)
     {
         // Expected if the replica is being shutdown.
     }
@@ -122,7 +122,7 @@ ReplicaCache::remove(const string& name, bool shutdown)
         {
             _observers->replicaRemoved(entry->getProxy());
         }
-        catch(const Ice::ConnectionRefusedException&)
+        catch(const Ice::ConnectFailedException&)
         {
             // Expected if the replica is being shutdown.
         }
@@ -171,7 +171,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
         Ice::ObjectPrx publisher = _topic->subscribeAndGetPublisher(qos, observer->ice_twoway());
         ReplicaObserverPrx::uncheckedCast(publisher)->replicaInit(replicas);
     }
-    catch(const Ice::ConnectionRefusedException&)
+    catch(const Ice::ConnectFailedException&)
     {
         // The replica is being shutdown.
     }
@@ -193,7 +193,7 @@ ReplicaCache::unsubscribe(const ReplicaObserverPrx& observer)
     {
         _topic->unsubscribe(observer);
     }
-    catch(const Ice::ConnectionRefusedException&)
+    catch(const Ice::ConnectFailedException&)
     {
         // The replica is being shutdown.
     }

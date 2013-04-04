@@ -160,7 +160,7 @@ public:
         {
             ex.ice_throw();;
         }
-        catch(const Ice::ConnectionRefusedException&)
+        catch(const Ice::ConnectFailedException&)
         {
             cout << "ok" << endl;
             instance->notify();

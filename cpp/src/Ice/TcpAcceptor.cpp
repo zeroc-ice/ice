@@ -165,7 +165,7 @@ IceInternal::TcpAcceptor::accept()
         Trace out(_logger, _traceLevels->networkCat);
         out << "accepted tcp connection\n" << fdToString(fd);
     }
-    return new TcpTransceiver(_instance, fd, true);
+    return new TcpTransceiver(_instance, fd);
 }
 
 string

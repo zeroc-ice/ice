@@ -906,7 +906,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(!ssl);
         }
-        catch(const Ice::ConnectionRefusedException&)
+        catch(const Ice::ConnectFailedException&)
         {
             test(ssl);
         }

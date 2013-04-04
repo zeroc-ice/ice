@@ -17,6 +17,7 @@
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/NetworkF.h>
 #include <Ice/Protocol.h>
 
 namespace IceInternal
@@ -72,6 +73,11 @@ public:
     // Get the IP address preference
     //
     bool preferIPv6() const;
+
+    //
+    // Get the network proxy.
+    //
+    NetworkProxyPtr getNetworkProxy() const;
 
     //
     // Register an EndpointFactory.
