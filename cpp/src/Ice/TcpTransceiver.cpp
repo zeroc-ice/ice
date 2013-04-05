@@ -619,7 +619,8 @@ IceInternal::TcpTransceiver::connect()
 #ifndef ICE_USE_IOCP
     try
     {
-        if(doConnect(_fd, _addr))
+        Address addr = _proxy ? _proxy->getAddress() : _addr;
+        if(doConnect(_fd, addr))
         {
             _state = StateConnected;
             _desc = fdToString(_fd, _proxy, _addr, true);

@@ -67,11 +67,6 @@ Transceiver::close()
 bool
 Transceiver::write(IceInternal::Buffer& buf)
 {
-    if(!_initialized)
-    {
-        throw Ice::SocketException(__FILE__, __LINE__);
-    }
-
     if(!_configuration->writeReady())
     {
         return false;
@@ -84,11 +79,6 @@ Transceiver::write(IceInternal::Buffer& buf)
 bool
 Transceiver::read(IceInternal::Buffer& buf)
 {
-    if(!_initialized)
-    {
-        throw Ice::SocketException(__FILE__, __LINE__);
-    }
-
     if(!_configuration->readReady())
     {
         return false;
@@ -98,7 +88,6 @@ Transceiver::read(IceInternal::Buffer& buf)
     return _transceiver->read(buf);
 }
 
-
 #ifdef ICE_USE_IOCP
 bool
 Transceiver::startWrite(IceInternal::Buffer& buf)
@@ -107,21 +96,21 @@ Transceiver::startWrite(IceInternal::Buffer& buf)
     return _transceiver->startWrite(buf);
 }
 
-void 
+void
 Transceiver::finishWrite(IceInternal::Buffer& buf)
 {
     _configuration->checkWriteException();
     _transceiver->finishWrite(buf);
 }
 
-void 
+void
 Transceiver::startRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();
     _transceiver->startRead(buf);
 }
 
-void 
+void
 Transceiver::finishRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();

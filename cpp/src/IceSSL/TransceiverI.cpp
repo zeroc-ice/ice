@@ -933,10 +933,11 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
 
 #ifndef ICE_USE_IOCP
-    if(IceInternal::doConnect(_fd, addr))
+    IceInternal::Address connectAddr = proxy ? proxy->getAddress() : addr;
+    if(IceInternal::doConnect(_fd, connectAddr))
     {
         _state = StateConnected;
-        _desc = IceInternal::fdToString(_fd);
+        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
         if(_instance->networkTraceLevel() >= 1)
         {
             Trace out(_logger, _instance->networkTraceCategory());
@@ -945,7 +946,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     }
     else
     {
-        _desc = IceInternal::fdToString(_fd);
+        _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
     }
 #endif
 }

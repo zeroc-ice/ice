@@ -102,7 +102,7 @@ icestorm.admin("create single")
 for replica in range(1, 3):
     icestorm.adminForReplica(replica, "create single", "error: topic `single' exists")
 
-icestorm.adminForReplica(0, "create single", "ConnectFailed")
+icestorm.adminForReplica(0, "create single", ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(0, echo=False)
 
@@ -120,7 +120,7 @@ icestorm.admin("create single")
 for replica in range(0, 2):
     icestorm.adminForReplica(replica, "create single", "error: topic `single' exists")
 
-icestorm.adminForReplica(2, "create single", "ConnectFailed")
+icestorm.adminForReplica(2, "create single", ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(2, echo=False)
 
@@ -138,7 +138,7 @@ icestorm.admin("destroy single")
 for replica in range(1, 3):
     icestorm.adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
 
-icestorm.adminForReplica(0, "destroy single", "ConnectFailed")
+icestorm.adminForReplica(0, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(0, echo=False)
 
@@ -156,7 +156,7 @@ icestorm.admin("destroy single")
 for replica in range(0, 2):
     icestorm.adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
 
-icestorm.adminForReplica(2, "destroy single", "ConnectFailed")
+icestorm.adminForReplica(2, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(2, echo=False)
 
@@ -192,7 +192,7 @@ runsub2()
 for replica in range(0, 2):
     runsub2(replica, "IceStorm::AlreadySubscribed")
 
-runsub2(2, "ConnectFailed")
+runsub2(2, ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(2, echo=False)
 
@@ -208,7 +208,7 @@ rununsub2()
 for replica in range(0, 2):
     rununsub2(replica)
 
-rununsub2(2, "ConnectFailed")
+rununsub2(2, ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(2, echo=False)
 
@@ -224,7 +224,7 @@ runsub2()
 for replica in range(1, 3):
     runsub2(replica, "IceStorm::AlreadySubscribed")
 
-runsub2(0, "ConnectFailed")
+runsub2(0, ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(0, echo=False)
 
@@ -240,7 +240,7 @@ rununsub2()
 for replica in range(1, 3):
     rununsub2(replica)
 
-rununsub2(0, "ConnectFailed")
+rununsub2(0, ["ConnectionRefused", "ConnectFailed"])
 
 icestorm.startReplica(0, echo=False)
 
