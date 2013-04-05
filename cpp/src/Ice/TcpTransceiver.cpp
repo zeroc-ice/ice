@@ -573,6 +573,7 @@ IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET 
 
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     NativeInfo(fd),
+    _addr(Address()),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
@@ -615,13 +616,13 @@ IceInternal::TcpTransceiver::~TcpTransceiver()
 void
 IceInternal::TcpTransceiver::connect()
 {
-#if !defined(ICE_USE_IOCP)
+#ifndef ICE_USE_IOCP
     try
     {
         if(doConnect(_fd, _addr))
         {
             _state = StateConnected;
-            _desc = fdToString(_fd, _proxy, _addr);
+            _desc = fdToString(_fd, _proxy, _addr, true);
             if(_traceLevels->network >= 1)
             {
                 Trace out(_logger, _traceLevels->networkCat);
@@ -630,7 +631,7 @@ IceInternal::TcpTransceiver::connect()
         }
         else
         {
-            _desc = fdToString(_fd, _proxy, _addr);
+            _desc = fdToString(_fd, _proxy, _addr, true);
         }
     }
     catch(...)

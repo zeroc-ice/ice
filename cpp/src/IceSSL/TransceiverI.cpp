@@ -955,6 +955,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),
+    _addr(IceInternal::Address()),
     _adapterName(adapterName),
     _incoming(true),
     _ssl(0),

@@ -30,7 +30,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     {
         if(!_initialized)
         {
-            status = _transceiver->initialize();
+            status = _transceiver->initialize(readBuffer, writeBuffer);
             if(status != IceInternal::SocketOperationNone)
             {
                 return status;

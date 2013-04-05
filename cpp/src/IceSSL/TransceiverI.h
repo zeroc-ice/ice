@@ -45,7 +45,7 @@ public:
 #ifdef ICE_USE_IOCP
     virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
 #endif
-    
+
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
     virtual void close();
     virtual bool write(IceInternal::Buffer&);
@@ -69,7 +69,7 @@ private:
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
- 
+
 #ifdef ICE_USE_IOCP
     bool receive();
     bool send();
@@ -86,7 +86,7 @@ private:
     const InstancePtr _instance;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
-    
+
     const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
     const IceInternal::Address _addr;
