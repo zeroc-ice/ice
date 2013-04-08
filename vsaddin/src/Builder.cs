@@ -257,7 +257,7 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            if(hasErrors())
+            if(hasErrors(p))
             {
                 bringErrorsToFront();
             }
