@@ -1376,7 +1376,7 @@ namespace IceInternal
         {
             if(endpoint != null)
             {
-#if !COMPACT
+#if SILVERLIGHT
                 if(endpoint is DnsEndPoint)
                 {
                     DnsEndPoint dnsEndpoint = (DnsEndPoint)endpoint;
@@ -1397,7 +1397,7 @@ namespace IceInternal
         {
             if(endpoint != null)
             {
-#if !COMPACT
+#if SILVERLIGHT
                 if(endpoint is DnsEndPoint)
                 {
                     DnsEndPoint dnsEndpoint = (DnsEndPoint)endpoint;
