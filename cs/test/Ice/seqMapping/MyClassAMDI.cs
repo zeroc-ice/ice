@@ -334,6 +334,36 @@ public sealed class MyClassI : MyClass
         cb.ice_response(i, i);
     }
 
+    public override void opAStructSD_async(AMD_MyClass_opAStructSD cb, SD[] i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opLStructSD_async(AMD_MyClass_opLStructSD cb, List<SD> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opKStructSD_async(AMD_MyClass_opKStructSD cb, LinkedList<SD> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opQStructSD_async(AMD_MyClass_opQStructSD cb, Queue<SD> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opSStructSD_async(AMD_MyClass_opSStructSD cb, Stack<SD> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCStructSD_async(AMD_MyClass_opCStructSD cb, CStructSD i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
     public override void opACVS_async(AMD_MyClass_opACVS cb, CV[] i, Ice.Current current)
     {
         cb.ice_response(i, i);

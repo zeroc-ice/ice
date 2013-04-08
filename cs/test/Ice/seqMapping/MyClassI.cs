@@ -396,6 +396,42 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
+    public override SD[] opAStructSD(SD[] i, out SD[] o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override List<SD> opLStructSD(List<SD> i, out List<SD> o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override LinkedList<SD> opKStructSD(LinkedList<SD> i, out LinkedList<SD> o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Queue<SD> opQStructSD(Queue<SD> i, out Queue<SD> o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Stack<SD> opSStructSD(Stack<SD> i, out Stack<SD> o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override CStructSD opCStructSD(CStructSD i, out CStructSD o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
     public override CV[] opACVS(CV[] i, out CV[] o, Ice.Current current)
     {
         o = i;

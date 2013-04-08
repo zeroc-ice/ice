@@ -858,7 +858,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                     StructPtr st = StructPtr::dynamicCast((*pli)->type());
                     if(st)
                     {
-                        if(isValueType((*pli)->type()))
+                        if(isValueType(st))
                         {
                             _out << nl << param << " = new " << typeS << "();";
                         }
@@ -3700,7 +3700,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    if(isValueType(p) && !p->hasDefaultValues())
+    if(isValueType(p))
     {
         _out << nl << "public partial struct " << name;
     }
@@ -3727,7 +3727,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "#endregion"; // Slice data members
 
-    const bool isClass = !isValueType(p) || p->hasDefaultValues();
+    const bool isClass = !isValueType(p);
 
     _out << sp << nl << "#region Constructor";
     if(isClass)
@@ -4126,7 +4126,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(StructPtr::dynamicCast(cont))
     {
         isValue = isValueType(StructPtr::dynamicCast(cont));
-        if(!isValue || cont->hasMetaData("clr:class"))
+        if(!isValue)
         {
             baseTypes = DotNet::ICloneable;
         }
@@ -4998,7 +4998,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                         StructPtr st = StructPtr::dynamicCast((*pli)->type());
                         if(st)
                         {
-                            if(isValueType((*pli)->type()))
+                            if(isValueType(st))
                             {
                                 _out << nl << param << " = new " << typeS << "();";
                             }
@@ -5019,7 +5019,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                         StructPtr st = StructPtr::dynamicCast(ret);
                         if(st)
                         {
-                            if(isValueType(ret))
+                            if(isValueType(st))
                             {
                                 _out << nl << "ret__ = new " << typeS << "();";
                             }
@@ -5684,7 +5684,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     StructPtr st = StructPtr::dynamicCast(key);
     if(st)
     {
-        if(isValueType(key))
+        if(isValueType(st))
         {
             _out << nl << "k__ = new " << typeToString(key) << "();";
         }
@@ -5707,7 +5707,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         StructPtr st = StructPtr::dynamicCast(value);
         if(st)
         {
-            if(isValueType(value))
+            if(isValueType(st))
             {
                 _out << nl << "v__ = new " << typeToString(value) << "();";
             }
@@ -5764,7 +5764,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         StructPtr st = StructPtr::dynamicCast(key);
         if(st)
         {
-            if(isValueType(key))
+            if(isValueType(st))
             {
                 _out << nl << "k__ = new " << typeToString(key) << "();";
             }
@@ -5780,7 +5780,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             StructPtr st = StructPtr::dynamicCast(value);
             if(st)
             {
-                if(isValueType(value))
+                if(isValueType(st))
                 {
                     _out << nl << "v__ = new " << typeToString(value) << "();";
                 }
@@ -6075,7 +6075,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                     StructPtr st = StructPtr::dynamicCast(ret);
                     if(st)
                     {
-                        if(isValueType(ret))
+                        if(isValueType(st))
                         {
                             _out << nl << "ret__ = new " << typeS << "();";
                         }

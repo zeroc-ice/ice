@@ -720,7 +720,67 @@ public class TwowaysNewAMI
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
-        
+
+        public void opAStructSDI(Ice.AsyncResult result)
+        {
+            SD[] i = (SD[])result.AsyncState;
+            SD[] o;
+            SD[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opAStructSD(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+            callback.called();
+        }
+
+        public void opLStructSDI(Ice.AsyncResult result)
+        {
+            List<SD> i = (List<SD>)result.AsyncState;
+            List<SD> o;
+            List<SD> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLStructSD(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+            callback.called();
+        }
+
+        public void opKStructSDI(Ice.AsyncResult result)
+        {
+            LinkedList<SD> i = (LinkedList<SD>)result.AsyncState;
+            LinkedList<SD> o;
+            LinkedList<SD> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opKStructSD(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+            callback.called();
+        }
+
+        public void opQStructSDI(Ice.AsyncResult result)
+        {
+            Queue<SD> i = (Queue<SD>)result.AsyncState;
+            Queue<SD> o;
+            Queue<SD> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opQStructSD(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+            callback.called();
+        }
+
+        public void opSStructSDI(Ice.AsyncResult result)
+        {
+            Stack<SD> i = (Stack<SD>)result.AsyncState;
+            Stack<SD> o;
+            Stack<SD> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSStructSD(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+            callback.called();
+        }
+
+        public void opCStructSDI(Ice.AsyncResult result)
+        {
+            CStructSD i = (CStructSD)result.AsyncState;
+            CStructSD o;
+            CStructSD r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opCStructSD(out o, result);
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+            callback.called();
+        }
+
         public void opACVSI(Ice.AsyncResult result)
         {
             CV[] i = (CV[])result.AsyncState;

@@ -20,6 +20,18 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
+Changes since version 3.5.0
+======================================================================
+
+
+C# Changes
+==========
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  for a Slice structure that declares default values for its members.
+
+
+======================================================================
 Changes since version 3.5b
 ======================================================================
 

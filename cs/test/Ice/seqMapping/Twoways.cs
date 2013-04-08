@@ -994,6 +994,97 @@ class Twoways
         }
 
         {
+            SD[] i = new SD[_length];
+            for(int c = 0; c < _length; ++c)
+            {
+                i[c] = new SD(c);
+            }
+            SD[] o;
+            SD[] r;
+
+            r = p.opAStructSD(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            List<SD> i = new List<SD>(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new SD(c));
+            }
+            List<SD> o;
+            List<SD> r;
+
+            r = p.opLStructSD(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            LinkedList<SD> i = new LinkedList<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.AddLast(new SD(c));
+            }
+            LinkedList<SD> o;
+            LinkedList<SD> r;
+
+            r = p.opKStructSD(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            Queue<SD> i = new Queue<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Enqueue(new SD(c));
+            }
+            Queue<SD> o;
+            Queue<SD> r;
+
+            r = p.opQStructSD(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            Stack<SD> i = new Stack<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Push(new SD(c));
+            }
+            Stack<SD> o;
+            Stack<SD> r;
+
+
+            r = p.opSStructSD(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            CStructSD i = new CStructSD(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new SD(c));
+            }
+            CStructSD o;
+            CStructSD r;
+
+            r = p.opCStructSD(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
             CV[] i = new CV[_length];
             for(int c = 0; c < _length; ++c)
             {

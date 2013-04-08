@@ -1852,6 +1852,174 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private class AMI_MyClass_opAStructSDI : Test.AMI_MyClass_opAStructSD
+    {
+        public AMI_MyClass_opAStructSDI(SD[] i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(SD[] r, SD[] o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+             callback.check();
+        }
+
+        private SD[] _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opLStructSDI : Test.AMI_MyClass_opLStructSD
+    {
+        public AMI_MyClass_opLStructSDI(List<SD> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(List<SD> r, List<SD> o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+             callback.check();
+        }
+
+        private List<SD> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opKStructSDI : Test.AMI_MyClass_opKStructSD
+    {
+        public AMI_MyClass_opKStructSDI(LinkedList<SD> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(LinkedList<SD> r, LinkedList<SD> o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+             callback.check();
+        }
+
+        private LinkedList<SD> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opQStructSDI : Test.AMI_MyClass_opQStructSD
+    {
+        public AMI_MyClass_opQStructSDI(Queue<SD> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(Queue<SD> r, Queue<SD> o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+             callback.check();
+        }
+
+        private Queue<SD> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opSStructSDI : Test.AMI_MyClass_opSStructSD
+    {
+        public AMI_MyClass_opSStructSDI(Stack<SD> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(Stack<SD> r, Stack<SD> o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+             callback.check();
+        }
+
+        private Stack<SD> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opCStructSDI : Test.AMI_MyClass_opCStructSD
+    {
+        public AMI_MyClass_opCStructSDI(CStructSD i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(CStructSD r, CStructSD o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+             callback.check();
+        }
+
+        private CStructSD _i;
+        private Callback callback = new Callback();
+    }
+
     private class AMI_MyClass_opACVSI : Test.AMI_MyClass_opACVS
     {
         public AMI_MyClass_opACVSI(CV[] i)
@@ -3438,6 +3606,78 @@ public class TwowaysAMI
 
             AMI_MyClass_opCStructSI cb = new AMI_MyClass_opCStructSI(i);
             p.opCStructS_async(cb, i);
+            cb.check();
+        }
+
+        {
+            SD[] i = new SD[_length];
+            for(int c = 0; c < _length; ++c)
+            {
+                i[c] = new SD(c);
+            }
+
+            AMI_MyClass_opAStructSDI cb = new AMI_MyClass_opAStructSDI(i);
+            p.opAStructSD_async(cb, i);
+            cb.check();
+        }
+
+        {
+            List<SD> i = new List<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new SD(c));
+            }
+
+            AMI_MyClass_opLStructSDI cb = new AMI_MyClass_opLStructSDI(i);
+            p.opLStructSD_async(cb, i);
+            cb.check();
+        }
+
+        {
+            LinkedList<SD> i = new LinkedList<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.AddLast(new SD(c));
+            }
+
+            AMI_MyClass_opKStructSDI cb = new AMI_MyClass_opKStructSDI(i);
+            p.opKStructSD_async(cb, i);
+            cb.check();
+        }
+
+        {
+            Queue<SD> i = new Queue<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Enqueue(new SD(c));
+            }
+
+            AMI_MyClass_opQStructSDI cb = new AMI_MyClass_opQStructSDI(i);
+            p.opQStructSD_async(cb, i);
+            cb.check();
+        }
+
+        {
+            Stack<SD> i = new Stack<SD>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Push(new SD(c));
+            }
+
+            AMI_MyClass_opSStructSDI cb = new AMI_MyClass_opSStructSDI(i);
+            p.opSStructSD_async(cb, i);
+            cb.check();
+        }
+
+        {
+            CStructSD i = new CStructSD();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new SD(c));
+            }
+
+            AMI_MyClass_opCStructSDI cb = new AMI_MyClass_opCStructSDI(i);
+            p.opCStructSD_async(cb, i);
             cb.check();
         }
 

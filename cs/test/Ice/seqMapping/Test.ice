@@ -91,6 +91,18 @@ sequence<S> AStructS;
 ["clr:generic:Stack"] sequence<S> SStructS;
 ["clr:collection"] sequence<S> CStructS;
 
+struct SD
+{
+    int i = 1;
+};
+
+sequence<SD> AStructSD;
+["clr:generic:List"] sequence<SD> LStructSD;
+["clr:generic:LinkedList"] sequence<SD> KStructSD;
+["clr:generic:Queue"] sequence<SD> QStructSD;
+["clr:generic:Stack"] sequence<SD> SStructSD;
+["clr:collection"] sequence<SD> CStructSD;
+
 class CV
 {
     int i;
@@ -214,6 +226,13 @@ sequence<En> AEnS;
     QStructS opQStructS(QStructS i, out QStructS o);
     SStructS opSStructS(SStructS i, out SStructS o);
     CStructS opCStructS(CStructS i, out CStructS o);
+
+    AStructSD opAStructSD(AStructSD i, out AStructSD o);
+    LStructSD opLStructSD(LStructSD i, out LStructSD o);
+    KStructSD opKStructSD(KStructSD i, out KStructSD o);
+    QStructSD opQStructSD(QStructSD i, out QStructSD o);
+    SStructSD opSStructSD(SStructSD i, out SStructSD o);
+    CStructSD opCStructSD(CStructSD i, out CStructSD o);
 
     ACVS opACVS(ACVS i, out ACVS o);
     LCVS opLCVS(LCVS i, out LCVS o);

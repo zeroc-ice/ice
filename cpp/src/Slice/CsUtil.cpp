@@ -401,7 +401,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
         DataMemberList dm = s->dataMembers();
         for(DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
         {
-            if(!isValueType((*i)->type()))
+            if(!isValueType((*i)->type()) || (*i)->defaultValueType())
             {
                 return false;
             }
