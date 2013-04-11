@@ -34,9 +34,24 @@ public class EndpointHostResolver
         }
     }
 
-    public java.util.List<Connector> 
+    public java.util.List<Connector>
     resolve(String host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint)
     {
+        //
+        // Try to get the addresses without DNS lookup. If this doesn't
+        // work, we retry with DNS lookup (and observer).
+        //
+        NetworkProxy networkProxy = _instance.networkProxy();
+        if(networkProxy == null)
+        {
+            java.util.List<java.net.InetSocketAddress> addrs =
+                Network.getAddresses(host, port, _protocol, selType, _preferIPv6);
+            if(!addrs.isEmpty())
+            {
+                return endpoint.connectors(addrs, null);
+            }
+        }
+
         Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         Ice.Instrumentation.Observer observer = null;
         if(obsv != null)
@@ -47,11 +62,17 @@ public class EndpointHostResolver
                 observer.attach();
             }
         }
-    
+
         java.util.List<Connector> connectors = null;
-        try 
+        try
         {
-            connectors = endpoint.connectors(Network.getAddresses(host, port, _protocol, selType, _preferIPv6));
+            if(networkProxy != null)
+            {
+                networkProxy = networkProxy.resolveHost();
+            }
+
+            connectors = endpoint.connectors(Network.getAddresses(host, port, _protocol, selType, _preferIPv6),
+                                             networkProxy);
         }
         catch(Ice.LocalException ex)
         {
@@ -70,7 +91,7 @@ public class EndpointHostResolver
         }
         return connectors;
     }
-    
+
     synchronized public void
     resolve(String host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint, EndpointI_connectors callback)
     {
@@ -163,19 +184,26 @@ public class EndpointHostResolver
             {
                 if(threadObserver != null)
                 {
-                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                 Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                 }
 
-                r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, 
-                                                                                 r.port, 
-                                                                                 _protocol, 
+                NetworkProxy networkProxy = _instance.networkProxy();
+                if(networkProxy != null)
+                {
+                    networkProxy = networkProxy.resolveHost();
+                }
+
+                r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host,
+                                                                                 r.port,
+                                                                                 _protocol,
                                                                                  r.selType,
-                                                                                 _preferIPv6)));
+                                                                                 _preferIPv6),
+                                                            networkProxy));
 
                 if(threadObserver != null)
                 {
-                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther, 
+                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                 Ice.Instrumentation.ThreadState.ThreadStateIdle);
                 }
             }
@@ -215,9 +243,9 @@ public class EndpointHostResolver
         Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         if(obsv != null)
         {
-            _observer = obsv.getThreadObserver("Communicator", 
-                                               _thread.getName(), 
-                                               Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+            _observer = obsv.getThreadObserver("Communicator",
+                                               _thread.getName(),
+                                               Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                _observer);
             if(_observer != null)
             {
@@ -242,7 +270,7 @@ public class EndpointHostResolver
     private boolean _destroyed;
     private java.util.LinkedList<ResolveEntry> _queue = new java.util.LinkedList<ResolveEntry>();
     private Ice.Instrumentation.ThreadObserver _observer;
-    
+
     private final class HelperThread extends Thread
     {
         HelperThread()

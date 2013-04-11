@@ -19,7 +19,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     public int
-    initialize()
+    initialize(Buffer readBuffer, Buffer writeBuffer)
     {
         //
         // Nothing to do.

@@ -1930,7 +1930,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private boolean
     initialize(int operation)
     {
-        int s = _transceiver.initialize();
+        int s = _transceiver.initialize(_readStream.getBuffer(), _writeStream.getBuffer());
         if(s != IceInternal.SocketOperation.None)
         {
             scheduleTimeout(s, connectTimeout());

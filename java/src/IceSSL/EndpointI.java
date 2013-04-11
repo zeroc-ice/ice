@@ -392,8 +392,7 @@ final class EndpointI extends IceInternal.EndpointI
     public java.util.List<IceInternal.Connector>
     connectors(Ice.EndpointSelectionType selType)
     {
-        return connectors(IceInternal.Network.getAddresses(_host, _port, _instance.protocolSupport(), selType,
-                                                           _instance.preferIPv6()));
+        return _instance.endpointHostResolver().resolve(_host, _port, selType, this);
     }
 
     public void
@@ -455,6 +454,17 @@ final class EndpointI extends IceInternal.EndpointI
         return sslEndpointI._host.equals(_host) && sslEndpointI._port == _port;
     }
 
+    public java.util.List<IceInternal.Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses, IceInternal.NetworkProxy proxy)
+    {
+        java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
+        for(java.net.InetSocketAddress p : addresses)
+        {
+            connectors.add(new ConnectorI(_instance, _host, p, proxy, _timeout, _connectionId));
+        }
+        return connectors;
+    }
+
     public int
     hashCode()
     {
@@ -514,17 +524,6 @@ final class EndpointI extends IceInternal.EndpointI
         }
 
         return _host.compareTo(p._host);
-    }
-
-    public java.util.List<IceInternal.Connector>
-    connectors(java.util.List<java.net.InetSocketAddress> addresses)
-    {
-        java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
-        for(java.net.InetSocketAddress p : addresses)
-        {
-            connectors.add(new ConnectorI(_instance, _host, p, _timeout, _connectionId));
-        }
-        return connectors;
     }
 
     private void

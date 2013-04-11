@@ -1041,6 +1041,41 @@ public final class Network
     }
 
     public static String
+    fdToString(java.nio.channels.SelectableChannel fd, NetworkProxy proxy, java.net.InetSocketAddress target)
+    {
+        if(fd == null)
+        {
+            return "<closed>";
+        }
+
+        java.net.InetAddress localAddr = null, remoteAddr = null;
+        int localPort = -1, remotePort = -1;
+
+        if(fd instanceof java.nio.channels.SocketChannel)
+        {
+            java.net.Socket socket = ((java.nio.channels.SocketChannel)fd).socket();
+            localAddr = socket.getLocalAddress();
+            localPort = socket.getLocalPort();
+            remoteAddr = socket.getInetAddress();
+            remotePort = socket.getPort();
+        }
+        else if(fd instanceof java.nio.channels.DatagramChannel)
+        {
+            java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel)fd).socket();
+            localAddr = socket.getLocalAddress();
+            localPort = socket.getLocalPort();
+            remoteAddr = socket.getInetAddress();
+            remotePort = socket.getPort();
+        }
+        else
+        {
+            assert(false);
+        }
+
+        return addressesToString(localAddr, localPort, remoteAddr, remotePort, proxy, target);
+    }
+
+    public static String
     fdToString(java.nio.channels.SelectableChannel fd)
     {
         if(fd == null)
@@ -1092,22 +1127,54 @@ public final class Network
     }
 
     public static String
-    addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort)
+    addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort,
+                      NetworkProxy proxy, java.net.InetSocketAddress target)
     {
         StringBuilder s = new StringBuilder(128);
         s.append("local address = ");
         s.append(addrToString(localAddr, localPort));
-        if(remoteAddr == null)
+
+        if(proxy != null)
         {
-            s.append("\nremote address = <not connected>");
+            if(remoteAddr == null)
+            {
+                java.net.InetSocketAddress addr = proxy.getAddress();
+                remoteAddr = addr.getAddress();
+                remotePort = addr.getPort();
+            }
+            s.append("\n");
+            s.append(proxy.getName());
+            s.append(" proxy address = ");
+            s.append(addrToString(remoteAddr, remotePort));
+            s.append("\nremote address = ");
+            s.append(addrToString(target.getAddress(), target.getPort()));
         }
         else
         {
-            s.append("\nremote address = ");
-            s.append(addrToString(remoteAddr, remotePort));
+            if(remoteAddr == null && target != null)
+            {
+                remoteAddr = target.getAddress();
+                remotePort = target.getPort();
+            }
+
+            if(remoteAddr == null)
+            {
+                s.append("\nremote address = <not connected>");
+            }
+            else
+            {
+                s.append("\nremote address = ");
+                s.append(addrToString(remoteAddr, remotePort));
+            }
         }
 
         return s.toString();
+    }
+
+    public static String
+    addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort)
+    {
+        return addressesToString(localAddr, localPort, remoteAddr, remotePort, null, null);
     }
 
     public static String

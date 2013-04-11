@@ -19,45 +19,106 @@ final class TcpTransceiver implements Transceiver
     }
 
     public int
-    initialize()
+    initialize(Buffer readBuffer, Buffer writeBuffer)
     {
-        if(_state == StateNeedConnect)
+        try
         {
-            _state = StateConnectPending;
-            return SocketOperation.Connect;
-        }
-        else if(_state <= StateConnectPending)
-        {
-            try
+            if(_state == StateNeedConnect)
+            {
+                _state = StateConnectPending;
+                return SocketOperation.Connect;
+            }
+            else if(_state == StateConnectPending)
             {
                 Network.doFinishConnect(_fd);
-                _state = StateConnected;
-                _desc = Network.fdToString(_fd);
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(_traceLevels.network >= 2)
-                {
-                    java.net.Socket fd = (java.net.Socket)_fd.socket();
-                    StringBuilder s = new StringBuilder(128);
-                    s.append("failed to establish tcp connection\n");
-                    s.append("local address = ");
-                    s.append(Network.addrToString(fd.getLocalAddress(), fd.getLocalPort()));
-                    s.append("\nremote address = ");
-                    assert(_connectAddr != null);
-                    s.append(Network.addrToString(_connectAddr));
-                    _logger.trace(_traceLevels.networkCat, s.toString());
-                }
-                throw ex;
-            }
+                _desc = Network.fdToString(_fd, _proxy, _addr);
 
-            if(_traceLevels.network >= 1)
+                if(_proxy != null)
+                {
+                    //
+                    // Prepare the read & write buffers in advance.
+                    //
+                    _proxy.beginWriteConnectRequest(_addr, writeBuffer);
+                    _proxy.beginReadConnectRequestResponse(readBuffer);
+
+                    //
+                    // Write the proxy connection message.
+                    //
+                    if(write(writeBuffer))
+                    {
+                        //
+                        // Write completed without blocking.
+                        //
+                        _proxy.endWriteConnectRequest(writeBuffer);
+
+                        //
+                        // Try to read the response.
+                        //
+                        Ice.BooleanHolder dummy = new Ice.BooleanHolder();
+                        if(read(readBuffer, dummy))
+                        {
+                            //
+                            // Read completed without blocking - fall through.
+                            //
+                            _proxy.endReadConnectRequestResponse(readBuffer);
+                        }
+                        else
+                        {
+                            //
+                            // Return SocketOperationRead to indicate we need to complete the read.
+                            //
+                            _state = StateProxyConnectRequestPending; // Wait for proxy response
+                            return SocketOperation.Read;
+                        }
+                    }
+                    else
+                    {
+                        //
+                        // Return SocketOperationWrite to indicate we need to complete the write.
+                        //
+                        _state = StateProxyConnectRequest; // Send proxy connect request
+                        return SocketOperation.Write;
+                    }
+                }
+
+                _state = StateConnected;
+            }
+            else if(_state == StateProxyConnectRequest)
             {
-                String s = "tcp connection established\n" + _desc;
-                _logger.trace(_traceLevels.networkCat, s);
+                //
+                // Write completed.
+                //
+                _proxy.endWriteConnectRequest(writeBuffer);
+                _state = StateProxyConnectRequestPending; // Wait for proxy response
+                return SocketOperation.Read;
+            }
+            else if(_state == StateProxyConnectRequestPending)
+            {
+                //
+                // Read completed.
+                //
+                _proxy.endReadConnectRequestResponse(readBuffer);
+                _state = StateConnected;
             }
         }
+        catch(Ice.LocalException ex)
+        {
+            if(_traceLevels.network >= 2)
+            {
+                StringBuilder s = new StringBuilder(128);
+                s.append("failed to establish tcp connection\n");
+                s.append(Network.fdToString(_fd, _proxy, _addr));
+                _logger.trace(_traceLevels.networkCat, s.toString());
+            }
+            throw ex;
+        }
+
         assert(_state == StateConnected);
+        if(_traceLevels.network >= 1)
+        {
+            String s = "tcp connection established\n" + _desc;
+            _logger.trace(_traceLevels.networkCat, s);
+        }
         return SocketOperation.None;
     }
 
@@ -73,7 +134,7 @@ final class TcpTransceiver implements Transceiver
         assert(_fd != null);
         try
         {
-                _fd.close();
+            _fd.close();
         }
         catch(java.io.IOException ex)
         {
@@ -84,8 +145,8 @@ final class TcpTransceiver implements Transceiver
             _fd = null;
         }
     }
-    
-    @SuppressWarnings("deprecation") 
+
+    @SuppressWarnings("deprecation")
     public boolean
     write(Buffer buf)
     {
@@ -169,7 +230,7 @@ final class TcpTransceiver implements Transceiver
         return true;
     }
 
-    @SuppressWarnings("deprecation") 
+    @SuppressWarnings("deprecation")
     public boolean
     read(Buffer buf, Ice.BooleanHolder moreData)
     {
@@ -182,17 +243,17 @@ final class TcpTransceiver implements Transceiver
             {
                 assert(_fd != null);
                 int ret = _fd.read(buf.b);
-                
+
                 if(ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
                 }
-                
+
                 if(ret == 0)
                 {
                     return false;
                 }
-                
+
                 if(ret > 0)
                 {
                     if(_traceLevels.network >= 3)
@@ -261,19 +322,43 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
-    //
-    // Only for use by TcpConnector, TcpAcceptor
-    //
-    @SuppressWarnings("deprecation") 
-    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd, boolean connected,
-                   java.net.InetSocketAddress connectAddr)
+    @SuppressWarnings("deprecation")
+    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd, NetworkProxy proxy,
+                   java.net.InetSocketAddress addr)
     {
         _fd = fd;
-        _connectAddr = connectAddr;
+        _proxy = proxy;
+        _addr = addr;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
-        _state = connected ? StateConnected : StateNeedConnect;
+        _state = StateNeedConnect;
+        _desc = "";
+
+        _maxSendPacketSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            //
+            // On Windows, limiting the buffer size is important to prevent
+            // poor throughput performances when transfering large amount of
+            // data. See Microsoft KB article KB823764.
+            //
+            _maxSendPacketSize = Network.getSendBufferSize(_fd) / 2;
+            if(_maxSendPacketSize < 512)
+            {
+                _maxSendPacketSize = 0;
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd)
+    {
+        _fd = fd;
+        _traceLevels = instance.traceLevels();
+        _logger = instance.initializationData().logger;
+        _stats = instance.initializationData().stats;
+        _state = StateConnected;
         _desc = Network.fdToString(_fd);
 
         _maxSendPacketSize = 0;
@@ -310,17 +395,20 @@ final class TcpTransceiver implements Transceiver
     }
 
     private java.nio.channels.SocketChannel _fd;
-    private java.net.InetSocketAddress _connectAddr;
+    private NetworkProxy _proxy;
+    private java.net.InetSocketAddress _addr;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
-    
+
     @SuppressWarnings("deprecation")
     private Ice.Stats _stats;
     private String _desc;
     private int _state;
     private int _maxSendPacketSize;
-    
+
     private static final int StateNeedConnect = 0;
     private static final int StateConnectPending = 1;
-    private static final int StateConnected = 2;
+    private static final int StateProxyConnectRequest = 2;
+    private static final int StateProxyConnectRequestPending = 3;
+    private static final int StateConnected = 4;
 }

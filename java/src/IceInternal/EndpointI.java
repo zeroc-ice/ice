@@ -126,6 +126,17 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     public abstract boolean equivalent(EndpointI endpoint);
 
+    public java.util.List<Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses, NetworkProxy proxy)
+    {
+        //
+        // This method must be extended by endpoints which use the EndpointHostResolver to create
+        // connectors from IP addresses.
+        //
+        assert(false);
+        return null;
+    }
+
     //
     // Compare endpoints for sorting purposes.
     //
@@ -146,17 +157,6 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
         }
 
         return 0;
-    }
-
-    public java.util.List<Connector>
-    connectors(java.util.List<java.net.InetSocketAddress> addresses)
-    {
-        //
-        // This method must be extended by endpoints which use the EndpointHostResolver to create
-        // connectors from IP addresses.
-        //
-        assert(false);
-        return null;
     }
 
     protected String _connectionId = "";

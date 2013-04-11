@@ -334,7 +334,7 @@ public class Client extends test.Util.Application
                     {
                         throw exception;
                     }
-                    catch(Ice.ConnectionRefusedException ex)
+                    catch(Ice.ConnectFailedException ex)
                     {
                         out.println("ok");
                         synchronized(test.Glacier2.sessionHelper.Client.this)

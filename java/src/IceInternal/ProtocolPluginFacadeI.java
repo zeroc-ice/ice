@@ -53,6 +53,14 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     }
 
     //
+    // Get the network proxy.
+    //
+    public NetworkProxy getNetworkProxy()
+    {
+        return _instance.networkProxy();
+    }
+
+    //
     // Get the default encoding to be used in endpoints.
     //
     public Ice.EncodingVersion

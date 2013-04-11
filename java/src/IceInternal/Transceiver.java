@@ -18,7 +18,7 @@ public interface Transceiver
     //
     // Returns the status if the initialize operation.
     //
-    int initialize();
+    int initialize(Buffer readBuffer, Buffer writeBuffer);
 
     void close();
 

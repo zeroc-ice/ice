@@ -35,11 +35,12 @@ final class ConnectorI implements IceInternal.Connector
             java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
             IceInternal.Network.setBlock(fd, false);
             IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
-            boolean connected = IceInternal.Network.doConnect(fd, _addr);
+            final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
+            IceInternal.Network.doConnect(fd, addr);
             try
             {
                 javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false, _addr);
-                return new TransceiverI(_instance, engine, fd, _host, connected, false, "", _addr);
+                return new TransceiverI(_instance, engine, fd, _proxy, _host, _addr);
             }
             catch(RuntimeException ex)
             {
@@ -67,7 +68,7 @@ final class ConnectorI implements IceInternal.Connector
     public String
     toString()
     {
-        return IceInternal.Network.addrToString(_addr);
+        return IceInternal.Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
     }
 
     public int
@@ -79,13 +80,14 @@ final class ConnectorI implements IceInternal.Connector
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, int timeout, 
-               String connectionId)
+    ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, IceInternal.NetworkProxy proxy,
+               int timeout, String connectionId)
     {
         _instance = instance;
         _logger = instance.communicator().getLogger();
         _host = host;
         _addr = addr;
+        _proxy = proxy;
         _timeout = timeout;
         _connectionId = connectionId;
 
@@ -127,6 +129,7 @@ final class ConnectorI implements IceInternal.Connector
     private Ice.Logger _logger;
     private String _host;
     private java.net.InetSocketAddress _addr;
+    private IceInternal.NetworkProxy _proxy;
     private int _timeout;
     private String _connectionId;
     private int _hashCode;

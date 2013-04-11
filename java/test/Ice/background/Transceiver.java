@@ -18,14 +18,14 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     public int
-    initialize()
+    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer)
     {
         int status = _configuration.initializeSocketStatus();
         if(status == IceInternal.SocketOperation.Connect || status == IceInternal.SocketOperation.Write)
         {
             if(!_initialized)
             {
-                status = _transceiver.initialize();
+                status = _transceiver.initialize(readBuffer, writeBuffer);
                 if(status != IceInternal.SocketOperation.None)
                 {
                     return status;
@@ -42,7 +42,7 @@ final class Transceiver implements IceInternal.Transceiver
         _configuration.checkInitializeException();
         if(!_initialized)
         {
-            status = _transceiver.initialize();
+            status = _transceiver.initialize(readBuffer, writeBuffer);
             if(status != IceInternal.SocketOperation.None)
             {
                 return status;
@@ -61,11 +61,6 @@ final class Transceiver implements IceInternal.Transceiver
     public boolean
     write(IceInternal.Buffer buf)
     {
-        if(!_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-
         if(!_configuration.writeReady())
         {
             return false;
@@ -77,11 +72,6 @@ final class Transceiver implements IceInternal.Transceiver
     public boolean
     read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
-        if(!_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-
         if(!moreData.value)
         {
             if(!_configuration.readReady())

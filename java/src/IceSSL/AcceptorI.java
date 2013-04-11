@@ -89,7 +89,7 @@ final class AcceptorI implements IceInternal.Acceptor
                           IceInternal.Network.fdToString(fd));
         }
 
-        return new TransceiverI(_instance, engine, fd, "", true, true, _adapterName, null);
+        return new TransceiverI(_instance, engine, fd, _adapterName);
     }
 
     public String

@@ -23,7 +23,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     public int
-    initialize()
+    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer)
     {
         try
         {
@@ -32,42 +32,90 @@ final class TransceiverI implements IceInternal.Transceiver
                 _state = StateConnectPending;
                 return IceInternal.SocketOperation.Connect;
             }
-            else if(_state <= StateConnectPending)
+            else if(_state == StateConnectPending)
             {
                 IceInternal.Network.doFinishConnect(_fd);
-                _state = StateConnected;
-                _desc = IceInternal.Network.fdToString(_fd);
-            }
-            assert(_state == StateConnected);
+                _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
 
-            int status = handshakeNonBlocking();
-            if(status != IceInternal.SocketOperation.None)
+                if(_proxy != null)
+                {
+                    //
+                    // Prepare the read & write buffers in advance.
+                    //
+                    _proxy.beginWriteConnectRequest(_addr, writeBuffer);
+                    _proxy.beginReadConnectRequestResponse(readBuffer);
+
+                    //
+                    // Write the proxy connection message.
+                    //
+                    if(writeRaw(writeBuffer))
+                    {
+                        //
+                        // Write completed without blocking.
+                        //
+                        _proxy.endWriteConnectRequest(writeBuffer);
+
+                        //
+                        // Try to read the response.
+                        //
+                        if(readRaw(readBuffer))
+                        {
+                            //
+                            // Read completed without blocking - fall through.
+                            //
+                            _proxy.endReadConnectRequestResponse(readBuffer);
+                        }
+                        else
+                        {
+                            //
+                            // Return SocketOperationRead to indicate we need to complete the read.
+                            //
+                            _state = StateProxyConnectRequestPending; // Wait for proxy response
+                            return IceInternal.SocketOperation.Read;
+                        }
+                    }
+                    else
+                    {
+                        //
+                        // Return SocketOperationWrite to indicate we need to complete the write.
+                        //
+                        _state = StateProxyConnectRequest; // Send proxy connect request
+                        return IceInternal.SocketOperation.Write;
+                    }
+                }
+
+                _state = StateConnected;
+            }
+            else if(_state == StateProxyConnectRequest)
             {
-                return status;
+                //
+                // Write completed.
+                //
+                _proxy.endWriteConnectRequest(writeBuffer);
+                _state = StateProxyConnectRequestPending; // Wait for proxy response
+                return IceInternal.SocketOperation.Read;
+            }
+            else if(_state == StateProxyConnectRequestPending)
+            {
+                //
+                // Read completed.
+                //
+                _proxy.endReadConnectRequestResponse(readBuffer);
+                _state = StateConnected;
+            }
+
+            if(_state == StateConnected)
+            {
+                return handshakeNonBlocking();
             }
         }
         catch(Ice.LocalException ex)
         {
             if(_instance.networkTraceLevel() >= 2)
             {
-                java.net.Socket fd = (java.net.Socket)_fd.socket();
                 StringBuilder s = new StringBuilder(128);
                 s.append("failed to establish ssl connection\n");
-                s.append("local address = ");
-                s.append(IceInternal.Network.addrToString(fd.getLocalAddress(), fd.getLocalPort()));
-                s.append("\nremote address = ");
-                if(_incoming)
-                {
-                    final java.net.InetSocketAddress addr = (java.net.InetSocketAddress)fd.getRemoteSocketAddress();
-                    final java.net.InetAddress remoteAddr = addr != null ? addr.getAddress() : null;
-                    final int remotePort = addr != null ? addr.getPort() : -1;
-                    s.append(IceInternal.Network.addrToString(remoteAddr, remotePort));
-                }
-                else
-                {
-                    assert(_connectAddr != null);
-                    s.append(IceInternal.Network.addrToString(_connectAddr));
-                }
+                s.append(IceInternal.Network.fdToString(_fd, _proxy, _addr));
                 _logger.trace(_instance.networkTraceCategory(), s.toString());
             }
             throw ex;
@@ -155,6 +203,14 @@ final class TransceiverI implements IceInternal.Transceiver
     public boolean
     write(IceInternal.Buffer buf)
     {
+        if(_state == StateProxyConnectRequest)
+        {
+            //
+            // We need to write the proxy message, but we have to use TCP and not SSL.
+            //
+            return writeRaw(buf);
+        }
+
         //
         // If the handshake isn't completed yet, we shouldn't be writing.
         //
@@ -186,6 +242,16 @@ final class TransceiverI implements IceInternal.Transceiver
     public boolean
     read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
+        moreData.value = false;
+
+        if(_state == StateProxyConnectRequestPending)
+        {
+            //
+            // We need to read the proxy reply, but we have to use TCP and not SSL.
+            //
+            return readRaw(buf);
+        }
+
         //
         // If the handshake isn't completed yet, we shouldn't be reading (read can be
         // called by the thread pool when the connection is registered/unregistered
@@ -244,7 +310,6 @@ final class TransceiverI implements IceInternal.Transceiver
                     if(status != IceInternal.SocketOperation.None)
                     {
                         assert(status == IceInternal.SocketOperation.Read);
-                        moreData.value = false;
                         return false;
                     }
                     continue;
@@ -313,22 +378,35 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    //
-    // Only for use by ConnectorI, AcceptorI.
-    //
-    @SuppressWarnings("deprecation")
     TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd,
-                 String host, boolean connected, boolean incoming, String adapterName,
-                 java.net.InetSocketAddress connectAddr)
+                 IceInternal.NetworkProxy proxy, String host, java.net.InetSocketAddress addr)
+    {
+        init(instance, engine, fd);
+        _proxy = proxy;
+        _host = host;
+        _incoming = false;
+        _addr = addr;
+        _state = StateNeedConnect;
+        _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
+    }
+
+    TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd,
+                 String adapterName)
+    {
+        init(instance, engine, fd);
+        _host = "";
+        _adapterName = adapterName;
+        _incoming = true;
+        _state = StateConnected;
+        _desc = IceInternal.Network.fdToString(_fd);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void init(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd)
     {
         _instance = instance;
         _engine = engine;
         _fd = fd;
-        _host = host;
-        _incoming = incoming;
-        _adapterName = adapterName;
-        _connectAddr = connectAddr;
-        _state = connected ? StateConnected : StateNeedConnect;
         _logger = instance.communicator().getLogger();
         try
         {
@@ -338,7 +416,6 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             // Ignore.
         }
-        _desc = IceInternal.Network.fdToString(_fd);
         _maxPacketSize = 0;
         if(System.getProperty("os.name").startsWith("Windows"))
         {
@@ -817,13 +894,122 @@ final class TransceiverI implements IceInternal.Transceiver
         _appInput.compact();
     }
 
+    @SuppressWarnings("deprecation")
+    private boolean
+    writeRaw(IceInternal.Buffer buf)
+    {
+        //
+        // We don't want write to be called on android main thread as this will cause
+        // NetworkOnMainThreadException to be thrown. If that is the android main thread
+        // we return false and this method will be later called from the thread pool.
+        //
+        if(IceInternal.Util.isAndroidMainThread(Thread.currentThread()))
+        {
+            return false;
+        }
+
+        final int size = buf.b.limit();
+        int packetSize = size - buf.b.position();
+
+        while(buf.b.hasRemaining())
+        {
+            try
+            {
+                assert(_fd != null);
+                int ret = _fd.write(buf.b);
+
+                if(ret == -1)
+                {
+                    throw new Ice.ConnectionLostException();
+                }
+                else if(ret == 0)
+                {
+                    return false;
+                }
+
+                if(_instance.networkTraceLevel() >= 3)
+                {
+                    String s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
+                    _logger.trace(_instance.networkTraceCategory(), s);
+                }
+
+                if(_stats != null)
+                {
+                    _stats.bytesSent(type(), ret);
+                }
+            }
+            catch(java.io.InterruptedIOException ex)
+            {
+                continue;
+            }
+            catch(java.io.IOException ex)
+            {
+                throw new Ice.SocketException(ex);
+            }
+        }
+        return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    private boolean
+    readRaw(IceInternal.Buffer buf)
+    {
+        int packetSize = buf.b.remaining();
+
+        while(buf.b.hasRemaining())
+        {
+            try
+            {
+                assert(_fd != null);
+                int ret = _fd.read(buf.b);
+
+                if(ret == -1)
+                {
+                    throw new Ice.ConnectionLostException();
+                }
+
+                if(ret == 0)
+                {
+                    return false;
+                }
+
+                if(ret > 0)
+                {
+                    if(_instance.networkTraceLevel() >= 3)
+                    {
+                        String s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
+                        _logger.trace(_instance.networkTraceCategory(), s);
+                    }
+
+                    if(_stats != null)
+                    {
+                        _stats.bytesReceived(type(), ret);
+                    }
+                }
+
+                packetSize = buf.b.remaining();
+            }
+            catch(java.io.InterruptedIOException ex)
+            {
+                continue;
+            }
+            catch(java.io.IOException ex)
+            {
+                throw new Ice.ConnectionLostException(ex);
+            }
+        }
+
+        return true;
+    }
+
     private Instance _instance;
     private java.nio.channels.SocketChannel _fd;
     private javax.net.ssl.SSLEngine _engine;
+    private IceInternal.NetworkProxy _proxy;
     private String _host;
     private boolean _incoming;
     private String _adapterName;
-    private java.net.InetSocketAddress _connectAddr;
+    private java.net.InetSocketAddress _addr;
     private int _state;
     private Ice.Logger _logger;
 
@@ -838,6 +1024,8 @@ final class TransceiverI implements IceInternal.Transceiver
 
     private static final int StateNeedConnect = 0;
     private static final int StateConnectPending = 1;
-    private static final int StateConnected = 2;
-    private static final int StateHandshakeComplete = 3;
+    private static final int StateProxyConnectRequest = 2;
+    private static final int StateProxyConnectRequestPending = 3;
+    private static final int StateConnected = 4;
+    private static final int StateHandshakeComplete = 5;
 }

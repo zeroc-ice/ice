@@ -392,8 +392,7 @@ final class TcpEndpointI extends EndpointI
     public java.util.List<Connector>
     connectors(Ice.EndpointSelectionType selType)
     {
-        return connectors(Network.getAddresses(_host, _port, _instance.protocolSupport(), selType,
-                                               _instance.preferIPv6()));
+        return _instance.endpointHostResolver().resolve(_host, _port, selType, this);
     }
 
     public void
@@ -452,6 +451,17 @@ final class TcpEndpointI extends EndpointI
         }
         TcpEndpointI tcpEndpointI = (TcpEndpointI)endpoint;
         return tcpEndpointI._host.equals(_host) && tcpEndpointI._port == _port;
+    }
+
+    public java.util.List<Connector>
+    connectors(java.util.List<java.net.InetSocketAddress> addresses, NetworkProxy proxy)
+    {
+        java.util.List<Connector> connectors = new java.util.ArrayList<Connector>();
+        for(java.net.InetSocketAddress p : addresses)
+        {
+            connectors.add(new TcpConnector(_instance, p, proxy, _timeout, _connectionId));
+        }
+        return connectors;
     }
 
     public int
@@ -513,17 +523,6 @@ final class TcpEndpointI extends EndpointI
         }
 
         return _host.compareTo(p._host);
-    }
-
-    public java.util.List<Connector>
-    connectors(java.util.List<java.net.InetSocketAddress> addresses)
-    {
-        java.util.List<Connector> connectors = new java.util.ArrayList<Connector>();
-        for(java.net.InetSocketAddress p : addresses)
-        {
-            connectors.add(new TcpConnector(_instance, p, _timeout, _connectionId));
-        }
-        return connectors;
     }
 
     private void

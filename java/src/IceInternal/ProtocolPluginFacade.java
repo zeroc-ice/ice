@@ -33,6 +33,11 @@ public interface ProtocolPluginFacade
     boolean getPreferIPv6();
 
     //
+    // Get the network proxy.
+    //
+    NetworkProxy getNetworkProxy();
+
+    //
     // Get the default encoding to be used in endpoints.
     //
     Ice.EncodingVersion getDefaultEncoding();

@@ -25,16 +25,9 @@ final class TcpConnector implements Connector
             java.nio.channels.SocketChannel fd = Network.createTcpSocket();
             Network.setBlock(fd, false);
             Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
-            boolean connected = Network.doConnect(fd, _addr);
-            if(connected)
-            {
-                if(_traceLevels.network >= 1)
-                {
-                    String s = "tcp connection established\n" + Network.fdToString(fd);
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
-            }
-            return new TcpTransceiver(_instance, fd, connected, _addr);
+            final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
+            Network.doConnect(fd, addr);
+            return new TcpTransceiver(_instance, fd, _proxy, _addr);
         }
         catch(Ice.LocalException ex)
         {
@@ -56,7 +49,7 @@ final class TcpConnector implements Connector
     public String
     toString()
     {
-        return Network.addrToString(_addr);
+        return Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
     }
 
     public int
@@ -68,12 +61,14 @@ final class TcpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    TcpConnector(Instance instance, java.net.InetSocketAddress addr, int timeout, String connectionId)
+    TcpConnector(Instance instance, java.net.InetSocketAddress addr, NetworkProxy proxy, int timeout,
+                 String connectionId)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _addr = addr;
+        _proxy = proxy;
         _timeout = timeout;
         _connectionId = connectionId;
 
@@ -115,6 +110,7 @@ final class TcpConnector implements Connector
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private java.net.InetSocketAddress _addr;
+    private NetworkProxy _proxy;
     private int _timeout;
     private String _connectionId = "";
     private int _hashCode;

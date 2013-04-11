@@ -23,11 +23,21 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 Changes since version 3.5.0
 ======================================================================
 
+
+General Changes
+===============
+
+- Added support for SOCKSv4 proxies to the Ice core in C++, C# and
+  Java. This allows outgoing TCP & SSL connections using IPv4 to be
+  mediated by a network proxy service.
+
+
 C++ Changes
 ===========
 
 - Fixed a bug in slice2cpp that generated invalid C++ code for C++11
   asynchronous invocations.
+
 
 C# Changes
 ==========
