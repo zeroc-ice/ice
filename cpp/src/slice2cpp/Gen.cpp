@@ -1858,66 +1858,66 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         H << retInS;
     }
-    H << outDecls << epar << ">& response, "
-      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = "
+    H << outDecls << epar << ">& __response, "
+      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = "
          "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
-      << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" << epar;
+      << "const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>()" << epar;
       
     H << sb;
     if(p->returnsData())
     {
-        H << nl << "return __begin_" << name << spar << argsAMI << "0, response, exception, sent" << epar << ";";
+        H << nl << "return __begin_" << name << spar << argsAMI << "0, __response, __exception, __sent" << epar << ";";
     }
     else
     {
         H << nl << "return begin_" << name << spar << argsAMI 
-          << "0, new ::IceInternal::Cpp11FnOnewayCallbackNC(response, exception, sent)" << epar << ";";
+          << "0, new ::IceInternal::Cpp11FnOnewayCallbackNC(__response, __exception, __sent)" << epar << ";";
           
     }
     H << eb;
     
     H << nl << "::Ice::AsyncResultPtr";
     H << nl << "begin_" << name << spar << paramsDeclAMI 
-      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed"
-      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = "
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __completed"
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __sent = "
          "::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>()" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "0, ::Ice::newCallback(completed, sent), 0" << epar << ";";
+    H << nl << "return begin_" << name << spar << argsAMI << "0, ::Ice::newCallback(__completed, __sent), 0" << epar << ";";
     H << eb;
     
     
     H << nl << "::Ice::AsyncResultPtr";
-    H << nl << "begin_" << name << spar << paramsDeclAMI << "const ::Ice::Context& ctx"
+    H << nl << "begin_" << name << spar << paramsDeclAMI << "const ::Ice::Context& __ctx"
       << "const ::IceInternal::Function<void " << spar;
     if(!retInS.empty())
     {
         H << retInS;
     }
-    H << outDecls << epar << ">& response, "
-      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = "
+    H << outDecls << epar << ">& __response, "
+      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = "
          "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
-      << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" << epar;
+      << "const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>()" << epar;
       
     H << sb;
     if(p->returnsData())
     {
-        H << nl << "return __begin_" << name << spar << argsAMI << "&ctx, response, exception, sent" << epar << ";";
+        H << nl << "return __begin_" << name << spar << argsAMI << "&__ctx, __response, __exception, __sent" << epar << ";";
     }
     else
     {
         H << nl << "return begin_" << name << spar << argsAMI
-          << "&ctx, new ::IceInternal::Cpp11FnOnewayCallbackNC(response, exception, sent), 0" << epar << ";";
+          << "&__ctx, new ::IceInternal::Cpp11FnOnewayCallbackNC(__response, __exception, __sent), 0" << epar << ";";
     }
     H << eb;
     
     H << nl << "::Ice::AsyncResultPtr";
     H << nl << "begin_" << name << spar << paramsDeclAMI 
-      << "const ::Ice::Context& ctx"
-      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed"
-      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = "
+      << "const ::Ice::Context& __ctx"
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __completed"
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __sent = "
          "::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>()" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&ctx, ::Ice::newCallback(completed, sent)" << epar << ";";
+    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx, ::Ice::newCallback(__completed, __sent)" << epar << ";";
     H << eb;
     
     if(p->returnsData())
@@ -1929,7 +1929,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         
         
         H << sp << nl << "::Ice::AsyncResultPtr __begin_" << name << spar << paramsDeclAMI
-          << "const ::Ice::Context* ctx" << "const ::IceInternal::Function<void " << spar;
+          << "const ::Ice::Context* __ctx" << "const ::IceInternal::Function<void " << spar;
                 
 
         if(!retInS.empty())
@@ -1938,9 +1938,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         H << outDecls;
 
-        H << epar << ">& response, "
-          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception, "
-          << "const ::IceInternal::Function<void (bool)>& sent" << epar;
+        H << epar << ">& __response, "
+          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception, "
+          << "const ::IceInternal::Function<void (bool)>& __sent" << epar;
         H << sb;
         H << nl << "class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC";
         H << sb;
@@ -2027,7 +2027,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         
         H << eb << ';';
         
-        H << nl << "return begin_" << name << spar << argsAMI << "ctx" << "new Cpp11CB(response, exception, sent)" 
+        H << nl << "return begin_" << name << spar << argsAMI << "__ctx" << "new Cpp11CB(__response, __exception, __sent)" 
           << epar << ';';
         H << eb;
         H << nl;

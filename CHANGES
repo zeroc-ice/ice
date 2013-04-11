@@ -23,6 +23,11 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 Changes since version 3.5.0
 ======================================================================
 
+C++ Changes
+===========
+
+- Fixed a bug in slice2cpp that generated invalid C++ code for C++11
+  asynchronous invocations.
 
 C# Changes
 ==========
