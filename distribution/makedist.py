@@ -274,6 +274,9 @@ os.chdir(srcDir)
 print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
 
+remove("protobuf")
+remove("distribution/bin/makeprotobufdist.py")
+
 fixVersion("RELEASE_NOTES", *versions)
 fixVersion(os.path.join("cpp", "config", "glacier2router.cfg"), *versions)
 fixVersion(os.path.join("cpp", "config", "icegridregistry.cfg"), *versions)
@@ -334,6 +337,12 @@ os.chdir(winSrcDir)
 
 print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
+
+#
+# Remove files and directories that should not be included.
+#
+remove("protobuf")
+remove("distribution/bin/makeprotobufdist.py")
 
 fixVersion("RELEASE_NOTES", *versions)
 fixVersion(os.path.join("cpp", "config", "glacier2router.cfg"), *versions)

@@ -168,8 +168,6 @@ toplevel = path[0]
 def sanitize(cp):
     np = ""
     for p in cp.split(os.pathsep):
-        if os.path.normpath(p) == "classes":
-            continue
         if len(np) > 0:
             np = np + os.pathsep
         np = np + p
@@ -1007,7 +1005,11 @@ def getDefaultServerFile():
     if lang == "py":
         return "Server.py"
     if lang in ["java", "javae"]:
-        return directoryToPackage() + ".Server"
+        pkg = directoryToPackage()
+        if len(pkg) > 0:
+            pkg = pkg + "."
+        return pkg + "Server"
+    raise RuntimeError("unknown language")
 
 def getDefaultClientFile(lang = None):
     if lang is None:
@@ -1021,7 +1023,11 @@ def getDefaultClientFile(lang = None):
     if lang == "py":
         return "Client.py"
     if lang in ["java", "javae"]:
-        return directoryToPackage() + ".Client"
+        pkg = directoryToPackage()
+        if len(pkg) > 0:
+            pkg = pkg + "."
+        return pkg + "Client"
+    raise RuntimeError("unknown language")
 
 def getDefaultCollocatedFile():
     lang = getDefaultMapping()
