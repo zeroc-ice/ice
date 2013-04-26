@@ -897,7 +897,7 @@
     <ROW Component="IceWinRT" ComponentId="{D2DC96FD-C0E2-4CF9-98D3-71EC9954E24B}" Directory_="APPDIR" Attributes="4" KeyPath="IceWinRT"/>
     <ROW Component="Ice_1" ComponentId="{4A87CAF6-A7CB-4F17-84B1-1736096DD16E}" Directory_="APPDIR" Attributes="4" KeyPath="ZeroC_1"/>
     <ROW Component="Ice_2" ComponentId="{1D23AC11-8654-45A0-B477-1934A47D700C}" Directory_="APPDIR" Attributes="4" KeyPath="ZeroC_2"/>
-    <ROW Component="Ice_3.4.2" ComponentId="{4FCEF427-45CC-498B-B7DA-1361B634E81B}" Directory_="Ice_3.4.2_DIR" Attributes="0"/>
+    <ROW Component="Ice_3.4.2" ComponentId="{4FCEF427-45CC-498B-B7DA-1361B634E81B}" Directory_="Ice_3.4.2_DIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="InstallDir" ComponentId="{08ECB67A-C0AF-4201-A763-D38B2496B429}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
     <ROW Component="InstallDir_2" ComponentId="{D44576A7-9B92-4232-8881-258D5D1D8D29}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir_2"/>
     <ROW Component="LoginController.java" ComponentId="{9AE0EE49-7F0F-4C04-9F8C-D7B147872D4F}" Directory_="controller_Dir" Attributes="0" KeyPath="LoginController.java" Type="0"/>
@@ -5634,6 +5634,7 @@
     <ROW Registry="IceWinRT" Root="2" Key="Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKs\Ice" Name="*" Component_="IceWinRT"/>
     <ROW Registry="InstallDir" Root="2" Key="Software\ZeroC\[ProductName]" Name="InstallDir" Value="[Ice_DIR]" Component_="InstallDir"/>
     <ROW Registry="InstallDir_2" Root="2" Key="Software\Wow6432Node\ZeroC\[ProductName]" Name="InstallDir" Value="[Ice_DIR]" Component_="InstallDir_2"/>
+    <ROW Registry="Version" Root="1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="3.5.0" Component_="Ice_3.4.2"/>
     <ROW Registry="ZeroC_1" Root="2" Key="Software\Microsoft\.NETFramework\v2.0.50727\AssemblyFoldersEx\Ice" Name="-" Component_="Ice_1"/>
     <ROW Registry="ZeroC_2" Root="2" Key="Software\Microsoft\.NETCompactFramework\v3.5.0.0\PocketPC\AssemblyFoldersEx\Ice" Name="-" Component_="Ice_2"/>
     <ROW Registry="ZeroC_3" Root="2" Key="Software\Microsoft\.NETCompactFramework\v3.5.0.0\Smartphone\AssemblyFoldersEx\Ice" Name="-" Component_="ZeroC"/>
