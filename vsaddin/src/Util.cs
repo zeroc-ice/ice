@@ -1654,7 +1654,7 @@ namespace Ice.VisualStudio
                 }
                 if(Directory.Exists(oldOutputDir))
                 {
-                    Directory.Delete(oldOutputDir, true);
+                    Directory.Delete(oldOutputDir, false);
                 }
             }
 
@@ -1671,7 +1671,11 @@ namespace Ice.VisualStudio
                 // We must add the new output directory to C++ project include path.
                 addCppIncludes(project);
             }
-
+            //
+            // That call is necessary for VS to detect the files that has been removed by
+            // external means like using File.Delete.
+            //
+            solutionExplorerRefresh();
             return true;
         }
 
@@ -1733,26 +1737,18 @@ namespace Ice.VisualStudio
             }
 
             DirectoryInfo dir = new DirectoryInfo(path);
-            FileInfo[] files = dir.GetFiles();
-            if(files.Length == 0)
+            if(dir.GetFiles().Length > 0)
             {
-                return true;
+                return false;
             }
             bool empty = true;
-            foreach(FileInfo f in files)
+            DirectoryInfo[] directories = dir.GetDirectories();
+            foreach(DirectoryInfo d in directories)
             {
-                if(File.Exists(f.FullName))
+                empty = isEmptyDir(d.FullName);
+                if(!empty)
                 {
-                    empty = false;
                     break;
-                }
-                else if(Directory.Exists(f.FullName))
-                {
-                    empty = isEmptyDir(f.FullName);
-                    if(!empty)
-                    {
-                        break;
-                    }
                 }
             }
             return empty;
