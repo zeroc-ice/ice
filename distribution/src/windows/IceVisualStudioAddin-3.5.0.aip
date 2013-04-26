@@ -129,7 +129,7 @@
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
-    <ROW Condition="ICE_INSTALL_DIR" Description="Ice 3.4.2 must be installed before installing this Visual Studio plugin update."/>
+    <ROW Condition="ICE_INSTALL_DIR" Description="Ice 3.5.0 must be installed before installing this Visual Studio plugin update."/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\ZeroC\Ice 3.5.0" Name="InstallDir" Type="18"/>
