@@ -9,7 +9,7 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
@@ -29,6 +29,6 @@ SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS) -I$(slicedir)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(call mktest,$@,$(OBJS),$(COBJS) $(LIBS))
 
 include .depend

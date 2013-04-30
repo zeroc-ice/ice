@@ -9,7 +9,7 @@
 
 top_srcdir	= ../../../..
 
-SERVER		= server$(EXE_EXT)
+SERVER		= $(call mktestname,server)
 
 TARGETS		= $(SERVER)
 
@@ -30,6 +30,6 @@ SLICE2CPPFLAGS  := --checksum $(SLICE2CPPFLAGS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(call mktest,$@,$(SOBJS),$(LIBS))
 
 include .depend

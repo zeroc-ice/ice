@@ -288,6 +288,14 @@ ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
 endif
 
+ifeq ($(mktestname),)
+    mktestname	= $(1)$(EXE_EXT)
+endif
+
+ifeq ($(mktest),)
+    mktest 	  = $(CXX) $(LDFLAGS) -o $(@) $(2) $(3)
+endif
+
 ifdef ice_src_dist
     SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
     SLICE2CPP		= $(bindir)/slice2cpp

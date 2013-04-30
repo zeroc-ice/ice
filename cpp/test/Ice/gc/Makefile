@@ -9,7 +9,7 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
 
 TARGETS		= $(CLIENT)
 
@@ -28,7 +28,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(call mktest,$@,$(OBJS),$(COBJS) $(LIBS))
 
 clean::
 	-rm -f seed

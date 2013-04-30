@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-WQ		= workqueue$(EXE_EXT)
-MATCH		= match$(EXE_EXT)
+WQ		= $(call mktestname,workqueue)
+MATCH		= $(call mktestname,match)
 
 TARGETS		= $(WQ) $(MATCH)
 
@@ -25,10 +25,10 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(WQ): WorkQueue.o
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ WorkQueue.o $(BASELIBS)
+	$(call mktest,$@,WorkQueue.o,$(BASELIBS))
 
 $(MATCH): Match.o
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ Match.o $(BASELIBS)
+	$(call mktest,$@,Match.o,$(BASELIBS))
 
 include .depend

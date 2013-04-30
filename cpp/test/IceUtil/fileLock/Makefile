@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client$(EXE_EXT)
-CLIENTF		= clientFail$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
+CLIENTF		= $(call mktestname,clientFail)
 
 TARGETS		= $(CLIENT) $(CLIENTF)
 
@@ -25,12 +25,12 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(BASELIBS)
+	$(call mktest,$@,$(OBJS),$(BASELIBS))
 
 
 $(CLIENTF): $(OBJFS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJFS) $(BASELIBS)
+	$(call mktest,$@,$(OBJFS),$(BASELIBS))
 
 clean::
 	-rm -f run.pid

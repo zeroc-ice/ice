@@ -9,9 +9,9 @@
 
 top_srcdir	= ../../../..
 
-CLIENT		= client$(EXE_EXT)
-SERVER		= server$(EXE_EXT)
-SERVERAMD	= serveramd$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
+SERVER		= $(call mktestname,server)
+SERVERAMD	= $(call mktestname,serveramd)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
@@ -21,12 +21,12 @@ COBJS		= Test.o \
 		  AllTests.o
 
 SOBJS		= Test.o \
-    		  ServerPrivate.o \
+		  ServerPrivate.o \
 		  TestI.o \
 		  Server.o
 
 SAMDOBJS	= TestAMD.o \
-    		  ServerPrivateAMD.o \
+		  ServerPrivateAMD.o \
 		  TestAMDI.o \
 		  ServerAMD.o
 
@@ -44,14 +44,14 @@ CPPFLAGS	:= -I. -I../../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(call mktest,$@,$(SOBJS),$(LIBS))
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
+	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
 
 include .depend

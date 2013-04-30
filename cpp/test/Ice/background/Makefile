@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client$(EXE_EXT)
-SERVER		= server$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
+SERVER		= $(call mktestname,server)
 
 TSPFILENAME     = $(call mklibfilename,TestTransport,$(VERSION))
 TSPSONAME	= $(call mksoname,TestTransport,$(SOVERSION)) 
@@ -50,11 +50,11 @@ LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(call mktest,$@,$(SOBJS),$(LIBS))
 
 $(TSPFILENAME): $(TRANSPORT_OBJS)
 	rm -f $@

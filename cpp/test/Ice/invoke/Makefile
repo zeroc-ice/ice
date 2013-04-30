@@ -9,8 +9,8 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client$(EXE_EXT)
-SERVER		= server$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
+SERVER		= $(call mktestname,server)
 
 TARGETS		= $(CLIENT) $(SERVER)
 
@@ -33,10 +33,10 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(call mktest,$@,$(SOBJS),$(LIBS))
 
 include .depend

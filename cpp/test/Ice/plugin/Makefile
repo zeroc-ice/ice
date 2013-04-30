@@ -12,7 +12,7 @@ top_srcdir	= ../../..
 PLUGINLIBFILENAME	= $(call mklibfilename,TestPlugin,$(VERSION))
 PLUGINSONAME		= $(call mksoname,TestPlugin,$(SOVERSION))  
 PLUGINLIBNAME		= $(call mklibname,TestPlugin)
-CLIENT			= client$(EXE_EXT)
+CLIENT			= $(call mktestname,client)
 PLUGINDIR		= plugins
 
 TARGETS		= $(CLIENT) $(call mklibtargets,$(PLUGINDIR)/$(PLUGINLIBFILENAME),$(PLUGINDIR)/$(PLUGINSONAME),$(PLUGINDIR)/$(PLUGINLIBNAME))
@@ -33,7 +33,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 $(PLUGINDIR)/$(PLUGINLIBFILENAME): $(POBJS)
 	rm -f $@

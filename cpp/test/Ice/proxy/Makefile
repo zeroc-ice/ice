@@ -9,10 +9,10 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client$(EXE_EXT)
-SERVER		= server$(EXE_EXT)
-SERVERAMD	= serveramd$(EXE_EXT)
-COLLOCATED	= collocated$(EXE_EXT)
+CLIENT		= $(call mktestname,client)
+SERVER		= $(call mktestname,server)
+SERVERAMD	= $(call mktestname,serveramd)
+COLLOCATED	= $(call mktestname,collocated)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
@@ -54,18 +54,18 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(call mktest,$@,$(COBJS),$(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(call mktest,$@,$(SOBJS),$(LIBS))
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
+	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
 
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(LIBS)
+	$(call mktest,$@,$(COLOBJS),$(LIBS))
 
 include .depend
