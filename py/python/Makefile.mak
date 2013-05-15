@@ -21,6 +21,7 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_ObjectAdapterF_ice.py \
 		  Ice_ServantLocator_ice.py \
 		  Ice_ServantLocatorF_ice.py \
+		  Ice_PropertiesAdmin_ice.py \
 		  Ice_Properties_ice.py \
 		  Ice_PropertiesF_ice.py \
 		  Ice_ObjectFactory_ice.py \
@@ -120,6 +121,9 @@ Ice_ServantLocator_ice.py: "$(slicedir)/Ice/ServantLocator.ice" "$(SLICE2PY)" "$
 
 Ice_ServantLocatorF_ice.py: "$(slicedir)/Ice/ServantLocatorF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/ServantLocatorF.ice"
+
+Ice_PropertiesAdmin_ice.py: "$(slicedir)/Ice/PropertiesAdmin.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/PropertiesAdmin.ice"
 
 Ice_Properties_ice.py: "$(slicedir)/Ice/Properties.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Properties.ice"

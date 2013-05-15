@@ -27,6 +27,7 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_ObjectAdapterF_ice.py \
 		  Ice_ServantLocator_ice.py \
 		  Ice_ServantLocatorF_ice.py \
+		  Ice_PropertiesAdmin_ice.py \
 		  Ice_Properties_ice.py \
 		  Ice_PropertiesF_ice.py \
 		  Ice_ObjectFactory_ice.py \

@@ -13,6 +13,7 @@
 #include <IceUtil/Config.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
+#include <Ice/PropertiesAdmin.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
@@ -40,7 +41,7 @@
 #include <Ice/Router.h>
 #include <Ice/DispatchInterceptor.h>
 #include <Ice/Plugin.h>
-#include <Ice/PropertiesAdmin.h>
+#include <Ice/NativePropertiesAdmin.h>
 #include <Ice/Instrumentation.h>
 #include <Ice/Metrics.h>
 #ifndef ICE_OS_WINRT

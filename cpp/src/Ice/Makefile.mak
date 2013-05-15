@@ -81,6 +81,7 @@ OBJS		= Acceptor.obj \
 		  Process.obj \
 		  PropertiesAdminI.obj \
 		  PropertiesI.obj \
+		  PropertiesAdmin.obj \
 		  Properties.obj \
 		  PropertyNames.obj \
 		  Protocol.obj \
@@ -184,6 +185,7 @@ clean::
 	-del /q ProcessF.cpp $(HDIR)\ProcessF.h
 	-del /q Process.cpp $(HDIR)\Process.h
 	-del /q PropertiesF.cpp $(HDIR)\PropertiesF.h
+	-del /q PropertiesAdmin.cpp $(HDIR)\PropertiesAdmin.h
 	-del /q Properties.cpp $(HDIR)\Properties.h
 	-del /q RouterF.cpp $(HDIR)\RouterF.h
 	-del /q Router.cpp $(HDIR)\Router.h

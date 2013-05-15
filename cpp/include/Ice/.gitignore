@@ -32,6 +32,7 @@ ProcessF.h
 Process.h
 PropertiesF.h
 Properties.h
+PropertiesAdmin.h
 RouterF.h
 Router.h
 ServantLocatorF.h

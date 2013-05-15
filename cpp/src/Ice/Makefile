@@ -80,6 +80,7 @@ OBJS		= Acceptor.o \
 		  Process.o \
 		  PropertiesAdminI.o \
 		  PropertiesI.o \
+		  PropertiesAdmin.o \
 		  Properties.o \
 		  PropertyNames.o \
 		  Protocol.o \
@@ -154,6 +155,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ProcessF.ice \
 		  $(SDIR)/Process.ice \
 		  $(SDIR)/PropertiesF.ice \
+		  $(SDIR)/PropertiesAdmin.ice \
 		  $(SDIR)/Properties.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Router.ice \

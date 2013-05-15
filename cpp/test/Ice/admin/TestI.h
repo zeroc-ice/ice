@@ -11,7 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
-#include <Ice/PropertiesAdmin.h>
+#include <Ice/NativePropertiesAdmin.h>
 
 class RemoteCommunicatorI : virtual public Test::RemoteCommunicator,
                             virtual public Ice::PropertiesAdminUpdateCallback,

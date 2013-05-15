@@ -32,6 +32,7 @@ ProcessF.cpp
 Process.cpp
 PropertiesF.cpp
 Properties.cpp
+PropertiesAdmin.cpp
 RouterF.cpp
 Router.cpp
 ServantLocatorF.cpp

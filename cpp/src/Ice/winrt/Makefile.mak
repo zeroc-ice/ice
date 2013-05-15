@@ -78,6 +78,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Process.obj \
 		  $(ARCH)\$(CONFIG)\PropertiesI.obj \
 		  $(ARCH)\$(CONFIG)\Properties.obj \
+		  $(ARCH)\$(CONFIG)\PropertiesAdmin.obj \
 		  $(ARCH)\$(CONFIG)\PropertiesAdminI.obj \
 		  $(ARCH)\$(CONFIG)\PropertyNames.obj \
 		  $(ARCH)\$(CONFIG)\Protocol.obj \
@@ -144,6 +145,7 @@ SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\Process.ice \
 		  $(slicedir)\Ice\PropertiesF.ice \
 		  $(slicedir)\Ice\Properties.ice \
+		  $(slicedir)\Ice\PropertiesAdmin.ice \
 		  $(slicedir)\Ice\RouterF.ice \
 		  $(slicedir)\Ice\Router.ice \
 		  $(slicedir)\Ice\ServantLocatorF.ice \

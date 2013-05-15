@@ -135,6 +135,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Instrumentation.ice \
 		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/Process.ice \
+		  $(SDIR)/PropertiesAdmin.ice \
 		  $(SDIR)/Properties.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/ServantLocator.ice \

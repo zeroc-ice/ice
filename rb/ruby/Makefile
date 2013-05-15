@@ -21,6 +21,7 @@ ICE_SRCS	= Ice/LocalException.rb \
 		  Ice/LoggerF.rb \
 		  Ice/BuiltinSequences.rb \
 		  Ice/ObjectAdapterF.rb \
+		  Ice/PropertiesAdmin.rb \
 		  Ice/Properties.rb \
 		  Ice/PropertiesF.rb \
 		  Ice/ObjectFactory.rb \

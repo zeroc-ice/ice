@@ -11,7 +11,7 @@
 #define ICE_METRICSADMIN_I_H
 
 #include <Ice/Properties.h>
-#include <Ice/PropertiesAdmin.h>
+#include <Ice/NativePropertiesAdmin.h>
 #include <Ice/Initialize.h>
 
 #include <Ice/Metrics.h>

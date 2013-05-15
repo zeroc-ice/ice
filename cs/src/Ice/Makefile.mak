@@ -136,6 +136,7 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Instrumentation.cs \
 		  $(GDIR)\Plugin.cs \
 		  $(GDIR)\Process.cs \
+		  $(GDIR)\PropertiesAdmin.cs \
 		  $(GDIR)\Properties.cs \
 		  $(GDIR)\Router.cs \
 		  $(GDIR)\ServantLocator.cs \

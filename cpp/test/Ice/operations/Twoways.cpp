@@ -773,13 +773,14 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
                 ctx = ic->getImplicitContext()->getContext();
                 test(p->opContext() == ctx);
-                
                 Ice::Context prxContext;
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
                 
                 Ice::Context combined = prxContext;
                 combined.insert(ctx.begin(), ctx.end());
+		cout << "ctx " << ctx["one"] << endl;
+		cout << "combined " << combined["one"] << endl;
                 test(combined["one"] == "UN");
                 
                 p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
@@ -788,6 +789,23 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 test(p->opContext() == prxContext);
 
                 ic->getImplicitContext()->setContext(ctx);
+                cout << "ctx--------" << endl;
+                for(Ice::Context::const_iterator i = ctx.begin(); i != ctx.end(); ++i)
+                {
+                    cout << "combined: " << i->first << " : " << i->second << endl;
+                }
+
+                cout << "opContext--------" << endl;
+                Ice::Context opContext = p->opContext();
+                for(Ice::Context::const_iterator i = opContext.begin(); i != opContext.end(); ++i)
+                {
+                    cout << "combined: " << i->first << " : " << i->second << endl;
+                }
+                cout << "combined--------" << endl;
+                for(Ice::Context::const_iterator i = combined.begin(); i != combined.end(); ++i)
+                {
+                    cout << "combined: " << i->first << " : " << i->second << endl;
+                }
                 test(p->opContext() == combined);
 
                 test(ic->getImplicitContext()->remove("one") == "ONE");

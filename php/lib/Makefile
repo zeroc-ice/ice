@@ -21,6 +21,7 @@ ICE_SRCS	= Ice/LocalException.php \
 		  Ice/LoggerF.php \
 		  Ice/BuiltinSequences.php \
 		  Ice/ObjectAdapterF.php \
+		  Ice/PropertiesAdmin.php \
 		  Ice/Properties.php \
 		  Ice/PropertiesF.php \
 		  Ice/ObjectFactory.php \
