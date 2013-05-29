@@ -163,7 +163,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
     oldConfigFile.close()
 
     if updated:
-	if verbose:
+        if verbose:
             print "updated " + filename
         os.rename(filename + ".new", filename)
         os.chmod(filename, S_IMODE(mode))
@@ -177,6 +177,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
 #
 def fileMatchAllAndReplace(filename, matchAndReplaceExps, verbose=True):
 
+    mode = os.stat(filename).st_mode
     oldFile = open(filename, "r")
     newFile = open(filename + ".new", "w")
 
@@ -211,6 +212,7 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps, verbose=True):
         if verbose:
             print "updated " + filename
         os.rename(filename + ".new", filename)
+        os.chmod(filename, S_IMODE(mode))
     else:
         if verbose:
             print "warning: " + filename + " didn't contain any match"
