@@ -369,6 +369,19 @@ def allTests(communicator):
 
     print("ok")
 
+    sys.stdout.write("testing marshalling of objects with optional objects...")
+    sys.stdout.flush()
+
+    f = Test.F()
+    
+    f.af = Test.A()
+    f.ae = f.af
+    
+    rf = initial.pingPong(f)
+    test(rf.ae == rf.af)
+    
+    print("ok")
+
     sys.stdout.write("testing optional with default values... ")
     sys.stdout.flush()
 

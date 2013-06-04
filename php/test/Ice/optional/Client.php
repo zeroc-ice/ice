@@ -396,6 +396,21 @@ function allTests($communicator)
 
     echo "ok\n";
 
+    echo "testing marshalling of objects with optional objects...";
+    flush();
+
+    $fcls = $NS ? "Test\\F" : "Test_F";
+    $f = new $fcls;
+    
+    $acls = $NS ? "Test\\A" : "Test_A";
+    $f->af = new $acls;
+    $f->ae = $f->af;
+    
+    $rf = $initial->pingPong($f);
+    test($rf->ae == $rf->af);
+    
+    echo "ok\n";
+
     echo "testing optional with default values... ";
     flush();
 

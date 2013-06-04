@@ -816,6 +816,90 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     }
 
     {
+        IceUtil::Optional<bool> p1;
+        IceUtil::Optional<bool> p3;
+        IceUtil::Optional<bool> p2 = initial->opBool(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = true;
+        p2 = initial->opBool(p1, p3);
+        test(*p2 == true && *p3 == true);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opBool", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(*p2 == true && *p3 == true);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Ice::Short> p1;
+        IceUtil::Optional<Ice::Short> p3;
+        IceUtil::Optional<Ice::Short> p2 = initial->opShort(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = 56;
+        p2 = initial->opShort(p1, p3);
+        test(p2 == 56 && p3 == 56);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opShort", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == 56 && p3 == 56);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Ice::Int> p1;
+        IceUtil::Optional<Ice::Int> p3;
+        IceUtil::Optional<Ice::Int> p2 = initial->opInt(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = 56;
+        p2 = initial->opInt(p1, p3);
+        test(p2 == 56 && p3 == 56);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opInt", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == 56 && p3 == 56);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
         IceUtil::Optional<Ice::Long> p1;
         IceUtil::Optional<Ice::Long> p3;
         IceUtil::Optional<Ice::Long> p2 = initial->opLong(p1, p3);
@@ -827,16 +911,72 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
 
         out = Ice::createOutputStream(communicator);
         out->startEncapsulation();
-        out->write(2, p1);
+        out->write(1, p1);
         out->endEncapsulation();
         out->finished(inEncaps);
         initial->ice_invoke("opLong", Ice::Normal, inEncaps, outEncaps);
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();
+        in->read(2, p3);
+        in->read(3, p2);
+        in->endEncapsulation();
+        test(p2 == 56 && p3 == 56);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Ice::Float> p1;
+        IceUtil::Optional<Ice::Float> p3;
+        IceUtil::Optional<Ice::Float> p2 = initial->opFloat(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = 1.0f;
+        p2 = initial->opFloat(p1, p3);
+        test(p2 == 1.0f && p3 == 1.0f);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opFloat", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
         in->read(1, p2);
         in->read(3, p3);
         in->endEncapsulation();
-        test(p2 == 56 && p3 == 56);
+        test(p2 == 1.0f && p3 == 1.0f);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Ice::Double> p1;
+        IceUtil::Optional<Ice::Double> p3;
+        IceUtil::Optional<Ice::Double> p2 = initial->opDouble(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = 1.0;
+        p2 = initial->opDouble(p1, p3);
+        test(p2 == 1.0 && p3 == 1.0);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opDouble", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == 1.0 && p3 == 1.0);
 
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();
@@ -865,6 +1005,121 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in->read(3, p3);
         in->endEncapsulation();
         test(p2 == "test" && p3 == "test");
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Test::MyEnum> p1;
+        IceUtil::Optional<Test::MyEnum> p3;
+        IceUtil::Optional<Test::MyEnum> p2 = initial->opMyEnum(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = Test::MyEnumMember;
+        p2 = initial->opMyEnum(p1, p3);
+        test(p2 == Test::MyEnumMember && p3 == Test::MyEnumMember);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opMyEnum", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == Test::MyEnumMember && p3 == Test::MyEnumMember);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Test::SmallStruct> p1;
+        IceUtil::Optional<Test::SmallStruct> p3;
+        IceUtil::Optional<Test::SmallStruct> p2 = initial->opSmallStruct(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = Test::SmallStruct();
+        p1->m = 56;
+        p2 = initial->opSmallStruct(p1, p3);
+        test(p2->m == 56 && p3->m == 56);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opSmallStruct", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2->m == 56 && p3->m == 56);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Test::FixedStruct> p1;
+        IceUtil::Optional<Test::FixedStruct> p3;
+        IceUtil::Optional<Test::FixedStruct> p2 = initial->opFixedStruct(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = Test::FixedStruct();
+        p1->m = 56;
+        p2 = initial->opFixedStruct(p1, p3);
+        test(p2->m == 56 && p3->m == 56);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opFixedStruct", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2->m == 56 && p3->m == 56);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<Test::VarStruct> p1;
+        IceUtil::Optional<Test::VarStruct> p3;
+        IceUtil::Optional<Test::VarStruct> p2 = initial->opVarStruct(p1, p3);
+        test(!p2 && !p3);
+
+        p1 = Test::VarStruct();
+        p1->m = "test";
+        p2 = initial->opVarStruct(p1, p3);
+        test(p2->m == "test" && p3->m == "test");
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opVarStruct", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2->m == "test" && p3->m == "test");
 
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();
@@ -987,42 +1242,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     }
 
     {
-        IceUtil::Optional<std::pair<const Ice::Short*, const Ice::Short*> > p1;
-        IceUtil::Optional<ShortSeq> p3;
-        IceUtil::Optional<ShortSeq> p2 = initial->opShortSeq(p1, p3);
-        test(!p2 && !p3);
-
-        vector<Ice::Short> bs(100);
-        fill(bs.begin(), bs.end(), 56);
-#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
-        std::pair<const Ice::Short*, const Ice::Short*> cpair(&bs[0], &bs[0] + bs.size());
-        p1 = cpair;
-#else
-        p1 = make_pair(&bs[0], &bs[0] + bs.size());
-#endif
-        p2 = initial->opShortSeq(p1, p3);
-        test(p2 && p3);
-        test(p2 == bs && p3 == bs);
-
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(2, p1);
-        out->endEncapsulation();
-        out->finished(inEncaps);
-        initial->ice_invoke("opByteSeq", Ice::Normal, inEncaps, outEncaps);
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(1, p2);
-        in->read(3, p3);
-        in->endEncapsulation();
-        test(p2 == bs && p3 == bs);
-
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->endEncapsulation();
-    }
-
-    {
         IceUtil::Optional<std::pair<const bool*, const bool*> > p1;
         IceUtil::Optional<BoolSeq> p3;
         IceUtil::Optional<BoolSeq> p2 = initial->opBoolSeq(p1, p3);
@@ -1057,6 +1276,186 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();
         in->endEncapsulation(); 
+    }
+
+    {
+        IceUtil::Optional<std::pair<const Ice::Short*, const Ice::Short*> > p1;
+        IceUtil::Optional<ShortSeq> p3;
+        IceUtil::Optional<ShortSeq> p2 = initial->opShortSeq(p1, p3);
+        test(!p2 && !p3);
+
+        vector<Ice::Short> bs(100);
+        fill(bs.begin(), bs.end(), 56);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Short*, const Ice::Short*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
+        p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
+        p2 = initial->opShortSeq(p1, p3);
+        test(p2 && p3);
+        test(p2 == bs && p3 == bs);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opShortSeq", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == bs && p3 == bs);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<std::pair<const Ice::Int*, const Ice::Int*> > p1;
+        IceUtil::Optional<IntSeq> p3;
+        IceUtil::Optional<IntSeq> p2 = initial->opIntSeq(p1, p3);
+        test(!p2 && !p3);
+
+        vector<Ice::Int> bs(100);
+        fill(bs.begin(), bs.end(), 56);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Int*, const Ice::Int*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
+        p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
+        p2 = initial->opIntSeq(p1, p3);
+        test(p2 && p3);
+        test(p2 == bs && p3 == bs);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opIntSeq", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == bs && p3 == bs);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<std::pair<const Ice::Long*, const Ice::Long*> > p1;
+        IceUtil::Optional<LongSeq> p3;
+        IceUtil::Optional<LongSeq> p2 = initial->opLongSeq(p1, p3);
+        test(!p2 && !p3);
+
+        vector<Ice::Long> bs(100);
+        fill(bs.begin(), bs.end(), 56);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Long*, const Ice::Long*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
+        p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
+        p2 = initial->opLongSeq(p1, p3);
+        test(p2 && p3);
+        test(p2 == bs && p3 == bs);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opLongSeq", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == bs && p3 == bs);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<std::pair<const Ice::Float*, const Ice::Float*> > p1;
+        IceUtil::Optional<FloatSeq> p3;
+        IceUtil::Optional<FloatSeq> p2 = initial->opFloatSeq(p1, p3);
+        test(!p2 && !p3);
+
+        vector<Ice::Float> bs(100);
+        fill(bs.begin(), bs.end(), 1.0);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Float*, const Ice::Float*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
+        p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
+        p2 = initial->opFloatSeq(p1, p3);
+        test(p2 && p3);
+        test(p2 == bs && p3 == bs);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opFloatSeq", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == bs && p3 == bs);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<std::pair<const Ice::Double*, const Ice::Double*> > p1;
+        IceUtil::Optional<DoubleSeq> p3;
+        IceUtil::Optional<DoubleSeq> p2 = initial->opDoubleSeq(p1, p3);
+        test(!p2 && !p3);
+
+        vector<Ice::Double> bs(100);
+        fill(bs.begin(), bs.end(), 1.0);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Double*, const Ice::Double*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
+        p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
+        p2 = initial->opDoubleSeq(p1, p3);
+        test(p2 && p3);
+        test(p2 == bs && p3 == bs);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opDoubleSeq", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == bs && p3 == bs);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
     }
 
     {
@@ -1181,6 +1580,68 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in->endEncapsulation();
     }
 
+    {
+        IceUtil::Optional<IntIntDict> p1;
+        IceUtil::Optional<IntIntDict> p3;
+        IceUtil::Optional<IntIntDict> p2 = initial->opIntIntDict(p1, p3);
+        test(!p2 && !p3);
+
+        IntIntDict ss;
+        ss.insert(make_pair(1, 1));
+        p1 = ss;
+        p2 = initial->opIntIntDict(p1, p3);
+        test(p2 && p3);
+        test(p2 == ss && p3 == ss);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opIntIntDict", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == ss && p3 == ss);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
+        IceUtil::Optional<StringIntDict> p1;
+        IceUtil::Optional<StringIntDict> p3;
+        IceUtil::Optional<StringIntDict> p2 = initial->opStringIntDict(p1, p3);
+        test(!p2 && !p3);
+
+        StringIntDict ss;
+        ss.insert(make_pair("test", 1));
+        p1 = ss;
+        p2 = initial->opStringIntDict(p1, p3);
+        test(p2 && p3);
+        test(p2 == ss && p3 == ss);
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opStringIntDict", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == ss && p3 == ss);
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
     cout << "ok" << endl;
 
     cout << "testing exception optionals... " << flush;
@@ -1188,6 +1649,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         try
         {
             initial->opOptionalException(IceUtil::None, IceUtil::None, IceUtil::None);
+            test(false);
         }
         catch(const OptionalException& ex)
         {
@@ -1199,6 +1661,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         try
         {
             initial->opOptionalException(30, "test", new OneOptional(53));
+            test(false);
         }
         catch(const OptionalException& ex)
         {
@@ -1214,12 +1677,97 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             //
             initial->ice_encodingVersion(Ice::Encoding_1_0)->
                 opOptionalException(30, "test", new OneOptional(53));
+            test(false);
         }
         catch(const OptionalException& ex)
         {
             test(!ex.a);
             test(!ex.b);
             test(!ex.o);
+        }
+
+        try
+        {
+            IceUtil::Optional<Ice::Int> a;
+            IceUtil::Optional<string> b;
+            IceUtil::Optional<OneOptionalPtr> o;
+            initial->opDerivedException(a, b, o);
+            test(false);
+        }
+        catch(const DerivedException& ex)
+        {
+            test(!ex.a);
+            test(!ex.b);
+            test(!ex.o);
+            test(!ex.ss);
+            test(!ex.o2);
+        }
+        catch(const OptionalException& ex)
+        {
+            test(false);
+        }
+
+        try
+        {
+            IceUtil::Optional<Ice::Int> a = 30;
+            IceUtil::Optional<string> b = "test2";
+            IceUtil::Optional<OneOptionalPtr> o = new OneOptional(53);
+            initial->opDerivedException(a, b, o);
+            test(false);
+        }
+        catch(const DerivedException& ex)
+        {
+            test(ex.a == 30);
+            test(ex.b == "test2");
+            test((*ex.o)->a == 53);
+            test(ex.ss == "test2");
+            test((*ex.o2)->a == 53);
+        }
+        catch(const OptionalException& ex)
+        {
+            test(false);
+        }
+
+        try
+        {
+            IceUtil::Optional<Ice::Int> a;
+            IceUtil::Optional<string> b;
+            IceUtil::Optional<OneOptionalPtr> o;
+            initial->opRequiredException(a, b, o);
+            test(false);
+        }
+        catch(const RequiredException& ex)
+        {
+            test(!ex.a);
+            test(!ex.b);
+            test(!ex.o);
+            test(ex.ss == "test");
+            test(!ex.o2);
+        }
+        catch(const OptionalException& ex)
+        {
+            test(false);
+        }
+
+        try
+        {
+            IceUtil::Optional<Ice::Int> a = 30;
+            IceUtil::Optional<string> b = "test2";
+            IceUtil::Optional<OneOptionalPtr> o = new OneOptional(53);
+            initial->opRequiredException(a, b, o);
+            test(false);
+        }
+        catch(const RequiredException& ex)
+        {
+            test(ex.a == 30);
+            test(ex.b == "test2");
+            test((*ex.o)->a == 53);
+            test(ex.ss == "test2");
+            test(ex.o2->a == 53);
+        }
+        catch(const OptionalException& ex)
+        {
+            test(false);
         }
     }
     cout << "ok" << endl;

@@ -367,6 +367,19 @@ def allTests(communicator)
 
     puts "ok"
 
+    print "testing marshalling of objects with optional objects..."
+    STDOUT.flush
+
+    f = Test::F.new
+    
+    f.af = Test::A.new
+    f.ae = f.af
+    
+    rf = initial.pingPong(f)
+    test(rf.ae == rf.af)
+    
+    puts "ok"
+
     print "testing optional with default values... "
     STDOUT.flush
 
