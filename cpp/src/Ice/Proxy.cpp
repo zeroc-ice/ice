@@ -1229,6 +1229,12 @@ IceProxy::Ice::Object::end_ice_flushBatchRequests(const AsyncResultPtr& __result
     __result->__wait();
 }
 
+Int
+IceProxy::Ice::Object::__hash() const
+{
+    return _reference->hash();
+}
+
 void
 IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 {

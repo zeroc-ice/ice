@@ -254,7 +254,7 @@ public:
                   const ::Ice::Context& ctx, 
                   const ::IceInternal::Function<void (bool)>& response, 
                   const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                  ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                   const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_isA(typeId, &ctx, response, exception, sent);
@@ -264,7 +264,7 @@ public:
     begin_ice_isA(const ::std::string& typeId, 
                   const ::IceInternal::Function<void (bool)>& response, 
                   const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                  ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                   const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_isA(typeId, 0, response, exception, sent);
@@ -274,7 +274,7 @@ public:
     begin_ice_isA(const ::std::string& typeId, 
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed,
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_isA(typeId, 0, ::Ice::newCallback(completed, sent), 0);
     }
@@ -284,7 +284,7 @@ public:
                   const ::Ice::Context& ctx, 
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed, 
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_isA(typeId, &ctx, ::Ice::newCallback(completed, sent), 0);
     }
@@ -345,7 +345,7 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_ping(const ::IceInternal::Function<void ()>& response, 
                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                   ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_ping(0, response, exception, sent);
@@ -355,7 +355,7 @@ public:
     begin_ice_ping(const ::Ice::Context& ctx,
                    const ::IceInternal::Function<void ()>& response, 
                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                   ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_ping(&ctx, response, exception, sent);
@@ -364,7 +364,7 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_ping(const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed, 
                    const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                   ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_ping(0, ::Ice::newCallback(completed, sent), 0);
     }
@@ -373,7 +373,7 @@ public:
     begin_ice_ping(const ::Ice::Context& ctx, 
                    const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed, 
                    const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                   ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_ping(&ctx, ::Ice::newCallback(completed, sent), 0);
     }
@@ -429,7 +429,7 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_ids(const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response, 
                   const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                  ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                   const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_ids(0, response, exception, sent);
@@ -448,7 +448,7 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_ids(const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed, 
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = 
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_ids(0, ::Ice::newCallback(completed, sent), 0);
     }
@@ -457,7 +457,7 @@ public:
     begin_ice_ids(const ::Ice::Context& ctx, 
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed,
                   const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = 
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_ids(&ctx, ::Ice::newCallback(completed, sent), 0);
     }
@@ -514,7 +514,7 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_id(const ::IceInternal::Function<void (const ::std::string&)>& response, 
                  const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                 ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                  const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_id(0, response, exception, sent);
@@ -524,7 +524,7 @@ public:
     begin_ice_id(const ::Ice::Context& ctx,
                  const ::IceInternal::Function<void (const ::std::string&)>& response, 
                  const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                                    ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+                 ::IceInternal::Function<void (const ::Ice::Exception&)>(),
                  const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_id(&ctx, response, exception, sent);
@@ -533,7 +533,7 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_id(const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed,
                  const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                 ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_id(0, ::Ice::newCallback(completed, sent), 0);
     }
@@ -541,8 +541,8 @@ public:
     ::Ice::AsyncResultPtr
     begin_ice_id(const ::Ice::Context& ctx,
                  const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed,
-                 const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent =
-                                                                ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+                 const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = 
+                 ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
     {
         return begin_ice_id(&ctx, ::Ice::newCallback(completed, sent), 0);
     }
@@ -610,27 +610,27 @@ public:
                           const ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
 #ifdef ICE_CPP11
-    ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation, 
-                                           ::Ice::OperationMode mode, 
-                                           const ::std::vector< ::Ice::Byte>& inParams,
-                                           const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response, 
-                                           const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                           const ::IceInternal::Function<void (bool)>& sent =
-                                                            ::IceInternal::Function<void (bool)>())
+    ::Ice::AsyncResultPtr begin_ice_invoke(
+        const ::std::string& operation, 
+        ::Ice::OperationMode mode, 
+        const ::std::vector< ::Ice::Byte>& inParams,
+        const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response, 
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_invoke(operation, mode, inParams, 0, response, exception, sent);
     }
     
-    ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation, 
-                                           ::Ice::OperationMode mode, 
-                                           const ::std::vector< ::Ice::Byte>& inParams,
-                                           const ::Ice::Context& ctx,
-                                           const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
-                                           const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                           const ::IceInternal::Function<void (bool)>& sent =
-                                                            ::IceInternal::Function<void (bool)>())
+    ::Ice::AsyncResultPtr begin_ice_invoke(
+        const ::std::string& operation, 
+        ::Ice::OperationMode mode, 
+        const ::std::vector< ::Ice::Byte>& inParams,
+        const ::Ice::Context& ctx,
+        const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_invoke(operation, mode, inParams, &ctx, response, exception, sent);
     }
@@ -648,14 +648,15 @@ public:
     }
     
     ::Ice::AsyncResultPtr begin_ice_invoke(
-            const ::std::string& operation,
-            ::Ice::OperationMode mode, 
-            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-            const ::Ice::Context& ctx,
-            const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>& response,
-            const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-            const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+        const ::std::string& operation,
+        ::Ice::OperationMode mode, 
+        const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+        const ::Ice::Context& ctx,
+        const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*,
+                                                                    const ::Ice::Byte*>&)>& response,
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return __begin_ice_invoke(operation, mode, inParams, &ctx, response, exception, sent);
     }
@@ -861,10 +862,11 @@ public:
     
 #ifdef ICE_CPP11
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests(
-                                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception, 
-                                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception, 
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return begin_ice_flushBatchRequestsInternal(new ::IceInternal::Cpp11FnOnewayCallbackNC(nullptr, exception, sent), 0);
+        return begin_ice_flushBatchRequestsInternal(
+            new ::IceInternal::Cpp11FnOnewayCallbackNC(nullptr, exception, sent), 0);
     }
 #endif
 
@@ -888,6 +890,8 @@ public:
     void end_ice_flushBatchRequests(const ::Ice::AsyncResultPtr&);
 
     ::IceInternal::ReferencePtr __reference() const { return _reference; }
+
+    ::Ice::Int __hash() const;
 
     void __copyFrom(const ::Ice::ObjectPrx&);
     int __handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, const ::Ice::LocalException&, 
@@ -917,12 +921,12 @@ private:
     
 #ifdef ICE_CPP11
     ::Ice::AsyncResultPtr __begin_ice_isA(
-                                    const ::std::string& typeId, 
-                                    const ::Ice::Context* ctx,
-                                    const ::IceInternal::Function<void (bool)>& response, 
-                                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+        const ::std::string& typeId, 
+        const ::Ice::Context* ctx,
+        const ::IceInternal::Function<void (bool)>& response, 
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
         {
@@ -964,22 +968,22 @@ private:
     }
     
     ::Ice::AsyncResultPtr __begin_ice_ping(
-                                        const ::Ice::Context* ctx,
-                                        const ::IceInternal::Function<void ()>& response, 
-                                        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                        const ::IceInternal::Function<void (bool)>& sent =
-                                                            ::IceInternal::Function<void (bool)>())
+        const ::Ice::Context* ctx,
+        const ::IceInternal::Function<void ()>& response, 
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         return begin_ice_ping(ctx, new ::IceInternal::Cpp11FnOnewayCallbackNC(response, exception, sent), 0);
     }
     
     ::Ice::AsyncResultPtr __begin_ice_id(
-                                    const ::Ice::Context* ctx,
-                                    const ::IceInternal::Function<void (const ::std::string&)>& response, 
-                                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+        const ::Ice::Context* ctx,
+        const ::IceInternal::Function<void (const ::std::string&)>& response, 
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = 
+        ::IceInternal::Function<void (bool)>())
     {
         class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
         {
@@ -1021,12 +1025,12 @@ private:
     }
     
     ::Ice::AsyncResultPtr __begin_ice_ids(
-                                        const ::Ice::Context* ctx,
-                                        const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response,
-                                        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                        const ::IceInternal::Function<void (bool)>& sent =
-                                                            ::IceInternal::Function<void (bool)>())
+        const ::Ice::Context* ctx,
+        const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response,
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent =
+        ::IceInternal::Function<void (bool)>())
     {
         class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
         {
@@ -1091,14 +1095,14 @@ private:
     
 #ifdef ICE_CPP11
     ::Ice::AsyncResultPtr __begin_ice_invoke(
-                                    const ::std::string& operation, 
-                                    ::Ice::OperationMode mode, 
-                                    const ::std::vector< ::Ice::Byte>& inParams,
-                                    const ::Ice::Context* ctx,
-                                    const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
-                                    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-                                    const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+        const ::std::string& operation, 
+        ::Ice::OperationMode mode, 
+        const ::std::vector< ::Ice::Byte>& inParams,
+        const ::Ice::Context* ctx,
+        const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
         {
@@ -1141,14 +1145,15 @@ private:
     }
     
     ::Ice::AsyncResultPtr __begin_ice_invoke(
-            const ::std::string& operation,
-            ::Ice::OperationMode mode, 
-            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-            const ::Ice::Context* ctx,
-            const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>& response,
-            const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
-                                                            ::IceInternal::Function<void (const ::Ice::Exception&)>(),
-            const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+        const ::std::string& operation,
+        ::Ice::OperationMode mode, 
+        const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+        const ::Ice::Context* ctx,
+        const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*, 
+                                                                    const ::Ice::Byte*>&)>& response,
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = 
+        ::IceInternal::Function<void (const ::Ice::Exception&)>(),
+        const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
         class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
         {
