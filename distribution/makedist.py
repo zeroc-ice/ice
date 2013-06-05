@@ -64,6 +64,8 @@ if len(args) > 1:
 elif len(args) == 1:
     tag = args[0]
 
+checkGitVersion() # Ensure we're using the right git version
+
 verbose = 0
 compareToDir = None
 for (o, a) in opts:
@@ -153,7 +155,7 @@ def createDistfiles(platform, whichDestDir):
 
     for root, dirnames, filenames in os.walk('.'):
 	for f in filenames:
-	    filepath = os.path.join(root, f) 
+	    filepath = os.path.join(root, f)
 	    # Fix version of README/INSTALL files
 	    if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
 		fixVersion(filepath, *versions)
@@ -163,7 +165,7 @@ def createDistfiles(platform, whichDestDir):
 
     print "ok"
 
-def fixGitAttributes(checkout, autocrlf, addText):
+def fixGitAttributes(checkout, autocrlf, excludes):
     os.chdir(gitRepoDir)
     if checkout:
 	os.system("git checkout .gitattributes")
@@ -193,12 +195,13 @@ def fixGitAttributes(checkout, autocrlf, addText):
             x = "#" + x
         newLines.append(x)
 
-    if addText:
+    if len(excludes) > 0:
 	newLines.append("""
 # THE FOLLOWING LINES WERE ADDED BY makedist.py
 # DO NOT COMMIT
 """)
-	newLines.append(addText)
+        for e in excludes:
+            newLines.append(e + " export-ignore\n")
 
     newFile.writelines(newLines)
     newFile.close()
@@ -206,60 +209,54 @@ def fixGitAttributes(checkout, autocrlf, addText):
     os.remove(origfile)
 
 ###### UNIX distfiles 
-fixGitAttributes(True, False, """
-/certs/ export-ignore
-/config/ export-ignore
-/cpp/ export-ignore
-/cs/ export-ignore
-/demoscript/ export-ignore
-/dists/ export-ignore
-/java/ export-ignore export-ignore
-/php/ export-ignore
-/py/ export-ignore
-/rb/ export-ignore
-/scripts/ export-ignore
-/slice/ export-ignore
-/vb/ export-ignore
-/vsaddin/ export-ignore
-""")
+fixGitAttributes(True, False, ["/certs", 
+                               "/config",
+                               "/cpp",
+                               "/cs",
+                               "/demoscript",
+                               "/dists",
+                               "/java",
+                               "/php",
+                               "/py",
+                               "/rb",
+                               "/scripts",
+                               "/slice",
+                               "/vb",
+                               "/vsaddin"])
 
 createDistfiles("UNIX", distFilesDir)
 
 ###### Windows distfiles 
 
 # No copy this time. Use the same .gitattributes file as the UNIX distfiles dist
-fixGitAttributes(False, True, "")
+fixGitAttributes(False, True, [])
 createDistfiles("Windows", winDistFilesDir)
 
 ###### UNIX source code distribution
-fixGitAttributes(True, False, """
-/distribution/ export-ignore
-/vsaddin/ export-ignore
-
-INSTALL.WIN* export-ignore
-*.rc export-ignore
-*.sln export-ignore
-*.csproj export-ignore
-*.vbproj export-ignore
-*.vcproj export-ignore
-*.vcxproj export-ignore
-*.vcxproj.filters export-ignore
-Make*mak* export-ignore
-Make.rules.msvc export-ignoreq
-.depend.mak export-ignore
-*.exe.config export-ignore
-/cpp/test/WinRT/ export-ignore
-/cpp/demo/*/*/generated/ export-ignore
-generated/client/ export-ignore
-generated/server/ export-ignore
-/cpp/demo/Ice/MFC/ export-ignore
-/cpp/demo/IcePatch2/MFC/ export-ignore
-/cpp/demo/Ice/winrt/ export-ignore
-/cpp/demo/Glacier/winrt/ export-ignore
-/cs/demo/Ice/sl/ export-ignore
-/cs/demo/Ice/compact/ export-ignore
-/cs/demo/Glacier2/sl/ export-ignore
-""")
+fixGitAttributes(True, False, ["/distribution",
+                               "/vsaddin",
+                               "INSTALL.WIN*",
+                               "*.rc",
+                               "*.sln",
+                               "*.csproj",
+                               "*.vbproj",
+                               "*.vcproj",
+                               "*.vcxproj",
+                               "*.vcxproj.filters",
+                               "Make*mak*",
+                               "Make.rules.msvc",
+                               ".depend.mak",
+                               "*.exe.config",
+                               "/cpp/test/WinRT",
+                               "/cpp/demo/**/generated",
+                               "/cs/demo/**/generated/*",
+                               "/cpp/demo/Ice/MFC",
+                               "/cpp/demo/IcePatch2/MFC",
+                               "/cpp/demo/Ice/winrt",
+                               "/cpp/demo/Glacier/winrt",
+                               "/cs/demo/Ice/sl",
+                               "/cs/demo/Ice/compact",
+                               "/cs/demo/Glacier2/sl"])
 
 #
 # Extract the sources with git archive using the given tag.
@@ -316,11 +313,7 @@ fixMakeRules(os.path.join("cpp", "config", "Make.rules"))
 print "ok"
 
 ###### Windows source code distribution
-fixGitAttributes(True, True, """
-/distribution/ export-ignore
-/demoscript/ export-ignore
-allDemos.py export-ignore
-""")
+fixGitAttributes(True, True, ["/distribution", "/demoscript", "allDemos.py"])
 
 # Don't remove Makefile from the Windows distribution since the
 # mingw build requires it.
