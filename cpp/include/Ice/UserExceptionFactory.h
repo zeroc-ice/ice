@@ -27,6 +27,6 @@ public:
 
 typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
-};
+}
 
 #endif
