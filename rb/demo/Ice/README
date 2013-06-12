@@ -31,3 +31,7 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
+
+- optional
+
+  This demo shows the use of the optional keyword.

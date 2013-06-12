@@ -7,13 +7,20 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..\..
+top_srcdir	= ../../..
 
-!include $(top_srcdir)\config\Make.rules.mak.php
+SLICE_SRCS	= Contact.ice
 
-SUBDIRS		= hello value optional
+include $(top_srcdir)/config/Make.rules.php
 
-$(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+SRCS	= Contact.php
+
+all:: $(SRCS)
+
+%.php: %.ice
+	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
+
+clean::
+	rm -f $(SRCS)
+
+include .depend

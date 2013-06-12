@@ -24,7 +24,9 @@ using namespace IcePHP;
 // Necessary to suppress warnings from ZEND_END_ARG_INFO.
 //
 #if defined(__GNUC__)
-#  pragma GCC diagnostic ignored "-Wnarrowing"
+#   if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
+#       pragma GCC diagnostic ignored "-Wnarrowing"
+#   endif
 #endif
 
 ZEND_DECLARE_MODULE_GLOBALS(ice)
@@ -39,7 +41,9 @@ ZEND_END_ARG_INFO()
 // enable warning again
 //
 #if defined(__GNUC__)
-#  pragma GCC diagnostic error "-Wnarrowing"
+#   if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
+#       pragma GCC diagnostic error "-Wnarrowing"
+#   endif
 #endif
 
 #define ICEPHP_COMMUNICATOR_FUNCTIONS \
