@@ -144,7 +144,13 @@ public class AllTests
             {
                 replyI.reset();
                 obj.sendByteSeq(seq, reply);
-                test(!replyI.waitReply(1, 500));
+                bool b = replyI.waitReply(1, 500);
+                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
+                // should not be delivered. However, Mono 2.10 on Ubuntu 13 does not obey this
+                // setting so the packet might be delivered successfully.
+                //
+                test(!b || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
             }
             catch(Ice.LocalException ex)
             {
