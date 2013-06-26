@@ -171,7 +171,12 @@ public class Subscriber
                 subId.name = Guid.NewGuid().ToString();
             }
             Ice.ObjectPrx subscriber = adapter.add(new ClockI(), subId);
-            
+
+            //
+            // Activate the object adapter before subscribing.
+            //
+            adapter.activate();
+
             Dictionary<string, string> qos = new Dictionary<string, string>();
             if(retryCount != null)
             {
@@ -211,7 +216,7 @@ public class Subscriber
                     subscriber = subscriber.ice_oneway();
                 }
             }
-            
+
             try
             {
                 topic.subscribeAndGetPublisher(qos, subscriber);
@@ -225,8 +230,6 @@ public class Subscriber
                 }
                 System.Console.Out.WriteLine("reactivating persistent subscriber");
             }
-
-            adapter.activate();
 
             shutdownOnInterrupt();
             communicator().waitForShutdown();

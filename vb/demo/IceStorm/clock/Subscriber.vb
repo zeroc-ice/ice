@@ -88,6 +88,11 @@ Module ClockS
 
             Dim subscriber As Ice.ObjectPrx = adapter.addWithUUID(New ClockI)
 
+            '
+            ' Activate the object adapter before subscribing.
+            '
+            adapter.activate()
+
             Dim qos As Dictionary(Of String, String) = New Dictionary(Of String, String)()
 
 	    '
@@ -112,7 +117,6 @@ Module ClockS
     	    End If
 
 	    topic.subscribeAndGetPublisher(qos, subscriber)
-            adapter.activate()
 
             shutdownOnInterrupt()
             communicator().waitForShutdown()

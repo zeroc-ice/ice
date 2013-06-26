@@ -171,6 +171,11 @@ public class Subscriber extends Ice.Application
         }
         Ice.ObjectPrx subscriber = adapter.add(new ClockI(), subId);
 
+        //
+        // Activate the object adapter before subscribing.
+        //
+        adapter.activate();
+
         java.util.Map<String, String> qos = new java.util.HashMap<String, String>();
         if(retryCount != null)
         {
@@ -233,7 +238,6 @@ public class Subscriber extends Ice.Application
             e.printStackTrace();
             return 1;
         }
-        adapter.activate();
 
         shutdownOnInterrupt();
         communicator().waitForShutdown();

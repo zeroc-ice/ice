@@ -193,6 +193,11 @@ Subscriber::run(int argc, char* argv[])
     }
     Ice::ObjectPrx subscriber = adapter->add(new ClockI, subId);
 
+    //
+    // Activate the object adapter before subscribing.
+    //
+    adapter->activate();
+
     IceStorm::QoS qos;
     if(!retryCount.empty())
     {
@@ -247,7 +252,6 @@ Subscriber::run(int argc, char* argv[])
         }
         cout << "reactivating persistent subscriber" << endl;
     }
-    adapter->activate();
 
     shutdownOnInterrupt();
     communicator()->waitForShutdown();

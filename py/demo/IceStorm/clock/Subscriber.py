@@ -107,6 +107,11 @@ class Subscriber(Ice.Application):
             subId.name = Ice.generateUUID()
         subscriber = adapter.add(ClockI(), subId)
 
+        #
+        # Activate the object adapter before subscribing.
+        #
+        adapter.activate()
+
         qos = {}
         if len(retryCount) > 0:
             qos["retryCount"] = retryCount
@@ -138,8 +143,6 @@ class Subscriber(Ice.Application):
             if len(id) == 0:
                 raise
             print("reactivating persistent subscriber")
-
-        adapter.activate()
 
         self.shutdownOnInterrupt()
         self.communicator().waitForShutdown()
