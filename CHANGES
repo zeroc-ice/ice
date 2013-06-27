@@ -35,6 +35,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed file descriptor leak that would occur if an object adapter
+  listened on a UDP endpoint (one descriptor leaked per UDP endpoint).
+
 - Fixed a bug that could cause an unexpected exception to be thrown on
   plugin loading and if a plugin property specified both a path and
   version.
