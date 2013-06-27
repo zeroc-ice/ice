@@ -9,13 +9,14 @@
 
 top_srcdir	= ../../..
 
-PLUGINLIBFILENAME	= $(call mklibfilename,TestPlugin,$(VERSION))
-PLUGINSONAME		= $(call mksoname,TestPlugin,$(SOVERSION))  
-PLUGINLIBNAME		= $(call mklibname,TestPlugin)
-CLIENT			= $(call mktestname,client)
-PLUGINDIR		= plugins
+LIBFILENAME	= $(call mklibfilename,TestPlugin,$(VERSION))
+SONAME		= $(call mksoname,TestPlugin,$(SOVERSION))
+LIBNAME		= $(call mklibname,TestPlugin)
+CLIENT		= $(call mktestname,client)
+PLUGINDIR	= plugins
 
-TARGETS		= $(CLIENT) $(call mklibtargets,$(PLUGINDIR)/$(PLUGINLIBFILENAME),$(PLUGINDIR)/$(PLUGINSONAME),$(PLUGINDIR)/$(PLUGINLIBNAME))
+TARGETS		= $(CLIENT) \
+		  $(call mklibtargets,$(PLUGINDIR)/$(LIBFILENAME),$(PLUGINDIR)/$(SONAME),$(PLUGINDIR)/$(LIBNAME))
 
 COBJS		= Client.o \
 
@@ -35,17 +36,16 @@ $(CLIENT): $(COBJS)
 	rm -f $@
 	$(call mktest,$@,$(COBJS),$(LIBS))
 
-$(PLUGINDIR)/$(PLUGINLIBFILENAME): $(POBJS)
+$(PLUGINDIR)/$(LIBFILENAME): $(POBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(PLUGINSONAME),$(POBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(POBJS),$(LINKWITH))
 
-$(PLUGINDIR)/$(PLUGINSONAME): $(PLUGINDIR)/$(PLUGINLIBFILENAME)
+$(PLUGINDIR)/$(SONAME): $(PLUGINDIR)/$(LIBFILENAME)
 	rm -f $@
-	ln -s $(PLUGINLIBFILENAME) $@
+	ln -s $(LIBFILENAME) $@
 
-$(PLUGINDIR)/$(PLUGINLIBNAME): $(PLUGINDIR)/$(PLUGINSONAME)
+$(PLUGINDIR)/$(LIBNAME): $(PLUGINDIR)/$(SONAME)
 	rm -f $@
-	ln -s $(PLUGINSONAME) $@
-
+	ln -s $(SONAME) $@
 
 include .depend

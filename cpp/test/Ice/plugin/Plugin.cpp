@@ -20,9 +20,8 @@ class Plugin : public Ice::Plugin
 
 public:
 
-    Plugin(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args) :
+    Plugin(const Ice::CommunicatorPtr& communicator) :
          _communicator(communicator),
-         _args(args),
          _initialized(false),
          _destroyed(false)
     {
@@ -32,10 +31,6 @@ public:
     initialize()
     {
         _initialized = true;
-        test(_args.size() == 3);
-        test(_args[0] == "C:\\Program Files\\");
-        test(_args[1] == "--DatabasePath");
-        test(_args[2] == "C:\\Program Files\\Application\\db");
     }
 
     void
@@ -363,7 +358,17 @@ extern "C"
 ICE_DECLSPEC_EXPORT ::Ice::Plugin*
 createPlugin(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq& args)
 {
-    return new Plugin(communicator, args);
+    return new Plugin(communicator);
+}
+
+ICE_DECLSPEC_EXPORT ::Ice::Plugin*
+createPluginWithArgs(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq& args)
+{
+    test(args.size() == 3);
+    test(args[0] == "C:\\Program Files\\");
+    test(args[1] == "--DatabasePath");
+    test(args[2] == "C:\\Program Files\\Application\\db");
+    return new Plugin(communicator);
 }
 
 ICE_DECLSPEC_EXPORT ::Ice::Plugin*

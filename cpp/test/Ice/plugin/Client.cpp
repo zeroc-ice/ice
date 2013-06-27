@@ -79,8 +79,71 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.Plugin.Test", "plugins/TestPlugin:createPlugin");
+        communicator = Ice::initialize(argc, argv, initData);
+        communicator->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    try
+    {
+        int majorVersion = (ICE_INT_VERSION / 10000);
+        int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
+        ostringstream os;
+        os << "plugins/TestPlugin,";
+        os << majorVersion * 10 + minorVersion;
+        int patchVersion = ICE_INT_VERSION % 100;
+        if(patchVersion > 50)
+        {
+            os << 'b';
+            if(patchVersion >= 52)
+            {
+                os << (patchVersion - 50);
+            }
+        }
+        os << ":createPlugin";
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.Plugin.Test", os.str());
+        communicator = Ice::initialize(argc, argv, initData);
+        communicator->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.Plugin.Test", "plugins/TestPlugin,10:createPlugin");
+        communicator = Ice::initialize(argc, argv, initData);
+        test(false);
+    }
+    catch(const Ice::PluginInitializationException&)
+    {
+    }
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.Plugin.Test", "TestPlugin,1.0.0:createPlugin");
+        communicator = Ice::initialize(argc, argv, initData);
+        test(false);
+    }
+    catch(const Ice::PluginInitializationException&)
+    {
+    }
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Plugin.Test",
-            "plugins/TestPlugin:createPlugin 'C:\\Program Files\\' --DatabasePath "
+            "plugins/TestPlugin:createPluginWithArgs 'C:\\Program Files\\' --DatabasePath "
             "'C:\\Program Files\\Application\\db'" );
         communicator = Ice::initialize(argc, argv, initData);
         communicator->destroy();

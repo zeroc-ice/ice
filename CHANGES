@@ -35,6 +35,10 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a bug that could cause an unexpected exception to be thrown on
+  plugin loading and if a plugin property specified both a path and
+  version.
+
 - Fixed a bug in slice2cpp that generated invalid C++ code for C++11
   asynchronous invocations.
 

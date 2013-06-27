@@ -65,9 +65,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
 #endif
 
-    string::size_type comma = entryPoint.find(',');
-    if(colon == string::npos || colon == entryPoint.size() - 1 ||
-        (comma != string::npos && (comma > colon || comma == colon - 1)))
+    if(colon == string::npos || colon == entryPoint.size() - 1)
     {
         _err = "invalid entry point format `" + entryPoint + "'";
         return 0;
@@ -78,22 +76,17 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     string libPath, libName, version, debug;
 
 #ifdef _WIN32
-    bool isFilePath = libSpec.find('\\') != string::npos || entryPoint.find('/') != string::npos;
+    string::size_type separator = libSpec.find_last_of("/\\");
 #else
-    bool isFilePath = libSpec.find('/') != string::npos;
+    string::size_type separator = libSpec.rfind('/');
 #endif
-
-    if(isFilePath)
+    if(separator != string::npos)
     {
-#ifdef _WIN32
-        string::size_type separator = libSpec.find_last_of("/\\");
-#else
-        string::size_type separator = libSpec.rfind('/');
-#endif
         libPath = libSpec.substr(0, separator + 1);
         libSpec = libSpec.substr(separator + 1);
     }
 
+    string::size_type comma = libSpec.find(',');
     if(comma == string::npos)
     {
         libName = libSpec;
@@ -118,6 +111,11 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
     else
     {
+        if(comma == libSpec.size() - 1)
+        {
+            _err = "invalid entry point format `" + entryPoint + "'";
+            return 0;
+        }
         libName = libSpec.substr(0, comma);
         version = libSpec.substr(comma + 1);
     }
