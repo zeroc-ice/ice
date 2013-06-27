@@ -2079,10 +2079,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 //
                 // If we are in the closed state, don't continue sending.
+                //
+                // The connection can be in the closed state if parseMessage
+                // (called before sendNextMessage by message()) closes the
+                // connection.
                 // 
                 if(_state >= StateClosed)
                 {
-                    break;
+                    return callbacks;
                 }
         
                 //

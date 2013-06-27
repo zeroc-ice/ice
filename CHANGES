@@ -31,6 +31,10 @@ General Changes
   Java. This allows outgoing TCP & SSL connections using IPv4 to be
   mediated by a network proxy service.
 
+- Fixed bug which could cause an unexcepted exception or error on
+  connection closure and if the connection was closed shortly before
+  sending pending messages.
+
 
 C++ Changes
 ===========
