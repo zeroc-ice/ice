@@ -233,12 +233,12 @@ public:
         _enabled = enabled;
     }
 };
+typedef IceUtil::Handle<FactoryI> FactoryIPtr;
 
 InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool)
-{
-    FactoryI* factory = new FactoryI();
-    Ice::ObjectFactoryPtr f(factory);
+{ 
+    FactoryIPtr factory = new FactoryI();
     communicator->addObjectFactory(factory, "");
 
     cout << "testing stringToProxy... " << flush;
