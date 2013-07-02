@@ -22,7 +22,6 @@ class Dispatcher : public Ice::Dispatcher, IceUtil::Thread, IceUtil::Monitor<Ice
 public:
 
     Dispatcher();
-    virtual ~Dispatcher();
 
     virtual void dispatch(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
     

@@ -15,6 +15,8 @@
 
 using namespace std;
 
+DEFINE_TEST("server")
+
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
@@ -24,6 +26,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter->add(new Test2::WstringClassI, communicator->stringToIdentity("wstring2"));
 
     adapter->activate();
+    TEST_READY
     communicator->waitForShutdown();
 
     return EXIT_SUCCESS;

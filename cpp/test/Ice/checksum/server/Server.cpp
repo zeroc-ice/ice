@@ -9,8 +9,11 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
+
+DEFINE_TEST("server")
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
@@ -20,6 +23,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPtr object = new ChecksumI();
     adapter->add(object, communicator->stringToIdentity("test"));
     adapter->activate();
+    TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

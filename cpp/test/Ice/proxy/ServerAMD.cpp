@@ -22,7 +22,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
     adapter->activate();
-
+    TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

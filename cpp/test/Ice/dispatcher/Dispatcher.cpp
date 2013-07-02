@@ -21,11 +21,6 @@ Dispatcher::Dispatcher()
     __setNoDelete(false);
 }
 
-Dispatcher::~Dispatcher()
-{
-    _instance = 0;
-}
-
 void
 Dispatcher::dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
 {
@@ -47,6 +42,7 @@ Dispatcher::terminate()
     }
 
     _instance->getThreadControl().join();
+    _instance = 0;
 }
 
 bool

@@ -12,6 +12,8 @@
 #include <TestCommon.h>
 #include <TestAMDI.h>
 
+DEFINE_TEST("serveramd")
+
 using namespace std;
 using namespace Ice;
 
@@ -68,33 +70,55 @@ public:
     }
 };
 
-class TestServer : public Application
+int
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-public:
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+    communicator->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
 
-    virtual int run(int, char*[]);
-};
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    
+    adapter->addServantLocator(new ServantLocatorAMDI(""), "");
+    adapter->addServantLocator(new ServantLocatorAMDI("category"), "category");
+    adapter->add(new TestAMDI, communicator->stringToIdentity("asm"));
+    adapter->add(new TestActivationI, communicator->stringToIdentity("test/activation"));
+    adapter->activate();
+    TEST_READY
+    adapter->waitForDeactivate();
+    return EXIT_SUCCESS;
+}
 
 int
 main(int argc, char* argv[])
 {
-    TestServer app;
-    return app.main(argc, argv);
-}
+    int status;
+    Ice::CommunicatorPtr communicator;
 
-int
-TestServer::run(int, char**)
-{
-    communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-    communicator()->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
+    }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    
-    adapter->addServantLocator(new ServantLocatorAMDI(""), "");
-    adapter->addServantLocator(new ServantLocatorAMDI("category"), "category");
-    adapter->add(new TestAMDI, communicator()->stringToIdentity("asm"));
-    adapter->add(new TestActivationI, communicator()->stringToIdentity("test/activation"));
-    adapter->activate();
-    adapter->waitForDeactivate();
-    return EXIT_SUCCESS;
+    if(communicator)
+    {
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
+    }
+
+    return status;
 }

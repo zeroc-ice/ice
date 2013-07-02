@@ -15,6 +15,8 @@
 #include <AMDInterceptorI.h>
 #include <iostream>
 
+DEFINE_TEST("client")
+
 #ifndef _WIN32
 //
 // SIGPIPE test

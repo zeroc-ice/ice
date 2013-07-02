@@ -14,6 +14,8 @@
 
 using namespace std;
 
+DEFINE_TEST("client")
+
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {

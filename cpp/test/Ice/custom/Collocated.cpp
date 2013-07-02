@@ -15,6 +15,8 @@
 
 using namespace std;
 
+DEFINE_TEST("collocated")
+
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {

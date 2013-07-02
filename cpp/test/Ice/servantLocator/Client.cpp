@@ -11,29 +11,51 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
-using namespace Ice;
 using namespace Test;
 
-class TestClient : public Application
+int
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-public:
-
-    virtual int run(int, char*[]);
-};
+    TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);
+    TestIntfPrx obj = allTests(communicator, false);
+    obj->shutdown();
+    return EXIT_SUCCESS;
+}
 
 int
 main(int argc, char* argv[])
 {
-    TestClient app;
-    return app.main(argc, argv);
-}
+    int status;
+    Ice::CommunicatorPtr communicator;
 
-int
-TestClient::run(int, char**)
-{
-    TestIntfPrx allTests(const CommunicatorPtr&, bool);
-    TestIntfPrx obj = allTests(communicator(), false);
-    obj->shutdown();
-    return EXIT_SUCCESS;
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
+    }
+
+    if(communicator)
+    {
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
+    }
+
+    return status;
 }

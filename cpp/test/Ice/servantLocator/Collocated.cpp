@@ -13,6 +13,8 @@
 #include <Test.h>
 #include <TestI.h>
 
+DEFINE_TEST("collocated")
+
 using namespace std;
 using namespace Ice;
 
@@ -69,32 +71,53 @@ public:
     }
 };
 
-class TestServer : public Application
+int
+run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-public:
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    adapter->addServantLocator(new ServantLocatorI(""), "");
+    adapter->addServantLocator(new ServantLocatorI("category"), "category");
+    adapter->add(new TestI, communicator->stringToIdentity("asm"));
+    adapter->add(new TestActivationI, communicator->stringToIdentity("test/activation"));
 
-    virtual int run(int, char*[]);
-};
+    Test::TestIntfPrx allTests(const CommunicatorPtr&, bool);
+    allTests(communicator, true);
+
+    return EXIT_SUCCESS;
+}
 
 int
 main(int argc, char* argv[])
 {
-    TestServer app;
-    return app.main(argc, argv);
-}
+    int status;
+    Ice::CommunicatorPtr communicator;
 
-int
-TestServer::run(int, char**)
-{
-    communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    adapter->addServantLocator(new ServantLocatorI(""), "");
-    adapter->addServantLocator(new ServantLocatorI("category"), "category");
-    adapter->add(new TestI, communicator()->stringToIdentity("asm"));
-    adapter->add(new TestActivationI, communicator()->stringToIdentity("test/activation"));
+    try
+    {
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
+    }
 
-    Test::TestIntfPrx allTests(const CommunicatorPtr&, bool);
-    allTests(communicator(), true);
+    if(communicator)
+    {
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
+    }
 
-    return EXIT_SUCCESS;
+    return status;
 }
