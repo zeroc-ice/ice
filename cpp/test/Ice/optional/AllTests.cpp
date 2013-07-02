@@ -1393,7 +1393,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(!p2 && !p3);
 
         vector<Ice::Float> bs(100);
-        fill(bs.begin(), bs.end(), 1.0);
+        fill(bs.begin(), bs.end(), 1.0f);
 #if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
         std::pair<const Ice::Float*, const Ice::Float*> cpair(&bs[0], &bs[0] + bs.size());
         p1 = cpair;
@@ -1702,7 +1702,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             test(!ex.ss);
             test(!ex.o2);
         }
-        catch(const OptionalException& ex)
+        catch(const OptionalException&)
         {
             test(false);
         }
@@ -1723,7 +1723,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             test(ex.ss == "test2");
             test((*ex.o2)->a == 53);
         }
-        catch(const OptionalException& ex)
+        catch(const OptionalException&)
         {
             test(false);
         }
@@ -1744,7 +1744,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             test(ex.ss == "test");
             test(!ex.o2);
         }
-        catch(const OptionalException& ex)
+        catch(const OptionalException&)
         {
             test(false);
         }
@@ -1765,7 +1765,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
             test(ex.ss == "test2");
             test(ex.o2->a == 53);
         }
-        catch(const OptionalException& ex)
+        catch(const OptionalException&)
         {
             test(false);
         }
