@@ -14,7 +14,6 @@ import java.io.RandomAccessFile;
 import java.io.FileWriter;
 import java.nio.channels.FileChannel;
 import java.nio.channels.OverlappingFileLockException;
-import java.lang.management.ManagementFactory;
 
 public final class FileLock
 {
@@ -71,17 +70,26 @@ public final class FileLock
                 // The output is JVM dependent. With the Sun
                 // implementation it's `pid@hostname'
                 //
-                _randFile.writeUTF(ManagementFactory.getRuntimeMXBean().getName());
+                Class<?> fC = IceInternal.Util.findClass("java.lang.management.ManagementFactory", null);
+                Class<?> mC = IceInternal.Util.findClass("java.lang.management.RuntimeMXBean", null);
+
+                java.lang.reflect.Method getRuntimeMXBean = fC.getDeclaredMethod("getRuntimeMXBean", (Class<?>[])null);
+
+                java.lang.reflect.Method getName = mC.getDeclaredMethod("getName", (Class<?>[])null);
+
+                Object mxBean = getRuntimeMXBean.invoke(null);
+
+                _randFile.writeUTF((String)getName.invoke(mxBean));
 
                 //
                 // Don't close _randFile here or the lock will be released. It is called
                 // during release see comments there.
                 //
             }
-            catch(java.io.IOException ex)
+            catch(java.lang.Exception ex)
             {
                 release();
-                throw new IceUtil.FileLockException(path);
+                throw new IceUtil.FileLockException(path, ex);
             }
         }
     }
