@@ -55,12 +55,11 @@ namespace IceSSL
             //
             _defaultDir = properties.getProperty(prefix + "DefaultDir");
 
-
             string keySet = properties.getPropertyWithDefault(prefix + "KeySet", "DefaultKeySet");
             if(!keySet.Equals("DefaultKeySet") && !keySet.Equals("UserKeySet") && !keySet.Equals("MachineKeySet"))
             {
-                keySet = "DefaultKeySet";
                 _logger.warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet'");
+                keySet = "DefaultKeySet";
             }
 
             X509KeyStorageFlags keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
