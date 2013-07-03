@@ -1040,13 +1040,13 @@ public class Configuration
     public void removeLibrary(IJavaProject project, String lib)
         throws CoreException
     {
-        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_JAR_HOME/lib/" + lib), null, null);
+        Path path = new Path("ICE_JAR_HOME/" + lib);
         
         IClasspathEntry[] entries = project.getRawClasspath();
     
         for(int i = 0; i < entries.length; ++i)
         {
-            if(entries[i].equals(cpEntry))
+            if(entries[i].getPath().equals(path))
             {
                 IClasspathEntry[] newEntries = new IClasspathEntry[entries.length - 1];
                 System.arraycopy(entries, 0, newEntries, 0, i);
