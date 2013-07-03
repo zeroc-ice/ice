@@ -20,31 +20,13 @@
 using namespace std;
 using namespace IcePHP;
 
-//
-// Necessary to suppress warnings from ZEND_END_ARG_INFO.
-//
-#if defined(__GNUC__)
-#   if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-#       pragma GCC diagnostic ignored "-Wnarrowing"
-#   endif
-#endif
-
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
-ZEND_BEGIN_ARG_INFO(Ice_initialize_arginfo, 1)
+ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_uint>(-1))
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(Ice_createProperties_arginfo, 1)
+ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_uint>(-1))
 ZEND_END_ARG_INFO()
-
-//
-// enable warning again
-//
-#if defined(__GNUC__)
-#   if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-#       pragma GCC diagnostic error "-Wnarrowing"
-#   endif
-#endif
 
 #define ICEPHP_COMMUNICATOR_FUNCTIONS \
     ZEND_FE(Ice_initialize, Ice_initialize_arginfo) \
