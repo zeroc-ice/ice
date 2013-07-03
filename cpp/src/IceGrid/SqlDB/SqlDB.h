@@ -54,6 +54,7 @@ public:
     virtual void initialize();
     virtual void destroy();
     
+    bool initDB();
     ConnectionPoolPtr getConnectionPool();
 
 private:

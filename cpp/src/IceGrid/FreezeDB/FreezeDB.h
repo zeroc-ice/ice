@@ -39,6 +39,7 @@ public:
     void initialize();
     void destroy();
     
+    bool initDB();
     ConnectionPoolPtr getConnectionPool();
 
 private:

@@ -53,6 +53,7 @@ class DatabasePlugin : virtual public Ice::Plugin
 {
 public:
 
+    virtual bool initDB() = 0;
     virtual ConnectionPoolPtr getConnectionPool() = 0;
 };
 typedef IceUtil::Handle<DatabasePlugin> DatabasePluginPtr;

@@ -131,36 +131,47 @@ FreezeConnectionPool::getInternalObjects(const IceDB::DatabaseConnectionPtr& con
 
 FreezeDBPlugin::FreezeDBPlugin(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
 {
-    string dbPath = _communicator->getProperties()->getProperty("IceGrid.Registry.Data");
-    if(dbPath.empty())
-    {
-        throw Ice::PluginInitializationException(__FILE__, __LINE__, "property `IceGrid.Registry.Data' is not set");
-    }
-    else
-    {
-        if(!IceUtilInternal::directoryExists(dbPath))
-        {
-            ostringstream os;
-            Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSystemErrno();
-            os << "property `IceGrid.Registry.Data' is set to an invalid path:\n" << ex;
-            throw Ice::PluginInitializationException(__FILE__, __LINE__, os.str());
-        }
-    }
-
-    _communicator->getProperties()->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
 }
 
 void
 FreezeDBPlugin::initialize()
 {
-    _connectionPool = new FreezeConnectionPool(_communicator);
 }
 
 void
 FreezeDBPlugin::destroy()
 {
     _connectionPool = 0;
+}
+
+bool
+FreezeDBPlugin::initDB()
+{
+    string dbPath = _communicator->getProperties()->getProperty("IceGrid.Registry.Data");
+    if(dbPath.empty())
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "property `IceGrid.Registry.Data' is not set";
+        return false;
+    }
+    else
+    {
+        if(!IceUtilInternal::directoryExists(dbPath))
+        {            
+            Ice::SyscallException ex(__FILE__, __LINE__);
+            ex.error = IceInternal::getSystemErrno();
+
+            Ice::Error out(_communicator->getLogger());
+            out << "property `IceGrid.Registry.Data' is set to an invalid path:\n" << ex;
+            return false;
+        }
+    }
+
+    _communicator->getProperties()->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
+
+    _connectionPool = new FreezeConnectionPool(_communicator);
+
+    return true;
 }
 
 ConnectionPoolPtr

@@ -372,7 +372,11 @@ RegistryI::startImpl()
         out << "no database plugin configured with `Ice.Plugin.DB' or plugin is not a database plugin";
         return false;
     }
-    
+    if(!plugin->initDB())
+    {
+        return false;
+    }
+
     _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), plugin, _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
