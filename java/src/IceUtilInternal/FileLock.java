@@ -15,6 +15,8 @@ import java.io.FileWriter;
 import java.nio.channels.FileChannel;
 import java.nio.channels.OverlappingFileLockException;
 
+import java.lang.reflect.Method;
+
 public final class FileLock
 {
     //
@@ -70,23 +72,52 @@ public final class FileLock
                 // The output is JVM dependent. With the Sun
                 // implementation it's `pid@hostname'
                 //
-                Class<?> fC = IceInternal.Util.findClass("java.lang.management.ManagementFactory", null);
-                Class<?> mC = IceInternal.Util.findClass("java.lang.management.RuntimeMXBean", null);
+                try
+                {
+                    //
+                    // We access java.lang.management classes using reflection
+                    // because these classes are not available with Android 
+                    // Dalvik JVM.
+                    //
+                    if(!System.getProperty("java.vm.name").startsWith("Dalvik"))
+                    {
+                        Class<?> fC = IceInternal.Util.findClass("java.lang.management.ManagementFactory", null);
+                        Class<?> mC = IceInternal.Util.findClass("java.lang.management.RuntimeMXBean", null);
 
-                java.lang.reflect.Method getRuntimeMXBean = fC.getDeclaredMethod("getRuntimeMXBean", (Class<?>[])null);
+                        Method getRuntimeMXBean = fC.getDeclaredMethod("getRuntimeMXBean", (Class<?>[])null);
 
-                java.lang.reflect.Method getName = mC.getDeclaredMethod("getName", (Class<?>[])null);
+                        Method getName = mC.getDeclaredMethod("getName", (Class<?>[])null);
 
-                Object mxBean = getRuntimeMXBean.invoke(null);
-
-                _randFile.writeUTF((String)getName.invoke(mxBean));
-
+                        Object mxBean = getRuntimeMXBean.invoke(null);
+                        _randFile.writeUTF((String)getName.invoke(mxBean));
+                    }
+                    else
+                    {
+                        //
+                        // In Android with Dalvik we can use android.os.Process to get the
+                        // process pid. That is done using reflection because it is specific 
+                        // for Android Dalvik VM.
+                        //
+                        Class<?> pC = IceInternal.Util.findClass("android.os.Process", null);
+                        Method myPid = pC.getDeclaredMethod("myPid", (Class<?>[])null);
+                        _randFile.writeUTF(((Integer)myPid.invoke(null)).toString());
+                    }
+                }
+                catch(NoSuchMethodException ex)
+                {
+                }
+                catch(IllegalAccessException ex)
+                {
+                }
+                catch(java.lang.reflect.InvocationTargetException ex)
+                {
+                }
                 //
                 // Don't close _randFile here or the lock will be released. It is called
                 // during release see comments there.
                 //
             }
-            catch(java.lang.Exception ex)
+            catch(java.io.IOException ex)
             {
                 release();
                 throw new IceUtil.FileLockException(path, ex);
