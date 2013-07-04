@@ -152,6 +152,12 @@ ThrowerI::throwAssertException(const Ice::Current&)
     assert(false); // Not supported in C++.
 }
 
+Ice::ByteSeq
+ThrowerI::throwMemoryLimitException(const Ice::ByteSeq&, const Ice::Current&)
+{
+    return Ice::ByteSeq(1024 * 20); // 20 KB.
+}
+
 void
 ThrowerI::throwLocalExceptionIdempotent(const Ice::Current&)
 {

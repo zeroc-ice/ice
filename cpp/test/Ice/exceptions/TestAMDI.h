@@ -58,6 +58,8 @@ public:
                                             const Ice::Current&);
     virtual void throwAssertException_async(const Test::AMD_Thrower_throwAssertExceptionPtr&,
                                             const Ice::Current&);
+    virtual void throwMemoryLimitException_async(const Test::AMD_Thrower_throwMemoryLimitExceptionPtr&,
+                                                 const Ice::ByteSeq&, const Ice::Current&);
 
     virtual void throwLocalExceptionIdempotent_async(const Test::AMD_Thrower_throwLocalExceptionIdempotentPtr&,
                                                      const Ice::Current&);

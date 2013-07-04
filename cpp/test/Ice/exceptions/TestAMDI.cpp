@@ -196,6 +196,14 @@ ThrowerI::throwAssertException_async(const AMD_Thrower_throwAssertExceptionPtr&,
 }
 
 void
+ThrowerI::throwMemoryLimitException_async(const AMD_Thrower_throwMemoryLimitExceptionPtr& cb,
+                                          const Ice::ByteSeq&, const Ice::Current&)
+{
+    cb->ice_response(Ice::ByteSeq(1024 * 20)); // 20 KB.
+}
+
+
+void
 ThrowerI::throwLocalExceptionIdempotent_async(const AMD_Thrower_throwLocalExceptionIdempotentPtr& cb,
                                               const Ice::Current&)
 {

@@ -271,6 +271,40 @@ function allTests($communicator)
         echo "ok\n";
     }
 
+    {
+        echo "testing memory limit marshal exception...";
+        flush();
+        try
+        {
+            $thrower->throwMemoryLimitException(array(0x00));
+            test(false);
+        }
+        catch(Exception $ex)
+        {
+            $uue = $NS ? "Ice\\UnknownLocalException" : "Ice_UnknownLocalException";
+            if(!($ex instanceof $uue))
+            {
+                throw $ex;
+            }
+        }
+
+        try
+        {
+            $thrower->throwMemoryLimitException(array_pad(array(), 20 * 1024, 0x00));
+            test(false);
+        }
+        catch(Exception $ex)
+        {
+            $uue = $NS ? "Ice\\MemoryLimitException" : "Ice_MemoryLimitException";
+            if(!($ex instanceof $uue))
+            {
+                throw $ex;
+            }
+        }
+
+        echo "ok\n";
+    }
+
     echo "catching object not exist exception... ";
     flush();
 
@@ -393,7 +427,10 @@ function allTests($communicator)
     return $thrower;
 }
 
-$communicator = Ice_initialize($argv);
+$initData = new Ice_InitializationData;
+$initData->properties = Ice_getProperties();
+$initData->properties->setProperty("Ice.MessageSizeMax", "10");
+$communicator = Ice_initialize($argv, $initData);
 $thrower = allTests($communicator);
 $thrower->shutdown();
 $communicator->destroy();

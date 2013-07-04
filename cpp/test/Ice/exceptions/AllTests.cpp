@@ -1343,6 +1343,53 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cout << "ok" << endl;
     }
 
+    {
+        cout << "testing memory limit marshal exception..." << flush;
+        try
+        {
+            thrower->throwMemoryLimitException(Ice::ByteSeq());
+            test(collocated);
+        }
+        catch(const Ice::UnknownLocalException&)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+
+        try
+        {
+            thrower->throwMemoryLimitException(Ice::ByteSeq(20 * 1024)); // 20KB
+            test(collocated);
+        }
+        catch(const Ice::MemoryLimitException& ex)
+        {
+        }
+        catch(...)
+        {
+            test(false);
+        }
+            
+        if(!collocated)
+        {
+            try
+            {
+                thrower->end_throwMemoryLimitException(
+                    thrower->begin_throwMemoryLimitException(Ice::ByteSeq(20 * 1024))); // 20KB
+                test(false);
+            }
+            catch(const Ice::MemoryLimitException&)
+            {
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
+        cout << "ok" << endl;
+    }
+
     cout << "catching object not exist exception... " << flush;
 
     Ice::Identity id = communicator->stringToIdentity("does not exist");

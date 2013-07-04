@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <Ice/BuiltinSequences.ice>
+
 module Test
 {
 
@@ -55,6 +57,7 @@ exception D
     void throwUndeclaredC(int a, int b, int c);
     void throwLocalException();
     void throwNonIceException();
+    Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
 };

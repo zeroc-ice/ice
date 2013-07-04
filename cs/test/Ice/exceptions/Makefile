@@ -28,7 +28,7 @@ include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
+SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)

@@ -1308,6 +1308,54 @@ public class AllTests : TestCommon.TestApp
             WriteLine("ok");
         }
 
+        Write("testing memory limit marshal exception...");
+        Flush();
+        {
+            try
+            {
+                thrower.throwMemoryLimitException(null);
+                test(collocated);
+            }
+            catch(Ice.UnknownLocalException)
+            {
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+
+            try
+            {
+                thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
+                test(collocated);
+            }
+            catch(Ice.MemoryLimitException)
+            {
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+            
+            if(!collocated)
+            {
+                try
+                {
+                    thrower.end_throwMemoryLimitException(
+                        thrower.begin_throwMemoryLimitException(new byte[20 * 1024])); // 20KB
+                    test(false);
+                }
+                catch(Ice.MemoryLimitException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
+        }
+        WriteLine("ok");
+
         Write("catching object not exist exception... ");
         Flush();
 

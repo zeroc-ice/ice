@@ -11,7 +11,12 @@
 import os, sys, traceback
 
 import Ice
-Ice.loadSlice('Test.ice')
+slice_dir = Ice.getSliceDir()
+if not slice_dir:
+    print(sys.argv[0] + ': Slice directory not found.')
+    sys.exit(1)
+
+Ice.loadSlice('"-I' + slice_dir + '" Test.ice')
 import AllTests
 
 def run(args, communicator):
@@ -20,7 +25,10 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties.setProperty("Ice.MessageSizeMax", "10")
+    communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:
     traceback.print_exc()

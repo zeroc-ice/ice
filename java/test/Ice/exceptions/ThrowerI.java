@@ -155,6 +155,12 @@ public final class ThrowerI extends _ThrowerDisp
         throw new java.lang.AssertionError();
     }
 
+    public byte[]
+    throwMemoryLimitException(byte[] seq, Ice.Current current)
+    {
+        return new byte[1024 * 20]; // 20KB is over the configured 10KB message size max.
+    }
+
     public void
     throwAfterResponse(Ice.Current current)
     {

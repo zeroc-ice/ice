@@ -34,16 +34,20 @@ public class Client
 
         try
         {
-            Ice.InitializationData data = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties();
 #if COMPACT
             //
             // When using Ice for .NET Compact Framework, we need to specify
             // the assembly so that Ice can locate classes and exceptions.
             //
-            data.properties = Ice.Util.createProperties();
-            data.properties.setProperty("Ice.FactoryAssemblies", "client");
+            initData.properties.setProperty("Ice.FactoryAssemblies", "client");
 #endif
-            communicator = Ice.Util.initialize(ref args, data);
+            // We don't need to disable warnings because we have a dummy logger.
+            //initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+            initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(System.Exception ex)

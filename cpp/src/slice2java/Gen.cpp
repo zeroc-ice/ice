@@ -6877,7 +6877,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 out << eb;
                 out << nl << "catch(Ice.LocalException __ex)";
                 out << sb;
-                out << nl << "ice_exception(__ex);";
+                out << nl << "__exception(__ex);";
+                out << nl << "return;";
                 out << eb;
             }
             else

@@ -16,6 +16,7 @@ import test.Ice.exceptions.AMD.Test.AMD_Thrower_supportsUndeclaredExceptions;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAasA;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAorDasAorD;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAssertException;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwMemoryLimitException;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwBasA;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwBasB;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasA;
@@ -186,6 +187,12 @@ public final class AMDThrowerI extends _ThrowerDisp
     throwAssertException_async(AMD_Thrower_throwAssertException cb, Ice.Current current)
     {
         throw new java.lang.AssertionError();
+    }
+
+    public void
+    throwMemoryLimitException_async(AMD_Thrower_throwMemoryLimitException cb, byte[] seq, Ice.Current current)
+    {
+        cb.ice_response(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
     }
 
     public void

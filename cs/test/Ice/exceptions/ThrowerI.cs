@@ -101,6 +101,11 @@ public sealed class ThrowerI : ThrowerDisp_
     {
         Debug.Assert(false);
     }
+
+    public override byte[] throwMemoryLimitException(byte[] seq, Ice.Current current)
+    {
+        return new byte[1024 * 20]; // 20KB is over the configured 10KB message size max.
+    }
     
     public override void throwLocalExceptionIdempotent(Ice.Current current)
     {

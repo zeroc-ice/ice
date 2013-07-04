@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, threading, sys
+import Ice, Test, threading, sys, array
 
 def test(b):
     if not b:
@@ -687,6 +687,39 @@ def allTests(communicator):
             test(False)
 
         print("ok")
+
+
+        sys.stdout.write("testing memory limit marshal exception...");
+        sys.stdout.flush();
+
+        try:
+            thrower.throwMemoryLimitException(array.array('B'));
+            test(False)
+        except Ice.UnknownLocalException:
+            pass
+        except:
+            print(sys.exc_info())
+            test(False)
+
+        try:
+            thrower.throwMemoryLimitException(array.array('B', (0 for x in xrange(20 * 1024)))) # 20KB
+            test(False)
+        except Ice.MemoryLimitException:
+            pass
+        except:
+            test(False)
+
+        try:
+            thrower.end_throwMemoryLimitException(
+                thrower.begin_throwMemoryLimitException(array.array('B', (0 for x in xrange(20 * 1024))))) # 20KB
+            test(False)
+        except Ice.MemoryLimitException:
+            pass
+        except:
+            test(False)
+
+    print("ok");
+
 
     sys.stdout.write("catching object not exist exception... ")
     sys.stdout.flush()

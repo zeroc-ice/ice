@@ -9,9 +9,10 @@
 # **********************************************************************
 
 require 'pathname'
-
 require 'Ice'
-Ice::loadSlice('Test.ice')
+
+slice_dir = Ice.getSliceDir
+Ice::loadSlice("'-I" + slice_dir + "' Test.ice")
 require './AllTests'
 
 def run(args, communicator)
@@ -21,7 +22,10 @@ def run(args, communicator)
 end
 
 begin
-    communicator = Ice.initialize(ARGV)
+    initData = Ice::InitializationData.new
+    initData.properties = Ice.createProperties(ARGV)
+    initData.properties.setProperty("Ice.MessageSizeMax", "10")
+    communicator = Ice.initialize(ARGV, initData)
     status = run(ARGV, communicator)
 rescue => ex
     puts $!

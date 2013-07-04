@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <Ice/BuiltinSequences.ice>
+
 [["java:package:test.Ice.exceptions"]]
 module Test
 {
@@ -59,6 +61,7 @@ exception D
     void throwLocalException();
     void throwNonIceException();
     void throwAssertException();
+    Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
 

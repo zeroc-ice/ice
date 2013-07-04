@@ -264,6 +264,30 @@ def allTests(communicator)
         puts "ok"
     end
 
+    print "testing memory limit marshal exception..."
+    STDOUT.flush
+
+    begin
+        thrower.throwMemoryLimitException(Array.new(1, 0x00));
+        test(false)
+    rescue Ice::UnknownLocalException
+        # Expected
+    rescue
+        test(false)
+    end
+
+    begin
+        thrower.throwMemoryLimitException(Array.new(20 * 1024, 0x00)) # 20KB
+        test(false)
+    rescue Ice::MemoryLimitException
+        # Expected
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
+    end
+
+    puts "ok"
+
     print "catching object not exist exception... "
     STDOUT.flush
 

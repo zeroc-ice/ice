@@ -8,10 +8,15 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+import os, sys, traceback, array
 
 import Ice
-Ice.loadSlice('TestAMD.ice')
+slice_dir = Ice.getSliceDir()
+if not slice_dir:
+    print(sys.argv[0] + ': Slice directory not found.')
+    sys.exit(1)
+
+Ice.loadSlice('"-I' + slice_dir + '" TestAMD.ice')
 import Test
 
 class ThrowerI(Test.Thrower):
@@ -109,6 +114,9 @@ class ThrowerI(Test.Thrower):
     def throwAssertException_async(self, cb, current=None):
         raise RuntimeError("operation `throwAssertException' not supported")
 
+    def throwMemoryLimitException_async(self, cb, seq, current=None):
+        cb.ice_response(array.array('B', (0 for x in xrange(20 * 1024))))
+
     def throwLocalExceptionIdempotent_async(self, cb, current=None):
         cb.ice_exception(Ice.TimeoutException())
 
@@ -121,9 +129,6 @@ class ThrowerI(Test.Thrower):
         raise RuntimeError("12345")
 
 def run(args, communicator):
-    properties = communicator.getProperties()
-    properties.setProperty("Ice.Warn.Dispatch", "0")
-    properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = ThrowerI()
     adapter.add(object, communicator.stringToIdentity("thrower"))
@@ -132,7 +137,12 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
+    initData = Ice.InitializationData()
+    initData.properties = Ice.createProperties(sys.argv)
+    initData.properties.setProperty("Ice.Warn.Dispatch", "0")
+    initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    initData.properties.setProperty("Ice.MessageSizeMax", "10")
+    communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:
     traceback.print_exc()

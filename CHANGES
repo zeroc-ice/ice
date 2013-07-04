@@ -50,8 +50,18 @@ C++ Changes
   asynchronous invocations.
 
 
+Java Changes
+============
+
+- Fixed an assertion which would occur if the marshalling of the
+  response of AMD callback raised a memory limit exception.
+
+
 C# Changes
 ==========
+
+- Fixed an assertion which would occur if the marshalling of the
+  response of AMD callback raised a memory limit exception.
 
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   for a Slice structure that declares default values for its members.

@@ -40,6 +40,7 @@ public:
     virtual void throwLocalException(const Ice::Current&);
     virtual void throwNonIceException(const Ice::Current&);
     virtual void throwAssertException(const Ice::Current&);
+    virtual Ice::ByteSeq throwMemoryLimitException(const Ice::ByteSeq&, const Ice::Current&);
 
     virtual void throwLocalExceptionIdempotent(const Ice::Current&);
 

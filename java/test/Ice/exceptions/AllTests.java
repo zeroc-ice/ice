@@ -1739,6 +1739,57 @@ public class AllTests
             out.println("ok");
         }
 
+        out.print("testing memory limit marshal exception...");
+        out.flush();
+        {
+            try
+            {
+                thrower.throwMemoryLimitException(null);
+                test(collocated);
+            }
+            catch(Ice.UnknownLocalException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+
+            try
+            {
+                thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
+                test(collocated);
+            }
+            catch(Ice.MemoryLimitException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            
+            if(!collocated)
+            {
+                try
+                {
+                    thrower.end_throwMemoryLimitException(
+                        thrower.begin_throwMemoryLimitException(new byte[20 * 1024])); // 20KB
+                    test(false);
+                }
+                catch(Ice.MemoryLimitException ex)
+                {
+                }
+                catch(Throwable ex)
+                {
+                    ex.printStackTrace();
+                    test(false);
+                }
+            }
+        }
+        out.println("ok");
+
         out.print("catching object not exist exception... ");
         out.flush();
 

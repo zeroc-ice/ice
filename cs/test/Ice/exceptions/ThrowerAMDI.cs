@@ -139,6 +139,12 @@ public class ThrowerI : ThrowerDisp_
         Debug.Assert(false);
     }
 
+    public override void throwMemoryLimitException_async(AMD_Thrower_throwMemoryLimitException cb, byte[] seq, 
+                                                         Ice.Current current)
+    {
+        cb.ice_response(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
+    }
+
     public override void throwLocalExceptionIdempotent_async(AMD_Thrower_throwLocalExceptionIdempotent e, 
                                                              Ice.Current current)
     {

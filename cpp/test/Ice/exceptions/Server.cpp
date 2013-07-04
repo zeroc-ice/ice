@@ -18,9 +18,6 @@ using namespace std;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.Warn.Dispatch", "0");
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new ThrowerI();
     adapter->add(object, communicator->stringToIdentity("thrower"));
@@ -38,7 +35,12 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

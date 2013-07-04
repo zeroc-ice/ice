@@ -27,6 +27,7 @@ public class Client extends test.Util.Application
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
         return initData;
     }
 
