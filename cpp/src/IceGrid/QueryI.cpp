@@ -87,9 +87,9 @@ QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current&) const
     try
     {
         AdapterInfoSeq infos = _database->getAdapterInfo(prx->ice_getAdapterId());
-        assert(!infos.empty());
-        if(infos[0].replicaGroupId != prx->ice_getAdapterId()) // The adapter id doesn't refer to a replica group.
+        if(infos.empty() || infos[0].replicaGroupId != prx->ice_getAdapterId()) 
         {
+            // The adapter id doesn't refer to a replica group or the replica group is empty.
             return Ice::ObjectProxySeq();
         }
 

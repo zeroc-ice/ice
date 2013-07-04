@@ -213,6 +213,10 @@ allTests(const Ice::CommunicatorPtr& comm)
         obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy:tcp"));
         objs = query->findAllReplicas(obj);
         test(objs.empty());
+
+        obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@Ordered"));
+        objs = query->findAllReplicas(obj);
+        test(objs.empty());
         
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
