@@ -206,7 +206,7 @@ testAttribute(const IceMX::MetricsAdminPrx& metrics,
     func();
     Ice::Long timestamp;
     IceMX::MetricsView view = metrics->getMetricsView("View", timestamp);
-    if(view.find(map) == view.end())
+    if(view.find(map) == view.end() || view[map].empty())
     {
         if(!value.empty())
         {

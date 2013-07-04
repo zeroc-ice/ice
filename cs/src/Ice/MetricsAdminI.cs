@@ -336,10 +336,6 @@ namespace IceInternal
         {
             lock(this)
             {
-                if(_objects.Count == 0)
-                {
-                    return null;
-                }
                 IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.Count];
                 int i = 0;
                 foreach(Entry e in _objects.Values)

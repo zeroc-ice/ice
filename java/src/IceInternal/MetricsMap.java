@@ -306,11 +306,6 @@ public class MetricsMap<T extends IceMX.Metrics>
     synchronized IceMX.Metrics[]
     getMetrics()
     {
-        if(_objects.isEmpty())
-        {
-            return null;
-        }
-
         IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.size()];
         int i = 0;
         for(Entry e : _objects.values())

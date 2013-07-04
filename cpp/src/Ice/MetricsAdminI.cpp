@@ -332,11 +332,7 @@ MetricsViewI::getMetrics()
     MetricsView metrics;
     for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
     {
-        MetricsMap map = p->second->getMetrics();
-        if(!map.empty())
-        {
-            metrics.insert(make_pair(p->first, map));
-        }
+        metrics.insert(make_pair(p->first, p->second->getMetrics()));
     }
     return metrics;
 }

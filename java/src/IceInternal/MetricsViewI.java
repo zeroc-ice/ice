@@ -81,11 +81,7 @@ public class MetricsViewI
         java.util.Map<String, IceMX.Metrics[]> metrics = new java.util.HashMap<String, IceMX.Metrics[]>();
         for(java.util.Map.Entry<String, MetricsMap<?>> e : _maps.entrySet())
         {
-            IceMX.Metrics[] m = e.getValue().getMetrics();
-            if(m != null)
-            {
-                metrics.put(e.getKey(), m);
-            }
+            metrics.put(e.getKey(), e.getValue().getMetrics());
         }
         return metrics;
     }

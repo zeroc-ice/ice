@@ -233,7 +233,7 @@ public class AllTests
         func.run();
         Ice.LongHolder timestamp = new Ice.LongHolder();
         Map<String, IceMX.Metrics[]> view = metrics.getMetricsView("View", timestamp);
-        if(!view.containsKey(map))
+        if(!view.containsKey(map) || view.get(map).length == 0)
         {
             if(!value.isEmpty())
             {
@@ -479,8 +479,8 @@ public class AllTests
         props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
         updateProps(clientProps, serverProps, update, props, "Connection");
 
-        test(clientMetrics.getMetricsView("View", timestamp).get("Connection") == null);
-        test(serverMetrics.getMetricsView("View", timestamp).get("Connection") == null);
+        test(clientMetrics.getMetricsView("View", timestamp).get("Connection").length == 0);
+        test(serverMetrics.getMetricsView("View", timestamp).get("Connection").length == 0);
 
         metrics.ice_ping();
 
@@ -644,7 +644,7 @@ public class AllTests
 
         props.put("IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy", "id");
         updateProps(clientProps, serverProps, update, props, "ConnectionEstablishment");
-        test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment") == null);
+        test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 0);
 
         metrics.ice_ping();
     
@@ -699,7 +699,7 @@ public class AllTests
 
         props.put("IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy", "id");
         updateProps(clientProps, serverProps, update, props, "EndpointLookup");
-        test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup") == null);
+        test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 0);
 
         Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost");
         prx.ice_ping();
@@ -760,7 +760,7 @@ public class AllTests
 
         props.put("IceMX.Metrics.View.Map.Dispatch.GroupBy", "operation");
         updateProps(clientProps, serverProps, update, props, "Dispatch");
-        test(serverMetrics.getMetricsView("View", timestamp).get("Dispatch") == null);
+        test(serverMetrics.getMetricsView("View", timestamp).get("Dispatch").length == 0);
 
         metrics.op();
         try
@@ -873,7 +873,7 @@ public class AllTests
         props.put("IceMX.Metrics.View.Map.Invocation.GroupBy", "operation");
         props.put("IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy", "localPort");
         updateProps(clientProps, serverProps, update, props, "Invocation");
-        test(serverMetrics.getMetricsView("View", timestamp).get("Invocation") == null);
+        test(serverMetrics.getMetricsView("View", timestamp).get("Invocation").length == 0);
 
         Callback cb = new Callback();
 
