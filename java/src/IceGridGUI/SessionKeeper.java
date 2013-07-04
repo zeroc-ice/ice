@@ -79,6 +79,7 @@ import IceGrid.*;
 // and keeping them alive.
 //
 
+@SuppressWarnings("unchecked")
 public class SessionKeeper
 {
     //
@@ -1521,7 +1522,7 @@ public class SessionKeeper
 
             // Direct X509 credentials panel
             {
-                _directCertificateAliases = new JComboBox<String>();
+                _directCertificateAliases = new JComboBox();
                 _directCertificateAliases.addActionListener (new ActionListener ()
                     {
                         public void actionPerformed(ActionEvent e)
@@ -1585,7 +1586,7 @@ public class SessionKeeper
 
             // Routed X509 credentials panel
             {
-                _routedCertificateAliases = new JComboBox<String>();
+                _routedCertificateAliases = new JComboBox();
                 _routedCertificateAliases.addActionListener (new ActionListener ()
                     {
                         public void actionPerformed(ActionEvent e)
@@ -2631,13 +2632,13 @@ public class SessionKeeper
             return true;
         }
 
-        public void loadCertificateAliases(JComboBox<String> component)
+        public void loadCertificateAliases(JComboBox component)
         {
             CertificateManagerDialog certificateManager = certificateManager(this);
             if(certificateManager != null)
             {
                 String item = (String)component.getSelectedItem();
-                component.setModel(new DefaultComboBoxModel<String>(certificateManager.myCertsAliases()));
+                component.setModel(new DefaultComboBoxModel(certificateManager.myCertsAliases()));
                 if(item != null)
                 {
                     component.setSelectedItem(item);
@@ -2870,12 +2871,12 @@ public class SessionKeeper
         private JRadioButton _x509CertificateYesButton;
 
         // Direct X509 Credentials
-        private JComboBox<String> _directCertificateAliases;
+        private JComboBox _directCertificateAliases;
         private JButton _directImportCertificate;
         private JPasswordField _directCertificatePassword;
 
         // Routed X509 Credentials
-        private JComboBox<String> _routedCertificateAliases;
+        private JComboBox _routedCertificateAliases;
         private JButton _routedImportCertificate;
         private JPasswordField _routedCertificatePassword;
 
@@ -3230,7 +3231,7 @@ public class SessionKeeper
                         return label;
                     }
                 }
-                _connectionList = new JList<ConnectionInfo>(_connectionListModel)
+                _connectionList = new JList(_connectionListModel)
                     {
                         public String getToolTipText(MouseEvent evt)
                         {
@@ -3401,7 +3402,7 @@ public class SessionKeeper
             }
         }
 
-        class ConnectionListModel extends DefaultListModel<ConnectionInfo>
+        class ConnectionListModel extends DefaultListModel
         {
             public void setDefault()
             {
@@ -3441,7 +3442,7 @@ public class SessionKeeper
             }
         }
 
-        private JList<ConnectionInfo> _connectionList;
+        private JList _connectionList;
         private ConnectionListModel _connectionListModel;
 
         private JButton _newConnectionButton;

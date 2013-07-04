@@ -154,12 +154,12 @@ abstract class ListTreeNode extends TreeNode
         return _editable;
     }
 
-    javax.swing.ComboBoxModel<Object> createComboBoxModel()
+    javax.swing.ComboBoxModel createComboBoxModel()
     {
         return new ComboBoxModel();
     }
     
-    javax.swing.ComboBoxModel<Object> createComboBoxModel(Object item)
+    javax.swing.ComboBoxModel createComboBoxModel(Object item)
     {
         return new ComboBoxModel(item);
     }
@@ -167,7 +167,7 @@ abstract class ListTreeNode extends TreeNode
     //
     // Adapts ListTreeNode to a ComboBoxModel
     //
-    class ComboBoxModel extends javax.swing.AbstractListModel<Object> implements javax.swing.ComboBoxModel<Object>
+    class ComboBoxModel extends javax.swing.AbstractListModel implements javax.swing.ComboBoxModel
     {
         public Object getElementAt(int index)
         {

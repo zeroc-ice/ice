@@ -651,20 +651,30 @@
         </jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile, config-init-javafx"
-            if="build-icegridadmin" unless="ice.bin.dist">
-        <javac srcdir="${src.dir}" destdir="${lib.dir}"
-            source="1.7" target="1.7" debug="${debug}"
-            includes="IceGridGUI/**"
+    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile"
+            unless="ice.bin.dist">
+        <javac srcdir="${src.dir}/IceGridGUI" destdir="${lib.dir}"
+            source="1.6" target="1.6" debug="${debug}"
+            classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}"
+            deprecation="on">
+            <compilerarg value="${javac.lint}"/>
+            <exclude name="LiveDeployment/GraphView.java"/>
+        </javac>
+    </target>
+
+    <target name="icegridadmin-compile-javafx" depends="icegridadmin-compile, config-init-javafx"
+            unless="ice.bin.dist" if="javafx-available">
+        <javac srcdir="${src.dir}/IceGridGUI" destdir="${lib.dir}"
+            source="1.6" target="1.6" debug="${debug}"
             classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}:${javafx.jar}"
             deprecation="on">
             <compilerarg value="${javac.lint}"/>
+            <include name="LiveDeployment/GraphView.java"/>
         </javac>
     </target>
 
     <condition property="build-icegridadmin-pro-jar">
         <and>
-            <isset property="build-icegridadmin" />
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
             <available file="${jgoodies.looks}" />
             <available file="${jgoodies.forms}" />
@@ -674,13 +684,20 @@
 
     <condition property="build-icegridadmin-plain-jar">
         <and>
-             <isset property="build-icegridadmin" />
              <not><isset property="build-icegridadmin-pro-jar"/></not>
         </and>
     </condition>
 
-    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile, ice-jar, icebox-jar, glacier2-jar, 
-                                                   icestorm-jar, icegrid-jar" 
+    <condition property="icegridadmin-javafx-jar">
+        <and>
+            <isset property="build-icegridadmin-pro-jar"/>
+            <isset property="javafx-available"/>
+        </and>
+    </condition>
+
+    <target name="icegridadmin-plain-jar" 
+            depends="icegridadmin-compile, icegridadmin-compile-javafx, ice-jar, icebox-jar, 
+                     glacier2-jar, icestorm-jar, icegrid-jar" 
             if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
@@ -695,11 +712,38 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, 
-                                                 icegridadmin-compile"
+    <target name="icegridadmin-pro-jar" 
+            depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, icegridadmin-compile, 
+                     icegridadmin-compile-javafx"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
     
-        <property name="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar"/>
+	<condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar,annotation.jar,jndi.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux i586) -->
+            <and>
+                <not><isset property="library.jarfiles"/></not>
+                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                <equals arg1="${os.arch}" arg2="x86"/>
+            </and>
+        </condition>
+        <condition property="library.jarfiles" value="amd64/default/jclSC160/vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar,annotation.jar,jndi.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux x86_64) -->
+            <and>
+                <not><isset property="library.jarfiles"/></not>
+                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                <equals arg1="${os.arch}" arg2="amd64"/>
+            </and>
+        </condition>
+    
+        <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
+            <and>
+                <isset property="javafx-available"/>
+                <not><isset property="library.jarfiles"/></not>
+            </and>
+        </condition>
+
+        <condition property="library.jarfiles" value="rt.jar,jsse.jar">
+            <not><isset property="library.jarfiles"/></not>
+        </condition>
             
         <pathconvert property="library.jars">
            <filelist dir="${java.home}/lib" files="${library.jarfiles}"/>
@@ -736,7 +780,27 @@
              -dontnote
         </proguard>
         <delete file="${lib.dir}/IceGridGUItemp.jar" />
+        <mkdir dir="${lib.dir}/tmp"/>
+        <unzip src="${lib.dir}/IceGridGUI.jar" dest="${lib.dir}/tmp"/>
+        <delete>
+            <fileset dir="${lib.dir}" includes="**/*.java"/>
+        </delete>
+        <delete file="${lib.dir}/IceGridGUI.jar"/>
+        <delete dir="${lib.dir}/tmp/META-INF"/>
+        <manifest file="${lib.dir}/icegridgui.mf">
+            <attribute name="Main-Class" value="IceGridGUI.Main"/>
+        </manifest>
+        <jar jarfile="${lib.dir}/IceGridGUI.jar" 
+             manifest="${lib.dir}/icegridgui.mf" 
+             basedir="${lib.dir}/tmp" update="true">
+            <include name="**"/>
+        </jar>
+        <delete dir="${lib.dir}/tmp"/>
+        <delete file="${lib.dir}/icegridgui.mf"/>
+    </target>
 
+    <target name="icegridadmin-javafx-jar" depends="icegridadmin-pro-jar, config-init-javafx"
+            if="icegridadmin-javafx-jar" unless="ice.bin.dist">
         <!-- Remove Ice source code from the jar and regenerate -->
         <mkdir dir="${lib.dir}/tmp"/>
         <unzip src="${lib.dir}/IceGridGUI.jar" dest="${lib.dir}/tmp"/>
@@ -746,7 +810,10 @@
         <delete file="${lib.dir}/IceGridGUI.jar"/>
         <delete dir="${lib.dir}/tmp/META-INF"/>
 
-        <fx:application id="IceGridGUI" name="IceGrid Admin" mainClass="IceGridGUI.Main" toolkit="swing"/>
+        <fx:application id="IceGridGUI" name="IceGrid Admin" 
+            mainClass="IceGridGUI.Main" 
+            fallbackClass="IceGridGUI.Fallback"
+            toolkit="swing"/>
 
         <fx:resources id="IceGridGUI.resources">
         </fx:resources>
@@ -754,8 +821,6 @@
         <fx:jar destfile="${lib.dir}/dist/IceGridGUI.jar">
             <!-- Details about application -->
             <fx:application refid="IceGridGUI"/>
-
-            <fx:platform javafx="2.2+" j2se="7.0"/>
      
             <!-- Define what auxilary resources are needed -->
             <fx:resources refid="IceGridGUI.resources"/>
@@ -789,7 +854,8 @@
         </and>
     </condition>
 
-    <target name="icegridadmin-bundle" depends="icegridadmin-pro-jar" if="build-icegridadmin-bundle">
+    <target name="icegridadmin-bundle" depends="icegridadmin-pro-jar, icegridadmin-javafx-jar" 
+            if="build-icegridadmin-bundle">
         <!-- AppBundleTask available at http://java.net/projects/appbundler -->
         <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask"/>
         <bundleapp outputdirectory="${lib.dir}"
@@ -813,8 +879,9 @@
     <target name="compile" depends="ice-compile, icebox-compile, glacier2-compile, icestorm-compile, icegrid-compile, 
                                     freeze-compile, icepatch2-compile, icegridadmin-compile"/>
 
-    <target name="dist-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, freeze-jar,
-                                     icepatch2-jar, icegridadmin-plain-jar, icegridadmin-pro-jar, icegridadmin-bundle"/>
+    <target name="dist-jar" 
+            depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, freeze-jar, icepatch2-jar,
+                     icegridadmin-plain-jar, icegridadmin-pro-jar, icegridadmin-javafx-jar, icegridadmin-bundle"/>
 
     <target name="jar" depends="dist-jar, test-jar, test-android-jar"/>
 

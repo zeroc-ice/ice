@@ -35,6 +35,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
+@SuppressWarnings("unchecked")
 class ObjectDialog extends JDialog
 {
     ObjectDialog(final Root root, boolean readOnly)
@@ -163,7 +164,7 @@ class ObjectDialog extends JDialog
 
     private JTextArea _proxy = new JTextArea(3, 40);
     private JTextField _type = new JTextField(40);
-    private JComboBox<Object> _typeCombo = new JComboBox<Object>(new Object[]{QUERY_OBJECT});
+    private JComboBox _typeCombo = new JComboBox(new Object[]{QUERY_OBJECT});
     private JFrame _mainFrame;
 
     static private final Object QUERY_OBJECT = new Object()

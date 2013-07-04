@@ -9,6 +9,8 @@
 
 package IceGridGUI;
 
+import java.lang.reflect.Constructor;
+
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import java.util.Enumeration;
@@ -57,7 +59,7 @@ import IceGrid.*;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import IceGridGUI.LiveDeployment.GraphView;
+import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewTransferableData;
 
 //
 // This class coordinates the communications between the various objects
@@ -66,6 +68,13 @@ import IceGridGUI.LiveDeployment.GraphView;
 //
 public class Coordinator
 {
+    public interface IGraphView
+    {
+        public void close();
+        public void addSeries(final MetricsViewTransferableData data);
+        public String getTitle();
+    }
+
     private class StatusBarI extends JPanel implements StatusBar
     {
         StatusBarI()
@@ -1233,8 +1242,8 @@ public class Coordinator
         //
         // Close al graphs
         //
-        java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
-        for(GraphView v : views)
+        java.util.List<IGraphView> views = new java.util.ArrayList<IGraphView>(_graphViews);
+        for(IGraphView v : views)
         {
             v.close();
         }
@@ -2656,8 +2665,8 @@ public class Coordinator
                             return;
                         }
                         
-                        java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
-                        for(GraphView v : views)
+                        java.util.List<IGraphView> views = new java.util.ArrayList<IGraphView>(_graphViews);
+                        for(IGraphView v : views)
                         {
                             v.close();
                         }
@@ -3120,17 +3129,49 @@ public class Coordinator
         _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
     }
 
-    public GraphView createGraphView()
+    public IGraphView createGraphView()
     {
-        StringBuilder title = new StringBuilder();
-        title.append("Metrics Graph");
-        if(_graphViews.size() > 0)
+        Class<?> c1 = IceInternal.Util.findClass("IceGridGUI.LiveDeployment.GraphView", null);
+        Class<?> c2 = IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null);
+
+        IGraphView view = null;
+        if(c1 != null && c2 != null)
         {
-            title.append(" - ");
-            title.append(Integer.toString(_graphViews.size()));
+            StringBuilder title = new StringBuilder();
+            title.append("Metrics Graph");
+            if(_graphViews.size() > 0)
+            {
+                title.append(" - ");
+                title.append(Integer.toString(_graphViews.size()));
+            }
+
+            try
+            {
+                Constructor ctor = c1.getConstructor(new Class[] { Coordinator.class, String.class });
+                view = (IGraphView)ctor.newInstance(new Object[] { Coordinator.this, title.toString() });
+                _graphViews.add(view);
+            }
+            catch(NoSuchMethodException ex)
+            {
+            }
+            catch(InstantiationException ex)
+            {
+            }
+            catch(IllegalAccessException ex)
+            {
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+            }
         }
-        GraphView view = new GraphView(Coordinator.this, title.toString());
-        _graphViews.add(view);
+
+        if(view == null)
+        {
+            JOptionPane.showMessageDialog(_mainFrame, 
+                                          "The Metrics Graph view requires JavaFX 2",
+                                          "IceGrid Admin Info", 
+                                          JOptionPane.INFORMATION_MESSAGE);
+        }
         return view;
     }
 
@@ -3258,8 +3299,8 @@ public class Coordinator
                 return;
             }
             
-            java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
-            for(GraphView v : views)
+            java.util.List<IGraphView> views = new java.util.ArrayList<IGraphView>(_graphViews);
+            for(IGraphView v : views)
             {
                 v.close();
             }
@@ -3476,7 +3517,7 @@ public class Coordinator
         enableTreeEditActions();
     }
 
-    public void removeGraphView(GraphView view)
+    public void removeGraphView(IGraphView view)
     {
         _graphViews.remove(view);
     }
@@ -3576,9 +3617,9 @@ public class Coordinator
         return _dataDir;
     }
 
-    public GraphView[] getGraphViews()
+    public IGraphView[] getGraphViews()
     {
-        return _graphViews.toArray(new GraphView[_graphViews.size()]);
+        return _graphViews.toArray(new IGraphView[_graphViews.size()]);
     }
 
     //
@@ -3827,7 +3868,7 @@ public class Coordinator
 
     private X509Certificate _trasientCert;
 
-    private java.util.List<GraphView> _graphViews = new java.util.ArrayList<GraphView>();
+    private java.util.List<IGraphView> _graphViews = new java.util.ArrayList<IGraphView>();
 
     static private final int HISTORY_MAX_SIZE = 20;
 }

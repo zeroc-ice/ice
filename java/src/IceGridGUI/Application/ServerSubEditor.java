@@ -26,6 +26,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import IceGrid.*;
 import IceGridGUI.*;
 
+@SuppressWarnings("unchecked")
 class ServerSubEditor extends CommunicatorSubEditor
 {
     ServerSubEditor(Editor mainEditor)
@@ -65,7 +66,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         _envs = new SimpleMapField(mainEditor, true, "Name", "Value");
 
-        _activation = new JComboBox<String>(new String[]{ALWAYS, MANUAL, ON_DEMAND, SESSION});
+        _activation = new JComboBox(new String[]{ALWAYS, MANUAL, ON_DEMAND, SESSION});
         _activation.setToolTipText("<html>always: IceGrid starts and keeps the server up all the time<br>"
                                    + "manual: you start the server yourself<br>"
                                    + "on-demand: IceGrid starts the server when a client needs it<br>"
@@ -109,7 +110,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         _applicationDistrib = new JCheckBox(appDistrib);
 
-        _distrib = new JComboBox<Object>(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
+        _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
         _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
         JTextField distribTextField = (JTextField)_distrib.getEditor().getEditorComponent();
@@ -370,7 +371,7 @@ class ServerSubEditor extends CommunicatorSubEditor
     private JTextField _user = new JTextField(20);
     private SimpleMapField _envs;
 
-    private JComboBox<String> _activation;
+    private JComboBox _activation;
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
     private JCheckBox _allocatable;

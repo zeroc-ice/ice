@@ -51,17 +51,18 @@ class ServerInstancePropertySetEditor extends PropertySetEditor
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void showId(String unsubstitutedId, Utils.Resolver resolver)
     {
         ServerInstance s = (ServerInstance)_target.getParent();
 
         _id.setEnabled(true);
         _id.setEditable(true);
-        _id.setModel(new DefaultComboBoxModel<String>(s.getServiceNames()));
+        _id.setModel(new DefaultComboBoxModel(s.getServiceNames()));
         _id.setSelectedItem(Utils.substitute(unsubstitutedId, resolver));
         _id.setEditable(resolver == null);
         _id.setEnabled(resolver == null);
     }
 
-    private JComboBox<String> _id = new JComboBox<String>();
+    private JComboBox _id = new JComboBox();
 }

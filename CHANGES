@@ -39,6 +39,9 @@ General Changes
   connection closure and if the connection was closed shortly before
   sending pending messages.
 
+- Fixed the graphical IceGrid administrative tool to run and build
+  in JVMs without JavaFX support.
+
 
 C++ Changes
 ===========

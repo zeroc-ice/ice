@@ -32,6 +32,7 @@ import javax.swing.table.TableColumn;
 // A special field used to show/edit parameters
 //
 
+@SuppressWarnings("unchecked")
 public class ParametersField extends JTable
 {
     public ParametersField(Editor editor)
@@ -42,7 +43,7 @@ public class ParametersField extends JTable
         _columnNames.add("Name");
         _columnNames.add("Default value");
 
-        JComboBox<String> comboBox = new JComboBox<String>(new String[]{_noDefault});
+        JComboBox comboBox = new JComboBox(new String[]{_noDefault});
         comboBox.setEditable(true);
         _cellEditor = new DefaultCellEditor(comboBox);
 

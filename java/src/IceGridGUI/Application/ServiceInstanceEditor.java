@@ -27,6 +27,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import IceGrid.*;
 import IceGridGUI.*;
 
+@SuppressWarnings("unchecked")
 class ServiceInstanceEditor extends CommunicatorChildEditor
 {
     ServiceInstanceEditor()
@@ -224,7 +225,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         }
     }
 
-    private JComboBox<Object> _template = new JComboBox<Object>();
+    private JComboBox _template = new JComboBox();
     private JButton _templateButton;
     private ParameterValuesField _parameters;
     private ListTextField _propertySets = new ListTextField(20);

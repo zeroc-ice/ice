@@ -183,7 +183,8 @@ class DbEnvEditor extends CommunicatorChildEditor
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox<Object> _dbHome = new JComboBox<Object>(new Object[]{NO_DB_HOME});
+    @SuppressWarnings("unchecked")
+    private JComboBox _dbHome = new JComboBox(new Object[]{NO_DB_HOME});
     private PropertiesField _properties;
 
     static private final Object NO_DB_HOME = new Object()

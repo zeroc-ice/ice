@@ -31,7 +31,7 @@ import javax.swing.table.TableColumn;
 //
 // A special field used to show/edit parameter values
 //
-
+@SuppressWarnings("unchecked")
 public class ParameterValuesField extends JTable
 {
     public ParameterValuesField(Editor editor)
@@ -130,7 +130,7 @@ public class ParameterValuesField extends JTable
         {
             getCellEditor().stopCellEditing();
         }
-        @SuppressWarnings("unchecked")
+
         java.util.Vector<java.util.Vector<String>> vector =
             (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
 
@@ -172,9 +172,9 @@ public class ParameterValuesField extends JTable
 
     private static final String _notSet = "Not set";
 
-    private JComboBox<String> _useDefaultCombo = new JComboBox<String>(new String[]{_useDefault});
+    private JComboBox _useDefaultCombo = new JComboBox(new String[]{_useDefault});
 
-    private JComboBox<String> _notSetCombo = new JComboBox<String>(new String[]{_notSet});
+    private JComboBox _notSetCombo = new JComboBox(new String[]{_notSet});
 
     private TableCellEditor _useDefaultEditor = new DefaultCellEditor(_useDefaultCombo);
     private TableCellEditor _notSetEditor = new DefaultCellEditor(_notSetCombo);

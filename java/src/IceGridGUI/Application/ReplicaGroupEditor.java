@@ -31,6 +31,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import IceGrid.*;
 import IceGridGUI.*;
 
+@SuppressWarnings("unchecked")
 class ReplicaGroupEditor extends Editor
 {
     protected boolean applyUpdate(boolean refresh)
@@ -459,7 +460,7 @@ class ReplicaGroupEditor extends Editor
     private JTextArea _description = new JTextArea(3, 20);
     private JTextField _proxyOptions = new JTextField(20);
 
-    private JComboBox<String> _loadBalancing = new JComboBox<String>(new String[] {ADAPTIVE, 
+    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE, 
                                                                                    ORDERED, 
                                                                                    RANDOM, 
                                                                                    ROUND_ROBIN});
@@ -467,7 +468,7 @@ class ReplicaGroupEditor extends Editor
     private JTextField _nReplicas = new JTextField(20);
 
     private JLabel _loadSampleLabel;
-    private JComboBox<String> _loadSample = new JComboBox<String>(new String[] {"1", "5", "15"});
+    private JComboBox _loadSample = new JComboBox(new String[] {"1", "5", "15"});
 
     private ArrayMapField _objects;
     private java.util.LinkedList<ObjectDescriptor> _objectList;

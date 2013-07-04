@@ -734,15 +734,18 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                         {
                                             public void actionPerformed(ActionEvent e)
                                             {
-                                                GraphView view = node.getCoordinator().createGraphView();
-                                                view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
-                                                                                               entry.getKey(), rows));
+                                                Coordinator.IGraphView view = node.getCoordinator().createGraphView();
+                                                if(view != null)
+                                                {
+                                                    view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
+                                                                                                   entry.getKey(), rows));
+                                                }
                                             }
                                         });
                                 addToGraph.add(newGraph);
 
-                                GraphView[] graphs = node.getCoordinator().getGraphViews();
-                                for(final GraphView view : graphs)
+                                Coordinator.IGraphView[] graphs = node.getCoordinator().getGraphViews();
+                                for(final Coordinator.IGraphView view : graphs)
                                 {
                                     JMenuItem item = new JMenuItem(view.getTitle());
                                     addToGraph.add(item);
@@ -1143,7 +1146,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
         public MetricsField createField()
         {
-            return createField(_node, _prefix, _metricsName, _fieldName, _objectField, _context);
+            return MetricsViewEditor.createField(_node, _prefix, _metricsName, _fieldName, _objectField, _context);
         }
 
         public String getPropertyPrefix()

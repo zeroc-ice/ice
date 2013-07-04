@@ -129,7 +129,7 @@ import IceGridGUI.LiveDeployment.MetricsViewEditor.FormatedNumberRenderer;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 
-public class GraphView extends JFrame implements MetricsFieldContext
+public class GraphView extends JFrame implements MetricsFieldContext, Coordinator.IGraphView
 {
     class WorkQueue extends Thread
     {
