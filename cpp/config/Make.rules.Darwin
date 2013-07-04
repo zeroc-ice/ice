@@ -37,7 +37,13 @@ endif
 #
 CXXLIBS		=
 
-
+ifeq ($(RPATH_DIR),)
+    ifdef ice_src_dist
+        RPATH_DIR = @loader_path/$(libdir)
+    else
+        RPATH_DIR = $(runpath_libdir)
+    endif
+endif
 LDPLATFORMFLAGS     = -Wl,-rpath,$(RPATH_DIR)
 
 ifeq ($(CXX),g++)
