@@ -235,6 +235,10 @@ public:
             v.__setIsSet();
             StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::read(this, *v);
         }
+        else
+        {
+            v = IceUtil::None;
+        }
     }
 
     virtual void closure(void*) = 0;

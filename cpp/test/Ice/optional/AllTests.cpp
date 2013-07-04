@@ -807,8 +807,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in->startEncapsulation();
         in->read(1, p2);
         in->read(3, p3);
+        
+        IceUtil::Optional<Ice::Byte> p4 = 0x08;
+        in->read(89, p4);
+        
         in->endEncapsulation();
-        test(p2 == 56 && p3 == 56);
+        test(p2 == 56 && p3 == 56 && !p4);
 
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();

@@ -43,6 +43,10 @@ General Changes
 C++ Changes
 ===========
 
+- Reading an optional with the Ice::InputStream::read method should
+  now clear the optional if the optional isn't marshaled on the input
+  stream.
+
 - Fixed file descriptor leak that would occur if an object adapter
   listened on a UDP endpoint (one descriptor leaked per UDP endpoint).
 
