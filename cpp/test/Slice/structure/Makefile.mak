@@ -14,7 +14,8 @@ CLIENT		= client.exe
 TARGETS		= $(CLIENT)
 
 COBJS		= Test.obj \
-		  Client.obj
+		  Client.obj \
+		  Forward.obj
 
 SRCS		= $(COBJS:.obj=.cpp)
 

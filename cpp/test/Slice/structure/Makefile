@@ -14,11 +14,12 @@ CLIENT		= $(call mktestname,client)
 TARGETS		= $(CLIENT)
 
 COBJS		= Client.o \
-		  Test.o
+		  Test.o \
+		  Forward.o
 
 SRCS		= $(COBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice
+SLICE_SRCS	= Test.ice Forward.ice
 
 include $(top_srcdir)/config/Make.rules
 

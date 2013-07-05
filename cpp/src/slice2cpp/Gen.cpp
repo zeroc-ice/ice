@@ -385,6 +385,10 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <Ice/Proxy.h>";
         H << "\n#include <Ice/OutgoingAsync.h>";
     }
+    else if(p->hasNonLocalClassDecls())
+    {
+        H << "\n#include <Ice/Proxy.h>";
+    }
 
     if(p->hasNonLocalDataOnlyClasses() || p->hasNonLocalExceptions())
     {
