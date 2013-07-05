@@ -20,7 +20,7 @@
 // doesn't work. Apple is supported for all architectures. Sun only
 // supports sparc (32 and 64 bit).
 
-#elif (__GNUC__ >= 4 && __GNUC_MINOR__ >= 1 || __clang__)  &&                         \
+#elif ((defined(__GNUC__) && (((__GNUC__* 100) + __GNUC_MINOR__) >= 401)) || __clang__)  &&                         \
         ((defined(__sun) && (defined(__sparc) || defined(__sparcv9))) || \
          defined(__APPLE__) || \
         (defined(__linux) && \
