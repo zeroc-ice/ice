@@ -49,11 +49,22 @@
 
 //
 // Check for C++ 11 support
+// 
+// We cannot just check for C++11 mode as some features were not 
+// implemented in first versions of the compilers.
 //
-#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)) && defined(__GXX_EXPERIMENTAL_CXX0X__)) || \
-    (defined(__clang__) && (__clang_major__ >= 4) && __cplusplus >= 201103) || \
+// The require compiler version should be equal or greater than
+// VC100, G++ 4.5, Clang Apple 4.2 or Clang 3.2 (Unsupported).
+//
+#if (defined(__GNUC__) && (((__GNUC__* 100) + __GNUC_MINOR__) >= 405) && defined(__GXX_EXPERIMENTAL_CXX0X__)) || \
+    (defined(__clang__) && \
+      ((defined(__apple_build_version__) && (((__clang_major__ * 100) + __clang_minor__) >= 402)) || \
+       (!defined(__apple_build_version__) && (((__clang_major__ * 100) + __clang_minor__) >= 302))) && \
+      __cplusplus >= 201103) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1600))
 #   define ICE_CPP11
+#elif __cplusplus >= 201103 || defined(__GXX_EXPERIMENTAL_CXX0X__)
+#   error Unsupported C++11 compiler
 #endif
 
 #if defined(ICE_CPP11) && !defined(_MSC_VER)
