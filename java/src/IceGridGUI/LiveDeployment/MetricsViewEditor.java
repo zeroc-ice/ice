@@ -412,25 +412,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             }
             else
             {
+                _samples++;
                 _last = value.doubleValue();
-                if(_average == 0)
-                {
-                    _average = _last;
-                    _min = _last;
-                    _max = _last;
-                }
-                else
-                {
-                    _average = (_average + _last) / 2;
-                }
-                if(_last < _min)
+                
+                _average = _average + (_last - _average) / _samples;
+                if(_last < _min || _samples == 1)
                 {
                     _min = _last;
                 }
-                if(_last > _max)
+                if(_last > _max || _samples == 1)
                 {
                     _max = _last;
                 }
+
                 return _last * _scaleFactor;
             }
         }
@@ -465,6 +459,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         private double _scaleFactor = 1.0d;
         private double _last;
         private double _average = 0;
+        private int _samples = 0;
         private double _min;
         private double _max;
     }
