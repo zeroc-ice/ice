@@ -18,36 +18,16 @@ public final class Instance
             _instance = instance;
         }
 
-        @Override public void 
+        @Override public void
         updateConnectionObservers()
         {
-            try
-            {
-                _instance.outgoingConnectionFactory().updateConnectionObservers();
-                _instance.objectAdapterFactory().updateConnectionObservers();
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-            }
+            _instance.updateConnectionObservers();
         }
 
-        @Override public void 
+        @Override public void
         updateThreadObservers()
         {
-            try
-            {
-                _instance.clientThreadPool().updateObservers();
-                ThreadPool serverThreadPool = _instance.serverThreadPool(false);
-                if(serverThreadPool != null)
-                {
-                    serverThreadPool.updateObservers();
-                }
-                _instance.objectAdapterFactory().updateThreadObservers();
-                _instance.endpointHostResolver().updateObserver();
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-            }
+            _instance.updateThreadObservers();
         }
 
         final private Instance _instance;
@@ -585,7 +565,7 @@ public final class Instance
     public void
     setThreadHook(Ice.ThreadNotification threadHook)
     {
-        // 
+        //
         // No locking, as it can only be called during plug-in loading
         //
         _initData.threadHook = threadHook;
@@ -829,15 +809,15 @@ public final class Instance
 
             MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
             _adminFacets.put("Metrics", admin);
-            
+
             PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
             _adminFacets.put("Properties", props);
-            
+
             //
             // Setup the communicator observer only if the user didn't already set an
             // Ice observer resolver and if the admininistrative endpoints are set.
             //
-            if(_initData.observer == null && 
+            if(_initData.observer == null &&
                (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")) &&
                _initData.properties.getProperty("Ice.Admin.Endpoints").length() > 0)
             {
@@ -1089,7 +1069,7 @@ public final class Instance
                 _servantFactoryManager.destroy();
                 _servantFactoryManager = null;
             }
-            
+
             //_referenceFactory.destroy(); // No destroy function defined.
             _referenceFactory = null;
 
@@ -1157,6 +1137,46 @@ public final class Instance
                 }
                 _initData.logger.warning(message.toString());
             }
+        }
+    }
+
+    private void
+    updateConnectionObservers()
+    {
+        try
+        {
+            assert(_outgoingConnectionFactory != null);
+            _outgoingConnectionFactory.updateConnectionObservers();
+            assert(_objectAdapterFactory != null);
+            _objectAdapterFactory.updateConnectionObservers();
+        }
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
+        }
+    }
+
+    private void
+    updateThreadObservers()
+    {
+        try
+        {
+            if(_clientThreadPool != null)
+            {
+                _clientThreadPool.updateObservers();
+            }
+            if(_serverThreadPool != null)
+            {
+                _serverThreadPool.updateObservers();
+            }
+            assert(_objectAdapterFactory != null);
+            _objectAdapterFactory.updateThreadObservers();
+            if(_endpointHostResolver != null)
+            {
+                _endpointHostResolver.updateObserver();
+            }
+        }
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
         }
     }
 

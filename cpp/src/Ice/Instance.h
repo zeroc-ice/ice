@@ -115,6 +115,10 @@ private:
     bool destroy();
     friend class Ice::CommunicatorI;
 
+    void updateConnectionObservers();
+    void updateThreadObservers();
+    friend class ObserverUpdaterI;
+
     enum State
     {
         StateActive,
