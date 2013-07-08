@@ -26,10 +26,12 @@ public final class Network
         // distinguishing phrases.
         //
 
-        String msg = ex.getMessage().toLowerCase();
+        String msg = ex.getMessage();
 
         if(msg != null)
         {
+            msg = msg.toLowerCase();
+            
             final String[] msgs =
             {
                 "connection refused", // ECONNREFUSED
