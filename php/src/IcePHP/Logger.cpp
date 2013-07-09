@@ -269,7 +269,7 @@ IcePHP::loggerInit(TSRMLS_D)
     //
     zend_class_entry ce;
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("Logger"), _interfaceMethods);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "Logger", _interfaceMethods);
 #else
     INIT_CLASS_ENTRY(ce, "Ice_Logger", _interfaceMethods);
 #endif

@@ -641,7 +641,7 @@ IcePHP::propertiesInit(TSRMLS_D)
     //
     zend_class_entry ce;
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("Properties"), _interfaceMethods);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "Properties", _interfaceMethods);
 #else
     INIT_CLASS_ENTRY(ce, "Ice_Properties", _interfaceMethods);
 #endif

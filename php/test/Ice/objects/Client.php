@@ -359,7 +359,8 @@ function allTests($communicator)
     $outS = null;
     $initial->opBaseSeq(array(), $outS);
 
-    $retS = $initial->opBaseSeq(array(new Test_Base()), $outS);
+    $base = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
+    $retS = $initial->opBaseSeq(array($base), $outS);
     test(count($retS) == 1 && count($outS) == 1);
     echo "ok\n";
 

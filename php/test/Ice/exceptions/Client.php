@@ -427,7 +427,7 @@ function allTests($communicator)
     return $thrower;
 }
 
-$initData = new Ice_InitializationData;
+$initData = $NS ? eval("return new Ice\\InitializationData;") : eval("return new Ice_InitializationData;");
 $initData->properties = Ice_getProperties();
 $initData->properties->setProperty("Ice.MessageSizeMax", "10");
 $communicator = Ice_initialize($argv, $initData);

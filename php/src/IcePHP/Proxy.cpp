@@ -1702,7 +1702,7 @@ IcePHP::proxyInit(TSRMLS_D)
     //
     zend_class_entry ce;
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("ObjectPrx"), _proxyMethods);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "ObjectPrx", _proxyMethods);
 #else
     INIT_CLASS_ENTRY(ce, "Ice_ObjectPrx", _proxyMethods);
 #endif
