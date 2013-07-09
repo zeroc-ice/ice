@@ -1363,7 +1363,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwMemoryLimitException(Ice::ByteSeq(20 * 1024)); // 20KB
             test(collocated);
         }
-        catch(const Ice::MemoryLimitException& ex)
+        catch(const Ice::MemoryLimitException&)
         {
         }
         catch(...)
