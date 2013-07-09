@@ -77,6 +77,10 @@ C# Changes
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   for a Slice structure that declares default values for its members.
 
+PHP Changes
+===========
+
+- Fixed PHP namespaces builds.
 
 ======================================================================
 Changes since version 3.5b
