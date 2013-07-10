@@ -732,6 +732,12 @@ amdCallbackIceException(AMDCallbackObject* self, PyObject* args)
         return 0;
     }
 
+    if(!PyObject_IsInstance(ex, PyExc_Exception))
+    {
+        PyErr_Format(PyExc_TypeError, "ice_exception argument is not an exception");
+        return 0;
+    }
+
     try
     {
         assert(self->upcall);

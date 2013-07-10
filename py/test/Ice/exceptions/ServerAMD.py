@@ -19,6 +19,10 @@ if not slice_dir:
 Ice.loadSlice('"-I' + slice_dir + '" TestAMD.ice')
 import Test
 
+def test(b):
+    if not b:
+        raise RuntimeError('test assertion failed')
+
 class ThrowerI(Test.Thrower):
     def shutdown_async(self, cb, current=None):
         current.adapter.getCommunicator().shutdown()
@@ -109,6 +113,13 @@ class ThrowerI(Test.Thrower):
         cb.ice_exception(Ice.TimeoutException())
 
     def throwNonIceException_async(self, cb, current=None):
+        # Python-specific: make sure the argument is validated.
+        try:
+            cb.ice_exception('foo')
+            test(False)
+        except TypeError:
+            pass
+
         cb.ice_exception(RuntimeError("12345"))
 
     def throwAssertException_async(self, cb, current=None):
