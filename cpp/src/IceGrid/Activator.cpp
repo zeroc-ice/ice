@@ -28,6 +28,7 @@
 #ifndef _WIN32
 #   include <sys/wait.h>
 #   include <signal.h>
+#   include <pwd.h> // for getpwuid
 #else
 #ifndef SIGKILL
 #   define SIGKILL 9
@@ -35,6 +36,10 @@
 #ifndef SIGTERM
 #   define SIGTERM 15
 #endif
+#endif
+
+#ifdef __linux
+#   include <grp.h> // for initgroups
 #endif
 
 using namespace std;
@@ -658,7 +663,33 @@ Activator::activate(const string& name,
             os << gid;
             reportChildError(getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str(),
                              _traceLevels);
-        }           
+        }
+
+        errno = 0;
+        struct passwd* pw = getpwuid(uid);
+        if(!pw)
+        {
+            if(errno)
+            {
+                reportChildError(getSystemErrno(), errorFds[1], "cannot read the password database", "",
+                                 _traceLevels);
+            }
+            else
+            {
+                ostringstream os;
+                os << uid;
+                reportChildError(getSystemErrno(), errorFds[1], "unknown user uid"  , os.str().c_str(),
+                                 _traceLevels);
+            }
+        }
+
+        if(initgroups(pw->pw_name, gid) == -1)
+        {
+            ostringstream os;
+            os << pw->pw_name;
+            reportChildError(getSystemErrno(), errorFds[1], "cannot initialize process supplementary group access list for user", 
+                             os.str().c_str(), _traceLevels);
+        }
         
         if(setuid(uid) == -1)
         {

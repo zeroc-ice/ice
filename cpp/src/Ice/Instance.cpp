@@ -56,6 +56,10 @@
 #   include <sys/types.h>
 #endif
 
+#ifdef __linux
+#   include <grp.h> // for initgroups
+#endif
+
 #include <Ice/UdpEndpointI.h>
 
 #ifndef ICE_OS_WINRT
@@ -908,15 +912,30 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 string newUser = _initData.properties->getProperty("Ice.ChangeUser");
                 if(!newUser.empty())
                 {
+                    errno = 0;
                     struct passwd* pw = getpwnam(newUser.c_str());
                     if(!pw)
+                    {
+                        if(errno)
+                        {
+                            SyscallException ex(__FILE__, __LINE__);
+                            ex.error = getSystemErrno();
+                            throw ex;
+                        }
+                        else
+                        {
+                            throw "Unknown user account `" + newUser + "'";
+                        }
+                    }
+                    
+                    if(setgid(pw->pw_gid) == -1)
                     {
                         SyscallException ex(__FILE__, __LINE__);
                         ex.error = getSystemErrno();
                         throw ex;
                     }
-                    
-                    if(setgid(pw->pw_gid) == -1)
+
+                    if(initgroups(pw->pw_name, pw->pw_gid) == -1)
                     {
                         SyscallException ex(__FILE__, __LINE__);
                         ex.error = getSystemErrno();
