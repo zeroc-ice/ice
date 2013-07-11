@@ -388,6 +388,10 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
                 _os.write(replyUnknownException);
                 ostringstream str;
                 str << *ex;
+                if(IceUtilInternal::printStackTraces)
+                {
+                    str <<  '\n' << ex->ice_stackTrace();
+                }
                 _os.write(str.str(), false);
             }
 
