@@ -117,9 +117,7 @@ else
     installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
     			  chmod a+rx $(install_assembliesdir)/$(notdir $(1))
     installpolicy 	= $(INSTALL_LIBRARY) $(1).dll $(install_assembliesdir); \
-                          $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
-    			  chmod a+rx $(install_assembliesdir)/$(notdir $(1).dll); \
-    			  chmod a+r $(install_assembliesdir)/$(notdir $(1))
+    			  chmod a+rx $(install_assembliesdir)/$(notdir $(1).dll)
     ifeq ($(DEBUG),yes)
         installmdb      = $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
                           chmod a+rx $(install_assembliesdir)/$(notdir $(1))
