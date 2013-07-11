@@ -549,14 +549,20 @@ IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(SOCKSNetworkProxy* p) { return p; }
 
 IceInternal::SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) :
-    _host(host), _port(port), _haveAddress(false)
+    _host(host), _port(port)
 {
     memset(&_address, 0, sizeof(_address));
+#ifndef NDEBUG
+    _haveAddress = false;
+#endif
 }
 
 IceInternal::SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) :
-    _port(0), _address(addr), _haveAddress(true)
+    _port(0), _address(addr)
 {
+#ifndef NDEBUG
+    _haveAddress = true;
+#endif
 }
 
 void
