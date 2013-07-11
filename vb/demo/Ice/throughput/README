@@ -9,3 +9,8 @@ $ server
 In a separate window, start the client:
 
 $ client
+
+The performance for byte sequences is expected to be greater than 
+for other types, because the cost of marshaling and unmarshaling 
+is greater for more complex types, also with byte sequences there
+isn't need to allocate/dellocate objects witch could be expesive.

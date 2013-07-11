@@ -16,7 +16,13 @@ which on the server side means that the operation implementation is
 passed pointers into the marshalling buffer which eliminates a copy
 of the sequence data. 
 
-For return aramaters we also use the cpp:array" metadata, but this
+For return paramaters we also use the cpp:array" metadata, but this
 time in conjuction with AMD. Doing this also reduces the number of 
 times the returned sequence is copied during marshalling.
 
+The performance for byte sequences is expected to be greater than 
+for other types, because the cost of marshaling and unmarshaling 
+is greater for more complex types, with byte sequences there isn't
+need to allocate/dellocate objects witch could be expesive, the C++
+byte seqences mapping also uses a zero copy optimization which is
+not possible with other types.
