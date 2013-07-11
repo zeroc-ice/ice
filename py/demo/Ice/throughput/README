@@ -11,6 +11,6 @@ In a separate window, start the client:
 $ python Client.py
 
 The performance for byte sequences is expected to be greater than 
-for other types, because the cost of marshaling and unmarshaling 
-is greater for more complex types, also with byte sequences there
-isn't need to allocate/dellocate objects witch could be expesive.
+for other types because the cost of marshaling and unmarshaling is
+lower than for more complex types. With byte sequences there is no
+need to allocate and deallocate objects, which adds overhead.
