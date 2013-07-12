@@ -41,10 +41,10 @@ public:
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
     
-    virtual SocketOperation initialize(Buffer&, Buffer&);
+    virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual void close();
     virtual bool write(Buffer&);
-    virtual bool read(Buffer&);
+    virtual bool read(Buffer&, bool&);
 #ifdef ICE_USE_IOCP
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);

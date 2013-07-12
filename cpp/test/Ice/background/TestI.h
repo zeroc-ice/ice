@@ -53,6 +53,8 @@ public:
     
     virtual void writeReady(bool, const Ice::Current&);
     virtual void writeException(bool, const Ice::Current&);
+
+    virtual void buffered(bool, const Ice::Current&);
     
     BackgroundControllerI(const Ice::ObjectAdapterPtr&, const ConfigurationPtr&);
 

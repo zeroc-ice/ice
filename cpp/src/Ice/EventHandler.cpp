@@ -25,6 +25,7 @@ IceInternal::EventHandler::EventHandler() :
 #else
     _disabled(SocketOperationNone),
 #endif
+    _hasMoreData(false),
     _registered(SocketOperationNone)
 {
 }

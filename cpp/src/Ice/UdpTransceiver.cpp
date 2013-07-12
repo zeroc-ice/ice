@@ -80,7 +80,7 @@ IceInternal::UdpTransceiver::setCompletedHandler(SocketOperationCompletedHandler
 #endif
 
 SocketOperation
-IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
+IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/, bool& /*hasMoreData*/)
 {
     if(_state == StateNeedConnect)
     {
@@ -243,13 +243,13 @@ repeat:
 
 #ifdef ICE_OS_WINRT
 bool
-IceInternal::UdpTransceiver::read(Buffer&)
+IceInternal::UdpTransceiver::read(Buffer&, bool&)
 {
     return false;
 }
 #else
 bool
-IceInternal::UdpTransceiver::read(Buffer& buf)
+IceInternal::UdpTransceiver::read(Buffer& buf, bool&)
 {
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET);

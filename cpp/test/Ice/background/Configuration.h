@@ -25,27 +25,30 @@ public:
     Configuration();
     virtual ~Configuration();
 
-    virtual void connectorsException(Ice::LocalException*);
-    virtual void checkConnectorsException();
+    void connectorsException(Ice::LocalException*);
+    void checkConnectorsException();
 
-    virtual void connectException(Ice::LocalException*);
-    virtual void checkConnectException();
+    void connectException(Ice::LocalException*);
+    void checkConnectException();
 
-    virtual void initializeSocketOperation(IceInternal::SocketOperation);
-    virtual void initializeException(Ice::LocalException*);
-    virtual IceInternal::SocketOperation initializeSocketOperation();
-    virtual void checkInitializeException();
+    void initializeSocketOperation(IceInternal::SocketOperation);
+    void initializeException(Ice::LocalException*);
+    IceInternal::SocketOperation initializeSocketOperation();
+    void checkInitializeException();
 
-    virtual void readReady(bool);
-    virtual void readException(Ice::LocalException*);
-    virtual bool readReady();
-    virtual void checkReadException();
+    void readReady(bool);
+    void readException(Ice::LocalException*);
+    bool readReady();
+    void checkReadException();
 
-    virtual void writeReady(bool);
-    virtual void writeException(Ice::LocalException*);
-    virtual bool writeReady();
-    virtual void checkWriteException();
+    void writeReady(bool);
+    void writeException(Ice::LocalException*);
+    bool writeReady();
+    void checkWriteException();
 
+    void buffered(bool);
+    bool buffered();
+    
     static Configuration* getInstance();
 
 private:
@@ -59,6 +62,7 @@ private:
     IceUtil::UniquePtr<Ice::LocalException> _readException;
     int _writeReadyCount;
     IceUtil::UniquePtr<Ice::LocalException> _writeException;
+    bool _buffered;
 
     static Configuration* _instance;
 };

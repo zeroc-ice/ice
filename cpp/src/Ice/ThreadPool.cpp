@@ -108,6 +108,29 @@ private:
     IceUtil::ThreadPtr _thread;
 };
 
+class InterruptWorkItem : public ThreadPoolWorkItem
+{
+public:
+
+    virtual void
+    execute(ThreadPoolCurrent& current)
+    {
+        // Nothing to do, this is just used to interrupt the thread pool selector.
+    }
+};
+ThreadPoolWorkItemPtr interruptWorkItem;
+
+class InterruptWorkItemInit
+{
+public:
+
+    InterruptWorkItemInit()
+    {
+        interruptWorkItem = new InterruptWorkItem;
+    }
+};
+InterruptWorkItemInit init;
+
 //
 // Exception raised by the thread pool work queue when the thread pool
 // is destroyed.
@@ -562,6 +585,20 @@ IceInternal::ThreadPool::update(const EventHandlerPtr& handler, SocketOperation 
     Lock sync(*this);
     assert(!_destroyed);
     _selector.update(handler.get(), remove, add);
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+    if(add & SocketOperationRead && handler->_hasMoreData)
+    {
+        if(_pendingHandlers.empty())
+        {
+            _workQueue->queue(interruptWorkItem); // Interrupt select()
+        }
+       _pendingHandlers.insert(handler.get());
+    }
+    else if(remove & SocketOperationRead)
+    {
+        _pendingHandlers.erase(handler.get());
+    }
+#endif
 }
 
 void
@@ -577,8 +614,8 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler)
     // Clear the current ready handlers. The handlers from this vector can't be 
     // reference counted and a handler might get destroyed once it's finished.
     //
-    _handlers.clear();
-    _nextHandler = _handlers.end();
+    //_handlers.clear();
+    //_nextHandler = _handlers.end();
 #else
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if(!handler->_pending)
@@ -682,6 +719,19 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 if(select)
                 {
                     _handlers.swap(handlers);
+                    if(!_pendingHandlers.empty())
+                    {
+                        for(_nextHandler = _handlers.begin(); _nextHandler != _handlers.end(); ++_nextHandler)
+                        {
+                            _pendingHandlers.erase(_nextHandler->first);
+                        }
+                        set<EventHandler*>::const_iterator p;
+                        for(p = _pendingHandlers.begin(); p != _pendingHandlers.end(); ++p)
+                        {
+                            _handlers.push_back(make_pair(*p, SocketOperationRead));
+                        }
+                        _pendingHandlers.clear();
+                    }
                     _nextHandler = _handlers.begin();
                     _selector.finishSelect();
                     select = false;
@@ -700,6 +750,14 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     // the IO thread count now.
                     //
                     --_inUseIO;
+                    if(current._handler->_hasMoreData && current._handler->_registered & SocketOperationRead)
+                    {
+                        if(_pendingHandlers.empty())
+                        {
+                            _workQueue->queue(interruptWorkItem); // Interrupt select()
+                        }
+                        _pendingHandlers.insert(current._handler.get());
+                    }
                 }
                 else
                 {
@@ -707,7 +765,18 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     // If the handler called ioCompleted(), we re-enable the handler in
                     // case it was disabled and we decrease the number of thread in use.
                     //
-                    _selector.enable(current._handler.get(), current.operation);
+                    if(_serialize)
+                    {
+                        _selector.enable(current._handler.get(), current.operation);
+                        if(current._handler->_hasMoreData && current._handler->_registered & SocketOperationRead)
+                        {
+                            if(_pendingHandlers.empty())
+                            {
+                                _workQueue->queue(interruptWorkItem); // Interrupt select()
+                            }
+                            _pendingHandlers.insert(current._handler.get());
+                        }
+                    }
                     assert(_inUse > 0);
                     --_inUse;
                 }
@@ -717,10 +786,22 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                     return; // Wait timed-out.
                 }
             }
+            else if(current._handler->_hasMoreData && current._handler->_registered & SocketOperationRead)
+            {
+                if(_pendingHandlers.empty())
+                {
+                    _workQueue->queue(interruptWorkItem); // Interrupt select()
+                }
+                _pendingHandlers.insert(current._handler.get());
+            }
 
             //
             // Get the next ready handler.
             //
+            while(_nextHandler != _handlers.end() && !(_nextHandler->second & _nextHandler->first->_registered))
+            {
+                ++_nextHandler;
+            }
             if(_nextHandler != _handlers.end())
             {
                 current._ioCompleted = false;
@@ -748,6 +829,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else
                 {
+                    _handlers.clear();
                     _selector.startSelect();
                     select = true;
                     thread->setState(ThreadStateIdle);
@@ -889,13 +971,25 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
     if(_sizeMax > 1)
     {
+        
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
         --_inUseIO;
-        
-        if(_serialize && !_destroyed)
+
+        if(!_destroyed)
         {
-            _selector.disable(current._handler.get(), current.operation);
-        }    
+            if(_serialize)
+            {
+                _selector.disable(current._handler.get(), current.operation);
+            }
+            else if(current._handler->_hasMoreData && current._handler->_registered & SocketOperationRead)
+            {
+                if(_pendingHandlers.empty())
+                {
+                    _workQueue->queue(interruptWorkItem); // Interrupt select()
+                }
+                _pendingHandlers.insert(current._handler.get());
+            }
+        }
 
         if(current._leader)
         {

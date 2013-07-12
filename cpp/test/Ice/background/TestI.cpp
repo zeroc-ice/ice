@@ -109,6 +109,12 @@ BackgroundControllerI::writeException(bool enable, const Ice::Current&)
     _configuration->writeException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
 }
     
+void
+BackgroundControllerI::buffered(bool enable, const Ice::Current&)
+{
+    _configuration->buffered(enable);
+}
+
 BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter, 
                                              const ConfigurationPtr& configuration) :
     _adapter(adapter),

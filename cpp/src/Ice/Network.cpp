@@ -543,6 +543,24 @@ IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
     ZeroMemory(this, sizeof(AsyncInfo));
     status = s;
 }
+
+void
+IceInternal::NativeInfo::initialize(HANDLE handle, ULONG_PTR key)
+{
+    _handle = handle;
+    _key = key;
+}
+
+void
+IceInternal::NativeInfo::completed(SocketOperation operation)
+{
+    if(!PostQueuedCompletionStatus(_handle, 0, _key, getAsyncInfo(operation)))
+    {
+        Ice::SocketException ex(__FILE__, __LINE__);
+        ex.error = GetLastError();
+        throw ex;
+    }
+}
 #endif
 
 IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }

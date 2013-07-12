@@ -178,6 +178,8 @@ public:
     //
 #if defined(ICE_USE_IOCP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
+    void initialize(HANDLE, ULONG_PTR);
+    void completed(SocketOperation operation);
 #elif defined(ICE_OS_WINRT)
     virtual void setCompletedHandler(SocketOperationCompletedHandler^) = 0;
 #endif
@@ -185,6 +187,11 @@ public:
 protected:
 
     SOCKET _fd;
+
+#if defined(ICE_USE_IOCP)
+    HANDLE _handle;
+    ULONG_PTR _key;
+#endif
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
 

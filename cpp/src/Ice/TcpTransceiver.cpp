@@ -46,7 +46,7 @@ IceInternal::TcpTransceiver::getAsyncInfo(SocketOperation status)
 #endif
 
 SocketOperation
-IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
+IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& hasMoreData)
 {
     try
     {
@@ -93,7 +93,7 @@ IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                     //
                     // Try to read the response.
                     //
-                    if(read(readBuffer))
+                    if(read(readBuffer, hasMoreData))
                     {
                         //
                         // Read completed without blocking - fall through.
@@ -268,7 +268,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
 }
 
 bool
-IceInternal::TcpTransceiver::read(Buffer& buf)
+IceInternal::TcpTransceiver::read(Buffer& buf, bool&)
 {
     //
     // It's impossible for packetSize to be more than an Int.

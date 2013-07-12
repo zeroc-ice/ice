@@ -127,6 +127,7 @@ private:
     std::vector<std::pair<EventHandler*, SocketOperation> > _handlers;
     std::vector<std::pair<EventHandler*, SocketOperation> >::const_iterator _nextHandler;
 #endif
+    std::set<EventHandler*> _pendingHandlers;
 
     bool _promote;
 };

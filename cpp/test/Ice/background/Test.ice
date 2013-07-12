@@ -39,6 +39,8 @@ interface BackgroundController
 
     void writeReady(bool enable);
     void writeException(bool enable);
+
+    void buffered(bool enable);
 };
 
 };

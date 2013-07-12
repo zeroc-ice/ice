@@ -65,6 +65,7 @@ protected:
 #else
     SocketOperation _disabled;
 #endif
+    bool _hasMoreData;
     SocketOperation _registered;
 
     friend class ThreadPool;
