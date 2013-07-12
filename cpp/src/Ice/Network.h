@@ -257,9 +257,6 @@ private:
     std::string _host;
     int _port;
     Address _address;
-#ifndef NDEBUG
-    bool _haveAddress;
-#endif
 };
 
 ICE_API bool noMoreFds(int);
