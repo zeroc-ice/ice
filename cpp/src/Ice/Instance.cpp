@@ -56,7 +56,7 @@
 #   include <sys/types.h>
 #endif
 
-#ifdef __linux
+#if defined(__linux) || defined(__sun)
 #   include <grp.h> // for initgroups
 #endif
 
@@ -924,7 +924,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                         }
                         else
                         {
-                            throw "Unknown user account `" + newUser + "'";
+                            InitializationException ex(__FILE__, __LINE__, "Unknown user account `" + newUser + "'");
+                            throw ex;
                         }
                     }
                     
