@@ -1,0 +1,123 @@
+.TH slice2java 1
+
+.SH NAME
+
+slice2java - The Slice to Java compiler.
+
+.SH SYNOPSIS
+
+slice2java [options] [files]
+
+.SH DESCRIPTION
+
+slice2java compiles Slice files to Java. Full documentation for slice2java is
+available online at:
+.br
+"http://doc.zeroc.com/display/Ice/Using+the+Slice+Compiler+for+Java".
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays a help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the compiler version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br 
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-ice\fR
+.br
+Permit use of the normally reserved prefix Ice for identifiers. Use this
+option only when compiling the source code for the Ice run time.
+
+.TP
+.BR \-\-underscore\fR
+.br
+Permit use of underscores in Slice identifiers.
+
+.TP
+.BR \-\-tie\fR
+.br
+Generate tie classes.
+
+.TP
+.BR \-\-impl\fR
+.br
+Generate sample implementation files. This option will not overwrite an
+existing file.
+
+.TP
+.BR \-\-impl\-tie
+.br
+Generate sample implementation files using tie classes. This option will not
+overwrite an existing file.
+
+.TP
+.BR \-\-checksum " " CLASS\fR
+.br
+Generate checksums for Slice definitions into the class CLASS. The given class
+name may optionally contain a package specifier. The generated class contains
+checksums for all of the Slice files being translated by this invocation of
+the compiler.
+
+.TP
+.BR \-\-stream\fR
+.br
+Generate streaming helper functions for Slice types.
+
+.TP
+.BR \-\-meta " " META\fR
+.br
+Define the global metadata directive META. Using this option is equivalent to
+defining the global metadata META in each named Slice file, as well as in any
+file included by a named Slice file. Global metadata specified with --meta
+overrides any corresponding global metadata directive in the files being
+compiled.
+
+.SH SEE ALSO
+
+.BR slice2cpp (1),
+.BR slice2cs (1),
+.BR slice2freeze (1),
+.BR slice2freezej (1),
+.BR slice2html (1),
+.BR slice2php (1),
+.BR slice2py (1),
+.BR slice2rb (1)

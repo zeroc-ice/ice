@@ -33,5 +33,6 @@ $(NAME): $(OBJS)
 
 install:: all
 	$(call installprogram,$(NAME),$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/slice2freeze.1,$(install_mandir))
 
 include .depend

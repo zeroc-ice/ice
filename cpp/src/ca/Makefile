@@ -40,6 +40,7 @@ install::
 	    $(INSTALL_PROGRAM) $$i $(prefix)/bin ;\
 	    chmod a+x $(prefix)/bin/$$i ;\
 	done
+	$(call installdata,$(top_srcdir)/../man/man1/iceca.1,$(install_mandir))
 	@for i in $(CLASS_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \

@@ -17,7 +17,8 @@ ifeq ($(shell uname | grep MINGW),)
 SUBDIRS		:= $(SUBDIRS) demo
 endif
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_configdir)
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) \
+	$(install_configdir) $(install_mandir)
 
 install:: install-common
 	@for subdir in $(INSTALL_SUBDIRS); \

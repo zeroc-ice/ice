@@ -92,6 +92,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installprogram,$(ADMIN),$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icestormadmin.1,$(install_mandir))
 
 SUBDIRS = FreezeDB
 

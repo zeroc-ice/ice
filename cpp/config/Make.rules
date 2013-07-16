@@ -192,6 +192,12 @@ install_bindir	  	:= $(prefix)/$(binsubdir)$(cpp11suffix)
 install_libdir	  	:= $(prefix)/$(libsubdir)$(cpp11suffix)
 install_configdir 	:= $(prefix)/config
 
+ifneq ($(prefix),/usr)
+install_mandir		:= $(prefix)/man/man1
+else
+install_mandir		:= $(prefix)/share/man/man1
+endif
+
 ifneq ($(embedded_runpath_prefix),)
     runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 else

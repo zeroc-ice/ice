@@ -71,6 +71,8 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installprogram,$(SERVER),$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icebox.1,$(install_mandir))
 	$(call installprogram,$(ADMIN),$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/iceboxadmin.1,$(install_mandir))
 
 include .depend

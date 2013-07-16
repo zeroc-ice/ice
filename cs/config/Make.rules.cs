@@ -81,6 +81,11 @@ install_assembliesdir   = $(prefix)/Assemblies
 
 install_libdir		    = $(prefix)/lib
 
+ifneq ($(prefix),/usr)
+install_mandir		:= $(prefix)/man/man1
+else
+install_mandir		:= $(prefix)/share/man/man1
+endif
 
 install_pkgconfigdir    = $(prefix)/lib/pkgconfig
 

@@ -58,6 +58,8 @@ $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 
 install:: all
 	$(call installprogram,$(TRANSFORMDB),$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/transformdb.1,$(install_mandir))
 	$(call installprogram,$(DUMPDB),$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/dumpdb.1,$(install_mandir))
 
 include .depend

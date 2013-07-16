@@ -42,6 +42,8 @@ General Changes
 - Fixed the graphical IceGrid administrative tool to run and build
   in JVMs without JavaFX support.
 
+- Added man pages for Ice executable tools and commands.
+
 
 C++ Changes
 ===========
