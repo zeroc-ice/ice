@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= keyword structure
+SUBDIRS		= keyword structure macros
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

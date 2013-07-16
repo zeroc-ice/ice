@@ -471,6 +471,7 @@
                 <include name="test/IceBox/configuration/Test.ice" />
                 <include name="test/IceSSL/configuration/Test.ice" />
                 <include name="test/Slice/keyword/Key.ice" />
+                <include name="test/Slice/macros/Test.ice" />
                 <include name="test/Slice/structure/Test.ice" />
             </fileset>
         </slice2java>

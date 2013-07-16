@@ -36,12 +36,12 @@ public:
 
     ~Preprocessor();
 
-    FILE* preprocess(bool);
+    FILE* preprocess(bool, const std::string& = "");
     bool close();
 
     enum Language { CPlusPlus, Java, JavaXML, CSharp, Python, Ruby, PHP };
 
-    bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "cpp",
+    bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "", const std::string& = "cpp",
                                    const std::string& = "");
 
     std::string getBaseName();

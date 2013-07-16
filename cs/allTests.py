@@ -27,6 +27,7 @@ import TestUtil
 tests = [
     ("Slice/keyword", ["once", "nosilverlight"]),
     ("Slice/structure", ["once", "nosilverlight"]),
+    ("Slice/macros", ["once", "nosilverlight"]),
     ("IceUtil/inputUtil", ["once", "nosilverlight"]),
     ("Ice/proxy", ["core"]),
     ("Ice/properties", ["once", "nosilverlight"]),

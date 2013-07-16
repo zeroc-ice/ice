@@ -13,7 +13,8 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= keyword \
 		  parser \
-		  structure
+		  structure \
+		  macros
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

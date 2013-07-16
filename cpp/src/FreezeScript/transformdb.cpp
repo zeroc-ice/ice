@@ -436,14 +436,16 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> oldD(oldUnit);
-    if(!FreezeScript::parseSlice(appName, oldUnit, oldSlice, oldCppArgs, debug))
+    if(!FreezeScript::parseSlice(appName, oldUnit, oldSlice, oldCppArgs, debug, 
+                                 "-DICE_COMPILER=ICE_TRANSFORMDB"))
     {
         return EXIT_FAILURE;
     }
 
     Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> newD(newUnit);
-    if(!FreezeScript::parseSlice(appName, newUnit, newSlice, newCppArgs, debug))
+    if(!FreezeScript::parseSlice(appName, newUnit, newSlice, newCppArgs, debug, 
+                                 "-DICE_COMPILER=ICE_TRANSFORMDB"))
     {
         return EXIT_FAILURE;
     }

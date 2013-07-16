@@ -888,7 +888,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     bool isFirst = prev == _symbols.end();
     bool isLast = next == _symbols.end();
-    bool hasParent = false;
+    /*bool hasParent = false;
     if(EnumPtr::dynamicCast(c))
     {
         hasParent = true;
@@ -904,7 +904,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     else if(ContainedPtr::dynamicCast(c))
     {
         hasParent = true;
-    }
+    }*/
 
     bool onEnumPage = EnumPtr::dynamicCast(c);
 

@@ -26,6 +26,7 @@ import TestUtil
 tests = [
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),
+    ("Slice/macros", ["once"]),
     ("Ice/adapterDeactivation", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/exceptions", ["core"]),

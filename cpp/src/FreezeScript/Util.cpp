@@ -170,7 +170,7 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& u)
 
 bool
 FreezeScript::parseSlice(const string& n, const Slice::UnitPtr& u, const vector<string>& files,
-                         const vector<string>& cppArgs, bool debug)
+                         const vector<string>& cppArgs, bool debug, const std::string& extraArgs)
 {
     //
     // Parse the Slice files.
@@ -179,7 +179,7 @@ FreezeScript::parseSlice(const string& n, const Slice::UnitPtr& u, const vector<
     {
         PreprocessorPtr icecpp = Preprocessor::create(n, *p, cppArgs);
 
-        FILE* cppHandle = icecpp->preprocess(false);
+        FILE* cppHandle = icecpp->preprocess(false, extraArgs);
 
         if(cppHandle == 0)
         {

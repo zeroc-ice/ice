@@ -219,7 +219,7 @@ compile(int argc, char* argv[])
         if(depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false);
+            FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2JAVA");
 
             if(cppHandle == 0)
             {
@@ -235,7 +235,9 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths))
+            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths,
+                                                  "-DICE_COMPILER=ICE_SLICE2JAVA"
+            ))
             {
                 return EXIT_FAILURE;
             }
@@ -256,7 +258,7 @@ compile(int argc, char* argv[])
             FileTracker::instance()->setSource(*i);
 
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(true);
+            FILE* cppHandle = icecpp->preprocess(true, "-DICE_COMPILER=ICE_SLICE2JAVA");
 
             if(cppHandle == 0)
             {

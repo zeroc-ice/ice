@@ -1670,7 +1670,7 @@ compile(int argc, char* argv[])
         if(depend)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false);
+            FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2PHP");
 
             if(cppHandle == 0)
             {
@@ -1686,7 +1686,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::PHP, includePaths))
+            if(!icecpp->printMakefileDependencies(Preprocessor::PHP, includePaths, "-DICE_COMPILER=ICE_SLICE2PHP"))
             {
                 return EXIT_FAILURE;
             }
@@ -1699,7 +1699,7 @@ compile(int argc, char* argv[])
         else
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false);
+            FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2PHP");
 
             if(cppHandle == 0)
             {

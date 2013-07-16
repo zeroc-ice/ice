@@ -27,6 +27,7 @@ import TestUtil
 tests = [
     ("Slice/generation", ["once"]),
     ("Slice/keyword", ["once"]),
+    ("Slice/macros", ["once"]),
     ("Slice/structure", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
     ("IceUtil/fileLock", ["once"]),

@@ -136,18 +136,12 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
     return result;
 }
 
-FILE*
-Slice::Preprocessor::preprocess(bool keepComments)
+namespace
 {
-    if(!checkInputFile())
-    {
-        return 0;
-    }
 
-    //
-    // Build arguments list.
-    //
-    vector<string> args = _args;
+vector<string>
+baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const string& fileName)
+{
     if(keepComments)
     {
         args.push_back("-C");
@@ -157,7 +151,41 @@ Slice::Preprocessor::preprocess(bool keepComments)
     ostringstream version;
     version << "-DICE_VERSION=" << ICE_INT_VERSION;
     args.push_back(version.str());
-    args.push_back(_fileName);
+
+    args.push_back("-DICE_SLICE2CPP=1"); 
+    args.push_back("-DICE_SLICE2CS=2"); 
+    args.push_back("-DICE_SLICE2FREEZE=3");
+    args.push_back("-DICE_SLICE2FREEZEJ=4");
+    args.push_back("-DICE_SLICE2HTML=5");
+    args.push_back("-DICE_SLICE2JAVA=6");
+    args.push_back("-DICE_SLICE2PHP=7"); 
+    args.push_back("-DICE_SLICE2PY=8"); 
+    args.push_back("-DICE_SLICE2RB=9");
+    args.push_back("-DICE_TRANSFORMDB=10");
+    args.push_back("-DICE_DUMPDB=11");
+    
+    if(!extraArgs.empty())
+    {
+        args.push_back(extraArgs);
+    }
+    args.push_back(fileName);
+    return args;
+}
+
+}
+
+FILE*
+Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
+{
+    if(!checkInputFile())
+    {
+        return 0;
+    }
+
+    //
+    // Build arguments list.
+    //
+    vector<string> args = baseArgs(_args, keepComments, extraArgs, _fileName);
     const char** argv = new const char*[args.size() + 1];
     argv[0] = "mcpp";
     for(unsigned int i = 0; i < args.size(); ++i)
@@ -251,7 +279,8 @@ Slice::Preprocessor::preprocess(bool keepComments)
 
 bool
 Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths,
-                                               const string& cppSourceExt, const string& optValue)
+                                               const std::string& extraArgs, const string& cppSourceExt,
+                                               const string& optValue)
 {
     if(!checkInputFile())
     {
@@ -272,11 +301,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     // Build arguments list.
     //
-    vector<string> args = _args;
-    args.push_back("-M");
-    args.push_back("-e");
-    args.push_back("en_us.utf8");
-    args.push_back(_fileName);
+    vector<string> args = baseArgs(_args, false, extraArgs, _fileName);
 
     const char** argv = new const char*[args.size() + 1];
     for(unsigned int i = 0; i < args.size(); ++i)

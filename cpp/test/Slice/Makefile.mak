@@ -13,7 +13,8 @@ top_srcdir	= ..\..
 
 SUBDIRS		= keyword \
 		  parser \
-		  structure
+		  structure \
+		  macros
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

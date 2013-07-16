@@ -42,7 +42,8 @@ tests = [
     ("Ice/ini", ["once"]),
     ("Ice/scope", ["once"]),
     ("Slice/keyword", ["once"]),
-    ("Slice/structure", ["once"])
+    ("Slice/structure", ["once"]),
+    ("Slice/macros", ["once"]),
     ]
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-SUBDIRS		= keyword structure
+SUBDIRS		= keyword structure macros
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
