@@ -148,9 +148,19 @@ baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const 
     }
     args.push_back("-e");
     args.push_back("en_us.utf8");
-    ostringstream version;
-    version << "-DICE_VERSION=" << ICE_INT_VERSION;
-    args.push_back(version.str());
+    
+    //
+    // Define version macros __ICE_VERSION__ is preferred. We keep
+    // ICE_VERSION for backward compatibility with 3.5.0.
+    //
+    const string version[2] = {"ICE_VERSION", "__ICE_VERSION__"};
+    for(int i = 0; i < 2; ++i)
+    {
+        ostringstream os;
+        os << "-D" << version[i] << "=" << ICE_INT_VERSION;
+        args.push_back(os.str());
+    }
+    
     if(!extraArgs.empty())
     {
         args.push_back(extraArgs);
