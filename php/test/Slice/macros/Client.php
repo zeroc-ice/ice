@@ -33,7 +33,7 @@ function allTests()
 {
     global $NS;
 
-    echo "Testing Slice predefined macros... ";
+    echo "testing Slice predefined macros... ";
     flush();
 
     if($NS)

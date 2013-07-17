@@ -7,9 +7,8 @@
 //
 // **********************************************************************
 
-
 //
-// This macro sets the default value only when compile with slice2php
+// This macro sets the default value only when compiling with slice2php.
 //
 #ifdef __SLICE2PHP__
 #   define DEFAULT(X) = X
@@ -18,15 +17,13 @@
 #endif
 
 //
-// This macro sets the default value only when not compile with slice2php
+// This macro sets the default value only when not compiling with slice2php.
 //
 #ifndef __SLICE2PHP__
 #   define NODEFAULT(X) = X
 #else
 #   define NODEFAULT(X) /**/
 #endif
-
-
 
 module Test
 {
@@ -44,7 +41,7 @@ class NoDefault
 };
 
 //
-// This class is only defined when compile with slice2php.
+// This class is only defined when compiling with slice2php.
 //
 #ifdef __SLICE2PHP__
 class PhpOnly

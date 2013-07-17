@@ -7,9 +7,8 @@
 //
 // **********************************************************************
 
-
 //
-// This macro sets the default value only when compile with slice2cpp
+// This macro sets the default value only when compiling with slice2cpp.
 //
 #ifdef __SLICE2CPP__
 #   define DEFAULT(X) = X
@@ -18,15 +17,13 @@
 #endif
 
 //
-// This macro sets the default value only when not compile with slice2cpp
+// This macro sets the default value only when not compiling with slice2cpp.
 //
 #ifndef __SLICE2CPP__
 #   define NODEFAULT(X) = X
 #else
 #   define NODEFAULT(X) /**/
 #endif
-
-
 
 module Test
 {
@@ -44,7 +41,7 @@ class NoDefault
 };
 
 //
-// This class is only defined when compile with slice2cpp.
+// This class is only defined when compiling with slice2cpp.
 //
 #ifdef __SLICE2CPP__
 class CppOnly

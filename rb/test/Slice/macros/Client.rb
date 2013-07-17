@@ -34,16 +34,16 @@ end
 status = true
 
 begin
-    print "Testing Slice predefined macros... "
+    print "testing Slice predefined macros... "
     STDOUT.flush
     d = Test::Default.new
     test(d.x == 10)
     test(d.y == 10)
-    
+
     nd = Test::NoDefault.new
     test(nd.x != 10)
     test(nd.y != 10)
-    
+
     c = Test::RubyOnly.new
     test(c.lang.eql? "ruby")
     test(c.version == Ice::intVersion())

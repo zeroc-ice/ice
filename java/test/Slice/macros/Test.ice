@@ -12,7 +12,7 @@
 [["java:package:test.Slice.macros"]]
 
 //
-// This macro sets the default value only when compile with slice2java
+// This macro sets the default value only when compiling with slice2java.
 //
 #ifdef __SLICE2JAVA__
 #   define DEFAULT(X) = X
@@ -21,15 +21,13 @@
 #endif
 
 //
-// This macro sets the default value only when not compile with slice2java
+// This macro sets the default value only when not compiling with slice2java.
 //
 #ifndef __SLICE2JAVA__
 #   define NODEFAULT(X) = X
 #else
 #   define NODEFAULT(X) /**/
 #endif
-
-
 
 module Test
 {
@@ -47,7 +45,7 @@ class NoDefault
 };
 
 //
-// This class is only defined when compile with slice2java.
+// This class is only defined when compiling with slice2java.
 //
 #ifdef __SLICE2JAVA__
 class JavaOnly

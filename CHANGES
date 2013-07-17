@@ -27,16 +27,16 @@ Changes since version 3.5.0
 General Changes
 ===============
 
-- Fixed bug in IceGrid::Query::findAllReplicas implementation which
+- Fixed bug in IceGrid::Query::findAllReplicas implementation that
   could cause a crash when trying to find the proxies of an empty
   replica group.
- 
+
 - Added support for SOCKSv4 proxies to the Ice core in C++, C# and
   Java. This allows outgoing TCP & SSL connections using IPv4 to be
   mediated by a network proxy service.
 
-- Fixed bug which could cause an unexcepted exception or error on
-  connection closure and if the connection was closed shortly before
+- Fixed bug that could cause an unexpected exception or error on
+  connection closure when the connection is closed shortly before
   sending pending messages.
 
 - Fixed the graphical IceGrid administrative tool to run and build
@@ -56,7 +56,7 @@ C++ Changes
   listened on a UDP endpoint (one descriptor leaked per UDP endpoint).
 
 - Fixed a bug that could cause an unexpected exception to be thrown on
-  plugin loading and if a plugin property specified both a path and
+  plugin loading when a plugin property specified both a path and
   version.
 
 - Fixed a bug in slice2cpp that generated invalid C++ code for C++11
@@ -66,23 +66,25 @@ C++ Changes
 Java Changes
 ============
 
-- Fixed an assertion which would occur if the marshalling of the
-  response of AMD callback raised a memory limit exception.
+- Fixed an assertion that would occur if a memory limit exception was
+  raised while marshaling the response of an AMD callback.
 
 
 C# Changes
 ==========
 
-- Fixed an assertion which would occur if the marshalling of the
-  response of AMD callback raised a memory limit exception.
+- Fixed an assertion that would occur if a memory limit exception was
+  raised while marshaling the response of an AMD callback.
 
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   for a Slice structure that declares default values for its members.
 
+
 PHP Changes
 ===========
 
-- Fixed PHP namespaces builds.
+- Fixed PHP namespace builds.
+
 
 ======================================================================
 Changes since version 3.5b

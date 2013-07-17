@@ -7,9 +7,8 @@
 //
 // **********************************************************************
 
-
 //
-// This macro sets the default value only when compile with slice2py
+// This macro sets the default value only when compiling with slice2py.
 //
 #ifdef __SLICE2PY__
 #   define DEFAULT(X) = X
@@ -18,15 +17,13 @@
 #endif
 
 //
-// This macro sets the default value only when not compile with slice2py
+// This macro sets the default value only when not compiling with slice2py.
 //
 #ifndef __SLICE2PY__
 #   define NODEFAULT(X) = X
 #else
 #   define NODEFAULT(X) /**/
 #endif
-
-
 
 module Test
 {
@@ -44,7 +41,7 @@ class NoDefault
 };
 
 //
-// This class is only defined when compile with slice2py.
+// This class is only defined when compiling with slice2py.
 //
 #ifdef __SLICE2PY__
 class PythonOnly

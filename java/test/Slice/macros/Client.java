@@ -22,22 +22,22 @@ public class Client
             throw new RuntimeException();
         }
     }
-    
+
     public static void
     main(String[] args)
     {
         int status = 0;
         try
         {
-            System.out.print("Testing Slice predefined macros... ");
+            System.out.print("testing Slice predefined macros... ");
             Default d = new Default();
             test(d.x == 10);
             test(d.y == 10);
-            
+
             NoDefault nd = new NoDefault();
             test(nd.x != 10);
             test(nd.y != 10);
-            
+
             JavaOnly c = new JavaOnly();
             test(c.lang.equals("java"));
             test(c.version == Ice.Util.intVersion());
