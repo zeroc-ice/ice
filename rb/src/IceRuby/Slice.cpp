@@ -122,7 +122,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         {
             string file = *p;
             Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2RB");
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
             if(cppHandle == 0)
             {

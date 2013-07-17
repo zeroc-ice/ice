@@ -11,7 +11,7 @@
 //
 // This macro sets the default value only when compile with slice2php
 //
-#if defined(ICE_COMPILER) && (ICE_COMPILER == ICE_SLICE2PHP)
+#ifdef __SLICE2PHP__
 #   define DEFAULT(X) = X
 #else
 #   define DEFAULT(X) /**/
@@ -20,7 +20,7 @@
 //
 // This macro sets the default value only when not compile with slice2php
 //
-#if defined(ICE_COMPILER) && (ICE_COMPILER != ICE_SLICE2PHP)
+#ifndef __SLICE2PHP__
 #   define NODEFAULT(X) = X
 #else
 #   define NODEFAULT(X) /**/
@@ -46,7 +46,7 @@ class NoDefault
 //
 // This class is only defined when compile with slice2php.
 //
-#if defined(ICE_COMPILER) && (ICE_COMPILER == ICE_SLICE2PHP)
+#ifdef __SLICE2PHP__
 class PhpOnly
 {
     string lang DEFAULT("php");

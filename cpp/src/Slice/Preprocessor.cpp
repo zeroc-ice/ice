@@ -151,19 +151,6 @@ baseArgs(vector<string> args, bool keepComments, const string& extraArgs, const 
     ostringstream version;
     version << "-DICE_VERSION=" << ICE_INT_VERSION;
     args.push_back(version.str());
-
-    args.push_back("-DICE_SLICE2CPP=1"); 
-    args.push_back("-DICE_SLICE2CS=2"); 
-    args.push_back("-DICE_SLICE2FREEZE=3");
-    args.push_back("-DICE_SLICE2FREEZEJ=4");
-    args.push_back("-DICE_SLICE2HTML=5");
-    args.push_back("-DICE_SLICE2JAVA=6");
-    args.push_back("-DICE_SLICE2PHP=7"); 
-    args.push_back("-DICE_SLICE2PY=8"); 
-    args.push_back("-DICE_SLICE2RB=9");
-    args.push_back("-DICE_TRANSFORMDB=10");
-    args.push_back("-DICE_DUMPDB=11");
-    
     if(!extraArgs.empty())
     {
         args.push_back(extraArgs);
@@ -301,8 +288,10 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     //
     // Build arguments list.
     //
-    vector<string> args = baseArgs(_args, false, extraArgs, _fileName);
-
+    vector<string> args = _args;
+    args.push_back("-M");
+    args = baseArgs(args, false, extraArgs, _fileName);
+   
     const char** argv = new const char*[args.size() + 1];
     for(unsigned int i = 0; i < args.size(); ++i)
     {

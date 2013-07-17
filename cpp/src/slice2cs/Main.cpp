@@ -198,7 +198,7 @@ compile(int argc, char* argv[])
         if(depend)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2CS");
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2CS__");
 
             if(cppHandle == 0)
             {
@@ -215,7 +215,7 @@ compile(int argc, char* argv[])
             }
 
             if(!icecpp->printMakefileDependencies(Preprocessor::CSharp, includePaths, 
-                                                  "-DICE_COMPILER=ICE_SLICE2CS"))
+                                                  "-D__SLICE2CS__"))
             {
                 return EXIT_FAILURE;
             }
@@ -228,7 +228,7 @@ compile(int argc, char* argv[])
         else
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(true, "-DICE_COMPILER=ICE_SLICE2CS");
+            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2CS__");
 
             if(cppHandle == 0)
             {

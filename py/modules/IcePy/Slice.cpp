@@ -136,7 +136,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
         string file = *p;
         Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
-        FILE* cppHandle = icecpp->preprocess(keepComments, "-DICE_COMPILER=ICE_SLICE2PY");
+        FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
 
         if(cppHandle == 0)
         {

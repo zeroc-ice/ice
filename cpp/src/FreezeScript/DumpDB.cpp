@@ -343,7 +343,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
 
     Slice::UnitPtr unit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> unitD(unit);
-    if(!FreezeScript::parseSlice(appName, unit, slice, cppArgs, debug, "-DICE_COMPILER=ICE_DUMPDB"))
+    if(!FreezeScript::parseSlice(appName, unit, slice, cppArgs, debug, "-D___DUMPDB__"))
     {
         return EXIT_FAILURE;
     }
