@@ -140,9 +140,9 @@ def createDistfiles(platform, whichDestDir):
 
     fixVersion(os.path.join("bin", "makebindist.py"), *versions)
     if platform == "UNIX":
-	fixVersion(os.path.join("src", "rpm", "glacier2router.conf"), *versions)
-	fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
-	fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
+        fixVersion(os.path.join("src", "rpm", "glacier2router.conf"), *versions)
+        fixVersion(os.path.join("src", "rpm", "icegridregistry.conf"), *versions)
+        fixVersion(os.path.join("src", "rpm", "RPM_README"), *versions)
 
     #
     # Fix OS X installer files.
@@ -154,25 +154,25 @@ def createDistfiles(platform, whichDestDir):
                 fixVersion(filepath, *versions)
 
     for root, dirnames, filenames in os.walk('.'):
-	for f in filenames:
-	    filepath = os.path.join(root, f)
-	    # Fix version of README/INSTALL files
-	    if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
-		fixVersion(filepath, *versions)
-	    fixFilePermission(filepath, verbose)
-	for d in dirnames:
-	    os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
+        for f in filenames:
+            filepath = os.path.join(root, f)
+            # Fix version of README/INSTALL files
+            if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+                fixVersion(filepath, *versions)
+            fixFilePermission(filepath, verbose)
+        for d in dirnames:
+            os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
 
     print "ok"
 
 def fixGitAttributes(checkout, autocrlf, excludes):
     os.chdir(gitRepoDir)
     if checkout:
-	os.system("git checkout .gitattributes")
+        os.system("git checkout .gitattributes")
     if autocrlf:
-	os.system("git config core.autocrlf true")
+        os.system("git config core.autocrlf true")
     else:
-	os.system("git config --unset core.autocrlf")
+        os.system("git config --unset core.autocrlf")
 
     file = ".gitattributes"
 
@@ -196,7 +196,7 @@ def fixGitAttributes(checkout, autocrlf, excludes):
         newLines.append(x)
 
     if len(excludes) > 0:
-	newLines.append("""
+        newLines.append("""
 # THE FOLLOWING LINES WERE ADDED BY makedist.py
 # DO NOT COMMIT
 """)
@@ -272,7 +272,6 @@ print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
 
 remove("protobuf")
-remove("distribution/bin/makeprotobufdist.py")
 
 fixVersion("RELEASE_NOTES", *versions)
 fixVersion(os.path.join("cpp", "config", "glacier2router.cfg"), *versions)
@@ -282,20 +281,20 @@ makefileFixList = []
 for root, dirnames, filenames in os.walk('.'):
 
     for f in filenames:
-	filepath = os.path.join(root, f) 
-	if f == "expect.py":
-	    move(filepath, os.path.join(distDir, demoscriptDir, filepath))
-	else:
-	    # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
-	    if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
-		fixVersion(filepath, *versions)
-	    elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
-		makefileFixList.append(filepath)
+        filepath = os.path.join(root, f) 
+        if f == "expect.py":
+            move(filepath, os.path.join(distDir, demoscriptDir, filepath))
+        else:
+            # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
+            if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+                fixVersion(filepath, *versions)
+            elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
+                makefileFixList.append(filepath)
 
-	    fixFilePermission(filepath, verbose)
+            fixFilePermission(filepath, verbose)
     
     for d in dirnames:
-	os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
+        os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
 
 move("demoscript", os.path.join(demoscriptDir, "demoscript")) # Move the demoscript directory
 # and the associated top level demo script.
@@ -335,7 +334,6 @@ sys.stdout.flush()
 # Remove files and directories that should not be included.
 #
 remove("protobuf")
-remove("distribution/bin/makeprotobufdist.py")
 
 fixVersion("RELEASE_NOTES", *versions)
 fixVersion(os.path.join("cpp", "config", "glacier2router.cfg"), *versions)
@@ -350,16 +348,16 @@ for root, dirnames, filenames in os.walk('.'):
 
     for f in filenames:
         filepath = os.path.join(root, f) 
-	if f == "expect.py":
-	    remove(filepath)
-	else:
-	    # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
-	    if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
-		fixVersion(filepath, *versions)
-	    elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
-		makefileFixList.append(filepath)
+        if f == "expect.py":
+            remove(filepath)
+        else:
+            # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
+            if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+                fixVersion(filepath, *versions)
+            elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
+                makefileFixList.append(filepath)
 
-	    fixFilePermission(filepath, verbose)
+            fixFilePermission(filepath, verbose)
     
     for d in dirnames:
         os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
@@ -480,8 +478,8 @@ for d in ["democs", "demovb"]:
             for m in [ "*.csproj", "*.vbproj" ]:
                 if fnmatch.fnmatch(f, m):
                     FixUtil.fileMatchAndReplace(os.path.join(root, f),
-		    				[(re.escape("PublicKeyToken=1f998c50fec78381"),
-						  "PublicKeyToken=cdd571ade22f2f16")], False)
+                                                [(re.escape("PublicKeyToken=1f998c50fec78381"),
+                                                  "PublicKeyToken=cdd571ade22f2f16")], False)
 
 for d in ["demo", "democs", "demovb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
