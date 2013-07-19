@@ -169,7 +169,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 	    comment += static_cast<char>(c);
 	}
     }
-    if(comment[0] == '*')
+    if(!comment.empty() && comment[0] == '*')
     {
 	unit->setComment(comment);
     }
