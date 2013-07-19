@@ -18,11 +18,4 @@ interface Hello
     void shutdown();
 };
 
-["cs:attribute:System.Serializable"]
-struct Point {
-double x;
-double y;
-};
-
-
 };
