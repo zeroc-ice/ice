@@ -65,6 +65,12 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         ostr << "class ";
     }
+    
+    if(p->compactId() >= 0)
+    {
+        ostr << "(" << p->compactId() << ") ";
+    }
+    
     ostr << p->name();
 
     if(!bases.empty())
@@ -72,6 +78,10 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!bases.front()->isInterface())
         {
             ostr << " extends " << bases.front()->scoped();
+            if(bases.front()->compactId() >= 0)
+            {
+                ostr << "(" << bases.front()->compactId() << ") ";
+            }
             bases.erase(bases.begin());
         }
         if(!bases.empty())
@@ -91,6 +101,10 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
                     ostr << ", ";
                 }
                 ostr << (*q)->scoped();
+                if((*q)->compactId() >= 0)
+                {
+                    ostr << "(" << (*q)->compactId() << ") ";
+                }
             }
         }
     }

@@ -406,6 +406,38 @@ class BaseClass11
 };
 
 //
+// TEST: Class with compact id
+//
+class Compact1(1)
+{
+    void baseOp();
+    void baseOp2(int i, out string s) throws Exception1;
+};
+
+//
+// TEST: Derived from class with compact id
+//
+class Derived1 extends Compact1
+{
+};
+
+//
+// TEST: Same class names but different compact id
+//
+class Compact2(2)
+{
+    void baseOp();
+    void baseOp2(int i, out string s) throws Exception1;
+};
+
+//
+// TEST: Derived from class with compact, where parent ids doesn't match.
+//
+class Derived2 extends Compact2
+{
+};
+
+//
 // TEST: Local
 //
 local enum LocalEnum { LocalEnum1, LocalEnum2, LocalEnum3 };
