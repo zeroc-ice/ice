@@ -567,6 +567,7 @@ rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/ant-ice.jar
 %if %{mono}
 
 rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
+rm -r $RPM_BUILD_ROOT/man
 
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do 
