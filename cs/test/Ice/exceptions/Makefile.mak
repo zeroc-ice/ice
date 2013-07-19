@@ -27,7 +27,7 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I.
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(C_SRCS) $(GEN_SRCS)
