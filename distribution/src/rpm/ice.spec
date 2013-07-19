@@ -420,6 +420,7 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/ant-ice.jar $RPM_BUILD_ROOT%{_javad
 ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar 
 
 
+
 %if %{mono}
 
 #
@@ -440,6 +441,7 @@ if test ! -d $RPM_BUILD_ROOT%{_libdir}/pkgconfig
 then
     mv $RPM_BUILD_ROOT/lib/pkgconfig $RPM_BUILD_ROOT%{_libdir}
 fi
+
 %endif
 
 #
@@ -460,6 +462,15 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/config/* $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 
 #
+# Man pages
+#
+mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
+# TODO: We should really do this:
+#mv -f $RPM_BUILD_ROOT/man/man1/* $RPM_BUILD_ROOT%{_mandir}/man1
+rm -r $RPM_BUILD_ROOT/man
+cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
+
+#
 # Cleanup extra files
 #
 rm -f $RPM_BUILD_ROOT/ICE_LICENSE
@@ -475,6 +486,8 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libIceGridSqlDB.so
 
 %if !%{mono}
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/slice2cs.1
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/iceboxnet.1
 %endif
 
 %endif
@@ -550,7 +563,9 @@ mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 # Cleanup extra files
 #
 rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/ant-ice.jar
+
 %if %{mono}
+
 rm -f $RPM_BUILD_ROOT/bin/iceboxnet.exe
 
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
@@ -563,7 +578,6 @@ rm -r $RPM_BUILD_ROOT/lib/pkgconfig
 %endif
 
 %endif
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -664,15 +678,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libIceXML.so.%{version}
 %{_libdir}/libIceXML.so.%{soversion}
 %{_bindir}/dumpdb
+%{_mandir}/man1/dumpdb.1.gz
 %{_bindir}/transformdb
+%{_mandir}/man1/transformdb.1.gz
 %{_bindir}/iceboxadmin
+%{_mandir}/man1/iceboxadmin.1.gz
 %{_bindir}/icepatch2calc
+%{_mandir}/man1/icepatch2calc.1.gz
 %{_bindir}/icepatch2client
+%{_mandir}/man1/icepatch2client.1.gz
 %{_bindir}/icestormadmin
+%{_mandir}/man1/icestormadmin.1.gz
 %{_bindir}/slice2html
+%{_mandir}/man1/slice2html.1.gz
 %{_bindir}/icegridadmin
+%{_mandir}/man1/icegridadmin.1.gz
 %{_bindir}/icegridgui
 %{_bindir}/iceca
+%{_mandir}/man1/iceca.1.gz
 %{_javadir}/IceGridGUI-%{version}.jar
 %{_javadir}/IceGridGUI.jar
 %dir %{_datadir}/Ice-%{version}
@@ -685,14 +708,21 @@ rm -rf $RPM_BUILD_ROOT
 %files servers
 %defattr(-, root, root, -)
 %{_bindir}/glacier2router
+%{_mandir}/man1/glacier2router.1.gz
 %{_bindir}/icebox
+%{_mandir}/man1/icebox.1.gz
 %if %{mono}
 %{_bindir}/iceboxnet.exe
+%{_mandir}/man1/iceboxnet.1.gz
 %endif
 %{_bindir}/icegridnode
+%{_mandir}/man1/icegridnode.1.gz
 %{_bindir}/icegridregistry
+%{_mandir}/man1/icegridregistry.1.gz
 %{_bindir}/icepatch2server
+%{_mandir}/man1/icepatch2server.1.gz
 %{_bindir}/icestormmigrate
+%{_mandir}/man1/icestormmigrate.1.gz
 %{_libdir}/libIceDB.so.%{version}
 %{_libdir}/libIceDB.so.%{soversion}
 %{_libdir}/libIceGridFreezeDB.so.%{version}
@@ -766,7 +796,9 @@ fi
 %defattr(-, root, root, -)
 
 %{_bindir}/slice2cpp
+%{_mandir}/man1/slice2cpp.1.gz
 %{_bindir}/slice2freeze
+%{_mandir}/man1/slice2freeze.1.gz
 %{_includedir}/Freeze
 %{_includedir}/Glacier2
 %{_includedir}/Ice
@@ -795,6 +827,7 @@ fi
 %files mono-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2cs
+%{_mandir}/man1/slice2cs.1.gz
 %{_libdir}/pkgconfig/Ice.pc
 %{_libdir}/pkgconfig/Glacier2.pc
 %{_libdir}/pkgconfig/IceBox.pc
@@ -812,7 +845,9 @@ fi
 %files java-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2java
+%{_mandir}/man1/slice2java.1.gz
 %{_bindir}/slice2freezej
+%{_mandir}/man1/slice2freezej.1.gz
 %{_javadir}/ant-ice-%{version}.jar
 %{_javadir}/ant-ice.jar
 
@@ -824,6 +859,7 @@ fi
 %files python-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2py
+%{_mandir}/man1/slice2py.1.gz
 
 %if %{ruby}
 %files ruby
@@ -833,6 +869,7 @@ fi
 %files ruby-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2rb
+%{_mandir}/man1/slice2rb.1.gz
 %endif
 
 %files php
@@ -853,9 +890,13 @@ fi
 %files php-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2php
+%{_mandir}/man1/slice2php.1.gz
 %endif
 
 %changelog
+
+* Thu Jul 18 2013 Mark Spruiell <mes@zeroc.com> 3.5.1
+- Adding man pages.
 
 * Thu Feb 7 2013 Mark Spruiell <mes@zeroc.com> 3.5.0
 - Updates for the Ice 3.5.0 release.
