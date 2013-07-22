@@ -49,8 +49,11 @@ $(CALC): $(CALCOBJS) $(LIBTARGETS)
 	$(CXX) $(LDFLAGS) -o $@ $(CALCOBJS) $(OPENSSL_RPATH_LINK) -lIcePatch2 $(LIBS)
 
 install:: all
-	$(call installprogram,$(SERVER),$(install_bindir))
-	$(call installprogram,$(CLIENT),$(install_bindir))
-	$(call installprogram,$(CALC),$(install_bindir))
+	$(call installprogram,$(SERVER),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icepatch2server.1,$(DESTDIR)$(install_mandir))
+	$(call installprogram,$(CLIENT),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icepatch2client.1,$(DESTDIR)$(install_mandir))
+	$(call installprogram,$(CALC),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icepatch2calc.1,$(DESTDIR)$(install_mandir))
 
 include .depend

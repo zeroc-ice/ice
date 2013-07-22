@@ -57,9 +57,9 @@ $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(DUMP_OBJS) $(COMMON_OBJS) -lSlice $(EXPAT_RPATH_LINK) -lIceXML $(DB_RPATH_LINK) -lFreeze $(LIBS) $(DB_LIBS)
 
 install:: all
-	$(call installprogram,$(TRANSFORMDB),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/transformdb.1,$(install_mandir))
-	$(call installprogram,$(DUMPDB),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/dumpdb.1,$(install_mandir))
+	$(call installprogram,$(TRANSFORMDB),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/transformdb.1,$(DESTDIR)$(install_mandir))
+	$(call installprogram,$(DUMPDB),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/dumpdb.1,$(DESTDIR)$(install_mandir))
 
 include .depend

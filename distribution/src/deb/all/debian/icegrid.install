@@ -1,0 +1,22 @@
+etc/init.d/icegridnode
+etc/init.d/icegridregistry
+
+etc/icegridnode.conf
+etc/icegridregistry.conf
+
+usr/bin/icegridnode
+usr/share/man/man1/icegridnode.1
+usr/bin/icegridregistry
+usr/share/man/man1/icegridregistry.1
+
+usr/lib/libIceGridFreezeDB.so.* usr/lib/
+usr/config/icegrid-slice.3.1.ice.gz usr/share/Ice-@ver@
+usr/config/icegrid-slice.3.2.ice.gz usr/share/Ice-@ver@
+usr/config/icegrid-slice.3.3.ice.gz usr/share/Ice-@ver@
+usr/config/icegrid-slice.@mmver@.ice.gz usr/share/Ice-@ver@
+usr/config/templates.xml usr/share/Ice-@ver@
+usr/config/upgradeicegrid33.py usr/share/Ice-@ver@
+usr/config/upgradeicegrid35.py usr/share/Ice-@ver@
+
+var/lib/ice/icegrid/registry/
+var/lib/ice/icegrid/node1/

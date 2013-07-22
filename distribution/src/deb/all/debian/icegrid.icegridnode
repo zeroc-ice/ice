@@ -1,0 +1,142 @@
+#!/bin/sh
+#
+# Copyright (c) 2007-2013 ZeroC, Inc. All rights reserved.
+#
+# icegridnode   This shell script takes care of starting and 
+#               stopping the icegridnode daemon.
+#
+### BEGIN INIT INFO
+# Provides:          icegridnode
+# Required-Start:    $network $local_fs
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: The IceGrid node daemon
+# Description:       IceGrid is the server deployment and monitoring for the Internet
+#                    Communications Engine (Ice). An IceGrid domain consists of one 
+#                    master registry, zero or more slave registries, and zero or more
+#                    IceGrid nodes.
+### END INIT INFO
+
+#
+# The IceGrid node user; root is allowed, but not necessary, therefore
+# it is recommended to use a non-root account.
+#
+user=ice
+
+#
+# Ask for a password at startup?
+#
+prompt=no
+
+#
+# The IceGrid node configuration file
+#
+routerconf="/etc/icegridnode.conf"
+
+DAEMON="/usr/bin/icegridnode"
+
+progbase=${DAEMON##*/}
+PIDFILE=/var/run/$progbase.pid
+
+options="--daemon --pidfile $PIDFILE --Ice.Config=$routerconf"
+
+# Exit if the package is not installed
+[ -x $prog ] || exit 0
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+. /lib/lsb/init-functions
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+    if [ "${prompt:-}" = "yes" ]
+    then
+        INITLOG_ARGS=              # clears -q
+    fi
+    daemonoptions="--start --quiet"
+    if [ "$user" != "root" ]
+    then
+        daemonoptions="$daemonoptions --user $user"
+        if [ ! -e $PIDFILE ]
+        then
+            touch $PIDFILE
+        fi
+        chown $user $PIDFILE
+    fi           
+
+    # Return
+    #   0 if daemon has been started
+    #   1 if daemon was already running
+    #   2 if daemon could not be started
+    start-stop-daemon $daemonoptions --exec $DAEMON --test > /dev/null || return 1
+    start-stop-daemon $daemonoptions --pidfile $PIDFILE --exec $DAEMON -- $options || return 2
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+        # Return
+        #   0 if daemon has been stopped
+        #   1 if daemon was already stopped
+        #   2 if daemon could not be stopped
+        #   other if a failure occurred
+        start-stop-daemon --stop --quiet --retry=TERM/60 --pidfile $PIDFILE --exec $DAEMON
+        RETVAL="$?"
+        rm -f $pidfile
+        return "$RETVAL"
+}
+
+case "$1" in
+  start)
+    [ "$VERBOSE" != no ] && log_daemon_msg "Starting $progbase"
+    do_start
+    case "$?" in
+                0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+                2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+        esac
+  ;;
+  stop)
+        [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $progbase"
+        do_stop
+        case "$?" in
+                0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+                2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+        esac
+        ;;
+  status)
+       status_of_proc "$DAEMON" "$progbase" && exit 0 || exit $?
+       ;;
+  restart|force-reload)
+        log_daemon_msg "Restarting $DESC" "$progbase"
+        do_stop
+        case "$?" in
+          0|1)
+                do_start
+                case "$?" in
+                        0) log_end_msg 0 ;;
+                        1) log_end_msg 1 ;; # Old process is still running
+                        *) log_end_msg 1 ;; # Failed to start
+                esac
+                ;;
+          *)
+                # Failed to stop
+                log_end_msg 1
+                ;;
+        esac
+        ;;
+  *)
+        echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+        exit 3
+        ;;
+esac
+
+:

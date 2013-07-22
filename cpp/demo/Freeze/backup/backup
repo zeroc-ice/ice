@@ -15,6 +15,12 @@
 db="db"
 if `command -v db53_hotbackup > /dev/null 2>&1`; then db="db53"; fi
 
+#
+# If you use a db5.3 DEB installation, the db utilities are
+# named db5.3_xxx.
+#
+if `command -v db5.3_hotbackup > /dev/null 2>&1`; then db="db5.3"; fi
+
 case $1 in
   "full" | "incremental") echo "Performing $1 backup"
 

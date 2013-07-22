@@ -77,7 +77,15 @@ assembliesdir           = $(top_srcdir)/Assemblies
 
 install_bindir		    = $(prefix)/bin
 
+ifeq ($(GACINSTALL),yes)
+    ifeq ($(GAC_ROOT),)
+        install_assembliesdir   = $(prefix)/lib/mono/$(PKG)
+    else
+        install_assembliesdir   = $(GAC_ROOT)/mono/$(PKG)
+    endif
+else
 install_assembliesdir   = $(prefix)/Assemblies
+endif
 
 install_libdir		    = $(prefix)/lib
 
@@ -111,21 +119,25 @@ GACUTIL			= gacutil
 installmdb    = /bin/true
 
 ifeq ($(GACINSTALL),yes)
-    ifeq ($(GAC_ROOT),)
-        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt)
-        installpolicy = $(GACUTIL) -i $(1).dll -f
+    ifeq ($(DESTDIR)$(GAC_ROOT),)
+        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt
+        installpolicy = $(GACUTIL) -i $(1).dll
     else
-        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt -root $(GAC_ROOT))
-        installpolicy = $(GACUTIL) -i $(1).dll -f -root $(GAC_ROOT)
+        ifeq ($(GAC_ROOT),)
+            GAC_ROOT = $(prefix)/lib
+        endif
+        installassembly = ([ -n "$(2)" ] && pkgopt="-package $(2)"; $(GACUTIL) -i $(1) -f $$pkgopt \
+            -root $(DESTDIR)$(GAC_ROOT))
+        installpolicy = $(GACUTIL) -i $(1).dll -f -root $(DESTDIR)$(GAC_ROOT)
     endif
 else
-    installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
-    			  chmod a+rx $(install_assembliesdir)/$(notdir $(1))
+    installassembly 	= $(INSTALL_LIBRARY) $(1) $(DESTDIR)$(install_assembliesdir); \
+    			  chmod a+rx $(DESTDIR)$(install_assembliesdir)/$(notdir $(1))
     installpolicy 	= $(INSTALL_LIBRARY) $(1).dll $(install_assembliesdir); \
     			  chmod a+rx $(install_assembliesdir)/$(notdir $(1).dll)
     ifeq ($(DEBUG),yes)
-        installmdb      = $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
-                          chmod a+rx $(install_assembliesdir)/$(notdir $(1))
+        installmdb      = $(INSTALL_LIBRARY) $(1) $(DESTDIR)$(install_assembliesdir); \
+                          chmod a+rx $(DESTDIR)$(install_assembliesdir)/$(notdir $(1))
     endif
 endif
 

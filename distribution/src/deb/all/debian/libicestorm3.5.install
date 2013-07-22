@@ -1,0 +1,3 @@
+usr/lib/libIceStormService.so.* usr/lib/
+usr/lib/libIceDB.so.* usr/lib/
+usr/lib/libIceStormFreezeDB.so.* usr/lib

@@ -18,25 +18,25 @@ INSTALL_SUBDIRS	= $(install_bindir) $(install_assembliesdir) $(install_mandir)
 install:: install-common
 	@for subdir in $(INSTALL_SUBDIRS); \
 	do \
-	    if test ! -d $$subdir ; \
+	    if test ! -d $(DESTDIR)$$subdir ; \
 	    then \
 		echo "Creating $$subdir..." ; \
-		mkdir -p $$subdir ; \
-		chmod a+rx $$subdir ; \
+		mkdir -p $(DESTDIR)$$subdir ; \
+		chmod a+rx $(DESTDIR)$$subdir ; \
 	    fi ; \
 	done
 
 ifeq ($(GACINSTALL),yes)
 install:: install-common
-	@if test ! -d $(install_libdir) ; \
+	@if test ! -d $(DESTDIR)$(install_libdir) ; \
 	then \
 	    echo "Creating $(install_libdir)..." ; \
-	    $(call mkdir,$(install_libdir)) ; \
+	    $(call mkdir,$(DESTDIR)$(install_libdir)) ; \
 	fi
-	@if test ! -d $(install_pkgconfigdir) ; \
+	@if test ! -d $(DESTDIR)$(install_pkgconfigdir) ; \
 	then \
-	    echo "Creating $(install_pkgconfigdir)..." ; \
-	    $(call mkdir,$(install_pkgconfigdir)) ; \
+	    echo "Creating $(DESTDIR)$(install_pkgconfigdir)..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_pkgconfigdir)) ; \
 	fi
 
 endif

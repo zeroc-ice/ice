@@ -12,15 +12,15 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/IceXML ; \
+	@if test ! -d $(DESTDIR)$(install_includedir)/IceXML ; \
 	then \
-	    echo "Creating $(install_includedir)/IceXML..." ; \
-	    $(call mkdir,$(install_includedir)/IceXML) ; \
+	    echo "Creating $(DESTDIR)$(install_includedir)/IceXML..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_includedir)/IceXML) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(install_includedir)/IceXML/$$i ; \
-	    chmod a+r $(install_includedir)/IceXML/$$i ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/IceXML/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/IceXML/$$i ; \
 	done

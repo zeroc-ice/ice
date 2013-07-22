@@ -7,18 +7,30 @@
 #
 # **********************************************************************
 
+ANT_FLAGS = -emacs
+ 
+ifeq ($(APPEND_VERSION_SUFFIX),yes)
+ANT_FLAGS += -Dappend-version-suffix=yes
+endif
+
+INSTALL_FLAGS += $(ANT_FLAGS)
+
+ifneq ($(prefix),)
+INSTALL_FLAGS += -Dprefix=$(prefix)
+endif
+
+ifneq ($(DESTDIR),)
+INSTALL_FLAGS += -DDESTDIR=$(DESTDIR)
+endif
+
 all:
-	ant -emacs
+	ant $(ANT_FLAGS)
 
 clean:
-	ant -emacs clean
+	ant $(ANT_FLAGS) clean
 
 install::
-ifeq ($(prefix),)
-	ant -emacs install
-else
-	ant -emacs -Dprefix=$(prefix) install
-endif
+	ant $(INSTALL_FLAGS) install
 
 test::
 	@python ./allTests.py

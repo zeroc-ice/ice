@@ -46,6 +46,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(SONAME) $@
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
 include .depend

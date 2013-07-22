@@ -12,15 +12,15 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/IceBox ; \
+	@if test ! -d $(DESTDIR)$(install_includedir)/IceBox ; \
 	then \
-	    echo "Creating $(install_includedir)/IceBox..." ; \
-	    $(call mkdir,$(install_includedir)/IceBox) ; \
+	    echo "Creating $(DESTDIR)$(install_includedir)/IceBox..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_includedir)/IceBox) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(install_includedir)/IceBox/$$i ; \
-	    chmod a+r $(install_includedir)/IceBox/$$i ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/IceBox/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/IceBox/$$i ; \
 	done

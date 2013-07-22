@@ -30,7 +30,7 @@
                deprecation="on">
             <compilerarg value="${javac.lint}"/>
         </javac>
-        <jar jarfile="${lib.dir}/ant-ice.jar" basedir="${lib.dir}/ant">
+        <jar jarfile="${lib.dir}/${ant-ice.jar.name}" basedir="${lib.dir}/ant">
             <include name="*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
@@ -216,7 +216,7 @@
     </target>
 
     <target name="ice-jar" depends="ice-compile" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${ice.jar.name}" basedir="${lib.dir}">
             <include name="Ice/*.class"/>
             <include name="IceMX/*.class"/>
             <include name="Ice/Instrumentation/*.class"/>
@@ -228,14 +228,14 @@
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/Ice.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${ice.jar.name}" basedir="${src.dir}" update="yes">
             <include name="Ice/*.java"/>
             <include name="IceUtil/*.java"/>
             <include name="IceInternal/*.java"/>
             <include name="IceUtilInternal/*.java"/>
             <include name="IceSSL/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/Ice.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${ice.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="Ice/*.java"/>
             <include name="IceMX/*.java"/>
             <include name="IceSSL/*.java"/>
@@ -258,18 +258,18 @@
     </target>
 
     <target name="freeze-jar" depends="freeze-compile,ice-jar" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${freeze.jar.name}" basedir="${lib.dir}">
             <include name="Freeze/*.class"/>
             <include name="Freeze/MapInternal/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${freeze.jar.name}" basedir="${src.dir}" update="yes">
             <include name="Freeze/*.java"/>
             <include name="Freeze/MapInternal/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${freeze.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="Freeze/*.java"/>
         </jar>
     </target>
@@ -288,16 +288,16 @@
     </target>
 
     <target name="glacier2-jar" depends="glacier2-compile, ice-jar" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/Glacier2.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${glacier2.jar.name}" basedir="${lib.dir}">
             <include name="Glacier2/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/Glacier2.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${glacier2.jar.name}" basedir="${src.dir}" update="yes">
             <include name="Glacier2/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/Glacier2.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${glacier2.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="Glacier2/*.java"/>
         </jar>
     </target>
@@ -316,16 +316,16 @@
     </target>
 
     <target name="icebox-jar" depends="icebox-compile, ice-jar" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/IceBox.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${icebox.jar.name}" basedir="${lib.dir}">
             <include name="IceBox/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/IceBox.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icebox.jar.name}" basedir="${src.dir}" update="yes">
             <include name="IceBox/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/IceBox.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icebox.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="IceBox/*.java"/>
         </jar>
     </target>
@@ -344,16 +344,16 @@
     </target>
 
     <target name="icestorm-jar" depends="icestorm-compile, ice-jar" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/IceStorm.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${icestorm.jar.name}" basedir="${lib.dir}">
             <include name="IceStorm/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/IceStorm.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icestorm.jar.name}" basedir="${src.dir}" update="yes">
             <include name="IceStorm/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/IceStorm.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icestorm.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="IceStorm/*.java"/>
         </jar>
     </target>
@@ -372,16 +372,16 @@
     </target>
 
     <target name="icegrid-jar" depends="icegrid-compile, ice-jar, glacier2-jar, icestorm-jar" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/IceGrid.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${icegrid.jar.name}" basedir="${lib.dir}">
             <include name="IceGrid/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/IceGrid.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icegrid.jar.name}" basedir="${src.dir}" update="yes">
             <include name="IceGrid/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/IceGrid.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icegrid.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="IceGrid/*.java"/>
         </jar>
     </target>
@@ -400,16 +400,16 @@
     </target>
 
     <target name="icepatch2-jar" depends="icepatch2-compile, ice-jar" unless="ice.bin.dist">
-        <jar jarfile="${lib.dir}/IcePatch2.jar" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${icepatch2.jar.name}" basedir="${lib.dir}">
             <include name="IcePatch2/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
-        <jar jarfile="${lib.dir}/IcePatch2.jar" basedir="${src.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icepatch2.jar.name}" basedir="${src.dir}" update="yes">
             <include name="IcePatch2/*.java"/>
         </jar>
-        <jar jarfile="${lib.dir}/IcePatch2.jar" basedir="${generated.dir}" update="yes">
+        <jar jarfile="${lib.dir}/${icepatch2.jar.name}" basedir="${generated.dir}" update="yes">
             <include name="IcePatch2/*.java"/>
         </jar>
     </target>
@@ -624,7 +624,7 @@
             <exclude name="test/ejb/"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="Ice.jar"/>
+                <attribute name="Class-Path" value="${ice.jar.name}"/>
             </manifest>
         </jar>
     </target>
@@ -702,12 +702,12 @@
             if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
-            <attribute name="Class-Path" value="Ice.jar IceBox.jar Glacier2.jar IceStorm.jar IceGrid.jar ${jgoodies.forms} ${jgoodies.looks} ${jgoodies.common} ../resources/ "/>
+            <attribute name="Class-Path" value="${ice.jar.name} ${icebox.jar.name} ${glacier2.jar.name} ${icestorm.jar.name} ${icegrid.jar.name} ${jgoodies.forms} ${jgoodies.looks} ${jgoodies.common} ../resources/ "/>
         </manifest>
-        <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/${icegridgui.jar.name}" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
         </jar>
-        <jar jarfile="${lib.dir}/IceGridGUI.jar" basedir="resources" update="true">
+        <jar jarfile="${lib.dir}/${icegridgui.jar.name}" basedir="resources" update="true">
             <include name="icons/**"/>
         </jar>
         <delete file="${lib.dir}/icegridgui.mf" />
@@ -767,31 +767,31 @@
 
         <proguard>
              -injars "${lib.dir}/IceGridGUItemp.jar"
-             -injars "${lib.dir}/Ice.jar"(!META-INF/**)
-             -injars "${lib.dir}/Glacier2.jar"(!META-INF/**)
-             -injars "${lib.dir}/IceBox.jar"(!META-INF/**)
-             -injars "${lib.dir}/IceStorm.jar"(!META-INF/**)
-             -injars "${lib.dir}/IceGrid.jar"(!META-INF/**)
+             -injars "${lib.dir}/${ice.jar.name}"(!META-INF/**)
+             -injars "${lib.dir}/${glacier2.jar.name}"(!META-INF/**)
+             -injars "${lib.dir}/${icebox.jar.name}"(!META-INF/**)
+             -injars "${lib.dir}/${icestorm.jar.name}"(!META-INF/**)
+             -injars "${lib.dir}/${icegrid.jar.name}"(!META-INF/**)
              -injars "${jgoodies.looks}"(!META-INF/**)
              -injars "${jgoodies.forms}"(!META-INF/**)
              -injars "${jgoodies.common}"(!META-INF/**)
-             -outjars "${lib.dir}/IceGridGUI.jar"
+             -outjars "${lib.dir}/${icegridgui.jar.name}"
              -libraryjars ${library.jars}
              -include config/icegridgui.pro
              -dontnote
         </proguard>
         <delete file="${lib.dir}/IceGridGUItemp.jar" />
         <mkdir dir="${lib.dir}/tmp"/>
-        <unzip src="${lib.dir}/IceGridGUI.jar" dest="${lib.dir}/tmp"/>
+        <unzip src="${lib.dir}/${icegridgui.jar.name}" dest="${lib.dir}/tmp"/>
         <delete>
             <fileset dir="${lib.dir}" includes="**/*.java"/>
         </delete>
-        <delete file="${lib.dir}/IceGridGUI.jar"/>
+        <delete file="${lib.dir}/${icegridgui.jar.name}"/>
         <delete dir="${lib.dir}/tmp/META-INF"/>
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
         </manifest>
-        <jar jarfile="${lib.dir}/IceGridGUI.jar" 
+        <jar jarfile="${lib.dir}/${icegridgui.jar.name}" 
              manifest="${lib.dir}/icegridgui.mf" 
              basedir="${lib.dir}/tmp" update="true">
             <include name="**"/>
@@ -804,11 +804,11 @@
             if="icegridadmin-javafx-jar" unless="ice.bin.dist">
         <!-- Remove Ice source code from the jar and regenerate -->
         <mkdir dir="${lib.dir}/tmp"/>
-        <unzip src="${lib.dir}/IceGridGUI.jar" dest="${lib.dir}/tmp"/>
+        <unzip src="${lib.dir}/${icegridgui.jar.name}" dest="${lib.dir}/tmp"/>
         <delete>
             <fileset dir="${lib.dir}" includes="**/*.java"/>
         </delete>
-        <delete file="${lib.dir}/IceGridGUI.jar"/>
+        <delete file="${lib.dir}/${icegridgui.jar.name}"/>
         <delete dir="${lib.dir}/tmp/META-INF"/>
 
         <fx:application id="IceGridGUI" name="IceGrid Admin" 
@@ -819,7 +819,7 @@
         <fx:resources id="IceGridGUI.resources">
         </fx:resources>
 
-        <fx:jar destfile="${lib.dir}/dist/IceGridGUI.jar">
+        <fx:jar destfile="${lib.dir}/dist/${icegridgui.jar.name}">
             <!-- Details about application -->
             <fx:application refid="IceGridGUI"/>
      
@@ -842,7 +842,7 @@
             <fx:application refid="IceGridGUI"/>
             <fx:resources refid="IceGridGUI.resources"/>
         </fx:deploy>
-        <copy file="${lib.dir}/dist/IceGridGUI.jar" todir="${lib.dir}"/>
+        <copy file="${lib.dir}/dist/${icegridgui.jar.name}" todir="${lib.dir}"/>
         <delete dir="${lib.dir}/tmp"/>
         <delete dir="${lib.dir}/dist"/>
     </target>
@@ -868,7 +868,7 @@
             applicationCategory="public.app-category.utilities"
             mainclassname="com/javafx/main/Main"
             copyright="Copyright © 2005-2013 ZeroC, Inc. All rights reserved.">
-            <classpath file="${lib.dir}/IceGridGUI.jar"/>
+            <classpath file="${lib.dir}/${icegridgui.jar.name}"/>
             <option value="-Dapple.laf.useScreenMenuBar=true"/>
             <option value="-Dcom.apple.macos.use-file-dialog-packages=true"/>
             <option value="-Dcom.apple.macos.useScreenMenuBar=true"/>
@@ -894,10 +894,10 @@
     </target>
 
     <target name="install-common">
-        <mkdir dir="${prefix}"/>
-        <mkdir dir="${prefix}/lib"/>
-        <copy file="${ice.dir}/LICENSE${text.extension}" todir="${prefix}"/>
-        <copy file="${ice.dir}/ICE_LICENSE${text.extension}" todir="${prefix}"/>
+        <mkdir dir="${DESTDIR}${prefix}"/>
+        <mkdir dir="${DESTDIR}${install_libdir}"/>
+        <copy file="${ice.dir}/LICENSE${text.extension}" todir="${DESTDIR}${prefix}"/>
+        <copy file="${ice.dir}/ICE_LICENSE${text.extension}" todir="${DESTDIR}${prefix}"/>
     </target>
 
     <condition property="slice-installed">
@@ -907,14 +907,10 @@
     </condition>
 
     <target name="install-slice" unless="slice-installed">
-        <mkdir dir="${prefix}/slice"/>
-        <copy todir="${prefix}/slice">
+        <mkdir dir="${DESTDIR}${prefix}/slice"/>
+        <copy todir="${DESTDIR}${prefix}/slice">
             <fileset dir="../slice" includes="**"/>
         </copy>
-    </target>
-
-    <target name="install-icegridgui-jar" if="build-icegridadmin" unless="ice.bin.dist">
-        <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
     </target>
 
     <target name="install-icegridgui-bundle" if="build-icegridadmin-bundle">
@@ -928,20 +924,21 @@
     </target>
 
     <target name="install-jar">
-        <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
-        <copy file="${lib.dir}/Glacier2.jar" todir="${prefix}/lib"/>
-        <copy file="${lib.dir}/Freeze.jar" todir="${prefix}/lib"/>
-        <copy file="${lib.dir}/IceBox.jar" todir="${prefix}/lib"/>
-        <copy file="${lib.dir}/IcePatch2.jar" todir="${prefix}/lib"/>
-        <copy file="${lib.dir}/IceStorm.jar" todir="${prefix}/lib"/>
-        <copy file="${lib.dir}/IceGrid.jar" todir="${prefix}/lib"/>
+        <copy file="${lib.dir}/${ice.jar.name}" todir="${DESTDIR}${install_libdir}/"/>
+        <copy file="${lib.dir}/${glacier2.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${freeze.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${icebox.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${icepatch2.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${icestorm.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${icegrid.jar.name}" todir="${DESTDIR}${install_libdir}"/>
+        <copy file="${lib.dir}/${icegridgui.jar.name}" todir="${DESTDIR}${install_libdir}"/>
     </target>
 
     <target name="install-tasks">
-        <copy file="${lib.dir}/ant-ice.jar" todir="${prefix}/lib"/>
+        <copy file="${lib.dir}/${ant-ice.jar.name}" todir="${DESTDIR}${install_libdir}"/>
     </target>
 
-    <target name="install" depends="dist-jar, install-common, install-jar, install-icegridgui-jar, install-tasks, 
+    <target name="install" depends="dist-jar, install-common, install-jar, install-tasks, 
                                     install-slice, install-icegridgui-bundle">
     </target>
 

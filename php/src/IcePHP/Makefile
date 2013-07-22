@@ -38,7 +38,7 @@ $(libdir)/$(LIBNAME): $(OBJS)
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
 install:: all
-	$(call installphplib,$(libdir)/$(LIBNAME),$(install_libdir))
+	$(call installphplib,$(libdir)/$(LIBNAME),$(DESTDIR)$(install_libdir))
 
 depend:: $(SRCS)
 	-rm -f .depend .depend.mak

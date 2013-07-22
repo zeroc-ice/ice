@@ -13,12 +13,18 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= modules python
 
+INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
+
 install:: install-common
-	@if test ! -d $(install_pythondir) ; \
-	then \
-	    echo "Creating $(install_pythondir)..." ; \
-	    $(call mkdir,$(install_pythondir)) ; \
-	fi
+	@for subdir in $(INSTALL_SUBDIRS); \
+	do \
+	    if test ! -d $(DESTDIR)$$subdir ; \
+	    then \
+		echo "Creating $(DESTDIR)$$subdir..." ; \
+		mkdir -p $(DESTDIR)$$subdir ; \
+		chmod a+rx $(DESTDIR)$$subdir ; \
+	    fi ; \
+	done
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

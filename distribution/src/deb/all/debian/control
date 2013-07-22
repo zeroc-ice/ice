@@ -1,0 +1,285 @@
+Source: ice@mmver@
+Section: devel
+Priority: extra
+Maintainer: ZeroC, Inc. <support@zeroc.com>
+Build-Depends: debhelper (>= 8.0.0), libmcpp-dev (>=2.7.2), libbz2-dev,
+ libexpat1-dev, libssl-dev, libdb5.3++-dev (>=5.3.21), proguard, libjgoodies-common-java,
+ libjgoodies-forms-java, libjgoodies-looks-java, oracle-java7-installer, 
+ libdb5.3-java (>=5.3.21), ant, python2.7-dev, ruby1.9.1-dev, mono-devel, 
+ php5-dev
+Standards-Version: 3.9.4
+Homepage: http://www.zeroc.com
+
+Package: ice
+Architecture: all
+Section: libs
+Depends: ice@mmver@-common, libice@mmver@++, libfreeze@mmver@++, libice@mmver@-java, 
+ libfreeze@mmver@-java, libice@mmver@-cil, libice@mmver@-php, libice@mmver@-python, 
+ libice@mmver@-ruby, ice-utils, icebox, icebox-cil, libicestorm@mmver@, 
+ glacier2, icepatch2, icegrid
+Replaces: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
+Conflicts: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
+Description: Ice (Internet Communications Engine)
+ Ice is a modern object-oriented toolkit that enables you to build
+ distributed applications with minimal effort. Ice allows you to focus
+ your efforts on your application logic while it takes care of all
+ interactions with low-level network programming interfaces. With Ice,
+ there is no need to worry about details such as opening network
+ connections, serializing and deserializing data for network
+ transmission, or retrying failed connection attempts (to name but a
+ few of dozens of such low-level details).
+
+Package: ice-dev
+Architecture: all
+Section: devel
+Depends: libice++-dev, libfreeze++-dev, libice-java-dev, libfreeze-java-dev,
+ libice-cil-dev, libice-php-dev, libice-python-dev, libice-ruby-dev
+Replaces: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
+Conflicts: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
+Description: Ice development packages
+ Ice development packages.
+
+Package: ice@mmver@-common
+Architecture: all
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: ice-slice, ice32-slice, ice33-slice, ice34-slice
+Conflicts: ice-slice, ice32-slice, ice33-slice, ice34-slice
+Description: Files common to all Ice packages
+ Files common to all Ice packages.
+
+Package: libice@mmver@++
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: The Ice run time for C++
+ The Ice run time for C++.
+
+Package: libice++-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice@mmver@++ (=${binary:Version})
+Replaces: libzeroc-ice-dev, libzeroc-ice32-dev, libzeroc-ice33-dev, libzeroc-ice34-dev,
+ ice-translators, ice32-translators, ice33-translators, ice34-translators
+Conflicts: libzeroc-ice-dev, libzeroc-ice32-dev, libzeroc-ice33-dev, libzeroc-ice34-dev,
+  ice-translators, ice32-translators, ice33-translators, ice34-translators
+Description: Tools, libraries and headers for developing Ice applications in C++
+ Tools, libraries and headers for developing Ice applications in C++.
+
+Package: libfreeze@mmver@++
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}), 
+ libdb5.3++ (>=5.3.21)
+Description: Freeze persistence service C++ run-time
+ Freeze persistence service C++ run-time.
+
+Package: libfreeze++-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice++-dev (=${binary:Version}), libdb5.3++-dev (>=5.3.21)
+Replaces: libzeroc-ice-dev, libzeroc-ice32-dev, libzeroc-ice33-dev, libzeroc-ice34-dev,
+  ice-translators, ice32-translators, ice33-translators, ice34-translators
+Conflicts: libzeroc-ice-dev, libzeroc-ice32-dev, libzeroc-ice33-dev, libzeroc-ice34-dev,
+  ice-translators, ice32-translators, ice33-translators, ice34-translators
+Description: Tools, libraries and headers for developing Freeze applications in C++
+ Tools, libraries and headers for developing Freeze applications in C++
+
+Package: libice@mmver@-java
+Architecture: all
+Section: java
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: The Ice run time for Java
+ The Ice run time for Java.
+
+Package: libice-java-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice@mmver@++ (=${binary:Version}), libice@mmver@-java (=${binary:Version})
+Conflicts: libzeroc-ice-java, libzeroc-ice3.2-java, libzeroc-ice3.3-java,
+ libzeroc-ice3.4-java, ice-translators, ice32-translators, ice33-translators, 
+ ice34-translators
+Replaces: libzeroc-ice-java, libzeroc-ice3.2-java, libzeroc-ice3.3-java,
+ libzeroc-ice3.4-java,  ice-translators, ice32-translators, ice33-translators,
+ ice34-translators
+Description: Tools for developing Ice applications in Java
+ Tools for developing Ice applications in Java.
+
+Package: libfreeze@mmver@-java
+Architecture: any
+Section: java
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@-java (=${binary:Version}), 
+ libdb5.3-java (>=5.3.21)
+Description: Freeze persistence service Java run-time
+ Freeze persistence service Java run-time.
+
+Package: libfreeze-java-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice@mmver@++ (=${binary:Version}), libice-java-dev (=${binary:Version}), 
+ libdb5.3-java (>=5.3.21)
+Conflicts: libzeroc-ice-java, libzeroc-ice3.2-java, libzeroc-ice3.3-java,
+ libzeroc-ice3.4-java,  ice-translators, ice32-translators, ice33-translators,
+ ice34-translators
+Replaces: libzeroc-ice-java, libzeroc-ice3.2-java, libzeroc-ice3.3-java,
+ libzeroc-ice3.4-java, ice-translators, ice32-translators, ice33-translators,
+ ice34-translators
+Description: Tools for developing Freeze applications in Java
+ Tools for developing Freeze applications in Java.
+
+Package: libice@mmver@-cil
+Architecture: all
+Section: cli-mono
+Depends: ${shlibs:Depends}, ${misc:Depends}, mono-runtime (>= 2.10.8)
+Replaces: libzeroc-ice-cil, libzeroc-ice-3.2-cil, libzeroc-ice-3.3-cil,
+ libzeroc-ice3.4-cil
+Conflicts: libzeroc-ice-cil, libzeroc-ice-3.2-cil, libzeroc-ice-3.3-cil,
+ libzeroc-ice3.4-cil
+Description: The Ice run time for .NET (mono)
+ The Ice run time for .NET (mono).
+
+Package: libice-cil-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice@mmver@++ (=${binary:Version}), libice@mmver@-cil (=${binary:Version})
+Replaces: libzeroc-ice-cil, libzeroc-ice-3.2-cil, libzeroc-ice-3.3-cil,
+ libzeroc-ice3.4-cil, ice-translators, ice32-translators, ice33-translators, 
+ ice34-translators
+Conflicts: libzeroc-ice-cil, libzeroc-ice-3.2-cil, libzeroc-ice-3.3-cil,
+ libzeroc-ice3.4-cil, ice-translators, ice32-translators, ice33-translators, 
+ ice34-translators
+Description: Tools for developing Ice applications in C#
+ Tools for developing Ice applications in C#.
+
+Package: libice@mmver@-php
+Architecture: any
+Section: php
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Replaces: php-zeroc-ice
+Conflicts: php-zeroc-ice
+Description: The Ice run time for PHP
+ The Ice run time for PHP.
+
+Package: libice-php-dev
+Architecture: any
+Section: devel
+Depends: php5-cli | php5, ice@mmver@-common (=${binary:Version}), libice@mmver@++ (=${binary:Version}),
+ libice@mmver@-php (=${binary:Version})
+Replaces: ice-translators, ice32-translators, ice33-translators, ice34-translators
+Conflicts: ice-translators, ice32-translators, ice33-translators, ice34-translators
+Description: Tools for developing Ice applications in PHP
+ Tools for developing Ice applications in PHP.
+
+Package: libice@mmver@-python
+Architecture: any
+Section: python
+Depends: ${shlibs:Depends}, ${misc:Depends}, python2.7, ice@mmver@-common (=${binary:Version}),
+ libice@mmver@++ (=${binary:Version})
+Replaces: python-zeroc-ice
+Conflicts: python-zeroc-ice
+XS-Python-Version: 2.7
+Description: The Ice run time for Python
+ The Ice run time for Python.
+
+Package: libice-python-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice@mmver@++ (=${binary:Version}), libice@mmver@-python (=${binary:Version})
+Replaces: ice-translators, ice32-translators, ice33-translators, ice34-translators
+Conflicts: ice-translators, ice32-translators, ice33-translators, ice34-translators
+Description: Tools for developing Ice applications in Python
+ Tools for developing Ice applications in Python.
+
+Package: libice@mmver@-ruby
+Architecture: any
+Section: ruby
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1, ice@mmver@-common (=${binary:Version}),
+ libice@mmver@++ (=${binary:Version})
+Description: The Ice run time for Ruby
+ The Ice run time for Ruby.
+
+Package: libice-ruby-dev
+Architecture: any
+Section: devel
+Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
+ libice@mmver@++ (=${binary:Version}), libice@mmver@-ruby (=${binary:Version})
+Replaces: ice-translators, ice32-translators, ice33-translators, ice34-translators
+Conflicts: ice-translators, ice32-translators, ice33-translators, ice34-translators
+Description: Tools for developing Ice applications in Ruby
+ Tools for developing Ice applications in Ruby.
+
+Package: ice-utils
+Architecture: any
+Section: utils
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}), 
+ libfreeze@mmver@++ (=${binary:Version}), libicestorm@mmver@ (=${binary:Version})
+Replaces: ice-services, ice32-services, ice33-services, ice34-services,
+ ice-translators, ice32-translators, ice33-translators, ice34-translators
+Conflicts: ice-services, ice32-services, ice33-services, ice34-services,
+ ice-translators, ice32-translators, ice33-translators, ice34-translators
+Description: Ice utilities and admin tools
+ Ice utilities and admin tools.
+
+Package: libicestorm@mmver@
+Architecture: any
+Section: network
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}),
+ libfreeze@mmver@++ (=${binary:Version})
+Description: IceStorm publish–subscribe event distribution service for Ice
+ IceStorm publish–subscribe event distribution service for the Internet 
+ Communications Engine (Ice).
+
+Package: glacier2
+Architecture: any
+Section: network
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Replaces: ice-services, ice32-services, ice33-services, ice34-services
+Conflicts: ice-services, ice32-services, ice33-services, ice34-services
+Description: The Glacier2 router daemon
+ Glacier2 is the firewall traversal service for the Internet Communications
+ Engine (Ice).
+
+Package: icepatch2
+Architecture: any
+Section: network
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Replaces: ice-services, ice32-services, ice33-services, ice34-services
+Conflicts: ice-services, ice32-services, ice33-services, ice34-services
+Description: The software distribution and patching service for Ice.
+ The software distribution and patching service for the Internet 
+ Communications Engine (Ice).
+
+Package: icegrid
+Architecture: any
+Section: network
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version}), 
+ libicestorm@mmver@ (=${binary:Version}), libfreeze@mmver@++ (=${binary:Version})
+Replaces: ice-services, ice32-services, ice33-services, ice34-services
+Conflicts: ice-services, ice32-services, ice33-services, ice34-services
+Description: IceGrid is the server deployment and monitoring for Ice
+ IceGrid is the server deployment and monitoring for the Internet 
+ Communications Engine (Ice).
+
+Package: icebox
+Architecture: any
+Section: network
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@++ (=${binary:Version})
+Description: IceBox C++ server
+ IceBox C++ server.
+
+Package: icebox-cil
+Architecture: any
+Section: network
+Depends: ${shlibs:Depends}, ${misc:Depends}, libice@mmver@-cil (=${binary:Version})
+Replaces: libzeroc-ice-cil, libzeroc-ice-3.2-cil, libzeroc-ice-3.3-cil,
+ libzeroc-ice3.4-cil
+Conflicts: libzeroc-ice-cil, libzeroc-ice-3.2-cil, libzeroc-ice-3.3-cil,
+ libzeroc-ice3.4-cil
+Description: IceBox .NET (mono) server
+ IceBox .NET (mono) server.

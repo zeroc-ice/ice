@@ -22,5 +22,5 @@ $(POLICYSERVER): $(SRCS) $(assembliesdir)/$(LIBNAME)
 	$(MCS) $(MCSFLAGS) -out:$@ $(SRCS)
 
 install:: all
-	$(call installprogram,$(POLICYSERVER),$(install_bindir))
+	$(call installprogram,$(POLICYSERVER),$(DESTDIR)$(install_bindir))
 	$(call installmdb,$(POLICYSERVER).mdb)

@@ -104,7 +104,8 @@ clean::
 	-rm -f LinkRecord.h LinkRecord.cpp
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(call installprogram,$(MIGRATE),$(install_bindir))
+	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installprogram,$(MIGRATE),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icestormmigrate.1,$(DESTDIR)$(install_mandir))
 
 include .depend

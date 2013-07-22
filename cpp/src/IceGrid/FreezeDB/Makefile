@@ -77,6 +77,6 @@ clean::
 	-rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
 include .depend

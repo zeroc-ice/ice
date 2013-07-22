@@ -34,6 +34,6 @@ $(NAME): $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SLICE_LIBS) $(MCPP_RPATH_LINK)
 
 install:: all
-	$(call installprogram,$(NAME),$(install_bindir))
+	$(call installprogram,$(NAME),$(DESTDIR)$(install_bindir))
 
 include .depend

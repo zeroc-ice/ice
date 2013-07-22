@@ -100,8 +100,13 @@ else
 endif
 
 libdir			= $(top_srcdir)/lib
-install_phpdir		= $(prefix)/php
-install_libdir		= $(prefix)/php
+ifneq ($(prefix), /usr)
+install_phpdir      = $(prefix)/php
+install_libdir      = $(prefix)/php
+else
+install_phpdir      = $(prefix)/share/php
+install_libdir      = $(shell php -r "echo(ini_get('extension_dir'));")
+endif
 
 #
 # Platform specific definitions

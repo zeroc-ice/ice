@@ -12,15 +12,15 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/Freeze ; \
+	@if test ! -d $(DESTDIR)$(install_includedir)/Freeze ; \
 	then \
-	    echo "Creating $(install_includedir)/Freeze..." ; \
-	    $(call mkdir,$(install_includedir)/Freeze) ; \
+	    echo "Creating $(DESTDIR)$(install_includedir)/Freeze..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_includedir)/Freeze) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(install_includedir)/Freeze/$$i ; \
-	    chmod a+r $(install_includedir)/Freeze/$$i ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/Freeze/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/Freeze/$$i ; \
 	done

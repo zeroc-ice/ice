@@ -102,7 +102,6 @@ def remove(path, recurse = True):
     else:
         os.remove(path)
 
-
 #
 # Check the git version
 #
@@ -325,6 +324,37 @@ def fixVersion(file, version, mmversion = None, libversion = None):
     st = os.stat(origfile)
     if st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH): 
         os.chmod(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
+    os.remove(origfile)
+
+#
+# Comment out tests in allTest.py.
+#
+def fixAllTest(file, components):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    ignore = False
+    newLines = []
+    for x in origLines:
+        #
+        # If the rule contains the target string, then
+        # comment out this rule.
+        #
+        for c in components:
+            if x.find(c +"/") != -1:
+                ignore = True
+                break
+
+        if not ignore:
+            newLines.append(x)
+        ignore = False
+        
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
     os.remove(origfile)
 
 def regexpEscape(expr):

@@ -90,9 +90,9 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 ../IceStorm/Grammar.y: Grammar.h
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(call installprogram,$(ADMIN),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/icestormadmin.1,$(install_mandir))
+	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icestormadmin.1,$(DESTDIR)$(install_mandir))
 
 SUBDIRS = FreezeDB
 

@@ -12,15 +12,15 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/Glacier2 ; \
+	@if test ! -d $(DESTDIR)$(install_includedir)/Glacier2 ; \
 	then \
-	    echo "Creating $(install_includedir)/Glacier2..." ; \
-	    $(call mkdir,$(install_includedir)/Glacier2) ; \
+	    echo "Creating $(DESTDIR)$(install_includedir)/Glacier2..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_includedir)/Glacier2) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(install_includedir)/Glacier2/$$i ; \
-	    chmod a+r $(install_includedir)/Glacier2/$$i ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/Glacier2/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/Glacier2/$$i ; \
 	done

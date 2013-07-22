@@ -95,13 +95,23 @@ else
 endif 
 
 libdir                  = $(top_srcdir)/python
+ifneq ($(prefix), /usr)
 install_pythondir       = $(prefix)/python
 install_libdir          = $(prefix)/python
+else
+    ifeq ($(shell test -d $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages && echo 0),0)
+        install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+        install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/dist-packages
+    else
+        install_pythondir       = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+        install_libdir          = $(prefix)/$(libsubdir)/$(PYTHON_VERSION)/site-packages
+    endif
+endif
 
 ifeq ($(UNAME),SunOS)
    ifeq ($(LP64),yes)
       libdir            = $(top_srcdir)/python$(lp64suffix)
-      install_libdir    = $(prefix)/python$(lp64suffix)   
+      install_libdir    = $(prefix)/python$(lp64suffix)
    endif
 endif
 

@@ -43,7 +43,7 @@ $(ROUTER): $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lGlacier2 $(LIBS) -lIceSSL $(OPENSSL_LIBS)
 
 install:: all
-	$(call installprogram,$(ROUTER),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/glacier2router.1,$(install_mandir))
+	$(call installprogram,$(ROUTER),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/glacier2router.1,$(DESTDIR)$(install_mandir))
 
 include .depend

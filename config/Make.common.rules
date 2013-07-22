@@ -62,7 +62,12 @@ endif
 
 ifeq ($(UNAME),Linux)
    ifeq ($(MACHINE_TYPE),x86_64)
-      lp64suffix	= 64
+      #
+      # Some Linux distributions like Debian/Ubuntu don't use /usr/lib64.
+      #
+      ifeq ($(shell test -d /usr/lib64 && echo 0),0)
+          lp64suffix	= 64
+      endif
       ifeq ($(LP64),)
           LP64      	= yes
       endif
@@ -239,7 +244,11 @@ else
     slicedir = $(ice_dir)/slice
 endif
 
-install_slicedir = $(prefix)/slice
+ifeq ($(prefix), /usr)
+    install_slicedir = /usr/share/Ice-$(VERSION)/slice
+else
+    install_slicedir = $(prefix)/slice
+endif
 
 #
 # Set environment variables for the Slice translator.
@@ -374,24 +383,34 @@ install-common::
 	    $(call mkdir,$(prefix), -p) ; \
 	fi
 
-	@if test ! -d $(install_slicedir) ; \
+	@if test ! -d $(DESTDIR)$(install_slicedir) ; \
 	then \
-	    echo "Creating $(install_slicedir)..." ; \
-	    $(call mkdir, $(install_slicedir)) ; \
+	    echo "Creating $(DESTDIR)$(install_slicedir)..." ; \
+	    $(call mkdir, $(DESTDIR)$(install_slicedir), -p) ; \
 	    cd $(top_srcdir)/../slice ; \
 	    for subdir in * ; \
 	    do \
-	        echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
-	        cp -fpr $$subdir $(install_slicedir) ; \
+	        echo "Copying slice/$$subdir to $(DESTDIR)$(install_slicedir)..." ; \
+	        cp -fpr $$subdir $(DESTDIR)$(install_slicedir) ; \
 	    done ; \
 	    fi
 
-	@if test ! -f $(prefix)/ICE_LICENSE$(TEXT_EXTENSION) ; \
+	@if test ! -f $(DESTDIR)$(prefix)/ICE_LICENSE$(TEXT_EXTENSION) ; \
 	then \
-	    $(call installdata,$(top_srcdir)/../ICE_LICENSE$(TEXT_EXTENSION),$(prefix)) ; \
+	    $(call installdata,$(top_srcdir)/../ICE_LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
 	fi
 
-	@if test ! -f $(prefix)/LICENSE$(TEXT_EXTENSION) ; \
+	@if test ! -f $(DESTDIR)$(prefix)/LICENSE$(TEXT_EXTENSION) ; \
+    then \
+        $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
+    fi
+
+	@if test ! -f $(DESTDIR)$(prefix)/CHANGES$(TEXT_EXTENSION) ; \
 	then \
-	    $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(prefix)) ; \
+		$(call installdata,$(top_srcdir)/../CHANGES$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
+	fi
+
+	@if test ! -f $(DESTDIR)$(prefix)/RELEASE_NOTES$(TEXT_EXTENSION) ; \
+	then \
+		$(call installdata,$(top_srcdir)/../RELEASE_NOTES$(TEXT_EXTENSION),$(DESTDIR)$(prefix)) ; \
 	fi

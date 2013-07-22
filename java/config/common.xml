@@ -22,6 +22,43 @@
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
 
+    <condition property="version.suffix" value="-${ice.version}">
+        <and>
+            <not><isset property="version.suffix"/></not>
+            <isset property="append-version-suffix"/>
+            <equals arg1="${append-version-suffix}" arg2="yes"/>
+        </and>
+    </condition>
+
+    <condition property="version.suffix" value="">
+        <and>
+            <not><isset property="version.suffix"/></not>
+        </and>
+    </condition>
+
+    <condition property="install_libdir" value="${prefix}/share/java">
+        <and>
+            <not><isset property="install_libdir"/></not>
+            <equals arg1="${prefix}" arg2="/usr"/>
+        </and>
+    </condition>
+
+     <condition property="install_libdir" value="${prefix}/lib">
+        <and>
+            <not><isset property="install_libdir"/></not>
+        </and>
+    </condition>
+
+    <property name="ant-ice.jar.name" value="ant-ice${version.suffix}.jar"/>
+    <property name="freeze.jar.name" value="Freeze${version.suffix}.jar"/>
+    <property name="glacier2.jar.name" value="Glacier2${version.suffix}.jar"/>
+    <property name="icebox.jar.name" value="IceBox${version.suffix}.jar"/>
+    <property name="icegridgui.jar.name" value="IceGridGUI${version.suffix}.jar"/>
+    <property name="icegrid.jar.name" value="IceGrid${version.suffix}.jar"/>
+    <property name="ice.jar.name" value="Ice${version.suffix}.jar"/>
+    <property name="icepatch2.jar.name" value="IcePatch2${version.suffix}.jar"/>
+    <property name="icestorm.jar.name" value="IceStorm${version.suffix}.jar"/>
+
     <condition property="thirdparty.home" value="${env.THIRDPARTY_HOME}">
        <and>
           <os family="Windows"/>

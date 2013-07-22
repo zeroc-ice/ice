@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+export DEB_BUILD_OPTIONS = nocheck notest
+
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+export OPTIMIZE=yes
+export prefix=/usr
+export CLASSPATH=/usr/share/java/proguard.jar
+export DESTDIR=$(CURDIR)/debian/tmp
+export GACINSTALL=yes
+export GAC_ROOT=$(prefix)/lib
+export APPEND_VERSION_SUFFIX=yes
+
+%:
+	dh $@ --with python2
+
+override_dh_auto_build:
+	make embedded_runpath_prefix="" PYTHON_LIBS="" install
+
+override_dh_install:
+	mkdir -p $(DESTDIR)$(prefix)/bin
+	cp java/bin/icegridgui.deb $(DESTDIR)$(prefix)/bin/icegridgui && \
+	chmod 755 $(DESTDIR)$(prefix)/bin/icegridgui
+
+	mkdir -p $(DESTDIR)/etc/php5/conf.d
+	cp debian/libice@mmver@-php.ice.ini $(DESTDIR)/etc/php5/conf.d/ice.ini
+
+	mkdir -p $(DESTDIR)/etc
+	cp debian/glacier2.glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
+	cp debian/icegrid.icegridnode.conf $(DESTDIR)/etc/icegridnode.conf
+	cp debian/icegrid.icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
+
+	mkdir -p $(DESTDIR)/etc/init.d
+	cp debian/glacier2.glacier2router $(DESTDIR)/etc/init.d/glacier2router
+	chmod 755 $(DESTDIR)/etc/init.d/glacier2router
+
+	cp debian/icegrid.icegridnode $(DESTDIR)/etc/init.d/icegridnode
+	chmod 755 $(DESTDIR)/etc/init.d/icegridnode
+
+	cp debian/icegrid.icegridregistry $(DESTDIR)/etc/init.d/icegridregistry
+	chmod 755 $(DESTDIR)/etc/init.d/icegridregistry
+
+	mkdir -p $(DESTDIR)/var/lib/ice/icegrid/registry
+	mkdir -p $(DESTDIR)/var/lib/ice/icegrid/node1
+
+	#
+	# Continue with regular dh_install
+	#
+	dh_install

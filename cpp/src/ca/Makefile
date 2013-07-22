@@ -25,7 +25,7 @@ $(top_srcdir)/lib/ImportKey.class: ImportKey.class
 	cp ImportKey.class $@
 
 install::
-	@for subdir in $(prefix)/bin $(prefix)/lib; \
+	@for subdir in $(DESTDIR)$(prefix)/bin $(DESTDIR)$(prefix)/lib; \
 	do \
 	    if test ! -d $$subdir ; \
 	    then \
@@ -37,13 +37,13 @@ install::
 	@for i in $(CA_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_PROGRAM) $$i $(prefix)/bin ;\
-	    chmod a+x $(prefix)/bin/$$i ;\
+	    $(INSTALL_PROGRAM) $$i $(DESTDIR)$(prefix)/bin ;\
+	    chmod a+x $(DESTDIR)$(prefix)/bin/$$i ;\
 	done
-	$(call installdata,$(top_srcdir)/../man/man1/iceca.1,$(install_mandir))
+	$(call installdata,$(top_srcdir)/../man/man1/iceca.1,$(DESTDIR)$(install_mandir))
 	@for i in $(CLASS_FILES) ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_PROGRAM) $$i $(prefix)/lib ;\
-	    chmod a+x $(prefix)/lib/$$i ;\
+	    $(INSTALL_PROGRAM) $$i $(DESTDIR)$(prefix)/lib ;\
+	    chmod a+x $(DESTDIR)$(prefix)/lib/$$i ;\
 	done

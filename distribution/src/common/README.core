@@ -1,0 +1,5 @@
+This archive contains the Ice source code for the C++ 
+language mapping.
+
+Please refer to the README and INSTALL files in the cpp
+subdirectory for details.

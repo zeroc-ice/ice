@@ -12,15 +12,15 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/IceSSL ; \
+	@if test ! -d $(DESTDIR)$(install_includedir)/IceSSL ; \
 	then \
-	    echo "Creating $(install_includedir)/IceSSL..." ; \
-	    $(call mkdir,$(install_includedir)/IceSSL) ; \
+	    echo "Creating $(DESTDIR)$(install_includedir)/IceSSL..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_includedir)/IceSSL) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(install_includedir)/IceSSL/$$i ; \
-	    chmod a+r $(install_includedir)/IceSSL/$$i ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/IceSSL/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/IceSSL/$$i ; \
 	done

@@ -42,16 +42,16 @@ $(assembliesdir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
 	 $(call installmdb,$(LIBNAME).mdb); \
-	 $(call installdata,$(PKG).xml,$(install_assembliesdir)))
+	 $(call installdata,$(PKG).xml,$(DESTDIR)$(install_assembliesdir)))
 
 install:: all
-	$(call installprogram,$(ICEBOXNET),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/iceboxnet.1,$(install_mandir))
+	$(call installprogram,$(ICEBOXNET),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/iceboxnet.exe.1,$(DESTDIR)$(install_mandir))
 	$(call installmdb,$(ICEBOXNET).mdb)
 
 ifeq ($(GACINSTALL),yes)
 install:: all
-	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
+	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(DESTDIR)$(install_pkgconfigdir))
 endif
 
 clean::

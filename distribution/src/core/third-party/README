@@ -1,0 +1,25 @@
+Contents
+--------
+
+mcpp-2.7.2.tar.gz        - Contains the upstream mcpp source distribution.
+patches/patch.mcpp.2.7.2 - ZeroC patch for mcpp source distribution.
+mcpp-2.7.2               - mcpp source distribution with patch applied.
+Makefile                 - Makefile to build this mcpp distribution.
+
+
+Build
+-----
+
+Type "make" to build the mcpp source distribution. After build completes,
+the mcpp distribution will be in the mcpp subdirectory.
+
+
+Patches
+-------
+
+If you want to reapply the mcpp patches, you must start with a clean mcpp
+source distribution:
+
+  $ tar zxf mcpp-2.7.2.tar.gz
+  $ cd mcpp-2.7.2
+  $ patch -p0 < ../patches/patch.mcpp.2.7.2

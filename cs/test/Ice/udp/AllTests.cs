@@ -135,7 +135,13 @@ public class AllTests
             }
             catch(Ice.DatagramLimitException)
             {
-                test(seq.Length > 16384);
+                //
+                // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
+                // will be throw when try to send a packet bigger than that. However, Mono 2.10 bug in setting Socket
+                // options could cause the RcvSize/SndSize to contain an arbitrary value so the test might fail 
+                // with smaller message sizes.
+                //
+                test(seq.Length > 16384 || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
             }
             obj.ice_getConnection().close(false);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
@@ -144,13 +150,24 @@ public class AllTests
             {
                 replyI.reset();
                 obj.sendByteSeq(seq, reply);
+
                 bool b = replyI.waitReply(1, 500);
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                // should not be delivered. However, Mono 2.10 on Ubuntu 13 does not obey this
-                // setting so the packet might be delivered successfully.
+                // should not be delivered. However, Mono 2.10 bug in setting Socket options could 
+                // cause the RcvSize/SndSize to contain an arbitrary value so the packet might 
+                // be delivered successfully.
                 //
                 test(!b || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
+            }
+            catch(Ice.DatagramLimitException)
+            {
+                //
+                // Mono 2.10 bug in setting Socket options could cause the RcvSize/SndSize to contain
+                // an arbitrary value so the message send might fail if the effetive SndSize is minor 
+                // than expected.
+                //
+                test(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
             }
             catch(Ice.LocalException ex)
             {

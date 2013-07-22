@@ -163,8 +163,8 @@ install:: $(ALL_SRCS)
 	@echo "Installing generated code"
 	@for i in $(MODULES) ; \
 	do \
-	    $(INSTALL_DATA) $${i}.rb $(install_rubydir) ; \
-	    $(INSTALL_DATA) -r $$i $(install_rubydir) ; \
+	    $(INSTALL_DATA) $${i}.rb $(DESTDIR)$(install_rubydir) ; \
+	    $(INSTALL_DATA) -r $$i $(DESTDIR)$(install_rubydir) ; \
 	done
 
 clean::

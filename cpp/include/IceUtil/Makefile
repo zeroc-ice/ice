@@ -12,15 +12,15 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/IceUtil ; \
+	@if test ! -d $(DESTDIR)$(install_includedir)/IceUtil ; \
 	then \
-	    echo "Creating $(install_includedir)/IceUtil..." ; \
-	    $(call mkdir,$(install_includedir)/IceUtil) ; \
+	    echo "Creating $(DESTDIR)$(install_includedir)/IceUtil..." ; \
+	    $(call mkdir,$(DESTDIR)$(install_includedir)/IceUtil) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(install_includedir)/IceUtil/$$i ; \
-	    chmod a+r $(install_includedir)/IceUtil/$$i ; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(install_includedir)/IceUtil/$$i ; \
+	    chmod a+r $(DESTDIR)$(install_includedir)/IceUtil/$$i ; \
 	done

@@ -131,10 +131,10 @@ IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice $(SLICE2PY) $(SLICEPARSERLIB)
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
-	$(INSTALL_DATA) *.py $(install_pythondir)
+	$(INSTALL_DATA) *.py $(DESTDIR)$(install_pythondir)
 	@for i in $(PACKAGES) ; \
 	do \
-	    $(INSTALL_DATA) -r $$i $(install_pythondir) ; \
+	    $(INSTALL_DATA) -r $$i $(DESTDIR)$(install_pythondir) ; \
 	done
 
 depend::  $(ICE_SLICE) $(GLACIER2_SLICE) $(ICEBOX_SLICE) $(ICEGRID_SLICE) $(ICEPATCH2_SLICE) $(ICESTORM_SLICE)

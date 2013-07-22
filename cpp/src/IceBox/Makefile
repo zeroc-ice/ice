@@ -69,10 +69,10 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(call installprogram,$(SERVER),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/icebox.1,$(install_mandir))
-	$(call installprogram,$(ADMIN),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/iceboxadmin.1,$(install_mandir))
+	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installprogram,$(SERVER),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/icebox.1,$(DESTDIR)$(install_mandir))
+	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/iceboxadmin.1,$(DESTDIR)$(install_mandir))
 
 include .depend

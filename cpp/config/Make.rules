@@ -251,6 +251,15 @@ endif
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
 ifeq ($(MCPP_LIBS),)
+    ifeq ($(MCPP_HOME),)
+        #
+        # If libmcpp.a is in the third-party subdirectory, we are building the core C++ distribution
+        # and we used that mcpp package.
+        #
+        ifneq ($(wildcard ../../../third-party/mcpp/lib/libmcpp.a),)
+            MCPP_HOME = ../../../third-party/mcpp
+        endif
+    endif
     MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
 endif
 MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))

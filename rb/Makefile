@@ -13,12 +13,18 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= src ruby
 
+INSTALL_SUBDIRS = $(install_rubydir) $(install_libdir)
+
 install:: install-common
-	@if test ! -d $(install_rubydir) ; \
-	then \
-	    echo "Creating $(install_rubydir)..." ; \
-	    $(call mkdir,$(install_rubydir)) ; \
-	fi
+	@for subdir in $(INSTALL_SUBDIRS); \
+	do \
+	    if test ! -d $(DESTDIR)$$subdir ; \
+	    then \
+		echo "Creating $(DESTDIR)$$subdir..." ; \
+		mkdir -p $(DESTDIR)$$subdir ; \
+		chmod a+rx $(DESTDIR)$$subdir ; \
+	    fi ; \
+	done
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

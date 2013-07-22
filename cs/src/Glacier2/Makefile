@@ -43,11 +43,11 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
 	 $(call installmdb,$(LIBNAME).mdb); \
-	 $(call installdata,$(PKG).xml,$(install_assembliesdir)))
+	 $(call installdata,$(PKG).xml,$(DESTDIR)$(install_assembliesdir)))
 
 ifeq ($(GACINSTALL),yes)
 install:: all
-	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
+	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(DESTDIR)$(install_pkgconfigdir))
 endif
 
 clean::

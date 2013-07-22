@@ -32,7 +32,7 @@ $(NAME): $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SLICE_LIBS) $(MCPP_RPATH_LINK)
 
 install:: all
-	$(call installprogram,$(NAME),$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/slice2rb.1,$(install_mandir))
+	$(call installprogram,$(NAME),$(DESTDIR)$(install_bindir))
+	$(call installdata,$(top_srcdir)/../man/man1/slice2rb.1,$(DESTDIR)$(install_mandir))
 
 include .depend

@@ -12,13 +12,18 @@ top_srcdir	= .
 include $(top_srcdir)/config/Make.rules.php
 
 SUBDIRS		= src lib demo test
+INSTALL_SUBDIRS = $(install_phpdir) $(install_libdir)
 
 install:: install-common
-	@if test ! -d $(install_phpdir) ; \
-	then \
-	    echo "Creating $(install_phpdir)..." ; \
-	    $(call mkdir,$(install_phpdir)) ; \
-	fi
+	@for subdir in $(INSTALL_SUBDIRS); \
+	do \
+	    if test ! -d $(DESTDIR)$$subdir ; \
+	    then \
+		echo "Creating $(DESTDIR)$$subdir..." ; \
+		mkdir -p $(DESTDIR)$$subdir ; \
+		chmod a+rx $(DESTDIR)$$subdir ; \
+	    fi ; \
+	done
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
