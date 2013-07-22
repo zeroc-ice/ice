@@ -963,6 +963,7 @@ public class AllTests : TestCommon.TestApp
         initData.properties = Ice.Util.createProperties();
         WriteLine("setting Ice.FactoryAssemblies");
         initData.properties.setProperty("Ice.FactoryAssemblies", "exceptions,version=1.0.0.0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "10");
         return initData;
     }
 
