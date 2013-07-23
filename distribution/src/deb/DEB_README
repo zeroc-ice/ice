@@ -35,14 +35,14 @@ Ice repository to be able to install these packages.
 
 First you need to install the GPG key used to sign the packages:
 
-  $ wget http://zeroc.com/Ice/@mmver@/ubuntu/DEB-zeroc-release.key
-  $ sudo apt-key add DEB-zeroc-release.key
+  $ wget http://www.zeroc.com/download/RPM-GPG-KEY-zeroc-release
+  $ sudo apt-key add RPM-GPG-KEY-zeroc-release
 
 After installing the GPG key, we must add the repository to your
 system apt sources:
 
   $ cd /etc/apt/sources.list.d
-  $ sudo wget http://zeroc.com/Ice/@mmver@/ubuntu/ice-raring.list
+  $ sudo wget http://zeroc.com/download/Ice/@mmver@/ubuntu/ice@mmver@-raring.list
   $ sudo apt-get update
 
 
