@@ -79,7 +79,7 @@ ifeq ($(CXX),g++)
       endif
    endif
 
-   CXXFLAGS		= $(CXXARCHFLAGS) -Wall -Werror -D_REENTRANT
+   CXXFLAGS		= $(CXXARCHFLAGS) -Wall -Werror -pthread
 
    ifneq ($(GENPIC),no)
       CXXFLAGS		+= -fPIC
@@ -96,7 +96,7 @@ ifeq ($(CXX),g++)
    #
    CXXLIBS		=
 
-   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread -lrt
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4)
 
    mklib		= ar cr $(1) $(2)
 
@@ -136,7 +136,7 @@ ifeq ($(CXX),icpc)
    #
    CXXLIBS		=
 
-   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread -lrt
+   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
 
    mklib		= ar cr $(1) $(2)
 
@@ -144,7 +144,7 @@ ifeq ($(CXX),icpc)
 
 endif
 
-BASELIBS		= -lIceUtil -lpthread -lrt
+BASELIBS		= -lIceUtil
 ifneq ($(NPTL_LIB),)
     CXXFLAGS		+= $(NPTL_FLAGS)
     BASELIBS		:= $(NPTL_LIB) $(BASELIBS)
@@ -152,7 +152,7 @@ endif
 
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = 
+ICEUTIL_OS_LIBS         = -lrt
 ICE_OS_LIBS             = -ldl
 
 PLATFORM_HAS_READLINE   = yes
