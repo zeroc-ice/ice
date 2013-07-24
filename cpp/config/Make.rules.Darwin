@@ -13,7 +13,8 @@
 
 CXX			= xcrun clang++
 
-CXXFLAGS		= -Wall -Werror -D_REENTRANT
+CPPFLAGS    = -pthread
+CXXFLAGS		= -Wall -Werror
 
 ifeq ($(OPTIMIZE),yes)
      #
@@ -70,12 +71,12 @@ mkshlib     = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name @rpath/$
 #
 OPENSSL_FLAGS   	= -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_6
 
-BASELIBS		= -lIceUtil -lpthread 
+BASELIBS		= -lIceUtil 
 LIBS			= -lIce $(BASELIBS)
 
 ICONV_LIB               = -liconv
 
-ICEUTIL_OS_LIBS         = -lpthread
+ICEUTIL_OS_LIBS         =
 ICE_OS_LIBS             = -ldl
 
 PLATFORM_HAS_READLINE   := yes
