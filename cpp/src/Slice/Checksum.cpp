@@ -9,6 +9,7 @@
 
 #include <Slice/Checksum.h>
 #include <Slice/MD5.h>
+#include <IceUtil/OutputUtil.h>
 
 using namespace std;
 using namespace Slice;
@@ -113,9 +114,38 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(p->hasDataMembers())
     {
         DataMemberList members = p->dataMembers();
+        DataMemberList optionals;
         for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
-            ostr << typeToString((*q)->type()) << ' ' << (*q)->name() << endl;
+            if((*q)->optional())
+            {
+                optionals.push_back(*q);
+            }
+            else
+            {
+                ostr << typeToString((*q)->type()) << ' ' << (*q)->name() << endl;
+            }
+        }
+        
+        if(!optionals.empty())
+        {
+            //
+            // Sort optional parameters by tag.
+            //
+            class SortFn
+            {
+            public:
+                static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
+                {
+                    return lhs->tag() < rhs->tag();
+                }
+            };
+            optionals.sort(SortFn::compare);
+
+            for(DataMemberList::iterator q = optionals.begin(); q != optionals.end(); ++q)
+            {
+                ostr << typeToString((*q)->type()) << ' ' << (*q)->tag() << ' ' << (*q)->name();
+            }
         }
     }
 
@@ -124,20 +154,63 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationList ops = p->operations();
         for(OperationList::iterator q = ops.begin(); q != ops.end(); ++q)
         {
-            ostr << typeToString((*q)->returnType()) << ' ' << (*q)->name() << '(';
+            ostr << typeToString((*q)->returnType()) << ' ';
+            if((*q)->returnIsOptional())
+            {
+                ostr << (*q)->returnTag() << ' ';
+            }
+            ostr << (*q)->name() << '(';
             ParamDeclList params = (*q)->parameters();
+            ParamDeclList optionals;
             for(ParamDeclList::iterator r = params.begin(); r != params.end(); ++r)
             {
-                if(r != params.begin())
+                if((*r)->optional())
                 {
-                    ostr << ", ";
+                    optionals.push_back(*r);
                 }
-                if((*r)->isOutParam())
+                else
                 {
-                    ostr << "out ";
+                    if(r != params.begin())
+                    {
+                        ostr << ", ";
+                    }
+                    if((*r)->isOutParam())
+                    {
+                        ostr << "out ";
+                    }
+                    ostr << typeToString((*r)->type()) << ' ' << (*r)->name();
                 }
-                ostr << typeToString((*r)->type()) << ' ' << (*r)->name();
             }
+            
+            if(!optionals.empty())
+            {
+                //
+                // Sort optional parameters by tag.
+                //
+                class SortFn
+                {
+                public:
+                    static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+                    {
+                        return lhs->tag() < rhs->tag();
+                    }
+                };
+                optionals.sort(SortFn::compare);
+                
+                for(ParamDeclList::iterator r = optionals.begin(); r != optionals.end(); ++r)
+                {
+                    if(r != optionals.begin() || params.size() > optionals.size())
+                    {
+                        ostr << ", ";
+                    }
+                    if((*r)->isOutParam())
+                    {
+                        ostr << "out ";
+                    }
+                    ostr << typeToString((*r)->type()) << ' ' << (*r)->tag() << ' ' << (*r)->name();
+                }
+            }
+            
             ostr << ')';
             ExceptionList ex = (*q)->throws();
             if(!ex.empty())
@@ -252,13 +325,39 @@ Slice::ChecksumVisitor::visitEnum(const EnumPtr& p)
     ostringstream ostr;
 
     ostr << "enum " << p->name() << endl;
-
+    
+    //
+    // Check if any of the enumerators were assigned an explicit value.
+    //
+    const bool explicitValue = p->explicitValue();
+    
     EnumeratorList enums = p->getEnumerators();
-    for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+    if(explicitValue)
     {
-        ostr << (*q)->name() << endl;
+        //
+        // Sort enumerators by value.
+        //
+        class SortFn
+        {
+        public:
+            static bool compare(const EnumeratorPtr& lhs, const EnumeratorPtr& rhs)
+            {
+                return lhs->value() < rhs->value();
+            }
+        };
+        enums.sort(SortFn::compare);
+        for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+        {
+            ostr << (*q)->name() << ' ' << IceUtilInternal::int64ToString((*q)->value()) << endl;
+        }
     }
-
+    else
+    {
+        for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+        {
+            ostr << (*q)->name() << endl;
+        }
+    }
     updateMap(p->scoped(), ostr.str());
 }
 

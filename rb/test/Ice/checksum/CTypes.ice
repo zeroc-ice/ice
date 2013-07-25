@@ -48,6 +48,26 @@ enum Enum3 { Enum31, Enum32, Enum33 };
 enum Enum4 { Enum41, Enum42, Enum43 };
 
 //
+// TEST: Enum with explicit values.
+//
+enum EnumExplicit0 { EnumExplicit01 = 1, EnumExplicit02 = 2, EnumExplicit03 = 3 };
+
+//
+// TEST: Enum with same explicit values different order.
+//
+enum EnumExplicit1 { EnumExplicit11 = 1, EnumExplicit12 = 2, EnumExplicit13 = 3 };
+
+//
+// TEST: Enum with different explicit values.
+//
+enum EnumExplicit2 { EnumExplicit21 = 1, EnumExplicit22 = 2, EnumExplicit23 = 3};
+
+//
+// TEST: Enum with explicit values removed enumerator.
+//
+enum EnumExplicit3 { EnumExplicit31 = 1, EnumExplicit32 = 2, EnumExplicit33 = 3};
+
+//
 // TEST: Same
 //
 sequence<int> Sequence1;
@@ -434,6 +454,108 @@ class Compact2(2)
 //
 class Derived2 extends Compact2
 {
+};
+
+//
+// TEST: Class with optional members.
+//
+class Optional0
+{
+    string firstName;
+    optional(1) string secondName;
+    optional(2) string emailAddress;
+};
+
+//
+// TEST: Class with optional members different order same tags.
+//
+class Optional1
+{
+    string firstName;
+    optional(1) string secondName;
+    optional(2) string emailAddress;
+};
+
+//
+// TEST: Class with different optional members.
+//
+class Optional2
+{
+    string firstName;
+    string secondName;
+    optional(1) string emailAddress;
+};
+
+//
+// TEST: Class with different optional members.
+//
+class Optional3
+{
+    string firstName;
+    optional(1) string secondName;
+    optional(2) string emailAddress;
+};
+
+//
+// TEST: Class with optional members using different tags.
+//
+class Optional4
+{
+    string firstName;
+    optional(1) string secondName;
+    optional(2) string emailAddress;
+};
+
+//
+// TEST: Class with operation optional parameters.
+//
+class OptionalParameters0
+{
+    void op1(string firstName, optional(1) string secondName, 
+             optional(2) string emailAddress);
+};
+
+//
+// TEST: Class with operation optional parameters different order.
+//
+class OptionalParameters1
+{
+    void op1(string firstName, optional(1) string secondName, 
+             optional(2) string emailAddress);
+};
+
+//
+// TEST: Class with operation optional parameters different tags.
+//
+class OptionalParameters2
+{
+    void op1(string firstName, optional(1) string emailAddress,
+             optional(2) string secondName);
+};
+
+//
+// TEST: Class with operation different optional parameters.
+//
+class OptionalParameters3
+{
+    void op1(string firstName, optional(1) string emailAddress,
+             string secondName);
+};
+
+//
+// TEST: Class with operation optional return type.
+//
+class OptionalReturn0
+{
+    optional(1) int op();
+};
+
+//
+// TEST: Class that change operation optional return type.
+//
+class OptionalReturn2
+{
+    optional(1) int op();
 };
 
 //
