@@ -66,23 +66,19 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         ostr << "class ";
     }
-    
+
+    ostr << p->name();
+
     if(p->compactId() >= 0)
     {
-        ostr << "(" << p->compactId() << ") ";
+        ostr << '(' << p->compactId() << ')';
     }
-    
-    ostr << p->name();
 
     if(!bases.empty())
     {
         if(!bases.front()->isInterface())
         {
             ostr << " extends " << bases.front()->scoped();
-            if(bases.front()->compactId() >= 0)
-            {
-                ostr << "(" << bases.front()->compactId() << ") ";
-            }
             bases.erase(bases.begin());
         }
         if(!bases.empty())
@@ -102,10 +98,6 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
                     ostr << ", ";
                 }
                 ostr << (*q)->scoped();
-                if((*q)->compactId() >= 0)
-                {
-                    ostr << "(" << (*q)->compactId() << ") ";
-                }
             }
         }
     }
@@ -126,7 +118,7 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ostr << typeToString((*q)->type()) << ' ' << (*q)->name() << endl;
             }
         }
-        
+
         if(!optionals.empty())
         {
             //
@@ -181,7 +173,7 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
                     ostr << typeToString((*r)->type()) << ' ' << (*r)->name();
                 }
             }
-            
+
             if(!optionals.empty())
             {
                 //
@@ -196,7 +188,7 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 };
                 optionals.sort(SortFn::compare);
-                
+
                 for(ParamDeclList::iterator r = optionals.begin(); r != optionals.end(); ++r)
                 {
                     if(r != optionals.begin() || params.size() > optionals.size())
@@ -210,7 +202,7 @@ Slice::ChecksumVisitor::visitClassDefStart(const ClassDefPtr& p)
                     ostr << typeToString((*r)->type()) << ' ' << (*r)->tag() << ' ' << (*r)->name();
                 }
             }
-            
+
             ostr << ')';
             ExceptionList ex = (*q)->throws();
             if(!ex.empty())
@@ -254,9 +246,38 @@ Slice::ChecksumVisitor::visitExceptionStart(const ExceptionPtr& p)
     ostr << endl;
 
     DataMemberList members = p->dataMembers();
+    DataMemberList optionals;
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        ostr << typeToString((*q)->type()) << ' ' << (*q)->name() << endl;
+        if((*q)->optional())
+        {
+            optionals.push_back(*q);
+        }
+        else
+        {
+            ostr << typeToString((*q)->type()) << ' ' << (*q)->name() << endl;
+        }
+    }
+
+    if(!optionals.empty())
+    {
+        //
+        // Sort optional parameters by tag.
+        //
+        class SortFn
+        {
+        public:
+            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
+            {
+                return lhs->tag() < rhs->tag();
+            }
+        };
+        optionals.sort(SortFn::compare);
+
+        for(DataMemberList::iterator q = optionals.begin(); q != optionals.end(); ++q)
+        {
+            ostr << typeToString((*q)->type()) << ' ' << (*q)->tag() << ' ' << (*q)->name();
+        }
     }
 
     updateMap(p->scoped(), ostr.str());
@@ -325,12 +346,12 @@ Slice::ChecksumVisitor::visitEnum(const EnumPtr& p)
     ostringstream ostr;
 
     ostr << "enum " << p->name() << endl;
-    
+
     //
     // Check if any of the enumerators were assigned an explicit value.
     //
     const bool explicitValue = p->explicitValue();
-    
+
     EnumeratorList enums = p->getEnumerators();
     if(explicitValue)
     {
