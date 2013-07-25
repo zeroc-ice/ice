@@ -83,6 +83,7 @@ oldDistDir = os.path.join(outDir, "old")
 oldSrcDir = os.path.join(outDir, "old", "src")
 oldBinDir = os.path.join(outDir, "old", oldBaseName)
 oldDescriptor = os.path.join(oldDistDir, oldVersion + ".xml")
+oldArchive = os.path.abspath(os.path.join(os.getcwd(), oldArchive))
 
 newBaseName = re.sub(".tar.gz", "", os.path.basename(newArchive))
 newVersion = re.sub("Ice-", "", newBaseName)
@@ -90,9 +91,10 @@ newDistDir = os.path.join(outDir, "new")
 newSrcDir = os.path.join(outDir, "new", "src")
 newBinDir = os.path.join(outDir, "new", newBaseName)
 newDescriptor = os.path.join(newDistDir, newVersion + ".xml")
+newArchive = os.path.abspath(os.path.join(os.getcwd(), newArchive))
 
 if not os.path.exists(outDir):
-    os.mkdir(outDir)
+    os.makedirs(outDir)
 
 def runCommand(cmd, verbose):
     if len(cmd) > 0:
@@ -104,10 +106,10 @@ def runCommand(cmd, verbose):
 os.chdir(outDir)
 
 if not os.path.exists(oldSrcDir):
-    os.mkdir(oldSrcDir)
+    os.makedirs(oldSrcDir)
 
 if not os.path.exists(newSrcDir):
-    os.mkdir(newSrcDir)
+    os.makedirs(newSrcDir)
 
 if not os.path.exists(oldBinDir):
     os.chdir(oldSrcDir)
@@ -124,7 +126,7 @@ if not os.path.exists(newBinDir):
     if os.path.exists(os.path.join(newSrcDir, newBaseName)):
         shutil.rmtree(os.path.join(newSrcDir, newBaseName))
     runCommand("tar zxvf %s" % (newArchive), verbose)
-    os.chdir(os.path.join(oldSrcDir, newBaseName, "cpp"))
+    os.chdir(os.path.join(newSrcDir, newBaseName, "cpp"))
     runCommand("make install -j%s prefix=%s" % (parallelJobs, newBinDir), verbose)
 else:
     print "%s already exists skip building" % (newBinDir)
