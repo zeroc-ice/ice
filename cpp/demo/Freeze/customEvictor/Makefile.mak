@@ -55,7 +55,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 Database.h Database.cpp: ItemInfo.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q Database.h Database.cpp
-	"$(SLICE2FREEZE)" -I"$(slicedir)" --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
+	"$(SLICE2FREEZE)" -I. -I"$(slicedir)" --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
 clean::
 	del /q Item.h Item.cpp

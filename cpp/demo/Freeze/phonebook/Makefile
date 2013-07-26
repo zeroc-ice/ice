@@ -66,7 +66,7 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 NameIndex.h: NameIndex.cpp
 NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f NameIndex.h NameIndex.cpp
-	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
+	$(SLICE2FREEZE) -I. $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 
 clean::
 	-rm -f NameIndex.h NameIndex.cpp

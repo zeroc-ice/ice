@@ -37,7 +37,7 @@ $(CLIENT): $(OBJS)
 
 ComplexDict.h ComplexDict.cpp: Complex.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q ComplexDict.h ComplexDict.cpp
-	"$(SLICE2FREEZE)" -I"$(slicedir)" --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
+	"$(SLICE2FREEZE)" -I. -I"$(slicedir)" --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l

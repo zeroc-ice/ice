@@ -36,7 +36,7 @@ $(CLIENT): $(OBJS)
 
 IntSMap.h IntSMap.cpp: TestOld.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q IntSMap.h IntSMap.cpp
-	"$(SLICE2FREEZE)" --dict IntSMap,int,::Test::S IntSMap TestOld.ice
+	"$(SLICE2FREEZE)" -I. --dict IntSMap,int,::Test::S IntSMap TestOld.ice
 
 clean::
 	del /q IntSMap.h IntSMap.cpp

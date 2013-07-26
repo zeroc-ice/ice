@@ -53,13 +53,13 @@ $(RECREATE): $(RECREATE_OBJS)
 Contacts.h: Contacts.cpp
 Contacts.cpp: ContactData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f Contacts.h Contacts.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict Demo::Contacts,string,Demo::ContactData,sort \
+	$(SLICE2FREEZE) -I. -I$(slicedir) --dict Demo::Contacts,string,Demo::ContactData,sort \
               --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice
 
 NewContacts.h: NewContacts.cpp
 NewContacts.cpp: NewContactData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f NewContacts.h NewContacts.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict Demo::NewContacts,string,Demo::ContactData,sort \
+	$(SLICE2FREEZE) -I. -I$(slicedir) --dict Demo::NewContacts,string,Demo::ContactData,sort \
               --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice
 
 cleandb::
