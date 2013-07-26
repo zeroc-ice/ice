@@ -3132,7 +3132,8 @@ public class Coordinator
     public IGraphView createGraphView()
     {
         IGraphView view = null;
-        if(IceInternal.Util.findClass("IceGridGUI.LiveDeployment.GraphView", null) == null)
+        Class<?> c1 = IceInternal.Util.findClass("IceGridGUI.LiveDeployment.GraphView", null);
+        if(c1 == null)
         {
             JOptionPane.showMessageDialog(_mainFrame, 
                                           "IceGrid Admin was build without Metrics Graph Support",
