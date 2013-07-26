@@ -406,6 +406,7 @@ generated from the section label.
 
     <section name="IceGridAdmin">
         <property name="AuthenticateUsingSSL" />
+        <property name="MetricsConfigs" />
         <property name="Username" />
         <property name="Password" />
         <property name="Replica" />

@@ -137,6 +137,7 @@ exception UnknownMetricsView
  * metrics views.
  *
  **/ 
+["format:sliced"]
 interface MetricsAdmin
 {
     /**

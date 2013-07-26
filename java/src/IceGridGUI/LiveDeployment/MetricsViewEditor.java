@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 import java.text.DecimalFormat;
 
@@ -250,10 +252,31 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             JTree tree = root.getTree();
             tree.addTreeSelectionListener(new SelectionListener());
 
+            Set<String> sectionSort = new LinkedHashSet<String>();
             _properties = Ice.Util.createProperties();
+
             _properties.load("metrics.cfg");
-            _sectionSort = _properties.getPropertyAsList("IceGridGUI.Metrics");
-            for(String name : _sectionSort)
+            sectionSort.addAll(java.util.Arrays.asList(_properties.getPropertyAsList("IceGridGUI.Metrics")));
+
+            Coordinator coord = root.getCoordinator();
+            String metricsDefs = coord.getProperties().getProperty("IceGridAdmin.MetricsConfigs");
+            if(!metricsDefs.isEmpty())
+            {
+                for(String s : IceUtilInternal.StringUtil.splitString(metricsDefs, ", \t\r\n"))
+                {
+                    try
+                    {
+                        _properties.load(s);
+                    }
+                    catch(Ice.FileException ex)
+                    {
+                        coord.getCommunicator().getLogger().warning("unable to load `" + ex.path + "'");
+                    }
+                    sectionSort.addAll(java.util.Arrays.asList(_properties.getPropertyAsList("IceGridGUI.Metrics")));
+                }
+            }
+
+            for(String name : sectionSort)
             {
                 String displayName = _properties.getPropertyWithDefault("IceGridGUI.Metrics." + name, "");
                 if(!displayName.equals(""))
@@ -261,6 +284,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                     _sectionNames.put(name, displayName);
                 }
             }
+            
+            _sectionSort = sectionSort.toArray(new String[sectionSort.size()]);
         }
     }
 
