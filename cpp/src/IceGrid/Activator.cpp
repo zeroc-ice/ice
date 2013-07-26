@@ -683,7 +683,10 @@ Activator::activate(const string& name,
             }
         }
 
-        if(initgroups(pw->pw_name, gid) == -1)
+        //
+        // Don't initialize supplementary groups if we are not running as root.
+        //
+        if(getuid() == 0 && initgroups(pw->pw_name, gid) == -1)
         {
             ostringstream os;
             os << pw->pw_name;
