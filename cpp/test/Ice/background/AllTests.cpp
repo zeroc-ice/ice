@@ -313,28 +313,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing buffered transport... " << flush;
-    {
-        configuration->buffered(true);
-        backgroundController->buffered(true);
-        Ice::AsyncResultPtr r;
-        for(int i = 0; i < 10000; ++i)
-        {
-            r = background->begin_op();
-            if(i % 50 == 0)
-            {
-                backgroundController->holdAdapter();
-                backgroundController->resumeAdapter();
-            }
-            if(i % 100 == 0)
-            {
-                r->waitForCompleted();
-            }
-        }
-        r->waitForCompleted();
-    }
-    cout << "ok" << endl;
-
     return background;
 }
 
@@ -444,8 +422,9 @@ initializeTests(const ConfigurationPtr& configuration,
     {
         background->op();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
     background->ice_getConnection()->close(false);

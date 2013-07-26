@@ -25,10 +25,10 @@ class ICE_API Transceiver : virtual public ::IceUtil::Shared
 public:
     
     virtual NativeInfoPtr getNativeInfo() = 0;
-    virtual SocketOperation initialize(Buffer&, Buffer&, bool&) = 0;
+    virtual SocketOperation initialize(Buffer&, Buffer&) = 0;
     virtual void close() = 0;
     virtual bool write(Buffer&) = 0;
-    virtual bool read(Buffer&, bool&) = 0;
+    virtual bool read(Buffer&) = 0;
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual bool startWrite(Buffer&) = 0;
     virtual void finishWrite(Buffer&) = 0;

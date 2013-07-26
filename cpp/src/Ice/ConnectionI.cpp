@@ -1366,7 +1366,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             {
                 if(_readHeader) // Read header if necessary.
                 {
-                    if(_readStream.i != _readStream.b.end() && !_transceiver->read(_readStream, _hasMoreData))
+                    if(_readStream.i != _readStream.b.end() && !_transceiver->read(_readStream))
                     {
                         return;
                     }   
@@ -1437,7 +1437,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                             _observer.startRead(_readStream.i);
                         }
 
-                        if(!_transceiver->read(_readStream, _hasMoreData))
+                        if(!_transceiver->read(_readStream))
                         {
                             assert(!_readStream.b.empty());
                             scheduleTimeout(SocketOperationRead, _endpoint->timeout());
@@ -2135,8 +2135,7 @@ Ice::ConnectionI::setState(State state)
             }
             if(_state == StateHolding)
             {
-                // We need to continue to read in closing state.
-                _threadPool->_register(this, SocketOperationRead);
+                _threadPool->_register(this, SocketOperationRead); // We need to continue to read in closing state.
             }
             break;
         }
@@ -2281,7 +2280,7 @@ Ice::ConnectionI::initiateShutdown()
 bool
 Ice::ConnectionI::initialize(SocketOperation operation)
 {
-    SocketOperation s = _transceiver->initialize(_readStream, _writeStream, _hasMoreData);
+    SocketOperation s = _transceiver->initialize(_readStream, _writeStream);
     if(s != SocketOperationNone)
     {
         scheduleTimeout(s, connectTimeout());
@@ -2350,7 +2349,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 _observer.startRead(_readStream.i);
             }
 
-            if(_readStream.i != _readStream.b.end() && !_transceiver->read(_readStream, _hasMoreData))
+            if(_readStream.i != _readStream.b.end() && !_transceiver->read(_readStream))
             {
                 scheduleTimeout(SocketOperationRead, connectTimeout());
                 _threadPool->update(this, operation, SocketOperationRead);

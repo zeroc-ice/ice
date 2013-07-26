@@ -140,7 +140,6 @@ Selector::initialize(EventHandler* handler)
         throw ex;
     }
     handler->__incRef();
-    handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
 }
 
 void
@@ -483,6 +482,7 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
     }
 
     assert(ret > 0);
+    handlers.clear();
     for(int i = 0; i < ret; ++i)
     {
         pair<EventHandler*, SocketOperation> p;
@@ -701,6 +701,7 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
     }
 
     assert(ret > 0);
+    handlers.clear();
 
 #if defined(ICE_USE_SELECT)
     if(_selectedReadFdSet.fd_count == 0 && _selectedWriteFdSet.fd_count == 0 && _selectedErrorFdSet.fd_count == 0)

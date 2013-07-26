@@ -18,7 +18,7 @@ Transceiver::getNativeInfo()
 }
 
 IceInternal::SocketOperation
-Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer, bool& hasMoreData)
+Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
 #ifndef ICE_USE_IOCP
     IceInternal::SocketOperation status = _configuration->initializeSocketOperation();
@@ -30,7 +30,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     {
         if(!_initialized)
         {
-            status = _transceiver->initialize(readBuffer, writeBuffer, hasMoreData);
+            status = _transceiver->initialize(readBuffer, writeBuffer);
             if(status != IceInternal::SocketOperationNone)
             {
                 return status;
@@ -48,7 +48,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     _configuration->checkInitializeException();
     if(!_initialized)
     {
-        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer, hasMoreData);
+        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer);
         if(status != IceInternal::SocketOperationNone)
         {
             return status;
@@ -77,7 +77,7 @@ Transceiver::write(IceInternal::Buffer& buf)
 }
 
 bool
-Transceiver::read(IceInternal::Buffer& buf, bool& moreData)
+Transceiver::read(IceInternal::Buffer& buf)
 {
     if(!_configuration->readReady())
     {
@@ -85,41 +85,7 @@ Transceiver::read(IceInternal::Buffer& buf, bool& moreData)
     }
 
     _configuration->checkReadException();
-
-    if(_configuration->buffered())
-    {
-        while(buf.i != buf.b.end())
-        {
-            if(_readBufferPos == _readBuffer.i)
-            {
-                _readBufferPos = _readBuffer.i = _readBuffer.b.begin();
-                _transceiver->read(_readBuffer, moreData);
-                if(_readBufferPos == _readBuffer.i)
-                {
-                    moreData = false;
-                    return false;
-                }
-            }
-            assert(_readBuffer.i > _readBufferPos);
-            size_t requested = buf.b.end() - buf.i;
-            size_t available = _readBuffer.i - _readBufferPos;
-            assert(available > 0);
-            if(available >= requested)
-            {
-                available = requested;
-            }
-
-            memcpy(buf.i, _readBufferPos, available);
-            _readBufferPos += available;
-            buf.i += available;
-        }
-        moreData = _readBufferPos < _readBuffer.i;
-        return true;
-    }
-    else
-    {
-        return _transceiver->read(buf, moreData);
-    }
+    return _transceiver->read(buf);
 }
 
 #ifdef ICE_USE_IOCP
@@ -141,67 +107,14 @@ void
 Transceiver::startRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();
-    if(_configuration->buffered())
-    {
-        size_t available = _readBuffer.i - _readBufferPos;
-        if(available > 0)
-        {
-            size_t requested = buf.b.end() - buf.i;
-            assert(available > 0);
-            if(available >= requested)
-            {
-                available = requested;
-            }
-            
-            memcpy(buf.i, _readBufferPos, available);
-            _readBufferPos += available;
-            buf.i += available;
-        }
-
-        if(_readBufferPos == _readBuffer.i && buf.i != buf.b.end())
-        {
-            _readBufferPos = _readBuffer.i = _readBuffer.b.begin();
-            _transceiver->startRead(_readBuffer);
-        }
-        else
-        {
-            _transceiver->getNativeInfo()->completed(IceInternal::SocketOperationRead);
-        }
-    }
-    else
-    {
-        _transceiver->startRead(buf);
-    }
+    _transceiver->startRead(buf);
 }
 
 void
 Transceiver::finishRead(IceInternal::Buffer& buf)
 {
     _configuration->checkReadException();
-    if(_configuration->buffered())
-    {
-        if(buf.i != buf.b.end())
-        {
-            _transceiver->finishRead(_readBuffer);
-
-            assert(_readBuffer.i > _readBufferPos);
-            size_t requested = buf.b.end() - buf.i;
-            size_t available = _readBuffer.i - _readBufferPos;
-            assert(available > 0);
-            if(available >= requested)
-            {
-                available = requested;
-            }
-            
-            memcpy(buf.i, _readBufferPos, available);
-            _readBufferPos += available;
-            buf.i += available;
-        }
-    }
-    else
-    {
-        _transceiver->finishRead(buf);
-    }
+    _transceiver->finishRead(buf);
 }
 #endif
 
@@ -235,11 +148,6 @@ Transceiver::checkSendSize(const IceInternal::Buffer& buf, size_t messageSizeMax
 Transceiver::Transceiver(const IceInternal::TransceiverPtr& transceiver) :
     _transceiver(transceiver),
     _configuration(Configuration::getInstance()),
-    _initialized(false),
-    _readBuffer(0)
+    _initialized(false)
 {
-    _readBuffer.b.resize(1024 * 8); // 8KB buffer
-    _readBufferPos = _readBuffer.b.begin();
-    _readBuffer.i = _readBuffer.b.begin();
 }
-

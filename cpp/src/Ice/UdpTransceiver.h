@@ -47,10 +47,10 @@ public:
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 #endif
 
-    virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
+    virtual SocketOperation initialize(Buffer&, Buffer&);
     virtual void close();
     virtual bool write(Buffer&);
-    virtual bool read(Buffer&, bool&);
+    virtual bool read(Buffer&);
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
