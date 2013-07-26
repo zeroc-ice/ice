@@ -2445,6 +2445,7 @@ NodeHelper::print(Output& out) const
 
     if(_serverInstances.empty() && _servers.empty())
     {
+        out << eb;
         return;
     }
     
