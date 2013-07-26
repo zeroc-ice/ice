@@ -1,5 +1,6 @@
-This archive contains the Ice source code for the C++ 
-language mapping.
+This archive contains the Ice source code for the C++ language
+mapping.
 
-Please refer to the README and INSTALL files in the cpp
-subdirectory for details.
+For build and installation instructions, please refer to the manual:
+
+http://doc.zeroc.com/display/Ice/Building+Ice+from+Source

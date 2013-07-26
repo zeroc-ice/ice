@@ -5,8 +5,8 @@ Creating the UNIX installers includes a few manual steps but is
 straightforward. The key stages are:
  * Building Ice
     - obtaining and possibly building required third party libraries
-      This is essentially the same thing as described in our INSTALL.x
-      files.  
+      This is essentially the same thing as described in the manual
+      for building from source.
 
     - establishing the build environment
       This is the same as just building Ice.
@@ -33,4 +33,4 @@ On Linux, you more or less just need to run makebindist.py with the
 appropriate flags and walk away. On other UNIX platforms, you will need
 to do some initial setup by updating third party libraries and tools,
 but after that is done the only extra step is downloading the source
-distributions before running makebindist.py. 
+distributions before running makebindist.py.

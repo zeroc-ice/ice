@@ -20,8 +20,7 @@ demo.
 Follow these steps to install the demo:
 
 1) Install the Ice extension and run-time files as described in the
-   top-level INSTALL or README file that accompanied your Ice
-   distribution. Restart the Web server if necessary.
+   manual. Restart the Web server if necessary.
 
 2) Install the following files in your Web server's document
    directory:

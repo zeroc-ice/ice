@@ -181,8 +181,8 @@ def createDistfiles(platform, whichDestDir):
     for root, dirnames, filenames in os.walk('.'):
         for f in filenames:
             filepath = os.path.join(root, f)
-            # Fix version of README/INSTALL files
-            if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+            # Fix version of README files
+            if fnmatch.fnmatch(f, "README*"):
                 fixVersion(filepath, *versions)
             fixFilePermission(filepath, verbose)
             
@@ -272,7 +272,6 @@ fixGitAttributes(True, False, ["allDemos.py",
                                "/rb/",
                                "/vb/",
                                "/vsaddin/",
-                               "INSTALL.WIN*",
                                "*.rc",
                                "*.sln",
                                "*.csproj",
@@ -374,7 +373,6 @@ for root, dirnames, filesnames in os.walk("."):
 ###### UNIX source code distribution
 fixGitAttributes(True, False, ["/distribution",
                                "/vsaddin",
-                               "INSTALL.WIN*",
                                "*.rc",
                                "*.sln",
                                "*.csproj",
@@ -427,8 +425,8 @@ for d in [coreSrcDir, srcDir]:
             if f == "expect.py":
                 move(filepath, os.path.join(distDir, demoscriptDir, filepath))
             else:
-                # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
-                if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+                # Fix version of README files and keep track of bison/flex files for later processing
+                if fnmatch.fnmatch(f, "README*"):
                     fixVersion(filepath, *versions)
                 elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
                     makefileFixList.append(filepath)
@@ -467,11 +465,6 @@ fixGitAttributes(True, True, ["allDemos.py",
                               "/rb/",
                               "/vb/",
                               "/vsaddin/",
-                              "INSTALL.LINUX",
-                              "INSTALL.MINGW",
-                              "INSTALL.OSX",
-                              "INSTALL.SOLARIS",
-                              "INSTALL.WINRT",
                               "*.csproj",
                               "*.vbproj",
                               "Makefile",
@@ -550,8 +543,7 @@ for root, dirnames, filesnames in os.walk("."):
 
 
 
-fixGitAttributes(True, True, ["/distribution", "/demoscript", "allDemos.py", "INSTALL.LINUX",
-                              "INSTALL.OSX", "INSTALL.SOLARIS"])
+fixGitAttributes(True, True, ["/distribution", "/demoscript", "allDemos.py"])
 
 # Don't remove Makefile from the Windows distribution since the
 # mingw build requires it.
@@ -590,8 +582,8 @@ for d in [winCoreSrcDir, winSrcDir]:
             if f == "expect.py":
                 remove(filepath)
             else:
-                # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
-                if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+                # Fix version of README files and keep track of bison/flex files for later processing
+                if fnmatch.fnmatch(f, "README*"):
                     fixVersion(filepath, *versions)
                 elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
                     makefileFixList.append(filepath)
@@ -617,7 +609,7 @@ for d in [winCoreSrcDir, winSrcDir]:
             #
             # Change text based file extension to .txt
             #
-            for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES", "INSTALL*"]:
+            for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
                 if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt") :
                     oldname = os.path.join(root, f)
                     newname = oldname + ".txt"

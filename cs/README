@@ -1,18 +1,3 @@
-Ice for .NET currently does not support the following features of Ice
-for C++:
+For build and installation instructions, please refer to the manual:
 
-- Freeze
-
-Protocol compression is supported. Note that, for compression to work,
-libbz2 must be installed and in your %PATH% or $LD_LIBRARY_PATH. If
-libbz2 cannot be found at run time, Ice automatically disables
-protocol compression. You can download bzip2 at
-
-    http://www.bzip.org
-
-Supported environments:
-
-- Visual C# (Windows)
-- Mono (Linux)
-
-See INSTALL.VISUAL_C# or INSTALL.MONO for installation information.
+http://doc.zeroc.com/display/Ice/Building+Ice+from+Source

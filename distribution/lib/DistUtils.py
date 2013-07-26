@@ -382,7 +382,6 @@ def fixFilePermission(file, verbose = False):
         "*.cpp", \
         "*.ice", \
         "README*", \
-        "INSTALL*", \
         "*.xml", \
         "*.mc", \
         "Makefile", \
