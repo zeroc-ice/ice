@@ -11,10 +11,10 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-CXX			?= xcrun clang++
+CXX			= xcrun clang++
 
-CPPFLAGS 		?= -pthread
-CXXFLAGS		?= -Wall -Werror
+CPPFLAGS 	        += -pthread
+CXXFLAGS		+= -Wall -Werror
 
 ifeq ($(OPTIMIZE),yes)
      #
