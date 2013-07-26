@@ -229,6 +229,12 @@ SILVERLIGHT_VERSION	= 5.1.10411.0
 !endif
 !endif
 
+!if "$(SILVERLIGHT_VERSION)" == ""
+!if exist ("$(PROGRAMFILES)\Microsoft Silverlight\5.1.20513.0")
+SILVERLIGHT_VERSION	= 5.1.20513.0
+!endif
+!endif
+
 SILVERLIGHT_HOME	= $(PROGRAMFILES)\Microsoft Silverlight\$(SILVERLIGHT_VERSION)
 
 SILVERLIGHT_REFS		= "/r:$(SILVERLIGHT_HOME)\mscorlib.dll" \

@@ -906,12 +906,7 @@ namespace IceInternal
                     return new IPEndPoint(IPAddress.Any, port);
                 }
             }
-
-#if SILVERLIGHT
-            return new DnsEndPoint(host, port, AddressFamily.InterNetwork);
-#else
             return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
-#endif
         }
 
         public static List<EndPoint> getAddresses(string host, int port, int protocol,
