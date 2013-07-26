@@ -21,10 +21,6 @@ class NetworkProxy;
 ICE_API IceUtil::Shared* upCast(NetworkProxy*);
 typedef Handle<NetworkProxy> NetworkProxyPtr;
 
-class SOCKSNetworkProxy;
-ICE_API IceUtil::Shared* upCast(SOCKSNetworkProxy*);
-typedef Handle<SOCKSNetworkProxy> SOCKSNetworkProxyPtr;
-
 }
 
 #endif

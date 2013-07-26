@@ -546,7 +546,6 @@ IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
 #endif
 
 IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(SOCKSNetworkProxy* p) { return p; }
 
 IceInternal::SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) :
     _host(host), _port(port)

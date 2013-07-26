@@ -251,6 +251,7 @@ private:
     int _port;
     Address _address;
 };
+typedef IceUtil::Handle<SOCKSNetworkProxy> SOCKSNetworkProxyPtr;
 
 ICE_API bool noMoreFds(int);
 ICE_API std::string errorToStringDNS(int);
