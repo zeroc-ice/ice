@@ -308,6 +308,28 @@ RegistryI::startImpl()
     {
         _instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
     }
+    
+    //
+    // Create the registry database.
+    //
+    DatabasePluginPtr plugin;
+    try
+    {
+        plugin = DatabasePluginPtr::dynamicCast(_communicator->getPluginManager()->getPlugin("DB"));
+    }
+    catch(const NotRegisteredException&)
+    {
+    }
+    if(!plugin)
+    {
+        Error out(_communicator->getLogger());
+        out << "no database plugin configured with `Ice.Plugin.DB' or plugin is not a database plugin";
+        return false;
+    }
+    if(!plugin->initDB())
+    {
+        return false;
+    }
 
     //
     // Ensure that nothing is running on this port. This is also
@@ -354,28 +376,6 @@ RegistryI::startImpl()
                                                   registryTopicManagerId,
                                                   "Registry");
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
-
-    //
-    // Create the registry database.
-    //
-    DatabasePluginPtr plugin;
-    try
-    {
-        plugin = DatabasePluginPtr::dynamicCast(_communicator->getPluginManager()->getPlugin("DB"));
-    }
-    catch(const NotRegisteredException&)
-    {
-    }
-    if(!plugin)
-    {
-        Error out(_communicator->getLogger());
-        out << "no database plugin configured with `Ice.Plugin.DB' or plugin is not a database plugin";
-        return false;
-    }
-    if(!plugin->initDB())
-    {
-        return false;
-    }
 
     _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), plugin, _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
