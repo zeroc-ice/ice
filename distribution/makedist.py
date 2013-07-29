@@ -191,6 +191,30 @@ def createDistfiles(platform, whichDestDir):
 
     print "ok"
 
+def checkBisonVersion(filename):
+    f = open(filename, "r")
+    for line in f.readlines():
+	if re.search("#define YYBISON_VERSION", line) and not re.search("2.4.1", line):
+            print "Bison version mistmatch in `" + filename + "'"
+            print "required Bison 2.4.1"
+            print "Found " + line
+            sys.exit(1)
+
+def checkFlexVersion(filename):
+    f = open(filename, "r")
+    for line in f.readlines():
+	if re.search("#define YY_FLEX_MAJOR_VERSION", line) and not re.search("2", line):
+            print "Flex version mistmatch in `" + filename + "'"
+            print "required Flex 2.5"
+            print "Found " + line
+            sys.exit(1)
+
+        if re.search("#define YY_FLEX_MINOR_VERSION", line) and not re.search("5", line):
+            print "Flex version mistmatch in `" + filename + "'"
+            print "required Flex 2.5"
+            print "Found " + line
+            sys.exit(1)
+
 def fixGitAttributes(checkout, autocrlf, excludes):
     os.chdir(gitRepoDir)
     if checkout:
@@ -430,6 +454,10 @@ for d in [coreSrcDir, srcDir]:
                     fixVersion(filepath, *versions)
                 elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
                     makefileFixList.append(filepath)
+                elif f == "Grammar.cpp":
+                    checkBisonVersion(filepath)
+                elif f == "Scanner.cpp":
+                    checkFlexVersion(filepath)
 
                 fixFilePermission(filepath, verbose)
         
