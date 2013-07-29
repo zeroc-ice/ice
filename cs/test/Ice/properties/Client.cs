@@ -49,13 +49,12 @@ public class Client
         {
             Console.Out.Write("testing load properties from UTF-8 path... ");
             Console.Out.Flush();
-            Ice.InitializationData id = new Ice.InitializationData();
-            id.properties = Ice.Util.createProperties();
-            id.properties.load("./config/中国_client.config");
-            test(id.properties.getProperty("Ice.Trace.Network").Equals("1"));
-            test(id.properties.getProperty("Ice.Trace.Protocol").Equals("1"));
-            test(id.properties.getProperty("Config.Path").Equals("./config/中国_client.config"));
-            test(id.properties.getProperty("Ice.ProgramName").Equals("PropertiesClient"));
+            Ice.Properties properties = Ice.Util.createProperties();
+            properties.load("./config/中国_client.config");
+            test(properties.getProperty("Ice.Trace.Network").Equals("1"));
+            test(properties.getProperty("Ice.Trace.Protocol").Equals("1"));
+            test(properties.getProperty("Config.Path").Equals("./config/中国_client.config"));
+            test(properties.getProperty("Ice.ProgramName").Equals("PropertiesClient"));
             Console.Out.WriteLine("ok");
             Console.Out.Write("testing load properties from UTF-8 path using Ice::Application... ");
             Console.Out.Flush();
@@ -68,7 +67,26 @@ public class Client
             System.Console.Error.WriteLine(ex);
             status = 1;
         }
-
+        
+        //
+        // Try to load multiple config files.
+        //
+        try
+        {
+            Console.Out.Write("testing using Ice.Config with multiple config files... ");
+            Console.Out.Flush();
+            string[] args1 = new string[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
+            Ice.Properties properties = Ice.Util.createProperties(ref args1);
+            test(properties.getProperty("Config1").Equals("Config1"));
+            test(properties.getProperty("Config2").Equals("Config2"));
+            test(properties.getProperty("Config3").Equals("Config3"));
+            Console.Out.WriteLine("ok");
+        }
+        catch(System.Exception ex)
+        {
+            System.Console.Error.WriteLine(ex);
+            status = 1;
+        }
         return status;
     }
 }

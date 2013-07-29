@@ -262,11 +262,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             String metricsDefs = coord.getProperties().getProperty("IceGridAdmin.MetricsConfigs");
             if(!metricsDefs.isEmpty())
             {
-                for(String s : IceUtilInternal.StringUtil.splitString(metricsDefs, ", \t\r\n"))
+                for(String s : metricsDefs.split(","))
                 {
                     try
                     {
-                        _properties.load(s);
+                        _properties.load(s.trim());
                     }
                     catch(Ice.FileException ex)
                     {

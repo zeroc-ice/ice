@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/ArgVector.h>
 
 using namespace std;
 
@@ -52,13 +53,12 @@ main(int argc, char* argv[])
     try
     {
         cout << "testing load properties from UTF-8 path... " << flush;
-        Ice::InitializationData id;
-        id.properties = Ice::createProperties();
-        id.properties->load(configPath);
-        test(id.properties->getProperty("Ice.Trace.Network") == "1");
-        test(id.properties->getProperty("Ice.Trace.Protocol") == "1");       
-        test(id.properties->getProperty("Config.Path") == configPath);
-        test(id.properties->getProperty("Ice.ProgramName") == "PropertiesClient");
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->load(configPath);
+        test(properties->getProperty("Ice.Trace.Network") == "1");
+        test(properties->getProperty("Ice.Trace.Protocol") == "1");       
+        test(properties->getProperty("Config.Path") == configPath);
+        test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
         cout << "ok" << endl;
     }
     catch(const Ice::Exception& ex)
@@ -66,9 +66,32 @@ main(int argc, char* argv[])
         cerr << ex << endl;
         return EXIT_FAILURE;
     }
+    
     cout << "testing load properties from UTF-8 path using Ice::Application... " << flush;
     Client c;
     c.main(argc, argv, configPath.c_str());
     cout << "ok" << endl;
+    
+    try
+    {
+        //
+        // Try to load multiple config files.
+        //
+        cout << "testing using Ice.Config with multiple config files... " << flush;
+        Ice::PropertiesPtr properties;
+        Ice::StringSeq args;
+        args.push_back("--Ice.Config=config/config.1, config/config.2, config/config.3");
+        IceUtilInternal::ArgVector a(args);
+        properties = Ice::createProperties(a.argc, a.argv);
+        test(properties->getProperty("Config1") == "Config1");
+        test(properties->getProperty("Config2") == "Config2");
+        test(properties->getProperty("Config3") == "Config3");
+        cout << "ok" << endl;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }

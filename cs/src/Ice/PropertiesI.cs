@@ -681,7 +681,7 @@ namespace Ice
                 string[] files = val.Split(separator);
                 for(int i = 0; i < files.Length; i++)
                 {
-                    load(files[i]);
+                    load(files[i].Trim());
                 }
             }
             

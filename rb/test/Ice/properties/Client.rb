@@ -34,14 +34,22 @@ end
 
 
 print "testing load properties from UTF-8 path... "
-initData = Ice::InitializationData.new
-initData.properties = Ice.createProperties(ARGV)
-initData.properties.load("./config/中国_client.config")
-test(initData.properties.getProperty("Ice.Trace.Network") == "1")
-test(initData.properties.getProperty("Ice.Trace.Protocol") == "1")
-test(initData.properties.getProperty("Config.Path").eql? "./config/中国_client.config")
-test(initData.properties.getProperty("Ice.ProgramName") == "PropertiesClient")
+properties = Ice.createProperties(ARGV)
+properties.load("./config/中国_client.config")
+test(properties.getProperty("Ice.Trace.Network") == "1")
+test(properties.getProperty("Ice.Trace.Protocol") == "1")
+test(properties.getProperty("Config.Path").eql? "./config/中国_client.config")
+test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
 puts "ok"
 
 app = Client.new()
-exit(app.main(ARGV, "./config/中国_client.config"))
+app.main(ARGV, "./config/中国_client.config")
+
+print "testing using Ice.Config with multiple config files... "
+properties = Ice.createProperties(["--Ice.Config=config/config.1, config/config.2, config/config.3"]);
+test(properties.getProperty("Config1") == "Config1");
+test(properties.getProperty("Config2") == "Config2");
+test(properties.getProperty("Config3") == "Config3");
+puts "ok"
+
+exit(0)

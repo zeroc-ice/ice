@@ -748,23 +748,11 @@ Ice::PropertiesI::loadConfig()
 
     if(!value.empty())
     {
-        const string delim = " \t\r\n";
-        string::size_type beg = value.find_first_not_of(delim);
-        while(beg != string::npos)
+        vector<string> files;
+        IceUtilInternal::splitString(value, ",", files);
+        for(vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
         {
-            string::size_type end = value.find(",", beg);
-            string file;
-            if(end == string::npos)
-            {
-                file = value.substr(beg);
-                beg = end;
-            }
-            else
-            {
-                file = value.substr(beg, end - beg);
-                beg = value.find_first_not_of("," + delim, end);
-            }
-            load(file);
+            load(IceUtilInternal::trim(*i));
         }
     }
 

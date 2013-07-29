@@ -29,18 +29,25 @@ class Client(Ice.Application):
 
 sys.stdout.write("testing load properties from UTF-8 path... ")
 sys.stdout.flush()
-id = Ice.InitializationData()
-id.properties = Ice.createProperties()
-id.properties.load("./config/中国_client.config")
-test(id.properties.getProperty("Ice.Trace.Network") == "1")
-test(id.properties.getProperty("Ice.Trace.Protocol") == "1")
-test(id.properties.getProperty("Config.Path") == "./config/中国_client.config")
-test(id.properties.getProperty("Ice.ProgramName") == "PropertiesClient")
+properties = Ice.createProperties()
+properties.load("./config/中国_client.config")
+test(properties.getProperty("Ice.Trace.Network") == "1")
+test(properties.getProperty("Ice.Trace.Protocol") == "1")
+test(properties.getProperty("Config.Path") == "./config/中国_client.config")
+test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
 print("ok")
 sys.stdout.write("testing load properties from UTF-8 path using Ice::Application... ")
 sys.stdout.flush()
 c  = Client()
 c.main(sys.argv, "./config/中国_client.config")
+print("ok")
+
+sys.stdout.write("testing using Ice.Config with multiple config files... ")
+sys.stdout.flush()
+properties = Ice.createProperties(["--Ice.Config=config/config.1, config/config.2, config/config.3"]);
+test(properties.getProperty("Config1") == "Config1");
+test(properties.getProperty("Config2") == "Config2");
+test(properties.getProperty("Config3") == "Config3");
 print("ok")
 
 sys.exit(0)

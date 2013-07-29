@@ -741,7 +741,7 @@ public final class PropertiesI implements Properties
         {
             for(String file : value.split(","))
             {
-                load(file);
+                load(file.trim());
             }
         }
 
