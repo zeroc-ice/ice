@@ -1,9 +1,10 @@
-/* A Bison parser, made by GNU Bison 2.4.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-   2009, 2010 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -45,7 +46,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.4.3"
+#define YYBISON_VERSION "2.4.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -101,7 +102,7 @@ yyerror(const char* s)
 
 
 /* Line 189 of yacc.c  */
-#line 105 "Grammar.tab.c"
+#line 106 "Grammar.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -158,7 +159,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 162 "Grammar.tab.c"
+#line 163 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -208,7 +209,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if defined YYENABLE_NLS && YYENABLE_NLS
+# if YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -579,18 +580,9 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  However,
-   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
-   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
-   discussed.  */
+   Once GCC version 2 has supplanted version 1, this can go.  */
 
 #define YYFAIL		goto yyerrlab
-#if defined YYFAIL
-  /* This is here to suppress warnings from the GCC cpp's
-     -Wunused-macros.  Normally we don't worry about that warning, but
-     some users do, and we want to make it easy for users to remove
-     YYFAIL uses, which will produce warnings from Bison 2.5.  */
-#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
@@ -647,7 +639,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# if YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -1385,7 +1377,7 @@ yyreduce:
     {
         case 2:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 55 "Grammar.y"
     {
 ;}
@@ -1393,7 +1385,7 @@ yyreduce:
 
   case 3:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 58 "Grammar.y"
     {
 ;}
@@ -1401,7 +1393,7 @@ yyreduce:
 
   case 4:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 66 "Grammar.y"
     {
 ;}
@@ -1409,7 +1401,7 @@ yyreduce:
 
   case 5:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 69 "Grammar.y"
     {
 ;}
@@ -1417,7 +1409,7 @@ yyreduce:
 
   case 6:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 77 "Grammar.y"
     {
     parser->usage();
@@ -1426,7 +1418,7 @@ yyreduce:
 
   case 7:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 81 "Grammar.y"
     {
     return 0;
@@ -1435,7 +1427,7 @@ yyreduce:
 
   case 8:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 85 "Grammar.y"
     {
     parser->addContacts((yyvsp[(2) - (3)]));
@@ -1444,7 +1436,7 @@ yyreduce:
 
   case 9:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 89 "Grammar.y"
     {
     parser->findContacts((yyvsp[(2) - (3)]));
@@ -1453,7 +1445,7 @@ yyreduce:
 
   case 10:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 93 "Grammar.y"
     {
     parser->nextFoundContact();
@@ -1462,7 +1454,7 @@ yyreduce:
 
   case 11:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 97 "Grammar.y"
     {
     parser->printCurrent();
@@ -1471,7 +1463,7 @@ yyreduce:
 
   case 12:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 101 "Grammar.y"
     {
     parser->setCurrentName((yyvsp[(2) - (3)]));
@@ -1480,7 +1472,7 @@ yyreduce:
 
   case 13:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 105 "Grammar.y"
     {
     parser->setCurrentAddress((yyvsp[(2) - (3)]));
@@ -1489,7 +1481,7 @@ yyreduce:
 
   case 14:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 109 "Grammar.y"
     {
     parser->setCurrentPhone((yyvsp[(2) - (3)]));
@@ -1498,7 +1490,7 @@ yyreduce:
 
   case 15:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 113 "Grammar.y"
     {
     parser->removeCurrent();
@@ -1507,7 +1499,7 @@ yyreduce:
 
   case 16:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 117 "Grammar.y"
     {
     parser->setEvictorSize((yyvsp[(2) - (3)]));
@@ -1516,7 +1508,7 @@ yyreduce:
 
   case 17:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 121 "Grammar.y"
     {
     parser->shutdown();
@@ -1525,7 +1517,7 @@ yyreduce:
 
   case 18:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 125 "Grammar.y"
     {
     yyerrok;
@@ -1534,7 +1526,7 @@ yyreduce:
 
   case 19:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 129 "Grammar.y"
     {
 ;}
@@ -1542,7 +1534,7 @@ yyreduce:
 
   case 20:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 137 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -1552,7 +1544,7 @@ yyreduce:
 
   case 21:
 
-/* Line 1464 of yacc.c  */
+/* Line 1455 of yacc.c  */
 #line 142 "Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
@@ -1561,8 +1553,8 @@ yyreduce:
 
 
 
-/* Line 1464 of yacc.c  */
-#line 1566 "Grammar.tab.c"
+/* Line 1455 of yacc.c  */
+#line 1558 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1773,7 +1765,7 @@ yyreturn:
 
 
 
-/* Line 1684 of yacc.c  */
+/* Line 1675 of yacc.c  */
 #line 147 "Grammar.y"
 
 
