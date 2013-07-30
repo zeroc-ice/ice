@@ -47,6 +47,18 @@ Mutex* staticMutex = 0;
 HCRYPTPROV context = 0;
 #else
 int fd = -1;
+//
+// Callback to use with pthread_atfork to reset the "/dev/urandom"  
+// fd state. We don't need to close the fd here as that is done 
+// during static destruction.
+//
+void childAtFork()
+{
+    if(fd != -1)
+    {
+        fd = -1;
+    }
+}
 #endif
 
 class Init
@@ -56,6 +68,13 @@ public:
     Init()
     {
         staticMutex = new IceUtil::Mutex;
+#ifndef _WIN32
+        //
+        // Register a callback to reset the "/dev/urandom" fd 
+        // state after fork.
+        //
+        pthread_atfork(0, 0, &childAtFork);
+#endif
     }
     
     ~Init()
