@@ -292,16 +292,23 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #elif defined(__linux)
         IceUtilInternal::ifstream is(string("/proc/cpuinfo"));
         set<string> ids;
+        
+        int nprocessor = 0;
         while(is)
         {
             string line;
             getline(is, line);
-            if(line.find("physical id") == 0)
+            if(line.find("processor") == 0)
             {
+                nprocessor++;
+            }
+            else if(line.find("physical id") == 0)
+            {
+                nprocessor--;
                 ids.insert(line);
             }
         }
-        _nProcessorSockets = ids.size();
+        _nProcessorSockets = nprocessor + ids.size();
 #else
         // Not supported
         _nProcessorSockets = 1;
