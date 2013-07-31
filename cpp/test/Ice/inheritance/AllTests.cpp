@@ -219,6 +219,128 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(ib2o == cd);
 
     cout << "ok" << endl;
+    
+    cout << "testing one shot constructor... " << flush;
+    {
+        MC::APtr a = new MC::A(1);
+        test(a->aA == 1);
+        
+        MC::BPtr b = new MC::B(1, 2);
+        test(b->aA == 1);
+        test(b->bB == 2);
+        
+        MC::CPtr c = new MC::C(1, 2, 3);
+        test(c->aA == 1);
+        test(c->bB == 2);
+        test(c->cC == 3);
+        
+        MC::DPtr d = new MC::D(1, 2, 3, 4);
+        test(d->aA == 1);
+        test(d->bB == 2);
+        test(d->cC == 3);
+        test(d->dD == 4);
+    }
+    
+    {
+        MD::APtr a = new MD::A(1);
+        test(a->aA == 1);
+        
+        MD::BPtr b = new MD::B(1, 2);
+        test(b->aA == 1);
+        test(b->bB == 2);
+        
+        MD::CPtr c = new MD::C(1, 2, 3);
+        test(c->aA == 1);
+        test(c->bB == 2);
+        test(c->cC == 3);
+        
+        MD::DPtr d = new MD::D(1, 2, 3, 4);
+        test(d->aA == 1);
+        test(d->bB == 2);
+        test(d->cC == 3);
+        test(d->dD == 4);
+    }
+    
+    {
+        ME::APtr a = new ME::A(1);
+        test(a->aA == 1);
+        
+        ME::BPtr b = new ME::B(1, 2);
+        test(b->aA == 1);
+        test(b->bB == 2);
+        
+        ME::CPtr c = new ME::C(1, 2, 3);
+        test(c->aA == 1);
+        test(c->bB == 2);
+        test(c->cC == 3);
+
+        ME::DPtr d = new ME::D(1, 2, 3, 4);
+        test(d->aA == 1);
+        test(d->bB == 2);
+        test(d->cC == 3);
+        test(d->dD == 4);
+    }
+    
+    {
+        MF::APtr a = new MF::A(1);
+        test(a->aA == 1);
+        
+        MF::BPtr b = new MF::B(1, 2);
+        test(b->aA == 1);
+        test(b->bB == 2);
+        
+        MF::CPtr c = new MF::C(1, 2, 3);
+        test(c->aA == 1);
+        test(c->bB == 2);
+        test(c->cC == 3);
+
+        MF::DPtr d = new MF::D(1, 2, 3, 4);
+        test(d->aA == 1);
+        test(d->bB == 2);
+        test(d->cC == 3);
+        test(d->dD == 4);
+    }
+    
+    {
+        MG::APtr a = new MG::A(1);
+        test(a->aA == 1);
+        
+        MG::BPtr b = new MG::B(1, 2);
+        test(b->aA == 1);
+        test(b->bB == 2);
+        
+        MG::CPtr c = new MG::C(1, 2, 3);
+        test(c->aA == 1);
+        test(c->bB == 2);
+        test(c->cC == 3);
+
+        MG::DPtr d = new MG::D(1, 2, 3, 4);
+        test(d->aA == 1);
+        test(d->bB == 2);
+        test(d->cC == 3);
+        test(d->dD == 4);
+    }
+    
+    {
+        MH::APtr a = new MH::A(1);
+        test(a->aA == 1);
+        
+        MH::BPtr b = new MH::B(1, 2);
+        test(b->aA == 1);
+        test(b->bB == 2);
+        
+        MH::CPtr c = new MH::C(1, 2, 3);
+        test(c->aA == 1);
+        test(c->bB == 2);
+        test(c->cC == 3);
+
+        MH::DPtr d = new MH::D(1, 2, 3, 4);
+        test(d->aA == 1);
+        test(d->bB == 2);
+        test(d->cC == 3);
+        test(d->dD == 4);
+    }
+    cout << "ok" << endl;
 
     return initial;
 }

@@ -4762,7 +4762,7 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 }
 
 bool
-Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, bool virtualInheritance)
+Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, bool virtualInheritance, bool direct)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     if(allDataMembers.empty())
@@ -4770,16 +4770,21 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
         return false;
     }
 
-    if(virtualInheritance)
+    ClassList bases = p->bases();
+    if(!bases.empty() && !bases.front()->isInterface())
     {
-        ClassList bases = p->bases();
-        if(!bases.empty() && !bases.front()->isInterface())
+        if(emitVirtualBaseInitializers(bases.front(), p->hasMetaData("cpp:virtual"), false))
         {
-            if(emitVirtualBaseInitializers(bases.front(), virtualInheritance))
-            {
-                H << ',';
-            }
+            H << ',';
         }
+    }
+
+    //
+    // Do not call non direct base classes constructor if not using virtual inheritance.
+    //
+    if(!direct && !virtualInheritance)
+    {
+        return false;
     }
 
     string upcall = "(";
@@ -4828,7 +4833,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         ClassDefPtr base;
         if(!bases.empty() && !bases.front()->isInterface())
         {
-            if(emitVirtualBaseInitializers(bases.front(), p->hasMetaData("cpp:virtual")))
+            if(emitVirtualBaseInitializers(bases.front(), p->hasMetaData("cpp:virtual"), true))
             {
                 if(!dataMembers.empty())
                 {

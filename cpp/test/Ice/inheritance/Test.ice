@@ -80,4 +80,155 @@ interface Initial
     MA::IC* icop();
 };
 
+
+module MC
+{
+
+class A
+{
+    int aA;
+};
+
+class B extends A
+{
+    int bB;
+};
+
+class C extends B
+{
+    int cC;
+};
+
+["cpp:virtual"] class D extends C
+{
+    int dD;
+};
+
+};
+
+module MD
+{
+    
+["cpp:virtual"] class A
+{
+    int aA;
+};
+
+["cpp:virtual"] class B extends A
+{
+    int bB;
+};
+
+["cpp:virtual"] class C extends B
+{
+    int cC;
+};
+
+["cpp:virtual"] class D extends C
+{
+    int dD;
+};
+
+};
+
+module ME
+{
+    
+class A
+{
+    int aA;
+};
+
+class B extends A
+{
+    int bB;
+};
+
+["cpp:virtual"] class C extends B
+{
+    int cC;
+};
+
+["cpp:virtual"] class D extends C
+{
+    int dD;
+};
+
+};
+
+module MF
+{
+    
+class A
+{
+    int aA;
+};
+
+["cpp:virtual"] class B extends A
+{
+    int bB;
+};
+
+class C extends B
+{
+    int cC;
+};
+
+["cpp:virtual"] class D extends C
+{
+    int dD;
+};
+
+};
+
+module MG
+{
+    
+class A
+{
+    int aA;
+};
+
+["cpp:virtual"] class B extends A
+{
+    int bB;
+};
+
+["cpp:virtual"] class C extends B
+{
+    int cC;
+};
+
+class D extends C
+{
+    int dD;
+};
+
+};
+
+module MH
+{
+    
+class A
+{
+    int aA;
+};
+
+class B extends A
+{
+    int bB;
+};
+
+class C extends B
+{
+    int cC;
+};
+
+class D extends C
+{
+    int dD;
+};
+
+};
+
 };
