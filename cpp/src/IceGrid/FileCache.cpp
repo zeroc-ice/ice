@@ -191,15 +191,17 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
         totalSize += lineSize;
         lines.push_back(line);
+
         //
-        // Some eofbit cases will also set failbit. So first
-        // check eof.
+        // If there was a partial read update the offset using the current line size,
+        // otherwise we have read a new complete line and we can use tellg to update
+        // the offset.
         //
-        if(is.eof())
+        if(!is.good())
         {
             newOffset += line.size();
         }
-        else if(!is.fail())
+        else
         {
             newOffset = is.tellg();
         }
