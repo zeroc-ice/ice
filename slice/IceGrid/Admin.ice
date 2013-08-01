@@ -1063,14 +1063,14 @@ interface Admin
      * Get the number of physical processor sockets for the machine
      * running the node with the given name. 
      *
-     * Note that this method will return 0 on operating systems where
+     * Note that this method will return 1 on operating systems where
      * this can't be automatically determined and where the
      * IceGrid.Node.ProcessorSocketCount property for the node is not
      * set.
      *
      * @param name The node name.
      *
-     * @return The number of processor sockets or 0 if the number of
+     * @return The number of processor sockets or 1 if the number of
      * sockets can't determined.
      * 
      * @throws NodeNotExistException Raised if the node doesn't exist.
