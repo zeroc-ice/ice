@@ -335,6 +335,11 @@ public:
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->getLinkInfoSeq();
     }
+    
+    virtual Ice::IdentitySeq getSubscribers(const Ice::Current&) const
+    {
+        return _impl->getSubscribers();
+    }
 
     virtual void destroy(const Ice::Current& current)
     {
@@ -1020,6 +1025,19 @@ TopicImpl::getLinkInfoSeq() const
         }
     }
     return seq;
+}
+
+Ice::IdentitySeq
+TopicImpl::getSubscribers() const
+{
+    IceUtil::Mutex::Lock sync(_subscribersMutex);
+    
+    Ice::IdentitySeq subscribers;
+    for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)
+    {
+        subscribers.push_back((*p)->id());
+    }
+    return subscribers;
 }
 
 void

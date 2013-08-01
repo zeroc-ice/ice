@@ -41,8 +41,12 @@ General Changes
 
 - Fixed the graphical IceGrid administrative tool to run and build
   in JVMs without JavaFX support.
+  
+- IceGrid node now initializes the process supplementary groups.
 
 - Added man pages for Ice executable tools and commands.
+
+- Added ability to list IceStorm topic subscribers.
 
 
 C++ Changes
@@ -61,6 +65,9 @@ C++ Changes
 
 - Fixed a bug in slice2cpp that generated invalid C++ code for C++11
   asynchronous invocations.
+  
+- Fixed a bug in slice2cpp that generated invalid C++ code when using
+  "cpp:virtual" metadata.
 
 
 Java Changes

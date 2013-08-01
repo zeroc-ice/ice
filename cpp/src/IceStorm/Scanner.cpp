@@ -2011,6 +2011,7 @@ initScanner()
     keywordMap["links"] = ICE_STORM_LINKS;
     keywordMap["topics"] = ICE_STORM_TOPICS;
     keywordMap["replica"] = ICE_STORM_REPLICA;
+    keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
 }
 
 }

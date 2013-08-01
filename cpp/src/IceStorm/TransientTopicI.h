@@ -39,6 +39,7 @@ public:
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
     virtual void unlink(const TopicPrx&, const Ice::Current&);
     virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const;
+    virtual Ice::IdentitySeq getSubscribers(const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
     virtual void reap(const Ice::IdentitySeq&, const Ice::Current&);
 

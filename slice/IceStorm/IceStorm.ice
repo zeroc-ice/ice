@@ -11,6 +11,7 @@
 
 [["cpp:header-ext:h"]]
 
+#include <Ice/Identity.ice>
 #include <Ice/SliceChecksumDict.ice>
 
 #include <IceStorm/Metrics.ice>
@@ -268,6 +269,15 @@ interface Topic
      *
      **/
     ["nonmutating", "cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
+    
+    /**
+     * 
+     * Retrieve the list of subscribers for this topic.
+     * 
+     * @return The sequence of Ice identities for the subscriber objects.
+     * 
+     **/
+    ["nonmutating", "cpp:const"] Ice::IdentitySeq getSubscribers();
 
     /**
      *

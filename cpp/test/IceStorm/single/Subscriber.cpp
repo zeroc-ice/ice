@@ -139,36 +139,47 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
     // Create subscribers with different QoS.
     //
     vector<SingleIPtr> subscribers;
+    vector<Ice::Identity> subscriberIdentities;
     //
     // First we use the old deprecated API.
     //
     {
         subscribers.push_back(new SingleI(communicator, "default"));
-        topic->subscribe(IceStorm::QoS(), adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribe(IceStorm::QoS(), object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "oneway"));
         IceStorm::QoS qos;
         qos["reliability"] = "oneway";
-        topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribe(qos, object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "twoway"));
         IceStorm::QoS qos;
         qos["reliability"] = "twoway";
-        topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribe(qos, object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "batch"));
         IceStorm::QoS qos;
         qos["reliability"] = "batch";
-        topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribe(qos, object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "twoway ordered")); // Ordered
         IceStorm::QoS qos;
         qos["reliability"] = "twoway ordered";
-        topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribe(qos, object);
     }
     {
         // Use a separate adapter to ensure a separate connection is used for the subscriber
@@ -178,7 +189,9 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         subscribers.push_back(new SingleI(communicator, "datagram"));
         IceStorm::QoS qos;
         qos["reliability"] = "oneway";
-        topic->subscribe(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_datagram());
+        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
+        topic->subscribe(IceStorm::QoS(), object);
+        subscriberIdentities.push_back(object->ice_getIdentity());
         adpt->activate();
     }
     {
@@ -189,7 +202,9 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         subscribers.push_back(new SingleI(communicator, "batch datagram"));
         IceStorm::QoS qos;
         qos["reliability"] = "batch";
-        topic->subscribe(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_datagram());
+        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
+        topic->subscribe(IceStorm::QoS(), object);
+        subscriberIdentities.push_back(object->ice_getIdentity());
         adpt->activate();
     }
     //
@@ -197,25 +212,35 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
     //
     {
         subscribers.push_back(new SingleI(communicator, "default"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_oneway());
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_oneway();
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "oneway"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_oneway());
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_oneway();
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "twoway"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "batch"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_batchOneway());
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back())->ice_batchOneway();
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
     {
         subscribers.push_back(new SingleI(communicator, "twoway ordered")); // Ordered
         IceStorm::QoS qos;
         qos["reliability"] = "ordered";
-        topic->subscribeAndGetPublisher(qos, adapter->addWithUUID(subscribers.back()));
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(qos, object);
     }
     {
         // Use a separate adapter to ensure a separate connection is used for the subscriber
@@ -223,7 +248,9 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         // packet loss, see bug 1784).
         ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter3", "udp");
         subscribers.push_back(new SingleI(communicator, "datagram"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_datagram());
+        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
         adpt->activate();
     }
     {
@@ -232,11 +259,20 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         // packet loss, see bug 1784).
         ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter4", "udp");
         subscribers.push_back(new SingleI(communicator, "batch datagram"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_batchDatagram());
+        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_batchDatagram();
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
         adpt->activate();
     }
 
     adapter->activate();
+    
+    vector<Ice::Identity> ids = topic->getSubscribers();
+    test(ids.size() == subscriberIdentities.size());
+    for(vector<Ice::Identity>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    {
+        test(find(subscriberIdentities.begin(), subscriberIdentities.end(), *i) != subscriberIdentities.end());
+    }
 
     for(vector<SingleIPtr>::const_iterator p = subscribers.begin(); p != subscribers.end(); ++p)
     {

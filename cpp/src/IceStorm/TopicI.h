@@ -46,6 +46,7 @@ public:
     void link(const TopicPrx&, Ice::Int);
     void unlink(const TopicPrx&);
     LinkInfoSeq getLinkInfoSeq() const;
+    Ice::IdentitySeq getSubscribers() const;
     void reap(const Ice::IdentitySeq&);
     void destroy();
 

@@ -454,6 +454,19 @@ TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
     return seq;
 }
 
+Ice::IdentitySeq
+TransientTopicImpl::getSubscribers(const Ice::Current&) const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    Ice::IdentitySeq subscribers;
+    for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)
+    {
+        subscribers.push_back((*p)->id());
+    }
+    return subscribers;
+}
+
 void
 TransientTopicImpl::destroy(const Ice::Current&)
 {

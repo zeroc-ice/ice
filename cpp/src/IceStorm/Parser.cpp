@@ -96,6 +96,7 @@ Parser::usage()
         "current [INSTANCE-NAME]  Display the current topic manager, or change it to\n"
         "                         INSTANCE-NAME.\n"
         "replica [INSTANCE-NAME]  Display replication information for the given INSTANCE-NAME.\n"
+        "subscribers TOPICS       List TOPICS subscribers.\n"
         ;
 }
 
@@ -334,6 +335,33 @@ Parser::replica(const list<string>& args)
             catch(const Exception& ex)
             {
                 cout << p->id << ": " << ex.ice_name() << endl;
+            }
+        }
+    }
+    catch(const Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::subscribers(const list<string>& args)
+{
+    if(args.empty())
+    {
+        error("subscribers' requires at least one argument (type `help' for more info) ");
+        return;
+    }
+    try
+    {
+        for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+        {
+            TopicPrx topic = _defaultManager->retrieve(*i);
+            cout << (*i) << ": subscribers:" << endl;
+            IdentitySeq subscribers = topic->getSubscribers();
+            for(IdentitySeq::const_iterator j = subscribers.begin(); j != subscribers.end(); ++j)
+            {
+                cout << "\t" << _communicator->identityToString(*j) << endl;
             }
         }
     }

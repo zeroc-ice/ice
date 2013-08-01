@@ -49,6 +49,7 @@ yyerror(const char* s)
 %token ICE_STORM_LINKS
 %token ICE_STORM_TOPICS
 %token ICE_STORM_REPLICA
+%token ICE_STORM_SUBSCRIBERS
 %token ICE_STORM_STRING
 
 %%
@@ -117,6 +118,10 @@ command
 | ICE_STORM_REPLICA strings ';'
 {
     parser->replica($2);
+}
+| ICE_STORM_SUBSCRIBERS strings ';'
+{
+    parser->subscribers($2);
 }
 | ICE_STORM_STRING error ';'
 {
