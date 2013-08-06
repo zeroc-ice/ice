@@ -36,19 +36,6 @@
         </and>
     </condition>
 
-    <condition property="install_libdir" value="${prefix}/share/java">
-        <and>
-            <not><isset property="install_libdir"/></not>
-            <equals arg1="${prefix}" arg2="/usr"/>
-        </and>
-    </condition>
-
-     <condition property="install_libdir" value="${prefix}/lib">
-        <and>
-            <not><isset property="install_libdir"/></not>
-        </and>
-    </condition>
-
     <property name="ant-ice.jar.name" value="ant-ice${version.suffix}.jar"/>
     <property name="freeze.jar.name" value="Freeze${version.suffix}.jar"/>
     <property name="glacier2.jar.name" value="Glacier2${version.suffix}.jar"/>
@@ -85,6 +72,9 @@
         </and>
     </condition>
 
+    <condition property="DESTDIR" value="">
+        <not><isset property="DESTDIR"/></not>
+    </condition>
 
     <!-- Set default prefix directory, just if prefix is not set -->
     <condition property="prefix" value="${env.SystemDrive}\Ice-${ice.version}">
@@ -98,6 +88,19 @@
         <and>
             <not><os family="windows"/></not>
             <not><isset property="prefix"/></not>
+        </and>
+    </condition>
+    
+    <condition property="install_libdir" value="${prefix}/share/java">
+        <and>
+            <not><isset property="install_libdir"/></not>
+            <equals arg1="${prefix}" arg2="/usr"/>
+        </and>
+    </condition>
+
+     <condition property="install_libdir" value="${prefix}/lib">
+        <and>
+            <not><isset property="install_libdir"/></not>
         </and>
     </condition>
 
