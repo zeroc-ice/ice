@@ -46,7 +46,7 @@ install:: all
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(DESTDIR)$(install_bindir))
-	$(call installdata,$(top_srcdir)/../man/man1/iceboxnet.exe.1,$(DESTDIR)$(install_mandir))
+	$(call installdata,$(top_srcdir)/../man/man1/iceboxnet.1,$(DESTDIR)$(install_mandir))
 	$(call installmdb,$(ICEBOXNET).mdb)
 
 ifeq ($(GACINSTALL),yes)
