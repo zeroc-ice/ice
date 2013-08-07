@@ -430,7 +430,8 @@ cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do
-     mv $RPM_BUILD_ROOT/Assemblies/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
+    #mv $RPM_BUILD_ROOT/Assemblies/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
+    mv $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
 done
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
@@ -473,8 +474,10 @@ cp -p $RPM_BUILD_DIR/Ice-%{version}/man/man1/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 #
 # Cleanup extra files
 #
+rm -f $RPM_BUILD_ROOT/CHANGES
 rm -f $RPM_BUILD_ROOT/ICE_LICENSE
 rm -f $RPM_BUILD_ROOT/LICENSE
+rm -f $RPM_BUILD_ROOT/RELEASE_NOTES
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceDB.so
@@ -543,7 +546,8 @@ cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do
-     mv $RPM_BUILD_ROOT/Assemblies/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
+    #mv $RPM_BUILD_ROOT/Assemblies/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
+    mv $RPM_BUILD_ROOT%{_prefix}/lib/mono/$f/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
 done
 %endif
 
@@ -563,6 +567,8 @@ mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 # Cleanup extra files
 #
 rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/ant-ice.jar
+rm -f $RPM_BUILD_ROOT/CHANGES
+rm -f $RPM_BUILD_ROOT/RELEASE_NOTES
 
 %if %{mono}
 
