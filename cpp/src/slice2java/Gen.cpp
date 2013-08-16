@@ -4585,8 +4585,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return __d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, " << contextParam
-        << ')';
+    out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx __obj, " << contextParam << ')';
     out << sb;
     out << nl << name << "Prx __d = null;";
     out << nl << "if(__obj != null)";
@@ -4763,6 +4762,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "return null;";
         out << eb;
+
+        out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        out << sb;
+        out << nl << "return Ice.OptionalFormat.FSize;";
+        out << eb;
     }
 
     //
@@ -4795,6 +4799,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out2 << nl << "__inS.readObject(__h);";
         out2 << eb;
 
+        out2 << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        out2 << sb;
+        out2 << nl << "return " << getOptionalFormat(p->declaration()) << ';';
+        out2 << eb;
+
         out2 << eb;
         close();
     }
@@ -4817,16 +4826,21 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << fixedName << " __v)";
+        out << sp << nl << "public static void write(Ice.OutputStream __outS, " << fixedName << " __v)";
         out << sb;
         out << nl << "__v.ice_write(__outS);";
         out << eb;
 
-        out << sp << nl << "public static " << fixedName << nl << "read(Ice.InputStream __inS)";
+        out << sp << nl << "public static " << fixedName << " read(Ice.InputStream __inS)";
         out << sb;
         out << nl << fixedName << " __v = new " << fixedName << "();";
         out << nl << "__v.ice_read(__inS);";
         out << nl << "return __v;";
+        out << eb;
+
+        out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        out << sb;
+        out << nl << "return " << getOptionalFormat(p) << ';';
         out << eb;
 
         out << eb;
@@ -4933,7 +4947,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     if(_stream)
     {
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << typeS << " __v)";
+        out << sp << nl << "public static void write(Ice.OutputStream __outS, " << typeS << " __v)";
         out << sb;
         iter = 0;
         writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
@@ -4944,12 +4958,17 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         {
             out << nl << "@SuppressWarnings(\"unchecked\")";
         }
-        out << nl << "public static " << typeS << nl << "read(Ice.InputStream __inS)";
+        out << nl << "public static " << typeS << " read(Ice.InputStream __inS)";
         out << sb;
         out << nl << typeS << " __v;";
         iter = 0;
         writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
+        out << eb;
+
+        out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        out << sb;
+        out << nl << "return " << getOptionalFormat(p) << ';';
         out << eb;
     }
 
@@ -5003,20 +5022,24 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     if(_stream)
     {
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << formalType
+        out << sp << nl << "public static void write(Ice.OutputStream __outS, " << formalType
             << " __v)";
         out << sb;
         iter = 0;
         writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
         out << eb;
 
-        out << sp << nl << "public static " << formalType
-            << nl << "read(Ice.InputStream __inS)";
+        out << sp << nl << "public static " << formalType << " read(Ice.InputStream __inS)";
         out << sb;
         out << nl << formalType << " __v;";
         iter = 0;
         writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
+        out << eb;
+
+        out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        out << sb;
+        out << nl << "return " << getOptionalFormat(p) << ';';
         out << eb;
     }
 
@@ -5039,14 +5062,19 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __outS, " << fixedName << " __v)";
+        out << sp << nl << "public static void write(Ice.OutputStream __outS, " << fixedName << " __v)";
         out << sb;
         out << nl << "__v.ice_write(__outS);";
         out << eb;
 
-        out << sp << nl << "public static " << fixedName << nl << "read(Ice.InputStream __inS)";
+        out << sp << nl << "public static " << fixedName << " read(Ice.InputStream __inS)";
         out << sb;
         out << nl << "return " << fixedName << ".ice_read(__inS);";
+        out << eb;
+
+        out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        out << sb;
+        out << nl << "return " << getOptionalFormat(p) << ';';
         out << eb;
 
         out << eb;

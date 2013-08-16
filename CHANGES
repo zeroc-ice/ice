@@ -73,12 +73,20 @@ C++ Changes
 Java Changes
 ============
 
+- To simplify the use of optional values with the stream API, an
+  optionalFormat() method is now generated in Helper classes when
+  the --stream option is enabled.
+
 - Fixed an assertion that would occur if a memory limit exception was
   raised while marshaling the response of an AMD callback.
 
 
 C# Changes
 ==========
+
+- To simplify the use of optional values with the stream API, an
+  optionalFormat() method is now generated in Helper classes when
+  the --stream option is enabled.
 
 - Fixed an assertion that would occur if a memory limit exception was
   raised while marshaling the response of an AMD callback.

@@ -2728,6 +2728,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
         _out << eb;
 
+        _out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        _out << sb;
+        _out << nl << "return " << getOptionalFormat(p->declaration()) << ';';
+        _out << eb;
+
         _out << sp << nl << "private Ice.InputStream _in;";
         _out << nl << "private IceInternal.ParamPatcher<" << scoped << "> _pp;";
 
@@ -3691,6 +3696,11 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         _out << nl << "return v__;";
         _out << eb;
 
+        _out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        _out << sb;
+        _out << nl << "return " << getOptionalFormat(p) << ';';
+        _out << eb;
+
         _out << eb;
     }
 
@@ -4091,6 +4101,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         _out << nl << scoped << " v__;";
         writeMarshalUnmarshalCode(_out, p, "v__", false, true);
         _out << nl << "return v__;";
+        _out << eb;
+
+        _out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        _out << sb;
+        _out << nl << "return " << getOptionalFormat(p) << ';';
         _out << eb;
 
         _out << eb;
@@ -5471,6 +5486,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
         _out << nl << "return null;";
         _out << eb;
+
+        _out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        _out << sb;
+        _out << nl << "return Ice.OptionalFormat.FSize;";
+        _out << eb;
+
     }
 
     _out << sp << nl << "#endregion"; // Marshaling support
@@ -5526,6 +5547,11 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         _out << nl << typeS << " v__;";
         writeSequenceMarshalUnmarshalCode(_out, p, "v__", false, true, false);
         _out << nl << "return v__;";
+        _out << eb;
+
+        _out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        _out << sb;
+        _out << nl << "return " << getOptionalFormat(p) << ';';
         _out << eb;
     }
 
@@ -5797,6 +5823,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         }
         _out << eb;
         _out << nl << "return r__;";
+        _out << eb;
+
+        _out << sp << nl << "public static Ice.OptionalFormat optionalFormat()";
+        _out << sb;
+        _out << nl << "return " << getOptionalFormat(p) << ';';
         _out << eb;
     }
 
