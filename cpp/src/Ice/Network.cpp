@@ -547,6 +547,8 @@ IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
 
 IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
 
+#ifndef ICE_OS_WINRT
+
 IceInternal::SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) :
     _host(host), _port(port)
 {
@@ -652,6 +654,8 @@ IceInternal::SOCKSNetworkProxy::getName() const
 {
     return "SOCKS";
 }
+
+#endif // ICE_OS_WINRT
 
 bool
 IceInternal::noMoreFds(int error)

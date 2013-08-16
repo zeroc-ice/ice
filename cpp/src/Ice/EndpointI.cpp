@@ -328,8 +328,9 @@ vector<ConnectorPtr>
 IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType, 
                                            const EndpointIPtr& endpoint)
 {
-    return endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), selType, 
-                                             _instance->preferIPv6(), false));
+    vector<Address> addrs =
+        getAddresses(host, port, _instance->protocolSupport(), selType, _instance->preferIPv6(), false);
+    return endpoint->connectors(addrs, 0);
 }
 
 void
