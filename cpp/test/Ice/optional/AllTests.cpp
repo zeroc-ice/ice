@@ -1622,7 +1622,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(!p2 && !p3);
 
         StringIntDict ss;
-        ss.insert(make_pair("test", 1));
+        ss.insert(make_pair<string, int>("test", 1));
         p1 = ss;
         p2 = initial->opStringIntDict(p1, p3);
         test(p2 && p3);
