@@ -174,6 +174,8 @@ FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.j
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "Util.java"),
                             [("return \"" + FixUtil.vpatMatch +"\".*A=major", version),
                              ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "java", "bin", "icegridgui.deb"),
+                            [("IceGridGUI-" + FixUtil.vpatMatch, version)])
 
 #
 # C# specific files

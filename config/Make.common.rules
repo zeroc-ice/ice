@@ -14,8 +14,8 @@
 SHELL			= /bin/sh
 VERSION_MAJOR   	= 3
 VERSION_MINOR   	= 5
-VERSION_PATCH           = 0
-VERSION			= 3.5.0
+VERSION_PATCH           = 1
+VERSION			= 3.5.1
 SHORT_VERSION           = 3.5
 SOVERSION		= 35
 
