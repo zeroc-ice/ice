@@ -52,12 +52,17 @@ int fd = -1;
 // fd state. We don't need to close the fd here as that is done 
 // during static destruction.
 //
+extern "C"
+{
+
 void childAtFork()
 {
     if(fd != -1)
     {
         fd = -1;
     }
+}
+
 }
 #endif
 
