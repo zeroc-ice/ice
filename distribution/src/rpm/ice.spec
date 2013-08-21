@@ -608,18 +608,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/mono/gac/IcePatch2/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceStorm
 %{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
-#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
-#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
-#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
-#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
-#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
-#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
-#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
-#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
-#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
-#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
-#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
-#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
+%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
+%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
 %endif
 
 #
