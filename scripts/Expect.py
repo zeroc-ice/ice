@@ -197,6 +197,11 @@ class reader(threading.Thread):
                         s, regexp = p
                         if s == TIMEOUT:
                             continue
+                        if not buf:
+                            #
+                            # Don't try to match on an empty buffer, http://bugs.python.org/issue17998
+                            #
+                            break
                         m = regexp.search(buf)
                         if m is not None:
                             before = buf[:m.start()]
