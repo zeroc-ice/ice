@@ -24,7 +24,9 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
         //
         // Do not invoke the wrapped trust manager for anonymous ciphers.
         //
-        if(!authType.equals("DH_anon"))
+        // Possible values for authType are "DH_anon" and "ECDH_anon" (IBM JDK).
+        //
+        if(authType.indexOf("DH_anon") == -1)
         {
             try
             {
@@ -44,7 +46,9 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
         //
         // Do not invoke the wrapped trust manager for anonymous ciphers.
         //
-        if(!authType.equals("DH_anon"))
+        // Possible values for authType are "DH_anon" and "ECDH_anon" (IBM JDK).
+        //
+        if(authType.indexOf("DH_anon") == -1)
         {
             try
             {

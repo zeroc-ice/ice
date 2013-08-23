@@ -73,6 +73,9 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed an SSL issue with anonymous ciphers on SLES 11 SP3 when using
+  the IBM JDK.
+
 - To simplify the use of optional values with the stream API, an
   optionalFormat() method is now generated in Helper classes when
   the --stream option is enabled.
