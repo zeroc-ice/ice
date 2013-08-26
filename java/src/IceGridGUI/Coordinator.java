@@ -2871,7 +2871,15 @@ public class Coordinator
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    getCurrentTab().save();
+                    try
+                    {
+                        getCurrentTab().save();
+                    }
+                    catch(Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(_mainFrame, ex.toString(), "Error saving application",
+                                                      JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             };
         _save.setEnabled(false);
@@ -2904,7 +2912,15 @@ public class Coordinator
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    getCurrentTab().saveToFile();
+                    try
+                    {
+                        getCurrentTab().saveToFile();
+                    }
+                    catch(Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(_mainFrame, ex.toString(), "Error saving application",
+                                                      JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             };
         _saveToFile.setEnabled(false);

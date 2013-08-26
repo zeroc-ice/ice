@@ -167,8 +167,18 @@ class Adapter extends TreeNode implements DescriptorHolder
             attributes.add(createAttribute("name", _descriptor.name));
             String oaPrefix = _descriptor.name + ".";
 
-            attributes.add(createAttribute("endpoints", getProperty(oaPrefix + "Endpoints")));
-            attributes.add(createAttribute("proxy-options", getProperty(oaPrefix + "ProxyOptions")));
+            String value = getProperty(oaPrefix + "Endpoints");
+            if(value != null && value.length() > 0)
+            {
+                attributes.add(createAttribute("endpoints", value));
+            }
+            
+            value = getProperty(oaPrefix + "ProxyOptions");
+            if(value != null && value.length() > 0)
+            {
+                attributes.add(createAttribute("proxy-options", value));
+            }
+            
             attributes.add(createAttribute("id", _descriptor.id));
             if(_descriptor.registerProcess)
             {
