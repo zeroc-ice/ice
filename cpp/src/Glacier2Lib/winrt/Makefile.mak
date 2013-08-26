@@ -73,4 +73,6 @@ clean::
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(PDBNAME)
 
+install:: all
+
 !include .depend.mak

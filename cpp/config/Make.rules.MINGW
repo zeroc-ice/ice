@@ -64,11 +64,11 @@ installlib		= $(INSTALL) $(2)/$(3) $(1); \
 installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
 
-CPPFLAGS		:= -I$(THIRDPARTY_HOME)/include $(CPPFLAGS) 
-LDPLATFORMFLAGS		:= -L$(THIRDPARTY_HOME)/bin $(LDFLAGS)
+CPPFLAGS		:= -I"$(THIRDPARTY_HOME)/include" $(CPPFLAGS) 
+LDPLATFORMFLAGS		:= -L"$(THIRDPARTY_HOME)/bin" $(LDFLAGS)
 
 OPENSSL_LIBS            = -leay32$(COMPSUFFIX) -lssleay32$(COMPSUFFIX) -lws2_32
-MCPP_LIBS               = -L$(THIRDPARTY_HOME)/lib/mingw -lmcpp
+MCPP_LIBS               = -L"$(THIRDPARTY_HOME)/lib/mingw" -lmcpp
 BZIP2_LIBS		= -lbzip2$(COMPSUFFIX)
 
 BASELIBS		= -liceutil$(SOVERSION)$(COMPSUFFIX)

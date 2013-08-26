@@ -48,18 +48,23 @@ unregister-sdk:
 	@reg DELETE "$(SDK_KEY)" /f || \
 	@echo "Registry Keyword $(SDK_KEY) not exists"
 
-install:: install-common all
+install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \
 		@echo "Creating %i..." && \
 		mkdir %i
-	xcopy /s /y "$(top_srcdir)\SDKs" "$(prefix)\SDKs"
-	@echo Register SDK "$(SDK_NAME)" in Windows registry "$(SDK_KEY)"
-	@reg ADD "$(SDK_KEY)" /ve /d "$(prefix)\SDKs\$(SDK_NAME)\$(SDK_VERSION)" /f || \
-	echo "Could not add registry keyword $(SDK_KEY)" && exit 1
 !endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	    
+	    
+!if "$(WINRT)" == "yes"
+install::
+	xcopy /s /y "$(top_srcdir)\SDKs" "$(prefix)\SDKs"
+	@echo Register SDK "$(SDK_NAME)" in Windows registry "$(SDK_KEY)"
+	@reg ADD "$(SDK_KEY)" /ve /d "$(prefix)\SDKs\$(SDK_NAME)\$(SDK_VERSION)" /f || \
+	echo "Could not add registry keyword $(SDK_KEY)" && exit 1
+!endif

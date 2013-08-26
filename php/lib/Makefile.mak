@@ -118,7 +118,7 @@ $(MODULES):
 $(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
 	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir $(*D) "$(slicedir)\$*.ice"
 
-install::
+install:: $(ALL_SRCS)
 	@echo "Installing generated code"
 	@for %i in ( $(MODULES) ) do \
 	    @if not exist "$(install_phpdir)\%i" \

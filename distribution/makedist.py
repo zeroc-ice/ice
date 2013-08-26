@@ -729,9 +729,9 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
 for d in ["democs", "demovb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
         for f in filesnames:
-            for m in [ "Makefile.mak", ".depend.mak" ]:
-                if fnmatch.fnmatch(f, m):
-                    rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
+            #for m in [ "Makefile.mak", ".depend.mak" ]:
+            #    if fnmatch.fnmatch(f, m):
+            #        rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
             for m in [ "*.csproj", "*.vbproj" ]:
                 if fnmatch.fnmatch(f, m):
@@ -798,6 +798,9 @@ move(os.path.join(distDir, "ice" + mmversion + "-" + version + ".tar.gz"), \
 
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
+    
+for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
+    zipArchive(dir, verbose, archiveDir)
 
 for (dir, archiveDir) in [(winDistFilesDir, "distfiles-" + version)]:
     zipArchive(dir, verbose, archiveDir)
@@ -819,7 +822,7 @@ os.rename(os.path.join(distDir, "demos.zip"), os.path.join(distDir, "Ice-" + ver
 #
 # Write source distribution report in README file.
 #
-writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, winDemoDir, distFilesDir, winDistFilesDir, 
+writeSrcDistReport("Ice", version, tag, compareToDir, [srcDir, demoDir, winDemoDir, distFilesDir, winDistFilesDir, 
     rpmBuildDir, debSrcDir, debCoreSrcDir, demoscriptDir])
 
 #

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, glob, fnmatch, string, re, fileinput, time
+import os, sys, shutil, glob, fnmatch, string, re, fileinput, time, subprocess
 from stat import *
 
 #
@@ -88,7 +88,7 @@ javaApplicationBundler = { \
 def remove(path, recurse = True):
 
     if not os.path.exists(path):
-        print "warning: " + path + " doesn't exist"
+        print("warning: " + path + " doesn't exist")
         return
 
     if os.path.isdir(path):
@@ -111,16 +111,34 @@ def checkGitVersion():
     gitVersionMatch = re.search(".* [0-9]+\.([0-9b]+)\.([\.0-9]*)", p.read())
     p.close()
     if int(gitVersionMatch.group(1)) < 8 or float(gitVersionMatch.group(2)) < 3.0:
-        print sys.argv[0] + ": invalid git version, git >= 1.8.3 is required"
+        print(sys.argv[0] + ": invalid git version, git >= 1.8.3 is required")
         sys.exit(1)
 
+def getCommitForTag(tag):
+    
+    try:
+        commit = subprocess.check_output("git show --show-signature %s" % tag, shell = True)
+        if type(commit) != str:
+            commit = commit.decode()
+        commit = commit.split("\n")[0]
+        if commit.find("commit") == -1:
+            print("Error getting commit %s for tag" % tag)
+            sys.exit(1)
+        commit = re.sub("commit", "", commit).strip()
+        return commit
+    except subprocess.CalledProcessError as e:
+        print(e)
+        sys.exit(1)
 #
 # Copy src to dest
 # 
-def copy(src, dest, warnDestExists = True):
+def copy(src, dest, warnDestExists = True, verbose = False):
+
+    if verbose:
+        print("copy: %s to: %s" %(src, dest))
 
     if not os.path.exists(src):
-        print "warning: can't copy `" + src + "': file doesn't exist"
+        print("warning: can't copy `" + src + "': file doesn't exist")
         return
 
     if not os.path.isdir(src) and os.path.isdir(dest):
@@ -128,7 +146,7 @@ def copy(src, dest, warnDestExists = True):
 
     if os.path.exists(dest):
         if warnDestExists:
-            print "warning: overwritting " + dest
+            print("warning: overwritting " + dest)
         remove(dest)
 
     if os.path.dirname(dest) and not os.path.exists(os.path.dirname(dest)):
@@ -149,12 +167,12 @@ def copy(src, dest, warnDestExists = True):
 def move(src, dest, warnDestExists = True):
 
     if not os.path.exists(src):
-        print "warning: can't move `" + src + "': file doesn't exist"
+        print("warning: can't move `" + src + "': file doesn't exist")
         return
 
     if os.path.exists(dest):
         if warnDestExists:
-            print "warning: overwritting " + dest
+            print("warning: overwritting " + dest)
         shutil.rmtree(dest)
 
     if os.path.dirname(dest) and not os.path.exists(os.path.dirname(dest)):
@@ -166,7 +184,7 @@ def move(src, dest, warnDestExists = True):
 #
 # Copy files from srcpath and matching the given patterns to destpath
 #
-def copyMatchingFiles(srcpath, destpath, patterns, warnDestExists = True):
+def copyMatchingFiles(srcpath, destpath, patterns, warnDestExists = True, verbose = False):
     for p in patterns:
         for f in glob.glob(os.path.join(srcpath, p)):
             copy(f, os.path.join(destpath, os.path.basename(f)), warnDestExists)
@@ -370,10 +388,11 @@ def regexpEscape(expr):
 def substitute(file, regexps):
     for line in fileinput.input(file, True):
         for (expr, text) in regexps:
-	    if not expr is re:
-		expr = re.compile(expr)
+            if not expr is re:
+                expr = re.compile(expr)
             line = expr.sub(text, line)
-        print line,
+        sys.stdout.write(line)
+        sys.stdout.flush()
 
 def fixFilePermission(file, verbose = False):
 
@@ -395,7 +414,7 @@ def fixFilePermission(file, verbose = False):
         for p in patterns:
             if fnmatch.fnmatch(file, p):
                 if verbose:
-                    print "removing exec permissions on: " + file
+                    print("removing exec permissions on: " + file)
                 break
         else:
             os.chmod(file, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
@@ -416,7 +435,7 @@ def fixPermission(dest):
 def tarArchive(dir, verbose = False, archiveDir = None):
 
     dist = os.path.basename(dir)
-    print "   creating " + dist + ".tar.gz ...",
+    sys.stdout.write("   creating " + dist + ".tar.gz ...")
     sys.stdout.flush()
 
     cwd = os.getcwd()
@@ -439,12 +458,12 @@ def tarArchive(dir, verbose = False, archiveDir = None):
         os.system("tar c" + quiet + "f - " + dist + " | gzip -9 - > " + dist + ".tar.gz")
 
     os.chdir(cwd)
-    print "ok"
+    print("ok")
 
 def untarArchive(archive, verbose = False, archiveDir = None):
 
     if not os.path.exists(archive):
-        print "couldn't find " + archive
+        print("couldn't find " + archive)
         return False
 
     if verbose:
@@ -467,7 +486,7 @@ def untarArchive(archive, verbose = False, archiveDir = None):
 def zipArchive(dir, verbose = False, archiveDir = None):
 
     dist = os.path.basename(dir)
-    print "   creating " + dist + ".zip ...",
+    sys.stdout.write("   creating " + dist + ".zip ...")
     sys.stdout.flush()
 
     cwd = os.getcwd()
@@ -491,7 +510,7 @@ def zipArchive(dir, verbose = False, archiveDir = None):
             os.system("zip -9rq " + dist +".zip " + dist)
 
     os.chdir(cwd)
-    print "ok"
+    print("ok")
 
 def compareDirs(orig, new):
 
@@ -519,15 +538,18 @@ def compareDirs(orig, new):
 
     return (added, updated, removed)
 
-def writeSrcDistReport(product, version, compareToDir, distributions):
+def writeSrcDistReport(product, version, tag, compareToDir, distributions):
 
     cwd = os.getcwd()
     os.chdir(cwd)
 
-    print "Writing report in README...",
+    sys.stdout.write("Writing report in README...")
+    sys.stdout.flush()
     readme = open("README", "w")
     print >>readme, "This directory contains the source distributions of " + product + " " + version + ".\n"
+    print >>readme, "Version: " + version
     print >>readme, "Creation time: " + time.strftime("%a %b %d %Y, %I:%M:%S %p (%Z)")
+    print >>readme, "Git commit: " + getCommitForTag(tag)
     (sysname, nodename, release, ver, machine) = os.uname();
     print >>readme, "Host: " + nodename
     print >>readme, "Platform: " + sysname + " " + release
@@ -546,7 +568,7 @@ def writeSrcDistReport(product, version, compareToDir, distributions):
         modifications = ([], [], [])
         for dist in distributions:
             dist = os.path.basename(dist)
-            print "   comparing " + dist + " ...",
+            sys.stdout.write("   comparing " + dist + " ...")
             sys.stdout.flush()
             if untarArchive(os.path.join(compareToDir, dist) + ".tar.gz", False, dist + "-orig"):
                 n = compareDirs(dist + "-orig", dist)
@@ -554,7 +576,7 @@ def writeSrcDistReport(product, version, compareToDir, distributions):
                 if n != ([], [], []):
                     os.system("diff -r -N " + dist + "-orig " + dist + " > patch-" + dist)
                 remove(dist + "-orig")
-            print "ok"
+            print("ok")
 
         (added, updated, removed) = modifications
         for (desc, list) in [("Added", added), ("Removed", removed), ("Updated", updated)]:
@@ -567,7 +589,7 @@ def writeSrcDistReport(product, version, compareToDir, distributions):
                     print >>readme, f
 
     else:
-        print "ok"
+        print("ok")
         
     readme.close()
 
@@ -609,20 +631,20 @@ class ThirdParty :
     def checkAndPrint(self):
 
         if self.location == None:
-            print self.name + ": <system>"
+            print(self.name + ": <system>")
             return True
         else:
             if not os.path.exists(self.location):
                 if os.environ.has_key(self.buildEnv):
-                    print self.name + ": not found at " + self.buildEnv + " location (" + self.location + ")"
+                    print(self.name + ": not found at " + self.buildEnv + " location (" + self.location + ")")
                 else:
-                    print self.name + ": not found at default location (" + self.location + ")"
+                    print(self.name + ": not found at default location (" + self.location + ")")
                 return False
             else:
                 if os.environ.has_key(self.buildEnv):
-                    print self.name + ": " + self.location + " (from " + self.buildEnv + ")"
+                    print(self.name + ": " + self.location + " (from " + self.buildEnv + ")")
                 else:
-                    print self.name + ": " + self.location + " (default location)"
+                    print(self.name + ": " + self.location + " (default location)")
                 return True
             
     def getMakeEnv(self, language):
@@ -663,11 +685,11 @@ class ThirdParty :
         #
         files = [f for path in self.getFiles(platform) for f in glob.glob(os.path.join(self.location, path))]
         if len(files) > 0:
-            print "  Copying " + self.name + "...",
+            sys.stdout.write("  Copying " + self.name + "...")
             sys.stdout.flush()
             for src in files:
                 copy(src, os.path.join(buildDir, src[len(self.location) + 1::]))
-            print "ok"
+            print("ok")
 
 #
 # Platform helper classes
@@ -695,7 +717,8 @@ class Platform:
     def checkAndPrintThirdParties(self):
         found = True
         for t in self.thirdParties:
-            print "  ",
+            sys.stdout.write("  ")
+            sys.stdout.flush()
             found &= t.checkAndPrint()
         return found
 
@@ -748,7 +771,7 @@ class Platform:
         elif os.path.exists(os.path.join(docDir, "README." + self.uname)):
             copy(os.path.join(docDir, "README." + self.uname), os.path.join(buildDir, "README"))
         else:
-            print "warning: couldn't find README file for this binary distribution"
+            print("warning: couldn't find README file for this binary distribution")
             
     def copyThirdPartyDependencies(self, buildDir):
         for t in filter(ThirdParty.includeInDistribution, self.thirdParties): t.copyToDistribution(self, buildDir)
@@ -763,37 +786,37 @@ class Platform:
             return ("%s-" + version + "-bin-" + self.pkgPlatform) % prefix
 
     def getJGoodiesCommon(self):
-	for t in self.thirdParties:
+        for t in self.thirdParties:
             if t.__str__() == "JGoodiesCommon":
-        	return t.getJar()
-	print "Unable to find JGoodiesCommon"
-	sys.exit(1)
+                return t.getJar()
+        print("Unable to find JGoodiesCommon")
+        sys.exit(1)
 
     def getJGoodiesForms(self):
-	for t in self.thirdParties:
+        for t in self.thirdParties:
             if t.__str__() == "JGoodiesForms":
-        	return t.getJar()
-	print "Unable to find JGoodiesForms"
-	sys.exit(1)
+                return t.getJar()
+        print("Unable to find JGoodiesForms")
+        sys.exit(1)
 
     def getJGoodiesLooks(self):
-	for t in self.thirdParties:
+        for t in self.thirdParties:
             if t.__str__() == "JGoodiesLooks":
-        	return t.getJar()
-	print "Unable to find JGoodiesLooks"
-	sys.exit(1)
+                return t.getJar()
+        print("Unable to find JGoodiesLooks")
+        sys.exit(1)
 
     def getMakeOptions(self):
         return ""
 
     def createArchive(self, cwd, buildRootDir, distDist, version, quiet):
-        print "Archiving " + self.getPackageName("Ice", version) + ".tar.gz ...",
+        sys.stdout.write("Archiving " + self.getPackageName("Ice", version) + ".tar.gz ...")
         sys.stdout.flush()
         os.chdir(buildRootDir)
         tarfile = os.path.join(cwd, self.getPackageName("Ice", version)) + ".tar.gz"
         os.system("tar c" + quiet + "f - Ice-" + version + " | gzip -9 - > " + tarfile)
         os.chdir(cwd)
-        print "ok"
+        print("ok")
 
 class Darwin(Platform):
     def __init__(self, uname, arch, languages):
@@ -832,17 +855,17 @@ class Darwin(Platform):
 
     def completeDistribution(self, buildDir, version):
         
-        print "Fixing python location"
+        print("Fixing python location")
         move(buildDir + '/python', buildDir + '/../python')
-        print "ok"
+        print("ok")
 
-        print "Fixing IceGrid Admin.app location"
+        print("Fixing IceGrid Admin.app location")
         move(buildDir + '/bin/IceGrid Admin.app', buildDir + '/../IceGrid Admin.app')
-        print "ok"
+        print("ok")
 
     def createArchive(self, cwd, buildRootDir, distDir, version, quiet):
 
-        print "Creating installer...",
+        sys.stdout.write("Creating installer...")
         sys.stdout.flush()
         if os.path.exists(buildRootDir + "/installer"):
             shutil.rmtree(buildRootDir + "/installer")
@@ -853,7 +876,7 @@ class Darwin(Platform):
         os.system("/Applications/PackageMaker.app/Contents/MacOS/PackageMaker --doc " + pmdoc + " --no-relocate --out " + pkg)
         copy(os.path.join(distDir, "src", "mac", "Ice", "README.txt"), os.path.join(buildRootDir, "installer"))
         copy(os.path.join(distDir, "src", "mac", "Ice", "uninstall.sh"), os.path.join(buildRootDir, "installer"))
-        print "ok"
+        print("ok")
 
         #
         # Ensure the IceGridAdmin pkg isn't relocated. PackageMaker enable relocation
@@ -896,7 +919,7 @@ class Darwin(Platform):
         shutil.rmtree(os.path.join(buildRootDir, "installer", "tmp"))
 
         volname = "Ice-" + version
-        print "Building disk image... " + volname + " ",
+        sys.stdout.write( "Building disk image... " + volname + " ")
         sys.stdout.flush()
 
         if os.path.exists("scratch.dmg.sparseimage"):
@@ -912,7 +935,7 @@ class Darwin(Platform):
         os.remove("scratch.dmg.sparseimage")
 
         shutil.rmtree(buildRootDir + "/installer")
-        print "ok"
+        print("ok")
 
 class Linux(Platform):
     def __init__(self, uname, arch, languages):
@@ -996,11 +1019,11 @@ class Qt(ThirdParty):
             ThirdParty.__init__(self, platform, "Qt", qt, ["cpp", "cpp-64"])
             
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
-	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtCore*"))
-	files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtSql*"))
-	# We also need some symbolic links
-	files += [os.path.join(self.location, os.path.join(libdir, "libQtCore." + platform.shlibExtension + ".4")),
-	          os.path.join(self.location, os.path.join(libdir, "libQtSql." + platform.shlibExtension + ".4"))]
+        files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtCore*"))
+        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtSql*"))
+        # We also need some symbolic links
+        files += [os.path.join(self.location, os.path.join(libdir, "libQtCore." + platform.shlibExtension + ".4")),
+                  os.path.join(self.location, os.path.join(libdir, "libQtSql." + platform.shlibExtension + ".4"))]
         return files
 
 class Iconv(ThirdParty):
@@ -1009,10 +1032,10 @@ class Iconv(ThirdParty):
         ThirdParty.__init__(self, platform, "Iconv", iconv, ["cpp", "cpp-64"])
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
-	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libiconv*"))
-	# We also need some symbolic links
-	files += [os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension + ".2")),
-	          os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension))]
+        files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libiconv*"))
+        # We also need some symbolic links
+        files += [os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension + ".2")),
+                  os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension))]
         return files
 
 class JGoodiesLooks(ThirdParty):
@@ -1048,7 +1071,16 @@ def getPlatform(thirdParties):
     if not platform:
         (sysname, nodename, release, ver, machine) = os.uname();
         if not languages.has_key(sysname):
-            print sys.argv[0] + ": error: `" + sysname + "' is not a supported system"
+            print(sys.argv[0] + ": error: `" + sysname + "' is not a supported system")
+            
+        if sysname == "Linux":
+            p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+            if(p.wait() != 0):
+                os.exists(1)
+            distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
+            if distribution.find("RedHat") != -1:
+                languages[sysname].remove("cs")
+                
         platform = eval(sysname.replace("-", ""))(sysname, machine, languages[sysname])
         for t in thirdParties:
             eval(t)(platform)

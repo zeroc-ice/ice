@@ -22,6 +22,10 @@ sys.path.append(os.path.join(distDir, "lib"))
 import DistUtils
 from DistUtils import copy
 
+#
+# There isn't gmake in Ubuntu
+#
+make = "make" if sys.platform.startswith("linux") else "gmake"
 
 #
 # Defines which languages are to also be built in 64bits mode
@@ -195,10 +199,10 @@ for l in buildLanguages:
         makeOptions = platform.getMakeOptions() + " " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir
 
         if l != "py":
-            buildCmd = "gmake -C src " + makeOptions
+            buildCmd = make + " -C src " + makeOptions
         else:
-            buildCmd = "gmake -C modules " + makeOptions
-        installCmd = "gmake " + makeOptions + " install"
+            buildCmd = make + " -C modules " + makeOptions
+        installCmd = make + " " + makeOptions + " install"
 
         print "Building with " + buildCmd
 
