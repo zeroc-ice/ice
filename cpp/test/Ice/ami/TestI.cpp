@@ -56,9 +56,9 @@ TestIntfI::opBatchCount(const Ice::Current&)
 }
 
 void
-TestIntfI::opWitArgs(Ice::Int& one, Ice::Int& two, Ice::Int& three, Ice::Int& four, Ice::Int& five, Ice::Int& six,
-                     Ice::Int& seven, Ice::Int& eight, Ice::Int& nine, Ice::Int& ten, Ice::Int& eleven,
-                     const Ice::Current&)
+TestIntfI::opWithArgs(Ice::Int& one, Ice::Int& two, Ice::Int& three, Ice::Int& four, Ice::Int& five, Ice::Int& six,
+                      Ice::Int& seven, Ice::Int& eight, Ice::Int& nine, Ice::Int& ten, Ice::Int& eleven,
+                      const Ice::Current&)
 {
     one = 1;
     two = 2;
