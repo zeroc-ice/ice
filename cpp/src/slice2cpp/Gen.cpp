@@ -1852,9 +1852,24 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.zeroIndent();
     H << nl << "#ifdef ICE_CPP11";
     H.restoreIndent();
-    
+
     string retEndArg = getEndArg(ret, p->getMetaData(), "__ret");
-    
+
+    //
+    // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+    // lack of variadic templates.
+    //
+    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    {
+        H.zeroIndent();
+        H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
+        H.restoreIndent();
+        H << nl << "//";
+        H << nl << "// COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with";
+        H << nl << "// std::function due to lack of variadic templates.";
+        H << nl << "//";
+    }
+
     H << nl << "::Ice::AsyncResultPtr";
     H << nl << "begin_" << name << spar << paramsDeclAMI
       << "const ::IceInternal::Function<void " << spar;
@@ -1866,7 +1881,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = "
          "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
       << "const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>()" << epar;
-      
+
     H << sb;
     if(p->returnsData())
     {
@@ -1879,6 +1894,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
           
     }
     H << eb;
+
+    //
+    // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+    // lack of variadic templates.
+    //
+    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    {
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
     
     H << nl << "::Ice::AsyncResultPtr";
     H << nl << "begin_" << name << spar << paramsDeclAMI 
@@ -1889,7 +1915,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << "return begin_" << name << spar << argsAMI << "0, ::Ice::newCallback(__completed, __sent), 0" << epar << ";";
     H << eb;
     
-    
+    //
+    // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+    // lack of variadic templates.
+    //
+    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    {
+        H.zeroIndent();
+        H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
+        H.restoreIndent();
+        H << nl << "//";
+        H << nl << "// COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with";
+        H << nl << "// std::function due to lack of variadic templates.";
+        H << nl << "//";
+    }
+
     H << nl << "::Ice::AsyncResultPtr";
     H << nl << "begin_" << name << spar << paramsDeclAMI << "const ::Ice::Context& __ctx"
       << "const ::IceInternal::Function<void " << spar;
@@ -1914,6 +1954,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << eb;
     
+    //
+    // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+    // lack of variadic templates.
+    //
+    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    {
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
+    
     H << nl << "::Ice::AsyncResultPtr";
     H << nl << "begin_" << name << spar << paramsDeclAMI 
       << "const ::Ice::Context& __ctx"
@@ -1926,6 +1977,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     
     if(p->returnsData())
     {
+        //
+        // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+        // lack of variadic templates.
+        //
+        if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+        {
+            H.zeroIndent();
+            H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
+            H.restoreIndent();
+            H << nl << "//";
+            H << nl << "// COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with";
+            H << nl << "// std::function due to lack of variadic templates.";
+            H << nl << "//";
+        }
+
         H << nl;
         H.dec();
         H << nl << "private:";
@@ -2038,6 +2104,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         H.dec();
         H << nl << "public:";
         H.inc();
+        //
+        // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+        // lack of variadic templates.
+        //
+        if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+        {
+            H.zeroIndent();
+            H << nl << "#endif";
+            H.restoreIndent();
+        }
     }
     
     H.zeroIndent();

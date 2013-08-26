@@ -68,6 +68,9 @@ C++ Changes
   
 - Fixed a bug in slice2cpp that generated invalid C++ code when using
   "cpp:virtual" metadata.
+  
+- Fixed a bug in slice2cpp that generate invalid C++ code when a method
+  has more that 10 output parameters.
 
 
 Java Changes

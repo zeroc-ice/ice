@@ -27,6 +27,8 @@ public:
     virtual void opWithPayload(const Ice::ByteSeq&, const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
     virtual Ice::Int opBatchCount(const Ice::Current&);
+    virtual void opWitArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,
+                           Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, const Ice::Current&);
     virtual bool waitForBatch(Ice::Int, const Ice::Current&);
     virtual void close(bool, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);

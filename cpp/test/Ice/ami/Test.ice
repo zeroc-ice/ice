@@ -27,6 +27,9 @@ interface TestIntf
     void opWithUE()
         throws TestIntfException;    
     void opBatch();
+
+    void opWitArgs(out int one, out int two, out int three, out int four, out int five, out int six, out int seven, 
+                   out int eight, out int nine, out int ten, out int eleven);
     int opBatchCount();
     bool waitForBatch(int count);
     void close(bool force);

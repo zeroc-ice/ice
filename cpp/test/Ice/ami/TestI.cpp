@@ -55,6 +55,24 @@ TestIntfI::opBatchCount(const Ice::Current&)
     return _batchCount;
 }
 
+void
+TestIntfI::opWitArgs(Ice::Int& one, Ice::Int& two, Ice::Int& three, Ice::Int& four, Ice::Int& five, Ice::Int& six,
+                     Ice::Int& seven, Ice::Int& eight, Ice::Int& nine, Ice::Int& ten, Ice::Int& eleven,
+                     const Ice::Current&)
+{
+    one = 1;
+    two = 2;
+    three = 3;
+    four = 4;
+    five = 5;
+    six = 6;
+    seven = 7;
+    eight = 8;
+    nine = 9;
+    ten = 10;
+    eleven = 11;
+}
+
 bool
 TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
 {
@@ -95,3 +113,4 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
 TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
 }
+
