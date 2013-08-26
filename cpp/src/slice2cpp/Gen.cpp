@@ -1859,7 +1859,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
     // lack of variadic templates.
     //
-    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
     {
         H.zeroIndent();
         H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
@@ -1899,7 +1899,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
     // lack of variadic templates.
     //
-    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
     {
         H.zeroIndent();
         H << nl << "#endif";
@@ -1919,7 +1919,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
     // lack of variadic templates.
     //
-    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
     {
         H.zeroIndent();
         H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
@@ -1958,7 +1958,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
     // lack of variadic templates.
     //
-    if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+    if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
     {
         H.zeroIndent();
         H << nl << "#endif";
@@ -1981,7 +1981,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
         // lack of variadic templates.
         //
-        if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+        if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
         {
             H.zeroIndent();
             H << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
@@ -2108,7 +2108,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
         // lack of variadic templates.
         //
-        if(outDecls.size() > 10 || outDecls.size() > 9 && !retInS.empty())
+        if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
         {
             H.zeroIndent();
             H << nl << "#endif";
