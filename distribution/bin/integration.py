@@ -137,13 +137,7 @@ class Platform:
         
         self.install(verbose)
         
-        command = "python %s/bin/testicedist.py --all " % self._distfiles
-        command += "--ice-home=\"%s\" " % self.getBinDir()
-        command += "--source-archive=\"%s\" " % self.getSourceArchive()
-        command += "--demo-archive=\"%s\" " % self.getDemoArchive()
-        command += "--build-dir=\"%s\"" % self._outputDir
-
-        runCommand(command, verbose)
+        runCommand("python %s/bin/testicedist.py" % self._distfiles, verbose)
 
         self.uninstall(verbose)
         
@@ -222,18 +216,23 @@ class Windows(Platform):
     def getBinDir(self):
         return BuildUtils.getIceHome(version)
 
+   def getBinDir(self):
+        return BuildUtils.getIceHome(version)
+
     def makeBinDist(self, verbose):
         if os.path.exists(self.installer()):
             print("Use existing binary distribution")
         else:
             print("%s don't exists create new binary distribution" % self.installer())
-            runCommand("python %s/bin/makemsi.py --cert-file=%s" % (self._distfiles, self._certFile), verbose)
+            runCommand("python %s/bin/makemsi.py --cert-file=%s --verbose" % (self._distfiles, self._certFile), verbose)
         
     def install(self, verbose):
-        runCommand("msiexec /qb /i %s" % self.installer(), verbose)
+        if BuildUtils.getIceHome(version):
+            self.uninstall(verbose)
+        runCommand("msiexec /qr /i %s /Lv installer.log" % self.installer(), verbose)
         
     def uninstall(self, verbose):
-        runCommand("msiexec /qb /x %s" % self.installer(), verbose)
+        runCommand("msiexec /qr /x %s" % self.installer(), verbose)
 #
 # Program usage.
 #
@@ -246,8 +245,6 @@ def usage():
     print("")
     print("  --remote-dist                      Could be a remote or local distribution, to copy a remote distribution")
     print("                                     scp is used for example use --dist=dev.zeroc.com:/share/srcdists/3.5")
-    print("")
-    print("  --output-dir                       The directory to download and build the distributions")
     print("")
     print("  --cert-file                        Certificate file used to sign the Windows installer.")
     print("")

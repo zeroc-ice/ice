@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time
+import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, stat
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
@@ -23,6 +23,12 @@ def runCommand(cmd, verbose):
             print(cmd)
         if os.system(cmd) != 0:
             sys.exit(1)
+
+
+def _handle_error(fn, path, excinfo):  
+    print("error removing %s" % path)
+    os.chmod(path, stat.S_IWRITE)
+    fn(path)
 
 def setMakefileOption(filename, optionName, value):
     optre = re.compile("^\#?\s*?%s\s*?=.*" % optionName)
@@ -85,7 +91,7 @@ def usage():
     print(r"  --verbose                   Be verbose.")
     print("")
     print(r"  --proguard-home=<path>      Proguard location, default location")
-    print(r"                              is C:\proguard4.8")
+    print(r"                              is C:\proguard")
     print("")
     print(r"  --php-home=<path>           PHP source location, default location")
     print(r"                              is C:\php-5.4.17")
@@ -214,8 +220,10 @@ iceBuildHome = os.path.abspath(os.path.join(basePath, "..", ".."))
 sourceArchive = os.path.join(iceBuildHome, "Ice-%s.zip" % version)
 demoArchive = os.path.join(iceBuildHome, "Ice-%s-demos.zip" % version)
 
-iceInstallerFile = os.path.join(iceBuildHome, "src", "windows" , "Ice.aip")
-pdbsInstallerFile = os.path.join(iceBuildHome, "src", "windows" , "PDBs.aip")
+distFiles = os.path.join(iceBuildHome, "distfiles-%s" % version)
+
+iceInstallerFile = os.path.join(distFiles, "src", "windows" , "Ice.aip")
+pdbsInstallerFile = os.path.join(distFiles, "src", "windows" , "PDBs.aip")
 
 thirdPartyHome = getThirdpartyHome(version)
 if thirdPartyHome is None:
@@ -342,7 +350,7 @@ if not skipBuild:
                     sys.stdout.flush()
                     zipfile.ZipFile(sourceArchive).extractall()
                     if os.path.exists(sourceDir):
-                        shutil.rmtree(sourceDir)
+                        shutil.rmtree(sourceDir, onerror = _handle_error)
                     shutil.move(installDir, sourceDir)
                     print("ok")
 
@@ -441,10 +449,10 @@ if not skipBuild:
                             #
                             # Proguard installation not detected
                             #
-                            if not os.path.exists(r"C:\proguard4.8"):
+                            if not os.path.exists(r"C:\proguard"):
                                 print("Proguard not found")
                                 sys.exit(1)
-                            proguardHome = r"C:\proguard4.8"
+                            proguardHome = r"C:\proguard"
                         #
                         # We override CLASSPATH, we just need proguard in classpath to build Ice.
                         #
@@ -586,14 +594,14 @@ if not skipInstaller:
     sys.stdout.flush()
     zipfile.ZipFile(sourceArchive).extractall()
     if os.path.exists(installerdSrcDir):
-        shutil.rmtree(installerdSrcDir)
+        shutil.rmtree(installerdSrcDir, onerror = _handle_error)
     shutil.move(installerdDir, installerdSrcDir)
     print("ok")
 
     sys.stdout.write("extracting %s to %s... " % (os.path.basename(demoArchive), installerDemoDir))
     sys.stdout.flush()
     if os.path.exists(installerDemoDir):
-        shutil.rmtree(installerDemoDir)
+        shutil.rmtree(installerDemoDir, onerror = _handle_error)
     zipfile.ZipFile(demoArchive).extractall()
     print("ok")
 
@@ -601,7 +609,7 @@ if not skipInstaller:
     # Remove previous installer if already exists
     #
     if os.path.exists(installerdDir):
-        shutil.rmtree(installerdDir)
+        shutil.rmtree(installerdDir, onerror = _handle_error)
 
     os.makedirs(installerdDir)
 
@@ -716,7 +724,7 @@ if not skipInstaller:
     #
     # docs dir
     #
-    docsDir = os.path.join(iceBuildHome, "src", "windows", "docs", "main")
+    docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
     for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
         copy(os.path.join(docsDir, f), os.path.join(installerdDir, f), verbose = verbose)
 
@@ -737,7 +745,7 @@ if not skipInstaller:
     pdbInstallerdDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
 
     if os.path.exists(pdbInstallerdDir):
-        shutil.rmtree(pdbInstallerdDir)
+        shutil.rmtree(pdbInstallerdDir, onerror = _handle_error)
 
     for root, dirnames, filenames in os.walk(installerdDir):
         for f in filenames:

@@ -22,21 +22,30 @@ def getThirdpartyHome(version):
 def getIceHome(version):
     if os.environ.get("ICE_HOME"):
         return os.environ.get("ICE_HOME")
-    else:
+    elif sys.platform == "darwin":
+        if os.path.exists("/Developer/Library/Ice-%s/bin/slice2cpp" % version):
+            return "/Developer/Library/Ice-%s" % version
+        elif os.path.exists("/opt/Ice-%s/bin/slice2cpp" % version):
+            return "/opt/Ice-%s/bin/slice2cpp" % version
+    elif sys.platform.startswith("linux"):
+        if os.path.exists("/usr/bin/slice2cpp"):
+            return "/usr"  
+        elif os.path.exists("/opt/Ice-%s/bin/slice2cpp" % version):
+            return "/opt/Ice-%s" % version
+    elif sys.platform == "win32":
         import winreg
         try:
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\ZeroC\\Ice %s" % \
                                  version, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
             installDir = os.path.abspath(winreg.QueryValueEx(key, "InstallDir")[0])
 
-            if os.path.exists(installDir):
+            if os.path.exists(os.path.join(installDir, "bin", "slice2cpp.exe")):
                 return installDir
-            else:
-                return None
         except WindowsError as error:
             print(error)
             return None
-
+    return None
+    
 def getAdvancedInstallerHome():
     import winreg
     try:
