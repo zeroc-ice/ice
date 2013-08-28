@@ -309,6 +309,11 @@ IcePatch2::Patcher::Patcher(const FileServerPrx& server,
 
 IcePatch2::Patcher::~Patcher()
 {
+    if(_log != 0)
+    {
+        fclose(_log);
+        _log = 0;
+    }
 }
 
 namespace
