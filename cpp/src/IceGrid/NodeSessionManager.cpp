@@ -244,26 +244,14 @@ NodeSessionManager::create(const NodeIPtr& node)
 
         Ice::CommunicatorPtr communicator = _node->getCommunicator();
         assert(communicator->getDefaultLocator());
+
+        //
+        // Initialize query objects from the default locator endpoints.
+        //
+        initQueryObjects(communicator->getDefaultLocator());
+
         Ice::ObjectPrx prx = communicator->getDefaultLocator();
-
-        //
-        // Initialize the IceGrid::Query objects. The IceGrid::Query
-        // interface is used to lookup the registry proxy in case it
-        // becomes unavailable. Since replicas might not always have
-        // an up to date registry proxy, we need to query all the
-        // replicas.
-        //
-        Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
         Ice::Identity id = prx->ice_getIdentity();
-        id.name = "Query";
-        QueryPrx query = QueryPrx::uncheckedCast(prx->ice_identity(id));
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-        {
-            Ice::EndpointSeq singleEndpoint;
-            singleEndpoint.push_back(*p);
-            _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
-        }
-
         id.name = "InternalRegistry-Master";
         _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
 
@@ -559,14 +547,32 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     }
     else
     {
-        vector<Ice::AsyncResultPtr> results;
-        for(vector<QueryPrx>::const_iterator q = _queryObjects.begin(); q != _queryObjects.end(); ++q)
+        vector<Ice::AsyncResultPtr> results1;
+        vector<Ice::AsyncResultPtr> results2;
+        vector<QueryPrx> queryObjects = findAllQueryObjects();
+
+        //
+        // Below we try to retrieve internal registry proxies either
+        // directly by querying for the internal registry type or
+        // indirectly by querying registry proxies.
+        //
+        // IceGrid registries <= 3.5.0 kept internal registry proxies
+        // while earlier version now keep registry proxies. Registry
+        // proxies have fixed endpoints (no random port) so they are
+        // more reliable.
+        //
+        
+        for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
         {
-            results.push_back((*q)->begin_findAllObjectsByType(InternalRegistry::ice_staticId()));
+            results1.push_back((*q)->begin_findAllObjectsByType(InternalRegistry::ice_staticId()));
+        }
+        for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
+        {
+            results2.push_back((*q)->begin_findAllObjectsByType(Registry::ice_staticId()));
         }
 
         map<Ice::Identity, Ice::ObjectPrx> proxies;
-        for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+        for(vector<Ice::AsyncResultPtr>::const_iterator p = results1.begin(); p != results1.end(); ++p)
         {
             QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
             if(isDestroyed())
@@ -579,12 +585,40 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
                 Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
                 for(Ice::ObjectProxySeq::const_iterator q = prxs.begin(); q != prxs.end(); ++q)
                 {
-                    //
-                    // NOTE: We might override a good proxy here! We could improve this to make
-                    // sure that we don't override the proxy for replica N if that proxy was
-                    // obtained from replica N.
-                    //
                     proxies[(*q)->ice_getIdentity()] = *q;
+                }
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                // IGNORE
+            }
+        }
+        for(vector<Ice::AsyncResultPtr>::const_iterator p = results2.begin(); p != results2.end(); ++p)
+        {
+            QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
+            if(isDestroyed())
+            {
+                return;
+            }
+
+            try
+            {
+                Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
+                for(Ice::ObjectProxySeq::const_iterator q = prxs.begin(); q != prxs.end(); ++q)
+                {
+                    Ice::Identity id = (*q)->ice_getIdentity();
+                    const string prefix("Registry-");
+                    string::size_type pos = id.name.find(prefix);
+                    if(pos == string::npos)
+                    {
+                        continue; // Ignore the master registry proxy.
+                    }
+                    id.name = "InternalRegistry-" + id.name.substr(prefix.size());
+        
+                    Ice::ObjectPrx prx = (*q)->ice_identity(id)->ice_endpoints(Ice::EndpointSeq());
+                    id.name = "Locator";
+                    prx = prx->ice_locator(Ice::LocatorPrx::uncheckedCast((*q)->ice_identity(id)));
+                    proxies[id] = prx;
                 }
             }
             catch(const Ice::LocalException&)

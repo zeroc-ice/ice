@@ -29,7 +29,7 @@ typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class ReplicaSessionManager : public IceUtil::Monitor<IceUtil::Mutex>
+class ReplicaSessionManager : public SessionManager
 {
 public:
 

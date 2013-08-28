@@ -27,6 +27,9 @@ Changes since version 3.5.0
 General Changes
 ===============
 
+- Improved IceGrid algorithm to find registry replicas on node or
+  slave startup.
+
 - Fixed bug in IceGrid::Query::findAllReplicas implementation that
   could cause a crash when trying to find the proxies of an empty
   replica group.

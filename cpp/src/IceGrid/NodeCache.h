@@ -32,7 +32,7 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 
 class ReplicaCache;
 
-class NodeEntry : public IceUtil::Monitor<IceUtil::RecMutex>
+class NodeEntry : private IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
     

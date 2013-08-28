@@ -385,6 +385,10 @@ RegistryI::startImpl()
     //
     ObjectProxySeq proxies;
 
+    //
+    // Get proxies for nodes that we were connected with on last
+    // shutdown.
+    //
     NodePrxSeq nodes;
     proxies = _database->getInternalObjectsByType(Node::ice_staticId());
     for(ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
@@ -392,11 +396,51 @@ RegistryI::startImpl()
         nodes.push_back(NodePrx::uncheckedCast(*p));
     }
 
-    InternalRegistryPrxSeq replicas;
+    //
+    // Get proxies for slaves that we we connected with on last
+    // shutdown.
+    //
+    // We first get the internal registry proxies and then also check
+    // the public registry proxies. If we find public registry
+    // proxies, we use indirect proxies setup with a locator using the
+    // public proxy in preference over the internal proxy which might
+    // contain stale endpoints if the slave was restarted. IceGrid
+    // version <= 3.5.0 also kept the internal proxy in the database
+    // instead of the public proxy.
+    //
+    map<InternalRegistryPrx, RegistryPrx> replicas;
     proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
     for(ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-        replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
+        replicas.insert(pair<InternalRegistryPrx, RegistryPrx>(InternalRegistryPrx::uncheckedCast(*p), RegistryPrx()));
+    }
+
+    proxies = _database->getObjectsByType(Registry::ice_staticId());
+    for(ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    {
+        Ice::Identity id = (*p)->ice_getIdentity();
+        const string prefix("Registry-");
+        string::size_type pos = id.name.find(prefix);
+        if(pos == string::npos)
+        {
+            continue; // Ignore the master registry proxy.
+        }
+        id.name = "InternalRegistry-" + id.name.substr(prefix.size());
+        
+        Ice::ObjectPrx prx = (*p)->ice_identity(id)->ice_endpoints(Ice::EndpointSeq());
+        id.name = "Locator";
+        prx = prx->ice_locator(Ice::LocatorPrx::uncheckedCast((*p)->ice_identity(id)));
+
+        for(map<InternalRegistryPrx, RegistryPrx>::iterator q = replicas.begin(); q != replicas.end(); ++q)
+        {
+            if(q->first->ice_getIdentity() == prx->ice_getIdentity()) 
+            {
+                replicas.erase(q);
+                break;
+            }
+        }
+        replicas.insert(pair<InternalRegistryPrx, RegistryPrx>(InternalRegistryPrx::uncheckedCast(prx), 
+                                                               RegistryPrx::uncheckedCast(*p)));
     }
 
     //
@@ -1298,17 +1342,17 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
 
 NodePrxSeq
 RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, 
-                            const InternalRegistryPrxSeq& replicas,
+                            const map<InternalRegistryPrx, RegistryPrx>& replicas,
                             const NodePrxSeq& dbNodes)
 {
     set<NodePrx> nodes;
     nodes.insert(dbNodes.begin(), dbNodes.end());
     vector<Ice::AsyncResultPtr> results;
-    for(InternalRegistryPrxSeq::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
+    for(map<InternalRegistryPrx, RegistryPrx>::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
     {
-        if((*r)->ice_getIdentity() != internalRegistry->ice_getIdentity())
+        if(r->first->ice_getIdentity() != internalRegistry->ice_getIdentity())
         {
-            results.push_back((*r)->begin_registerWithReplica(internalRegistry));
+            results.push_back(r->first->begin_registerWithReplica(internalRegistry));
         }
     }
 
@@ -1351,6 +1395,25 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
             // Clear the proxy from the database if we can't
             // contact the replica.
             //
+            RegistryPrx registry;
+            for(map<InternalRegistryPrx, RegistryPrx>::const_iterator q = replicas.begin(); q != replicas.end(); ++q)
+            {
+                if(q->first->ice_getIdentity() == replica->ice_getIdentity()) 
+                {
+                    registry = q->second;
+                    break;
+                }
+            }
+            if(registry)
+            {
+                try
+                {
+                    _database->removeObject(registry->ice_getIdentity());
+                }
+                catch(const ObjectNotRegisteredException&)
+                {
+                }
+            }
             try
             {
                 _database->removeObject(replica->ice_getIdentity());

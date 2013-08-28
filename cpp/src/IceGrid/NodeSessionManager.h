@@ -47,7 +47,7 @@ protected:
 };
 typedef IceUtil::Handle<NodeSessionKeepAliveThread> NodeSessionKeepAliveThreadPtr;
 
-class NodeSessionManager : public IceUtil::Monitor<IceUtil::Mutex>
+class NodeSessionManager : public SessionManager
 {
 public:
 
@@ -125,7 +125,6 @@ private:
 
     const NodeIPtr _node;
     ThreadPtr _thread;
-    std::vector<QueryPrx> _queryObjects;
     InternalRegistryPrx _master;
     bool _destroyed;
     bool _activated;

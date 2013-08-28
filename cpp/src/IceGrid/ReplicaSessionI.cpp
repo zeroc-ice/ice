@@ -270,12 +270,15 @@ ReplicaSessionI::destroyImpl(bool shutdown)
         _database->getObserverTopic(ObjectObserverTopicName)->unsubscribe(_observer, _info->name);
     }
 
+    // Don't remove the replica proxy from the database if the registry is being shutdown.
     if(!_replicaWellKnownObjects.empty())
     {
         if(shutdown) // Don't remove the replica proxy from the database if the registry is being shutdown.
         {
-            ObjectInfoSeq::iterator p = find(_replicaWellKnownObjects.begin(), _replicaWellKnownObjects.end(), 
-                                             _internalRegistry->ice_getIdentity());
+            Ice::Identity id;
+            id.category = _internalRegistry->ice_getIdentity().category;
+            id.name = "Registry-" + _info->name;
+            ObjectInfoSeq::iterator p = find(_replicaWellKnownObjects.begin(), _replicaWellKnownObjects.end(), id);
             if(p != _replicaWellKnownObjects.end())
             {
                 _replicaWellKnownObjects.erase(p);

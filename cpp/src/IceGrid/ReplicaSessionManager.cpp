@@ -272,9 +272,7 @@ ReplicaSessionManager::create(const string& name,
         Lock sync(*this);
 
         Ice::ObjectPrx prx = comm->getDefaultLocator();
-
-        Ice::Identity id;
-        id.category = prx->ice_getIdentity().category;
+        Ice::Identity id = prx->ice_getIdentity();
         id.name = "InternalRegistry-Master";
         
         _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
@@ -286,21 +284,9 @@ ReplicaSessionManager::create(const string& name,
         _traceLevels = _database->getTraceLevels();
 
         //
-        // Initialize the IceGrid::Query objects. The IceGrid::Query
-        // interface is used to lookup the registry proxy in case it
-        // becomes unavailable. Since replicas might not always have
-        // an up to date registry proxy, we need to query all the
-        // replicas.
+        // Initialize query objects from the default locator endpoints.
         //
-        Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
-        id.name = "Query";
-        QueryPrx query = QueryPrx::uncheckedCast(prx->ice_identity(id));
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-        {
-            Ice::EndpointSeq singleEndpoint;
-            singleEndpoint.push_back(*p);
-            _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
-        }
+        initQueryObjects(comm->getDefaultLocator());
 
         _thread = new Thread(*this, _master, _traceLevels->logger);
         _thread->start();
@@ -458,7 +444,8 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
         if(!session)
         {
             vector<Ice::AsyncResultPtr> results;
-            for(vector<QueryPrx>::const_iterator q = _queryObjects.begin(); q != _queryObjects.end(); ++q)
+            vector<QueryPrx> queryObjects = findAllQueryObjects();
+            for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
             {
                 results.push_back((*q)->begin_findObjectById(registry->ice_getIdentity()));
             }
