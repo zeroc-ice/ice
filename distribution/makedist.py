@@ -44,7 +44,6 @@ def usage():
     print "Options:"
     print "-h      Show this message."
     print "-v      Be verbose."
-    print "-t FILE ThirdParty source archive"
     print "-c DIR  Compare distribution to the one from DIR and"
     print "        save the result in the README file"
 
@@ -70,29 +69,22 @@ checkGitVersion() # Ensure we're using the right git version
 
 verbose = 0
 compareToDir = None
-thirdpartyArchive = None
 for (o, a) in opts:
     if o == "-h":
         usage()
         sys.exit(0)
     elif o == "-v":
         verbose = 1
-    elif o == "-t":
-        thirdpartyArchive = a
     elif o == "-c":
         compareToDir = a
 
-        
-if compareToDir == None and thirdpartyArchive == None:
-    usage()
-    sys.exit(1)
-    
-if not os.path.exists(thirdpartyArchive):
-    print "ThirdParty archive not found in `" + thirdpartyArchive + "'"
-    sys.exit(1)
 
 cwd = os.getcwd()
 gitRepoDir = os.path.join(os.getcwd(), os.path.dirname(__file__), "..")
+
+
+mcppSourceArchive = os.path.abspath(os.path.join(os.path.dirname(__file__), "src", "thirdparty", "mcpp", \
+                                                 "mcpp-2.7.2.tar.gz"))
 
 # Restore git attributes and core.autocrlf on exit.
 def restore():
@@ -370,10 +362,10 @@ copy(os.path.join(distFilesDir, "src", "core", "third-party"), "third-party")
 #
 # Extract mcpp to third-party subdirectory and apply patches.
 #
-os.system("cd third-party && tar zxf %s ThirdParty-Sources-%s/mcpp-2.7.2.tar.gz --strip-components 1" % (thirdpartyArchive, version))
-os.system("cd third-party && tar zxf mcpp-2.7.2.tar.gz")
+os.system("cd third-party && tar zxf %s" % mcppSourceArchive)
 os.mkdir("third-party/patches")
-copy(os.path.join(distFilesDir, "src", "thirdparty", "mcpp", "patch.mcpp.2.7.2"), os.path.join("third-party", "patches", "patch.mcpp.2.7.2"))
+copy(os.path.join(distFilesDir, "src", "thirdparty", "mcpp", "patch.mcpp.2.7.2"), \
+     os.path.join("third-party", "patches", "patch.mcpp.2.7.2"))
 os.system("cd third-party/mcpp-2.7.2 && patch -p0 < ../patches/patch.mcpp.2.7.2")
 
 for root, dirnames, filesnames in os.walk("."):
