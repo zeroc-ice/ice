@@ -152,7 +152,6 @@ rFilterConfs = []
 rFilterProfiles = []
 
 certFile = None
-noSign = False
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "proguard-home=", "php-home=", "php-bin-home=", \
@@ -160,7 +159,7 @@ try:
                                                   "filter-languages=", "filter-compilers=", "filter-archs=", \
                                                   "filter-confs=", "filter-profiles=", "filter-languages=", \
                                                   "filter-compilers=", "filter-archs=", "filter-confs=", \
-                                                  "filter-profiles=", "cert-file=", "no-sign"])
+                                                  "filter-profiles=", "cert-file="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -212,8 +211,6 @@ for o, a in opts:
         rFilterProfiles.append(a)
     elif o == "--cert-file":
         certFile = a
-    elif o == "--no-sign":
-        noSign == True
 
 basePath = os.path.abspath(os.path.dirname(__file__))
 iceBuildHome = os.path.abspath(os.path.join(basePath, "..", ".."))
@@ -230,20 +227,22 @@ if thirdPartyHome is None:
     print("Cannot detect Ice %s ThirdParty installation" % version)
     sys.exit(1)
 
-#
-# A certificate is required unless no-sign was used
-#
-if not noSign:
-    if certFile is None:
-        print("You need to specify the sign certificate using --cert-file option")
-        sys.exit(1)
-
+if not certFile:
+    if os.path.exists("c:\\release\\authenticode\\zeroc2013.pfx"):
+        certFile = "c:\\release\\authenticode\\zeroc2013.pfx"
+    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")):
+        certFile = os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")
+else:
     if not os.path.isabs(certFile):
         certFile = os.path.abspath(os.path.join(os.getcwd(), certFile))
+        
+if certFile is None:
+    print("You need to specify the sign certificate using --cert-file option")
+    sys.exit(1)
 
-    if not os.path.exists(certFile):
-        print("Certificate `%s' not found")
-        sys.exit(1)
+if not os.path.exists(certFile):
+    print("Certificate `%s' not found")
+    sys.exit(1)
 
 if proguardHome:
     if not os.path.isabs(proguardHome):

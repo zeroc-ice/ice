@@ -192,17 +192,8 @@ class Darwin(Platform):
         
 class Windows(Platform):
     
-    def __init__(self, server, remoteDist, outputDir, certFile, verbose):
-        Platform.__init__(self, server, remoteDist, outputDir, verbose)        
-        
-        if certFile is None:
-            print("You need to specify the sign certificate using --cert-file option")
-            sys.exit(1)
-            
-        if not os.path.exists(certFile):
-            print("Certificate `%s' not found" % certFile)
-            
-        self._certFile = certFile
+    def __init__(self, server, remoteDist, outputDir, verbose):
+        Platform.__init__(self, server, remoteDist, outputDir, verbose)
 
     def getSourceArchive(self):
         return "%s/Ice-%s.zip" % (self._localDist, version)
@@ -224,7 +215,7 @@ class Windows(Platform):
             print("Use existing binary distribution")
         else:
             print("%s don't exists create new binary distribution" % self.installer())
-            runCommand("python %s/bin/makemsi.py --cert-file=%s --verbose" % (self._distfiles, self._certFile), verbose)
+            runCommand("python %s/bin/makemsi.py --verbose" % self._distfiles, verbose)
         
     def install(self, verbose):
         if BuildUtils.getIceHome(version):
@@ -246,8 +237,6 @@ def usage():
     print("  --remote-dist                      Could be a remote or local distribution, to copy a remote distribution")
     print("                                     scp is used for example use --dist=dev.zeroc.com:/share/srcdists/3.5")
     print("")
-    print("  --cert-file                        Certificate file used to sign the Windows installer.")
-    print("")
     print("  --verbose                          Be verbose.")
 
 
@@ -255,7 +244,6 @@ skipDownload = False
 server = None
 remoteDist = None
 outputDir = "."
-certFile = None
 
 verbose = False
 
@@ -264,7 +252,7 @@ opts = None
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "skip-download", "server=", "remote-dist=", \
-                                                  "remote-dist=", "output-dir=", "cert-file="])
+                                                  "remote-dist=", "output-dir="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -281,24 +269,13 @@ for o, a in opts:
         server = a
     elif o == "--remote-dist":
         remoteDist = a
-    elif o == "--cert-file":
-        certFile = a
     elif o == "--verbose":
         verbose = True
-
-if not certFile:
-    if os.path.exists("c:\\release\\authenticode\\zeroc2013.pfx"):
-        certFile = "c:\\release\\authenticode\\zeroc2013.pfx"
-    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")):
-        certFile = os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")
-else:
-    if not os.path.isabs(certFile):
-        certFile = os.path.abspath(os.path.join(os.getcwd(), certFile))
 
 platform = None
 
 if sys.platform == "win32":
-    platform = Windows(server, remoteDist, outputDir, certFile, verbose)
+    platform = Windows(server, remoteDist, outputDir, verbose)
 elif sys.platform == "sunos5":
    platform = Solaris(server, remoteDist, outputDir, verbose)
 elif sys.platform == "darwin":
