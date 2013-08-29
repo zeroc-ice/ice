@@ -42,21 +42,35 @@ public abstract class EditorBase
         return null;
     }
 
-    protected abstract void appendProperties(DefaultFormBuilder builder);
+    protected void appendProperties(DefaultFormBuilder builder)
+    {
+    }
+    
+    protected JComponent createPropertiesPanel()
+    {
+        return null;
+    }
 
     protected void buildPropertiesPanel()
     {
-        FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+        JComponent contents = createPropertiesPanel();
+        
+        if(contents == null)
+        {
+            FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
 
-        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.border(Borders.DLU2);
-        builder.rowGroupingEnabled(true);
-        builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.border(Borders.DLU2);
+            builder.rowGroupingEnabled(true);
+            builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
-        appendProperties(builder);
-
+            appendProperties(builder);
+            
+            contents = builder.getPanel();
+        }
+        
         JScrollPane scrollPane =
-            new JScrollPane(builder.getPanel(),
+            new JScrollPane(contents,
                             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
