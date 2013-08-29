@@ -216,7 +216,7 @@ class Windows(Platform):
     def getBinDir(self):
         return BuildUtils.getIceHome(version)
 
-   def getBinDir(self):
+    def getBinDir(self):
         return BuildUtils.getIceHome(version)
 
     def makeBinDist(self, verbose):
@@ -286,8 +286,12 @@ for o, a in opts:
     elif o == "--verbose":
         verbose = True
 
-
-if certFile:
+if not certFile:
+    if os.path.exists("c:\\release\\authenticode\\zeroc2013.pfx"):
+        certFile = "c:\\release\\authenticode\\zeroc2013.pfx"
+    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")):
+        certFile = os.path.join(os.getcwd(), "..", "..", "release", "authenticode", "zeroc2013.pfx")
+else:
     if not os.path.isabs(certFile):
         certFile = os.path.abspath(os.path.join(os.getcwd(), certFile))
 

@@ -1842,11 +1842,18 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test not supported with SOCKS%s" % (prefix, suffix))
                 continue
 
-            if args.find("compact") != -1 and "nocompact" in config:
+            if args.find("compact") != -1 and \
+                         ("nocompact" in config or 
+                          args.find("ssl") != -1
+                          args.find("compress") != -1):
                 print("%s*** test not supported with Compact Framework%s" % (prefix, suffix))
                 continue
 
-            if args.find("silverlight") != -1 and "nosilverlight" in config:
+            if args.find("silverlight") != -1 and \
+                         ("nosilverlight" in config or \
+                          args.find("ssl") != -1 or \
+                          args.find("mx") != -1 or \
+                          args.find("compress") != -1):
                 print("%s*** test not supported with Silverlight%s" % (prefix, suffix))
                 continue
 
