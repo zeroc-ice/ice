@@ -69,6 +69,7 @@ public class Main extends JFrame
                                                       e.toString(),
                                                       "Initialization failed",
                                                       JOptionPane.ERROR_MESSAGE);
+                        System.exit(1);
                     }
                 }
             });

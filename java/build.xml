@@ -845,6 +845,16 @@
         <copy file="${lib.dir}/dist/${icegridgui.jar.name}" todir="${lib.dir}"/>
         <delete dir="${lib.dir}/tmp"/>
         <delete dir="${lib.dir}/dist"/>
+        
+        <!-- Update Jar manifest to use our MainProxy class instead of 
+            com.javafx.main.Main -->
+            
+        <jar file="${lib.dir}/${icegridgui.jar.name}" update="yes">
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+                <attribute name="Main-Class" value="IceGridGUI.MainProxy"/>
+            </manifest>
+        </jar>
     </target>
 
     <condition property="build-icegridadmin-bundle">
