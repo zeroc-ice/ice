@@ -31,7 +31,8 @@ COMMON_OBJS	= Internal.obj \
 		  DescriptorBuilder.obj \
 		  FileCache.obj \
 		  TraceLevels.obj \
-		  PlatformInfo.obj
+		  PlatformInfo.obj \
+		  SessionManager.obj
 
 NODE_OBJS	= NodeI.obj \
                   NodeServerAdminRouter.obj \
