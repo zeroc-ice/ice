@@ -92,7 +92,7 @@ SessionManager::findAllQueryObjects()
                     proxies[(*q)->ice_getIdentity()] = QueryPrx::uncheckedCast((*q)->ice_identity(id));
                 }
             }
-            catch(const Ice::Exception& ex)
+            catch(const Ice::Exception&)
             {
                 // Ignore.
             }

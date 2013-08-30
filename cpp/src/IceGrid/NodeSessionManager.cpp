@@ -588,7 +588,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
                     proxies[(*q)->ice_getIdentity()] = *q;
                 }
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::LocalException&)
             {
                 // IGNORE
             }
