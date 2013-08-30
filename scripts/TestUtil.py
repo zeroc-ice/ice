@@ -1844,7 +1844,7 @@ def runTests(start, expanded, num = 0, script = False):
 
             if args.find("compact") != -1 and \
                          ("nocompact" in config or \
-                          args.find("ssl") != -1 \
+                          args.find("ssl") != -1 or \
                           args.find("compress") != -1):
                 print("%s*** test not supported with Compact Framework%s" % (prefix, suffix))
                 continue
