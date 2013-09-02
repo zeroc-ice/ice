@@ -1716,6 +1716,18 @@ namespace Ice.VisualStudio
             IncludePathList includes = 
                 new IncludePathList(Util.getProjectProperty(project, Util.PropertyIceIncludePath));
             string extraOpts = Util.getProjectProperty(project, Util.PropertyIceExtraOptions).Trim();
+
+            //
+            // Add per build configuration extra options.
+            //
+            Configuration activeConfiguration = Util.getActiveConfiguration(project);
+            if(activeConfiguration != null && !activeConfiguration.ConfigurationName.Equals("All"))
+            {
+                string property = Util.PropertyIceExtraOptions + "_" + activeConfiguration.ConfigurationName;
+                extraOpts += " " + Util.getProjectProperty(project, property).Trim();
+                extraOpts = extraOpts.Trim();
+            }
+
             bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyIceTie);
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyIcePrefix);
             bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyIceStreaming);

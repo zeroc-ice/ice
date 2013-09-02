@@ -83,7 +83,7 @@ namespace Ice.VisualStudio
             this.groupBox3.Controls.Add(this.chkIceGrid);
             this.groupBox3.Controls.Add(this.chkIceBox);
             this.groupBox3.Controls.Add(this.chkGlacier2);
-            this.groupBox3.Location = new System.Drawing.Point(4, 387);
+            this.groupBox3.Location = new System.Drawing.Point(4, 444);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(487, 47);
@@ -163,7 +163,7 @@ namespace Ice.VisualStudio
             this.groupBox4.Controls.Add(this.chkIcePrefix);
             this.groupBox4.Controls.Add(this.chkStreaming);
             this.groupBox4.Controls.Add(this.chkTie);
-            this.groupBox4.Location = new System.Drawing.Point(4, 87);
+            this.groupBox4.Location = new System.Drawing.Point(4, 92);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(487, 44);
             this.groupBox4.TabIndex = 4;
@@ -240,7 +240,7 @@ namespace Ice.VisualStudio
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(333, 443);
+            this.btnCancel.Location = new System.Drawing.Point(333, 502);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 9;
@@ -250,7 +250,7 @@ namespace Ice.VisualStudio
             // 
             // btnApply
             // 
-            this.btnApply.Location = new System.Drawing.Point(416, 443);
+            this.btnApply.Location = new System.Drawing.Point(416, 502);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 10;
@@ -260,7 +260,7 @@ namespace Ice.VisualStudio
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(250, 443);
+            this.btnOk.Location = new System.Drawing.Point(250, 502);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 8;
@@ -278,16 +278,16 @@ namespace Ice.VisualStudio
             // 
             // includePathView
             // 
-            this.includePathView.Location = new System.Drawing.Point(4, 215);
+            this.includePathView.Location = new System.Drawing.Point(4, 263);
             this.includePathView.Name = "includePathView";
             this.includePathView.Size = new System.Drawing.Size(487, 168);
             this.includePathView.TabIndex = 6;
             // 
             // extraCompilerOptions
             // 
-            this.extraCompilerOptions.Location = new System.Drawing.Point(4, 139);
+            this.extraCompilerOptions.Location = new System.Drawing.Point(4, 149);
             this.extraCompilerOptions.Name = "extraCompilerOptions";
-            this.extraCompilerOptions.Size = new System.Drawing.Size(487, 68);
+            this.extraCompilerOptions.Size = new System.Drawing.Size(487, 101);
             this.extraCompilerOptions.TabIndex = 5;
             // 
             // IceCsharpConfigurationDialog
@@ -295,7 +295,7 @@ namespace Ice.VisualStudio
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(494, 474);
+            this.ClientSize = new System.Drawing.Size(494, 541);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.outputDirView);
             this.Controls.Add(this.comboBoxVerboseLevel);

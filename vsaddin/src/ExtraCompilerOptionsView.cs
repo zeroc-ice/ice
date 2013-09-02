@@ -34,13 +34,53 @@ namespace Ice.VisualStudio
 
         public void load()
         {
+            _configurationOptions = new Dictionary<string, string>();
+
+            comboBoxConfigurationName.Items.Add("All");
+            _configurationOptions["All"] = Util.getProjectProperty(_project, Util.PropertyIceExtraOptions);
+
+            object[] configurations = (object[])_project.ConfigurationManager.ConfigurationRowNames;
+            foreach(object name in configurations)
+            {
+                comboBoxConfigurationName.Items.Add(name);
+                _configurationOptions[name.ToString()] = Util.getProjectProperty(_project, Util.PropertyIceExtraOptions + "_" + name);
+            }
+            comboBoxConfigurationName.SelectedIndex = 0;
             txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyIceExtraOptions);
         }
 
         public bool hasUnsavedChanges()
         {
-            return !txtExtraOptions.Text.Trim().Equals(Util.getProjectProperty(_project, Util.PropertyIceExtraOptions),
-                                                       StringComparison.CurrentCulture);
+            bool unsaved = false;
+            List<String> configurations = new List<String>();
+            configurations.Add("All");
+            foreach(object name in (object[])_project.ConfigurationManager.ConfigurationRowNames)
+            {
+                configurations.Add(name.ToString());
+            }
+            foreach(String name in configurations)
+            {
+                string property = Util.PropertyIceExtraOptions;
+                if(!name.Equals("All"))
+                {
+                    property += "_" + name.ToString();
+                }
+
+                string value = "";
+                if(!_configurationOptions.TryGetValue(name.ToString(), out value))
+                {
+                    unsaved = true;
+                    break;
+                }
+
+                if(!value.Trim().Equals(Util.getProjectProperty(_project, property), 
+                                        StringComparison.CurrentCulture))
+                {
+                    unsaved = true;
+                    break;
+                }
+            }
+            return unsaved;
         }
 
         public bool apply(ref bool changed)
@@ -53,7 +93,26 @@ namespace Ice.VisualStudio
                     txtExtraOptions.Focus();
                     return false;
                 }
-                Util.setProjectProperty(_project, Util.PropertyIceExtraOptions, txtExtraOptions.Text);
+
+                List<String> configurations = new List<String>();
+                configurations.Add("All");
+                foreach(object name in (object[])_project.ConfigurationManager.ConfigurationRowNames)
+                {
+                    configurations.Add(name.ToString());
+                }
+                foreach(String name in configurations)
+                {
+                    string property = Util.PropertyIceExtraOptions;
+                    if(!name.Equals("All"))
+                    {
+                        property += "_" + name.ToString();
+                    }
+
+                    string value = "";
+                    _configurationOptions.TryGetValue(name.ToString(), out value);
+                    Util.setProjectProperty(_project, property, value.Trim());
+                }
+
                 if(Util.isCppProject(_project))
                 {
                     //
@@ -90,40 +149,98 @@ namespace Ice.VisualStudio
 
         private void txtExtraOptions_LostFocus(object sender, EventArgs e)
         {
+            _configurationOptions[comboBoxConfigurationName.SelectedItem.ToString()] = txtExtraOptions.Text.Trim();
             _dialog.needSave();
         }
 
         private void  txtExtraOptions_TextChanged(object sender, EventArgs e)
         {
+            _configurationOptions[comboBoxConfigurationName.SelectedItem.ToString()] = txtExtraOptions.Text.Trim();
             _dialog.needSave();
         }
 
-        private bool parseSlice2csOptions()
+        private bool parseSlice2csOptions(String args)
         {
             Options opts = null;
-            return Util.parseSlice2csOptions(txtExtraOptions.Text, true, ref opts);
+            return Util.parseSlice2csOptions(args, true, ref opts);
         }
 
-        private bool parseSlice2cppOptions()
+        private bool parseSlice2cppOptions(String configuration, String args)
         {
             Options opts = null;
-            _headerExt = ".h";
-            _sourceExt = ".cpp";
-            return Util.parseSlice2cppOptions(txtExtraOptions.Text, true, ref opts, ref _headerExt, ref _sourceExt);
-        }
+            String headerExt = "";
+            String sourceExt = "";
+
+            bool success = Util.parseSlice2cppOptions(args, true, ref opts, ref headerExt, ref sourceExt);
+
+            //
+            // --header-ext and --source-ext can only be changed in the default configuration named "All". 
+            //
+            if(configuration.Equals("All"))
+            {
+                _headerExt = headerExt;
+                _sourceExt = sourceExt;
+            }
+            else if(!headerExt.Equals("h") || !sourceExt.Equals("cpp"))
+            {
+                MessageBox.Show("Extra Options field contains some errors:\n" +
+                                "--header-ext and --source-ext can only be used in the configuration named 'All'" +
+                                " header-ext: " + headerExt + " source-ext: " + sourceExt,
+                                "Ice Visual Studio Add-in", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error,
+                                MessageBoxDefaultButton.Button1,
+                                (MessageBoxOptions)0);
+                success = false;
+            }
+            return success;
+         }
 
         private bool checkExtraOptions()
         {
-            if(Util.isCppProject(_project))
+            bool isCppProject = Util.isCppProject(_project);
+            bool isCsharpProject = isCppProject ? false : Util.isCSharpProject(_project);
+
+            bool sucess = true;
+            foreach(KeyValuePair<string, string> entry in _configurationOptions)
             {
-                return parseSlice2cppOptions();
+                if(String.IsNullOrEmpty(entry.Value))
+                {
+                    continue;
+                }
+                if(isCppProject)
+                {
+                    if(!parseSlice2cppOptions(entry.Key, entry.Value))
+                    {
+                        sucess = false;
+                    }
+                }
+                else if(isCsharpProject)
+                {
+                    if(!parseSlice2csOptions(entry.Value))
+                    {
+                        sucess = false;
+                    }
+                }
             }
-            else if(Util.isCSharpProject(_project))
-            {
-                return parseSlice2csOptions();
-            }
-            return true;
+            return sucess;
         }
+
+        private void comboBoxConfigurationName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            String name = comboBoxConfigurationName.SelectedItem.ToString();
+            String value = "";
+            if(_configurationOptions.TryGetValue(name, out value))
+            {
+                txtExtraOptions.Text = _configurationOptions[name];
+            }
+            else
+            {
+                txtExtraOptions.Text = "";
+            }
+        }
+
+
+        private Dictionary<String, String> _configurationOptions;
 
         private IceConfigurationDialog _dialog;
         private Project _project;

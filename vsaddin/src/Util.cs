@@ -1946,6 +1946,7 @@ namespace Ice.VisualStudio
             {
                 if(project.Globals.get_VariableExists(name))
                 {
+                    project.Globals[name] = value;
                     project.Globals.set_VariablePersists(name, false);
                 }
             }
@@ -3502,12 +3503,8 @@ namespace Ice.VisualStudio
             return true;
         }
 
-        static public VCConfiguration getActiveVCConfiguration(Project project)
+        static public Configuration getActiveConfiguration(Project project)
         {
-            if(!Util.isCppProject(project))
-            {
-                return null;
-            }
             ConfigurationManager configManager = project.ConfigurationManager;
             if(configManager == null)
             {
@@ -3523,7 +3520,17 @@ namespace Ice.VisualStudio
             {
                 return null;
             }
+            return activeConfig;
+        }
 
+        static public VCConfiguration getActiveVCConfiguration(Project project)
+        {
+            if(!Util.isCppProject(project))
+            {
+                return null;
+            }
+
+            Configuration activeConfig = getActiveConfiguration(project);
             if(activeConfig == null)
             {
                 return null;

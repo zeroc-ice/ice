@@ -54,6 +54,9 @@ General Changes
 - Fixed a bug in the graphical IceGrid administrative tool that cause
   the "Save" and "Save to File" commands to produce an empty file 
   without report any errors.
+
+- The Visual Studio Add-in now support per configuration extrac compiler
+  options.
   
 
 C++ Changes
