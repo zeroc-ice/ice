@@ -580,6 +580,11 @@ if not skipBuild:
 
 if not skipInstaller:
 
+    #
+    # Filter files, list of files that must not be included.
+    #
+    filterFiles = ["slice35d.dll", "slice35d.pdb", "sliced.lib"]
+
     if not os.path.exists(os.path.join(iceBuildHome, "installer")):
         os.makedirs(os.path.join(iceBuildHome, "installer"))
 
@@ -624,6 +629,8 @@ if not skipInstaller:
                     for d in ["Assemblies", "bin", "config", "include", "lib", "python", "slice", "vsaddin"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile)
@@ -632,7 +639,7 @@ if not skipInstaller:
                         copy(os.path.join(sourceDir, f), os.path.join(installerdDir, f), verbose = verbose)
 
                     #
-                    # Copy add-in incon from source dist
+                    # Copy add-in icon from source dist
                     #
                     copy(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"), \
                          os.path.join(installerdDir, "icon", "newslice.ico"), verbose = verbose)
@@ -641,6 +648,8 @@ if not skipInstaller:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -649,6 +658,8 @@ if not skipInstaller:
                     for d in ["bin", "lib", "python"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -657,6 +668,8 @@ if not skipInstaller:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -665,6 +678,8 @@ if not skipInstaller:
                     for d in ["ruby", "bin"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -673,6 +688,8 @@ if not skipInstaller:
                     for d in ["Assemblies", "php", "bin", "vsaddin"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -682,6 +699,8 @@ if not skipInstaller:
                     for d in ["vsaddin"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -693,6 +712,8 @@ if not skipInstaller:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 targetFile = os.path.join(os.path.dirname(targetFile), "vc110", \
                                                           os.path.basename(targetFile))
@@ -703,6 +724,8 @@ if not skipInstaller:
                     for d in ["bin", "lib"]:
                         for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
                             for f in filenames:
+                                if f in filterFiles:
+                                    continue
                                 targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                                 targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
                                                           os.path.basename(targetFile))
@@ -716,6 +739,8 @@ if not skipInstaller:
                 if compiler == "VC110":
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs")):
                         for f in filenames:
+                            if f in filterFiles:
+                                continue
                             targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -732,6 +757,8 @@ if not skipInstaller:
     #
     for root, dirnames, filenames in os.walk(thirdPartyHome):
         for f in filenames:
+            if f in filterFiles:
+                continue
             targetFile = relPath(thirdPartyHome, installerdDir, os.path.join(root, f))
             if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
                 copy(os.path.join(root, f), targetFile, verbose = verbose)
@@ -748,6 +775,8 @@ if not skipInstaller:
 
     for root, dirnames, filenames in os.walk(installerdDir):
         for f in filenames:
+            if f in filterFiles:
+                continue
             targetFile = relPath(installerdDir, pdbInstallerdDir, os.path.join(root, f))
             if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".pdb"]:
                 move(os.path.join(root, f), targetFile)
