@@ -534,7 +534,7 @@ fixGitAttributes(True, True, ["allDemos.py",
 #
 # Extract the sources with git archive using the given tag.
 #
-print "Creating Windows git archive using " + tag + "...",
+print "Creating Windows core git archive using " + tag + "...",
 sys.stdout.flush()
 os.system("git archive --worktree-attributes --prefix=" + os.path.basename(winCoreSrcDir) + "/ " + tag + \
     " | ( cd " + distDir + " && tar xfm - )")
