@@ -26,6 +26,13 @@ public class Logger extends Ice.LoggerI
     public void
     warning(final String message)
     {
+        //
+        // Ignore spurious selector wake up warnings in solaris.
+        //
+        if(OS_IS_SOLARIS && message.equals("spurious selector wake up"))
+        {
+            return;
+        }
         SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
@@ -56,4 +63,6 @@ public class Logger extends Ice.LoggerI
     }
 
     private final JFrame _mainFrame;
+    
+    private static final boolean OS_IS_SOLARIS = System.getProperty("os.name").equals("SunOS"); 
 }
