@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
+
 #include <IceSSL/TransceiverI.h>
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
@@ -25,6 +28,39 @@
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
+
+//
+// BUGFIX: an openssl bug that affects OpensSSL < 1.0.0k
+// could cause a deadlock when decoding public keys.
+//
+// See: http://cvs.openssl.org/chngview?cn=22569
+//
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
+namespace
+{
+
+IceUtil::Mutex* sslMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        sslMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete sslMutex;
+        sslMutex = 0;
+    }
+};
+
+Init init;
+
+}
+#endif
 
 IceInternal::NativeInfoPtr
 IceSSL::TransceiverI::getNativeInfo()
@@ -211,7 +247,23 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             //
             // Only one thread calls initialize(), so synchronization is not necessary here.
             //
+
+            //
+            // BUGFIX: an openssl bug that affects OpensSSL < 1.0.0k
+            // could cause a deadlock when decoding public keys.
+            //
+            // See: http://cvs.openssl.org/chngview?cn=22569
+            //
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(sslMutex);
+#endif
+
             int ret = _incoming ? SSL_accept(_ssl) : SSL_connect(_ssl);
+
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL
+            sync.release();
+#endif
+
 #ifdef ICE_USE_IOCP
             if(BIO_ctrl_pending(_iocpBio))
             {
