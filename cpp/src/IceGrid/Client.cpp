@@ -728,7 +728,7 @@ Client::run(StringSeq& originalArgs)
             {
                 router->destroySession();
             }
-            else
+            else if(session)
             {
                 session->destroy();
             }

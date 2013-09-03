@@ -15,8 +15,7 @@ using namespace std;
 using namespace IceGrid;
 
 WellKnownObjectsManager::WellKnownObjectsManager(const DatabasePtr& database) : 
-    _database(database),
-    _initialized(false)
+    _database(database), _initialized(false)
 {
 }
 
@@ -72,7 +71,7 @@ WellKnownObjectsManager::registerAll()
     // If initialized, the endpoints and well known objects are immutable.
     //
     updateReplicatedWellKnownObjects();
-    _database->addOrUpdateObjectsInDatabase(_wellKnownObjects);
+    _database->addOrUpdateRegistryWellKnownObjects(_wellKnownObjects);
 }
 
 void
@@ -105,7 +104,7 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
     info.proxy = replicatedClientProxy->ice_identity(id);
     objects.push_back(info);
 
-    _database->addOrUpdateObjectsInDatabase(objects);
+    _database->addOrUpdateRegistryWellKnownObjects(objects);
 }
 
 bool

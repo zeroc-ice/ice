@@ -102,7 +102,7 @@ template<class Dict, class Key, class Value> class Wrapper : public virtual IceD
 public:
 
     Wrapper(const Freeze::ConnectionPtr& connection, const std::string& dbName) : 
-        _dict(connection, dbName)
+        _dict(connection, dbName), _dbName(dbName)
     {
     }
 
@@ -191,6 +191,7 @@ public:
 protected:
 
     Dict _dict;
+    std::string _dbName;
 };
 
 }

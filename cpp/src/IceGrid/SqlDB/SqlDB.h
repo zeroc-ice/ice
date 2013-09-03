@@ -35,6 +35,11 @@ public:
     virtual ObjectsWrapperPtr getObjects(const IceDB::DatabaseConnectionPtr&);
     virtual ObjectsWrapperPtr getInternalObjects(const IceDB::DatabaseConnectionPtr&);
     
+    virtual std::map<std::string, Ice::Long> getSerials() const
+    {
+        return std::map<std::string, Ice::Long>(); // Serials not supported.
+    }
+
 private:
 
     const SqlStringApplicationInfoDictPtr _applications;

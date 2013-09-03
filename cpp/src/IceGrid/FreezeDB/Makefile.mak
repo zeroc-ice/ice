@@ -17,6 +17,7 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 OBJS   		= StringApplicationInfoDict.obj \
 		  IdentityObjectInfoDict.obj \
 		  StringAdapterInfoDict.obj \
+		  SerialsDict.obj \
 		  FreezeDB.obj
 
 DB_OBJS		= FreezeTypes.obj
@@ -72,10 +73,15 @@ StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SDIR)\Admin.ice $(SLICE2FRE
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
 	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)\Admin.ice
 
+SerialsDict.h SerialsDict.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q SerialsDict.h SerialsDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::SerialsDict,string,long SerialsDict
+
 clean::
 	-del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	-del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	-del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	-del /q SerialsDict.h SerialsDict.cpp
 	-del /q IceGridFreezeDB.res IceGridMigrate.res
 
 install:: all

@@ -14,6 +14,7 @@
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Observer.h>
+#include <IceGrid/DB.h>
 #include <set>
 
 namespace IceGrid
@@ -23,7 +24,7 @@ class ObserverTopic : public IceUtil::Monitor<IceUtil::Mutex>, virtual public Ic
 {
 public:
 
-    ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&);
+    ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&, Ice::Long = 0);
     virtual ~ObserverTopic();
 
     int subscribe(const Ice::ObjectPrx&, const std::string& = std::string());
@@ -36,12 +37,14 @@ public:
 
     void waitForSyncedSubscribers(int, const std::string& = std::string());
 
+    int getSerial() const;
+
 protected:
 
     void addExpectedUpdate(int, const std::string& = std::string());
     void waitForSyncedSubscribersNoSync(int, const std::string& = std::string());
-    void updateSerial(int);
-    Ice::Context getContext(int) const;
+    void updateSerial(Ice::Long = 0);
+    Ice::Context getContext(int, Ice::Long = 0) const;
 
     template<typename T> std::vector<T> getPublishers() const
     {
@@ -57,6 +60,7 @@ protected:
     std::map<Ice::EncodingVersion, IceStorm::TopicPrx> _topics;
     std::vector<Ice::ObjectPrx> _basePublishers;
     int _serial;
+    Ice::Long _dbSerial;
 
     std::set<std::string> _syncSubscribers;
     std::map<int, std::set<std::string> > _waitForUpdates;
@@ -111,12 +115,12 @@ class ApplicationObserverTopic : public ObserverTopic
 {
 public:
 
-    ApplicationObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<std::string, ApplicationInfo>&);
+    ApplicationObserverTopic(const IceStorm::TopicManagerPrx&, const ApplicationsWrapperPtr&);
 
-    int applicationInit(int, const ApplicationInfoSeq&);
-    int applicationAdded(int, const ApplicationInfo&);
-    int applicationRemoved(int, const std::string&);
-    int applicationUpdated(int, const ApplicationUpdateInfo&);
+    int applicationInit(Ice::Long, const ApplicationInfoSeq&);
+    int applicationAdded(Ice::Long, const ApplicationInfo&);
+    int applicationRemoved(Ice::Long, const std::string&);
+    int applicationUpdated(Ice::Long, const ApplicationUpdateInfo&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 
@@ -131,12 +135,12 @@ class AdapterObserverTopic : public ObserverTopic
 {
 public:
 
-    AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<std::string, AdapterInfo>&);
+    AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const AdaptersWrapperPtr&);
 
-    int adapterInit(const AdapterInfoSeq&);
-    int adapterAdded(const AdapterInfo&);
-    int adapterUpdated(const AdapterInfo&);
-    int adapterRemoved(const std::string&);
+    int adapterInit(Ice::Long, const AdapterInfoSeq&);
+    int adapterAdded(Ice::Long, const AdapterInfo&);
+    int adapterUpdated(Ice::Long, const AdapterInfo&);
+    int adapterRemoved(Ice::Long, const std::string&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 
@@ -151,15 +155,15 @@ class ObjectObserverTopic : public ObserverTopic
 {
 public:
 
-    ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<Ice::Identity, ObjectInfo>&);
+    ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const ObjectsWrapperPtr&);
 
-    int objectInit(const ObjectInfoSeq&);
-    int objectAdded(const ObjectInfo&);
-    int objectUpdated(const ObjectInfo&);
-    int objectRemoved(const Ice::Identity&);
+    int objectInit(Ice::Long, const ObjectInfoSeq&);
+    int objectAdded(Ice::Long, const ObjectInfo&);
+    int objectUpdated(Ice::Long, const ObjectInfo&);
+    int objectRemoved(Ice::Long, const Ice::Identity&);
 
-    int objectsAddedOrUpdated(const ObjectInfoSeq&);
-    int objectsRemoved(const ObjectInfoSeq&);
+    int wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq&);
+    int wellKnownObjectsRemoved(const ObjectInfoSeq&);
 
     virtual void initObserver(const Ice::ObjectPrx&);
 

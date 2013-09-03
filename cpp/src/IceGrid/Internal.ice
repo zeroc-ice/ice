@@ -553,6 +553,8 @@ interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterO
 {
 };
 
+dictionary<string, long> StringLongDict;
+
 interface ReplicaSession
 {
     /**
@@ -575,8 +577,8 @@ interface ReplicaSession
      * will receive the database and database updates.
      *
      **/
-    idempotent void setDatabaseObserver(DatabaseObserver* dbObs)
-        throws ObserverAlreadyRegisteredException;
+    idempotent void setDatabaseObserver(DatabaseObserver* dbObs, optional(1) StringLongDict serials)
+        throws ObserverAlreadyRegisteredException, DeploymentException;
 
     /**
      *
@@ -774,6 +776,15 @@ interface InternalRegistry extends FileReader
      *
      **/
     ["cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
+
+    /**
+     *
+     * Return applications, adapters, objects from this replica.
+     * 
+     **/
+    ["cpp:const"] idempotent ApplicationInfoSeq getApplications(out long serial);
+    ["cpp:const"] idempotent AdapterInfoSeq getAdapters(out long serial);
+    ["cpp:const"] idempotent ObjectInfoSeq getObjects(out long serial);
 
     /**
      *

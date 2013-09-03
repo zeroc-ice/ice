@@ -69,8 +69,7 @@ public:
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
 
-    ReplicaSessionManager();
-    
+    ReplicaSessionManager(const Ice::CommunicatorPtr&);
     void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&, 
                 const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);
@@ -80,6 +79,8 @@ public:
     void registerAllWellKnownObjects();
     ReplicaSessionPrx getSession() const { return _thread->getSession(); }
 
+    IceGrid::InternalRegistryPrx findInternalRegistryForReplica(const Ice::Identity&);
+    
 private:
 
     friend class Thread;
@@ -87,7 +88,7 @@ private:
     bool isDestroyed() 
     {
         Lock sync(*this);
-        return !_thread;
+        return !_communicator;
     }
     
     ReplicaSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
@@ -98,14 +99,12 @@ private:
     ThreadPtr _thread;
     std::string _name;
     InternalReplicaInfoPtr _info;
-    InternalRegistryPrx _master;
     RegistryPrx _registry;
     InternalRegistryPrx _internalRegistry;
     DatabaseObserverPrx _observer;
     DatabasePtr _database;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     TraceLevelsPtr _traceLevels;
-    std::vector<QueryPrx> _queryObjects;
 };
 
 }

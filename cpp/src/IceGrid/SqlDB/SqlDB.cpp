@@ -50,6 +50,18 @@ public:
         SqlDB::Wrapper<SqlStringApplicationInfoDict, std::string, ApplicationInfo>(con, table)
     {
     }
+
+    virtual Ice::Long
+    updateSerial(Ice::Long serial)
+    {
+        return -1; // Serials not supported
+    }
+
+    virtual Ice::Long
+    getSerial() const
+    {
+        return -1; // Serials not supported
+    }
 };
 
 class SqlAdaptersWrapper : public SqlDB::Wrapper<SqlStringAdapterInfoDict, std::string, AdapterInfo>, 
@@ -67,6 +79,18 @@ public:
     {
         return _table->findByReplicaGroupId(_connection, name);
     }
+
+    virtual Ice::Long
+    updateSerial(Ice::Long serial)
+    {
+        return -1; // Serials not supported
+    }
+
+    virtual Ice::Long
+    getSerial() const
+    {
+        return -1; // Serials not supported
+    }
 };
 
 class SqlObjectsWrapper : public SqlDB::Wrapper<SqlIdentityObjectInfoDict, Ice::Identity, ObjectInfo>,
@@ -83,6 +107,18 @@ public:
     findByType(const std::string& type)
     {
         return _table->findByType(_connection, type);
+    }
+
+    virtual Ice::Long
+    updateSerial(Ice::Long serial)
+    {
+        return -1; // Serials not supported
+    }
+
+    virtual Ice::Long
+    getSerial() const
+    {
+        return -1; // Serials not supported
     }
 };
 

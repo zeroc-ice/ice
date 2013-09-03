@@ -18,6 +18,7 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 OBJS   		= StringApplicationInfoDict.o \
 		  IdentityObjectInfoDict.o \
 		  StringAdapterInfoDict.o \
+		  SerialsDict.o \
 		  FreezeDB.o
 
 DB_OBJS		= FreezeTypes.o
@@ -71,10 +72,17 @@ StringAdapterInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
 	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)/Admin.ice
+
+../../IceGrid/FreezeDB/SerialsDict.h: SerialsDict.cpp
+SerialsDict.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f SerialsDict.h SerialsDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::SerialsDict,string,long SerialsDict
+
 clean::
 	-rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	-rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	-rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	-rm -f SerialsDict.h SerialsDict.cpp
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

@@ -30,8 +30,10 @@
       <parameter name="port"/>
       <parameter name="replicaName"/>
       <parameter name="encoding" default=""/>
+      <parameter name="arg" default=""/>
       <server id="${id}" exe="${ice.bindir}/icegridregistry" activation="manual">
         <option>--nowarn</option>
+        <option>${arg}</option>
         <dbenv name="data">
           <!-- Try to make the test run a bit faster... -->
           <dbproperty name="set_flags" value="DB_TXN_NOSYNC"/>

@@ -51,6 +51,10 @@ public:
     virtual NodePrxSeq getNodes(const Ice::Current&) const;
     virtual InternalRegistryPrxSeq getReplicas(const Ice::Current&) const;
 
+    virtual ApplicationInfoSeq getApplications(Ice::Long&, const Ice::Current&) const;
+    virtual AdapterInfoSeq getAdapters(Ice::Long&, const Ice::Current&) const;
+    virtual ObjectInfoSeq getObjects(Ice::Long&, const Ice::Current&) const;
+
     virtual void shutdown(const Ice::Current&) const;
 
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;

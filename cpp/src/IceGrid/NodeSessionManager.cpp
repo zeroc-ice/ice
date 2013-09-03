@@ -227,7 +227,8 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     }
 }
 
-NodeSessionManager::NodeSessionManager() : 
+NodeSessionManager::NodeSessionManager(const Ice::CommunicatorPtr& communicator) : 
+    SessionManager(communicator),
     _destroyed(false),
     _activated(false)
 {
@@ -239,22 +240,7 @@ NodeSessionManager::create(const NodeIPtr& node)
     {
         Lock sync(*this);
         assert(!_node);
-
         const_cast<NodeIPtr&>(_node) = node;
-
-        Ice::CommunicatorPtr communicator = _node->getCommunicator();
-        assert(communicator->getDefaultLocator());
-
-        //
-        // Initialize query objects from the default locator endpoints.
-        //
-        initQueryObjects(communicator->getDefaultLocator());
-
-        Ice::ObjectPrx prx = communicator->getDefaultLocator();
-        Ice::Identity id = prx->ice_getIdentity();
-        id.name = "InternalRegistry-Master";
-        _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
-
         _thread = new Thread(*this);
         _thread->start();
     }

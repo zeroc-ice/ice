@@ -79,7 +79,7 @@ private:
     IceUtil::TimerPtr _timer;
     RegistryIPtr _registry;
     NodeIPtr _node;
-    NodeSessionManager _sessions;
+    IceUtil::UniquePtr<NodeSessionManager> _sessions;
     Ice::ObjectAdapterPtr _adapter;
 };
 
@@ -87,7 +87,7 @@ class CollocatedRegistry : public RegistryI
 {
 public:
 
-    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&, bool, bool);
+    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&, bool, bool, const std::string&);
     virtual void shutdown();
 
 private:
@@ -151,8 +151,9 @@ setNoIndexingAttribute(const string& pa)
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com, 
                                        const ActivatorPtr& activator, 
                                        bool nowarn,
-                                       bool readonly) :
-    RegistryI(com, new TraceLevels(com, "IceGrid.Registry"), nowarn, readonly), 
+                                       bool readonly,
+                                       const string& initFromReplica) :
+    RegistryI(com, new TraceLevels(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica), 
     _activator(activator)
 {
 }
@@ -195,7 +196,10 @@ NodeService::shutdown()
 {
     assert(_activator);
     _activator->shutdown();
-    _sessions.terminate(); // Unblock the main thread if it's blocked on waitForCreate()
+    if(_sessions.get())
+    {
+        _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
+    }
     return true;
 }
 
@@ -223,8 +227,11 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 {
     bool nowarn = false;
     bool readonly = false;
+    string initFromReplica;
     string desc;
     vector<string> targets;
+
+
     for(int i = 1; i < argc; ++i)
     {
         if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
@@ -247,6 +254,17 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             readonly = true;
         }
+        else if(strcmp(argv[i], "--initdb-from-replica") == 0)
+        {
+            if(i + 1 >= argc)
+            {
+                error("missing replica argument for option `" + string(argv[i]) + "'");
+                usage(argv[0]);
+                return false;
+            }
+
+            initFromReplica = argv[++i];
+        } 
         else if(strcmp(argv[i], "--deploy") == 0)
         {
             if(i + 1 >= argc)
@@ -307,7 +325,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     if(properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry = new CollocatedRegistry(communicator(), _activator, nowarn, readonly);
+        _registry = new CollocatedRegistry(communicator(), _activator, nowarn, readonly, initFromReplica);
         if(!_registry->start())
         {
             return false;
@@ -470,6 +488,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     const string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
 
+    _sessions.reset(new NodeSessionManager(communicator()));
+
     //
     // Create the server factory. The server factory creates persistent objects
     // for the server and server adapter. It also takes care of installing the
@@ -477,10 +497,11 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     Identity id = communicator()->stringToIdentity(instanceName + "/Node-" + name);
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
-    _node = new NodeI(_adapter, _sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper);
+    _node = new NodeI(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
-    _adapter->addServantLocator(new DefaultServantLocator(new NodeServerAdminRouter(_node)), _node->getServerAdminCategory());
+    _adapter->addServantLocator(new DefaultServantLocator(new NodeServerAdminRouter(_node)), 
+                                _node->getServerAdminCategory());
 
     //
     // Start the platform info thread if needed.
@@ -508,7 +529,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create the node sessions with the registries.
     //
-    _sessions.create(_node);
+    _sessions->create(_node);
 
     //
     // In some tests, we deploy icegridnodes using IceGrid:
@@ -547,13 +568,13 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // Notify the node session manager that the node can start
     // accepting incoming connections.
     //
-    _sessions.activate();
+    _sessions->activate();
 
     string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
     if(!bundleName.empty() || !desc.empty())
     {
         enableInterrupt();
-        if(!_sessions.waitForCreate())
+        if(!_sessions->waitForCreate())
         {
             //
             // Create was interrupted, return true as if the service was
@@ -720,7 +741,10 @@ NodeService::stop()
     //
     // Terminate the node sessions with the registries.
     //
-    _sessions.destroy();
+    if(_sessions.get())
+    {
+        _sessions->destroy();
+    }
 
     //
     // Stop the platform info thread.
@@ -807,8 +831,10 @@ NodeService::usage(const string& appName)
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
         "--nowarn             Don't print any security warnings.\n"
-        "--readonly           Start the collocated master registry in read-only mode."
-        "\n"
+        "--readonly           Start the collocated master registry in read-only mode.\n"
+        "--initdb-from-replica=<replica>\n"
+        "                     Initialize the collocated registry database from the\n"
+        "                     given replica.\n"
         "--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
         "                     Add or update descriptor in file DESCRIPTOR, with\n"
         "                     optional targets.\n";

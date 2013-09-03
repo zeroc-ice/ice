@@ -13,30 +13,28 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionManager::SessionManager()
+SessionManager::SessionManager(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
 {
-}
-
-void
-SessionManager::initQueryObjects(const Ice::LocatorPrx& prx)
-{
-    if(!prx)
+    if(communicator->getDefaultLocator())
     {
-        return;
-    }
+        Ice::ObjectPrx prx = communicator->getDefaultLocator();
 
-    //
-    // Derive the query objects from the locator proxy endpoints.
-    //
-    Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
-    Ice::Identity id = prx->ice_getIdentity();
-    id.name = "Query";
-    QueryPrx query = QueryPrx::uncheckedCast(prx->ice_identity(id));
-    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-    {
-        Ice::EndpointSeq singleEndpoint;
-        singleEndpoint.push_back(*p);
-        _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
+        //
+        // Derive the query objects from the locator proxy endpoints.
+        //
+        Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
+        Ice::Identity id = prx->ice_getIdentity();
+        id.name = "Query";
+        QueryPrx query = QueryPrx::uncheckedCast(prx->ice_identity(id));
+        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        {
+            Ice::EndpointSeq singleEndpoint;
+            singleEndpoint.push_back(*p);
+            _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
+        }
+
+        id.name = "InternalRegistry-Master";
+        _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
     }
 }
 

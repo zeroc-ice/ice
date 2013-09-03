@@ -51,7 +51,7 @@ class NodeSessionManager : public SessionManager
 {
 public:
 
-    NodeSessionManager();
+    NodeSessionManager(const Ice::CommunicatorPtr&);
     
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
@@ -125,7 +125,6 @@ private:
 
     const NodeIPtr _node;
     ThreadPtr _thread;
-    InternalRegistryPrx _master;
     bool _destroyed;
     bool _activated;
 

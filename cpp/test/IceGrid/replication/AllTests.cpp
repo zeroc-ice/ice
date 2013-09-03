@@ -105,6 +105,52 @@ waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bo
 }
 
 void
+waitForReplicaState(const IceGrid::AdminPrx& admin, const std::string& replica, bool up)
+{
+    int nRetry = 0;
+    while(nRetry < maxRetry)
+    {
+        try
+        {
+            if(admin->pingRegistry(replica) == up)
+            {
+                return;
+            }
+        }
+        catch(const RegistryNotExistException&)
+        {
+            if(!up)
+            {
+                return;
+            }
+        }
+
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
+        ++nRetry;
+    }
+
+    try
+    {
+        if(admin->pingRegistry(replica) != up)
+        {
+            cerr << "replica state change timed out:" << endl;
+            cerr << "replica: " << replica << endl;
+            cerr << "state: " << up << endl;
+        }
+    }
+    catch(const RegistryNotExistException&)
+    {
+        if(up)
+        {
+            cerr << "replica state change timed out:" << endl;
+            cerr << "replica: " << replica << endl;
+            cerr << "state: " << up << endl;
+        }
+    }
+
+}
+
+void
 waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool up)
 {
     int nRetry = 0;
@@ -216,7 +262,7 @@ bool
 waitAndPing(const Ice::ObjectPrx& obj)
 {
     int nRetry = 0;
-    while(nRetry < sleepTime)
+    while(nRetry < maxRetry)
     {
         try
         {
@@ -1196,6 +1242,7 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave1Admin->shutdown();
         waitForServerState(admin, "Slave1", false);
         
+        params.clear();
         params["id"] = "Slave1";
         params["port"] = "12051";
         params["replicaName"] = "Master";
@@ -1205,6 +1252,8 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave1Locator = 
             Ice::LocatorPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Locator-Master:default -p 12051"));
         slave1Admin = createAdminSession(slave1Locator, "");
+
+        waitForReplicaState(slave1Admin, "Slave2", true);
 
         ApplicationUpdateDescriptor update;
         update.name = "TestApp";
@@ -1223,9 +1272,17 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave1Admin->shutdown();
         waitForServerState(admin, "Slave1", false);
 
+        params.clear();
         params["id"] = "Slave1";
         params["replicaName"] = "Slave1";
         params["port"] = "12051";
+        instantiateServer(admin, "IceGridRegistry", params);
+
+        params.clear();
+        params["id"] = "Master";
+        params["replicaName"] = "";
+        params["port"] = "12050";
+        params["arg"] = "--initdb-from-replica=Slave2";
         instantiateServer(admin, "IceGridRegistry", params);
 
         admin->startServer("Master");
@@ -1241,7 +1298,13 @@ allTests(const Ice::CommunicatorPtr& comm)
         comm->stringToProxy("test")->ice_locator(slave2Locator)->ice_locatorCacheTimeout(0)->ice_ping();
 
         masterAdmin->stopServer("Server");
-        
+
+        waitForReplicaState(masterAdmin, "Slave1", true);
+        waitForReplicaState(masterAdmin, "Slave2", true);
+
+        ApplicationInfo info = masterAdmin->getApplicationInfo("TestApp");
+        test(info.revision == 2);
+
         masterAdmin->removeApplication("TestApp");
     }
     cout << "ok" << endl;
@@ -1262,20 +1325,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         admin->startServer("Slave3");
         waitForServerState(admin, "Slave3", true);
-        int nRetry = 0;
-        while(nRetry < maxRetry)
-        {
-            try
-            {
-                test(masterAdmin->pingRegistry("Slave3"));
-                break;
-            }
-            catch(const IceGrid::RegistryNotExistException&)
-            {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(sleepTime));
-                ++nRetry;
-            }
-        }
+        waitForReplicaState(masterAdmin, "Slave3", true);
 
         admin->startServer("Node2");
         waitForNodeState(masterAdmin, "Node2", true);

@@ -390,8 +390,8 @@ LocatorRegistryI::setAdapterDirectProxy(const LocatorRegistryI::AdapterSetDirect
             }
 
             adapter->begin_setDirectProxy(proxy, IceGrid::newCallback_Adapter_setDirectProxy(amiCB, 
-                                                        &LocatorRegistryI::AdapterSetDirectProxyCB::response, 
-                                                        &LocatorRegistryI::AdapterSetDirectProxyCB::exception));
+                                              &LocatorRegistryI::AdapterSetDirectProxyCB::response, 
+                                              &LocatorRegistryI::AdapterSetDirectProxyCB::exception));
             return;
         }
         catch(const AdapterNotExistException&)

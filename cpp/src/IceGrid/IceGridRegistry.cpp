@@ -67,12 +67,14 @@ RegistryService::start(int argc, char* argv[], int& status)
 {
     bool nowarn;
     bool readonly;
+    std::string initFromReplica;
 
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("", "nowarn");
     opts.addOpt("", "readonly");
+    opts.addOpt("", "initdb-from-replica", IceUtilInternal::Options::NeedArg);
     
     vector<string> args;
     try
@@ -100,6 +102,10 @@ RegistryService::start(int argc, char* argv[], int& status)
     }
     nowarn = opts.isSet("nowarn");
     readonly = opts.isSet("readonly");
+    if(opts.isSet("initdb-from-replica"))
+    {
+        initFromReplica = opts.optArg("initdb-from-replica");
+    }
 
     if(!args.empty())
     {
@@ -123,7 +129,7 @@ RegistryService::start(int argc, char* argv[], int& status)
 
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
     
-    _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly);
+    _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly, initFromReplica);
     if(!_registry->start())
     {
         return false;
@@ -187,7 +193,9 @@ RegistryService::usage(const string& appName)
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
         "--nowarn             Don't print any security warnings.\n"
-        "--readonly           Start the master registry in read-only mode.";
+        "--readonly           Start the master registry in read-only mode.\n"
+        "--initdb-from-replica=<replica>\n"
+        "                     Initialize the database from the given replica.";
 #ifndef _WIN32
     options.append(
         "\n"

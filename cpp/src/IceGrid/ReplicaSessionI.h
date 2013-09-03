@@ -34,7 +34,8 @@ public:
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
-    virtual void setDatabaseObserver(const DatabaseObserverPrx&, const Ice::Current&);
+    virtual void setDatabaseObserver(const DatabaseObserverPrx&, const IceUtil::Optional<StringLongDict>&, 
+                                     const Ice::Current&);
     virtual void setEndpoints(const StringObjectProxyDict&, const Ice::Current&);
     virtual void registerWellKnownObjects(const ObjectInfoSeq&, const Ice::Current&);
     virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 

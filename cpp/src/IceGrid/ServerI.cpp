@@ -1639,7 +1639,7 @@ ServerI::activate()
         //
         // We first ensure that the application is replicated on all the
         // registries before to start the server. We only do this each
-        // time the server is updated or the initialy loaded on the node.
+        // time the server is updated or initialy loaded on the node.
         //
         if(waitForReplication)
         {
@@ -1656,7 +1656,13 @@ ServerI::activate()
         // Compute the server command line options.
         //
         Ice::StringSeq options;
-        copy(desc->options.begin(), desc->options.end(), back_inserter(options));
+        for(Ice::StringSeq::const_iterator p = desc->options.begin(); p != desc->options.end(); ++p)
+        {
+            if(!p->empty())
+            {
+                options.push_back(*p);
+            }
+        }
         options.push_back("--Ice.Config=" + escapeProperty(_serverDir + "/config/config"));
 
         Ice::StringSeq envs;

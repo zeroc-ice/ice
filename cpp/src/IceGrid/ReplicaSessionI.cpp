@@ -95,7 +95,9 @@ ReplicaSessionI::getTimeout(const Ice::Current&) const
 }
 
 void
-ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const Ice::Current&)
+ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, 
+                                     const IceUtil::Optional<StringLongDict>& slaveSerials,
+                                     const Ice::Current&)
 {
     //
     // If it's a read only master, we don't setup the observer to not
@@ -104,6 +106,45 @@ ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const 
     if(_database->isReadOnly())
     {
         return;
+    }
+
+    //
+    // If the slave provides serials (Ice >= 3.5.1), we check the
+    // serials and disable database synchronization if the slave has
+    // earlier updates.
+    //
+    if(slaveSerials)
+    {
+        StringLongDict masterSerials = _database->getSerials();
+        bool error = false;
+        for(StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
+        {
+            Ice::Long serial = masterSerials[p->first];
+            if(serial < p->second)
+            {
+                error = true;
+                break;
+            }
+        }
+        if(error)
+        {
+            ostringstream os;
+            os << "database from replica `" << _info->name << "' contains earlier updates:\n";
+            for(StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
+            {
+                Ice::Long serial = masterSerials[p->first];
+                os << "database `" << p->first << "': ";
+                os << "master serial = " << serial << ", replica serial = " << p->second << '\n';
+            }
+            os << "(database replication is disabled for this replica, please check the\n";
+            os << " master and slave database with an administrative client and either:\n";
+            os << " - restart the slave with --initdb-from-replica=Master\n";
+            os << " - restart the master with --initdb-from-replica=" << _info->name;
+            
+            Ice::Error out(_traceLevels->logger);
+            out << os.str();
+            throw DeploymentException(os.str());
+        }
     }
 
     int serialApplicationObserver;
@@ -157,7 +198,7 @@ ReplicaSessionI::registerWellKnownObjects(const ObjectInfoSeq& objects, const Ic
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
         _replicaWellKnownObjects = objects;
-        serial = _database->addOrUpdateObjectsInDatabase(objects);
+        serial = _database->addOrUpdateRegistryWellKnownObjects(objects);
     }
 
     //
@@ -284,7 +325,7 @@ ReplicaSessionI::destroyImpl(bool shutdown)
                 _replicaWellKnownObjects.erase(p);
             }
         }
-        _database->removeObjectsInDatabase(_replicaWellKnownObjects);
+        _database->removeRegistryWellKnownObjects(_replicaWellKnownObjects);
     }
 
     if(!shutdown)

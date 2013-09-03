@@ -317,16 +317,17 @@ class SessionManager : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionManager();
+    SessionManager(const Ice::CommunicatorPtr&);
     virtual ~SessionManager();
 
     virtual bool isDestroyed() = 0;
 
 protected:
 
-    void initQueryObjects(const Ice::LocatorPrx&);
     std::vector<IceGrid::QueryPrx> findAllQueryObjects();
 
+    Ice::CommunicatorPtr _communicator;
+    InternalRegistryPrx _master;
     std::vector<IceGrid::QueryPrx> _queryObjects;
 };
 

@@ -27,6 +27,8 @@ public:
     virtual AdaptersWrapperPtr getAdapters(const IceDB::DatabaseConnectionPtr&);
     virtual ObjectsWrapperPtr getObjects(const IceDB::DatabaseConnectionPtr&);
     virtual ObjectsWrapperPtr getInternalObjects(const IceDB::DatabaseConnectionPtr&);
+
+    virtual std::map<std::string, Ice::Long> getSerials() const;
 };
 typedef IceUtil::Handle<FreezeConnectionPool> FreezeConnectionPoolPtr;
 

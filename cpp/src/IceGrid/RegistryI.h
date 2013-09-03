@@ -50,7 +50,7 @@ class RegistryI : public Registry
 {
 public:
 
-    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool, bool);
+    RegistryI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, bool, bool, const std::string&);
     ~RegistryI();
 
     bool start();
@@ -95,15 +95,14 @@ private:
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
-    NodePrxSeq registerReplicas(const InternalRegistryPrx&, 
-                                const std::map<InternalRegistryPrx, RegistryPrx>&, 
-                                const NodePrxSeq&);
+    NodePrxSeq registerReplicas(const InternalRegistryPrx&, const NodePrxSeq&);
     void registerNodes(const InternalRegistryPrx&, const NodePrxSeq&);
     
     const Ice::CommunicatorPtr _communicator;
     const TraceLevelsPtr _traceLevels;
     const bool _nowarn;
     const bool _readonly;
+    const std::string _initFromReplica;
 
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;

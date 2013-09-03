@@ -69,15 +69,21 @@ public:
     int lock(AdminSessionI*, const std::string&);
     void unlock(AdminSessionI*);
 
-    void syncApplications(const ApplicationInfoSeq&);
-    void syncAdapters(const AdapterInfoSeq&);
-    void syncObjects(const ObjectInfoSeq&);
+    void syncApplications(const ApplicationInfoSeq&, Ice::Long);
+    void syncAdapters(const AdapterInfoSeq&, Ice::Long);
+    void syncObjects(const ObjectInfoSeq&, Ice::Long);
 
-    void addApplication(const ApplicationInfo&, AdminSessionI* = 0);
-    void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI* = 0);
-    void syncApplicationDescriptor(const ApplicationDescriptor&, bool, AdminSessionI* = 0);
-    void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI* =0);
-    void removeApplication(const std::string&, AdminSessionI* = 0);
+    ApplicationInfoSeq getApplications(Ice::Long&) const;
+    AdapterInfoSeq getAdapters(Ice::Long&) const;
+    ObjectInfoSeq getObjects(Ice::Long&) const;
+
+    StringLongDict getSerials() const;
+
+    void addApplication(const ApplicationInfo&, AdminSessionI*, Ice::Long = 0);
+    void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI*, Ice::Long = 0);
+    void syncApplicationDescriptor(const ApplicationDescriptor&, bool, AdminSessionI*);
+    void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI*);
+    void removeApplication(const std::string&, AdminSessionI*, Ice::Long = 0);
     ApplicationInfo getApplicationInfo(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
     void waitForApplicationUpdate(const AMD_NodeSession_waitForApplicationUpdatePtr&, const std::string&, int);
@@ -94,7 +100,7 @@ public:
     AllocatableObjectCache& getAllocatableObjectCache();
     AllocatableObjectEntryPtr getAllocatableObject(const Ice::Identity&) const;
 
-    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
+    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, Ice::Long = 0);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&);
 
     void removeAdapter(const std::string&);
@@ -109,11 +115,11 @@ public:
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
     void addObject(const ObjectInfo&);
-    void addOrUpdateObject(const ObjectInfo&);
-    void removeObject(const Ice::Identity&);
+    void addOrUpdateObject(const ObjectInfo&, Ice::Long = 0);
+    void removeObject(const Ice::Identity&, Ice::Long = 0);
     void updateObject(const Ice::ObjectPrx&);
-    int addOrUpdateObjectsInDatabase(const ObjectInfoSeq&);
-    void removeObjectsInDatabase(const ObjectInfoSeq&);
+    int addOrUpdateRegistryWellKnownObjects(const ObjectInfoSeq&);
+    int removeRegistryWellKnownObjects(const ObjectInfoSeq&);
 
     Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
     Ice::ObjectPrx getObjectByType(const std::string&);
@@ -145,11 +151,11 @@ private:
 
     void checkUpdate(const ApplicationHelper&, const ApplicationHelper&, const std::string&, int, bool);
 
-    void saveApplication(const ApplicationInfo&, const IceDB::DatabaseConnectionPtr&);
-    void removeApplication(const std::string&, const IceDB::DatabaseConnectionPtr&);
+    Ice::Long saveApplication(const ApplicationInfo&, const IceDB::DatabaseConnectionPtr&, Ice::Long = 0);
+    Ice::Long removeApplication(const std::string&, const IceDB::DatabaseConnectionPtr&, Ice::Long = 0);
 
     void finishApplicationUpdate(const ApplicationUpdateInfo&, const ApplicationInfo&, const ApplicationHelper&,
-                                 const ApplicationHelper&, AdminSessionI*, bool);
+                                 const ApplicationHelper&, AdminSessionI*, bool, Ice::Long = 0);
 
     void checkSessionLock(AdminSessionI*);
 
@@ -191,10 +197,6 @@ private:
     
     AdminSessionI* _lock;
     std::string _lockUserId;
-    int _applicationSerial;
-    int _replicaApplicationSerial;
-    int _adapterSerial;
-    int _objectSerial;
 
     struct UpdateInfo
     {

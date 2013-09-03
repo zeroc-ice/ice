@@ -214,6 +214,24 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
     return replicas;
 }
 
+ApplicationInfoSeq 
+InternalRegistryI::getApplications(Ice::Long& serial, const Ice::Current&) const
+{
+    return _database->getApplications(serial);
+}
+
+AdapterInfoSeq 
+InternalRegistryI::getAdapters(Ice::Long& serial, const Ice::Current&) const
+{
+    return _database->getAdapters(serial);
+}
+
+ObjectInfoSeq 
+InternalRegistryI::getObjects(Ice::Long& serial, const Ice::Current&) const
+{
+    return _database->getObjects(serial);
+}
+
 void
 InternalRegistryI::shutdown(const Ice::Current& /*current*/) const
 {
