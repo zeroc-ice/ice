@@ -63,7 +63,7 @@ SessionManager::findAllQueryObjects()
 
     map<Ice::Identity, QueryPrx> proxies;
     vector<Ice::AsyncResultPtr> results;
-    int previousSize = 0;
+    size_t previousSize = 0;
     do
     {
         for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
