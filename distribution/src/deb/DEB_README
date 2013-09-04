@@ -54,8 +54,8 @@ Now we will install the necessary third-party packages from the Ubuntu
 Software repository:
 
   sudo apt-get install libmcpp-dev libbz2-dev libexpat1-dev libssl-dev \
-    db5.3.21-devel proguard libjgoodies-common-java libjgoodies-forms-java \
-    libjgoodies-looks-java db5.3.21-java ant python2.7-dev ruby1.9.1-dev \
+    libdb5.3-dev proguard libjgoodies-common-java libjgoodies-forms-java \
+    libjgoodies-looks-java libdb5.3-java ant python2.7-dev ruby1.9.1-dev \
     mono-devel php5-dev
 
 To be able to build the IceGrid Admin administrative console you, also
