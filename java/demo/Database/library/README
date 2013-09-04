@@ -54,15 +54,15 @@ Building the demo
    JDBC.Username=USER
    JDBC.Password=PASSWORD
 
-NOTES: 
+NOTES:
       These instructions assume that the demo server runs on the same
       host as the mysql server. If you intend to run the demo server on
       a different host than the mysql server, you will need to revise
       the mysql privileges as well as the JDBC URL in config.server.
 
-      In order to get correct results when using multiple concurrent 
-      clients, you need to use the SERIALIZABLE isolation level. Refer 
-      to the mysql documentation for instructions on how to set the 
+      In order to get correct results when using multiple concurrent
+      clients, you need to use the SERIALIZABLE isolation level. Refer
+      to the mysql documentation for instructions on how to set the
       isolation level:
 
       http://dev.mysql.com/doc/refman/5.0/en/set-transaction.html
@@ -114,9 +114,10 @@ database.
 SSL Certificates for IceTouch
 -----------------------------
 
-If you want to use this server with the clients provide in Ice Touch, you will
-need to replace the server and glacier certificates used by this demo, with 
-the certificates provided in Ice Touch distribution.
+If you want to use this server with Ice Touch clients, you will need
+to replace the server and Glacier2 certificates used by this demo with
+the certificates included in the Ice Touch distribution.
 
-To do that just update the IceSSL.DefaultDir property in glacier2 and server
-configuration files to point to the certs directory of the Ice Touch distribution.
+The simplest solution is to update the IceSSL.DefaultDir property in
+the Glacier2 and server configuration files to point to the certs
+directory of the Ice Touch distribution.
