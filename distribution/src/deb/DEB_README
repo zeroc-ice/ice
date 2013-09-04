@@ -58,10 +58,17 @@ Software repository:
     libjgoodies-looks-java libdb5.3-java ant python2.7-dev ruby1.9.1-dev \
     mono-devel php5-dev
 
-To be able to build the IceGrid Admin administrative console you, also
-need to install Oracle Java 7. There are several ways to get Oracle
-Java 7 installed in Ubuntu, but the simplest is to use the webupd8team
-ppa repository:
+A Java Development Kit is also required. We recommend that you use
+Oracle Java 7 to build Ice because the Metrics Graph feature of the
+IceGrid Administrative console requires JavaFX. If you build Ice using
+another Java 7 JDK, or any Java 6 JDK, the Metrics Graph functionality
+will not be available.
+
+Note: The resulting JAR files produced by the build are compatible
+with Java 6 regardless of the JDK you use.
+
+There are several ways to get Oracle Java 7 installed in Ubuntu, but
+the simplest is to use the webupd8team ppa repository:
 
   sudo add-apt-repository ppa:webupd8team/java
   sudo apt-get update
