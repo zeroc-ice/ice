@@ -395,6 +395,7 @@ fixGitAttributes(True, False, ["/distribution",
                                "*.vcproj",
                                "*.vcxproj",
                                "*.vcxproj.filters",
+                               "Makefile.core",
                                "Make*mak*",
                                "Make.rules.msvc",
                                ".depend.mak",
@@ -471,7 +472,7 @@ move("demoscript", os.path.join(demoscriptDir, "demoscript")) # Move the demoscr
 # and the associated top level demo script.
 move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
 
-fixGitAttributes(True, True, ["/distribution", "/demoscript", "allDemos.py"])
+fixGitAttributes(True, True, ["/distribution", "/demoscript", "allDemos.py", "Makefile.core"])
 
 # Don't remove Makefile from the Windows distribution since the
 # mingw build requires it.
