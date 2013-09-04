@@ -445,9 +445,12 @@ RegistryI::startImpl()
         {
             Ice::Long serial;
             IceGrid::InternalRegistryPrx registry = IceGrid::InternalRegistryPrx::checkedCast(proxy);
-            _database->syncApplications(registry->getApplications(serial), serial);
-            _database->syncAdapters(registry->getAdapters(serial), serial);
-            _database->syncObjects(registry->getObjects(serial), serial);
+	    ApplicationInfoSeq applications = registry->getApplications(serial);
+            _database->syncApplications(applications, serial);
+	    AdapterInfoSeq adapters = registry->getAdapters(serial);
+            _database->syncAdapters(adapters, serial);
+	    ObjectInfoSeq objects = registry->getObjects(serial);
+            _database->syncObjects(objects, serial);
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1482,11 +1485,12 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
                     break;
                 }
             }
+	    ObjectInfoSeq infos;
             if(registry)
             {
                 try
                 {
-                    _database->removeObject(registry->ice_getIdentity());
+		    infos.push_back(_database->getObjectInfo(registry->ice_getIdentity()));
                 }
                 catch(const ObjectNotRegisteredException&)
                 {
@@ -1494,12 +1498,13 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
             }
             try
             {
-                _database->removeObject(replica->ice_getIdentity());
+	        infos.push_back(_database->getObjectInfo(replica->ice_getIdentity()));
             }
             catch(const ObjectNotRegisteredException&)
             {
             }
-            
+	    _database->removeRegistryWellKnownObjects(infos);
+
             if(_traceLevels && _traceLevels->replica > 1)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);

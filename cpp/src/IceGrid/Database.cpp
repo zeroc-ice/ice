@@ -328,9 +328,9 @@ Database::syncAdapters(const AdapterInfoSeq& adapters, Ice::Long dbSerial)
             }
         }
 
-        if(_traceLevels->application > 0)
+        if(_traceLevels->adapter > 0)
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+            Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
             out << "synchronized adapters (serial = `" << dbSerial << "')";
         }
 
@@ -372,9 +372,9 @@ Database::syncObjects(const ObjectInfoSeq& objects, Ice::Long dbSerial)
             }
         }
 
-        if(_traceLevels->application > 0)
+        if(_traceLevels->object > 0)
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+            Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
             out << "synchronized objects (serial = `" << dbSerial << "')";
         }
 
@@ -560,7 +560,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
     if(_traceLevels->application > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
-        out << "added application `" << info.descriptor.name << "'";
+        out << "added application `" << info.descriptor.name << "' (serial = `" << dbSerial << "')";
     }
     finishUpdating(info.descriptor.name);
 }
@@ -767,7 +767,7 @@ Database::removeApplication(const string& name, AdminSessionI* session, Ice::Lon
     if(_traceLevels->application > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
-        out << "removed application `" << name << "'";
+        out << "removed application `" << name << "' (serial = `" << dbSerial << "')";
     }
 
     finishUpdating(name);
@@ -928,6 +928,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
             {
                 out << " with replica group `" << replicaGroupId << "'";
             }
+	    out << " (serial = `" << dbSerial << "')";
         }
     
         if(proxy)
@@ -1041,7 +1042,7 @@ Database::removeAdapter(const string& adapterId)
         if(_traceLevels->adapter > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-            out << "removed " << (infos.empty() ? "adapter" : "replica group") << " `" << adapterId << "'";
+            out << "removed " << (infos.empty() ? "adapter" : "replica group") << " `" << adapterId << "' (serial = `" << dbSerial << "')";
         }
         
         if(infos.empty())
@@ -1216,7 +1217,7 @@ Database::addObject(const ObjectInfo& info)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "added object `" << _communicator->identityToString(id) << "'";
+            out << "added object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1280,7 +1281,7 @@ Database::addOrUpdateObject(const ObjectInfo& info, Ice::Long dbSerial)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id) << "'";
+            out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1342,7 +1343,7 @@ Database::removeObject(const Ice::Identity& id, Ice::Long dbSerial)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "removed object `" << _communicator->identityToString(id) << "'";
+            out << "removed object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1409,7 +1410,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "updated object `" << _communicator->identityToString(id) << "'";
+            out << "updated object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -2443,6 +2444,11 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
         }
     }
 
+    if(_traceLevels->application > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+        out << "updated application `" << update.descriptor.name << "' (serial = `" << dbSerial << "')";
+    }
     finishUpdating(update.descriptor.name);
 }
 
