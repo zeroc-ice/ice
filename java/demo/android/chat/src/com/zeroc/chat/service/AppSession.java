@@ -69,11 +69,23 @@ public class AppSession
             plugin.setTruststoreStream(certStream);
             _communicator.getPluginManager().initializePlugins();
             
-            s = "Glacier2/router -e 1.0:ssl -p 4064 -h " + hostname + " -t 10000";
+            //
+            // BUGFIX: When connecting to demo.zeroc.com in secure mode, we should connect to the
+            // glacier2 listening in port 5064 that use the new SSL certificates included in this
+            // distribution.
+            //
+            if(hostname.equals("demo.zeroc.com"))
+            {
+                s = "Glacier2/router:ssl -p 5064 -h " + hostname + " -t 10000";
+            }
+            else
+            {
+                s = "Glacier2/router:ssl -p 4064 -h " + hostname + " -t 10000";
+            }
         }
         else
         {
-            s = "Glacier2/router -e 1.0:tcp -p 4502 -h " + hostname + " -t 10000";
+            s = "Glacier2/router:tcp -p 4502 -h " + hostname + " -t 10000";
         }
 
         Ice.ObjectPrx proxy = _communicator.stringToProxy(s);

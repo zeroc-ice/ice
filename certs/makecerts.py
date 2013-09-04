@@ -381,7 +381,7 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
         if e.output.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
             print("")
             print("WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format.")
-            print("         You can download BKS provider from http://www.bouncycastle.org/latest_releases.html.")
+            print("         You can download BKS provider from http://www.bouncycastle.org/download/bcprov-jdk15on-146.jar.")
             print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE")
             print("         and run this script again.")
             print("")

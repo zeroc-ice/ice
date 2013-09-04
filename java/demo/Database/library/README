@@ -109,3 +109,14 @@ $ java Client books
 
 Omit the "books" argument if you have already populated the server's
 database.
+
+
+SSL Certificates for IceTouch
+-----------------------------
+
+If you want to use this server with the clients provide in Ice Touch, you will
+need to replace the server and glacier certificates used by this demo, with 
+the certificates provided in Ice Touch distribution.
+
+To do that just update the IceSSL.DefaultDir property in glacier2 and server
+configuration files to point to the certs directory of the Ice Touch distribution.

@@ -275,7 +275,8 @@ fixGitAttributes(False, True, [])
 createDistfiles("Windows", winDistFilesDir)
 
 ###### UNIX core source code distribution
-fixGitAttributes(True, False, ["allDemos.py",
+fixGitAttributes(True, False, ["/certs/cakey.pem",
+                               "allDemos.py",
                                "expect.py",
                                "/allTests.py",
                                "/distribution/",
@@ -386,7 +387,8 @@ for root, dirnames, filesnames in os.walk("."):
              "IcePatch2", "IceStorm"])
 
 ###### UNIX source code distribution
-fixGitAttributes(True, False, ["/distribution",
+fixGitAttributes(True, False, ["/certs/cakey.pem",
+                               "/distribution",
                                "/vsaddin",
                                "*.rc",
                                "*.sln",
@@ -472,7 +474,12 @@ move("demoscript", os.path.join(demoscriptDir, "demoscript")) # Move the demoscr
 # and the associated top level demo script.
 move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
 
-fixGitAttributes(True, True, ["/distribution", "/demoscript", "allDemos.py", "Makefile.core"])
+
+fixGitAttributes(True, True, ["/distribution",
+                              "/demoscript",
+                              "allDemos.py",
+                              "/certs/cakey.pem",
+                              "Makefile.core"])
 
 # Don't remove Makefile from the Windows distribution since the
 # mingw build requires it.
