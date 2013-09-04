@@ -31,8 +31,8 @@ Plugin.cpp
 ProcessF.cpp
 Process.cpp
 PropertiesF.cpp
-Properties.cpp
 PropertiesAdmin.cpp
+Properties.cpp
 RouterF.cpp
 Router.cpp
 ServantLocatorF.cpp
@@ -71,6 +71,7 @@ Plugin.h
 ProcessF.h
 Process.h
 PropertiesF.h
+PropertiesAdmin.h
 Properties.h
 RouterF.h
 Router.h

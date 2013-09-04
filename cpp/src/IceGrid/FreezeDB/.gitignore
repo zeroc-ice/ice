@@ -7,3 +7,5 @@ IdentityObjectInfoDict.h
 IdentityObjectInfoDict.cpp
 StringAdapterInfoDict.h
 StringAdapterInfoDict.cpp
+SerialsDict.h
+SerialsDict.cpp
