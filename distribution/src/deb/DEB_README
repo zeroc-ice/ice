@@ -54,14 +54,14 @@ Now we will install the necessary third-party packages from the Ubuntu
 Software repository:
 
   sudo apt-get install libmcpp-dev libbz2-dev libexpat1-dev libssl-dev \
-    libdb5.3-dev proguard libjgoodies-common-java libjgoodies-forms-java \
+    libdb5.3++-dev proguard libjgoodies-common-java libjgoodies-forms-java \
     libjgoodies-looks-java libdb5.3-java ant python2.7-dev ruby1.9.1-dev \
     mono-devel php5-dev
 
 To be able to build the IceGrid Admin administrative console you, also
 need to install Oracle Java 7. There are several ways to get Oracle
-Java 7 installed in Ubuntu, but the simplest is to use webupd8team ppa
-repository:
+Java 7 installed in Ubuntu, but the simplest is to use the webupd8team
+ppa repository:
 
   sudo add-apt-repository ppa:webupd8team/java
   sudo apt-get update
