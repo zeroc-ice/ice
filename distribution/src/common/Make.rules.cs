@@ -40,7 +40,7 @@ else
         export PKG_CONFIG_PATH := $(ice_dir)/lib/pkgconfig:$(PKG_CONFIG_PATH)
         ref = -pkg:$(1)
     else
-        ref = -r:$(ice_dir)/bin/$(1).dll
+        ref = -r:$(ice_dir)/Assemblies/$(1).dll
     endif
 endif
 
