@@ -895,16 +895,47 @@ namespace IceSSL
                 result = 0;
                 for(int i = 0; i < arr.Length; ++i)
                 {
+                    string protocol = null;
                     string s = arr[i].ToUpperInvariant();
-                    if(s.Equals("SSL3") || s.Equals("SSLV3"))
+                    switch(s)
                     {
-                        result |= SslProtocols.Ssl3;
+                        case "SSL3":
+                        case "SSLV3":
+                        {
+                            protocol = "Ssl3";
+                            break;
+                        }
+                        case "TLS":
+                        case "TLS1":
+                        case "TLSV1":
+                        {
+                            protocol = "Tls";
+                            break;
+                        }
+                        case "TLS1_1": 
+                        case "TLSV1_1":
+                        {
+                            protocol = "Tls11";
+                            break;
+                        }
+                        case "TLS1_2": 
+                        case "TLSV1_2":
+                        {
+                            protocol = "Tls12";
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
                     }
-                    else if(s.Equals("TLS") || s.Equals("TLS1") || s.Equals("TLSV1"))
+
+                    try
                     {
-                        result |= SslProtocols.Tls;
+                        SslProtocols value = (SslProtocols)Enum.Parse(typeof(SslProtocols), protocol);
+                        result |= value;
                     }
-                    else
+                    catch(Exception)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                         e.reason = "IceSSL: unrecognized protocol `" + s + "'";

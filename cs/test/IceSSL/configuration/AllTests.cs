@@ -632,6 +632,51 @@ public class AllTests
                 fact.destroyServer(server);
                 store.Remove(caCert1);
                 comm.destroy();
+                
+                //
+                // This should succeed with .NET 4.5 or greater and fails otherwise
+                //
+                bool is45OrGreater = false;
+                try
+                {
+                    Enum.Parse(typeof(System.Security.Authentication.SslProtocols), "Tls12");
+                    is45OrGreater = true;
+                }
+                catch(Exception)
+                {
+                }
+
+                try
+                {
+                    initData = createClientProps(defaultProperties, testDir, defaultHost);
+                    initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    initData.properties.setProperty("IceSSL.Protocols", "tls1_2");
+                    comm = Ice.Util.initialize(ref args, initData);
+                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, testDir, defaultHost);
+                    d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+                    d["IceSSL.Password"] = "password";
+                    d["IceSSL.VerifyPeer"] = "2";
+                    d["IceSSL.Protocols"] = "tls1_2";
+                    store.Add(caCert1);
+                    server = fact.createServer(d);
+                    server.ice_ping();
+
+                    fact.destroyServer(server);
+                    store.Remove(caCert1);
+                    comm.destroy();
+                }
+                catch(Ice.PluginInitializationException)
+                {
+                    // Expected with .NET < 4.5
+                    test(!is45OrGreater);
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
             }
             Console.Out.WriteLine("ok");
 
