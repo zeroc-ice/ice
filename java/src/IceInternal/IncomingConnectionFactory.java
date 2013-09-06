@@ -331,7 +331,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             return;
         }
         //
-        // Do not warn about connection exceptions here
+        // Do not warn about connection exceptions here. The connection is not yet validated.
         //
     }
 

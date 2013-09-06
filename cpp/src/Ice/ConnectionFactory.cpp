@@ -1539,11 +1539,9 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
         return;
     }
 
-    if(_warn && !dynamic_cast<const Ice::SocketException*>(&ex))
-    {
-        Warning out(_instance->initializationData().logger);
-        out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
-    }
+    //
+    // Do not warn about connection exceptions here. The connection is not yet validated.
+    //
 }
 
 //

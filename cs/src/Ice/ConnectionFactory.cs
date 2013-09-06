@@ -1739,10 +1739,9 @@ namespace IceInternal
                     return;
                 }
 
-                if(_warn && !(ex is Ice.SocketException))
-                {
-                    warning(ex);
-                }
+                //
+                // Do not warn about connection exceptions here. The connection is not yet validated.
+                //
             }
             finally
             {
