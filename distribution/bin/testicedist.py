@@ -27,9 +27,16 @@ def runCommand(cmd, verbose):
 output = None
 report = None
 
-def trace(msg, f):
-    print(msg)
-    f.write(msg + '\n')
+def trace(msg, f, nl = True):
+    if nl:
+        print(msg)
+    else:
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+
+    f.write(msg)
+    if nl:
+        f.write('\n')
     f.flush()
 
 class Platform:
@@ -204,7 +211,7 @@ class Platform:
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
         return "%s %s" % (sys.executable, script)
         
-    def extractSourceArchive(self, compiler, arch, conf, output):
+    def extractSourceArchive(self, compiler, arch, conf):
         if not os.path.exists(os.path.join(self._buildDir, compiler, arch, conf)):
             os.makedirs(os.path.join(self._buildDir, compiler, arch, conf))
         
@@ -217,18 +224,21 @@ class Platform:
             self._sourceDir = os.path.join(self._buildDir, compiler, arch, conf, \
                                            re.sub(".zip", "", os.path.basename(self._archive)))
         else:
-            trace("Invalid Ice source archive `%s'" % self._archive, output)
+            trace("Invalid Ice source archive `%s'" % self._archive, report)
             sys.exit(1)
-        
+              
         if not os.path.exists(self._sourceDir):
+            trace("Extracting %s source archive into %s ... " % \
+              (os.path.basename(self._archive), os.path.basename(self._sourceDir)), report, False)
             if self._archive.endswith(".tar.gz"):
                 runCommand("tar -zxf %s" %(self._archive), self._verbose)
             elif self._archive.endswith(".zip"):
-                zipfile.ZipFile(self._archive).extractall()
+                zipfile.ZipFile(self._archive).extractall()                
+            trace("Ok", report)
         else:
-            trace("%s already exists using it" % self._sourceDir, output)
+            trace("%s already exists using it" % self._sourceDir, report)
             
-    def extractDemoArchive(self, compiler, arch, conf, output):
+    def extractDemoArchive(self, compiler, arch, conf):
         if not os.path.exists(os.path.join(self._buildDir, compiler, arch, conf)):
             os.makedirs(os.path.join(self._buildDir, compiler, arch, conf))
         
@@ -241,29 +251,36 @@ class Platform:
             self._demoDir = os.path.join(self._buildDir, compiler, arch, conf, \
                                            re.sub(".zip", "", os.path.basename(self._demoArchive)))
         else:
-            trace("Invalid Ice source archive `%s'" % self._demoArchive, output)
+            trace("Invalid Ice source archive `%s'" % self._demoArchive, report)
             sys.exit(1)
         
         if not os.path.exists(self._demoDir):
+            trace("Extracting %s demo archive into %s ... " % \
+                  (os.path.basename(self._demoArchive), os.path.basename(self._demoDir)), report, False)
             if self._demoArchive.endswith(".tar.gz"):
                 runCommand("tar -zxf %s" %(self._demoArchive), self._verbose)
                 runCommand("tar -zxf %s" %(self._demoScriptsArchive), self._verbose)
             elif self._demoArchive.endswith(".zip"):
                 zipfile.ZipFile(self._demoArchive).extractall()
                 zipfile.ZipFile(self._demoScriptsArchive).extractall()
+            trace("Ok", report)
         else:
-            trace("%s already exists using it" % self._demoDir, output)
+            trace("%s already exists using it" % self._demoDir, report)
             
-    def buildTestSuite(self, compiler, arch, buildConfiguration, lang, output, report):
+    def buildTestSuite(self, compiler, arch, buildConfiguration, lang):
+            
+        trace("", report)
+        trace("--------------------------------------------------------------------------", report)
+        trace("Building tests compiler: %s arch: %s build configuration: %s lang: %s ... " % \
+              (compiler, arch, buildConfiguration, lang), report, False)
+
         if lang == "py" or lang == "rb":
             #
             # Nothing to build for python or ruby tests.
             #
+            trace("Ok", report)
             return True
             
-        trace("build tests compiler: %s arch: %s buildConfiguration: %s lang: %s" % \
-              (compiler, arch, buildConfiguration, lang), output)
-
         buildDir = None
         command = None
 
@@ -321,13 +338,15 @@ class Platform:
                     output.flush()
                 
                 if p.poll() != 0:
-                    trace("Build tests failed Language %s buildConfiguration: %s" % (lang, buildConfiguration), report)
+                    trace("Failed", report)
                     status = False
+                    trace("--------------------------------------------------------------------------", report)
                     break
-
+        if status:
+            trace("Ok", report)
         return status
 
-    def runTestSuite(self, compiler, arch, buildConfiguration, lang, output, report):
+    def runTestSuite(self, compiler, arch, buildConfiguration, lang):
         os.chdir(os.path.join(self._sourceDir, lang))
         
         env = os.environ.copy()            
@@ -375,6 +394,9 @@ class Platform:
             total = 0
             failures = 0
             
+            
+            trace("Running tests, test configuration: %s ..." % (testConf.name), report)
+              
             p = subprocess.Popen(command, shell = True, stdout = subprocess.PIPE, \
                                 stderr = subprocess.STDOUT, bufsize = 0, env = env)
 
@@ -408,33 +430,29 @@ class Platform:
                 output.write(line)
                 output.write("\n")
                 output.flush()
-                        
-            report.write("Compiler %s arch %s build configuration: %s tests configuration:%s\n" % \
-                         (compiler, arch, buildConfiguration, testConf.name))
-            report.write("Test options: %s" % testConf.options)
-            report.write("Run %s tests\n" % total)
-            report.write("Failues: %s\n" % failures)
+
+            trace("Run %s tests" % total, report)
+            trace("Failures: %s" % failures, report)
 
             if resume:
-                report.write("The following errors occurred:\n")
+                trace("The following errors occurred:", report)
                 for line in resume:
-                    report.write(line + "\n")
-                report.write("\n")
-                report.write("Error details can be found in: `%s'\n" % \
-                                os.path.join(self._buildDir, "output.txt"))
-                                
-            report.flush()
-                                
+                    trace(line, report)
+                trace("Error details can be found in: `%s'" % os.path.join(self._buildDir, "output.txt"), report)
+            trace("--------------------------------------------------------------------------", report)
         
-    def buildDemos(self, compiler, arch, buildConfiguration, lang, output, report, sourceArchive):
+    def buildDemos(self, compiler, arch, buildConfiguration, lang, sourceArchive):
+        trace("", report)
+        trace("--------------------------------------------------------------------------", report)
+        trace("Building demos compiler: %s arch: %s build configuration: %s lang: %s ... " % \
+              (compiler, arch, buildConfiguration, lang), report, False)
+        
         if lang == "py" or lang == "rb":
             #
             # Nothing to build for python or ruby demos.
             #
+            trace("Ok", report)
             return True
-            
-        trace("build demos compiler: %s arch: %s buildConfiguration: %s lang: %s" % \
-              (compiler, arch, buildConfiguration, lang), output)
         
         command = None
         
@@ -486,18 +504,23 @@ class Platform:
                 output.flush()
             
             if p.poll() == 0:
+                trace("Ok", report)
                 return True
             else:
-                trace("Build demos failed Language %s buildConfiguration: %s" % (lang, buildConfiguration), report)
+                trace("Failed", report)
+                trace("--------------------------------------------------------------------------", report)
+                trace("", report)
                 return False
 
-    def runDemos(self, compiler, arch, buildConfiguration, lang, output, report, sourceArchive):
+    def runDemos(self, compiler, arch, buildConfiguration, lang, sourceArchive):
         
         if sourceArchive:
             os.chdir(os.path.join(self._sourceDir, lang))
         else:
             os.chdir(os.path.join(self._demoDir, self.getDemoDir(lang)))
-            
+        
+        trace("Running demos ...", report)
+              
         env = os.environ.copy()
         iceHome = self.getIceHome()
         
@@ -576,11 +599,11 @@ class Platform:
             for compiler in self.getSupportedCompilers():
                 
                 if self._compilers and compiler not in self._compilers:
-                    trace("Skiping compiler: %s, not in --filter-compilers" % compiler, output)
+                    trace("Skiping compiler: %s, not in --filter-compilers" % compiler, report)
                     continue
                 
                 if self._rcompilers and compiler in self._rcompilers:
-                    trace("Skiping compiler: %s, in --rfilter-compilers" % compiler, output)
+                    trace("Skiping compiler: %s, in --rfilter-compilers" % compiler, report)
                     continue
                 
                 for arch in self.getSupportedArchitectures():
@@ -589,21 +612,21 @@ class Platform:
                     errors = []
                     
                     if self._archs and arch not in self._archs:
-                        trace("Skiping arch: %s, not in --filter-archs" % arch, output)
+                        trace("Skiping arch: %s, not in --filter-archs" % arch, report)
                         continue
                             
                     if self._rarchs and arch in self._rarchs:
-                        trace("Skiping arch: %s, in --rfilter-archs" % arch, output)
+                        trace("Skiping arch: %s, in --rfilter-archs" % arch, report)
                         continue
                     
                     for conf in self.getBuildConfigurations(compiler, arch):
 
                         if self._configurations and conf not in self._configurations:
-                            trace("Skiping configuration: %s, not in --filter-configurations" % conf, output)
+                            trace("Skiping configuration: %s, not in --filter-configurations" % conf, report)
                             continue
 
                         if self._rconfigurations and conf in self._rconfigurations:
-                            trace("Skiping configuration: %s, in --rfilter-configurations" % conf, output)
+                            trace("Skiping configuration: %s, in --rfilter-configurations" % conf, report)
                             continue
 
                         if compiler in ["VC90"] and arch in ["amd64"]:
@@ -612,22 +635,22 @@ class Platform:
                         if conf in ["silverlight"] and arch in ["amd64"]:
                             continue
 
-                        self.extractSourceArchive(compiler, arch, conf, output)
+                        self.extractSourceArchive(compiler, arch, conf)
                         for lang in self.getLanguageMappings(compiler, arch, conf):
                             
                             if self._languages and lang not in self._languages:
-                                trace("Skiping language: %s, not in --filter-languages" % lang, output)
+                                trace("Skiping language: %s, not in --filter-languages" % lang, report)
                                 continue
                             
                             if self._rlanguages and lang in self._rlanguages:
-                                trace("Skiping language: %s, in --rfilter-languages" % lang, output)
+                                trace("Skiping language: %s, in --rfilter-languages" % lang, report)
                                 continue
                             
                             if lang == "vb":
                                 continue # No VB tests.
-                            if not self.buildTestSuite(compiler, arch, conf, lang, output, report):
+                            if not self.buildTestSuite(compiler, arch, conf, lang):
                                 continue # Build failed.
-                            self.runTestSuite(compiler, arch, conf, lang, output, report)
+                            self.runTestSuite(compiler, arch, conf, lang)
         else:
             trace("Skiping tests", output)
             
@@ -638,11 +661,6 @@ class Platform:
             for compiler in self.getSupportedCompilers():
 
                 if compiler in ["VC90"] and arch in ["amd64"]:
-                    continue
-                if conf == "silverlight":
-                    #
-                    # Silverlight demos need manual intervention
-                    #
                     continue
 
                 if self._compilers and compiler not in self._compilers:
@@ -667,7 +685,12 @@ class Platform:
                         continue
                     
                     for conf in self.getBuildConfigurations(compiler, arch):
-                        self.extractDemoArchive(compiler, arch, conf, output)
+                        if conf == "silverlight":
+                            #
+                            # Silverlight demos need manual intervention
+                            #
+                            continue
+                        self.extractDemoArchive(compiler, arch, conf)
                         for lang in self.getLanguageMappings(compiler, arch, conf):
                             
                             if lang == "php":
@@ -681,26 +704,21 @@ class Platform:
                                 trace("Skiping language: %s, in --rfilter-languages" % lang, output)
                                 continue
                             
-                            if not self.buildDemos(compiler, arch, conf, lang, output, report, False):
+                            if not self.buildDemos(compiler, arch, conf, lang, False):
                                 continue # Build failed.
-                            i, j, k = self.runDemos(compiler, arch, conf, lang, output, report, False)
-                            
-                            total = total + i
-                            failures = failures + j
-                            errors = errors + k
+                            total, failures, errors = self.runDemos(compiler, arch, conf, lang, False)
                         
-                        report.write("Compiler %s arch %s buildConfiguration: %s\n" % (compiler, arch, conf))
-                        report.write("Run %s demo\n" % total)
-                        report.write("Failues: %s\n" % failures)
-                        report.write("\n")
+                            trace("Run %s demo" % total, report)
+                            trace("Failures: %s" % failures, report)
 
-                        if errors:
-                            report.write("The following errors occurred:\n")
-                            for line in errors:
-                                report.write(line + "\n")
-                            report.write("\n")
-                            report.write("Error details can be found in: `%s'\n" % \
-                                         os.path.join(self._buildDir, "output.txt"))
+                            if errors:
+                                trace("The following errors occurred:", report)
+                                for line in errors:
+                                    trace(line, report)
+                                trace("", report)
+                                trace("Error details can be found in: `%s'\n" % \
+                                    os.path.join(self._buildDir, "output.txt"), report)
+                            trace("--------------------------------------------------------------------------", report)
         else:
             trace("Skiping demos", output)
             
@@ -1161,7 +1179,7 @@ if not os.path.exists(os.path.join(buildDir)):
 output = open(os.path.join(buildDir, "output.txt"), "w")
 report = open(os.path.join(buildDir, "report.txt"), "w")
 
-trace("Using `%s' path as build directory" % buildDir, output)
+trace("Using `%s' path as build directory" % buildDir, report)
 
 #
 # We use 40 as default parallel jobs for SunOS and 8 everywhere else
@@ -1181,10 +1199,10 @@ else:
         
 if iceHome == None:
     trace("Unable to detect a valid Ice installation, you can specify a custom installation path with --ice-home", \
-          output)
+          report)
     usage()
     sys.exit(1)
-trace("Using Ice installation from `%s'" % iceHome, output)
+trace("Using Ice installation from `%s'" % iceHome, report)
 
 if sys.platform == "win32":
     sourceArchive = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Ice-%s.zip" % version))
@@ -1192,12 +1210,12 @@ else:
     sourceArchive = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Ice-%s.tar.gz" % version))
 
 if not os.path.exists(sourceArchive):
-    trace("Ice source archive not found in `%s'" % sourceArchive, output)
-    trace(sys.argv[0] + ": you must run testicedist.py from the dist-" + version + " directory created by makedist.py", output)
+    trace("Ice source archive not found in `%s'" % sourceArchive, report)
+    trace(sys.argv[0] + ": you must run testicedist.py from the dist-" + version + " directory created by makedist.py", report)
     usage()
     sys.exit(1)
         
-trace("Using `%s' source archive" % sourceArchive, output)
+trace("Using `%s' source archive" % sourceArchive, report)
 
 
 if sys.platform == "win32":
@@ -1206,12 +1224,12 @@ else:
     demoArchive = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Ice-%s-demos.tar.gz" % version))
 
 if not os.path.exists(demoArchive):
-    trace("Ice demo archive not found in `%s'" % demoArchive, output)
-    trace(sys.argv[0] + ": you must run testicedist.py from the dist-" + version + " directory created by makedist.py", output)
+    trace("Ice demo archive not found in `%s'" % demoArchive, report)
+    trace(sys.argv[0] + ": you must run testicedist.py from the dist-" + version + " directory created by makedist.py", report)
     usage()
     sys.exit(1)
     
-trace("Using `%s' demo archive" % demoArchive, output)
+trace("Using `%s' demo archive" % demoArchive, report)
 
 demoScriptsArchive = os.path.join(os.path.dirname(demoArchive), re.sub("-demos.", "-demo-scripts.", \
                                                                         os.path.basename(demoArchive)))
@@ -1222,7 +1240,7 @@ if testDriver == None:
     if os.path.exists(os.path.join(os.path.dirname(__file__), "..", "..", "tests-driver-%s.cnf" % platformName)):
         testDriver = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tests-driver-%s.cnf" % platformName))
 elif not os.path.exists(testDriver):
-    trace("Test driver file not found in `%s'" % testDriver, output)
+    trace("Test driver file not found in `%s'" % testDriver, report)
     usage()
     sys.exit(1)
 
@@ -1265,7 +1283,7 @@ else:
         
         i = line.find(":")
         if i == -1:
-            trace("Invalid buildConfiguration line `%s' missing ':' delimiter" % line, output)
+            trace("Invalid buildConfiguration line `%s' missing ':' delimiter" % line, report)
             usage()
             sys.exit(1)
             
@@ -1315,7 +1333,7 @@ elif platformName == "linux":
                      rFilterCompilers, rFilterArchs, rFilterConfigurations, skipTests, skipDemos, parallelJobs, \
                      testConfigurations)
 else:
-    trace("Unknown platform: %s" % sys.platform, output)
+    print("Unknown platform: %s" % sys.platform)
     sys.exit(1)
 
 if printLanguages or printCompilers or printArchs:

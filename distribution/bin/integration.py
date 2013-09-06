@@ -137,7 +137,11 @@ class Platform:
         
         self.install(verbose)
         
-        runCommand("python %s/bin/testicedist.py" % self._distfiles, verbose)
+        command = "python %s/bin/testicedist.py" % self._distfiles
+        if sys.platform != "win32" and sys.platform != "darwin":
+            command += " --ice-home=%s" % self.getBinDir()
+            
+        runCommand(command, verbose)
 
         self.uninstall(verbose)
         
