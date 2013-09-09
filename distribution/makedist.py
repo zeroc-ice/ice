@@ -15,10 +15,53 @@ from DistUtils import *
 import FixUtil
 
 #
+# Windows files that will be excluded from Unix source distributions.
+# 
+excludeWindowsFiles = [ \
+    "/vsaddin/",
+    "*.rc",
+    "*.sln",
+    "*.csproj",
+    "*.vbproj",
+    "*.vcproj",
+    "*.vcxproj",
+    "*.vcxproj.filters",
+    "Make*mak*",
+    "Make.rules.msvc",
+    ".depend.mak",
+    "*.exe.config",
+    "MSG00001.bin",
+    "/cpp/test/WinRT",
+    "/cpp/demo/**/generated",
+    "/cpp/demo/**/MFC",
+    "/cpp/**/winrt"
+    "/cs/**/sl",
+    "/cs/**/compact",
+    "/cs/**/cf",
+]
+
+#
+# Unix files that will be excluded from Windows source distributions.
+# 
+excludeUnixFiles = [ \    
+]
+for l in ["/java", "/py", "/php", "/cs", "/cpp/demo"]:
+    excludeUnixFiles += [
+        l + "/**/Makefile",
+        l + "/**/Make.rules.",
+        l + "/**/Make.rules.cs",
+        l + "/**/Make.rules.php",
+        l + "/**/Make.rules",
+        l + "/**/Make.rules.Darwin",
+        l + "/**/Make.rules.Linux",
+        l + "/**/.depend"
+    ]
+
+#
 # Files from the top-level, cpp, java and cs config directories to include in the demo 
 # source distribution config directory.
 #
-configFiles = [ \
+demoConfigFiles = [ \
     "Make.*", \
     "common.xml", \
 ]
@@ -27,7 +70,7 @@ configFiles = [ \
 # Files from the top-level certs directory to include in the demo distribution certs
 # directory.
 #
-certsFiles = [ \
+demoCertsFiles = [ \
     "*.jks", \
     "*.pem", \
     "*.pfx", \
@@ -563,9 +606,9 @@ sys.stdout.flush()
 copy("ICE_LICENSE", demoDir)
 copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS"), demoDir)
 
-copyMatchingFiles(os.path.join("certs"), os.path.join(demoDir, "certs"), certsFiles)
+copyMatchingFiles(os.path.join("certs"), os.path.join(demoDir, "certs"), demoCertsFiles)
 for d in ["", "cpp", "java", "cs"]:
-    copyMatchingFiles(os.path.join(d, "config"), os.path.join(demoDir, "config"), configFiles)
+    copyMatchingFiles(os.path.join(d, "config"), os.path.join(demoDir, "config"), demoConfigFiles)
 
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.cs"), os.path.join(demoDir, "config"), False)
@@ -599,7 +642,7 @@ remove(os.path.join(srcDir, 'vb'))
 # Windows demo distribution
 copy(os.path.join(winDistFilesDir, "src", "common", "README.DEMOS.txt"), os.path.join(winDemoDir, "README.txt"))
 
-copyMatchingFiles(os.path.join(winSrcDir, "certs"), os.path.join(winDemoDir, "certs"), certsFiles)
+copyMatchingFiles(os.path.join(winSrcDir, "certs"), os.path.join(winDemoDir, "certs"), demoCertsFiles)
 
 os.mkdir(os.path.join(winDemoDir, "config"))
 

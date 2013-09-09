@@ -126,7 +126,7 @@ namespace Ice
 
         public Ice.Instrumentation.CommunicatorObserver getObserver()
         {
-            return instance_.initializationData().observer;
+            return instance_.getObserver();
         }
 
         public RouterPrx getDefaultRouter()

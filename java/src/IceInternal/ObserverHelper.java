@@ -17,7 +17,7 @@ public final class ObserverHelper
     static public InvocationObserver
     get(Instance instance, String op)
     {
-        CommunicatorObserver obsv = instance.initializationData().observer;
+        CommunicatorObserver obsv = instance.getObserver();
         if(obsv != null)
         {
             InvocationObserver observer = obsv.getInvocationObserver(null, op, _emptyContext);
@@ -39,8 +39,7 @@ public final class ObserverHelper
     static public InvocationObserver
     get(Ice.ObjectPrx proxy, String op, java.util.Map<String, String> context)
     {
-        CommunicatorObserver obsv = 
-            ((Ice.ObjectPrxHelperBase)proxy).__reference().getInstance().initializationData().observer;
+        CommunicatorObserver obsv = ((Ice.ObjectPrxHelperBase)proxy).__reference().getInstance().getObserver();
         if(obsv != null)
         {
             InvocationObserver observer;

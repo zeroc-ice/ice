@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
+#include <InstrumentationI.h>
 #include <Test.h>
 
 using namespace std;
@@ -368,7 +369,7 @@ toMap(const IceMX::MetricsMap& mmap)
 }
 
 MetricsPrx
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPtr& obsv)
 {
     MetricsPrx metrics = MetricsPrx::checkedCast(communicator->stringToProxy("metrics:default -p 12010"));
 
@@ -1044,6 +1045,40 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch(const IceMX::UnknownMetricsView&)
     {
     }
+
+    cout << "ok" << endl;
+
+    cout << "testing instrumentation observer delegate... " << flush;
+
+    test(obsv->threadObserver->total > 0);
+    test(obsv->connectionObserver->total > 0);
+    test(obsv->connectionEstablishmentObserver->total > 0);
+    test(obsv->endpointLookupObserver->total > 0);
+    test(obsv->dispatchObserver->total > 0);
+    test(obsv->invocationObserver->total > 0);
+    test(obsv->invocationObserver->remoteObserver->total > 0);
+
+    test(obsv->threadObserver->current > 0);
+    test(obsv->connectionObserver->current > 0);
+    test(obsv->connectionEstablishmentObserver->current == 0);
+    test(obsv->endpointLookupObserver->current == 0);
+    test(obsv->dispatchObserver->current == 0);
+    test(obsv->invocationObserver->current == 0);
+    test(obsv->invocationObserver->remoteObserver->current == 0);
+
+    test(obsv->threadObserver->failedCount == 0);
+    test(obsv->connectionObserver->failedCount > 0);
+    test(obsv->connectionEstablishmentObserver->failedCount > 0);
+    test(obsv->endpointLookupObserver->failedCount > 0);
+    //test(obsv->dispatchObserver->failedCount > 0);
+    test(obsv->invocationObserver->failedCount > 0);
+    test(obsv->invocationObserver->remoteObserver->failedCount > 0);
+
+    test(obsv->threadObserver->states > 0);
+    test(obsv->connectionObserver->received > 0 && obsv->connectionObserver->sent > 0);
+    //test(obsv->dispatchObserver->userExceptionCount > 0);
+    test(obsv->invocationObserver->userExceptionCount > 0 && obsv->invocationObserver->retriedCount > 0);
+    test(obsv->invocationObserver->remoteObserver->replySize > 0);
 
     cout << "ok" << endl;
 

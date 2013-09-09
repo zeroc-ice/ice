@@ -93,6 +93,11 @@ public:
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
     Ice::ObjectPtr findAdminFacet(const std::string&);
+
+    const Ice::Instrumentation::CommunicatorObserverPtr& getObserver() const
+    {
+        return _observer;
+    }
     
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {
@@ -157,6 +162,7 @@ private:
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
+    Ice::Instrumentation::CommunicatorObserverPtr _observer;
 };
 
 class ProcessI : public Ice::Process

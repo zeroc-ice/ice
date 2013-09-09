@@ -1128,7 +1128,7 @@ void
 IceInternal::ThreadPool::EventHandlerThread::updateObserver()
 {
     // Must be called with the thread pool mutex locked
-    const CommunicatorObserverPtr& obsv = _pool->_instance->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = _pool->_instance->getObserver();
     if(obsv)
     {
         _observer.attach(obsv->getThreadObserver(_pool->_prefix, name(), _state, _observer.get()));

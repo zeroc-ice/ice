@@ -7,8 +7,23 @@
 //
 // **********************************************************************
 
-package IceMX;
+package test.Ice.metrics;
 
-public class ObserverI extends Observer<Metrics>
+class RemoteObserverI extends ObserverI implements Ice.Instrumentation.RemoteObserver
 {
+    public synchronized void 
+    reset()
+    {
+        super.reset();
+        replySize = 0;
+    }
+
+    public synchronized void
+    reply(int s)
+    {
+        replySize += s;
+    }
+
+    int replySize;
 };
+

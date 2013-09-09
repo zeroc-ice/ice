@@ -217,7 +217,7 @@ public final class OutgoingConnectionFactory
         // Try to establish the connection to the connectors.
         //
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
         java.util.Iterator<ConnectorInfo> q = connectors.iterator();
         ConnectorInfo ci = null;
         while(q.hasNext())
@@ -1212,7 +1212,7 @@ public final class OutgoingConnectionFactory
                 assert(_iter.hasNext());
                 _current = _iter.next();
                 
-                Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.getObserver();
                 if(obsv != null)
                 {
                     _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint, 

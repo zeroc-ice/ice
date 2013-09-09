@@ -531,6 +531,13 @@ public final class Instance
         return result;
     }
 
+    public Ice.Instrumentation.CommunicatorObserver
+    getObserver()
+    {
+        return _observer; // Immutable
+    }
+
+
     public synchronized void
     setDefaultLocator(Ice.LocatorPrx locator)
     {
@@ -817,17 +824,19 @@ public final class Instance
             // Setup the communicator observer only if the user didn't already set an
             // Ice observer resolver and if the admininistrative endpoints are set.
             //
-            if(_initData.observer == null &&
-               (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")) &&
+            if((_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")) &&
                _initData.properties.getProperty("Ice.Admin.Endpoints").length() > 0)
             {
-                CommunicatorObserverI observer = new CommunicatorObserverI(admin);
-                _initData.observer = observer;
+                _observer = new CommunicatorObserverI(admin, _initData.observer);
 
                 //
                 // Make sure the admin plugin receives property updates.
                 //
                 props.addUpdateCallback(admin);
+            }
+            else 
+            {
+                _observer = _initData.observer;
             }
         }
         catch(Ice.LocalException ex)
@@ -882,9 +891,9 @@ public final class Instance
         //
         // Set observer updater
         //
-        if(_initData.observer != null)
+        if(_observer != null)
         {
-            _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
+            _observer.setObserverUpdater(new ObserverUpdaterI(this));
         }
 
         //
@@ -1235,6 +1244,7 @@ public final class Instance
     private final int _clientACM; // Immutable, not reset by destroy().
     private final int _serverACM; // Immutable, not reset by destroy().
     private final Ice.ImplicitContextI _implicitContext;
+    private final Ice.Instrumentation.CommunicatorObserver _observer;
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;

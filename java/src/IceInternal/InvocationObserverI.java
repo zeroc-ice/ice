@@ -11,7 +11,8 @@ package IceInternal;
 
 import IceMX.*;
 
-public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics> 
+public class InvocationObserverI 
+    extends IceMX.ObserverWithDelegate<IceMX.InvocationMetrics, Ice.Instrumentation.InvocationObserver> 
     implements Ice.Instrumentation.InvocationObserver
 {
     static public final class RemoteInvocationHelper extends MetricsHelper<RemoteMetrics>
@@ -117,21 +118,35 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
     userException()
     {
         forEach(_userException);
+        if(_delegate != null)
+        {
+            _delegate.userException();
+        }
     }
 
     public void
     retried()
     {
         forEach(_incrementRetry);
+        if(_delegate != null)
+        {
+            _delegate.retried();
+        }
     }
     
     public Ice.Instrumentation.RemoteObserver 
     getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint edpt, int requestId, int sz)
     {
+        Ice.Instrumentation.RemoteObserver delegate = null;
+        if(_delegate != null)
+        {
+            delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);
+        }
         return (Ice.Instrumentation.RemoteObserver)getObserver("Remote",
                                                                new RemoteInvocationHelper(con, edpt, requestId, sz),
                                                                RemoteMetrics.class, 
-                                                               RemoteObserverI.class);
+                                                               RemoteObserverI.class,
+                                                               delegate);
     }
 
     final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>()

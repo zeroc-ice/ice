@@ -761,7 +761,7 @@ namespace IceInternal
             public void updateObserver()
             {
                 // Must be called with the thread pool mutex locked
-                Ice.Instrumentation.CommunicatorObserver obsv = _threadPool._instance.initializationData().observer;
+                Ice.Instrumentation.CommunicatorObserver obsv = _threadPool._instance.getObserver();
                 if(obsv != null)
                 {
                     _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);

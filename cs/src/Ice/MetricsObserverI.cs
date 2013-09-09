@@ -214,12 +214,12 @@ namespace IceMX
     {
         public delegate void MetricsUpdate(T m);
     
-        public void attach()
+        virtual public void attach()
         {
             Start();
         }
 
-        public void detach()
+        virtual public void detach()
         {
             Stop();
             long lifetime = _previousDelay + (long)(ElapsedTicks / (Frequency / 1000000.0));
@@ -229,7 +229,7 @@ namespace IceMX
             }
         }
 
-        public void failed(string exceptionName)
+        virtual public void failed(string exceptionName)
         {
             foreach(MetricsMap<T>.Entry e in _objects)
             {
@@ -349,7 +349,14 @@ namespace IceMX
             lock(this)
             {
                 List<MetricsMap<T>.Entry> metricsObjects = null;
-                O old = (O)observer;
+                O old = null;
+                try
+                {
+                    old = (O)observer;
+                }
+                catch(InvalidCastException)
+                {
+                }
                 foreach(MetricsMap<T> m in _maps)
                 {
                     MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);

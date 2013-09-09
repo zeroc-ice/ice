@@ -525,11 +525,11 @@ Ice::ConnectionI::updateObserver()
         return;
     }
 
-    assert(_instance->initializationData().observer);
-    _observer.attach(_instance->initializationData().observer->getConnectionObserver(initConnectionInfo(),
-                                                                                     _endpoint, 
-                                                                                     toConnectionState(_state),
-                                                                                     _observer.get()));
+    assert(_instance->getObserver());
+    _observer.attach(_instance->getObserver()->getConnectionObserver(initConnectionInfo(),
+                                                                     _endpoint, 
+                                                                     toConnectionState(_state),
+                                                                     _observer.get()));
 }
 
 void
@@ -2188,16 +2188,16 @@ Ice::ConnectionI::setState(State state)
         }
     }
 
-    if(_instance->initializationData().observer)
+    if(_instance->getObserver())
     {
         ConnectionState oldState = toConnectionState(_state);
         ConnectionState newState = toConnectionState(state);
         if(oldState != newState)
         {
-            _observer.attach(_instance->initializationData().observer->getConnectionObserver(initConnectionInfo(),
-                                                                                             _endpoint, 
-                                                                                             newState,
-                                                                                             _observer.get()));
+            _observer.attach(_instance->getObserver()->getConnectionObserver(initConnectionInfo(),
+                                                                             _endpoint, 
+                                                                             newState,
+                                                                             _observer.get()));
         }
         if(_observer && state == StateClosed && _exception.get())
         {

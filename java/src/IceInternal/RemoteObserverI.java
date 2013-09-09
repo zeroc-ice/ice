@@ -9,7 +9,8 @@
 
 package IceInternal;
 
-public class RemoteObserverI extends IceMX.Observer<IceMX.RemoteMetrics> 
+public class RemoteObserverI 
+    extends IceMX.ObserverWithDelegate<IceMX.RemoteMetrics, Ice.Instrumentation.RemoteObserver> 
     implements Ice.Instrumentation.RemoteObserver
 {
     public void
@@ -23,5 +24,9 @@ public class RemoteObserverI extends IceMX.Observer<IceMX.RemoteMetrics>
                         v.replySize += size;
                     }
                 });
+        if(_delegate != null)
+        {
+            _delegate.reply(size);
+        }
     }
 }

@@ -583,16 +583,27 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     public 
     CommunicatorObserverI(IceInternal.MetricsAdminI metrics)
     {
-        _metrics = metrics;
+        this(metrics, null);
+    }
 
-        _connections = new ObserverFactory<ConnectionMetrics, ConnectionObserverI>(metrics, "Connection", 
-                                                                                   ConnectionMetrics.class);
-        _dispatch = new ObserverFactory<DispatchMetrics, DispatchObserverI>(metrics, "Dispatch", DispatchMetrics.class);
-        _invocations = new ObserverFactory<InvocationMetrics, InvocationObserverI>(metrics, "Invocation", 
-                                                                                   InvocationMetrics.class);
-        _threads = new ObserverFactory<ThreadMetrics, ThreadObserverI>(metrics, "Thread", ThreadMetrics.class);
-        _connects = new ObserverFactory<Metrics, ObserverI>(metrics, "ConnectionEstablishment", Metrics.class);
-        _endpointLookups = new ObserverFactory<Metrics, ObserverI>(metrics, "EndpointLookup", Metrics.class);
+    public 
+    CommunicatorObserverI(IceInternal.MetricsAdminI metrics, Ice.Instrumentation.CommunicatorObserver delegate)
+    {
+        _metrics = metrics;
+        _delegate = delegate;
+
+        _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
+            Ice.Instrumentation.ConnectionObserver>(metrics, "Connection", ConnectionMetrics.class);
+        _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
+            Ice.Instrumentation.DispatchObserver>(metrics, "Dispatch", DispatchMetrics.class);
+        _invocations = new ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
+            Ice.Instrumentation.InvocationObserver>(metrics, "Invocation", InvocationMetrics.class);
+        _threads = new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
+            Ice.Instrumentation.ThreadObserver>(metrics, "Thread", ThreadMetrics.class);
+        _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, 
+            Ice.Instrumentation.Observer>(metrics, "ConnectionEstablishment", Metrics.class);
+        _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+            Ice.Instrumentation.Observer>(metrics, "EndpointLookup", Metrics.class);
 
         try
         {
@@ -612,11 +623,17 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             try
             {
-                return _connects.getObserver(new EndpointHelper(endpt, connector), ObserverI.class);
+                Ice.Instrumentation.Observer delegate = null;
+                if(_delegate != null)
+                {
+                    delegate = _delegate.getConnectionEstablishmentObserver(endpt, connector);
+                }
+                return _connects.getObserver(new EndpointHelper(endpt, connector), ObserverWithDelegateI.class, 
+                                             delegate);
             }
             catch(Exception ex)
             {
-                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -629,11 +646,16 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             try
             {
-                return _endpointLookups.getObserver(new EndpointHelper(endpt), ObserverI.class);
+                Ice.Instrumentation.Observer delegate = null;
+                if(_delegate != null)
+                {
+                    delegate = _delegate.getEndpointLookupObserver(endpt);
+                }
+                return _endpointLookups.getObserver(new EndpointHelper(endpt), ObserverWithDelegateI.class, delegate);
             }
             catch(Exception ex)
             {
-                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
 
         }
@@ -642,34 +664,47 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     
     public Ice.Instrumentation.ConnectionObserver 
     getConnectionObserver(Ice.ConnectionInfo c, Ice.Endpoint e, Ice.Instrumentation.ConnectionState s,
-                          Ice.Instrumentation.ConnectionObserver o)
+                          Ice.Instrumentation.ConnectionObserver observer)
     {
         if(_connections.isEnabled())
         {
             try
             {
-                return _connections.getObserver(new ConnectionHelper(c, e, s), o, ConnectionObserverI.class);
+                Ice.Instrumentation.ConnectionObserver delegate = null;
+                ConnectionObserverI o = observer instanceof ConnectionObserverI ? (ConnectionObserverI)observer : null;
+                if(_delegate != null)
+                {
+                    delegate = _delegate.getConnectionObserver(c, e, s, o != null ? o.getDelegate() : observer);
+                }
+                return _connections.getObserver(new ConnectionHelper(c, e, s), o, ConnectionObserverI.class, delegate);
             }
             catch(Exception ex)
             {
-                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
     }
     
     public Ice.Instrumentation.ThreadObserver 
-    getThreadObserver(String parent, String id, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.ThreadObserver o)
+    getThreadObserver(String parent, String id, Ice.Instrumentation.ThreadState s, 
+                      Ice.Instrumentation.ThreadObserver observer)
     {
         if(_threads.isEnabled())
         {
             try
             {
-                return _threads.getObserver(new ThreadHelper(parent, id, s), o, ThreadObserverI.class);
+                Ice.Instrumentation.ThreadObserver delegate = null;
+                ThreadObserverI o = observer instanceof ThreadObserverI ? (ThreadObserverI)observer : null;
+                if(_delegate != null)
+                {
+                    delegate = _delegate.getThreadObserver(parent, id, s, o != null ? o.getDelegate() : observer);
+                }
+                return _threads.getObserver(new ThreadHelper(parent, id, s), o, ThreadObserverI.class, delegate);
             }
             catch(Exception ex)
             {
-                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -682,11 +717,18 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             try
             {
-                return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), InvocationObserverI.class);
+                Ice.Instrumentation.InvocationObserver delegate = null;
+                if(_delegate != null)
+                {
+                    delegate = _delegate.getInvocationObserver(prx, operation, ctx);
+                }
+                return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), 
+                                                InvocationObserverI.class,
+                                                delegate);
             }
             catch(Exception ex)
             {
-                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -699,11 +741,16 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             try
             {
-                return _dispatch.getObserver(new DispatchHelper(c, size), DispatchObserverI.class);
+                Ice.Instrumentation.DispatchObserver delegate = null;
+                if(_delegate != null)
+                {
+                    delegate = _delegate.getDispatchObserver(c, size);
+                }
+                return _dispatch.getObserver(new DispatchHelper(c, size), DispatchObserverI.class, delegate);
             }
             catch(Exception ex)
             {
-                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -726,6 +773,11 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     updater.updateThreadObservers();
                 }
             });
+
+        if(_delegate != null)
+        {
+            _delegate.setObserverUpdater(updater);
+        }
     }
 
     public IceInternal.MetricsAdminI getMetricsAdmin()
@@ -734,10 +786,17 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     }
 
     final private IceInternal.MetricsAdminI _metrics;
-    final private ObserverFactory<ConnectionMetrics, ConnectionObserverI> _connections;
-    final private ObserverFactory<DispatchMetrics, DispatchObserverI> _dispatch;
-    final private ObserverFactory<InvocationMetrics, InvocationObserverI> _invocations;
-    final private ObserverFactory<ThreadMetrics, ThreadObserverI> _threads;
-    final private ObserverFactory<Metrics, ObserverI> _connects;
-    final private ObserverFactory<Metrics, ObserverI> _endpointLookups;
+    final private Ice.Instrumentation.CommunicatorObserver _delegate;
+    final private ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
+        Ice.Instrumentation.ConnectionObserver> _connections;
+    final private ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
+        Ice.Instrumentation.DispatchObserver> _dispatch;
+    final private ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
+        Ice.Instrumentation.InvocationObserver> _invocations;
+    final private ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
+        Ice.Instrumentation.ThreadObserver> _threads;
+    final private ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+        Ice.Instrumentation.Observer> _connects;
+    final private ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+        Ice.Instrumentation.Observer> _endpointLookups;
 }

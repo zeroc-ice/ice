@@ -16,6 +16,101 @@ namespace IceInternal
 
     using IceMX;
 
+    public class ObserverWithDelegate<T, O> : Observer<T>
+        where T : Metrics, new() 
+        where O : Ice.Instrumentation.Observer
+    {
+        override public void
+        attach()
+        {
+            base.attach();
+            if(delegate_ != null)
+            {
+                delegate_.attach();
+            }
+        }
+
+        override public void
+        detach()
+        {
+            base.detach();
+            if(delegate_ != null)
+            {
+                delegate_.detach();
+            }
+        }
+
+        override public void 
+        failed(string exceptionName)
+        {
+            base.failed(exceptionName);
+            if(delegate_ != null)
+            {
+                delegate_.failed(exceptionName);
+            }
+        }
+
+        public O
+        getDelegate()
+        {
+            return delegate_;
+        }
+
+        public void
+        setDelegate(O del)
+        {
+            delegate_ = del;
+        }
+
+        public Observer getObserver<S, ObserverImpl, Observer>(string mapName, MetricsHelper<S> helper, Observer del)
+            where S : Metrics, new()
+            where ObserverImpl : ObserverWithDelegate<S, Observer>, Observer, new()
+            where Observer : Ice.Instrumentation.Observer
+        {
+            ObserverImpl obsv = base.getObserver<S, ObserverImpl>(mapName, helper);
+            if(obsv != null)
+            {
+                obsv.setDelegate(del);
+                return (Observer)obsv;
+            }
+            return del;
+        }
+
+        protected O delegate_;
+    };
+
+    public class ObserverFactoryWithDelegate<T, OImpl, O> : ObserverFactory<T, OImpl>
+        where T : Metrics, new() 
+        where OImpl : ObserverWithDelegate<T, O>, O, new()
+        where O : Ice.Instrumentation.Observer
+    {
+        public ObserverFactoryWithDelegate(IceInternal.MetricsAdminI metrics, string name) : base(metrics, name)
+        {
+        }
+
+        public O getObserver(MetricsHelper<T> helper, O del)
+        {
+            OImpl o = base.getObserver(helper);
+            if(o != null)
+            {
+                o.setDelegate(del);
+                return o;
+            }
+            return del;
+        }
+
+        public O getObserver(MetricsHelper<T> helper, object observer, O del)
+        {
+            OImpl o = base.getObserver(helper, observer);
+            if(o != null)
+            {
+                o.setDelegate(del);
+                return o;
+            }
+            return del;
+        }
+    }
+
     static class AttrsUtil
     {
         public static void
@@ -645,22 +740,31 @@ namespace IceInternal
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    public class ObserverI :Observer<Metrics>
+    public class ObserverWithDelegateI : ObserverWithDelegate<Metrics, Ice.Instrumentation.Observer>
     {
     };
 
-    public class ConnectionObserverI : Observer<ConnectionMetrics>, Ice.Instrumentation.ConnectionObserver
+    public class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, Ice.Instrumentation.ConnectionObserver>,
+        Ice.Instrumentation.ConnectionObserver
     {
         public void sentBytes(int num)
         {
             _sentBytes = num;
             forEach(sentBytesUpdate);
+            if(delegate_ != null)
+            {
+                delegate_.sentBytes(num);
+            }
         }
 
         public void receivedBytes(int num)
         {
             _receivedBytes = num;
             forEach(receivedBytesUpdate);
+            if(delegate_ != null)
+            {
+                delegate_.receivedBytes(num);
+            }
         }
 
         private void sentBytesUpdate(ConnectionMetrics v)
@@ -677,12 +781,17 @@ namespace IceInternal
         private int _receivedBytes;
     };
 
-    public class DispatchObserverI : Observer<DispatchMetrics>, Ice.Instrumentation.DispatchObserver
+    public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, Ice.Instrumentation.DispatchObserver>,
+        Ice.Instrumentation.DispatchObserver
     {
         public void
         userException()
         {
             forEach(userException);
+            if(delegate_ != null)
+            {
+                delegate_.userException();
+            }
         }
 
         public void reply(int size)
@@ -690,6 +799,10 @@ namespace IceInternal
             forEach((DispatchMetrics v) => {
                     v.replySize += size;
                 });
+            if(delegate_ != null)
+            {
+                delegate_.reply(size);
+            }
         }
 
         private void userException(DispatchMetrics v)
@@ -698,35 +811,56 @@ namespace IceInternal
         }
     }
 
-    public class RemoteObserverI : Observer<RemoteMetrics>, Ice.Instrumentation.RemoteObserver
+    public class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, Ice.Instrumentation.RemoteObserver>,
+        Ice.Instrumentation.RemoteObserver
     {
         public void reply(int size)
         {
             forEach((RemoteMetrics v) => {
                     v.replySize += size;
                 });
+            if(delegate_ != null)
+            {
+                delegate_.reply(size);
+            }
         }
     }
 
-    public class InvocationObserverI : Observer<InvocationMetrics>, Ice.Instrumentation.InvocationObserver
+    public class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, Ice.Instrumentation.InvocationObserver>,
+        Ice.Instrumentation.InvocationObserver
     {
         public void
         userException()
         {
             forEach(userException);
+            if(delegate_ != null)
+            {
+                delegate_.userException();
+            }
         }
 
         public void
         retried()
         {
             forEach(incrementRetry);
+            if(delegate_ != null)
+            {
+                delegate_.retried();
+            }
         }
     
         public Ice.Instrumentation.RemoteObserver getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt, 
                                                                     int requestId, int size)
         {
-            return getObserver<RemoteMetrics, RemoteObserverI>("Remote", 
-                                                               new RemoteInvocationHelper(con, endpt, requestId, size));
+            Ice.Instrumentation.RemoteObserver del = null;
+            if(delegate_ != null)
+            {
+                del = delegate_.getRemoteObserver(con, endpt, requestId, size);
+            }
+            return getObserver<RemoteMetrics, RemoteObserverI, 
+                Ice.Instrumentation.RemoteObserver>("Remote", 
+                                                    new RemoteInvocationHelper(con, endpt, requestId, size),
+                                                    del);
         }
 
         private void incrementRetry(InvocationMetrics v)
@@ -740,13 +874,18 @@ namespace IceInternal
         }
     }
 
-    public class ThreadObserverI : Observer<ThreadMetrics>, Ice.Instrumentation.ThreadObserver
+    public class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, Ice.Instrumentation.ThreadObserver>,
+        Ice.Instrumentation.ThreadObserver
     {
         public void stateChanged(Ice.Instrumentation.ThreadState oldState, Ice.Instrumentation.ThreadState newState)
         {
             _oldState = oldState;
             _newState = newState;
             forEach(threadStateUpdate);
+            if(delegate_ != null)
+            {
+                delegate_.stateChanged(oldState, newState);
+            }
         }
 
         private void threadStateUpdate(ThreadMetrics v)
@@ -787,15 +926,27 @@ namespace IceInternal
 
     public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     {
-        public CommunicatorObserverI(IceInternal.MetricsAdminI metrics)
+        public CommunicatorObserverI(IceInternal.MetricsAdminI metrics) : this(metrics, null)
+        {
+        }
+
+        public CommunicatorObserverI(IceInternal.MetricsAdminI metrics, 
+                                     Ice.Instrumentation.CommunicatorObserver del)
         {
             _metrics = metrics;
-            _connections = new ObserverFactory<ConnectionMetrics, ConnectionObserverI>(metrics, "Connection");
-            _dispatch = new ObserverFactory<DispatchMetrics, DispatchObserverI>(metrics, "Dispatch");
-            _invocations = new ObserverFactory<InvocationMetrics, InvocationObserverI>(metrics, "Invocation");
-            _threads = new ObserverFactory<ThreadMetrics, ThreadObserverI>(metrics, "Thread");
-            _connects = new ObserverFactory<Metrics, ObserverI>(metrics, "ConnectionEstablishment");
-            _endpointLookups = new ObserverFactory<Metrics, ObserverI>(metrics, "EndpointLookup");
+            _delegate = del;
+            _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
+                Ice.Instrumentation.ConnectionObserver>(metrics, "Connection");
+            _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
+                Ice.Instrumentation.DispatchObserver>(metrics, "Dispatch");
+            _invocations = new ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
+                Ice.Instrumentation.InvocationObserver>(metrics, "Invocation");
+            _threads = new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
+                Ice.Instrumentation.ThreadObserver>(metrics, "Thread");
+            _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+                Ice.Instrumentation.Observer>(metrics, "ConnectionEstablishment");
+            _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+                Ice.Instrumentation.Observer>(metrics, "EndpointLookup");
 
             try
             {
@@ -811,7 +962,19 @@ namespace IceInternal
         {
             if(_connects.isEnabled())
             {
-                return _connects.getObserver(new EndpointHelper(endpt, connector));
+                try
+                {
+                    Ice.Instrumentation.Observer del = null;
+                    if(_delegate != null)
+                    {
+                        del = _delegate.getConnectionEstablishmentObserver(endpt, connector);
+                    }
+                    return _connects.getObserver(new EndpointHelper(endpt, connector), del);
+                }
+                catch(Exception ex)
+                {
+                    _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                }
             }
             return null;
         }
@@ -820,29 +983,68 @@ namespace IceInternal
         {
             if(_endpointLookups.isEnabled())
             {
-                return _endpointLookups.getObserver(new EndpointHelper(endpt));
+                try
+                {
+                    Ice.Instrumentation.Observer del = null;
+                    if(_delegate != null)
+                    {
+                        del = _delegate.getEndpointLookupObserver(endpt);
+                    }
+                    return _endpointLookups.getObserver(new EndpointHelper(endpt), del);
+                }
+                catch(Exception ex)
+                {
+                    _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                }
             }
             return null;
         }
     
-        public Ice.Instrumentation.ConnectionObserver getConnectionObserver(Ice.ConnectionInfo c, Ice.Endpoint e,
+        public Ice.Instrumentation.ConnectionObserver getConnectionObserver(Ice.ConnectionInfo c, 
+                                                                            Ice.Endpoint e,
                                                                             Ice.Instrumentation.ConnectionState s,
-                                                                            Ice.Instrumentation.ConnectionObserver o)
+                                                                            Ice.Instrumentation.ConnectionObserver obsv)
         {
             if(_connections.isEnabled())
             {
-                return _connections.getObserver(new ConnectionHelper(c, e, s), o);
+                try
+                {
+                    Ice.Instrumentation.ConnectionObserver del = null;
+                    ConnectionObserverI o = obsv is ConnectionObserverI ? (ConnectionObserverI)obsv : null;
+                    if(_delegate != null)
+                    {
+                        del = _delegate.getConnectionObserver(c, e, s, o != null ? o.getDelegate() : obsv);
+                    }
+                    return _connections.getObserver(new ConnectionHelper(c, e, s), obsv, del);
+                }
+                catch(Exception ex)
+                {
+                    _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                }
             }
             return null;
         }
     
         public Ice.Instrumentation.ThreadObserver getThreadObserver(string parent, string id, 
                                                                     Ice.Instrumentation.ThreadState s, 
-                                                                    Ice.Instrumentation.ThreadObserver o)
+                                                                    Ice.Instrumentation.ThreadObserver obsv)
         {
             if(_threads.isEnabled())
             {
-                return _threads.getObserver(new ThreadHelper(parent, id, s), o);
+                try
+                {
+                    Ice.Instrumentation.ThreadObserver del = null;
+                    ThreadObserverI o = obsv is ThreadObserverI ? (ThreadObserverI)obsv : null;
+                    if(_delegate != null)
+                    {
+                        del = _delegate.getThreadObserver(parent, id, s, o != null ? o.getDelegate() : obsv);
+                    }
+                    return _threads.getObserver(new ThreadHelper(parent, id, s), obsv, del);
+                }
+                catch(Exception ex)
+                {
+                    _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                }
             }
             return null;
         }
@@ -852,7 +1054,19 @@ namespace IceInternal
         {
             if(_invocations.isEnabled())
             {
-                return _invocations.getObserver(new InvocationHelper(prx, operation, ctx));
+                try
+                {
+                    Ice.Instrumentation.InvocationObserver del = null;
+                    if(_delegate != null)
+                    {
+                        del = _delegate.getInvocationObserver(prx, operation, ctx);
+                    }
+                    return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), del);
+                }
+                catch(Exception ex)
+                {
+                    _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                }
             }
             return null;
         }
@@ -861,7 +1075,19 @@ namespace IceInternal
         {
             if(_dispatch.isEnabled())
             {
-                return _dispatch.getObserver(new DispatchHelper(c, size));
+                try
+                {
+                    Ice.Instrumentation.DispatchObserver del = null;
+                    if(_delegate != null)
+                    {
+                        del = _delegate.getDispatchObserver(c, size);
+                    }
+                    return _dispatch.getObserver(new DispatchHelper(c, size), del);
+                }
+                catch(Exception ex)
+                {
+                    _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+                }
             }
             return null;
         }
@@ -870,6 +1096,10 @@ namespace IceInternal
         {
             _connections.setUpdater(updater.updateConnectionObservers);
             _threads.setUpdater(updater.updateThreadObservers);
+            if(_delegate != null)
+            {
+                _delegate.setObserverUpdater(updater);
+            }
         }
 
         public IceInternal.MetricsAdminI getMetricsAdmin()
@@ -878,11 +1108,18 @@ namespace IceInternal
         }
 
         readonly private IceInternal.MetricsAdminI _metrics;
-        readonly private ObserverFactory<ConnectionMetrics, ConnectionObserverI> _connections;
-        readonly private ObserverFactory<DispatchMetrics, DispatchObserverI> _dispatch;
-        readonly private ObserverFactory<InvocationMetrics, InvocationObserverI> _invocations;
-        readonly private ObserverFactory<ThreadMetrics, ThreadObserverI> _threads;
-        readonly private ObserverFactory<Metrics, ObserverI> _connects;
-        readonly private ObserverFactory<Metrics, ObserverI> _endpointLookups;
+        readonly private Ice.Instrumentation.CommunicatorObserver _delegate;
+        readonly private ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
+            Ice.Instrumentation.ConnectionObserver> _connections;
+        readonly private ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
+            Ice.Instrumentation.DispatchObserver> _dispatch;
+        readonly private ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
+            Ice.Instrumentation.InvocationObserver> _invocations;
+        readonly private ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
+            Ice.Instrumentation.ThreadObserver> _threads;
+        readonly private ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+            Ice.Instrumentation.Observer> _connects;
+        readonly private ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
+            Ice.Instrumentation.Observer> _endpointLookups;
     }
 }

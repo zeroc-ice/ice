@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <InstrumentationI.h>
 
 DEFINE_TEST("client")
 
@@ -17,10 +18,10 @@ using namespace std;
 using namespace Test;
 
 int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+run(int, char**, const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPtr& observer)
 {
-    MetricsPrx allTests(const Ice::CommunicatorPtr&);
-    MetricsPrx metrics = allTests(communicator);
+    MetricsPrx allTests(const Ice::CommunicatorPtr&, const CommunicatorObserverIPtr&);
+    MetricsPrx metrics = allTests(communicator, observer);
     metrics->shutdown();
     return EXIT_SUCCESS;
 }
@@ -40,8 +41,10 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.MessageSizeMax", "50000");
+        CommunicatorObserverIPtr observer = new CommunicatorObserverI();
+        initData.observer = observer;
         communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
+        status = run(argc, argv, communicator, observer);
     }
     catch(const Ice::Exception& ex)
     {

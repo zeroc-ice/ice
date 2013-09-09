@@ -430,10 +430,6 @@ public:
         _metrics->registerMap<MetricsType>(name, this);
     }
 
-    ObserverFactoryT(const std::string& name) : _name(name)
-    {
-    }
-
     ~ObserverFactoryT()
     {
         if(_metrics)
@@ -446,6 +442,10 @@ public:
     getObserver(const MetricsHelperT<MetricsType>& helper)
     {
         IceUtil::Mutex::Lock sync(*this);
+        if(!_metrics)
+        {
+            return 0;
+        }
 
         typename ObserverImplType::EntrySeqType metricsObjects;
         for(typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
@@ -470,13 +470,18 @@ public:
     template<typename ObserverPtrType> ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
     {
-        if(!observer)
+        ObserverImplPtrType old = ObserverImplPtrType::dynamicCast(observer);
+        if(!observer || !old)
         {
             return getObserver(helper);
         }
 
         IceUtil::Mutex::Lock sync(*this);
-        ObserverImplPtrType old = ObserverImplPtrType::dynamicCast(observer);
+        if(!_metrics)
+        {
+            return 0;
+        }
+
         typename ObserverImplType::EntrySeqType metricsObjects;
         for(typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
         {
@@ -501,6 +506,7 @@ public:
     template<typename SubMapMetricsType> void 
     registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
     {
+        assert(_metrics);
         _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);
     }
 
@@ -514,6 +520,11 @@ public:
         UpdaterPtr updater;
         {
             IceUtil::Mutex::Lock sync(*this);
+            if(!_metrics)
+            {
+                return;
+            }
+
             std::vector<IceInternal::MetricsMapIPtr> maps = _metrics->getMaps(_name);
             _maps.clear();
             for(std::vector<IceInternal::MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
@@ -537,9 +548,16 @@ public:
         _updater = updater;
     }
 
+    void destroy()
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        _metrics = 0;
+        _maps.clear();
+    }
+
 private:
 
-    const IceInternal::MetricsAdminIPtr _metrics;
+    IceInternal::MetricsAdminIPtr _metrics;
     const std::string _name;
     MetricsMapSeqType _maps;
     volatile bool _enabled;

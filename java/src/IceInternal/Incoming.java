@@ -123,7 +123,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _current.ctx.put(first, second);
         }
 
-        CommunicatorObserver obsv = _instance.initializationData().observer;
+        CommunicatorObserver obsv = _instance.getObserver();
         if(obsv != null)
         {
             // Read the parameter encapsulation size.

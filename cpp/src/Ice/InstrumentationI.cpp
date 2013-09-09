@@ -694,48 +694,81 @@ void
 ConnectionObserverI::sentBytes(Int num)
 {
     forEach(add(&ConnectionMetrics::sentBytes, num));
+    if(_delegate)
+    {
+        _delegate->sentBytes(num);
+    }
 }
 
 void 
 ConnectionObserverI::receivedBytes(Int num)
 {
     forEach(add(&ConnectionMetrics::receivedBytes, num));
+    if(_delegate)
+    {
+        _delegate->receivedBytes(num);
+    }
 }
 
 void
 ThreadObserverI::stateChanged(ThreadState oldState, ThreadState newState)
 {
     forEach(ThreadStateChanged(oldState, newState));
+    if(_delegate)
+    {
+        _delegate->stateChanged(oldState, newState);
+    }
+
 }
 
 void
 DispatchObserverI::userException()
 {
     forEach(inc(&DispatchMetrics::userException));
+    if(_delegate)
+    {
+        _delegate->userException();
+    }
 }
 
 void
 DispatchObserverI::reply(Int size)
 {
     forEach(add(&DispatchMetrics::replySize, size));
+    if(_delegate)
+    {
+        _delegate->reply(size);
+    }
 }
 
 void
 RemoteObserverI::reply(Int size)
 {
     forEach(add(&RemoteMetrics::replySize, size));
+    if(_delegate)
+    {
+        _delegate->reply(size);
+    }
 }
 
 void
 InvocationObserverI::retried()
 {
     forEach(inc(&InvocationMetrics::retry));
+    if(_delegate)
+    {
+        _delegate->retried();
+    }
 }
 
 void
 InvocationObserverI::userException()
 {
     forEach(inc(&InvocationMetrics::userException));
+    if(_delegate)
+    {
+        _delegate->userException();
+    }
 }
 
 RemoteObserverPtr
@@ -746,7 +779,14 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
 {
     try
     {
-        return getObserver<RemoteObserverI>("Remote", RemoteInvocationHelper(connection, endpoint, requestId, size));
+        RemoteObserverPtr delegate;
+        if(_delegate)
+        {
+            delegate = _delegate->getRemoteObserver(connection, endpoint, requestId, size);
+        }
+        return getObserver<RemoteObserverI>("Remote", 
+                                            RemoteInvocationHelper(connection, endpoint, requestId, size),
+                                            delegate);
     }
     catch(const exception&)
     {
@@ -754,8 +794,11 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
     return 0;
 }
 
-CommunicatorObserverI::CommunicatorObserverI(const IceInternal::MetricsAdminIPtr& metrics) : 
+CommunicatorObserverI::CommunicatorObserverI(const IceInternal::MetricsAdminIPtr& metrics,
+                                             const Ice::Instrumentation::CommunicatorObserverPtr& delegate) : 
     _metrics(metrics),
+    _logger(metrics->getLogger()),
+    _delegate(delegate),
     _connections(metrics, "Connection"),
     _dispatch(metrics, "Dispatch"),
     _invocations(metrics, "Invocation"),
@@ -771,6 +814,10 @@ CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 {
     _connections.setUpdater(newUpdater(updater, &ObserverUpdater::updateConnectionObservers));
     _threads.setUpdater(newUpdater(updater, &ObserverUpdater::updateThreadObservers));
+    if(_delegate)
+    {
+        _delegate->setObserverUpdater(updater);
+    }
 }
 
 ObserverPtr
@@ -780,11 +827,16 @@ CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointPtr& end
     {
         try
         {
-            return _connects.getObserver(EndpointHelper(endpt, connector));
+            ObserverPtr delegate;
+            if(_delegate)
+            {
+                delegate = _delegate->getConnectionEstablishmentObserver(endpt, connector);
+            }
+            return _connects.getObserver(EndpointHelper(endpt, connector), delegate);
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Error error(_logger);
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -798,11 +850,16 @@ CommunicatorObserverI::getEndpointLookupObserver(const EndpointPtr& endpt)
     {
         try
         {
-            return _endpointLookups.getObserver(EndpointHelper(endpt));
+            ObserverPtr delegate;
+            if(_delegate)
+            {
+                delegate = _delegate->getEndpointLookupObserver(endpt);
+            }
+            return _endpointLookups.getObserver(EndpointHelper(endpt), delegate);
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Error error(_logger);
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -819,11 +876,17 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
     {
         try
         {
-            return _connections.getObserver(ConnectionHelper(con, endpt, state), observer);
+            ConnectionObserverPtr delegate;
+            ConnectionObserverI* o = dynamic_cast<ConnectionObserverI*>(observer.get());
+            if(_delegate)
+            {
+                delegate = _delegate->getConnectionObserver(con, endpt, state, o ? o->getDelegate() : observer);
+            }
+            return _connections.getObserver(ConnectionHelper(con, endpt, state), delegate, observer);
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Error error(_logger);
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -840,11 +903,17 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
     {
         try
         {
-            return _threads.getObserver(ThreadHelper(parent, id, state), observer);
+            ThreadObserverPtr delegate;
+            ThreadObserverI* o = dynamic_cast<ThreadObserverI*>(observer.get());
+            if(_delegate)
+            {
+                delegate = _delegate->getThreadObserver(parent, id, state, o ? o->getDelegate() : observer);
+            }
+            return _threads.getObserver(ThreadHelper(parent, id, state), delegate, observer);
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Error error(_logger);
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -858,11 +927,16 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
     {
         try
         {
-            return _invocations.getObserver(InvocationHelper(proxy, op, ctx));
+            InvocationObserverPtr delegate;
+            if(_delegate)
+            {
+                delegate = _delegate->getInvocationObserver(proxy, op, ctx);
+            }
+            return _invocations.getObserver(InvocationHelper(proxy, op, ctx), delegate);
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Error error(_logger);
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -876,11 +950,16 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
     {
         try
         {
-            return _dispatch.getObserver(DispatchHelper(current, size));
+            DispatchObserverPtr delegate;
+            if(_delegate)
+            {
+                delegate = _delegate->getDispatchObserver(current, size);
+            }
+            return _dispatch.getObserver(DispatchHelper(current, size), delegate);
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Error error(_logger);
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -890,5 +969,18 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
 const IceInternal::MetricsAdminIPtr& 
 CommunicatorObserverI::getMetricsAdmin() const
 {
+    assert(_metrics);
     return _metrics;
+}
+
+void
+CommunicatorObserverI::destroy()
+{
+    _metrics = 0;
+    _connections.destroy();
+    _dispatch.destroy();
+    _invocations.destroy();
+    _threads.destroy();
+    _connects.destroy();
+    _endpointLookups.destroy();
 }

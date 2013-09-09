@@ -9,7 +9,9 @@
 
 package IceInternal;
 
-public class ThreadObserverI extends IceMX.Observer<IceMX.ThreadMetrics> implements Ice.Instrumentation.ThreadObserver
+public class ThreadObserverI 
+    extends IceMX.ObserverWithDelegate<IceMX.ThreadMetrics, Ice.Instrumentation.ThreadObserver> 
+    implements Ice.Instrumentation.ThreadObserver
 {
     public void
     stateChanged(final Ice.Instrumentation.ThreadState oldState, final Ice.Instrumentation.ThreadState newState)
@@ -17,6 +19,10 @@ public class ThreadObserverI extends IceMX.Observer<IceMX.ThreadMetrics> impleme
         _oldState = oldState;
         _newState = newState;
         forEach(_threadStateUpdate);
+        if(_delegate != null)
+        {
+            _delegate.stateChanged(oldState, newState);
+        }
     }
 
     private MetricsUpdate<IceMX.ThreadMetrics> _threadStateUpdate = new MetricsUpdate<IceMX.ThreadMetrics>()

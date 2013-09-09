@@ -592,6 +592,12 @@ namespace IceInternal
             }
         }
 
+        public Ice.Instrumentation.CommunicatorObserver
+        getObserver()
+        {
+            return _observer;
+        }
+
         public void
         setDefaultLocator(Ice.LocatorPrx locator)
         {
@@ -870,17 +876,19 @@ namespace IceInternal
                 // Setup the communicator observer only if the user didn't already set an
                 // Ice observer resolver and if the admininistrative endpoints are set.
                 //
-                if(_initData.observer == null &&
-                   (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics")) &&
+                if((_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics")) &&
                    _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                 {
-                    CommunicatorObserverI observer = new CommunicatorObserverI(admin);
-                    _initData.observer = observer;
+                    _observer = new CommunicatorObserverI(admin, _initData.observer);
 
                     //
                     // Make sure the admin plugin receives property updates.
                     //
                     props.addUpdateCallback(admin);
+                }
+                else
+                {
+                    _observer = initData.observer;
                 }
             }
             catch(Ice.LocalException)
@@ -904,9 +912,9 @@ namespace IceInternal
             //
             // Set observer updater
             //
-            if(_initData.observer != null)
+            if(_observer != null)
             {
-                _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
+                _observer.setObserverUpdater(new ObserverUpdaterI(this));
             }
 
             //
@@ -1265,6 +1273,7 @@ namespace IceInternal
         private int _clientACM; // Immutable, not reset by destroy().
         private int _serverACM; // Immutable, not reset by destroy().
         private Ice.ImplicitContextI _implicitContext; // Immutable
+        private Ice.Instrumentation.CommunicatorObserver _observer; // Immutable
         private RouterManager _routerManager;
         private LocatorManager _locatorManager;
         private ReferenceFactory _referenceFactory;

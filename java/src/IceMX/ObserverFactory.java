@@ -29,14 +29,6 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
             });
     }
 
-    public
-    ObserverFactory(String name, Class<T> cl)
-    {
-        _name = name;
-        _metrics = null;
-        _class = cl;
-    }
-
     public void
     destroy()
     {
@@ -56,7 +48,14 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
     public synchronized O
     getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl)
     {
-        O old = (O)observer;
+        O old = null;
+        try
+        {
+            old = (O)observer;
+        }
+        catch(ClassCastException ex)
+        {
+        }
         java.util.List<MetricsMap<T>.Entry> metricsObjects = null;
         for(MetricsMap<T> m : _maps)
         {

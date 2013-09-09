@@ -18,7 +18,7 @@ public class Client extends test.Util.Application
         Ice.Communicator communicator = communicator();
         try
         {
-            MetricsPrx metrics = AllTests.allTests(communicator, getWriter());
+            MetricsPrx metrics = AllTests.allTests(communicator, getWriter(), _observer);
             metrics.shutdown();
         }
         catch(Ice.UserException ex)
@@ -40,6 +40,7 @@ public class Client extends test.Util.Application
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        initData.observer = _observer;
         return initData;
     }
 
@@ -50,4 +51,6 @@ public class Client extends test.Util.Application
         System.gc();
         System.exit(result);
     }
+
+    private CommunicatorObserverI _observer = new CommunicatorObserverI();
 }

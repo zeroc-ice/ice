@@ -1148,17 +1148,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         // Setup the communicator observer only if the user didn't already set an
         // Ice observer resolver and if the admininistrative endpoints are set.
         //
-        if(!_initData.observer && 
-           (_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()) &&
+        if((_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()) &&
            _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            CommunicatorObserverIPtr observer = new CommunicatorObserverI(_metricsAdmin);
-            _initData.observer = observer;
+            _observer = new CommunicatorObserverI(_metricsAdmin, _initData.observer);
 
             //
             // Make sure the admin plugin receives property updates.
             //
             props->addUpdateCallback(_metricsAdmin);
+        }
+        else
+        {
+            _observer = _initData.observer;
         }
 
         __setNoDelete(false);
@@ -1229,10 +1231,10 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Set observer updater
     //
-    if(_initData.observer)
+    if(_observer)
     {
-        theCollector->updateObserver(_initData.observer);
-        _initData.observer->setObserverUpdater(new ObserverUpdaterI(this));
+        theCollector->updateObserver(_observer);
+        _observer->setObserverUpdater(new ObserverUpdaterI(this));
     }
 
     //
@@ -1398,18 +1400,20 @@ IceInternal::Instance::destroy()
         _retryQueue->destroy();
     }
 
-    if(_initData.observer && theCollector)
+    if(_observer && theCollector)
     {
-        theCollector->clearObserver(_initData.observer);
+        theCollector->clearObserver(_observer);
     }
 
     if(_metricsAdmin)
     {
         _metricsAdmin->destroy();
         _metricsAdmin = 0;
-        if(CommunicatorObserverIPtr::dynamicCast(_initData.observer))
+
+        // Break cyclic reference counts. Don't clear _observer, it's immutable.
+        if(_observer)
         {
-            _initData.observer = 0; // Clear cyclic reference counts.
+            CommunicatorObserverIPtr::dynamicCast(_observer)->destroy(); 
         }
     }
 
@@ -1567,7 +1571,7 @@ IceInternal::Instance::updateThreadObservers()
             _endpointHostResolver->updateObserver();
         }
         assert(theCollector);
-        theCollector->updateObserver(_initData.observer);
+        theCollector->updateObserver(_observer);
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {

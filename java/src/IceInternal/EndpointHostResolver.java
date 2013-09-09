@@ -52,7 +52,7 @@ public class EndpointHostResolver
             }
         }
 
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
         Ice.Instrumentation.Observer observer = null;
         if(obsv != null)
         {
@@ -110,7 +110,7 @@ public class EndpointHostResolver
         entry.endpoint = endpoint;
         entry.callback = callback;
 
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
         if(obsv != null)
         {
             entry.observer = obsv.getEndpointLookupObserver(endpoint);
@@ -240,7 +240,7 @@ public class EndpointHostResolver
     synchronized public void
     updateObserver()
     {
-        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
         if(obsv != null)
         {
             _observer = obsv.getThreadObserver("Communicator",

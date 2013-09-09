@@ -435,7 +435,7 @@ def fixPermission(dest):
 def tarArchive(dir, verbose = False, archiveDir = None):
 
     dist = os.path.basename(dir)
-    sys.stdout.write("   creating " + dist + ".tar.gz ...")
+    sys.stdout.write("   creating " + dist + ".tar.gz... ")
     sys.stdout.flush()
 
     cwd = os.getcwd()
@@ -486,7 +486,7 @@ def untarArchive(archive, verbose = False, archiveDir = None):
 def zipArchive(dir, verbose = False, archiveDir = None):
 
     dist = os.path.basename(dir)
-    sys.stdout.write("   creating " + dist + ".zip ...")
+    sys.stdout.write("   creating " + dist + ".zip... ")
     sys.stdout.flush()
 
     cwd = os.getcwd()

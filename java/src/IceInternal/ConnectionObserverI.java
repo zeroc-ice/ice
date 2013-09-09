@@ -9,7 +9,8 @@
 
 package IceInternal;
 
-public class ConnectionObserverI extends IceMX.Observer<IceMX.ConnectionMetrics> 
+public class ConnectionObserverI 
+    extends IceMX.ObserverWithDelegate<IceMX.ConnectionMetrics, Ice.Instrumentation.ConnectionObserver> 
     implements Ice.Instrumentation.ConnectionObserver
 {
     public void 
@@ -17,6 +18,10 @@ public class ConnectionObserverI extends IceMX.Observer<IceMX.ConnectionMetrics>
     {
         _sentBytes = num;
         forEach(_sentBytesUpdate);
+        if(_delegate != null)
+        {
+            _delegate.sentBytes(num);
+        }
     }
 
     public void 
@@ -24,6 +29,10 @@ public class ConnectionObserverI extends IceMX.Observer<IceMX.ConnectionMetrics>
     {
         _receivedBytes = num;
         forEach(_receivedBytesUpdate);
+        if(_delegate != null)
+        {
+            _delegate.receivedBytes(num);
+        }
     }
 
     private MetricsUpdate<IceMX.ConnectionMetrics> _sentBytesUpdate = new MetricsUpdate<IceMX.ConnectionMetrics>()

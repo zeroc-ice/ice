@@ -592,7 +592,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         _current.ctx.insert(_current.ctx.end(), pr);
     }
 
-    const CommunicatorObserverPtr& obsv = _is->instance()->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = _is->instance()->getObserver();
     if(obsv)
     { 
         // Read the parameter encapsulation size.

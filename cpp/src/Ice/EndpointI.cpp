@@ -139,7 +139,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     }
 
     ObserverHelperT<> observer;
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = _instance->getObserver();
     if(obsv)
     {
         observer.attach(obsv->getEndpointLookupObserver(endpoint));
@@ -201,7 +201,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     entry.endpoint = endpoint;
     entry.callback = callback;
 
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = _instance->getObserver();
     if(obsv)
     {
         entry.observer = obsv->getEndpointLookupObserver(endpoint);
@@ -310,7 +310,7 @@ void
 IceInternal::EndpointHostResolver::updateObserver()
 {
     Lock sync(*this);
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
+    const CommunicatorObserverPtr& obsv = _instance->getObserver();
     if(obsv)
     {
         _observer.attach(obsv->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));

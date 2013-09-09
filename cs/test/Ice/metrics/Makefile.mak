@@ -11,7 +11,7 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe serveramd.exe
 
-C_SRCS		= AllTests.cs Client.cs ..\..\TestCommon\TestApp.cs
+C_SRCS		= AllTests.cs Client.cs InstrumentationI.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= MetricsI.cs Server.cs 
 SAMD_SRCS	= MetricsAMDI.cs Server.cs
 

@@ -21,7 +21,7 @@ public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        Test.MetricsPrx metrics = AllTests.allTests(communicator);
+        Test.MetricsPrx metrics = AllTests.allTests(communicator, _observer);
         metrics.shutdown();
         return 0;
     }
@@ -52,6 +52,7 @@ public class Client
             //
             initData.properties.setProperty("Ice.FactoryAssemblies", "client");
 #endif
+            initData.observer = _observer;
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
@@ -76,4 +77,6 @@ public class Client
 
         return status;
     }
+
+    static CommunicatorObserverI _observer = new CommunicatorObserverI();
 }

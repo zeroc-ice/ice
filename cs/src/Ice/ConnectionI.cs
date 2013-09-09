@@ -325,11 +325,11 @@ namespace Ice
                     return;
                 }
                 
-                Debug.Assert(_instance.initializationData().observer != null);
-                _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
-                                                                                          _endpoint,
-                                                                                          toConnectionState(_state),
-                                                                                          _observer);
+                Debug.Assert(_instance.getObserver() != null);
+                _observer = _instance.getObserver().getConnectionObserver(initConnectionInfo(),
+                                                                          _endpoint,
+                                                                          toConnectionState(_state),
+                                                                          _observer);
                 if(_observer != null)
                 {
                     _observer.attach();
@@ -2062,16 +2062,16 @@ namespace Ice
                 }
             }
 
-            if(_instance.initializationData().observer != null)
+            if(_instance.getObserver() != null)
             {
                 ConnectionState oldState = toConnectionState(_state);
                 ConnectionState newState = toConnectionState(state);
                 if(oldState != newState)
                 {
-                    _observer = _instance.initializationData().observer.getConnectionObserver(initConnectionInfo(),
-                                                                                              _endpoint, 
-                                                                                              newState,
-                                                                                              _observer);
+                    _observer = _instance.getObserver().getConnectionObserver(initConnectionInfo(),
+                                                                              _endpoint, 
+                                                                              newState,
+                                                                              _observer);
                     if(_observer != null)
                     {
                         _observer.attach();

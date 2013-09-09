@@ -16,6 +16,109 @@
 namespace IceInternal
 {
 
+template<typename T, typename O> class ObserverWithDelegateT : public IceMX::ObserverT<T>, virtual public O
+{
+public:
+
+    typedef O ObserverType;
+    typedef typename IceInternal::Handle<O> ObserverPtrType;
+
+    virtual void 
+    attach()
+    {
+        IceMX::ObserverT<T>::attach();
+        if(_delegate)
+        {
+            _delegate->attach();
+        }
+    }
+
+    virtual void 
+    detach()
+    {
+        IceMX::ObserverT<T>::detach();
+        if(_delegate)
+        {
+            _delegate->detach();
+        }
+    }
+
+    virtual void
+    failed(const std::string& exceptionName)
+    {
+        IceMX::ObserverT<T>::failed(exceptionName);
+        if(_delegate)
+        {
+            _delegate->failed(exceptionName);
+        }
+    }
+
+    ObserverPtrType
+    getDelegate() const
+    {
+        return _delegate;
+    }
+
+    void
+    setDelegate(ObserverPtrType delegate)
+    {
+        _delegate = delegate;
+    }
+
+    template<typename ObserverImpl, typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
+    getObserver(const std::string& mapName, const IceMX::MetricsHelperT<ObserverMetricsType>& helper, 
+                const ObserverPtrType& del)
+    {
+        IceInternal::Handle<ObserverImpl> obsv = IceMX::ObserverT<T>::template getObserver<ObserverImpl>(mapName, 
+                                                                                                         helper);
+        if(obsv)
+        {
+            obsv->setDelegate(del);
+            return obsv;
+        }
+        return del;
+    }
+
+protected:
+
+    ObserverPtrType _delegate;
+};
+
+template<typename T> class ObserverFactoryWithDelegateT : public IceMX::ObserverFactoryT<T>
+{
+public:
+
+    ObserverFactoryWithDelegateT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) : 
+        IceMX::ObserverFactoryT<T>(metrics, name)
+    {
+    }
+
+    template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
+    getObserver(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del)
+    {
+        IceInternal::Handle<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper);
+        if(obsv)
+        {
+            obsv->setDelegate(del);
+            return obsv;
+        }
+        return del;
+    }
+
+    template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
+    getObserver(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del, 
+                const ObserverPtrType& old)
+    {
+        IceInternal::Handle<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper, old);
+        if(obsv)
+        {
+            obsv->setDelegate(del);
+            return obsv;
+        }
+        return del;
+    }
+};
+
 template<typename Helper>
 void addEndpointAttributes(typename Helper::Attributes& attrs)
 {
@@ -49,8 +152,8 @@ void addConnectionAttributes(typename Helper::Attributes& attrs)
     addEndpointAttributes<Helper>(attrs);
 }
 
-class ConnectionObserverI : public Ice::Instrumentation::ConnectionObserver, 
-                            public IceMX::ObserverT<IceMX::ConnectionMetrics>
+class ConnectionObserverI : public ObserverWithDelegateT<IceMX::ConnectionMetrics, 
+                                                         Ice::Instrumentation::ConnectionObserver>
 {
 public:
 
@@ -58,16 +161,14 @@ public:
     virtual void receivedBytes(Ice::Int);
 };
 
-class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, 
-                        public IceMX::ObserverT<IceMX::ThreadMetrics>
+class ThreadObserverI : public ObserverWithDelegateT<IceMX::ThreadMetrics, Ice::Instrumentation::ThreadObserver>
 {
 public:
 
     virtual void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState);
 };
 
-class DispatchObserverI : public Ice::Instrumentation::DispatchObserver, 
-                          public IceMX::ObserverT<IceMX::DispatchMetrics>
+class DispatchObserverI : public ObserverWithDelegateT<IceMX::DispatchMetrics, Ice::Instrumentation::DispatchObserver>
 {
 public:
 
@@ -76,14 +177,15 @@ public:
     virtual void reply(Ice::Int);
 };
 
-class RemoteObserverI : public Ice::Instrumentation::RemoteObserver, 
-                        public IceMX::ObserverT<IceMX::RemoteMetrics>
+class RemoteObserverI : public ObserverWithDelegateT<IceMX::RemoteMetrics, Ice::Instrumentation::RemoteObserver>
 {
+public:
+
     virtual void reply(Ice::Int);
 };
 
-class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, 
-                            public IceMX::ObserverT<IceMX::InvocationMetrics>
+class InvocationObserverI : public ObserverWithDelegateT<IceMX::InvocationMetrics, 
+                                                         Ice::Instrumentation::InvocationObserver>
 {
 public:
 
@@ -95,11 +197,15 @@ public:
                                                                       const Ice::EndpointPtr&, Ice::Int, Ice::Int);
 };
 
+typedef ObserverWithDelegateT<IceMX::Metrics, Ice::Instrumentation::Observer> ObserverI;
+
 class ICE_API CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 
-    CommunicatorObserverI(const IceInternal::MetricsAdminIPtr&);
+    CommunicatorObserverI(const IceInternal::MetricsAdminIPtr&,
+                          const Ice::Instrumentation::CommunicatorObserverPtr& = 
+                          Ice::Instrumentation::CommunicatorObserverPtr());
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
  
@@ -126,16 +232,20 @@ public:
 
     const IceInternal::MetricsAdminIPtr& getMetricsAdmin() const;
 
+    void destroy();
+
 private:
 
-    const IceInternal::MetricsAdminIPtr _metrics;
+    IceInternal::MetricsAdminIPtr _metrics;
+    Ice::LoggerPtr _logger;
+    const Ice::Instrumentation::CommunicatorObserverPtr _delegate;
 
-    IceMX::ObserverFactoryT<ConnectionObserverI> _connections;
-    IceMX::ObserverFactoryT<DispatchObserverI> _dispatch;
-    IceMX::ObserverFactoryT<InvocationObserverI> _invocations;
-    IceMX::ObserverFactoryT<ThreadObserverI> _threads;
-    IceMX::ObserverFactoryT<IceMX::ObserverI> _connects;
-    IceMX::ObserverFactoryT<IceMX::ObserverI> _endpointLookups;
+    ObserverFactoryWithDelegateT<ConnectionObserverI> _connections;
+    ObserverFactoryWithDelegateT<DispatchObserverI> _dispatch;
+    ObserverFactoryWithDelegateT<InvocationObserverI> _invocations;
+    ObserverFactoryWithDelegateT<ThreadObserverI> _threads;
+    ObserverFactoryWithDelegateT<ObserverI> _connects;
+    ObserverFactoryWithDelegateT<ObserverI> _endpointLookups;
 };
 typedef IceUtil::Handle<CommunicatorObserverI> CommunicatorObserverIPtr;
 

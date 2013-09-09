@@ -9,13 +9,18 @@
 
 package IceInternal;
 
-public class DispatchObserverI extends IceMX.Observer<IceMX.DispatchMetrics> 
+public class DispatchObserverI 
+    extends IceMX.ObserverWithDelegate<IceMX.DispatchMetrics, Ice.Instrumentation.DispatchObserver> 
     implements Ice.Instrumentation.DispatchObserver
 {
     public void
     userException()
     {
         forEach(_userException);
+        if(_delegate != null)
+        {
+            _delegate.userException();
+        }
     }
 
     public void
@@ -29,6 +34,10 @@ public class DispatchObserverI extends IceMX.Observer<IceMX.DispatchMetrics>
                         v.replySize += size;
                     }
                 });
+        if(_delegate != null)
+        {
+            _delegate.reply(size);
+        }
     }
 
     final MetricsUpdate<IceMX.DispatchMetrics> _userException = new MetricsUpdate<IceMX.DispatchMetrics>()
