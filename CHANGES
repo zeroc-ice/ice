@@ -27,6 +27,11 @@ Changes since version 3.5.0
 General Changes
 ===============
 
+- It's now possible to install an instrumentation observer with the
+  communicator initialization data structure and still have the
+  metrics administrative facet enabled. Previously, installing an
+  observer would disable the metrics facet.
+
 - IceGrid database replication now keeps track of a serial number to
   compare the slave and master databases on startup. A slave database
   with a more recent serial number than the master database will no
