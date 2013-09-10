@@ -153,7 +153,15 @@ Freeze::ConnectionI::__getRefNoSync() const
 
 Freeze::ConnectionI::~ConnectionI()
 {
-    close();
+    try
+    {
+        close();
+    }
+    catch(const DatabaseException& ex)
+    {
+        Ice::Error error(_communicator->getLogger());
+        error << "Freeze: closing connection Freeze.DbEnv: " << _envName << " raised DatabaseException: " << ex.what();
+    }
 }
 
 Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :

@@ -72,7 +72,8 @@ Freeze::MapDb::~MapDb()
         }
         catch(const ::DbException& dx)
         {
-            throw DatabaseException(__FILE__, __LINE__, dx.what());
+            Ice::Error error(_communicator->getLogger());
+            error << "Freeze.Map: closing Db " << _dbName << " raised DbException: " << dx.what();
         }
     }
 }

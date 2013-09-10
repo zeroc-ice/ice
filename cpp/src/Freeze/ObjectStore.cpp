@@ -208,7 +208,15 @@ Freeze::ObjectStoreBase::~ObjectStoreBase()
         
         for(size_t i = 0; i < _indices.size(); ++i)
         {
-            _indices[i]->_impl->close();
+            try
+            {
+                _indices[i]->_impl->close();
+            }
+            catch(const DatabaseException& ex)
+            {
+                Ice::Error error(_communicator->getLogger());
+                error << "Freeze: closing ObjectStore " << _dbName << " raised DatabaseException: " << ex.what();
+            }
         }
         _indices.clear();
     }
