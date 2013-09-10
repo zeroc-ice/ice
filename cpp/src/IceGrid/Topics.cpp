@@ -977,10 +977,10 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
     {
         return -1;
     }
-    updateSerial();
 
     for(ObjectInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
     {
+        updateSerial();
         map<Ice::Identity, ObjectInfo>::iterator q = _objects.find(p->proxy->ice_getIdentity());
         if(q != _objects.end())
         {
@@ -1033,10 +1033,10 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
     {
         return -1;
     }
-    updateSerial();
 
     for(ObjectInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
     {
+        updateSerial();
         _objects.erase(p->proxy->ice_getIdentity());
         try
         {
