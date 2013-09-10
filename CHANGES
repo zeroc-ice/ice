@@ -80,7 +80,7 @@ General Changes
   the "Save" and "Save to File" commands to produce an empty file 
   without report any errors.
 
-- The Visual Studio Add-in now support per configuration extrac compiler
+- The Visual Studio Add-in now support per configuration extra compiler
   options.
   
 
