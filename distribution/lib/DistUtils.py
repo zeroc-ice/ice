@@ -117,7 +117,9 @@ def checkGitVersion():
 def getCommitForTag(tag):
     
     try:
-        commit = subprocess.check_output("git show --show-signature %s" % tag, shell = True)
+        p = os.popen("git show --show-signature %s" % tag)
+        commit = p.read()
+        p.close()
         if type(commit) != str:
             commit = commit.decode()
         commit = commit.split("\n")[0]
