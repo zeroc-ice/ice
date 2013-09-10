@@ -77,6 +77,7 @@ Freeze::ConnectionI::close()
 {
     if(_transaction)
     {
+        cerr << "rollback open transacion on close" << endl;
         _transaction->rollbackInternal(true);
         assert(_transaction == 0);
     }
@@ -153,6 +154,7 @@ Freeze::ConnectionI::__getRefNoSync() const
 
 Freeze::ConnectionI::~ConnectionI()
 {
+    cerr << "ConnectionI dtor" << endl;
     close();
 }
 
