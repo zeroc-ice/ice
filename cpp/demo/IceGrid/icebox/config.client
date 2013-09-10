@@ -7,4 +7,4 @@ Hello.Proxy=hello
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 4061
+Ice.Default.Locator=DemoIceGrid/Locator:default -t 30000 -h localhost -p 4061

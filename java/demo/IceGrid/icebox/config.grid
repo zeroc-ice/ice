@@ -6,14 +6,14 @@ IceGrid.InstanceName=DemoIceGrid
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 4061
+Ice.Default.Locator=DemoIceGrid/Locator:default -t 30000 -h localhost -p 4061
 
 #
 # IceGrid registry configuration.
 #
-IceGrid.Registry.Client.Endpoints=default -h localhost -p 4061
-IceGrid.Registry.Server.Endpoints=default -h localhost
-IceGrid.Registry.Internal.Endpoints=default -h localhost
+IceGrid.Registry.Client.Endpoints=default -t 30000 -h localhost -p 4061
+IceGrid.Registry.Server.Endpoints=default -t 30000 -h localhost
+IceGrid.Registry.Internal.Endpoints=default -t 30000 -h localhost
 
 #
 # Enable the admin session manager for use with Glacier2.
@@ -30,7 +30,7 @@ IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerif
 # IceGrid node configuration.
 #
 IceGrid.Node.Name=node1
-IceGrid.Node.Endpoints=default -h localhost
+IceGrid.Node.Endpoints=default -t 30000 -h localhost
 IceGrid.Node.Data=db/node
 IceGrid.Node.CollocateRegistry=1
 #IceGrid.Node.Output=db

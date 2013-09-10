@@ -1,5 +1,5 @@
-Ice.Default.Locator=DemoIceGrid/Locator:ssl -h localhost -p 4062
-#Ice.Default.Router=DemoGlacier2/router:ssl -h localhost -p 4064
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -h localhost -p 4062 -t 10000
+#Ice.Default.Router=DemoGlacier2/router:ssl -h localhost -p 4064 -t 10000
 
 IceGridAdmin.Username=demo
 IceGridAdmin.Password=dummy
