@@ -205,6 +205,18 @@ def getMappingDir(suffix, mapping):
 #
 # Comment out rules in a Makefile.
 #
+def fixMakefileForFile(path):
+    (dir,file) = os.path.split(path)
+    (base,ext) = os.path.splitext(file)
+    # File the makefile file from the same directory as the file.
+    if os.path.exists(os.path.join(dir, "Makefile")):
+        fixMakefile(os.path.join(dir, "Makefile"), base, ext)
+    if os.path.exists(os.path.join(dir, "Makefile.mak")):
+        fixMakefile(os.path.join(dir, "Makefile.mak"), base, ext)
+
+#
+# Comment out rules in a Makefile.
+#
 def fixMakefile(file, base, ext):
 
     origfile = file + ".orig"
@@ -514,6 +526,36 @@ def zipArchive(dir, verbose = False, archiveDir = None):
     os.chdir(cwd)
     print("ok")
 
+def unzipArchive(archive, verbose = False, archiveDir = None):
+
+    if not os.path.exists(archive):
+        print("couldn't find " + archive)
+        return False
+
+    if verbose:
+        quiet = "v"
+    else:
+        quiet = ""
+
+    if archiveDir:
+        os.mkdir("tmp")
+        os.chdir("tmp")
+        if verbose:
+            os.system("unzip " + os.path.join("..", archive))
+        else:
+            os.system("unzip -q " + os.path.join("..", archive))
+        os.rename(os.listdir(".")[0], os.path.join("..", archiveDir))
+        os.chdir("..")
+        os.rmdir("tmp")
+    else:
+        os.system("gunzip -c " + archive + " | tar x" + quiet + "f -")
+        if verbose:
+            os.system("unzip " + archive)
+        else:
+            os.system("unzip -q " + archive)
+
+    return True
+
 def compareDirs(orig, new):
 
     added = [ ]
@@ -564,31 +606,52 @@ def writeSrcDistReport(product, version, tag, compareToDir, distributions):
     print >>readme, "User: " + os.environ["USER"]
     print >>readme, ""
 
+    def compare(distfile, distdir):
+        distfile = os.path.basename(distfile)
+        (dist, ext) = os.path.splitext(distfile)
+        modifications = ([], [], [])
+
+        if not os.path.exists(os.path.join(compareToDir, distfile)):
+            return
+
+        sys.stdout.write("   comparing " + distfile + "... ")
+        sys.stdout.flush()
+
+        success = False
+        if distfile.endswith(".tar.gz"):
+            success = untarArchive(os.path.join(compareToDir, distfile), False, dist + "-orig")
+        elif distfile.endswith(".zip"):
+            success = unzipArchive(os.path.join(compareToDir, distfile), False, dist + "-orig")
+
+        if success:
+            n = compareDirs(dist + "-orig", distdir)
+            modifications = [ modifications[i] + n[i]  for i in range(len(modifications))]
+            if n != ([], [], []):
+                os.system("diff -r -N " + dist + "-orig " + distdir + " > patch-" + distfile)
+            remove(dist + "-orig")
+
+        print("ok")
+
+        if modifications != ([], [], []):
+            (added, updated, removed) = modifications
+            print >>readme
+            print >>readme
+            print >>readme, "*** Differences for ", distfile
+            print >>readme
+            for (desc, list) in [("Added", added), ("Removed", removed), ("Updated", updated)]:
+                if len(list) > 0:
+                    list.sort()
+                    print >>readme
+                    print >>readme, desc, "files:"
+                    print >>readme, string.join(["=" for c in range(len(desc + " files:"))], '')
+                    for f in list:
+                        print >>readme, f
+
     if compareToDir:
         print
         print >>readme, "Comparison with", compareToDir
-        modifications = ([], [], [])
-        for dist in distributions:
-            dist = os.path.basename(dist)
-            sys.stdout.write("   comparing " + dist + " ...")
-            sys.stdout.flush()
-            if untarArchive(os.path.join(compareToDir, dist) + ".tar.gz", False, dist + "-orig"):
-                n = compareDirs(dist + "-orig", dist)
-                modifications = [ modifications[i] + n[i]  for i in range(len(modifications))]
-                if n != ([], [], []):
-                    os.system("diff -r -N " + dist + "-orig " + dist + " > patch-" + dist)
-                remove(dist + "-orig")
-            print("ok")
-
-        (added, updated, removed) = modifications
-        for (desc, list) in [("Added", added), ("Removed", removed), ("Updated", updated)]:
-            if len(list) > 0:
-                list.sort()
-                print >>readme
-                print >>readme, desc, "files:"
-                print >>readme, string.join(["=" for c in range(len(desc + " files:"))], '')
-                for f in list:
-                    print >>readme, f
+        for (distfile, distdir) in distributions:
+            compare(distfile, distdir)
 
     else:
         print("ok")
