@@ -50,7 +50,7 @@ updateSerialDB(const Freeze::ConnectionPtr& connection, const std::string& dbNam
     SerialsDict::iterator p = dict.find(dbName);
     if(p == dict.end())
     {
-        dict.insert(pair<string, Ice::Long>(dbName, serial == 0 ? 1 : serial));
+        dict.insert(SerialsDict::value_type(dbName, serial == 0 ? 1 : serial));
         return 1;
     }
     else
@@ -72,7 +72,7 @@ getSerialDB(const Freeze::ConnectionPtr& connection, const std::string& dbName)
     SerialsDict::iterator p = dict.find(dbName);
     if(p == dict.end())
     {
-        dict.insert(pair<string, long>(dbName, 1));
+        dict.insert(SerialsDict::value_type(dbName, 1));
         return 1;
     }
     return p->second;
