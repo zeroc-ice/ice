@@ -29,9 +29,6 @@ public class Fallback extends javax.swing.JApplet
             }
             ProcessBuilder pb = new ProcessBuilder(command);
             
-            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-            
             java.util.Map<String, String> env = pb.environment();
             
             String classPath = env.get("CLASSPATH");
