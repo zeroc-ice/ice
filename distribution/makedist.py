@@ -135,7 +135,7 @@ for (o, a) in opts:
         compareToDir = a
 
 cwd = os.getcwd()
-if not os.path.isabs(compareToDir):
+if compareToDir and not os.path.isabs(compareToDir):
     compareToDir = os.path.join(cwd, compareToDir)
 
 gitRepoDir = os.path.join(os.getcwd(), os.path.dirname(__file__), "..")
