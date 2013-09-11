@@ -76,12 +76,12 @@ General Changes
 
 - Added ability to list IceStorm topic subscribers.
 
-- Fixed a bug in the graphical IceGrid administrative tool that cause
+- Fixed a bug in the graphical IceGrid administrative tool that caused
   the "Save" and "Save to File" commands to produce an empty file 
-  without report any errors.
+  without reporting any errors.
 
-- The Visual Studio Add-in now support per configuration extra compiler
-  options.
+- The Visual Studio Add-in now supports configuration-specific
+  compiler options.
   
 
 C++ Changes
@@ -95,7 +95,7 @@ C++ Changes
   listened on a UDP endpoint (one descriptor leaked per UDP endpoint).
 
 - Fixed a bug that could cause an unexpected exception to be thrown on
-  plugin loading when a plugin property specified both a path and
+  plug-in loading when a plug-in property specified both a path and
   version.
 
 - Fixed a bug in slice2cpp that generated invalid C++ code for C++11
@@ -104,8 +104,8 @@ C++ Changes
 - Fixed a bug in slice2cpp that generated invalid C++ code when using
   "cpp:virtual" metadata.
   
-- Fixed a bug in slice2cpp that generate invalid C++ code when a method
-  has more that 10 output parameters.
+- Fixed a bug in slice2cpp that generated invalid C++ code when a
+  Slice operation has more than ten output parameters.
 
 
 Java Changes
