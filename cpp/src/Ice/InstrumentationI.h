@@ -66,8 +66,8 @@ public:
     }
 
     template<typename ObserverImpl, typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
-    getObserver(const std::string& mapName, const IceMX::MetricsHelperT<ObserverMetricsType>& helper, 
-                const ObserverPtrType& del)
+    getObserverWithDelegate(const std::string& mapName, const IceMX::MetricsHelperT<ObserverMetricsType>& helper, 
+                            const ObserverPtrType& del)
     {
         IceInternal::Handle<ObserverImpl> obsv = IceMX::ObserverT<T>::template getObserver<ObserverImpl>(mapName, 
                                                                                                          helper);
@@ -94,7 +94,7 @@ public:
     }
 
     template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
-    getObserver(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del)
+    getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del)
     {
         IceInternal::Handle<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper);
         if(obsv)
@@ -106,8 +106,8 @@ public:
     }
 
     template<typename ObserverMetricsType, typename ObserverPtrType> ObserverPtrType 
-    getObserver(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del, 
-                const ObserverPtrType& old)
+    getObserverWithDelegate(const IceMX::MetricsHelperT<ObserverMetricsType>& helper, const ObserverPtrType& del, 
+                            const ObserverPtrType& old)
     {
         IceInternal::Handle<T> obsv = IceMX::ObserverFactoryT<T>::getObserver(helper, old);
         if(obsv)

@@ -784,9 +784,9 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
         {
             delegate = _delegate->getRemoteObserver(connection, endpoint, requestId, size);
         }
-        return getObserver<RemoteObserverI>("Remote", 
-                                            RemoteInvocationHelper(connection, endpoint, requestId, size),
-                                            delegate);
+        return getObserverWithDelegate<RemoteObserverI>("Remote", 
+                                                        RemoteInvocationHelper(connection, endpoint, requestId, size),
+                                                        delegate);
     }
     catch(const exception&)
     {
@@ -832,7 +832,7 @@ CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointPtr& end
             {
                 delegate = _delegate->getConnectionEstablishmentObserver(endpt, connector);
             }
-            return _connects.getObserver(EndpointHelper(endpt, connector), delegate);
+            return _connects.getObserverWithDelegate(EndpointHelper(endpt, connector), delegate);
         }
         catch(const exception& ex)
         {
@@ -855,7 +855,7 @@ CommunicatorObserverI::getEndpointLookupObserver(const EndpointPtr& endpt)
             {
                 delegate = _delegate->getEndpointLookupObserver(endpt);
             }
-            return _endpointLookups.getObserver(EndpointHelper(endpt), delegate);
+            return _endpointLookups.getObserverWithDelegate(EndpointHelper(endpt), delegate);
         }
         catch(const exception& ex)
         {
@@ -882,7 +882,7 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
             {
                 delegate = _delegate->getConnectionObserver(con, endpt, state, o ? o->getDelegate() : observer);
             }
-            return _connections.getObserver(ConnectionHelper(con, endpt, state), delegate, observer);
+            return _connections.getObserverWithDelegate(ConnectionHelper(con, endpt, state), delegate, observer);
         }
         catch(const exception& ex)
         {
@@ -909,7 +909,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
             {
                 delegate = _delegate->getThreadObserver(parent, id, state, o ? o->getDelegate() : observer);
             }
-            return _threads.getObserver(ThreadHelper(parent, id, state), delegate, observer);
+            return _threads.getObserverWithDelegate(ThreadHelper(parent, id, state), delegate, observer);
         }
         catch(const exception& ex)
         {
@@ -932,7 +932,7 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
             {
                 delegate = _delegate->getInvocationObserver(proxy, op, ctx);
             }
-            return _invocations.getObserver(InvocationHelper(proxy, op, ctx), delegate);
+            return _invocations.getObserverWithDelegate(InvocationHelper(proxy, op, ctx), delegate);
         }
         catch(const exception& ex)
         {
@@ -955,7 +955,7 @@ CommunicatorObserverI::getDispatchObserver(const Current& current, int size)
             {
                 delegate = _delegate->getDispatchObserver(current, size);
             }
-            return _dispatch.getObserver(DispatchHelper(current, size), delegate);
+            return _dispatch.getObserverWithDelegate(DispatchHelper(current, size), delegate);
         }
         catch(const exception& ex)
         {
