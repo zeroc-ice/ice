@@ -19,6 +19,12 @@ if not slice_dir:
 Ice.loadSlice('"-I' + slice_dir + '" TestAMD.ice')
 import Test
 
+#
+# There isn't xrange in python 3.x
+#
+if sys.version_info.major >= 3:
+    xrange = range
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
