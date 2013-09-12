@@ -9,6 +9,12 @@
 
 import Ice, Test, array
 
+#
+# There isn't xrange in python 3.x
+#
+if sys.version_info.major >= 3:
+    xrange = range
+
 class ThrowerI(Test.Thrower):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

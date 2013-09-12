@@ -9,6 +9,12 @@
 
 import Ice, Test, threading, sys, array
 
+#
+# There isn't xrange in python 3.x
+#
+if sys.version_info.major >= 3:
+    xrange = range
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
