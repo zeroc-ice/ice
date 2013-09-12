@@ -1,5 +1,5 @@
 ======================================================================
-CHANGES for Slice2Java Eclipse Plug-in 3.5.0.XXX
+CHANGES for Slice2Java Eclipse Plug-in 3.5.1.XXX
 ======================================================================
 
 This file describes the change history for the Slice2Java Eclipse
@@ -7,16 +7,24 @@ plug-in.
 
 
 ======================================================================
+Changes since version 3.5.0.20130308
+======================================================================
+
+- Fixed a bug in the code that locates the Ice JAR files via the
+  ICE_JAR_HOME classpath variable.
+
+
+======================================================================
 Changes since version 3.5.0.20121212
 ======================================================================
 
- - Fixed the plug-in to report better errors when the Slice translator
-   fails to run.
+- Fixed the plug-in to report better errors when the Slice translator
+  fails to run.
 
- - Renamed ICE_HOME classpath variable as ICE_JAR_HOME. The new 
-   variable points to the directory where Ice JAR files are installed.
-   It allows the project to refer to Ice.jar symbolically as 
-   "ICE_JAR_HOME/Ice.jar".
+- Renamed ICE_HOME classpath variable as ICE_JAR_HOME. The new
+  variable points to the directory where Ice JAR files are installed.
+  It allows the project to refer to Ice.jar symbolically as
+  "ICE_JAR_HOME/Ice.jar".
 
 
 ======================================================================
