@@ -34,7 +34,7 @@ Description:  Berkeley v5.3 Database Libraries for C++ [development]
 Package: libdb5.3++-dev
 Architecture: any
 Section: libsdevel
-Depends: ${shlibs:Depends}, ${misc:Depends}, libdb5.3 (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdb5.3 (= ${binary:Version}), libdb5.3-dev (= ${binary:Version})
 Conflicts: libdb4.6++-dev, libdb4.7++-dev, libdb4.8++-dev, libdb5.1++-dev, libdb5.2++-dev
 Replaces: libdb4.6++-dev, libdb4.7++-dev, libdb4.8++-dev, libdb5.1++-dev, libdb5.2++-dev
 Description:  Berkeley v5.3 Database Libraries for C++ [development]
