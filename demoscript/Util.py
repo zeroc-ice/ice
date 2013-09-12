@@ -162,7 +162,7 @@ def configurePaths():
                 else:
                     libDir = os.path.join(libDir, "amd64")
                     binDir = os.path.join(binDir, "amd64")
-            else:
+            elif not isDarwin():
                 libDir = libDir + "64"
                 binDir = binDir + "64"
             addenv("PATH", binDir)
