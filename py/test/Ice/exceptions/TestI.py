@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, array
+import Ice, Test, array, sys
 
 #
 # There isn't xrange in python 3.x
