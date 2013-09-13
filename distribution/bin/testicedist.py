@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, threading, tempfile
+import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime, threading, tempfile
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
@@ -38,6 +38,10 @@ def trace(msg, f, nl = True):
     if nl:
         f.write('\n')
     f.flush()
+    
+    
+def prenpendPathToEnvironVar(env, var, path):
+    env[var] = os.pathsep.join([path] + env.get(var, "").split(os.pathsep)).strip(os.pathsep)
 
 class TestConfiguration:    
     def __init__(self, name, options, compilers = None, archs = None, configs = None, languages = None):
@@ -244,14 +248,8 @@ class Platform:
             if javaHome:            
                 env["JAVA_HOME"] = javaHome
             
-            classPath = env.get("CLASSPATH", "")
-            dbClassPath = os.path.join(self._iceHome, "lib", "db.jar")
-            if os.path.exists(dbClassPath):
-                if classPath == "":
-                    env["CLASSPATH"] = dbClassPath
-                elif classPath.find(dbClassPath) == -1:
-                    env["CLASSPATH"] = dbClassPath + os.pathsep + classPath
-
+            if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
+                prenpendPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
         return env
             
     def checkJavaSupport(self, arch, buildConfiguration, output):
@@ -633,8 +631,9 @@ class Platform:
 
             extractTests = lambda compiler, arch, conf: self.extractSourceArchive(compiler, arch, conf)
 
+            startTime = time.time()
             self.buildAndRun(buildAndRunTests, filterTests, extractTests, startTests, buildTestFailures, testResults)
-
+            testsElapsedTime = time.time() - startTime
             
         if self._demoArchive and not self._skipDemos:
 
@@ -659,9 +658,11 @@ class Platform:
 
             extractDemos = lambda compiler, arch, conf: self.extractDemoArchive(compiler, arch, conf)
             
+            startTime = time.time()
             self.buildAndRun(buildAndRunDemos, filterDemos, extractDemos, startDemos, buildDemoFailures, demoResults)
-
-        def summary(buildFailures, results, text):
+            demosElapsedTime = time.time() - startTime
+            
+        def summary(buildFailures, results, text, elapsedTime):
             
             if len(buildFailures) > 0:
                 trace("\nBuild failure(s) for " + text + " with the following configuration(s):", report)
@@ -686,10 +687,11 @@ class Platform:
                 for (compiler, arch, conf, lang, r) in results:
                     for test in r.getFailures():
                         trace("- %s/%s (%s/%s/%s)" % (lang, test, compiler, arch, conf), report)
-
+            trace("Elapsed time: %s (HH:mm:ss)" % datetime.timedelta(seconds=elapsedTime), report)
+            
         trace("\n\nSummary:", report)
-        summary(buildTestFailures, testResults, "tests")
-        summary(buildDemoFailures, demoResults, "demos")
+        summary(buildTestFailures, testResults, "tests", testsElapsedTime)
+        summary(buildDemoFailures, demoResults, "demos", demosElapsedTime)
 
 class Darwin(Platform):
     
@@ -717,12 +719,7 @@ class Darwin(Platform):
             #
             # Set DYLD_LIBRARY_PATH for Berkeley DB
             #
-            l = os.path.join(self._iceHome, "lib")
-            libraryPath = env.get("DYLD_LIBRARY_PATH", "")
-            if libraryPath == "":
-                env["DYLD_LIBRARY_PATH"] = l
-            elif libraryPath.find(l) == -1:
-                env["DYLD_LIBRARY_PATH"] = l + ":" + libraryPath
+            prenpendPathToEnvironVar(env, "DYLD_LIBRARY_PATH", os.path.join(self._iceHome, "lib"))
         return env
 
     def getTestConfigurations(self, filter, rfilter):
@@ -791,34 +788,24 @@ class Linux(Platform):
         
     def getSupportedArchitectures(self):
         if self._machine == "x86_64":
-            return ["x86", "x86_64"]
+            return ["x86_64"]
         else:
             return ["x86"]
             
-    def getPlatformEnviroment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        env = Platform.getPlatformEnviroment(self, compiler, arch, buildConfiguration, lang, useBinDist)
+    def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
+        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
         if lang == "java":
             #
             # Set Berkeley DB classpath
             #
-            classPath = env.get("CLASSPATH", "")
-            if classPath.find("db.jar") == -1:
-                c = "/usr/share/java/db-5.3.21.jar"
-                if classPath == "":
-                    env["CLASSPATH"] = c
-                elif classPath.find(c) == -1:
-                    env["CLASSPATH"] = c + ":" + classPath
+            prenpendPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
                 
             #
             # Set LD_LIBRARY_PATH for Berkeley DB
             #
-            if self._distribution == "Ubuntu":
-                l = "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/"
-                libraryPath = env.get("LD_LIBRARY_PATH", "")
-                if libraryPath == "":
-                    env["LD_LIBRARY_PATH"] = l
-                elif libraryPath.find(l) == -1:
-                    env["LD_LIBRARY_PATH"] = l + ":" + libraryPath
+            if self.isUbuntu():
+                prenpendPathToEnvironVar(env, "CLASSPATH", \
+                                    "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/")
         return env
 
 class Solaris(Platform):
@@ -854,14 +841,7 @@ class Solaris(Platform):
             #
             # Set Berkeley DB classpath
             #
-            classPath = env.get("CLASSPATH", "")
-            
-            if classPath.find("db.jar") == -1:
-                c = "/usr/share/java/db-5.3.21.jar"
-                if classPath == "":
-                    env["CLASSPATH"] = c
-                elif classPath.find(c) == -1:
-                    env["CLASSPATH"] = c + ":" + classPath
+            prenpendPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
         return env
                 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
@@ -882,13 +862,13 @@ class Windows(Platform):
         self._demoScriptArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
     
     def makeSilverlightCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (self.getVcVarsAll(compiler), arch, buildDir)
+        return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (self.getVcVarsAll(compiler), arch, buildDir)
+        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
 
     def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak clean" % (self.getVcVarsAll(compiler), arch, buildDir)
+        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak clean" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
     
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
         if lang != "py":
@@ -896,7 +876,7 @@ class Windows(Platform):
         else:
             pythonHome = BuildUtils.getPythonHome(lang)
             python = os.path.join(pythonHome, "python") if pythonHome else "python"
-        return "\"%s\" %s && %s %s" % (self.getVcVarsAll(compiler), arch, python, script)
+        return "\"%s\" %s && %s %s" % (BuildUtils.getVcVarsAll(compiler), arch, python, script)
 
     def isWindows(self):
         return True
@@ -941,68 +921,14 @@ class Windows(Platform):
         
         return archs
 
-    def getVcVarsAll(self, compiler):
-        return BuildUtils.getVcVarsAll(compiler)
-
     def getJavaHome(self, arch, buildConfiguration):
         return BuildUtils.getJavaHome(arch, buildConfiguration)
 
-    def getPlatformEnviroment(self, compiler, arch, buildConfiguration, lang, useBinDist):
-        env = Platform.getPlatformEnviroment(self, compiler, arch, buildConfiguration, lang, useBinDist)
-
-        if not os.path.exists(os.path.join(self._iceHome, "bin", "bzip2.dll")):
-            path = env.get("PATH", "")
-            p = None
-            
-            if compiler == "VC100":
-                if arch == "x86":
-                    p = os.path.join(thirpatyHome, "bin")
-                else:
-                    p = os.path.join(thirpatyHome, "bin", "x64")
-                    
-            if compiler == "VC110":
-                if arch == "x86":
-                    p = os.path.join(thirpatyHome, "bin", "vc110")
-                else:
-                    p = os.path.join(thirpatyHome, "bin", "vc110", "x64")
-                    
-            if path == "":
-                env["PATH"] = p
-            else:
-                env["PATH"] = p + ";" + path
+    def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
+        env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
 
         if lang == "cs" and compiler == "VC90":
             env["COMPACT"] = "yes"
-
-        if lang == "java":
-            #
-            # Set Berkeley DB classpath
-            #
-            classPath = env.get("CLASSPATH", "")
-            
-            c = None
-            if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
-                c = os.path.join(self._iceHome, "lib", "db.jar")
-            elif os.path.exists(os.path.join(thirpatyHome, "lib", "db.jar")):
-                c = os.path.join(thirpatyHome, "lib", "db.jar")
-
-            if classPath == "":
-                env["CLASSPATH"] = c
-            elif classPath.find(c) == -1:
-                env["CLASSPATH"] = c + ";" + classPath
-                
-            #
-            # Prepend Java bin directory from JAVA_HOME to path
-            #
-            if javaHome:
-                path = env.get("PATH", "")
-                p = os.path.join(javaHome, "bin")
-                
-                if path == "":
-                    env["PATH"] = p
-                else:
-                    env["PATH"] = p + ";" + path
-
         return env
                 
 #
@@ -1088,7 +1014,7 @@ startTests = None
 startDemos= None
 for o, a in opts:
     if o == "--ice-home":
-        platform._iceHome = os.path.abspath(a)
+        platform._iceHome = os.path.abspath(os.path.expanduser(a))
     elif o == "--verbose":
         platform._verbse = True
     elif o == "--filter":
@@ -1206,7 +1132,7 @@ else:
             options = line[i + 1:].strip()
         
         #
-        # Remove empty any entries left by split
+        # Remove any empty entries left by split
         #
         tmp = []
         for lang in languages:
