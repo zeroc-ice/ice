@@ -1088,7 +1088,7 @@ startTests = None
 startDemos= None
 for o, a in opts:
     if o == "--ice-home":
-        platform._iceHome = os.path.abspath(_iceHome)
+        platform._iceHome = os.path.abspath(a)
     elif o == "--verbose":
         platform._verbse = True
     elif o == "--filter":
