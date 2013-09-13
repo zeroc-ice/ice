@@ -23,8 +23,8 @@ def getIceHome(version):
     if os.environ.get("ICE_HOME"):
         return os.environ.get("ICE_HOME")
     elif sys.platform == "darwin":
-        if os.path.exists("/Developer/Library/Ice-%s/bin/slice2cpp" % version):
-            return "/Developer/Library/Ice-%s" % version
+        if os.path.exists("/Library/Developer/Ice-%s/bin/slice2cpp" % version):
+            return "/Library/Developer/Ice-%s" % version
         elif os.path.exists("/opt/Ice-%s/bin/slice2cpp" % version):
             return "/opt/Ice-%s/bin/slice2cpp" % version
     elif sys.platform.startswith("linux"):
