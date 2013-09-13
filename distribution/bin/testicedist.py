@@ -366,22 +366,30 @@ class Platform:
             if(len(start) > 1):
                 runIndex = int(start[1])
 
-        for (compiler, archs) in runnableConfigs.iteritems():
-            for arch, confs in archs.iteritems():
-                for conf, langs in confs.iteritems():
-                    extract(compiler, arch, conf)
-                    for lang, _ in langs.iteritems():
+        #
+        # Note that we don't visit the runnableConfigs directory
+        # here. This is on purpose, we want to preserve the order for
+        # supported compilers, architectures and configurations.
+        #
+        for compiler in self.getSupportedCompilers():
+            if compiler in runnableConfigs:
+                for arch in self.getSupportedArchitectures():
+                    if arch in runnableConfigs[compiler]:
+                        for conf in self.getBuildConfigurations(compiler, arch):
+                            if conf in runnableConfigs[compiler][arch]:
+                                extract(compiler, arch, conf)
+                                for lang in self.getLanguageMappings(compiler, arch, conf):
+                                    if lang in runnableConfigs[compiler][arch][conf]:
+                                        if configIndex and count < configIndex:
+                                            count += 1
+                                            continue
 
-                        if configIndex and count < configIndex:
-                            count += 1
-                            continue
-
-                        r = buildAndRun(compiler, arch, conf, lang, runIndex, count, total)
-                        if r:
-                            results.append((compiler, arch, conf, lang, r))
-                        else:
-                            failures.append((compiler, arch, conf, lang))
-                        count += 1
+                                        r = buildAndRun(compiler, arch, conf, lang, runIndex, count, total)
+                                        if r:
+                                            results.append((compiler, arch, conf, lang, r))
+                                        else:
+                                            failures.append((compiler, arch, conf, lang))
+                                        count += 1
 
     def extractSourceArchive(self, compiler, arch, conf):
         if not os.path.exists(os.path.join(self._buildDir, compiler, arch, conf)):
@@ -603,7 +611,7 @@ class Platform:
         #
         # Build and run tests for all compilers && buildConfigurations
         #
-        if self._archive and not self._skipTests:
+        if self._archive and not self._skipTests and not startDemos:
             def buildAndRunTests(compiler, arch, conf, lang, start, current, total):
                 trace("\n******", report)
                 trace("****** Building and running %s tests for %s/%s/%s [%d/%d]" % 
