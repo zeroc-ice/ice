@@ -129,6 +129,13 @@ class TestDemoResults:
 def filterTestOutput(results):
     return lambda line: results.filter(line)
 
+def filterBuildOutput(line):
+    if(line.find("error:")) >= 0:
+        trace(line, report)
+    if(line.find("warning:") >= 0 and line.find("deprecated") == -1):
+        trace(line, report)
+    return True
+
 def spawnAndWatch(command, env, filterFunc):
         
     p = subprocess.Popen(command, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
@@ -325,7 +332,7 @@ class Platform:
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
         return "%s %s" % (sys.executable, script)
 
-    def buildAndRun(self, buildAndRun, filter, extract, failures, results):
+    def buildAndRun(self, buildAndRun, filter, extract, start, failures, results):
         def include(value, include, exclude):
             if include and value not in include:
                 return False
@@ -351,12 +358,25 @@ class Platform:
                                         total += 1
 
         count = 1
+        configIndex = None
+        runIndex = None
+        if start:
+            start = start.split('/')
+            configIndex = int(start[0])
+            if(len(start) > 1):
+                runIndex = int(start[1])
+
         for (compiler, archs) in runnableConfigs.iteritems():
             for arch, confs in archs.iteritems():
                 for conf, langs in confs.iteritems():
                     extract(compiler, arch, conf)
                     for lang, _ in langs.iteritems():
-                        r = buildAndRun(compiler, arch, conf, lang, count, total)
+
+                        if configIndex and count < configIndex:
+                            count += 1
+                            continue
+
+                        r = buildAndRun(compiler, arch, conf, lang, runIndex, count, total)
                         if r:
                             results.append((compiler, arch, conf, lang, r))
                         else:
@@ -445,16 +465,16 @@ class Platform:
         for command in commands:
             if self._verbose:
                 print(command)
-            
+        
         trace("\n*** building %s tests (%s/%s/%s)... " % (lang, compiler, arch, buildConfiguration), report, False)
-        if spawnAndWatch(command, env, lambda line: True):
+        if spawnAndWatch(command, env, filterBuildOutput):
             trace("ok", report)
             return True
         else:
             trace("failed!", report)
             return False
 
-    def runTestSuite(self, compiler, arch, buildConfiguration, lang):
+    def runTestSuite(self, compiler, arch, buildConfiguration, lang, start):
         os.chdir(os.path.join(self._sourceDir, lang))
 
         for testConf in self._testConfigurations:
@@ -464,6 +484,9 @@ class Platform:
                 continue
 
             args = "--continue %s" % testConf.options
+
+            if start:
+                args += " --start=%d" % start
 
             if arch == "x86_64":
                 if not self.isWindows() or os.path.exists(os.path.join(self._iceHome, "bin", "x64")):
@@ -518,14 +541,14 @@ class Platform:
             print(command)
 
         trace("\n*** building %s demos (%s/%s/%s)... " % (lang, compiler, arch, buildConfiguration), report, False)
-        if spawnAndWatch(command, env, lambda line: True):
+        if spawnAndWatch(command, env, filterBuildOutput):
             trace("ok", report)
             return True
         else:
             trace("failed!", report)
             return False
 
-    def runDemos(self, compiler, arch, buildConfiguration, lang, sourceArchive):
+    def runDemos(self, compiler, arch, buildConfiguration, lang, start, sourceArchive):
 
         sourceDir = None
         if sourceArchive:
@@ -534,6 +557,9 @@ class Platform:
             sourceDir = os.path.join(self._demoDir, self.getDemoDir(lang))
         os.chdir(sourceDir)
 
+        if start:
+            args = "--start=%d" % start
+        
         if self._demoConfiguration:
             args = "--continue %s" % self._demoConfiguration
         else:
@@ -567,7 +593,7 @@ class Platform:
         results.flush()
         return results
     
-    def run(self):
+    def run(self, startTests, startDemos):
 
         buildTestFailures = []
         testResults = []
@@ -578,14 +604,14 @@ class Platform:
         # Build and run tests for all compilers && buildConfigurations
         #
         if self._archive and not self._skipTests:
-            def buildAndRunTests(compiler, arch, conf, lang, current, total):
+            def buildAndRunTests(compiler, arch, conf, lang, start, current, total):
                 trace("\n******", report)
                 trace("****** Building and running %s tests for %s/%s/%s [%d/%d]" % 
                       (lang, compiler, arch, conf, current, total), report) 
                 trace("******", report)
                 r = None
                 if self._skipBuild or self.buildTestSuite(compiler, arch, conf, lang):
-                    r = self.runTestSuite(compiler, arch, conf, lang)
+                    r = self.runTestSuite(compiler, arch, conf, lang, start)
                 return r
 
             def filterTests(compiler, arch, conf, lang):
@@ -599,19 +625,19 @@ class Platform:
 
             extractTests = lambda compiler, arch, conf: self.extractSourceArchive(compiler, arch, conf)
 
-            self.buildAndRun(buildAndRunTests, filterTests, extractTests, buildTestFailures, testResults)
+            self.buildAndRun(buildAndRunTests, filterTests, extractTests, startTests, buildTestFailures, testResults)
 
             
         if self._demoArchive and not self._skipDemos:
 
-            def buildAndRunDemos(compiler, arch, conf, lang, current, total):
+            def buildAndRunDemos(compiler, arch, conf, lang, start, current, total):
                 trace("\n******", report)
                 trace("****** Building and running %s demos for %s/%s/%s [%d/%d]" % 
                       (lang, compiler, arch, conf, current, total), report) 
                 trace("******", report)
                 r = None
                 if self._skipBuild or self.buildDemos(compiler, arch, conf, lang, False):
-                    r = self.runDemos(compiler, arch, conf, lang, False)
+                    r = self.runDemos(compiler, arch, conf, lang, start, False)
                 return r
 
             def filterDemos(compiler, arch, conf, lang):
@@ -625,7 +651,7 @@ class Platform:
 
             extractDemos = lambda compiler, arch, conf: self.extractDemoArchive(compiler, arch, conf)
             
-            self.buildAndRun(buildAndRunDemos, filterDemos, extractDemos, buildDemoFailures, demoResults)
+            self.buildAndRun(buildAndRunDemos, filterDemos, extractDemos, startDemos, buildDemoFailures, demoResults)
 
         def summary(buildFailures, results, text):
             
@@ -1003,6 +1029,8 @@ def usage():
     print("                                     as delimiter, each line has the form of \"name:options:languages\"")
     print("                                     if languages part isn't present the configuration apply to all")
     print("                                     languages otherwise apply just to the given languages.")
+    print("  --start-with-test=bi/ti            Resume running the tests at the given build/test index.")
+    print("  --start-with-demo=bi/di            Resume running the demos at the given build/demo index.")
     print("")
     
 
@@ -1030,7 +1058,8 @@ try:
                                                   "rfilter-compilers=", "rfilter-archs=", "rfilter-configurations", \
                                                   "print-languages", "print-compilers", "print-archs", 
                                                   "print-configurations", "test-driver=",
-                                                  "filter=","rfilter=", "skip-build"])
+                                                  "filter=","rfilter=", "skip-build",
+                                                  "start-with-demo=", "start-with-test="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -1047,6 +1076,8 @@ printConfigurations = False
 testDriver = None
 filter = None
 rfilter = None
+startTests = None
+startDemos= None
 for o, a in opts:
     if o == "--ice-home":
         platform._iceHome = os.path.abspath(_iceHome)
@@ -1090,6 +1121,10 @@ for o, a in opts:
         printArchs = True
     elif o == "--test-driver":
         testDriver = a
+    elif o == "--start-with-test":
+        startTests = a
+    elif o == "--start-with-demo":
+        startDemos = a
 
 if printLanguages or printCompilers or printArchs or printConfigurations:
     if printLanguages:
@@ -1169,8 +1204,7 @@ else:
         for lang in languages:
             if lang:
                 tmp.append(lang)
-        languages = tmp
-        
+        languages = tmp        
         testConfigurations.append(TestConfiguration(name, options, languages = languages))
 
 platform._testConfigurations = testConfigurations
@@ -1193,7 +1227,7 @@ trace("Using Ice installation from `%s'" % platform._iceHome, report)
 trace("Using `%s' source archive" % platform._archive, report)
 trace("Using `%s' demo archive" % platform._demoArchive, report)
 
-platform.run()
+platform.run(startTests, startDemos)
 
 output.close()
 report.close()
