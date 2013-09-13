@@ -131,30 +131,25 @@ def configurePaths():
         addenv("CLASSPATH", "classes")
         return # That's it, we're done!
 
-    shlibVar = None
-    libDir = None
-    if not isWin32():
-        libDir = os.path.join(getIceDir("cpp"), "lib")
-
-    # 64-bits binaries are located in a subdirectory with binary
-    # distributions.
+    # Always add the bin directory to the PATH, it contains executable
+    # which might not be in the compiler/arch bin sub-directory.
     binDir = os.path.join(getIceDir("cpp"), "bin")
     addenv("PATH", binDir)
 
+    libDir = None if isWin32() else os.path.join(getIceDir("cpp"), "lib")
     if iceHome:
+
+        # Add compiler sub-directory
         if isWin32():
             subdir = None
             if getCppCompiler() == "VC110":
                 subdir = "vc110"
 
             if subdir:
-                if x64:
-                    addenv("PATH", os.path.join(binDir, subdir, "x64"))
-                else:
-                    addenv("PATH", os.path.join(binDir, subdir))
-            elif x64:
-                addenv("PATH", os.path.join(binDir, "x64"))
-        elif x64:
+                binDir = os.path.join(binDir, subdir)
+
+        # Add x64 sub-directory
+        if x64:
             if isSolaris():
                 if isSparc():
                     libDir = os.path.join(libDir, "64")
@@ -162,18 +157,20 @@ def configurePaths():
                 else:
                     libDir = os.path.join(libDir, "amd64")
                     binDir = os.path.join(binDir, "amd64")
+            elif isWin32():
+                libDir = os.path.join(libDir, "x64")
+                binDir = os.path.join(binDir, "x64")
             elif not isDarwin():
                 libDir = libDir + "64"
                 binDir = binDir + "64"
-            addenv("PATH", binDir)
-        elif isDarwin() and cpp11:
+
+        if isDarwin() and cpp11:
             libDir = os.path.join(libDir, "c++11")
             binDir = os.path.join(binDir, "c++11")
-            addenv("PATH", binDir)
 
-    # Only add the lib directory to the shared library path if we're
-    # not using the embedded location.
-    if libDir and iceHome != "/opt/Ice-3.5":
+    if binDir != os.path.join(getIceDir("cpp"), "bin"):
+        addenv("PATH", binDir)
+    if libDir:
         addLdPath(libDir)
 
     if not iceHome:
