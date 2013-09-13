@@ -22,7 +22,13 @@ socksProxy = False              # Use SOCKS proxy running on localhost
 iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
 cpp11 = False                   # Binary distribution is c++ 11
-javaCmd = "java"                # Default java loader
+
+
+# Default java loader
+
+javaHome = os.environ.get("JAVA_HOME", "")
+javaCmd = os.path.join('"%s"' % javaHome, "bin", "java") if javaHome else "java"
+
 valgrind = False                # Set to True to use valgrind for C++ executables.
 appverifier = False             # Set to True to use appverifier for C++ executables, This is windows only feature
 tracefile = None
@@ -591,18 +597,6 @@ def getIceSoVersion():
             return '%db' % (majorVersion * 10 + minorVersion)
     else:
         return '%d' % (majorVersion * 10 + minorVersion)
-
-def getIceSSLVersion():
-    process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-    if not process or not process.stdout:
-        print("unable to get IceSSL version!")
-        sys.exit(1)
-    version = process.stdout.readline()
-    if not version:
-        print("unable to get IceSSL version!")
-        sys.exit(1)
-    version = version.decode("utf-8")
-    return version.strip()
 
 def getJdkVersion():
     process = subprocess.Popen("java -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
