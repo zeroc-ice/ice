@@ -60,7 +60,10 @@ public class Server extends Ice.Application
             //
             // Close the connection gracefully.
             //
-            connection.close();
+            if(connection != null)
+            {
+                connection.close();
+            }
         }
 
         return 0;
