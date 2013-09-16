@@ -55,6 +55,96 @@ host = "127.0.0.1"
 #
 debug = False
 
+
+class filereader(Expect.reader):
+    def __init__(self, desc, p):
+        Expect.reader.__init__(self, desc, p, None)
+
+    def run(self):
+
+        try:
+            while True:
+                c = self.p.read(1)
+                if c == '': 
+                    time.sleep(0.1) 
+                    continue
+                if not c: break
+                if c == '\r': continue
+                self.cv.acquire()
+                try:
+                    # Depending on Python version and platform, the value c could be a
+                    # string or a bytes object.
+                    if type(c) != str:
+                        c = c.decode()
+                    self.trace(c)
+                    self.buf.write(c)
+                    self.cv.notify()
+                finally:
+                    self.cv.release()
+        except ValueError as e:
+            pass
+        except IOError as e:
+            print(e)
+
+class FileExpect(object):
+    def __init__(self, path):
+
+        self.buf = "" # The part before the match
+        self.before = "" # The part before the match
+        self.after = "" # The part after the match
+        self.matchindex = 0 # the index of the matched pattern
+        self.match = None # The last match
+
+        self.f = open(path)
+        self.r = filereader(path, self.f)
+
+        # The thread is marked as a daemon thread. This is done so that if
+        # an expect script runs off the end of main without kill/wait on each
+        # spawned process the script will not hang tring to join with the
+        # reader thread. Instead __del__ (below) will be called which
+        # terminates and joins with the reader thread.
+        self.r.setDaemon(True)
+        self.r.start()
+
+    def __del__(self):
+        # Terminate and clean up.
+        if self.r is not None:
+            self.terminate()
+
+    def expect(self, pattern, timeout = 20):
+        """pattern is either a string, or a list of string regexp patterns.
+
+           timeout == None expect can block indefinitely.
+
+           timeout == -1 then the default is used.
+        """
+        if timeout == -1:
+            timeout = self.timeout
+
+        if type(pattern) != list:
+            pattern = [ pattern ]
+        def compile(s):
+            if type(s) == str:
+                return re.compile(s, re.S)
+            return None
+        pattern = [ ( p, compile(p) ) for p in pattern ]
+        try:
+            self.buf, self.before, self.after, self.match, self.matchindex = self.r.match(pattern, timeout)
+        except Expect.TIMEOUT as e:
+            self.buf = ""
+            self.before = ""
+            self.after = ""
+            self.match = None
+            self.matchindex = 0
+            raise e
+        return self.matchindex
+            
+    def terminate(self):
+        self.f.close()
+        self.r.join()
+        self.r = None
+
+
 def getCppCompiler():
     if not isWin32():
         return ""
@@ -628,6 +718,9 @@ def spawn(command, cwd = None, mapping = None):
     if debug:
         print('(%s)' % (command))
     return Expect.Expect(command, logfile = tracefile, desc = desc, mapping = mapping, cwd = cwd)
+
+def watch(path):
+    return FileExpect(path)
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG"]:

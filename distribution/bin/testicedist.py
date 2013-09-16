@@ -71,12 +71,14 @@ class TestDemoResults:
         self._current = 0
         self._currentTest = None
         self._failures = []
+        self._finished = False
 
         self.matchStartTest = re.compile("\*\*\* running tests ([0-9]+)\/([0-9]+) in (.*)")
         self.matchConfiguration = re.compile("\*\*\* configuration: (.*)")
         self.matchFailedTest = re.compile("\(\'test in (.*) failed with exit status\', ([0-9]+)\)")
         self.matchStartDemo = re.compile("\*\*\* running demo ([0-9]+)\/([0-9]+) in (.*)")
         self.matchFailedDemo = re.compile("\(\'demo in (.*) failed with exit status\', ([0-9]+)\)")
+        self.matchEndTests = re.compile("The following errors occurred")
 
     def filter(self, line):
         #print(line)
@@ -109,16 +111,23 @@ class TestDemoResults:
             trace("... ", report, False)
             return
 
-        # Match failed test/demo line
-        m = self.matchFailedTest.match(line)
-        if not m:
-            m = self.matchFailedDemo.match(line)
+        # Match failed test/demo line (only if not the end of the demos/tests where
+        # a summary of all the failures is printed)
+        if not self._finished:
+            m = self.matchFailedTest.match(line)
+            if not m:
+                m = self.matchFailedDemo.match(line)
+            if m:
+                if self._current > 0:
+                    trace("failed! (%d/%d status = %s)" % (self._current, self._total, m.group(2)), report)
+                    self._current = 0
+                    self._failures.append(self._currentTest)
+                return
+
+        # Match end of the tests
+        m = self.matchEndTests.match(line)
         if m:
-            if self._current > 0:
-                trace("failed! (%d/%d status = %s)" % (self._current, self._total, m.group(2)), report)
-                self._current = 0
-                self._failures.append(self._currentTest)
-            return
+            self._finished = True
 
     def flush(self):
         if self._current > 0:
@@ -605,6 +614,8 @@ class Platform:
         testResults = []
         buildDemoFailures = []
         demoResults = []
+        testsElapsedTime = 0
+        demosElapsedTime = 0
 
         #
         # Build and run tests for all compilers && buildConfigurations
@@ -663,12 +674,14 @@ class Platform:
             demosElapsedTime = time.time() - startTime
             
         def summary(buildFailures, results, text, elapsedTime):
-            
             if len(buildFailures) > 0:
                 trace("\nBuild failure(s) for " + text + " with the following configuration(s):", report)
                 for (compiler, arch, conf, lang) in buildFailures:
                     trace("- %s %s (%s/%s/%s)" % (lang, text, compiler, arch, conf), report)
                 trace("", report)
+
+            if len(results) == 0 and len(buildFailures) == 0:
+                return
 
             total = 0
             failureCount = 0
@@ -804,7 +817,7 @@ class Linux(Platform):
             # Set LD_LIBRARY_PATH for Berkeley DB
             #
             if self.isUbuntu():
-                prenpendPathToEnvironVar(env, "CLASSPATH", \
+                prenpendPathToEnvironVar(env, "LD_LIBRARY_PATH", \
                                     "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/")
         return env
 
