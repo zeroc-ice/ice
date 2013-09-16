@@ -39,8 +39,7 @@ def trace(msg, f, nl = True):
         f.write('\n')
     f.flush()
     
-    
-def prenpendPathToEnvironVar(env, var, path):
+def prependPathToEnvironVar(env, var, path):
     env[var] = os.pathsep.join([path] + env.get(var, "").split(os.pathsep)).strip(os.pathsep)
 
 class TestConfiguration:    
@@ -81,7 +80,7 @@ class TestDemoResults:
         self.matchEndTests = re.compile("The following errors occurred")
 
     def filter(self, line):
-        #print(line)
+
         # Match start test/demo line
         m = self.matchStartTest.match(line)
         if not m:
@@ -258,7 +257,7 @@ class Platform:
                 env["JAVA_HOME"] = javaHome
             
             if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
-                prenpendPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
+                prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
         return env
             
     def checkJavaSupport(self, arch, buildConfiguration, output):
@@ -732,7 +731,7 @@ class Darwin(Platform):
             #
             # Set DYLD_LIBRARY_PATH for Berkeley DB
             #
-            prenpendPathToEnvironVar(env, "DYLD_LIBRARY_PATH", os.path.join(self._iceHome, "lib"))
+            prependPathToEnvironVar(env, "DYLD_LIBRARY_PATH", os.path.join(self._iceHome, "lib"))
         return env
 
     def getTestConfigurations(self, filter, rfilter):
@@ -811,13 +810,13 @@ class Linux(Platform):
             #
             # Set Berkeley DB classpath
             #
-            prenpendPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
+            prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
                 
             #
             # Set LD_LIBRARY_PATH for Berkeley DB
             #
             if self.isUbuntu():
-                prenpendPathToEnvironVar(env, "LD_LIBRARY_PATH", \
+                prependPathToEnvironVar(env, "LD_LIBRARY_PATH", \
                                     "/usr/lib/i386-linux-gnu/" if arch == "x86" else "/usr/lib/x86_64-linux-gnu/")
         return env
 
@@ -854,7 +853,7 @@ class Solaris(Platform):
             #
             # Set Berkeley DB classpath
             #
-            prenpendPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
+            prependPathToEnvironVar(env, "CLASSPATH", "/usr/share/java/db-5.3.21.jar")
         return env
                 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
