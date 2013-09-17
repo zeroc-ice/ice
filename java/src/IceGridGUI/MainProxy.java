@@ -20,36 +20,71 @@ public class MainProxy
         //
         _args = java.util.Arrays.copyOf(args, args.length);
         
-        Class<?> cls = IceInternal.Util.findClass("com.javafx.main.Main", null);
+        String version =  System.getProperty("java.version");
+        
+        Class<?> cls = null;
+        if(version.startsWith("1.7"))
+        {
+            cls = IceInternal.Util.findClass("com.javafx.main.Main", null);
+            if(cls != null)
+            {
+                try
+                {
+                    java.lang.reflect.Method main = cls.getMethod("main", new Class[]{String[].class});
+                    main.invoke(null, new Object[]{args});
+                    return;
+                }
+                catch(NoSuchMethodException ex)
+                {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, 
+                                                "Unable to find method `main(String[] args)' in class `com.javafx.main.Main'",
+                                                "IceGrid Admin Error", 
+                                                JOptionPane.ERROR_MESSAGE);
+                }
+                catch(IllegalAccessException ex)
+                {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, 
+                                                "IllegalAccessException invoking method `main(String[] args)' in class `com.javafx.main.Main'",
+                                                "IceGrid Admin Error", 
+                                                JOptionPane.ERROR_MESSAGE);
+                }
+                catch(java.lang.reflect.InvocationTargetException ex)
+                {
+                }
+            }
+        }
+        cls = IceInternal.Util.findClass("IceGridGUI.Main", null);
         if(cls == null)
         {
             JOptionPane.showMessageDialog(null, 
-                                          "Unable to find class `com.javafx.main.Main'",
+                                          "Unable to find class `IceGridGUI.Main'",
                                           "IceGrid Admin Error", 
                                           JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
         try
         {
             java.lang.reflect.Method main = cls.getMethod("main", new Class[]{String[].class});
             main.invoke(null, new Object[]{args});
+            return;
         }
         catch(NoSuchMethodException ex)
         {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, 
-                                          "Unable to find method `main(String[] args)' in class `com.javafx.main.Main'",
-                                          "IceGrid Admin Error", 
-                                          JOptionPane.ERROR_MESSAGE);
+                                        "Unable to find method `main(String[] args)' in class `com.javafx.main.Main'",
+                                        "IceGrid Admin Error", 
+                                        JOptionPane.ERROR_MESSAGE);
         }
         catch(IllegalAccessException ex)
         {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, 
-                                          "IllegalAccessException invoking method `main(String[] args)' in class `com.javafx.main.Main'",
-                                          "IceGrid Admin Error", 
-                                          JOptionPane.ERROR_MESSAGE);
+                                        "IllegalAccessException invoking method `main(String[] args)' in class `com.javafx.main.Main'",
+                                        "IceGrid Admin Error", 
+                                        JOptionPane.ERROR_MESSAGE);
         }
         catch(java.lang.reflect.InvocationTargetException ex)
         {
@@ -61,5 +96,5 @@ public class MainProxy
         return _args;
     }
     
-    private static String[] _args;
+    private static String[] _args = new String[]{};
 }

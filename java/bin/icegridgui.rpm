@@ -9,5 +9,5 @@
 #
 # **********************************************************************
 
-exec java -cp `build-classpath IceGridGUI` IceGridGUI.Main $@
+exec java -cp `build-classpath IceGridGUI` IceGridGUI.MainProxy $@
 
