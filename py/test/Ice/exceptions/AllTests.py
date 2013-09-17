@@ -10,9 +10,9 @@
 import Ice, Test, threading, sys, array
 
 #
-# There isn't xrange in python 3.x
+# xrange is not supported with python >= 3.x
 #
-if sys.version_info.major >= 3:
+if sys.version_info[0] >= 3:
     xrange = range
 
 def test(b):
