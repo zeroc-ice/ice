@@ -245,7 +245,6 @@ class Platform:
         self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.tar.gz" % version)
         self._buildDir = os.path.abspath(os.path.join(distDir, "build"))
         self._verbose = False
-        self._debug = False
         self._languages = []
         self._compilers = []
         self._archs = []
@@ -323,7 +322,7 @@ class Platform:
         if useBinDist:
             env["USE_BIN_DIST"] = "yes"
         
-        if not self._debug:
+        if buildConfiguration != "debug":
             env["OPTIMIZE"] = "yes"
 
         if self._iceHome:
@@ -622,8 +621,7 @@ class Platform:
             args += " --start=%d" % start
 
         if self.is64(arch):
-            if not self.isWindows() or os.path.exists(os.path.join(self._iceHome, "bin", "x64")):
-                args += " --x64"
+            args += " --x64"
                     
         if buildConfiguration == "cpp11":
             args += " --c++11"
@@ -701,8 +699,7 @@ class Platform:
             args = "--continue"        
 
         if self.is64(arch):
-            if not self.isWindows() or os.path.exists(os.path.join(self._iceHome, "bin", "x64")):
-                args += " --x64"
+            args += " --x64"
         if buildConfiguration == "cpp11":
             args += " --c++11"
         if buildConfiguration == "debug":
@@ -976,40 +973,37 @@ class Windows(Platform):
         self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
         self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
     
-    def makeSilverlightCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
+    def canonicalArch(self, arch):
         if arch == "x64":
             arch = "amd64"
-        return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
+        return arch
+        
+    def makeSilverlightCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
+        return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), 
+                                                                    self.canonicalArch(arch), buildDir)
         
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        if arch == "x64":
-            arch = "amd64"
         bConf = "Debug" if buildConfiguration == "debug" else "Release"
         bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "Win64"
             
         return '"%s" %s  && cd %s && devenv demo.sln /build %s /projectconfig "%s|%s"' % \
-                (BuildUtils.getVcVarsAll(compiler), arch, buildDir, bConf, bConf, bArch)
+                (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, bConf, bConf, bArch)
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        if arch == "x64":
-            arch = "amd64"
-        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
+        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), 
+                                                                 self.canonicalArch(arch), buildDir)
 
     def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
-        if arch == "x64":
-            arch = "amd64"
-        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak clean" % (BuildUtils.getVcVarsAll(compiler), arch, 
-                                                                       buildDir)
+        return "\"%s\" %s  && cd %s && nmake /f Makefile.mak clean" % (BuildUtils.getVcVarsAll(compiler), 
+                                                                       self.canonicalArch(arch), buildDir)
     
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
-        if arch == "x64":
-            arch = "amd64"
         if lang != "py":
             python = sys.executable
         else:
             pythonHome = BuildUtils.getPythonHome(lang)
             python = os.path.join(pythonHome, "python") if pythonHome else "python"
-        return "\"%s\" %s && %s %s" % (BuildUtils.getVcVarsAll(compiler), arch, python, script)
+        return "\"%s\" %s && %s %s" % (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), python, script)
 
     def isWindows(self):
         return True
@@ -1160,7 +1154,7 @@ for o, a in opts:
     if o == "--ice-home":
         platform._iceHome = os.path.abspath(os.path.expanduser(a))
     elif o == "--verbose":
-        platform._verbse = True
+        platform._verbose = True
     elif o == "--filter":
         filter = a
     elif o == "--rfilter":
