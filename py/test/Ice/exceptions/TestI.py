@@ -96,7 +96,7 @@ class ThrowerI(Test.Thrower):
         raise RuntimeError("operation `throwAssertException' not supported")
 
     def throwMemoryLimitException(self, seq, current=None):
-        return array.array('B', (0 for x in xrange(20 * 1024)))
+        return bytearray(20 * 1024)
 
     def throwLocalExceptionIdempotent(self, current=None):
         raise Ice.TimeoutException()

@@ -47,13 +47,7 @@ class Client(Ice.Application):
             return 1
         throughputOneway = Demo.ThroughputPrx.uncheckedCast(throughput.ice_oneway())
 
-        if sys.version_info[0] == 2:
-            b = []
-            b[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
-            b = ['\x00' for x in b]
-            byteSeq = ''.join(b)
-        else:
-            byteSeq = bytes([0 for x in range(0, Demo.ByteSeqSize)])
+        byteSeq = bytearray(Demo.ByteSeqSize)
 
         stringSeq = []
         stringSeq[0:Demo.StringSeqSize] = range(0, Demo.StringSeqSize)

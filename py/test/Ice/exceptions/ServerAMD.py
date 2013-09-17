@@ -19,12 +19,6 @@ if not slice_dir:
 Ice.loadSlice('"-I' + slice_dir + '" TestAMD.ice')
 import Test
 
-#
-# There isn't xrange in python 3.x
-#
-if sys.version_info.major >= 3:
-    xrange = range
-
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
@@ -132,7 +126,7 @@ class ThrowerI(Test.Thrower):
         raise RuntimeError("operation `throwAssertException' not supported")
 
     def throwMemoryLimitException_async(self, cb, seq, current=None):
-        cb.ice_response(array.array('B', (0 for x in xrange(20 * 1024))))
+        cb.ice_response(bytearray(20 * 1024))
 
     def throwLocalExceptionIdempotent_async(self, cb, current=None):
         cb.ice_exception(Ice.TimeoutException())
