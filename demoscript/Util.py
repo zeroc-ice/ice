@@ -748,10 +748,7 @@ def addLdPath(libpath):
         else:
             addenv("LD_LIBRARY_PATH", libpath)
     else:
-        if x64:
-            addenv("LD_LIBRARY_PATH_64", libpath)
-        else:
-            addenv("LD_LIBRARY_PATH", libpath)
+        addenv("LD_LIBRARY_PATH", libpath)
 
 def processCmdLine():
     def usage():
