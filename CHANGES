@@ -46,7 +46,7 @@ General Changes
   command-line option has been added to allow initializing a registry
   database from another replica.
 
-  This change is backward compatible with Ice versions <= 3.5.0. If a
+  This change is backward compatible with Ice versions 3.5.0. If a
   3.5.0 slave connects to an Ice 3.5.1 master, or vice-versa, no check
   is performed and the previous behavior applies (the slave database
   always gets overwritten by the master database when the slave

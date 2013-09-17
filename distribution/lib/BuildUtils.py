@@ -97,7 +97,7 @@ def getJavaHome(arch, configuration):
 
     import winreg
     flags = winreg.KEY_READ
-    if arch == "amd64":
+    if arch == "amd64" or arch == "x64":
         flags = flags | winreg.KEY_WOW64_64KEY
     else:
         flags = flags | winreg.KEY_WOW64_32KEY
@@ -117,7 +117,7 @@ def getPythonHome(arch):
 
     import winreg
     flags = winreg.KEY_READ
-    if arch == "amd64":
+    if arch == "amd64" or arch == "x64":
         flags = flags | winreg.KEY_WOW64_64KEY
     else:
         flags = flags | winreg.KEY_WOW64_32KEY
