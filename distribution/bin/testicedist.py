@@ -982,6 +982,8 @@ class Windows(Platform):
         return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
         
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
+        if arch == "x64":
+            arch = "amd64"
         bConf = "Debug" if buildConfiguration == "debug" else "Release"
         bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "Win64"
             
@@ -1000,6 +1002,8 @@ class Windows(Platform):
                                                                        buildDir)
     
     def runScriptCommand(self, script, compiler, arch, buildConfiguration, lang):
+        if arch == "x64":
+            arch = "amd64"
         if lang != "py":
             python = sys.executable
         else:
@@ -1035,8 +1039,18 @@ class Windows(Platform):
                 buildConfigurations.append("winrt")
         return buildConfigurations
 
+    #
+    # Return just the compilers that are installed in the system.
+    #
     def getSupportedCompilers(self):
-        return ["VC90", "VC100", "VC110"]
+        compilers = []
+        if BuildUtils.getVcVarsAll("VC90"):
+            compilers.append("VC90")
+        if BuildUtils.getVcVarsAll("VC100"):
+            compilers.append("VC100")
+        if BuildUtils.getVcVarsAll("VC110"):
+            compilers.append("VC110")
+        return compilers
         
     def getSupportedLanguages(self):
         return ["cpp", "cs", "java", "php", "py", "rb", "vb"]
