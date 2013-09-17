@@ -38,7 +38,7 @@ try
     // Optional can also be used in an out parameter.
     $dialgroup = Ice_Unset;
     $contactdb->queryDialgroup("john", $dialgroup);
-    if(dialgroup != 0)
+    if($dialgroup != 0)
     {
         echo "dialgroup is incorrect ";
     }
