@@ -64,7 +64,7 @@ class TestConfiguration:
 
 class TestDemoResults:
 
-    def __init__(self, sourceDir, index):
+    def __init__(self, sourceDir, index = 0):
         self._sourceDir = sourceDir + '/'
         self._index = index
         self._total = 0
@@ -639,7 +639,9 @@ class Platform:
             args += " --mode=debug"
         else:
             args += " --mode=release"
-            
+
+        args += " --fast"
+
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
             return []
                 
