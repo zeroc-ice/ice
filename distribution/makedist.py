@@ -467,6 +467,13 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
         for m in [ "Makefile", ".depend", "*.exe.config" ]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
+        
+for d in ["democs", "demovb"]:
+    for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
+        for f in filesnames:
+            for m in [ "Makefile.mak", ".depend.mak" ]:
+                if fnmatch.fnmatch(f, m):
+                    rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 

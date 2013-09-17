@@ -360,6 +360,9 @@ class Platform:
             command += " -j%s" % self._parallelJobs
         return command
         
+    def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
+        return self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir)
+        
     def makeCleanCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "make clean"
 
@@ -597,7 +600,7 @@ class Platform:
         else:
             buildDir = os.path.join(self._demoDir, self.getDemoDir(lang))
 
-        command = self.makeCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "ant"
+        command = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "ant"
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
         
         os.chdir(buildDir)
@@ -925,10 +928,17 @@ class Windows(Platform):
         Platform.__init__(self, distDir)
         self._archive = os.path.join(distDir, "Ice-%s.zip" % version)
         self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
-        self._demoScriptArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
+        self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
     
     def makeSilverlightCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
+        
+    def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
+        bConf = "Debug" if buildConfiguration == "debug" else "Release"
+        bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "Win64"
+            
+        return '"%s" %s  && cd %s && devenv demo.sln /build %s /projectconfig "%s|%s"' % \
+                (BuildUtils.getVcVarsAll(compiler), arch, buildDir, bConf, bConf, bArch)
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
