@@ -875,6 +875,14 @@ class Windows(Platform):
     
     def makeSilverlightCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "\"%s\" %s  && cd %s && devenv testsl.sln /build" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
+        
+    def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
+        bConf = "Debug" if buildConfiguration == "debug" else "Release"
+        bArch = ".NET"
+        if lang == "cpp":
+            bArch = "Win32" if arch == "x86" else "Win64"
+            
+        return "\"%s\" %s  && cd %s && devenv demo.sln /build /projectconfig “%s|%s”" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), arch, buildDir)

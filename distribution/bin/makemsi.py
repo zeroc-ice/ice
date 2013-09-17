@@ -94,7 +94,7 @@ def usage():
     print(r"                              is C:\proguard")
     print("")
     print(r"  --php-home=<path>           PHP source location, default location")
-    print(r"                              is C:\php-5.4.17")
+    print(r"                              is C:\php-5.4.19")
     print("")
     print(r"  --php-bin-home=<path>       PHP binnaries location, default location")
     print(r"                              is C:\Program Files\PHP")
@@ -459,10 +459,10 @@ if not skipBuild:
 
                     if lang == "php":
                         if phpHome is None:
-                            if not os.path.exists(r"C:\php-5.4.17"):
+                            if not os.path.exists(r"C:\php-5.4.19"):
                                 print("PHP source distribution not found")
                                 sys.exit(1)
-                            phpHome = r"C:\php-5.4.17"
+                            phpHome = r"C:\php-5.4.19"
 
                         if phpBinHome is None:
                             if not os.path.exists(r"C:\Program Files (x86)\PHP"):

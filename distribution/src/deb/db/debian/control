@@ -1,7 +1,7 @@
 Source: db5.3
 Section: libs
 Priority: extra
-Maintainer: jose <jose@zeroc.com>
+Maintainer: ZeroC, Inc. <support@zeroc.com>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
 Homepage: Homepage: http://www.oracle.com/technology/software/products/berkeley-db/index.html
