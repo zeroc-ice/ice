@@ -258,7 +258,7 @@ class Platform:
     def getTestConfigurations(self, filter, rfilter):
         f = " --filter=\"%s\"" % filter if filter else ""
         r = " --rfilter=\"%s\"" % rfilter if rfilter else ""
-        return [TestConfiguration("all", "--all%s%w" % (f, r))] + getCrossTestConfigurations(filter, rfilter)
+        return [TestConfiguration("all", "--all%s%s" % (f, r))] + self.getCrossTestConfigurations(filter, rfilter)
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = os.environ.copy()
