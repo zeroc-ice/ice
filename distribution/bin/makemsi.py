@@ -152,6 +152,7 @@ rFilterConfs = []
 rFilterProfiles = []
 
 certFile = None
+keyFile = None
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "proguard-home=", "php-home=", "php-bin-home=", \
@@ -159,7 +160,7 @@ try:
                                                   "filter-languages=", "filter-compilers=", "filter-archs=", \
                                                   "filter-confs=", "filter-profiles=", "filter-languages=", \
                                                   "filter-compilers=", "filter-archs=", "filter-confs=", \
-                                                  "filter-profiles=", "cert-file="])
+                                                  "filter-profiles=", "cert-file=", "key-file="])
 except getopt.GetoptError as e:
     print("Error %s " % e)
     usage()
@@ -211,6 +212,8 @@ for o, a in opts:
         rFilterProfiles.append(a)
     elif o == "--cert-file":
         certFile = a
+    elif o == "--key-file":
+        keyFile = a
 
 basePath = os.path.abspath(os.path.dirname(__file__))
 iceBuildHome = os.path.abspath(os.path.join(basePath, "..", ".."))
@@ -242,6 +245,24 @@ if certFile is None:
 
 if not os.path.exists(certFile):
     print("Certificate `%s' not found")
+    sys.exit(1)
+    
+    
+if not keyFile:
+    if os.path.exists("c:\\release\\strongname\\IceReleaseKey.snk"):
+        keyFile = "c:\\release\\strongname\\IceReleaseKey.snk"
+    elif os.path.exists(os.path.join(os.getcwd(), "..", "..", "release", "strongname", "IceReleaseKey.snk")):
+        keyFile = os.path.join(os.getcwd(), "..", "..", "release", "strongname", "IceReleaseKey.snk")
+else:
+    if not os.path.isabs(keyFile):
+        keyFile = os.path.abspath(os.path.join(os.getcwd(), keyFile))
+        
+if keyFile is None:
+    print("You need to specify the key file to sign assemblies using --key-file option")
+    sys.exit(1)
+
+if not os.path.exists(keyFile):
+    print("Key file `%s' not found")
     sys.exit(1)
 
 if proguardHome:
@@ -494,6 +515,12 @@ if not skipBuild:
                             env["VS"] = "VS2010"
                         elif compiler == "VC110":
                             env["VS"] = "VS2012"
+                            
+                    #
+                    # Uset the release key to sign .NET assemblies.
+                    #
+                    if lang == "cs":
+                        env["KEYFILE"] = keyFile
 
                     os.chdir(os.path.join(sourceDir, lang))
 
