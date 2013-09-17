@@ -64,8 +64,9 @@ class TestConfiguration:
 
 class TestDemoResults:
 
-    def __init__(self, sourceDir):
+    def __init__(self, sourceDir, index):
         self._sourceDir = sourceDir + '/'
+        self._index = index
         self._total = 0
         self._current = 0
         self._currentTest = None
@@ -98,7 +99,10 @@ class TestDemoResults:
             if self._currentTest.startswith(self._sourceDir):
                 self._currentTest = self._currentTest[len(self._sourceDir):]
                 
-            trace("[%d/%d] %s" % (self._current, self._total, self._currentTest), report, False)
+            if self._index > 1:
+                trace("[%d-%d/%d] %s" % (self._index, self._current, self._total, self._currentTest), report, False)
+            else:
+                trace("[%d/%d] %s" % (self._current, self._total, self._currentTest), report, False)
             return
 
         # Match configuration line
@@ -209,7 +213,7 @@ class Platform:
         # Check paths are valid
         #
         if not self._iceHome:
-            print("Can't find an Ice " + version " binary distribution, either set ICE_HOME or " + 
+            print("Can't find an Ice " + version + " binary distribution, either set ICE_HOME or " + 
                   "use --ice-home to specify the path of the binary distribution")
             sys.exit(1)
         elif self._iceHome and not os.path.exists(self._iceHome):
@@ -231,10 +235,30 @@ class Platform:
             print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
             sys.exit(1)
 
+    def getCrossTestConfigurations(self, filter, rfilter):
+        f = " --filter=\"%s\"" % filter if filter else ""
+        r = " --rfilter=\"%s\"" % rfilter if rfilter else ""
+        configs = []
+        crossLang = ["cpp", "java", "cs"]
+        langs = set(crossLang) & set(self.getSupportedLanguages())
+        for l1 in langs:
+            for l2 in langs:
+                if l1 != l2:
+                    configs.append(TestConfiguration("cross", 
+                                                     "--cross=%s%s%s" % (l2,f,r),
+                                                     configs = ["default"], 
+                                                     languages = [l1]))
+                    if not filter and not rfilter:
+                        configs.append(TestConfiguration("cross", 
+                                                         "--cross=%s --protocol=ssl --filter=\"Ice/operations\"" % l2 ,
+                                                         configs = ["default"], 
+                                                         languages = [l1]))
+        return configs
+
     def getTestConfigurations(self, filter, rfilter):
-        filter = " --filter=\"%s\"" % filter if filter else ""
-        rfilter = " --rfilter=\"%s\"" % rfilter if rfilter else ""
-        return [TestConfiguration("all", "--all%s%s" % (filter, rfilter))]
+        f = " --filter=\"%s\"" % filter if filter else ""
+        r = " --rfilter=\"%s\"" % rfilter if rfilter else ""
+        return [TestConfiguration("all", "--all%s%w" % (f, r))] + getCrossTestConfigurations(filter, rfilter)
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = os.environ.copy()
@@ -374,7 +398,7 @@ class Platform:
             start = start.split('/')
             configIndex = int(start[0])
             if(len(start) > 1):
-                runIndex = int(start[1])
+                runIndex = start[1]
 
         #
         # Note that we don't visit the runnableConfigs directory
@@ -393,6 +417,8 @@ class Platform:
                                         if configIndex and count < configIndex:
                                             count += 1
                                             continue
+                                        elif count > configIndex:
+                                            runIndex = None
 
                                         r = buildAndRun(compiler, arch, conf, lang, runIndex, count, total)
                                         if r:
@@ -494,17 +520,34 @@ class Platform:
 
     def runTestSuite(self, compiler, arch, buildConfiguration, lang, start):
         os.chdir(os.path.join(self._sourceDir, lang))
+        results = []
+
+        i = 1
+        startIndex = None
+        configIndex = None
+        if start:
+            start = start.split('-')
+            if(len(start) > 1):
+                configIndex = int(start[0])
+                startIndex = int(start[1])
+            else:
+                configIndex = 1
+                startIndex = int(start[0])
 
         for testConf in self._testConfigurations:
-
             # Check if this test configuration is compatible with the current config
             if not testConf.runWith(compiler, arch, buildConfiguration, lang):
                 continue
 
+            if configIndex and i < configIndex:
+                i += 1
+                continue
+
             args = "--continue %s" % testConf.options
 
-            if start:
-                args += " --start=%d" % start
+            if startIndex:
+                args += " --start=%d" % startIndex
+                startIndex = None
 
             if arch == "x86_64":
                 if not self.isWindows() or os.path.exists(os.path.join(self._iceHome, "bin", "x64")):
@@ -520,7 +563,7 @@ class Platform:
                 args += " --silverlight"
                 
             if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
-                return False
+                continue
                     
             env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
 
@@ -532,10 +575,14 @@ class Platform:
             trace("", report)
             trace("*** running %s tests with %s (%s/%s/%s)" % (lang, testConf.options, compiler, arch, 
                                                                buildConfiguration), report)
-            results = TestDemoResults(os.path.join(self._sourceDir, lang))
-            spawnAndWatch(command, env, filterTestOutput(results))
-            results.flush()
-            return results
+            r = TestDemoResults(os.path.join(self._sourceDir, lang), i)
+            spawnAndWatch(command, env, filterTestOutput(r))
+            r.flush()
+            results.append(r)
+
+            i += 1
+
+        return results
             
     def buildDemos(self, compiler, arch, buildConfiguration, lang, sourceArchive):
 
@@ -594,7 +641,7 @@ class Platform:
             args += " --mode=release"
             
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
-            return False
+            return []
                 
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
 
@@ -609,7 +656,7 @@ class Platform:
         results = TestDemoResults(sourceDir)
         spawnAndWatch(command, env, filterTestOutput(results))
         results.flush()
-        return results
+        return [results]
     
     def run(self, startTests, startDemos):
 
@@ -688,9 +735,10 @@ class Platform:
 
             total = 0
             failureCount = 0
-            for (_, _, _, _, r) in results:
-                total += r._total
-                failureCount += len(r._failures)
+            for (_, _, _, _, result) in results:
+                for r in result:
+                    total += r._total
+                    failureCount += len(r._failures)
 
             if failureCount == 0:
                 trace("Ran %d %s without any failures" % (total, text), report)
@@ -743,8 +791,8 @@ class Darwin(Platform):
         f += " --filter=\"%s\"" % filter if filter else ""
         f += " --rfilter=\"%s\"" % rfilter if rfilter else ""
         return [TestConfiguration("default", "--all" + f, archs = ["x86_64"], configs = ["default"]),
-                TestConfiguration("default", "" + f, archs = ["x86"], configs = ["default"]),
-                TestConfiguration("cpp11", "" + f, configs = ["cpp11"])]
+                TestConfiguration("default", "" + f, archs = ["x86"], configs = ["default"])] + \
+                self.getCrossTestConfigurations(filter, rfilter)
 
 
 class Linux(Platform):
