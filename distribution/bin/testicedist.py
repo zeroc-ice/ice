@@ -208,10 +208,14 @@ class Platform:
         #
         # Check paths are valid
         #
-        if self._iceHome and not os.path.exists(self._iceHome):
+        if not self._iceHome:
+            print("Can't find an Ice " + version " binary distribution, either set ICE_HOME or " + 
+                  "use --ice-home to specify the path of the binary distribution")
+            sys.exit(1)
+        elif self._iceHome and not os.path.exists(self._iceHome):
             print("Invalid Ice Home setting `%s'" % self._iceHome)
             sys.exit(1)
-        
+
         if self._archive and not os.path.exists(self._archive):
             print(sys.argv[0] + "Ice source archive not found: `%s'" % self._archive)
             print(sys.argv[0] + ": you must run testicedist.py from the directory created by makedist.py")
@@ -592,7 +596,7 @@ class Platform:
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
             return False
                 
-        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
+        env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
 
         command = "%s %s" % (self.runScriptCommand("allDemos.py", compiler, arch, buildConfiguration, lang), args)
 
@@ -753,18 +757,18 @@ class Linux(Platform):
         #
         p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
-            os.exists(1)
+            sys.exit(1)
             
         self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
         
         p = subprocess.Popen("lsb_release -r", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
-            os.exists(1)
+            sys.exit(1)
         self._release = re.sub("Release:", "", p.stdout.readline().decode('UTF-8')).strip()
         
         p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
-            os.exists(1)
+            sys.exit(1)
         self._machine = p.stdout.readline().decode('UTF-8').strip()
 
     def isLinux(self):
@@ -774,7 +778,7 @@ class Linux(Platform):
         return self._distribution == "Ubuntu"
         
     def isRhel(self):
-        return self._distribution.find("RedHat") != -1
+        return self._distribution.find("RedHat") != -1 or self._distribution.find("Amazon") != -1
         
     def isSles(self):
         return self._distribution == "SUSE LINUX"
@@ -1025,6 +1029,9 @@ rfilter = None
 startTests = None
 startDemos= None
 for o, a in opts:
+    if o == "--help":
+        usage()
+        sys.exit(0)
     if o == "--ice-home":
         platform._iceHome = os.path.abspath(os.path.expanduser(a))
     elif o == "--verbose":
