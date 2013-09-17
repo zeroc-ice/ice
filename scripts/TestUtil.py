@@ -27,7 +27,7 @@ cpp11 = False                   # Binary distribution is c++ 11
 # Default java loader
 
 javaHome = os.environ.get("JAVA_HOME", "")
-javaCmd = os.path.join('"%s"' % javaHome, "bin", "java") if javaHome else "java"
+javaCmd = '"%s"' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
 
 valgrind = False                # Set to True to use valgrind for C++ executables.
 appverifier = False             # Set to True to use appverifier for C++ executables, This is windows only feature

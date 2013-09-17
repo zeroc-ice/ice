@@ -17,7 +17,7 @@ import time
 import subprocess
 
 javaHome = os.environ.get("JAVA_HOME", "")
-javaCmd = os.path.join('"%s"' % javaHome, "bin", "java") if javaHome else "java"
+javaCmd = '"%s"' % os.path.join(javaHome, "bin", "java") if javaHome else "java"
 
 # Locate the top level directory of the demo dist (or the top of the
 # source tree for a source dist).
