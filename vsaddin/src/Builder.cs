@@ -3194,7 +3194,7 @@ namespace Ice.VisualStudio
         //
         private void bringErrorsToFront()
         {
-            if(_errorListProvider == null)
+            if(commandLine || _errorListProvider == null)
             {
                 return;
             }
