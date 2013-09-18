@@ -206,33 +206,32 @@ public class EndpointHostResolver
                     threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                 Ice.Instrumentation.ThreadState.ThreadStateIdle);
                 }
+
+                if(r.observer != null)
+                {
+                    r.observer.detach();
+                }
             }
             catch(Ice.LocalException ex)
             {
                 if(r.observer != null)
                 {
                     r.observer.failed(ex.ice_name());
-                }
-                r.callback.exception(ex);
-            }
-            finally
-            {
-                if(r.observer != null)
-                {
                     r.observer.detach();
                 }
+                r.callback.exception(ex);
             }
         }
 
         for(ResolveEntry entry : _queue)
         {
             Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
-            entry.callback.exception(ex);
             if(entry.observer != null)
             {
                 entry.observer.failed(ex.ice_name());
                 entry.observer.detach();
             }
+            entry.callback.exception(ex);
         }
         _queue.clear();
     }

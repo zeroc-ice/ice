@@ -272,31 +272,32 @@ IceInternal::EndpointHostResolver::run()
             {
                 threadObserver->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
             }
+
+            if(r.observer)
+            {
+                r.observer->detach();
+            }
         }
         catch(const Ice::LocalException& ex)
         {
             if(r.observer)
             {
                 r.observer->failed(ex.ice_name());
+                r.observer->detach();
             }
             r.callback->exception(ex);
-        }
-
-        if(r.observer)
-        {
-            r.observer->detach();
         }
     }
 
     for(deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
-        p->callback->exception(ex);
         if(p->observer)
         {
             p->observer->failed(ex.ice_name());
             p->observer->detach();
         }
+        p->callback->exception(ex);
     }
     _queue.clear();
 

@@ -31,17 +31,40 @@ public:
         ++total;
         ++current;
     }
+
     virtual void 
     detach()
     {
         IceUtil::Mutex::Lock sync(*this);
         --current;
     }
+
     virtual void 
     failed(const std::string&)
     {
         IceUtil::Mutex::Lock sync(*this);
         ++failedCount;
+    }
+
+    Ice::Int
+    getTotal() const
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        return total;
+    }
+
+    Ice::Int
+    getCurrent() const
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        return current;
+    }
+
+    Ice::Int
+    getFailedCount() const
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        return failedCount;
     }
 
     Ice::Int total;

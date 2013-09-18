@@ -1079,29 +1079,29 @@ public class AllTests
         out.print("testing instrumentation observer delegate... ");
         out.flush();
 
-        test(obsv.threadObserver.total > 0);
-        test(obsv.connectionObserver.total > 0);
-        test(obsv.connectionEstablishmentObserver.total > 0);
-        test(obsv.endpointLookupObserver.total > 0);
-        test(obsv.dispatchObserver.total > 0);
-        test(obsv.invocationObserver.total > 0);
-        test(obsv.invocationObserver.remoteObserver.total > 0);
+        test(obsv.threadObserver.getTotal() > 0);
+        test(obsv.connectionObserver.getTotal() > 0);
+        test(obsv.connectionEstablishmentObserver.getTotal() > 0);
+        test(obsv.endpointLookupObserver.getTotal() > 0);
+        test(obsv.dispatchObserver.getTotal() > 0);
+        test(obsv.invocationObserver.getTotal() > 0);
+        test(obsv.invocationObserver.remoteObserver.getTotal() > 0);
 
-        test(obsv.threadObserver.current > 0);
-        test(obsv.connectionObserver.current > 0);
-        test(obsv.connectionEstablishmentObserver.current == 0);
-        test(obsv.endpointLookupObserver.current == 0);
-        test(obsv.dispatchObserver.current == 0);
-        test(obsv.invocationObserver.current == 0);
-        test(obsv.invocationObserver.remoteObserver.current == 0);
+        test(obsv.threadObserver.getCurrent() > 0);
+        test(obsv.connectionObserver.getCurrent() > 0);
+        test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
+        test(obsv.endpointLookupObserver.getCurrent() == 0);
+        test(obsv.dispatchObserver.getCurrent() == 0);
+        test(obsv.invocationObserver.getCurrent() == 0);
+        test(obsv.invocationObserver.remoteObserver.getCurrent() == 0);
 
-        test(obsv.threadObserver.failedCount == 0);
-        test(obsv.connectionObserver.failedCount > 0);
-        test(obsv.connectionEstablishmentObserver.failedCount > 0);
-        test(obsv.endpointLookupObserver.failedCount > 0);
-        //test(obsv.dispatchObserver.failedCount > 0);
-        test(obsv.invocationObserver.failedCount > 0);
-        test(obsv.invocationObserver.remoteObserver.failedCount > 0);
+        test(obsv.threadObserver.getFailedCount() == 0);
+        test(obsv.connectionObserver.getFailedCount() > 0);
+        test(obsv.connectionEstablishmentObserver.getFailedCount() > 0);
+        test(obsv.endpointLookupObserver.getFailedCount() > 0);
+        //test(obsv.dispatchObserver.getFailedCount() > 0);
+        test(obsv.invocationObserver.getFailedCount() > 0);
+        test(obsv.invocationObserver.remoteObserver.getFailedCount() > 0);
 
         test(obsv.threadObserver.states > 0);
         test(obsv.connectionObserver.received > 0 && obsv.connectionObserver.sent > 0);

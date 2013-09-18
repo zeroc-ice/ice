@@ -35,6 +35,24 @@ class ObserverI implements Ice.Instrumentation.Observer
     {
         ++failedCount;
     }
+    
+    synchronized int 
+    getTotal()
+    {
+        return total;
+    }
+
+    synchronized int 
+    getCurrent()
+    {
+        return current;
+    }
+
+    synchronized int 
+    getFailedCount()
+    {
+        return failedCount;
+    }
 
     int total;
     int current;

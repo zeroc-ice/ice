@@ -52,6 +52,33 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
 
+    public int 
+    getTotal()
+    {
+        lock(this)
+        {
+            return total;
+        }
+    }
+
+    public int 
+    getCurrent()
+    {
+        lock(this)
+        {
+            return current;
+        }
+    }
+
+    public int 
+    getFailedCount()
+    {
+        lock(this)
+        {
+            return failedCount;
+        }
+    }
+
     public int total;
     public int current;
     public int failedCount;
