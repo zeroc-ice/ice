@@ -293,6 +293,7 @@ SqlDBPlugin::initDB()
         SqlDB::ThreadHookPtr::dynamicCast(IceInternal::getInstance(_communicator)->initializationData().threadHook);
     assert(threadHook);
     threadHook->setConnectionPool(_connectionPool);
+    return true;
 }
 
 ConnectionPoolPtr
