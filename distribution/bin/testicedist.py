@@ -64,8 +64,8 @@ class TestConfiguration:
 
 class TestDemoResults:
 
-    def __init__(self, sourceDir):
-        self._sourceDir = sourceDir + '/'
+    def __init__(self):
+        self._sourceDir = None
         self._total = 0
         self._current = 0
         self._currentTest = None
@@ -79,7 +79,15 @@ class TestDemoResults:
         self.matchFailedDemo = re.compile("\(\'demo in (.*) failed with exit status\', ([0-9]+)\)")
         self.matchEndTests = re.compile("The following errors occurred")
 
+    def setSourceDir(self, sourceDir):
+        self._sourceDir = sourceDir + '/'
+
     def filter(self, line):
+
+        if(line.find("error:")) >= 0:
+            trace(line, report)
+        if(line.find("warning:") >= 0 and line.find("deprecated") == -1):
+            trace(line, report)
 
         # Match start test/demo line
         m = self.matchStartTest.match(line)
@@ -135,6 +143,10 @@ class TestDemoResults:
         elif self._total == 0:
             trace("nothing to run", report)
 
+    def interrupted(self):
+        if self._current > 0:
+            self._total = self._current - 1
+
     def getFailures(self):
         return self._failures
 
@@ -146,6 +158,8 @@ class Summary:
         self._failures = []
         self._buildTime = None
         self._runTime = None
+        self._totalBuildTime = 0
+        self._totalRunTime = 0
 
     def addResults(self, compiler, arch, buildConfiguration, lang, result):
         self._results.append((compiler, arch, buildConfiguration, lang, result))
@@ -157,23 +171,20 @@ class Summary:
         self._failures.append((compiler, arch, buildConfiguration, lang))
 
     def finishBuild(self):
-        self._buildTime = time.time() - self._buildTime
+        self._totalBuildTime += time.time() - self._buildTime
 
     def startRun(self):
         self._runTime = time.time()
 
     def finishRun(self):
-        self._runTime = time.time() - self._runTime
+        self._totalRunTime += time.time() - self._runTime
 
-    def flush(self):
+    def printSummary(self):
         if len(self._failures) > 0:
             trace("\nBuild failure(s) for " + self._desc + " with the following configuration(s):", report)
             for (compiler, arch, conf, lang) in self._failures:
                 trace("- %s %s (%s/%s/%s)" % (lang, self._desc, compiler, arch, conf), report)
             trace("", report)
-
-        if len(self._results) == 0 and len(self._failures) == 0:
-            return
 
         total = 0
         failureCount = 0
@@ -181,26 +192,25 @@ class Summary:
             total += r._total
             failureCount += len(r._failures)
 
-        if failureCount == 0:
-            trace("Ran %d %s without any failures" % (total, self._desc), report)
-        elif failureCount == 1:
-            trace("Ran %d %s sucessfully, 1 failure:" % (total - 1, self._desc), report)
-        else:
-            trace("Ran %d %s sucessfully, %d failures:" % (total - failureCount, self._desc, failureCount), report)
+        if total > 0:
+            if failureCount == 0:
+                trace("Ran %d %s without any failures" % (total, self._desc), report)
+            elif failureCount == 1:
+                trace("Ran %d %s sucessfully, 1 failure:" % (total - 1, self._desc), report)
+            else:
+                trace("Ran %d %s sucessfully, %d failures:" % (total - failureCount, self._desc, failureCount), report)
                 
-        if failureCount > 0:
-            for (compiler, arch, conf, lang, r) in self._results:
-                for test in r.getFailures():
-                    trace("- %s/%s (%s/%s/%s)" % (lang, test, compiler, arch, conf), report)
+            if failureCount > 0:
+                for (compiler, arch, conf, lang, r) in self._results:
+                    for test in r.getFailures():
+                        trace("- %s/%s (%s/%s/%s)" % (lang, test, compiler, arch, conf), report)
 
-        if self._buildTime:
-            trace("Build %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._buildTime)), 
+        if self._totalBuildTime > 0:
+            trace("Build %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._totalBuildTime)), 
                   report)
-        if self._runTime:
-            trace("Run %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._runTime)), report)
-
-def filterTestOutput(results):
-    return lambda line: results.filter(line)
+        if self._totalRunTime > 0:
+            trace("Run %s duration: %s (HH:mm:ss)" % (self._desc, datetime.timedelta(seconds=self._totalRunTime)),
+                  report)
 
 def filterBuildOutput(line):
     if(line.find("error:")) >= 0:
@@ -484,9 +494,13 @@ class Platform:
                                     for lang in self.getLanguageMappings(compiler, arch, conf):
                                         if lang in runnableConfigs[compiler][arch][conf]:
                                             summary.startBuild()
-                                            if not build(compiler, arch, conf, lang, "%d/%d" % (count, buildTotal)):
-                                                summary.addBuildFailure(compiler, arch, conf, lang)
-                                                runnableConfigs[compiler][arch][conf][lang] = {}
+                                            try:
+                                                if not build(compiler, arch, conf, lang, "%d/%d" % (count, buildTotal)):
+                                                    summary.addBuildFailure(compiler, arch, conf, lang)
+                                                    runnableConfigs[compiler][arch][conf][lang] = {}
+                                            except KeyboardInterrupt:
+                                                summary.finishBuild()
+                                                raise
                                             summary.finishBuild()
                                             count += 1
 
@@ -518,9 +532,16 @@ class Platform:
                                             
                                             index = "%d/%d" % (count, runTotal)
                                             summary.startRun()
-                                            r = run(compiler, arch, conf, lang, testConfig, runIndex, index)
-                                            if r:
-                                                summary.addResults(compiler, arch, conf, lang, r)
+                                            r = TestDemoResults()
+                                            summary.addResults(compiler, arch, conf, lang, r)
+                                            try:
+                                                run(compiler, arch, conf, lang, testConfig, r, runIndex, index)
+                                                r.flush()
+                                            except KeyboardInterrupt:
+                                                r.interrupted()
+                                                summary.finishRun()
+                                                raise
+
                                             summary.finishRun()
                                             count += 1
 
@@ -612,13 +633,14 @@ class Platform:
             trace("failed!", report)
             return False
 
-    def runTestSuite(self, compiler, arch, buildConfiguration, lang, testConf, start, index):
+    def runTestSuite(self, compiler, arch, buildConfiguration, lang, testConf, results, start, index):
         os.chdir(os.path.join(self._sourceDir, lang))
+        results.setSourceDir(os.path.join(self._sourceDir, lang))
 
         args = "--continue %s" % testConf.options
 
         if start:
-            args += " --start=%d" % start
+            args += " --start=%s" % start
 
         if self.is64(arch):
             args += " --x64"
@@ -633,7 +655,7 @@ class Platform:
             args += " --silverlight"
                 
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
-            return None
+            return False
                     
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, True)
 
@@ -645,10 +667,8 @@ class Platform:
         trace("", report)
         trace("*** [%s] running %s tests with %s (%s/%s/%s)" % (index, lang, testConf.options, compiler, arch, 
                                                                     buildConfiguration), report)
-        r = TestDemoResults(os.path.join(self._sourceDir, lang))
-        spawnAndWatch(command, env, filterTestOutput(r))
-        r.flush()
-        return r
+        spawnAndWatch(command, env, lambda line: results.filter(line))
+        return True
             
     def buildDemos(self, compiler, arch, buildConfiguration, lang, sourceArchive, index):
 
@@ -681,7 +701,7 @@ class Platform:
             trace("failed!", report)
             return False
 
-    def runDemos(self, compiler, arch, buildConfiguration, lang, testConf, start, sourceArchive, index):
+    def runDemos(self, compiler, arch, buildConfiguration, lang, testConf, results, start, sourceArchive, index):
 
         sourceDir = None
         if sourceArchive:
@@ -689,6 +709,7 @@ class Platform:
         else:
             sourceDir = os.path.join(self._demoDir, self.getDemoDir(lang))
         os.chdir(sourceDir)
+        results.setSourceDir(sourceDir)
 
         if start:
             args = "--start=%s" % start
@@ -710,7 +731,7 @@ class Platform:
         args += " --fast"
 
         if lang == "java" and not self.checkJavaSupport(arch, buildConfiguration, output):
-            return []
+            return False
                 
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
 
@@ -721,81 +742,82 @@ class Platform:
             
         trace("", report)
         trace("*** [%s] running %s demos (%s/%s/%s)" % (index, lang, compiler, arch, buildConfiguration), report)
-        results = TestDemoResults(sourceDir)
-        spawnAndWatch(command, env, filterTestOutput(results))
-        results.flush()
-        return results
+        spawnAndWatch(command, env, lambda line: results.filter(line))
+        return True
     
     def run(self, startTests, startDemos):
 
         testSummary = Summary("tests")
         demoSummary = Summary("demos")
 
-        #
-        # Build and run tests for all compilers && buildConfigurations
-        #
-        if self._archive and not self._skipTests and not startDemos:
-            def buildTests(compiler, arch, conf, lang, index):
-                return self.buildTestSuite(compiler, arch, conf, lang, index)
+        try:
+            #
+            # Build and run tests for all compilers && buildConfigurations
+            #
+            if self._archive and not self._skipTests and not startDemos:
+                def buildTests(compiler, arch, conf, lang, index):
+                    return self.buildTestSuite(compiler, arch, conf, lang, index)
 
-            def runTests(compiler, arch, conf, lang, testConf, start, index):
-                return self.runTestSuite(compiler, arch, conf, lang, testConf, start, index)
+                def runTests(compiler, arch, conf, lang, testConf, results, start, index):
+                    return self.runTestSuite(compiler, arch, conf, lang, testConf, results, start, index)
 
-            def filterTests(compiler, arch, conf, lang, testConfigs):
-                if compiler == "VC90" and arch == "x64":
-                    return False
-                if conf == "silverlight" and arch == "x64":
-                    return False
-                if lang == "java" and arch != self.getDefaultArchitecture():
-                    return False # Only run Java tests on default arch.
-                if lang == "vb":
-                    return False
+                def filterTests(compiler, arch, conf, lang, testConfigs):
+                    if compiler == "VC90" and arch == "x64":
+                        return False
+                    if conf == "silverlight" and arch == "x64":
+                        return False
+                    if lang == "java" and arch != self.getDefaultArchitecture():
+                        return False # Only run Java tests on default arch.
+                    if lang == "vb":
+                        return False
 
-                for testConf in self._testConfigurations:
-                    if testConf.runWith(compiler, arch, conf, lang):
-                        testConfigs[testConf.name] = testConf
-                return True
+                    for testConf in self._testConfigurations:
+                        if testConf.runWith(compiler, arch, conf, lang):
+                            testConfigs[testConf.name] = testConf
+                    return True
 
-            extractTests = lambda compiler, arch, conf: self.extractSourceArchive(compiler, arch, conf)
+                extractTests = lambda compiler, arch, conf: self.extractSourceArchive(compiler, arch, conf)
 
-            trace("\n******", report)
-            trace("****** Building and running tests", report)
-            trace("******", report)
+                trace("\n******", report)
+                trace("****** Building and running tests", report)
+                trace("******", report)
 
-            self.buildAndRun(buildTests, runTests, filterTests, extractTests, startTests, testSummary)
-            
-        if self._demoArchive and not self._skipDemos:
+                self.buildAndRun(buildTests, runTests, filterTests, extractTests, startTests, testSummary)
 
-            def buildDemos(compiler, arch, conf, lang, index):
-                return self.buildDemos(compiler, arch, conf, lang, False, index)
+            if self._demoArchive and not self._skipDemos:
 
-            def runDemos(compiler, arch, conf, lang, testConf, start, index):
-                return self.runDemos(compiler, arch, conf, lang, testConf, start, False, index)
+                def buildDemos(compiler, arch, conf, lang, index):
+                    return self.buildDemos(compiler, arch, conf, lang, False, index)
 
-            def filterDemos(compiler, arch, conf, lang, testConfigs):
-                if compiler in ["VC90"] and arch in ["x64"]:
-                    return False
-                if conf == "silverlight": # Silverlight demos need manual intervention
-                    return False
-                if lang == "java" and arch != self.getDefaultArchitecture():
-                    return False # Only run Java demos on default arch.
-                if lang == "php":
-                    return False
-                
-                testConfigs["default"] = self._demoConfiguration
-                return True
+                def runDemos(compiler, arch, conf, lang, testConf, results, start, index):
+                    return self.runDemos(compiler, arch, conf, lang, testConf, results, start, False, index)
 
-            extractDemos = lambda compiler, arch, conf: self.extractDemoArchive(compiler, arch, conf)
+                def filterDemos(compiler, arch, conf, lang, testConfigs):
+                    if compiler in ["VC90"] and arch in ["x64"]:
+                        return False
+                    if conf == "silverlight": # Silverlight demos need manual intervention
+                        return False
+                    if lang == "java" and arch != self.getDefaultArchitecture():
+                        return False # Only run Java demos on default arch.
+                    if lang == "php":
+                        return False
 
-            trace("\n******", report)
-            trace("****** Building and running demos", report)
-            trace("******", report)
+                    testConfigs["default"] = self._demoConfiguration
+                    return True
 
-            self.buildAndRun(buildDemos, runDemos, filterDemos, extractDemos, startDemos, demoSummary)
-            
+                extractDemos = lambda compiler, arch, conf: self.extractDemoArchive(compiler, arch, conf)
+
+                trace("\n******", report)
+                trace("****** Building and running demos", report)
+                trace("******", report)
+
+                self.buildAndRun(buildDemos, runDemos, filterDemos, extractDemos, startDemos, demoSummary)
+        except KeyboardInterrupt:
+            pass
+
         trace("\n\nSummary:", report)
-        testSummary.flush()
-        demoSummary.flush()
+        testSummary.printSummary()
+        demoSummary.printSummary()
 
 class Darwin(Platform):
     
