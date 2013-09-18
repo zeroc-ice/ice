@@ -272,13 +272,10 @@ def spawnAndWatch(command, env, filterFunc):
                     
         if type(line) != str:
             line = line.decode()
-        
-        line = line.strip()
 
         filterFunc(line)
 
         output.write(line)
-        output.write("\n")
         output.flush()
                 
     return p.poll() == 0
@@ -466,17 +463,17 @@ class Platform:
         return False
 
     def getCompilers(self):
-        return filter(lambda x: include(x, self._compilers, self._rcompilers), self.getSupportedCompilers())
+        return list(filter(lambda x: include(x, self._compilers, self._rcompilers), self.getSupportedCompilers()))
 
     def getArchitectures(self):
-        return filter(lambda x: include(x, self._archs, self._rarchs), self.getSupportedArchitectures())
+        return list(filter(lambda x: include(x, self._archs, self._rarchs), self.getSupportedArchitectures()))
 
     def getLanguages(self):
-        return filter(lambda x: include(x, self._languages, self._rlanguages), self.getSupportedLanguages())
+        return list(filter(lambda x: include(x, self._languages, self._rlanguages), self.getSupportedLanguages()))
 
     def getConfigurations(self, compiler, arch):
-        return filter(lambda x: include(x, self._configurations, self._rconfigurations), 
-                      self.getSupportedConfigurations(compiler, arch))
+        return list(filter(lambda x: include(x, self._configurations, self._rconfigurations), 
+                           self.getSupportedConfigurations(compiler, arch)))
         
     def getDefaultArchitecture(self):
         # Default architecture is first non-filtered architecture by default
@@ -509,7 +506,7 @@ class Platform:
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
         if buildConfiguration in ["debug", "cpp11", "winrt"]:
             languages = ["cpp"]
-        elif buildConfiguration == "java1.7":
+        elif buildConfiguration == "java1.6":
             languages = ["java"]
         elif compiler == "VC90" or buildConfiguration == "silverlight":
             languages = ["cs"]
@@ -1041,6 +1038,18 @@ class Windows(Platform):
         self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
         self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
     
+    def getTestConfigurations(self, filter, rfilter):
+        f = ""
+        f += " --filter=\"%s\"" % filterArg if filterArg else ""
+        f += " --rfilter=\"%s\"" % rfilterArg if rfilterArg else ""
+        configs = Platform.getTestConfigurations(self, filterArg, rfilterArg)
+        #
+        # Run non default configurations without --all
+        #
+        for c in ["debug", "java1.6", "silverlight"]:
+            configs.append(TestConfiguration(c, "" + f, configs = [c]))
+        return configs
+                
     def canonicalArch(self, arch):
         if arch == "x64":
             arch = "amd64"
@@ -1092,9 +1101,10 @@ class Windows(Platform):
         if compiler == "VC100":
             buildConfigurations.append("debug")
             buildConfigurations.append("silverlight")
-            buildConfigurations.append("java1.7")
+            buildConfigurations.append("java1.6")
         elif compiler == "VC110":
             buildConfigurations.append("debug")
+            buildConfigurations.append("java1.6")
             buildConfigurations.append("silverlight")
             if self.isWindows8():
                 buildConfigurations.append("winrt")

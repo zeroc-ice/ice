@@ -90,10 +90,10 @@ def getVcVarsAll(compiler):
 
 def getJavaHome(arch, configuration):
 
-    if configuration == "java1.7":
-        version = "1.7"
-    else:
+    if configuration == "java1.6":
         version = "1.6"
+    else:
+        version = "1.7"
 
     import winreg
     flags = winreg.KEY_READ
