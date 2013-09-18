@@ -27,11 +27,6 @@
 #   pragma warning( 4 : 4244 )
 #endif
 
-#if defined(__GNUC__)
-#   pragma GCC diagnostic warning "-Wunused-function"
-#endif
-
-
 using namespace std;
 using namespace Ice;
 
@@ -63,6 +58,8 @@ DIGIT   [0-9]
 
 %option noyywrap
 %option never-interactive
+%option nounput
+%option noinput
 
 %%
 
