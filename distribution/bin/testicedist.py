@@ -86,7 +86,7 @@ class TestDemoResults:
         self.matchEndTests = re.compile("The following errors occurred")
 
     def setSourceDir(self, sourceDir):
-        self._sourceDir = sourceDir + '/'
+        self._sourceDir = sourceDir + os.sep
 
     def filter(self, line):
 
@@ -104,10 +104,10 @@ class TestDemoResults:
                 trace("ok", report)
                 self._current = 0
 
-            self._current = int(m.group(1))
+            self._current = int(m.group(1).strip())
             if self._total == 0:
-                self._total = int(m.group(2))
-            self._currentTest = m.group(3)
+                self._total = int(m.group(2).strip())
+            self._currentTest = m.group(3).strip()
 
             if self._currentTest.startswith(self._sourceDir):
                 self._currentTest = self._currentTest[len(self._sourceDir):]
@@ -118,7 +118,7 @@ class TestDemoResults:
         # Match configuration line
         m = self.matchConfiguration.match(line)
         if m:
-            c = m.group(1)
+            c = m.group(1).strip()
             if c != "Default":
                 trace(" (" + c + ")", report, False)
             trace("... ", report, False)
@@ -132,7 +132,7 @@ class TestDemoResults:
                 m = self.matchFailedDemo.match(line)
             if m:
                 if self._current > 0:
-                    trace("failed! (%d/%d status = %s)" % (self._current, self._total, m.group(2)), report)
+                    trace("failed! (%d/%d status = %s)" % (self._current, self._total, m.group(2).strip()), report)
                     self._current = 0
                     self._failures.append(self._currentTest)
                 return
@@ -263,6 +263,10 @@ def filterBuildOutput(line):
 
 def spawnAndWatch(command, env, filterFunc):
 
+    for k,v in env.items():
+        if k in os.environ and v == os.environ[k]:
+            continue
+        output.write("%s = %s\n" % (k, v))
     output.write(command)
     output.write('\n')
     output.flush()
