@@ -400,7 +400,7 @@ class Platform:
         if(otherArchs):
             configs.append(TestConfiguration("default", "" + f, archs = otherArchs, configs = ["default"]))
 
-        langs = set(["cpp", "java", "cs"]) & set(self.getSupportedLanguages())
+        langs = set(["cpp", "java", "cs"]) & set(self.getLanguages()())
         for l1 in langs:
             for l2 in langs:
                 if l1 != l2:
