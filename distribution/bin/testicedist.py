@@ -13,9 +13,14 @@ import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
-import BuildUtils
+import BuildUtils, FixUtil
 
 version = "3.5.1"
+
+#
+# Substitute development PublicKeyToken by release PublicKeyToken in Silverlight projects
+#
+projectSubstituteExprs = [(re.compile(re.escape("PublicKeyToken=1f998c50fec78381")), "PublicKeyToken=cdd571ade22f2f16")]
 
 def runCommand(cmd, verbose):
     if len(cmd) > 0:
@@ -634,7 +639,12 @@ class Platform:
             if self._archive.endswith(".tar.gz"):
                 runCommand("tar -zxf %s" %(self._archive), self._verbose)
             elif self._archive.endswith(".zip"):
-                zipfile.ZipFile(self._archive).extractall()                
+                zipfile.ZipFile(self._archive).extractall() 
+                
+                for root, dirnames, filenames in os.walk(os.path.join(self._sourceDir, "cs", "test")):
+                    for f in filenames:
+                        if fnmatch.fnmatch(f, "*.csproj"):
+                            FixUtil.fileMatchAndReplace(os.path.join(root, f), projectSubstituteExprs, False)
             
     def extractDemoArchive(self, compiler, arch, conf):
         if not os.path.exists(os.path.join(self._buildDir, compiler, arch, conf)):
@@ -695,12 +705,14 @@ class Platform:
             if self._verbose:
                 print(command)
         
-        if spawnAndWatch(command, env, filterBuildOutput):
+            if not spawnAndWatch(command, env, filterBuildOutput):
+                trace("failed!", report)
+                status = False
+                break
+            
+        if status:
             trace("ok", report)
-            return True
-        else:
-            trace("failed!", report)
-            return False
+        return status
 
     def runTests(self, compiler, arch, buildConfiguration, lang, testConf, results, start, index):
         os.chdir(os.path.join(self._sourceDir, lang))

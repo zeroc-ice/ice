@@ -361,7 +361,7 @@ def fixGitAttributes(checkout, autocrlf, excludes):
     os.remove(origfile)
 
 ###### UNIX distfiles 
-excludeForDistFiles = [ "fixCopyright.py", "fixVersion.py", "FixUtil.py", "makedist.py" ]
+excludeForDistFiles = [ "fixCopyright.py", "fixVersion.py", "makedist.py" ]
 fixGitAttributes(True, False, excludeForDistFiles)
 createDistfilesDist("UNIX", distFilesDir)
 

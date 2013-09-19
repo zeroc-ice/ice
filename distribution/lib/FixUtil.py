@@ -164,12 +164,13 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
 
     if updated:
         if verbose:
-            print "updated " + filename
+            print("updated " + filename)
+        os.remove(filename)
         os.rename(filename + ".new", filename)
         os.chmod(filename, S_IMODE(mode))
     else:
         if verbose:
-            print "warning: " + filename + " didn't contain any match"
+            print("warning: " + filename + " didn't contain any match")
         os.unlink(filename + ".new")
 
 #
@@ -210,17 +211,18 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps, verbose=True):
 
     if updated:
         if verbose:
-            print "updated " + filename
+            print("updated " + filename)
+        os.remove(filename)
         os.rename(filename + ".new", filename)
         os.chmod(filename, S_IMODE(mode))
     else:
         if verbose:
-            print "warning: " + filename + " didn't contain any match"
+            print("warning: " + filename + " didn't contain any match")
         os.unlink(filename + ".new")
 
 def checkVersion(version):
     if not re.match(vpatCheck, version):
-        print "invalid version number: " + version + " (it should have the form 3.2.1 or 3.2b or 3.2b2)"
+        print("invalid version number: " + version + " (it should have the form 3.2.1 or 3.2b or 3.2b2)")
         sys.exit(0)
 
 def fixLineEnd():
@@ -293,10 +295,10 @@ def fixLineEnd():
             file = open(filename, "w")
             file.write(text + eol)
             file.close()
-            print "Added EOL to file " + filename
+            print("Added EOL to file " + filename)
 
         if convert:
-            print "Converting " + filename
+            print("Converting " + filename)
             os.popen("dos2unix -U -q " + filename)
             if dos:
                 os.popen("recode -f latin1..dos " + filename)
