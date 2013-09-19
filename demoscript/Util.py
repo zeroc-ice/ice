@@ -55,7 +55,15 @@ host = "127.0.0.1"
 #
 debug = False
 
-
+def getJavaVersion():
+    p = subprocess.Popen(javaCmd + " -version", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    if(p.wait() != 0):
+        print(javaCmd + " -version failed:\n" + p.stdout.read().strip())
+        sys.exit(1)
+    matchVersion = re.compile('java version \"(.*)\"')
+    m = matchVersion.match(p.stdout.readline().decode('UTF-8'))
+    return m.group(1)
+    
 class filereader(Expect.reader):
     def __init__(self, desc, p):
         Expect.reader.__init__(self, desc, p, None)
