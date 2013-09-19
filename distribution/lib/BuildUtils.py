@@ -88,12 +88,7 @@ def getVcVarsAll(compiler):
     except WindowsError as error:
         return None
 
-def getJavaHome(arch, configuration):
-
-    if configuration == "java1.6":
-        version = "1.6"
-    else:
-        version = "1.7"
+def getJavaHome(arch, version):
 
     import winreg
     flags = winreg.KEY_READ

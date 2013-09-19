@@ -455,7 +455,7 @@ if not skipBuild:
                         env["PYTHON_HOME"] = pythonHome
 
                     if lang == "java":
-                        javaHome = getJavaHome(arch, "java1.7")
+                        javaHome = getJavaHome(arch, "1.7")
 
                         if javaHome is None:
                             #

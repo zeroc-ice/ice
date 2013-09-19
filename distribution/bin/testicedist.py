@@ -416,6 +416,15 @@ class Platform:
                                                          archs = [defaultArch],
                                                          languages = [l1]))
 
+        buildConfigs = set()
+        for comp in self.getCompilers():
+            for arch in self.getArchitectures():
+                for c in self.getConfigurations(comp, arch):
+                    if c != "default" and c != "winrt":
+                        buildConfigs.add(c)
+        for c in buildConfigs:
+            configs.append(TestConfiguration(c, f, configs = [c]))
+
         return configs
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
@@ -437,16 +446,23 @@ class Platform:
             env["LP64"] = "yes"
             
         if lang == "java":
-
-            javaHome = self.getJavaHome(arch, buildConfiguration)
-            if javaHome:            
-                env["JAVA_HOME"] = javaHome
+            javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
+            if javaHome:
+                if self.isWindows():
+                    env["JAVA_HOME"] = javaHome
+                else:
+                    prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
             
             if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
                 prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
         return env
-            
+    
     def checkJavaSupport(self, arch, buildConfiguration, output):
+        version = self.getJavaVersion(buildConfiguration)
+        javaHome = self.getJavaHome(arch, version)
+        if javaHome is None:
+            trace("could not detect java `%s' for %s/%s" % (version, arch, buildConfiguration), output)
+            return False
         return True
 
     def is64(self, arch):
@@ -495,6 +511,9 @@ class Platform:
                 continue
             return a
 
+    def getJavaVersion(self, config):
+        return config[4:] if config.startswith("java") else "1.7"
+
     def getDemoDir(self, lang):
         if lang == "cpp":
             return "demo"
@@ -511,7 +530,7 @@ class Platform:
         elif lang == "vb":
             return "demovb"
 
-    def getJavaHome(self, arch, buildConfiguration):
+    def getJavaHome(self, arch, version):
         return None
     
     def getLanguageMappings(self, compiler, arch, buildConfiguration):
@@ -921,7 +940,10 @@ class Darwin(Platform):
         
     def isDarwin(self):
         return True
-        
+
+    def checkJavaSupport(self, arch, buildConfiguration, output):
+        return True # Disable check, use default java version
+
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
         if lang == "java":
@@ -930,14 +952,6 @@ class Darwin(Platform):
             #
             prependPathToEnvironVar(env, "DYLD_LIBRARY_PATH", os.path.join(self._iceHome, "lib"))
         return env
-
-    def getTestConfigurations(self, filterArg, rfilterArg):
-        f = ""
-        f += " --filter=\"%s\"" % filterArg if filterArg else ""
-        f += " --rfilter=\"%s\"" % rfilterArg if rfilterArg else ""
-        configs = Platform.getTestConfigurations(self, filterArg, rfilterArg)
-        configs.append(TestConfiguration("cpp11", "" + f, configs = ["cpp11"]))
-        return configs
 
 class Linux(Platform):
     
@@ -980,7 +994,24 @@ class Linux(Platform):
         
     def getRelease(self):
         return self._release
-        
+
+    def getJavaHome(self, arch, version):
+        jvmDir = "/usr/lib"
+
+        if self.isUbuntu():
+            minorVersion = version.split('.')[1]
+            jvmDir += "/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x86_64" else "i836")
+            if not os.path.exists(jvmDir):
+                jvmDir += "/jvm/java-%s-oracle" % (minorVersion)
+        else:
+            if self.isSles() and arch == "x64":
+                libDir += 64
+            jvmDir += "/jvm/java-%s.0" % version
+
+        if not os.path.exists(jvmDir):
+            return None
+        return jvmDir
+
     def getSupportedLanguages(self):
         languages = ["cpp"]
         if not self.isRhel():
@@ -997,6 +1028,9 @@ class Linux(Platform):
         else:
             return ["x86"]
             
+    def getSupportedConfigurations(self, compiler, arch):
+        return ["default", "java1.6"]
+
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
         if lang == "java":
@@ -1022,6 +1056,9 @@ class Solaris(Platform):
     def isSolaris(self):
         return True
         
+    def checkJavaSupport(self, arch, buildConfiguration, output):
+        return True # Disable check, use default java version
+
     def getDistribution(self):
         return self._distribution
         
@@ -1063,18 +1100,6 @@ class Windows(Platform):
         self._demoArchive = os.path.join(distDir, "Ice-%s-demos.zip" % version)
         self._demoScriptsArchive = os.path.join(distDir, "Ice-%s-demo-scripts.zip" % version)
     
-    def getTestConfigurations(self, filter, rfilter):
-        f = ""
-        f += " --filter=\"%s\"" % filterArg if filterArg else ""
-        f += " --rfilter=\"%s\"" % rfilterArg if rfilterArg else ""
-        configs = Platform.getTestConfigurations(self, filterArg, rfilterArg)
-        #
-        # Run non default configurations without --all
-        #
-        for c in ["debug", "java1.6", "silverlight"]:
-            configs.append(TestConfiguration(c, "" + f, configs = [c]))
-        return configs
-                
     def canonicalArch(self, arch):
         if arch == "x64":
             arch = "amd64"
@@ -1113,13 +1138,6 @@ class Windows(Platform):
     def isWindows8(self):
         version = sys.getwindowsversion()
         return version.major == 6 and version.minor == 2 and version.build == 9200
-    
-    def checkJavaSupport(self, arch, buildConfiguration, output):
-        javaHome = self.getJavaHome(arch, buildConfiguration)
-        if javaHome is None:
-            trace("Could not detect Java for arch: %s buildConfiguration: %s" % (arch, buildConfiguration), output)
-            return False
-        return True
 
     def getSupportedConfigurations(self, compiler, arch):        
         buildConfigurations = ["default"]
@@ -1159,7 +1177,7 @@ class Windows(Platform):
         return archs
 
     def getJavaHome(self, arch, buildConfiguration):
-        return BuildUtils.getJavaHome(arch, buildConfiguration)
+        return BuildUtils.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
