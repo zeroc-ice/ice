@@ -617,7 +617,7 @@ if not skipInstaller:
 
     os.chdir(os.path.join(iceBuildHome, "installer"))
 
-    installerdDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
+    installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
     installerdSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
     installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % version)
 
@@ -626,7 +626,7 @@ if not skipInstaller:
     zipfile.ZipFile(sourceArchive).extractall()
     if os.path.exists(installerdSrcDir):
         shutil.rmtree(installerdSrcDir, onerror = _handle_error)
-    shutil.move(installerdDir, installerdSrcDir)
+    shutil.move(installerDir, installerdSrcDir)
     print("ok")
 
     sys.stdout.write("extracting %s to %s... " % (os.path.basename(demoArchive), installerDemoDir))
@@ -639,10 +639,10 @@ if not skipInstaller:
     #
     # Remove previous installer if already exists
     #
-    if os.path.exists(installerdDir):
-        shutil.rmtree(installerdDir, onerror = _handle_error)
+    if os.path.exists(installerDir):
+        shutil.rmtree(installerDir, onerror = _handle_error)
 
-    os.makedirs(installerdDir)
+    os.makedirs(installerDir)
 
     for arch in ["x86", "amd64", "arm"]:
         for compiler in ["VC100", "MINGW", "VC90", "VC110"]:
@@ -658,18 +658,23 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                                #
+                                # IceGridGUI.jar in binary distribution should go in the bin directory.
+                                #
+                                if f == "IceGridGUI.jar":
+                                    targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile)
 
                     for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt", "RELEASE_NOTES.txt"]:
-                        copy(os.path.join(sourceDir, f), os.path.join(installerdDir, f), verbose = verbose)
+                        copy(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
 
                     #
                     # Copy add-in icon from source dist
                     #
                     copy(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"), \
-                         os.path.join(installerdDir, "icon", "newslice.ico"), verbose = verbose)
+                         os.path.join(installerDir, "icon", "newslice.ico"), verbose = verbose)
 
                 if compiler == "VC100" and arch == "x86" and conf == "debug":
                     for d in ["bin", "lib"]:
@@ -677,7 +682,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -687,7 +692,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -697,7 +702,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -707,7 +712,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -717,7 +722,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -728,7 +733,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 if not os.path.exists(targetFile):
                                     copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -741,7 +746,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 targetFile = os.path.join(os.path.dirname(targetFile), "vc110", \
                                                           os.path.basename(targetFile))
                                 if not os.path.exists(targetFile):
@@ -753,7 +758,7 @@ if not skipInstaller:
                             for f in filenames:
                                 if f in filterFiles:
                                     continue
-                                targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                                 targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
                                                           os.path.basename(targetFile))
                                 if not os.path.exists(targetFile):
@@ -768,7 +773,7 @@ if not skipInstaller:
                         for f in filenames:
                             if f in filterFiles:
                                 continue
-                            targetFile = relPath(installDir, installerdDir, os.path.join(root, f))
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -777,7 +782,7 @@ if not skipInstaller:
     #
     docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
     for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
-        copy(os.path.join(docsDir, f), os.path.join(installerdDir, f), verbose = verbose)
+        copy(os.path.join(docsDir, f), os.path.join(installerDir, f), verbose = verbose)
 
     #
     # Copy thirdpary files
@@ -786,7 +791,7 @@ if not skipInstaller:
         for f in filenames:
             if f in filterFiles:
                 continue
-            targetFile = relPath(thirdPartyHome, installerdDir, os.path.join(root, f))
+            targetFile = relPath(thirdPartyHome, installerDir, os.path.join(root, f))
             if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
@@ -795,16 +800,16 @@ if not skipInstaller:
     #
     # Move PDBs to PDBs installer dir
     #
-    pdbInstallerdDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
+    pdbinstallerDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
 
-    if os.path.exists(pdbInstallerdDir):
-        shutil.rmtree(pdbInstallerdDir, onerror = _handle_error)
+    if os.path.exists(pdbinstallerDir):
+        shutil.rmtree(pdbinstallerDir, onerror = _handle_error)
 
-    for root, dirnames, filenames in os.walk(installerdDir):
+    for root, dirnames, filenames in os.walk(installerDir):
         for f in filenames:
             if f in filterFiles:
                 continue
-            targetFile = relPath(installerdDir, pdbInstallerdDir, os.path.join(root, f))
+            targetFile = relPath(installerDir, pdbinstallerDir, os.path.join(root, f))
             if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".pdb"]:
                 move(os.path.join(root, f), targetFile)
 
