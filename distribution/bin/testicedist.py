@@ -1120,7 +1120,7 @@ class Windows(Platform):
         if lang != "py":
             python = sys.executable
         else:
-            pythonHome = BuildUtils.getPythonHome(lang)
+            pythonHome = BuildUtils.getPythonHome(arch)
             python = os.path.join(pythonHome, "python") if pythonHome else "python"
         return "\"%s\" %s && %s %s" % (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), python, script)
 
