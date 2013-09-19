@@ -63,7 +63,7 @@ do_start()
     daemonoptions="--start --quiet"
     if [ "$user" != "root" ]
     then
-    	daemonoptions="$daemonoptions --user $user"
+    	daemonoptions="$daemonoptions --chuid $user"
     	if [ ! -e $PIDFILE ]
         then
             touch $PIDFILE
