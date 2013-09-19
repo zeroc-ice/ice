@@ -961,17 +961,20 @@ class Linux(Platform):
         #
         p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
+            print("lsb_release failed:\n" + p.stdout.read().strip())
             sys.exit(1)
             
         self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
         
         p = subprocess.Popen("lsb_release -r", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
+            print("lsb_release failed:\n" + p.stdout.read().strip())
             sys.exit(1)
         self._release = re.sub("Release:", "", p.stdout.readline().decode('UTF-8')).strip()
         
         p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
+            print("lsb_release failed:\n" + p.stdout.read().strip())
             sys.exit(1)
         self._machine = p.stdout.readline().decode('UTF-8').strip()
 
@@ -982,8 +985,11 @@ class Linux(Platform):
         return self._distribution == "Ubuntu"
         
     def isRhel(self):
-        return self._distribution.find("RedHat") != -1 or self._distribution.find("Amazon") != -1
-        
+        for r in ["RedHat", "Amazon", "CentOS"]:
+            if self._distribution.find(r) != -1:
+                return True
+        return False
+
     def isSles(self):
         return self._distribution == "SUSE LINUX"
         
