@@ -448,10 +448,8 @@ class Platform:
         if lang == "java":
             javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
             if javaHome:
-                if self.isWindows():
-                    env["JAVA_HOME"] = javaHome
-                else:
-                    prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
+                env["JAVA_HOME"] = javaHome
+                prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
             
             if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
                 prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
