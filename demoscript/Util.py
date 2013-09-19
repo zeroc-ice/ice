@@ -65,10 +65,10 @@ class filereader(Expect.reader):
         try:
             while True:
                 c = self.p.read(1)
-                if c == '': 
+                if not c: 
                     time.sleep(0.1) 
                     continue
-                if not c: break
+
                 if c == '\r': continue
                 self.cv.acquire()
                 try:
