@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime, threading, tempfile
+import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime, threading, tempfile, platform
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
@@ -811,20 +811,27 @@ class Platform:
         else:
             buildDir = os.path.join(self._demoDir, self.getDemoDir(lang))
 
-        command = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "ant"
+        commands = self.makeDemosCommand(compiler, arch, buildConfiguration, lang, buildDir) if lang != "java" else "ant"
+        if type(commands) == str:
+            commands = [commands]
+            
         env = self.getPlatformEnvironment(compiler, arch, buildConfiguration, lang, sourceArchive)
         
         os.chdir(buildDir)
         
-        if self._verbose:
-            print(command)
-
-        if spawnAndWatch(command, env, filterBuildOutput):
+        status = True
+        for command in commands:
+            if self._verbose:
+                print(command)
+        
+            if not spawnAndWatch(command, env, filterBuildOutput):
+                trace("failed!", report)
+                status = False
+                break
+            
+        if status:
             trace("ok", report)
-            return True
-        else:
-            trace("failed!", report)
-            return False
+        return status
 
     def runDemos(self, compiler, arch, buildConfiguration, lang, testConf, results, start, index):
 
@@ -1104,9 +1111,19 @@ class Windows(Platform):
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         bConf = "Debug" if buildConfiguration == "debug" else "Release"
         bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "Win64"
-            
-        return '"%s" %s  && cd %s && devenv demo.sln /build %s /projectconfig "%s|%s"' % \
-                (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, bConf, bConf, bArch)
+        commands = []
+        #
+        # For VC110 demos we need first to upgrade the project files, the projects in the archive are for VC100,
+        # that is only required for C++ projects.
+        #
+        if compiler = "VC110" and lang == "cpp" and buildConfiguration != "winrt":
+            commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade"' % \
+                            (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
+                            
+        solution = "demo.sln" if buildConfiguration != "winrt" else "demo-winrt.sln"
+        commands.append('"%s" %s  && cd %s && devenv %s /build %s /projectconfig "%s|%s"' % \
+                        (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, solution, 
+                         bConf, bConf, bArch))
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), 
@@ -1128,8 +1145,7 @@ class Windows(Platform):
         return True
         
     def isWindows8(self):
-        version = sys.getwindowsversion()
-        return version.major == 6 and version.minor == 2 and version.build == 9200
+        return platform.platform(aliased = True) == "Windows-8-6.2.9200"
 
     def getSupportedConfigurations(self, compiler, arch):        
         buildConfigurations = ["default"]
@@ -1217,13 +1233,13 @@ distDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 platformName = "linux" if sys.platform.startswith("linux") else sys.platform
 if platformName == "win32":
-    platform = Windows(distDir)
+    platformObj = Windows(distDir)
 elif platformName == "sunos5":
-   platform = Solaris(distDir)
+   platformObj = Solaris(distDir)
 elif platformName == "darwin":
-    platform = Darwin(distDir)
+    platformObj = Darwin(distDir)
 elif platformName == "linux":
-    platform = Linux(distDir)
+    platformObj = Linux(distDir)
 else:
     print("Unknown platform: %s" % sys.platform)
     sys.exit(1)
@@ -1258,41 +1274,41 @@ for o, a in opts:
         usage()
         sys.exit(0)
     if o == "--ice-home":
-        platform._iceHome = os.path.abspath(os.path.expanduser(a))
+        platformObj._iceHome = os.path.abspath(os.path.expanduser(a))
     elif o == "--verbose":
-        platform._verbose = True
+        platformObj._verbose = True
     elif o == "--filter":
         filterArg = a
     elif o == "--rfilter":
         rfilterArg = a
     elif o == "--filter-languages":
-        platform._languages.append(a)
+        platformObj._languages.append(a)
     elif o == "--filter-compilers":
-        platform._compilers.append(a)
+        platformObj._compilers.append(a)
     elif o == "--filter-archs":
         if a == "x86_64":
             a = "x64"
-        platform._archs.append(a)
+        platformObj._archs.append(a)
     elif o == "--filter-configurations":
-        platform._configurations.append(a)
+        platformObj._configurations.append(a)
     elif o == "--rfilter-languages":
-        platform._rlanguages.append(a)
+        platformObj._rlanguages.append(a)
     elif o == "--rfilter-compilers":
-        platform._rcompilers.append(a)
+        platformObj._rcompilers.append(a)
     elif o == "--rfilter-archs":
         if a == "x86_64":
             a = "x64"
-        platform._rarchs.append(a)
+        platformObj._rarchs.append(a)
     elif o == "--rfilter-configurations":
-        platform._rconfigurations.append(a)
+        platformObj._rconfigurations.append(a)
     elif o == "--skip-build":
-        platform._skipBuild = True
+        platformObj._skipBuild = True
     elif o == "--skip-tests":
-        platform._skipTests = True
+        platformObj._skipTests = True
     elif o == "--skip-demos":
-        platform._skipDemos = True
+        platformObj._skipDemos = True
     elif o == "--parallel-jobs":
-        platform._parallelJobs = a
+        platformObj._parallelJobs = a
     elif o == "--print-configurations":
         printConfigurations = True
     elif o == "--test-driver":
@@ -1315,7 +1331,7 @@ elif not os.path.exists(testDriver):
     
 testConfigurations = []
 if not testDriver:
-    testConfigurations = platform.getTestConfigurations(filterArg, rfilterArg)
+    testConfigurations = platformObj.getTestConfigurations(filterArg, rfilterArg)
 else:
     #
     # Parse test driver file
@@ -1369,17 +1385,17 @@ else:
         languages = tmp        
         testConfigurations.append(TestConfiguration(name, options, languages = languages))
 
-platform._testConfigurations = testConfigurations
+platformObj._testConfigurations = testConfigurations
 if filterArg:
-    platform._demoConfiguration = "--filter=\"%s\"" % filterArg
+    platformObj._demoConfiguration = "--filter=\"%s\"" % filterArg
 elif rfilterArg:
-    platform._demoConfiguration = "--rfilter=\"%s\"" % rfilterArg
+    platformObj._demoConfiguration = "--rfilter=\"%s\"" % rfilterArg
 
 if printConfigurations:
-    platform.printConfigurationSummary()
+    platformObj.printConfigurationSummary()
     sys.exit(0)
 
-platform.validateConfiguration()
+platformObj.validateConfiguration()
 
 buildDir = os.path.join(distDir, "build")
 if not os.path.exists(os.path.join(buildDir)):
@@ -1387,8 +1403,8 @@ if not os.path.exists(os.path.join(buildDir)):
 output = open(os.path.join(buildDir, "output.txt"), "w")
 report = open(os.path.join(buildDir, "report.txt"), "w")
 
-platform.printConfigurationSummary(report)
-platform.run(startTests, startDemos)
+platformObj.printConfigurationSummary(report)
+platformObj.run(startTests, startDemos)
 
 output.close()
 report.close()
