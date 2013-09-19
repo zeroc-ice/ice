@@ -262,11 +262,13 @@ def filterBuildOutput(line):
     return True
 
 def spawnAndWatch(command, env, filterFunc):
+
+    output.write(command)
+    output.write('\n')
+    output.flush()
         
     p = subprocess.Popen(command, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-                         stderr = subprocess.STDOUT, bufsize = 0, env = env)    
-    if not p:
-        return False
+                         stderr = subprocess.STDOUT, bufsize = 0, env = env)
 
     while(True):
 
@@ -674,7 +676,10 @@ class Platform:
             
         trace("*** [%s] building %s tests (%s/%s/%s)... " % (index, lang, compiler, arch, buildConfiguration), report,
               False)
-
+              
+        output.write("*** [%s] building %s tests (%s/%s/%s)\n" % (index, lang, compiler, arch, buildConfiguration))
+        output.flush()
+        
         if lang == "py" or lang == "rb":
             trace("ok", report)
             return True
@@ -768,6 +773,10 @@ class Platform:
 
         trace("*** [%s] building %s demos (%s/%s/%s)... " % (index, lang, compiler, arch, buildConfiguration),
               report, False)
+        
+        output.write("*** [%s] building %s demos (%s/%s/%s)\n" % (index, lang, compiler, arch, buildConfiguration))
+        output.flush()
+        
         if lang == "py" or lang == "rb":
             trace("ok", report)
             return True
