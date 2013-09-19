@@ -966,15 +966,9 @@ class Linux(Platform):
             
         self._distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
         
-        p = subprocess.Popen("lsb_release -r", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-        if(p.wait() != 0):
-            print("lsb_release failed:\n" + p.stdout.read().strip())
-            sys.exit(1)
-        self._release = re.sub("Release:", "", p.stdout.readline().decode('UTF-8')).strip()
-        
         p = subprocess.Popen("uname -m", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
         if(p.wait() != 0):
-            print("lsb_release failed:\n" + p.stdout.read().strip())
+            print("uname failed:\n" + p.stdout.read().strip())
             sys.exit(1)
         self._machine = p.stdout.readline().decode('UTF-8').strip()
 
@@ -995,9 +989,6 @@ class Linux(Platform):
         
     def getDistribution(self):
         return self._distribution
-        
-    def getRelease(self):
-        return self._release
 
     def getJavaHome(self, arch, version):
         jvmDir = "/usr/lib"
@@ -1065,9 +1056,6 @@ class Solaris(Platform):
 
     def getDistribution(self):
         return self._distribution
-        
-    def getRelease(self):
-        return self._release
         
     def getSupportedLanguages(self):
         return ["cpp", "java"]
