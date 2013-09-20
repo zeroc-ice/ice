@@ -1439,7 +1439,7 @@ def getCppBinDir(lang = None):
                     binDir = os.path.join(binDir, "sparcv9")
                 else:
                     binDir = os.path.join(binDir, "amd64")
-            elif isWin32():
+            elif isWin32() and lang != "php" and lang != "rb":
                 binDir = os.path.join(binDir, "x64")
         if isDarwin() and cpp11:
           binDir = os.path.join(binDir, "c++11")

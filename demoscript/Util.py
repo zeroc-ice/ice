@@ -148,7 +148,10 @@ class FileExpect(object):
         return self.matchindex
             
     def terminate(self):
-        self.f.close()
+        try:
+            self.f.close()
+        except:
+            pass
         self.r.join()
         self.r = None
 
