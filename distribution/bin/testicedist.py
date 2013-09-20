@@ -1124,6 +1124,7 @@ class Windows(Platform):
         commands.append('"%s" %s  && cd %s && devenv %s /build %s /projectconfig "%s|%s"' % \
                         (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, solution, 
                          bConf, bConf, bArch))
+        return commands
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         return "\"%s\" %s  && cd %s && nmake /f Makefile.mak" % (BuildUtils.getVcVarsAll(compiler), 
