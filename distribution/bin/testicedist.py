@@ -1116,8 +1116,9 @@ class Windows(Platform):
         # For VC110 demos we need first to upgrade the project files, the projects in the archive are for VC100,
         # that is only required for C++ projects.
         #
-        if compiler == "VC110" and lang == "cpp" and buildConfiguration != "winrt":
-            commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade"' % \
+        if compiler == "VC110" and lang == "cpp" and buildConfiguration != "winrt"
+           and not os.path.exists(os.path.join(buildDir, "UpgradeLog.htm")):
+            commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade' % \
                             (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
                             
         solution = "demo.sln" if buildConfiguration != "winrt" else "demo-winrt.sln"
