@@ -1110,7 +1110,7 @@ class Windows(Platform):
         
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         bConf = "Debug" if buildConfiguration == "debug" else "Release"
-        bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "Win64"
+        bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "x64"
         commands = []
         #
         # For VC110 demos we need first to upgrade the project files, the projects in the archive are for VC100,
@@ -1122,9 +1122,9 @@ class Windows(Platform):
                             (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
                             
         solution = "demo.sln" if buildConfiguration != "winrt" else "demo-winrt.sln"
-        commands.append('"%s" %s  && cd %s && devenv %s /build %s /projectconfig "%s|%s"' % \
+        commands.append('"%s" %s  && cd %s && devenv %s /build "%s|%s"' % \
                         (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, solution, 
-                         bConf, bConf, bArch))
+                         bConf, bArch))
         return commands
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
