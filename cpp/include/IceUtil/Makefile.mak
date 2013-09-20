@@ -34,4 +34,6 @@ all::
 
 all:: $(SDK_HEADERS)
 
+install:: all
+
 !endif

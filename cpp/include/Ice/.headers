@@ -58,6 +58,8 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MetricsAdminI.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MetricsFunctional.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MetricsObserverI.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\NativePropertiesAdmin.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\NetworkF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Object.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectAdapter.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectAdapterF.h \
