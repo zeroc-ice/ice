@@ -480,7 +480,7 @@ if not skipBuild:
 
                     if lang == "php":
                         if phpHome is None:
-                            if not os.path.exists(r"C:\php-5.4.19"):
+                            if not os.path.exists(r"C:\php-5.4.20"):
                                 print("PHP source distribution not found")
                                 sys.exit(1)
                             phpHome = r"C:\php-5.4.19"
@@ -549,20 +549,16 @@ if not skipBuild:
 
                             if profile == "DESKTOP":
                                 if arch == "arm":
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % \
-                                              (vcvars, "x86", installDir)
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, "x86")
                                     executeCommand(command, env)
                                 else:
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % \
-                                              (vcvars, arch, installDir)
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
                                     executeCommand(command, env)
                             elif profile == "WINRT":
                                 if arch == "arm":
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % \
-                                              (vcvars, "x86_arm", installDir)
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, "x86_arm")
                                 else:
-                                    command = "\"%s\" %s  && nmake /f Makefile.mak install prefix=\"%s\"" % \
-                                              (vcvars, arch, installDir)
+                                    command = "\"%s\" %s  && nmake /f Makefile.mak install" % (vcvars, arch)
                                 newEnv = env.copy()
                                 newEnv["WINRT"] = "yes"
                                 executeCommand(command, newEnv)
