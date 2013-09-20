@@ -1116,8 +1116,8 @@ class Windows(Platform):
         # For VC110 demos we need first to upgrade the project files, the projects in the archive are for VC100,
         # that is only required for C++ projects.
         #
-        if compiler == "VC110" and lang == "cpp" and buildConfiguration != "winrt"
-           and not os.path.exists(os.path.join(buildDir, "UpgradeLog.htm")):
+        if(compiler == "VC110" and lang == "cpp" and buildConfiguration != "winrt"
+           and not os.path.exists(os.path.join(buildDir, "UpgradeLog.htm"))):
             commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade' % \
                             (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
                             
@@ -1252,7 +1252,7 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["help", "verbose", "skip-tests", "skip-demos", "ice-home=", \
                                                   "parallel-jobs=", "filter-languages=", "filter-compilers=", \
                                                   "filter-archs=", "filter-configurations=", "rfilter-languages=", \
-                                                  "rfilter-compilers=", "rfilter-archs=", "rfilter-configurations", \
+                                                  "rfilter-compilers=", "rfilter-archs=", "rfilter-configurations=", \
                                                   "print-configurations", "test-driver=",
                                                   "filter=","rfilter=", "skip-build",
                                                   "start-with-demo=", "start-with-test="])
@@ -1284,25 +1284,21 @@ for o, a in opts:
     elif o == "--rfilter":
         rfilterArg = a
     elif o == "--filter-languages":
-        platformObj._languages.append(a)
+        platformObj._languages += a.split(',')
     elif o == "--filter-compilers":
-        platformObj._compilers.append(a)
+        platformObj._compilers += a.split(',')
     elif o == "--filter-archs":
-        if a == "x86_64":
-            a = "x64"
-        platformObj._archs.append(a)
+        platformObj._archs += [arch.replace("x86_64", "x64") for arch in a.split(',')]
     elif o == "--filter-configurations":
-        platformObj._configurations.append(a)
+        platformObj._configurations += a.split(',')
     elif o == "--rfilter-languages":
-        platformObj._rlanguages.append(a)
+        platformObj._rlanguages += a.split(',')
     elif o == "--rfilter-compilers":
-        platformObj._rcompilers.append(a)
+        platformObj._rcompilers += a.split(',')
     elif o == "--rfilter-archs":
-        if a == "x86_64":
-            a = "x64"
-        platformObj._rarchs.append(a)
+        platformObj._rarchs += [arch.replace("x86_64", "x64") for arch in a.split(',')]
     elif o == "--rfilter-configurations":
-        platformObj._rconfigurations.append(a)
+        platformObj._rconfigurations += a.split(',')
     elif o == "--skip-build":
         platformObj._skipBuild = True
     elif o == "--skip-tests":
