@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="10.5.1" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="10.5.2" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
-    <ROW Property="AI_PRODUCTNAME_ARP" Value="[|ProductName]"/>
     <ROW Property="AI_ThemeStyle" Value="default" MsiKey="AI_ThemeStyle"/>
-    <ROW Property="AI_UNINSTALLER" Value="msiexec.exe"/>
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
-    <ROW Property="ARPNOREPAIR" Value="1"/>
-    <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
     <ROW Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="DefaultBuild:installerheader.bmp" Type="1" MsiKey="BannerBitmap"/>
@@ -59,7 +55,6 @@
     <ROW Directory="x64_Dir" Directory_Parent="vc110_Dir" DefaultDir="x64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="AI_CustomARPName" ComponentId="{74659A2F-8256-480F-BE50-F3E668D02D8B}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
     <ROW Component="InstallDir" ComponentId="{0BD670EE-B611-4691-A494-6AE217C9094A}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
     <ROW Component="README.txt" ComponentId="{96D7982C-F7F8-4BC9-B0F2-3F39854C09B3}" Directory_="APPDIR" Attributes="0" KeyPath="README.txt" Type="0"/>
     <ROW Component="aes.h" ComponentId="{6D50520A-DBD2-4EC8-BFE6-80F02003B1D0}" Directory_="openssl_Dir" Attributes="0" KeyPath="aes.h" Type="0"/>
@@ -168,13 +163,13 @@
     <ROW Component="ssleay32_vc90.dll" ComponentId="{24A4BED2-71D0-4457-8827-A16316DF0141}" Directory_="bin_Dir" Attributes="0" KeyPath="ssleay32_vc90.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="AI_CustomARPName InstallDir README.txt aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_vc90.dll bzip2_vc90d.dll bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libeay32_mingw.dll libeay32_vc90.dll libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a openssl.cnf openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3 ssleay32_mingw.dll ssleay32_vc90.dll"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="InstallDir README.txt aes.h bzip2.dll bzip2.dll_1 bzip2.dll_2 bzip2.dll_3 bzip2_mingw.dll bzip2_vc90.dll bzip2_vc90d.dll bzip2d.dll bzip2d.dll_1 bzip2d.dll_2 bzip2d.dll_3 bzlib.h db.jar db_archive.exe db_archive.exe_1 db_archive.exe_2 db_archive.exe_3 db_checkpoint.exe db_checkpoint.exe_1 db_checkpoint.exe_2 db_checkpoint.exe_3 db_deadlock.exe db_deadlock.exe_1 db_deadlock.exe_2 db_deadlock.exe_3 db_dump.exe db_dump.exe_1 db_dump.exe_2 db_dump.exe_3 db_hotbackup.exe db_hotbackup.exe_1 db_hotbackup.exe_2 db_hotbackup.exe_3 db_load.exe db_load.exe_1 db_load.exe_2 db_load.exe_3 db_log_verify.exe db_log_verify.exe_1 db_log_verify.exe_2 db_log_verify.exe_3 db_printlog.exe db_printlog.exe_1 db_printlog.exe_2 db_printlog.exe_3 db_recover.exe db_recover.exe_1 db_recover.exe_2 db_recover.exe_3 db_stat.exe db_stat.exe_1 db_stat.exe_2 db_stat.exe_3 db_tuner.exe db_tuner.exe_1 db_tuner.exe_2 db_tuner.exe_3 db_upgrade.exe db_upgrade.exe_1 db_upgrade.exe_2 db_upgrade.exe_3 db_verify.exe db_verify.exe_1 db_verify.exe_2 db_verify.exe_3 libbz2.lib libbz2.lib_1 libbz2.lib_2 libbz2.lib_3 libdb53.dll libdb53.dll_1 libdb53.dll_2 libdb53.dll_3 libdb53d.dll libdb53d.dll_1 libdb53d.dll_2 libdb53d.dll_3 libdb_java53.dll libdb_java53.dll_1 libdb_java53.dll_2 libdb_java53.dll_3 libeay32.dll libeay32.dll_1 libeay32.dll_2 libeay32.dll_3 libeay32_mingw.dll libeay32_vc90.dll libexpat.dll libexpat.dll_1 libexpat.dll_2 libexpat.dll_3 libmcpp.a openssl.cnf openssl.exe openssl.exe_1 openssl.exe_2 openssl.exe_3 ssleay32.dll ssleay32.dll_1 ssleay32.dll_2 ssleay32.dll_3 ssleay32_mingw.dll ssleay32_vc90.dll"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="README.txt" Component_="README.txt" FileName="README.txt" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\README.txt" SelfReg="false" NextFile="SOURCES.txt"/>
     <ROW File="SOURCES.txt" Component_="README.txt" FileName="SOURCES.txt" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\SOURCES.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
-    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="README.txt" FileName="THIRD_~1.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\THIRD_PARTY_LICENSE.txt" SelfReg="false"/>
+    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="README.txt" FileName="THIRD_~1.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="db_archive.pdb"/>
     <ROW File="aes.h" Component_="aes.h" FileName="aes.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\aes.h" SelfReg="false" NextFile="applink.c"/>
     <ROW File="applink.c" Component_="aes.h" FileName="applink.c" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\applink.c" SelfReg="false" NextFile="asn1.h"/>
     <ROW File="asn1.h" Component_="aes.h" FileName="asn1.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\asn1.h" SelfReg="false" NextFile="asn1t.h"/>
@@ -210,55 +205,107 @@
     <ROW File="db_archive.exe_1" Component_="db_archive.exe_1" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_archive.exe" SelfReg="false" NextFile="db_checkpoint.exe_1" DigSign="true"/>
     <ROW File="db_archive.exe_2" Component_="db_archive.exe_2" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_archive.exe" SelfReg="false" NextFile="db_checkpoint.exe_2" DigSign="true"/>
     <ROW File="db_archive.exe_3" Component_="db_archive.exe_3" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_archive.exe" SelfReg="false" NextFile="db_checkpoint.exe_3" DigSign="true"/>
+    <ROW File="db_archive.pdb" Component_="db_archive.exe" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb"/>
+    <ROW File="db_archive.pdb_1" Component_="db_archive.exe_1" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb_1"/>
+    <ROW File="db_archive.pdb_2" Component_="db_archive.exe_2" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb_2"/>
+    <ROW File="db_archive.pdb_3" Component_="db_archive.exe_3" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb_3"/>
     <ROW File="db_checkpoint.exe" Component_="db_checkpoint.exe" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_checkpoint.exe" SelfReg="false" NextFile="db_deadlock.exe" DigSign="true"/>
     <ROW File="db_checkpoint.exe_1" Component_="db_checkpoint.exe_1" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_checkpoint.exe" SelfReg="false" NextFile="db_deadlock.exe_1" DigSign="true"/>
     <ROW File="db_checkpoint.exe_2" Component_="db_checkpoint.exe_2" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_checkpoint.exe" SelfReg="false" NextFile="db_deadlock.exe_2" DigSign="true"/>
     <ROW File="db_checkpoint.exe_3" Component_="db_checkpoint.exe_3" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_checkpoint.exe" SelfReg="false" NextFile="db_deadlock.exe_3" DigSign="true"/>
+    <ROW File="db_checkpoint.pdb" Component_="db_checkpoint.exe" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb"/>
+    <ROW File="db_checkpoint.pdb_1" Component_="db_checkpoint.exe_1" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb_1"/>
+    <ROW File="db_checkpoint.pdb_2" Component_="db_checkpoint.exe_2" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb_2"/>
+    <ROW File="db_checkpoint.pdb_3" Component_="db_checkpoint.exe_3" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb_3"/>
     <ROW File="db_cxx.h" Component_="bzlib.h" FileName="db_cxx.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\db_cxx.h" SelfReg="false" NextFile="expat.h"/>
     <ROW File="db_deadlock.exe" Component_="db_deadlock.exe" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_deadlock.exe" SelfReg="false" NextFile="db_dump.exe" DigSign="true"/>
     <ROW File="db_deadlock.exe_1" Component_="db_deadlock.exe_1" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_deadlock.exe" SelfReg="false" NextFile="db_dump.exe_1" DigSign="true"/>
     <ROW File="db_deadlock.exe_2" Component_="db_deadlock.exe_2" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_deadlock.exe" SelfReg="false" NextFile="db_dump.exe_2" DigSign="true"/>
     <ROW File="db_deadlock.exe_3" Component_="db_deadlock.exe_3" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_deadlock.exe" SelfReg="false" NextFile="db_dump.exe_3" DigSign="true"/>
+    <ROW File="db_deadlock.pdb" Component_="db_deadlock.exe" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb"/>
+    <ROW File="db_deadlock.pdb_1" Component_="db_deadlock.exe_1" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb_1"/>
+    <ROW File="db_deadlock.pdb_2" Component_="db_deadlock.exe_2" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb_2"/>
+    <ROW File="db_deadlock.pdb_3" Component_="db_deadlock.exe_3" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb_3"/>
     <ROW File="db_dump.exe" Component_="db_dump.exe" FileName="db_dump.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_dump.exe" SelfReg="false" NextFile="db_hotbackup.exe" DigSign="true"/>
     <ROW File="db_dump.exe_1" Component_="db_dump.exe_1" FileName="db_dump.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_dump.exe" SelfReg="false" NextFile="db_hotbackup.exe_1" DigSign="true"/>
     <ROW File="db_dump.exe_2" Component_="db_dump.exe_2" FileName="db_dump.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_dump.exe" SelfReg="false" NextFile="db_hotbackup.exe_2" DigSign="true"/>
     <ROW File="db_dump.exe_3" Component_="db_dump.exe_3" FileName="db_dump.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_dump.exe" SelfReg="false" NextFile="db_hotbackup.exe_3" DigSign="true"/>
+    <ROW File="db_dump.pdb" Component_="db_dump.exe" FileName="db_dump.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb"/>
+    <ROW File="db_dump.pdb_1" Component_="db_dump.exe_1" FileName="db_dump.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb_1"/>
+    <ROW File="db_dump.pdb_2" Component_="db_dump.exe_2" FileName="db_dump.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb_2"/>
+    <ROW File="db_dump.pdb_3" Component_="db_dump.exe_3" FileName="db_dump.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb_3"/>
     <ROW File="db_hotbackup.exe" Component_="db_hotbackup.exe" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_hotbackup.exe" SelfReg="false" NextFile="db_load.exe" DigSign="true"/>
     <ROW File="db_hotbackup.exe_1" Component_="db_hotbackup.exe_1" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_hotbackup.exe" SelfReg="false" NextFile="db_load.exe_1" DigSign="true"/>
     <ROW File="db_hotbackup.exe_2" Component_="db_hotbackup.exe_2" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_hotbackup.exe" SelfReg="false" NextFile="db_load.exe_2" DigSign="true"/>
     <ROW File="db_hotbackup.exe_3" Component_="db_hotbackup.exe_3" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_hotbackup.exe" SelfReg="false" NextFile="db_load.exe_3" DigSign="true"/>
+    <ROW File="db_hotbackup.pdb" Component_="db_hotbackup.exe" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb"/>
+    <ROW File="db_hotbackup.pdb_1" Component_="db_hotbackup.exe_1" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb_1"/>
+    <ROW File="db_hotbackup.pdb_2" Component_="db_hotbackup.exe_2" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb_2"/>
+    <ROW File="db_hotbackup.pdb_3" Component_="db_hotbackup.exe_3" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb_3"/>
     <ROW File="db_load.exe" Component_="db_load.exe" FileName="db_load.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_load.exe" SelfReg="false" NextFile="db_log_verify.exe" DigSign="true"/>
     <ROW File="db_load.exe_1" Component_="db_load.exe_1" FileName="db_load.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_load.exe" SelfReg="false" NextFile="db_log_verify.exe_1" DigSign="true"/>
     <ROW File="db_load.exe_2" Component_="db_load.exe_2" FileName="db_load.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_load.exe" SelfReg="false" NextFile="db_log_verify.exe_2" DigSign="true"/>
     <ROW File="db_load.exe_3" Component_="db_load.exe_3" FileName="db_load.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_load.exe" SelfReg="false" NextFile="db_log_verify.exe_3" DigSign="true"/>
+    <ROW File="db_load.pdb" Component_="db_load.exe" FileName="db_load.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb"/>
+    <ROW File="db_load.pdb_1" Component_="db_load.exe_1" FileName="db_load.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb_1"/>
+    <ROW File="db_load.pdb_2" Component_="db_load.exe_2" FileName="db_load.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb_2"/>
+    <ROW File="db_load.pdb_3" Component_="db_load.exe_3" FileName="db_load.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb_3"/>
     <ROW File="db_log_verify.exe" Component_="db_log_verify.exe" FileName="db_log~1.exe|db_log_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_log_verify.exe" SelfReg="false" NextFile="db_printlog.exe" DigSign="true"/>
     <ROW File="db_log_verify.exe_1" Component_="db_log_verify.exe_1" FileName="db_log~1.exe|db_log_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_log_verify.exe" SelfReg="false" NextFile="db_printlog.exe_1" DigSign="true"/>
     <ROW File="db_log_verify.exe_2" Component_="db_log_verify.exe_2" FileName="db_log~1.exe|db_log_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_log_verify.exe" SelfReg="false" NextFile="db_printlog.exe_2" DigSign="true"/>
     <ROW File="db_log_verify.exe_3" Component_="db_log_verify.exe_3" FileName="db_log~1.exe|db_log_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_log_verify.exe" SelfReg="false" NextFile="db_printlog.exe_3" DigSign="true"/>
+    <ROW File="db_log_verify.pdb" Component_="db_log_verify.exe" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb"/>
+    <ROW File="db_log_verify.pdb_1" Component_="db_log_verify.exe_1" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb_1"/>
+    <ROW File="db_log_verify.pdb_2" Component_="db_log_verify.exe_2" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb_2"/>
+    <ROW File="db_log_verify.pdb_3" Component_="db_log_verify.exe_3" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb_3"/>
     <ROW File="db_printlog.exe" Component_="db_printlog.exe" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_printlog.exe" SelfReg="false" NextFile="db_recover.exe" DigSign="true"/>
     <ROW File="db_printlog.exe_1" Component_="db_printlog.exe_1" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_printlog.exe" SelfReg="false" NextFile="db_recover.exe_1" DigSign="true"/>
     <ROW File="db_printlog.exe_2" Component_="db_printlog.exe_2" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_printlog.exe" SelfReg="false" NextFile="db_recover.exe_2" DigSign="true"/>
     <ROW File="db_printlog.exe_3" Component_="db_printlog.exe_3" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_printlog.exe" SelfReg="false" NextFile="db_recover.exe_3" DigSign="true"/>
+    <ROW File="db_printlog.pdb" Component_="db_printlog.exe" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb"/>
+    <ROW File="db_printlog.pdb_1" Component_="db_printlog.exe_1" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb_1"/>
+    <ROW File="db_printlog.pdb_2" Component_="db_printlog.exe_2" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb_2"/>
+    <ROW File="db_printlog.pdb_3" Component_="db_printlog.exe_3" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb_3"/>
     <ROW File="db_recover.exe" Component_="db_recover.exe" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_recover.exe" SelfReg="false" NextFile="db_stat.exe" DigSign="true"/>
     <ROW File="db_recover.exe_1" Component_="db_recover.exe_1" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_recover.exe" SelfReg="false" NextFile="db_stat.exe_1" DigSign="true"/>
     <ROW File="db_recover.exe_2" Component_="db_recover.exe_2" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_recover.exe" SelfReg="false" NextFile="db_stat.exe_2" DigSign="true"/>
     <ROW File="db_recover.exe_3" Component_="db_recover.exe_3" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_recover.exe" SelfReg="false" NextFile="db_stat.exe_3" DigSign="true"/>
+    <ROW File="db_recover.pdb" Component_="db_recover.exe" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb"/>
+    <ROW File="db_recover.pdb_1" Component_="db_recover.exe_1" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb_1"/>
+    <ROW File="db_recover.pdb_2" Component_="db_recover.exe_2" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb_2"/>
+    <ROW File="db_recover.pdb_3" Component_="db_recover.exe_3" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb_3"/>
     <ROW File="db_stat.exe" Component_="db_stat.exe" FileName="db_stat.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_stat.exe" SelfReg="false" NextFile="db_tuner.exe" DigSign="true"/>
     <ROW File="db_stat.exe_1" Component_="db_stat.exe_1" FileName="db_stat.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_stat.exe" SelfReg="false" NextFile="db_tuner.exe_1" DigSign="true"/>
     <ROW File="db_stat.exe_2" Component_="db_stat.exe_2" FileName="db_stat.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_stat.exe" SelfReg="false" NextFile="db_tuner.exe_2" DigSign="true"/>
     <ROW File="db_stat.exe_3" Component_="db_stat.exe_3" FileName="db_stat.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_stat.exe" SelfReg="false" NextFile="db_tuner.exe_3" DigSign="true"/>
+    <ROW File="db_stat.pdb" Component_="db_stat.exe" FileName="db_stat.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb"/>
+    <ROW File="db_stat.pdb_1" Component_="db_stat.exe_1" FileName="db_stat.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb_1"/>
+    <ROW File="db_stat.pdb_2" Component_="db_stat.exe_2" FileName="db_stat.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb_2"/>
+    <ROW File="db_stat.pdb_3" Component_="db_stat.exe_3" FileName="db_stat.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb_3"/>
     <ROW File="db_tuner.exe" Component_="db_tuner.exe" FileName="db_tuner.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_tuner.exe" SelfReg="false" NextFile="db_upgrade.exe" DigSign="true"/>
     <ROW File="db_tuner.exe_1" Component_="db_tuner.exe_1" FileName="db_tuner.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_tuner.exe" SelfReg="false" NextFile="db_upgrade.exe_1" DigSign="true"/>
     <ROW File="db_tuner.exe_2" Component_="db_tuner.exe_2" FileName="db_tuner.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_tuner.exe" SelfReg="false" NextFile="db_upgrade.exe_2" DigSign="true"/>
     <ROW File="db_tuner.exe_3" Component_="db_tuner.exe_3" FileName="db_tuner.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_tuner.exe" SelfReg="false" NextFile="db_upgrade.exe_3" DigSign="true"/>
+    <ROW File="db_tuner.pdb" Component_="db_tuner.exe" FileName="db_tuner.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb"/>
+    <ROW File="db_tuner.pdb_1" Component_="db_tuner.exe_1" FileName="db_tuner.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb_1"/>
+    <ROW File="db_tuner.pdb_2" Component_="db_tuner.exe_2" FileName="db_tuner.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb_2"/>
+    <ROW File="db_tuner.pdb_3" Component_="db_tuner.exe_3" FileName="db_tuner.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb_3"/>
     <ROW File="db_upgrade.exe" Component_="db_upgrade.exe" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe" DigSign="true"/>
     <ROW File="db_upgrade.exe_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe_1" DigSign="true"/>
     <ROW File="db_upgrade.exe_2" Component_="db_upgrade.exe_2" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe_2" DigSign="true"/>
     <ROW File="db_upgrade.exe_3" Component_="db_upgrade.exe_3" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe_3" DigSign="true"/>
+    <ROW File="db_upgrade.pdb" Component_="db_upgrade.exe" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb"/>
+    <ROW File="db_upgrade.pdb_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb_1"/>
+    <ROW File="db_upgrade.pdb_2" Component_="db_upgrade.exe_2" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb_2"/>
+    <ROW File="db_upgrade.pdb_3" Component_="db_upgrade.exe_3" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb_3"/>
     <ROW File="db_verify.exe" Component_="db_verify.exe" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_verify.exe" SelfReg="false" NextFile="libdb53.dll" DigSign="true"/>
     <ROW File="db_verify.exe_1" Component_="db_verify.exe_1" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_verify.exe" SelfReg="false" NextFile="libdb53.dll_1" DigSign="true"/>
     <ROW File="db_verify.exe_2" Component_="db_verify.exe_2" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_verify.exe" SelfReg="false" NextFile="libdb53.dll_2" DigSign="true"/>
     <ROW File="db_verify.exe_3" Component_="db_verify.exe_3" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_verify.exe" SelfReg="false" NextFile="libdb53.dll_3" DigSign="true"/>
+    <ROW File="db_verify.pdb" Component_="db_verify.exe" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\db_verify.pdb" SelfReg="false" NextFile="libdb53.pdb"/>
+    <ROW File="db_verify.pdb_1" Component_="db_verify.exe_1" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\db_verify.pdb" SelfReg="false" NextFile="libdb53.pdb_1"/>
+    <ROW File="db_verify.pdb_2" Component_="db_verify.exe_2" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\db_verify.pdb" SelfReg="false" NextFile="libdb53.pdb_2"/>
+    <ROW File="db_verify.pdb_3" Component_="db_verify.exe_3" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\db_verify.pdb" SelfReg="false" NextFile="libdb53.pdb_3"/>
     <ROW File="des.h" Component_="aes.h" FileName="des.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\des.h" SelfReg="false" NextFile="des_old.h"/>
     <ROW File="des_old.h" Component_="aes.h" FileName="des_old.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\des_old.h" SelfReg="false" NextFile="dh.h"/>
     <ROW File="dh.h" Component_="aes.h" FileName="dh.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\dh.h" SelfReg="false" NextFile="dsa.h"/>
@@ -301,6 +348,10 @@
     <ROW File="libdb53.lib_1" Component_="libbz2.lib" FileName="libdb53.lib" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\lib\vc110\libdb53.lib" SelfReg="false" NextFile="libdb53d.lib_1"/>
     <ROW File="libdb53.lib_2" Component_="libbz2.lib_1" FileName="libdb53.lib" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\lib\vc110\x64\libdb53.lib" SelfReg="false" NextFile="libdb53d.lib_2"/>
     <ROW File="libdb53.lib_3" Component_="libbz2.lib_3" FileName="libdb53.lib" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\lib\x64\libdb53.lib" SelfReg="false" NextFile="libdb53d.lib_3"/>
+    <ROW File="libdb53.pdb" Component_="libdb53.dll" FileName="libdb53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\libdb53.pdb" SelfReg="false" NextFile="libdb_java53.pdb"/>
+    <ROW File="libdb53.pdb_1" Component_="libdb53.dll_1" FileName="libdb53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\libdb53.pdb" SelfReg="false" NextFile="libdb53d.pdb_2"/>
+    <ROW File="libdb53.pdb_2" Component_="libdb53.dll_2" FileName="libdb53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\libdb53.pdb" SelfReg="false" NextFile="libdb53d.pdb_3"/>
+    <ROW File="libdb53.pdb_3" Component_="libdb53.dll_3" FileName="libdb53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\libdb53.pdb" SelfReg="false" NextFile="libdb_java53.pdb_3"/>
     <ROW File="libdb53d.dll" Component_="libdb53d.dll" FileName="libdb53d.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\libdb53d.dll" SelfReg="false" NextFile="libdb53d.pdb"/>
     <ROW File="libdb53d.dll_1" Component_="libdb53d.dll_1" FileName="libdb53d.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\libdb53d.dll" SelfReg="false" NextFile="libdb_java53.dll_1"/>
     <ROW File="libdb53d.dll_2" Component_="libdb53d.dll_2" FileName="libdb53d.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\libdb53d.dll" SelfReg="false" NextFile="libdb_java53.dll_2"/>
@@ -311,10 +362,16 @@
     <ROW File="libdb53d.lib_3" Component_="libbz2.lib_3" FileName="libdb53d.lib" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\lib\x64\libdb53d.lib" SelfReg="false" NextFile="libeay32.lib_4"/>
     <ROW File="libdb53d.pdb" Component_="libdb53d.dll" FileName="libdb53d.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.dll"/>
     <ROW File="libdb53d.pdb_1" Component_="libdb53d.dll_3" FileName="libdb53d.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.dll_3"/>
+    <ROW File="libdb53d.pdb_2" Component_="libdb53d.dll_1" FileName="libdb53d.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.pdb_1"/>
+    <ROW File="libdb53d.pdb_3" Component_="libdb53d.dll_2" FileName="libdb53d.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.pdb_2"/>
     <ROW File="libdb_java53.dll" Component_="libdb_java53.dll" FileName="libdb_~1.dll|libdb_java53.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\libdb_java53.dll" SelfReg="false" NextFile="libeay32.dll"/>
     <ROW File="libdb_java53.dll_1" Component_="libdb_java53.dll_1" FileName="libdb_~1.dll|libdb_java53.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\libdb_java53.dll" SelfReg="false" NextFile="libeay32.dll_1"/>
     <ROW File="libdb_java53.dll_2" Component_="libdb_java53.dll_2" FileName="libdb_~1.dll|libdb_java53.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\libdb_java53.dll" SelfReg="false" NextFile="libeay32.dll_2"/>
     <ROW File="libdb_java53.dll_3" Component_="libdb_java53.dll_3" FileName="libdb_~1.dll|libdb_java53.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\libdb_java53.dll" SelfReg="false" NextFile="libeay32.dll_3"/>
+    <ROW File="libdb_java53.pdb" Component_="libdb_java53.dll" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\libdb_java53.pdb" SelfReg="false" NextFile="db_archive.pdb_1"/>
+    <ROW File="libdb_java53.pdb_1" Component_="libdb_java53.dll_1" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\libdb_java53.pdb" SelfReg="false" NextFile="db_archive.pdb_2"/>
+    <ROW File="libdb_java53.pdb_2" Component_="libdb_java53.dll_2" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\libdb_java53.pdb" SelfReg="false" NextFile="db_archive.pdb_3"/>
+    <ROW File="libdb_java53.pdb_3" Component_="libdb_java53.dll_3" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\x64\libdb_java53.pdb" SelfReg="false"/>
     <ROW File="libeay32.dll" Component_="libeay32.dll" FileName="libeay32.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\libeay32.dll" SelfReg="false" NextFile="libeay32.pdb"/>
     <ROW File="libeay32.dll_1" Component_="libeay32.dll_1" FileName="libeay32.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\libeay32.dll" SelfReg="false" NextFile="libeay32.pdb_1"/>
     <ROW File="libeay32.dll_2" Component_="libeay32.dll_2" FileName="libeay32.dll" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\bin\vc110\x64\libeay32.dll" SelfReg="false" NextFile="libeay32.pdb_2"/>
@@ -413,7 +470,7 @@
     <ROW File="x509v3.h" Component_="aes.h" FileName="x509v3.h" Attributes="0" SourcePath="dist-HEAD\installer\Ice-3.5.1-ThirdParty\include\openssl\x509v3.h" SelfReg="false" NextFile="x509_vfy.h"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="distfiles-3.5.1\src\windows" Languages="en" InstallationType="4"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="dist-HEAD\distfiles-3.5.1\src\windows" Languages="en" InstallationType="4"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -731,7 +788,6 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
-    <ROW Action="AI_GetArpIconPath" Type="1" Source="aicustact.dll" Target="GetArpIconPath"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
@@ -758,9 +814,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
-    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="52"/>
-    <ROW Action="AI_GetArpIconPath" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
@@ -794,24 +849,7 @@
     <ROW Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
-    <ROW Registry="Comments" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="Comments" Value="[ARPCOMMENTS]" Component_="AI_CustomARPName"/>
-    <ROW Registry="Contact" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="Contact" Value="[ARPCONTACT]" Component_="AI_CustomARPName"/>
-    <ROW Registry="DisplayIcon" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="DisplayIcon" Value="[ARP_ICON_PATH]" Component_="AI_CustomARPName"/>
-    <ROW Registry="DisplayName" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="DisplayName" Value="[AI_PRODUCTNAME_ARP]" Component_="AI_CustomARPName"/>
-    <ROW Registry="DisplayVersion" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="DisplayVersion" Value="[ProductVersion]" Component_="AI_CustomARPName"/>
-    <ROW Registry="HelpLink" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="HelpLink" Value="[ARPHELPLINK]" Component_="AI_CustomARPName"/>
-    <ROW Registry="HelpTelephone" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="HelpTelephone" Value="[ARPHELPTELEPHONE]" Component_="AI_CustomARPName"/>
     <ROW Registry="InstallDir" Root="2" Key="Software\ZeroC\[ProductName]" Name="InstallDir" Value="[APPDIR]" Component_="InstallDir"/>
-    <ROW Registry="InstallLocation" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="InstallLocation" Value="[APPDIR]" Component_="AI_CustomARPName"/>
-    <ROW Registry="ModifyPath" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="ModifyPath" Value="[AI_UNINSTALLER] /I [ProductCode]" Component_="AI_CustomARPName"/>
-    <ROW Registry="NoRepair" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="NoRepair" Value="#1" Component_="AI_CustomARPName"/>
-    <ROW Registry="Publisher" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="Publisher" Value="[Manufacturer]" Component_="AI_CustomARPName"/>
-    <ROW Registry="URLInfoAbout" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="URLInfoAbout" Value="[ARPURLINFOABOUT]" Component_="AI_CustomARPName"/>
-    <ROW Registry="URLUpdateInfo" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="URLUpdateInfo" Value="[ARPURLUPDATEINFO]" Component_="AI_CustomARPName"/>
-    <ROW Registry="UninstallPath" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="UninstallPath" Value="[AI_UNINSTALLER] /x [ProductCode]" Component_="AI_CustomARPName"/>
-    <ROW Registry="UninstallString" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="UninstallString" Value="[AI_UNINSTALLER] /x [ProductCode]" Component_="AI_CustomARPName"/>
-    <ROW Registry="VersionMajor" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="VersionMajor" Value="#3" Component_="AI_CustomARPName"/>
-    <ROW Registry="VersionMinor" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="VersionMinor" Value="#5" Component_="AI_CustomARPName"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiTextStyleComponent">
     <ROW TextStyle="DlgFontBold10" FaceName="Tahoma" Size="10" Color="0" StyleBits="1"/>

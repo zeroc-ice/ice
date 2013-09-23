@@ -306,54 +306,72 @@ if not os.path.exists(demoArchive):
     print("Couldn't find %s in %s" % (os.path.basename(demoArchive), os.path.dirname(demoArchive)))
     sys.exit(1)
 
+    
+#
+# Windows build configurations by Compiler Arch 
+#
+builds = {
+    "MINGW": {
+        "x86": {
+            "release": ["cpp", "rb"]}},
+    "VC90": {
+        "x86": {
+            "release": ["cpp", "cs", "php", "vsaddin"]}},
+    "VC100": {
+        "x86": {
+            "release": ["cpp", "cs", "java", "py", "vsaddin"], 
+            "debug": ["cpp"]},
+        "x64": {
+            "release": ["cpp"], 
+            "debug": ["cpp"]}},
+    "VC110": {
+        "x86": {
+            "release": ["cpp", "vsaddin"], 
+            "debug": ["cpp"]},
+        "x64": {
+            "release": ["cpp"], 
+            "debug": ["cpp"]},
+        "arm": {
+            "release": ["cpp"], 
+            "debug": ["cpp"]}}}
+            
 if not skipBuild:
-    for arch in ["x86", "amd64", "arm"]:
+    
+    for compiler in ["MINGW", "VC90", "VC100", "VC110"]:
 
-        if filterArchs and arch not in filterArchs:
+        if filterCompilers and compiler not in filterCompilers:
             continue
 
-        if rFilterArchs and arch in rFilterArchs:
+        if rFilterCompilers and compiler in rFilterCompilers:
             continue
+        
+        if compiler not in ["MINGW"]:
+            vcvars = getVcVarsAll(compiler)
 
-        for compiler in ["MINGW", "VC90", "VC100", "VC110"]:
-
-            if filterCompilers and compiler not in filterCompilers:
+            if vcvars is None:
+                print("Compiler %s not found" % compiler)
+                sys.exit(1)
+    
+        for arch in ["x86", "amd64", "arm"]:
+            
+            if not arch in builds[compiler]:
+                continue
+            
+            if filterArchs and arch not in filterArchs:
                 continue
 
-            if rFilterCompilers and compiler in rFilterCompilers:
+            if rFilterArchs and arch in rFilterArchs:
                 continue
-
-            if compiler in ["VC90", "MINGW"] and arch == "amd64":
-                #
-                # We don't need to build VC90 or MINGW amd64 builds
-                #
-                continue
-
-            if compiler not in ["VC110"] and arch == "arm":
-                #
-                # We just build ARM for WinRT
-                #
-                continue
-
-            if compiler not in ["MINGW"]:
-                vcvars = getVcVarsAll(compiler)
-
-                if vcvars is None:
-                    print("Compiler %s not found" % compiler)
-                    continue
 
             for conf in ["release", "debug"]:
-
+                
+                if not conf in builds[compiler][arch]:
+                    continue
+        
                 if filterConfs and conf not in filterConfs:
                     continue
 
                 if rFilterConfs and conf in rFilterConfs:
-                    continue
-
-                if compiler in ["VC90", "MINGW"] and conf == "debug":
-                    #
-                    # We don't need to build VC90 or MINGW debug builds
-                    #
                     continue
 
                 buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
@@ -374,7 +392,8 @@ if not skipBuild:
                     shutil.move(installDir, sourceDir)
                     print("ok")
 
-                for lang in ["cpp", "cs", "java", "py", "php", "rb", "vsaddin"]:
+                print ("Build: (%s/%s/%s)" % (compiler,arch,conf))
+                for lang in builds[compiler][arch][conf]:
 
                     if filterLanguages and lang not in filterLanguages:
                         continue
@@ -382,65 +401,10 @@ if not skipBuild:
                     if rFilterLanguages and lang in rFilterLanguages:
                         continue
 
-                    if lang != "cpp" and conf == "debug":
-                        #
-                        # We just need to do debug builds for C++
-                        #
-                        continue
-
-                    if compiler not in ["VC90", "VC100", "VC110"] and lang == "vsaddin":
-                        #
-                        # The VS Add-in must be build with all VS versions
-                        # in release mode.
-                        #
-                        continue
-
-                    if compiler == "VC90" and lang not in ["cpp", "cs", "php", "vsaddin"]:
-                        #
-                        # For VC90 we need to build PHP, C++ and .NET Compact Framework 
-                        #
-                        continue
-
-                    if compiler == "MINGW" and lang not in ["cpp", "rb"]:
-                        #
-                        # For MINGW we just need to build Ruby and C++
-                        #
-                        continue
-
-                    if lang == "php" and compiler != "VC90":
-                        #
-                        # PHP is just build with VC90
-                        #
-                        continue
-
-                    if lang == "rb" and compiler != "MINGW":
-                        #
-                        # Ruby is just build with MINGW
-                        #
-                        continue
-
-                    if lang not in ["cpp", "vsaddin"] and compiler == "VC110":
-                        #
-                        # We only need to build C++ for VC110.
-                        #
-                        continue
-
-                    if lang in ["cs", "java", "vsaddin"] and arch == "amd64":
-                        #
-                        # We don't build multiple archs for .NET, Java or vsaddin
-                        #
-                        continue
-
-                    if lang not in ["cpp"] and arch == "arm":
-                        #
-                        # We just build arm for WinRT
-                        #
-                        continue
-
                     env = os.environ.copy()
 
                     env["THIRDPARTY_HOME"] = thirdPartyHome
-
+                    env["RELEASEPDBS"] = "yes"
                     if conf == "release":
                         env["OPTIMIZE"] = "yes"
 
@@ -483,7 +447,7 @@ if not skipBuild:
                             if not os.path.exists(r"C:\php-5.4.20"):
                                 print("PHP source distribution not found")
                                 sys.exit(1)
-                            phpHome = r"C:\php-5.4.19"
+                            phpHome = r"C:\php-5.4.20"
 
                         if phpBinHome is None:
                             if not os.path.exists(r"C:\Program Files (x86)\PHP"):
@@ -601,171 +565,76 @@ if not skipBuild:
                         executeCommand(command, env)
 
 
-if not skipInstaller:
 
-    #
-    # Filter files, list of files that must not be included.
-    #
-    filterFiles = ["slice35d.dll", "slice35d.pdb", "sliced.lib"]
 
-    if not os.path.exists(os.path.join(iceBuildHome, "installer")):
-        os.makedirs(os.path.join(iceBuildHome, "installer"))
+#
+# Filter files, list of files that must not be included.
+#
+filterFiles = ["slice35d.dll", "slice35d.pdb", "sliced.lib"]
 
-    os.chdir(os.path.join(iceBuildHome, "installer"))
+if not os.path.exists(os.path.join(iceBuildHome, "installer")):
+    os.makedirs(os.path.join(iceBuildHome, "installer"))
 
-    installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
-    installerdSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
-    installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % version)
+os.chdir(os.path.join(iceBuildHome, "installer"))
 
+installerDir = os.path.join(iceBuildHome, "installer", "Ice-%s" % version)
+installerdSrcDir = os.path.join(iceBuildHome, "installer", "Ice-%s-src" % version)
+installerDemoDir = os.path.join(iceBuildHome, "installer", "Ice-%s-demos" % version)
+
+if not os.path.exists(installerdSrcDir):
     sys.stdout.write("extracting %s to %s... " % (os.path.basename(sourceArchive), installerdSrcDir))
     sys.stdout.flush()
     zipfile.ZipFile(sourceArchive).extractall()
-    if os.path.exists(installerdSrcDir):
-        shutil.rmtree(installerdSrcDir, onerror = _handle_error)
     shutil.move(installerDir, installerdSrcDir)
     print("ok")
 
+
+if not os.path.exists(installerDemoDir):
     sys.stdout.write("extracting %s to %s... " % (os.path.basename(demoArchive), installerDemoDir))
     sys.stdout.flush()
-    if os.path.exists(installerDemoDir):
-        shutil.rmtree(installerDemoDir, onerror = _handle_error)
     zipfile.ZipFile(demoArchive).extractall()
     print("ok")
 
-    #
-    # Remove previous installer if already exists
-    #
-    if os.path.exists(installerDir):
-        shutil.rmtree(installerDir, onerror = _handle_error)
 
-    os.makedirs(installerDir)
+if os.path.exists(installerDir):
+    shutil.rmtree(installerDir, onerror = _handle_error)
+os.makedirs(installerDir)
 
-    for arch in ["x86", "amd64", "arm"]:
-        for compiler in ["VC100", "MINGW", "VC90", "VC110"]:
-            for conf in ["release", "debug"]:
+for arch in ["x86", "amd64", "arm"]:
+    for compiler in ["VC100", "MINGW", "VC90", "VC110"]:
+        for conf in ["release", "debug"]:
 
-                buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
-                sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
-                installDir = os.path.join(buildDir, "Ice-%s" % version)
+            buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
+            sourceDir = os.path.join(buildDir, "Ice-%s-src" % version)
+            installDir = os.path.join(buildDir, "Ice-%s" % version)
 
-                if compiler == "VC100" and arch == "x86" and conf == "release":
-                    for d in ["Assemblies", "bin", "config", "include", "lib", "python", "slice", "vsaddin"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                #
-                                # IceGridGUI.jar in binary distribution should go in the bin directory.
-                                #
-                                if f == "IceGridGUI.jar":
-                                    targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile)
+            if compiler == "VC100" and arch == "x86" and conf == "release":
+                for d in ["Assemblies", "bin", "config", "include", "lib", "python", "slice", "vsaddin"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            #
+                            # IceGridGUI.jar in binary distribution should go in the bin directory.
+                            #
+                            if f == "IceGridGUI.jar":
+                                targetFile = targetFile.replace(os.path.join(installerDir, "lib"), os.path.join(installerDir, "bin"))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile)
 
-                    for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt", "RELEASE_NOTES.txt"]:
-                        copy(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
-
-                    #
-                    # Copy add-in icon from source dist
-                    #
-                    copy(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"), \
-                         os.path.join(installerDir, "icon", "newslice.ico"), verbose = verbose)
-
-                if compiler == "VC100" and arch == "x86" and conf == "debug":
-                    for d in ["bin", "lib"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-                if compiler == "VC100" and arch == "amd64" and conf == "release":
-                    for d in ["bin", "lib", "python"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-                if compiler == "VC100" and arch == "amd64" and conf == "debug":
-                    for d in ["bin", "lib"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-                if compiler == "MINGW" and arch == "x86" and conf == "release":
-                    for d in ["ruby", "bin"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-                if compiler == "VC90" and arch == "x86" and conf == "release":
-                    for d in ["Assemblies", "php", "bin", "vsaddin"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-
-                if compiler == "VC110" and arch == "x86" and conf == "release":
-                    for d in ["vsaddin"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
+                for f in ["CHANGES.txt", "LICENSE.txt", "ICE_LICENSE.txt", "RELEASE_NOTES.txt"]:
+                    copy(os.path.join(sourceDir, f), os.path.join(installerDir, f), verbose = verbose)
 
                 #
-                # VC110 binaries and libaries
+                # Copy add-in icon from source dist
                 #
-                if compiler == "VC110" and arch == "x86":
-                    for d in ["bin", "lib"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                targetFile = os.path.join(os.path.dirname(targetFile), "vc110", \
-                                                          os.path.basename(targetFile))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
+                copy(os.path.join(sourceDir, "vsaddin", "icon", "newslice.ico"), \
+                        os.path.join(installerDir, "icon", "newslice.ico"), verbose = verbose)
 
-                if compiler == "VC110" and arch == "amd64":
-                    for d in ["bin", "lib"]:
-                        for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
-                            for f in filenames:
-                                if f in filterFiles:
-                                    continue
-                                targetFile = relPath(installDir, installerDir, os.path.join(root, f))
-                                targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
-                                                          os.path.basename(targetFile))
-                                if not os.path.exists(targetFile):
-                                    copy(os.path.join(root, f), targetFile, verbose = verbose)
-
-
-                #
-                # WinRT SDKs
-                #
-                if compiler == "VC110":
-                    for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs")):
+            if compiler == "VC100" and arch == "x86" and conf == "debug":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                         for f in filenames:
                             if f in filterFiles:
                                 continue
@@ -773,43 +642,134 @@ if not skipInstaller:
                             if not os.path.exists(targetFile):
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-    #
-    # docs dir
-    #
-    docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
-    for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
-        copy(os.path.join(docsDir, f), os.path.join(installerDir, f), verbose = verbose)
+            if compiler == "VC100" and arch == "amd64" and conf == "release":
+                for d in ["bin", "lib", "python"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-    #
-    # Copy thirdpary files
-    #
-    for root, dirnames, filenames in os.walk(thirdPartyHome):
-        for f in filenames:
-            if f in filterFiles:
-                continue
-            targetFile = relPath(thirdPartyHome, installerDir, os.path.join(root, f))
-            if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
-                copy(os.path.join(root, f), targetFile, verbose = verbose)
+            if compiler == "VC100" and arch == "amd64" and conf == "debug":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-    copy(os.path.join(thirdPartyHome, "config", "openssl.cnf"), os.path.join(iceBuildHome, "installer"))
+            if compiler == "MINGW" and arch == "x86" and conf == "release":
+                for d in ["ruby", "bin"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
 
-    #
-    # Move PDBs to PDBs installer dir
-    #
-    pdbinstallerDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
-
-    if os.path.exists(pdbinstallerDir):
-        shutil.rmtree(pdbinstallerDir, onerror = _handle_error)
-
-    for root, dirnames, filenames in os.walk(installerDir):
-        for f in filenames:
-            if f in filterFiles:
-                continue
-            targetFile = relPath(installerDir, pdbinstallerDir, os.path.join(root, f))
-            if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".pdb"]:
-                move(os.path.join(root, f), targetFile)
+            if compiler == "VC90" and arch == "x86" and conf == "release":
+                for d in ["Assemblies", "php", "bin", "vsaddin"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
 
 
+            if compiler == "VC110" and arch == "x86" and conf == "release":
+                for d in ["vsaddin"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+            #
+            # VC110 binaries and libaries
+            #
+            if compiler == "VC110" and arch == "x86":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            targetFile = os.path.join(os.path.dirname(targetFile), "vc110", \
+                                                        os.path.basename(targetFile))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+            if compiler == "VC110" and arch == "amd64":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc110", "x64", \
+                                                        os.path.basename(targetFile))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+
+            #
+            # WinRT SDKs
+            #
+            if compiler == "VC110":
+                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs")):
+                    for f in filenames:
+                        if f in filterFiles:
+                            continue
+                        targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                        if not os.path.exists(targetFile):
+                            copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+#
+# docs dir
+#
+docsDir = os.path.join(distFiles, "src", "windows", "docs", "main")
+for f in ["README.txt", "SOURCES.txt", "THIRD_PARTY_LICENSE.txt"]:
+    copy(os.path.join(docsDir, f), os.path.join(installerDir, f), verbose = verbose)
+
+#
+# Copy thirdpary files
+#
+for root, dirnames, filenames in os.walk(thirdPartyHome):
+    for f in filenames:
+        if f in filterFiles:
+            continue
+        targetFile = relPath(thirdPartyHome, installerDir, os.path.join(root, f))
+        if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".exe", ".dll", ".jar", ".pdb"]:
+            copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+copy(os.path.join(thirdPartyHome, "config", "openssl.cnf"), os.path.join(iceBuildHome, "installer"))
+
+#
+# Move PDBs to PDBs installer dir
+#
+pdbinstallerDir = os.path.join(iceBuildHome, "installer/Ice-%s-PDBs" % version)
+
+if os.path.exists(pdbinstallerDir):
+    shutil.rmtree(pdbinstallerDir, onerror = _handle_error)
+
+for root, dirnames, filenames in os.walk(installerDir):
+    for f in filenames:
+        if f in filterFiles:
+            continue
+        targetFile = relPath(installerDir, pdbinstallerDir, os.path.join(root, f))
+        if not os.path.exists(targetFile) and os.path.splitext(f)[1] in [".pdb"]:
+            move(os.path.join(root, f), targetFile)
+
+if not skipInstaller:
     #
     # Build installers with Advanced installer.
     #
