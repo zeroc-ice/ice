@@ -981,6 +981,10 @@ namespace Ice.VisualStudio
         {
             try
             {
+                if(!Util.isSliceBuilderEnabled(project))
+                {
+                    return;
+                }
                 DependenciesMap dependenciesMap = getDependenciesMap();
                 if(dependenciesMap.ContainsKey(project.FullName))
                 {
@@ -1008,6 +1012,10 @@ namespace Ice.VisualStudio
         {
             try
             {
+                if(!Util.isSliceBuilderEnabled(project))
+                {
+                    return;
+                }
                 DependenciesMap dependenciesMap = getDependenciesMap();
                 String oldPath = Path.Combine(Path.GetDirectoryName(project.FullName), oldName);
                 if(dependenciesMap.ContainsKey(oldPath))
