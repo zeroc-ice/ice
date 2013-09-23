@@ -40,6 +40,7 @@ namespace IceInternal
         void beginReadConnectRequestResponse(Buffer buf);
         void endReadConnectRequestResponse(Buffer buf);
 
+#if !SILVERLIGHT
         //
         // If the proxy host needs to be resolved, this should return
         // a new NetworkProxy containing the IP address of the proxy.
@@ -47,6 +48,7 @@ namespace IceInternal
         // it's safe if this this method blocks.
         //
         NetworkProxy resolveHost();
+#endif
 
         //
         // Returns the IP address of the network proxy. This method
@@ -133,6 +135,7 @@ namespace IceInternal
             buf.reset();
         }
 
+#if !SILVERLIGHT
         public NetworkProxy resolveHost()
         {
             Debug.Assert(_host != null);
@@ -143,6 +146,7 @@ namespace IceInternal
                                                               false,
                                                               true)[0]);
         }
+#endif
 
         public EndPoint getAddress()
         {
@@ -155,8 +159,10 @@ namespace IceInternal
             return "SOCKS";
         }
 
+#if !SILVERLIGHT
         private readonly string _host;
         private readonly int _port;
+#endif
         private readonly EndPoint _address;
     }
 
@@ -954,10 +960,12 @@ namespace IceInternal
                 }
                 catch(FormatException)
                 {
+#if !SILVERLIGHT
                     if(!blocking)
                     {
                         return addresses;
                     }
+#endif
                 }
 
 #if SILVERLIGHT
