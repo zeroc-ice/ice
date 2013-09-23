@@ -34,8 +34,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.prefs.Preferences;
 
 import java.text.DecimalFormat;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -248,11 +252,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 MetricsViewEditor.startRefreshThread((MetricsView)e.getPath().getLastPathComponent());
             }
+            
+            if(e.isAddedPath())
+            {
+                MetricsViewEditor.setSelectedPath(e.getPath());
+            }
         }
     }
 
     MetricsViewEditor(Root root)
     {
+        Coordinator coord = root.getCoordinator();
+        _prefs = coord.getPrefs().node("MetricsView");
+            
         if(_properties == null)
         {
             JTree tree = root.getTree();
@@ -263,8 +275,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
             _properties.load("metrics.cfg");
             sectionSort.addAll(java.util.Arrays.asList(_properties.getPropertyAsList("IceGridGUI.Metrics")));
-
-            Coordinator coord = root.getCoordinator();
+            
             String metricsDefs = coord.getProperties().getProperty("IceGridAdmin.MetricsConfigs");
             if(!metricsDefs.isEmpty())
             {
@@ -314,6 +325,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _refreshThread.done();
             _refreshThread = null;
         }
+    }
+    
+    static void setSelectedPath(TreePath path)
+    {
+        _selectedPath = path;
     }
 
     public static class MetricsViewInfo
@@ -935,8 +951,17 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         JSplitPane current = null;
         JSplitPane top = null;
         Map<String, JTable> tables = new HashMap<String, JTable>(_tables);
-        for(String name : _sectionSort)
+        
+        StringBuilder sb = new StringBuilder();
+        Object[] elements = _selectedPath.getPath();
+        for(Object element : elements)
         {
+            sb.append(element.toString());
+            sb.append(".");
+        }
+        
+        for(String name : _sectionSort)
+        {                                                        
             JTable table = tables.remove(name);
             if(table == null)
             {
@@ -947,7 +972,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 section = name;
             }
-            current = createScrollTable(current, section, table);
+            current = createScrollTable(current, sb.toString() + name, section, table);
             if(top == null)
             {
                 top = current;
@@ -955,16 +980,20 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
         for(Map.Entry<String, JTable> entry : tables.entrySet())
         {
-            current = createScrollTable(current, entry.getKey(), entry.getValue());
+            current = createScrollTable(current, sb.toString() + entry.getKey(), entry.getKey(), entry.getValue());
             if(top == null)
             {
                 top = current;
             }
         }
+        if(current != null)
+        {
+            current.setBottomComponent(new JPanel());
+        }
         return top;
     }
 
-    private JSplitPane createScrollTable(JSplitPane currentPane, String title, JTable table)
+    private JSplitPane createScrollTable(JSplitPane currentPane,final String key, String title, JTable table)
     {
         JPanel panel = new JPanel();
         TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), 
@@ -979,6 +1008,17 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         {
             currentPane.setBottomComponent(splitPane);
         }
+        splitPane.setDividerLocation(_prefs.getInt(key, 120));
+        splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, 
+                                            new PropertyChangeListener()
+                                                {
+                                                    @Override
+                                                    public void propertyChange(PropertyChangeEvent e)
+                                                    {
+                                                        _prefs.putInt(key, Integer.valueOf((Integer)e.getNewValue()));
+                                                        _prefs.flush();
+                                                    }
+                                                });
         return splitPane;
     }
 
@@ -1733,5 +1773,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     private static Ice.Properties _properties;
     private static String[] _sectionSort;
     private static Map<String, String> _sectionNames = new HashMap<String, String>();
+    private static TreePath _selectedPath;
+    final private Preferences _prefs;
 }
 
