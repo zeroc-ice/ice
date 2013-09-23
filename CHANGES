@@ -27,6 +27,10 @@ Changes since version 3.5.0
 General Changes
 ===============
 
+- Moved instructions for building a source distribution to the Ice
+  manual. See the section "Building Ice from Source" in the Release
+  Notes.
+
 - It's now possible to install an instrumentation observer with the
   communicator initialization data structure and still have the
   metrics administrative facet enabled. Previously, installing an
