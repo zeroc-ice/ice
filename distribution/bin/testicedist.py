@@ -895,6 +895,8 @@ class Platform:
             return False
         if conf == "silverlight": # Silverlight demos need manual intervention
             return False
+        if conf == "winrt": # Winrt demos need manual intervention
+            return False
         if lang == "php":
             return False
 
@@ -1131,11 +1133,11 @@ class Windows(Platform):
            and not os.path.exists(os.path.join(buildDir, "UpgradeLog.htm"))):
             commands.append('"%s" %s  && cd %s && devenv demo.sln /upgrade' % \
                             (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir))
-                            
-        solution = "demo.sln" if buildConfiguration != "winrt" else "demo-winrt.sln"
+        
         commands.append('"%s" %s  && cd %s && devenv %s /build "%s|%s"' % \
-                        (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, solution, 
-                         bConf, bArch))
+                        (BuildUtils.getVcVarsAll(compiler), self.canonicalArch(arch), buildDir, "demo.sln", 
+                        bConf, bArch))
+            
         return commands
 
     def makeCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
@@ -1158,7 +1160,7 @@ class Windows(Platform):
         return True
         
     def isWindows8(self):
-        return isWin32() and sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] >= 2
+        return sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] >= 2
 
     def getSupportedConfigurations(self, compiler, arch):        
         buildConfigurations = ["default"]
