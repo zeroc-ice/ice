@@ -1016,7 +1016,17 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                     public void propertyChange(PropertyChangeEvent e)
                                                     {
                                                         _prefs.putInt(key, Integer.valueOf((Integer)e.getNewValue()));
-                                                        _prefs.flush();
+                                                        try
+                                                        {
+                                                            _prefs.flush();
+                                                        }
+                                                        catch(java.util.prefs.BackingStoreException ex)
+                                                        {
+                                                            JOptionPane.showMessageDialog(null, 
+                                                                                          ex.toString(),
+                                                                                          "Error saving preferences",
+                                                                                          JOptionPane.ERROR_MESSAGE);
+                                                        }
                                                     }
                                                 });
         return splitPane;
