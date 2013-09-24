@@ -43,6 +43,44 @@ def prepareCAHome(dir, force):
     f.truncate(0)
     f.close()
 
+    
+def jksToBks(source, target):
+    cmd = "keytool -importkeystore -srckeystore " + source + " -destkeystore " + target + " -srcstoretype JKS -deststoretype BKS " + \
+          "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
+    if debug:
+        print("[debug]", cmd)
+
+
+    p = subprocess.Popen(cmd, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
+                        stderr = subprocess.STDOUT, bufsize = 0)
+
+    while(True):
+
+        line = p.stdout.readline()            
+        if p.poll() is not None and not line:
+            # The process terminated
+            break
+            
+        sys.stdout.write(line)
+        
+        if line.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
+            print("")
+            print("WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format.")
+            print("         You can download BKS provider from http://www.bouncycastle.org/download/bcprov-jdk15on-146.jar.")
+            print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE")
+            print("         and run this script again.")
+            print("")
+            sys.exit(1)
+        elif line.find("java.security.InvalidKeyException: Illegal key size") != -1:
+            print("")
+            print("WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength.")
+            print("         You can download it from Additional Resources section in Orcale Java Download page at:")
+            print("             http://www.oracle.com/technetwork/java/javase/downloads/index.html.")
+            print("")
+            sys.exit(1)
+            
+    if p.poll() != 0:
+        sys.exist(1)
 #
 # Check arguments
 #
@@ -396,41 +434,12 @@ if not os.path.exists("server.bks") or newer(serverKeystore, "server.bks"):
     if os.path.exists("server.bks"):
         os.remove("server.bks")
 
-    print("Converting Java truststore to BKS...")
-    cmd = "keytool -importkeystore -srckeystore server.jks -destkeystore server.bks -srcstoretype JKS -deststoretype BKS " + \
-          "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
-    if debug:
-        print("[debug]", cmd)
-
-
-    p = subprocess.Popen(cmd, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-                        stderr = subprocess.STDOUT, bufsize = 0)
-
-    while(True):
-
-        line = p.stdout.readline()            
-        if p.poll() is not None and not line:
-            # The process terminated
-            break
-            
-        if line.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
-            print("")
-            print("WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format.")
-            print("         You can download BKS provider from http://www.bouncycastle.org/download/bcprov-jdk15on-146.jar.")
-            print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE")
-            print("         and run this script again.")
-            print("")
-            sys.exit(1)
-        elif line.find("java.security.InvalidKeyException: Illegal key size") != -1:
-            print("")
-            print("WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength.")
-            print("         You can download it from Additional Resources section in Orcale Java Download page at:")
-            print("             http://www.oracle.com/technetwork/java/javase/downloads/index.html.")
-            print("")
-            sys.exit(1)
-
+    print("Converting Java server truststore to BKS...")
+    
+    jksToBks("server.jks", "server.bks")
+    
     #
-    # Replace certs.bks files in android demo dir
+    # Replace server.bks files in android demo and test directories
     #
     for d in ['../java/test/android', '../java/demo/android']:
         for root, dirnames, filenames in os.walk(d):
@@ -473,40 +482,12 @@ if not os.path.exists("client.bks") or newer(clientKeystore, "client.bks"):
     if os.path.exists("client.bks"):
         os.remove("client.bks")
 
-    print("Converting Java truststore to BKS...")
-    cmd = "keytool -importkeystore -srckeystore client.jks -destkeystore client.bks -srcstoretype JKS -deststoretype BKS " + \
-          "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
-    if debug:
-        print("[debug]", cmd)
-
-    p = subprocess.Popen(cmd, shell = True, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-                        stderr = subprocess.STDOUT, bufsize = 0)
-
-    while(True):
-
-        line = p.stdout.readline()            
-        if p.poll() is not None and not line:
-            # The process terminated
-            break
-            
-        if line.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
-            print("")
-            print("WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format.")
-            print("         You can download BKS provider from http://www.bouncycastle.org/download/bcprov-jdk15on-146.jar.")
-            print("         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE")
-            print("         and run this script again.")
-            print("")
-            sys.exit(1)
-        elif line.find("java.security.InvalidKeyException: Illegal key size") != -1:
-            print("")
-            print("WARNING: You need to install Java Cryptography Extension (JCE) Unlimited Strength.")
-            print("         You can download it from Additional Resources section in Orcale Java Download page at:")
-            print("             http://www.oracle.com/technetwork/java/javase/downloads/index.html.")
-            print("")
-            sys.exit(1)
-
+    print("Converting Java client truststore to BKS...")
+    
+    jksToBks("client.jks", "client.bks")
+    
     #
-    # Replace certs.bks files in android demo dir
+    # Replace client.bks files in android demo and test directories
     #
     for d in ['../java/test/android', '../java/demo/android']:
         for root, dirnames, filenames in os.walk(d):
