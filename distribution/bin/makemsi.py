@@ -321,14 +321,14 @@ builds = {
         "x86": {
             "release": ["cpp", "cs", "java", "py", "vsaddin"], 
             "debug": ["cpp"]},
-        "x64": {
+        "amd64": {
             "release": ["cpp"], 
             "debug": ["cpp"]}},
     "VC110": {
         "x86": {
             "release": ["cpp", "vsaddin"], 
             "debug": ["cpp"]},
-        "x64": {
+        "amd64": {
             "release": ["cpp"], 
             "debug": ["cpp"]},
         "arm": {
