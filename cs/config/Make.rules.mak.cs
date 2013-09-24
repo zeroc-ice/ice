@@ -201,9 +201,9 @@ MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
 # You'll need to change UNITY_LIBDIR to the appropriate directory for your system.
 #
 # This setting works on Windows XP:
-#UNITY_LIBDIR		= C:\Documents and Settings\<user>\Local Settings\Application Data\Unity\WebPlayer\mono\3.x.x\Data\lib
+#UNITY_LIBDIR		= C:\Documents and Settings\<user>\Local Settings\Application Data\Unity\WebPlayer\mono\Release3.x.x\Data\lib
 # This setting works on Windows 7:
-UNITY_LIBDIR		= C:\Users\<user>\AppData\LocalLow\Unity\WebPlayer\mono\3.x.x\Data\lib
+UNITY_LIBDIR		= C:\Users\<user>\AppData\LocalLow\Unity\WebPlayer\mono\Release3.x.x\Data\lib
 
 UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
 			  "/r:$(UNITY_LIBDIR)\System.dll" \
