@@ -3615,6 +3615,6 @@ namespace Ice.VisualStudio
         private uint _dwCookie;
         private bool _opening = false;
         private bool _opened = false; // True after solutionOpened has been executed.
-        public bool commandLine;
+        static public bool commandLine;
     }
 }

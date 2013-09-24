@@ -82,8 +82,8 @@ namespace Ice.VisualStudio
                             // Can happen if C++ support is not installed.
                         }
 #endif
+                        Builder.commandLine = connectMode == ext_ConnectMode.ext_cm_CommandLine;
                         _builder = new Builder();
-                        _builder.commandLine = connectMode == ext_ConnectMode.ext_cm_CommandLine;
                         _builder.init(_applicationObject, connectMode, _addInInstance);
                     }
                 }

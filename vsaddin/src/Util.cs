@@ -752,23 +752,29 @@ namespace Ice.VisualStudio
 #if VS2012
         public static void addSdkReference(VCProject project, string component)
         {
-            string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
-            VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
-            if(reference != null)
+            if(!Builder.commandLine)
             {
-                reference.Remove();
+                string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
+                VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
+                if (reference != null)
+                {
+                    reference.Remove();
+                }
+                project.AddSdkReference(sdkId);
             }
-            project.AddSdkReference(sdkId);
         }
 
         public static bool removeSdkReference(VCProject project, string component)
         {
-            string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
-            VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
-            if (reference != null)
+            if(!Builder.commandLine)
             {
-                reference.Remove();
-                return true;
+                string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
+                VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
+                if (reference != null)
+                {
+                    reference.Remove();
+                    return true;
+                }
             }
             return false;
         }
@@ -2720,7 +2726,7 @@ namespace Ice.VisualStudio
 
             if((int)msgLevel <= verboseLevel)
             {
-                if(!builder.commandLine)
+                if(!Builder.commandLine)
                 {
                     OutputWindowPane pane = builder.buildOutput();
                     if(pane == null)
@@ -3030,7 +3036,7 @@ namespace Ice.VisualStudio
         {
             string message = "";
 
-            if (ex is InitializationException)
+            if(ex is InitializationException)
             {
                 message = ex.Message;
             }
@@ -3038,10 +3044,11 @@ namespace Ice.VisualStudio
             {
                 message = ex.ToString();
             }
+
             try
             {
                 Builder builder = Connect.getBuilder();
-                if(!builder.commandLine)
+                if(!Builder.commandLine)
                 {
                     MessageBox.Show("The Ice Visual Studio Add-in has raised an unexpected exception:\n" +
                                     message,
