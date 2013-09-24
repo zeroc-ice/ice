@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime, threading, tempfile, platform
+import os, sys, fnmatch, re, getopt, atexit, shutil, subprocess, zipfile, time, datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "lib")))
 
@@ -355,6 +355,12 @@ class Platform:
         trace("Compilers: %s" % self.getCompilers(), f)
         trace("Architectures: %s" % self.getArchitectures(), f)
         trace("Languages: %s" % self.getLanguages(), f)
+        buildConfigs = set()
+        for comp in self.getCompilers():
+            for arch in self.getArchitectures():
+                for c in self.getConfigurations(comp, arch):
+                    buildConfigs.add(c)
+        trace("Build configurations: %s" % list(buildConfigs), f)
 
         if not self._skipTests:
             trace("\nTest configurations:", f)
@@ -366,7 +372,7 @@ class Platform:
                         for lang in filterRC(runnableConfigs, self.getSupportedLanguages(), comp, arch, conf):
                             for c in runnableConfigs[comp][arch][conf][lang]:
                                 trace("- [%d] %s %s tests (%s/%s/%s)" % (count, lang, c.name, comp, arch, conf), f)
-                                count += 1 
+                                count += 1
     
         if not self._skipDemos:
             trace("\nDemo configurations:", f)
@@ -396,10 +402,12 @@ class Platform:
         otherArchs.remove(defaultArch)
 
         configs = []
+        # Add --all tests for default architecture, no --all for other architectures
         configs.append(TestConfiguration("all", "--all" + f, archs = [defaultArch] , configs = ["default"]))
         if(otherArchs):
             configs.append(TestConfiguration("default", "" + f, archs = otherArchs, configs = ["default"]))
 
+        # Add cross tests
         langs = set(["cpp", "java", "cs"]) & set(self.getLanguages())
         for l1 in langs:
             for l2 in langs:
@@ -416,6 +424,9 @@ class Platform:
                                                          archs = [defaultArch],
                                                          languages = [l1]))
 
+        # Add test configuration for all other non-default
+        # configurations (except for WinRT where we can't 
+        # run the tests from the command line yet).
         buildConfigs = set()
         for comp in self.getCompilers():
             for arch in self.getArchitectures():
@@ -501,7 +512,7 @@ class Platform:
                            self.getSupportedConfigurations(compiler, arch)))
         
     def getDefaultArchitecture(self):
-        # Default architecture is first non-filtered architecture by default
+        # Default architecture is by default first non-filtered architecture
         for a in self.getArchitectures():
             if self._archs and not a in self._archs:
                 continue
@@ -1147,7 +1158,7 @@ class Windows(Platform):
         return True
         
     def isWindows8(self):
-        return platform.platform(aliased = True) == "Windows-8-6.2.9200"
+        return isWin32() and sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] >= 2
 
     def getSupportedConfigurations(self, compiler, arch):        
         buildConfigurations = ["default"]
