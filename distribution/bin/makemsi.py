@@ -322,7 +322,7 @@ builds = {
             "release": ["cpp", "cs", "java", "py", "vsaddin"], 
             "debug": ["cpp"]},
         "amd64": {
-            "release": ["cpp"], 
+            "release": ["cpp", "py"], 
             "debug": ["cpp"]}},
     "VC110": {
         "x86": {
