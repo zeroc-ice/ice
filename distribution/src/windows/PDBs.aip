@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="9.7" version="10.3" Modules="enterprise" RootPath="." Language="en" Id="{EBA156CB-35E6-40D0-A6E0-DB14207A093B}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="9.7" version="10.5.2" Modules="enterprise" RootPath="." Language="en" Id="{EBA156CB-35E6-40D0-A6E0-DB14207A093B}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="32767" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="2" ColumnIndex="7" ColumnSize="2" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="32767" Description="File sequence number for the last file for this media." Options="0" ColumnType="2" ColumnIndex="1" ColumnSize="2" MsiKey="Media#LastSequence"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1" MultiBuildValue="DefaultBuild:2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="info@zeroc.com"/>
@@ -22,6 +23,8 @@
     <ROW Property="UpgradeCode" Value="{707385AF-DB02-409F-BD8C-A1E4BFDE3491}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -30,9 +33,11 @@
     <ROW Directory="DesignTime_Dir" Directory_Parent="__Dir" DefaultDir="Design~1|DesignTime"/>
     <ROW Directory="ICE_INSTALL_DIR" Directory_Parent="TARGETDIR" DefaultDir="ICE_IN~1|ICE_INSTALL_DIR" IsPseudoRoot="1"/>
     <ROW Directory="Ice_Dir" Directory_Parent="SDKs_Dir" DefaultDir="Ice"/>
+    <ROW Directory="Retail_Dir" Directory_Parent="DesignTime_Dir" DefaultDir="Retail"/>
     <ROW Directory="SDKs_Dir" Directory_Parent="ICE_INSTALL_DIR" DefaultDir="SDKs"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="__Dir" Directory_Parent="Ice_Dir" DefaultDir="3.5"/>
+    <ROW Directory="arm_2_Dir" Directory_Parent="Retail_Dir" DefaultDir="arm"/>
     <ROW Directory="arm_Dir" Directory_Parent="Debug_Dir" DefaultDir="arm"/>
     <ROW Directory="bin_Dir" Directory_Parent="ICE_INSTALL_DIR" DefaultDir="bin"/>
     <ROW Directory="cf_1_Dir" Directory_Parent="bin_Dir" DefaultDir="cf"/>
@@ -40,8 +45,10 @@
     <ROW Directory="sl_Dir" Directory_Parent="Assemblies_Dir" DefaultDir="sl"/>
     <ROW Directory="vc110_Dir" Directory_Parent="bin_Dir" DefaultDir="vc110"/>
     <ROW Directory="x64_1_Dir" Directory_Parent="bin_Dir" DefaultDir="x64"/>
-    <ROW Directory="x64_2_Dir" Directory_Parent="Debug_Dir" DefaultDir="x64"/>
+    <ROW Directory="x64_4_Dir" Directory_Parent="Debug_Dir" DefaultDir="x64"/>
+    <ROW Directory="x64_5_Dir" Directory_Parent="Retail_Dir" DefaultDir="x64"/>
     <ROW Directory="x64_Dir" Directory_Parent="vc110_Dir" DefaultDir="x64"/>
+    <ROW Directory="x86_2_Dir" Directory_Parent="Retail_Dir" DefaultDir="x86"/>
     <ROW Directory="x86_Dir" Directory_Parent="Debug_Dir" DefaultDir="x86"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
@@ -52,13 +59,17 @@
     <ROW Component="dumpdb.pdb_1" ComponentId="{CE8D411F-DA72-45E0-86E8-09FA6DC294B5}" Directory_="vc110_Dir" Attributes="0" KeyPath="dumpdb.pdb_1" Type="4"/>
     <ROW Component="dumpdb.pdb_2" ComponentId="{0578AE4E-B181-4534-9A5C-8F52FBD4F534}" Directory_="x64_Dir" Attributes="0" KeyPath="dumpdb.pdb_2" Type="4"/>
     <ROW Component="dumpdb.pdb_3" ComponentId="{ABAA7C4A-32FD-4777-83B1-D52F0FE9994F}" Directory_="x64_1_Dir" Attributes="0" KeyPath="dumpdb.pdb_3" Type="4"/>
-    <ROW Component="glacier2.pdb" ComponentId="{F56B681A-13C3-4E33-BECB-959D012D6B38}" Directory_="arm_Dir" Attributes="0" KeyPath="glacier2.pdb_3" Type="4"/>
-    <ROW Component="glacier2.pdb_1" ComponentId="{233134C1-4193-41A5-A325-6E5B5F136312}" Directory_="x64_2_Dir" Attributes="0" KeyPath="glacier2.pdb_4" Type="4"/>
-    <ROW Component="glacier2.pdb_2" ComponentId="{C83C3422-C3F7-4978-9761-EED44A5605A2}" Directory_="x86_Dir" Attributes="0" KeyPath="glacier2.pdb_5" Type="4"/>
+    <ROW Component="glacier2.pdb" ComponentId="{753D52ED-D4F5-483E-8CE5-043C639D7153}" Directory_="arm_Dir" Attributes="0" KeyPath="glacier2.pdb_9" Type="4"/>
+    <ROW Component="glacier2.pdb_10" ComponentId="{3177D42D-93B4-487B-8200-B8C22B996A0E}" Directory_="x86_2_Dir" Attributes="0" KeyPath="glacier2.pdb_14" Type="4"/>
+    <ROW Component="glacier2.pdb_6" ComponentId="{4AF8C359-1678-4B61-BBF3-E2AF0E60C8BD}" Directory_="x64_4_Dir" Attributes="0" KeyPath="glacier2.pdb_10" Type="4"/>
+    <ROW Component="glacier2.pdb_7" ComponentId="{5D593B14-2BB4-4E85-9F1C-823502F0E015}" Directory_="x86_Dir" Attributes="0" KeyPath="glacier2.pdb_11" Type="4"/>
+    <ROW Component="glacier2.pdb_8" ComponentId="{FA693DC2-C430-4B18-9ECF-EFAA69094A36}" Directory_="arm_2_Dir" Attributes="0" KeyPath="glacier2.pdb_12" Type="4"/>
+    <ROW Component="glacier2.pdb_9" ComponentId="{03C77FA4-F152-448D-BE63-0B379645E151}" Directory_="x64_5_Dir" Attributes="0" KeyPath="glacier2.pdb_13" Type="4"/>
     <ROW Component="iceboxnet.pdb" ComponentId="{84401D5F-1A53-44ED-8530-C182955B561E}" Directory_="cf_1_Dir" Attributes="0" KeyPath="iceboxnet.pdb" Type="4"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Glacier2.pdb Glacier2.pdb_1 Glacier2.pdb_2 dumpdb.pdb dumpdb.pdb_1 dumpdb.pdb_2 dumpdb.pdb_3 glacier2.pdb glacier2.pdb_1 glacier2.pdb_2 iceboxnet.pdb"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="Glacier2.pdb Glacier2.pdb_1 Glacier2.pdb_2 dumpdb.pdb dumpdb.pdb_1 dumpdb.pdb_2 dumpdb.pdb_3 iceboxnet.pdb"/>
+    <ROW Feature="WINRTSDK" Title="WinRT SDK" Description="WinRT SDK" Display="5" Level="32767" Directory_="APPDIR" Attributes="0" Options="32" Components="glacier2.pdb glacier2.pdb_10 glacier2.pdb_6 glacier2.pdb_7 glacier2.pdb_8 glacier2.pdb_9"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -80,17 +91,80 @@
     <ROW File="IceStorm.pdb" Component_="Glacier2.pdb" FileName="IceStorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\Assemblies\cf\IceStorm.pdb" SelfReg="false" NextFile="Glacier2.pdb_1"/>
     <ROW File="IceStorm.pdb_1" Component_="Glacier2.pdb_1" FileName="IceStorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\Assemblies\IceStorm.pdb" SelfReg="false" NextFile="Glacier2.pdb_2"/>
     <ROW File="IceStorm.pdb_2" Component_="Glacier2.pdb_2" FileName="IceStorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\Assemblies\sl\IceStorm.pdb" SelfReg="false" NextFile="iceboxnet.pdb"/>
+    <ROW File="db_archive.pdb" Component_="dumpdb.pdb" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb"/>
+    <ROW File="db_archive.pdb_1" Component_="dumpdb.pdb_1" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb_1"/>
+    <ROW File="db_archive.pdb_2" Component_="dumpdb.pdb_2" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb_2"/>
+    <ROW File="db_archive.pdb_3" Component_="dumpdb.pdb_3" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.pdb_3"/>
+    <ROW File="db_checkpoint.pdb" Component_="dumpdb.pdb" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb"/>
+    <ROW File="db_checkpoint.pdb_1" Component_="dumpdb.pdb_1" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb_1"/>
+    <ROW File="db_checkpoint.pdb_2" Component_="dumpdb.pdb_2" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb_2"/>
+    <ROW File="db_checkpoint.pdb_3" Component_="dumpdb.pdb_3" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.pdb_3"/>
+    <ROW File="db_deadlock.pdb" Component_="dumpdb.pdb" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb"/>
+    <ROW File="db_deadlock.pdb_1" Component_="dumpdb.pdb_1" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb_1"/>
+    <ROW File="db_deadlock.pdb_2" Component_="dumpdb.pdb_2" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb_2"/>
+    <ROW File="db_deadlock.pdb_3" Component_="dumpdb.pdb_3" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.pdb_3"/>
+    <ROW File="db_dump.pdb" Component_="dumpdb.pdb" FileName="db_dump.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb"/>
+    <ROW File="db_dump.pdb_1" Component_="dumpdb.pdb_1" FileName="db_dump.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb_1"/>
+    <ROW File="db_dump.pdb_2" Component_="dumpdb.pdb_2" FileName="db_dump.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb_2"/>
+    <ROW File="db_dump.pdb_3" Component_="dumpdb.pdb_3" FileName="db_dump.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.pdb_3"/>
+    <ROW File="db_hotbackup.pdb" Component_="dumpdb.pdb" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb"/>
+    <ROW File="db_hotbackup.pdb_1" Component_="dumpdb.pdb_1" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb_1"/>
+    <ROW File="db_hotbackup.pdb_2" Component_="dumpdb.pdb_2" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb_2"/>
+    <ROW File="db_hotbackup.pdb_3" Component_="dumpdb.pdb_3" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.pdb_3"/>
+    <ROW File="db_load.pdb" Component_="dumpdb.pdb" FileName="db_load.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb"/>
+    <ROW File="db_load.pdb_1" Component_="dumpdb.pdb_1" FileName="db_load.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb_1"/>
+    <ROW File="db_load.pdb_2" Component_="dumpdb.pdb_2" FileName="db_load.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb_2"/>
+    <ROW File="db_load.pdb_3" Component_="dumpdb.pdb_3" FileName="db_load.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_load.pdb" SelfReg="false" NextFile="db_log_verify.pdb_3"/>
+    <ROW File="db_log_verify.pdb" Component_="dumpdb.pdb" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb"/>
+    <ROW File="db_log_verify.pdb_1" Component_="dumpdb.pdb_1" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb_1"/>
+    <ROW File="db_log_verify.pdb_2" Component_="dumpdb.pdb_2" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb_2"/>
+    <ROW File="db_log_verify.pdb_3" Component_="dumpdb.pdb_3" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.pdb_3"/>
+    <ROW File="db_printlog.pdb" Component_="dumpdb.pdb" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb"/>
+    <ROW File="db_printlog.pdb_1" Component_="dumpdb.pdb_1" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb_1"/>
+    <ROW File="db_printlog.pdb_2" Component_="dumpdb.pdb_2" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb_2"/>
+    <ROW File="db_printlog.pdb_3" Component_="dumpdb.pdb_3" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_printlog.pdb" SelfReg="false" NextFile="db_recover.pdb_3"/>
+    <ROW File="db_recover.pdb" Component_="dumpdb.pdb" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb"/>
+    <ROW File="db_recover.pdb_1" Component_="dumpdb.pdb_1" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb_1"/>
+    <ROW File="db_recover.pdb_2" Component_="dumpdb.pdb_2" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb_2"/>
+    <ROW File="db_recover.pdb_3" Component_="dumpdb.pdb_3" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_recover.pdb" SelfReg="false" NextFile="db_stat.pdb_3"/>
+    <ROW File="db_stat.pdb" Component_="dumpdb.pdb" FileName="db_stat.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb"/>
+    <ROW File="db_stat.pdb_1" Component_="dumpdb.pdb_1" FileName="db_stat.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb_1"/>
+    <ROW File="db_stat.pdb_2" Component_="dumpdb.pdb_2" FileName="db_stat.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb_2"/>
+    <ROW File="db_stat.pdb_3" Component_="dumpdb.pdb_3" FileName="db_stat.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_stat.pdb" SelfReg="false" NextFile="db_tuner.pdb_3"/>
+    <ROW File="db_tuner.pdb" Component_="dumpdb.pdb" FileName="db_tuner.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb"/>
+    <ROW File="db_tuner.pdb_1" Component_="dumpdb.pdb_1" FileName="db_tuner.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb_1"/>
+    <ROW File="db_tuner.pdb_2" Component_="dumpdb.pdb_2" FileName="db_tuner.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb_2"/>
+    <ROW File="db_tuner.pdb_3" Component_="dumpdb.pdb_3" FileName="db_tuner.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.pdb_3"/>
+    <ROW File="db_upgrade.pdb" Component_="dumpdb.pdb" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb"/>
+    <ROW File="db_upgrade.pdb_1" Component_="dumpdb.pdb_1" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb_1"/>
+    <ROW File="db_upgrade.pdb_2" Component_="dumpdb.pdb_2" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb_2"/>
+    <ROW File="db_upgrade.pdb_3" Component_="dumpdb.pdb_3" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.pdb_3"/>
+    <ROW File="db_verify.pdb" Component_="dumpdb.pdb" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\db_verify.pdb" SelfReg="false" NextFile="freeze35.pdb"/>
+    <ROW File="db_verify.pdb_1" Component_="dumpdb.pdb_1" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\db_verify.pdb" SelfReg="false" NextFile="freeze35.pdb_1"/>
+    <ROW File="db_verify.pdb_2" Component_="dumpdb.pdb_2" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\db_verify.pdb" SelfReg="false" NextFile="freeze35.pdb_2"/>
+    <ROW File="db_verify.pdb_3" Component_="dumpdb.pdb_3" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\db_verify.pdb" SelfReg="false" NextFile="freeze35.pdb_3"/>
     <ROW File="dumpdb.pdb" Component_="dumpdb.pdb" FileName="dumpdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\dumpdb.pdb" SelfReg="false" NextFile="freeze35d.pdb"/>
     <ROW File="dumpdb.pdb_1" Component_="dumpdb.pdb_1" FileName="dumpdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\dumpdb.pdb" SelfReg="false" NextFile="freeze35d.pdb_1"/>
     <ROW File="dumpdb.pdb_2" Component_="dumpdb.pdb_2" FileName="dumpdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\dumpdb.pdb" SelfReg="false" NextFile="freeze35d.pdb_2"/>
     <ROW File="dumpdb.pdb_3" Component_="dumpdb.pdb_3" FileName="dumpdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\dumpdb.pdb" SelfReg="false" NextFile="freeze35d.pdb_3"/>
+    <ROW File="freeze35.pdb" Component_="dumpdb.pdb" FileName="freeze35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\freeze35.pdb" SelfReg="false" NextFile="glacier235.pdb"/>
+    <ROW File="freeze35.pdb_1" Component_="dumpdb.pdb_1" FileName="freeze35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\freeze35.pdb" SelfReg="false" NextFile="glacier235.pdb_1"/>
+    <ROW File="freeze35.pdb_2" Component_="dumpdb.pdb_2" FileName="freeze35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\freeze35.pdb" SelfReg="false" NextFile="glacier235.pdb_2"/>
+    <ROW File="freeze35.pdb_3" Component_="dumpdb.pdb_3" FileName="freeze35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\freeze35.pdb" SelfReg="false" NextFile="glacier235.pdb_3"/>
     <ROW File="freeze35d.pdb" Component_="dumpdb.pdb" FileName="freeze~1.pdb|freeze35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\freeze35d.pdb" SelfReg="false" NextFile="glacier235d.pdb"/>
     <ROW File="freeze35d.pdb_1" Component_="dumpdb.pdb_1" FileName="freeze~1.pdb|freeze35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\freeze35d.pdb" SelfReg="false" NextFile="glacier235d.pdb_1"/>
     <ROW File="freeze35d.pdb_2" Component_="dumpdb.pdb_2" FileName="freeze~1.pdb|freeze35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\freeze35d.pdb" SelfReg="false" NextFile="glacier235d.pdb_2"/>
     <ROW File="freeze35d.pdb_3" Component_="dumpdb.pdb_3" FileName="freeze~1.pdb|freeze35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\freeze35d.pdb" SelfReg="false" NextFile="glacier235d.pdb_3"/>
-    <ROW File="glacier2.pdb_3" Component_="glacier2.pdb" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_3"/>
-    <ROW File="glacier2.pdb_4" Component_="glacier2.pdb_1" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_4"/>
-    <ROW File="glacier2.pdb_5" Component_="glacier2.pdb_2" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_5"/>
+    <ROW File="glacier2.pdb_10" Component_="glacier2.pdb_6" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_10"/>
+    <ROW File="glacier2.pdb_11" Component_="glacier2.pdb_7" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_11"/>
+    <ROW File="glacier2.pdb_12" Component_="glacier2.pdb_8" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\arm\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_12"/>
+    <ROW File="glacier2.pdb_13" Component_="glacier2.pdb_9" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x64\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_13"/>
+    <ROW File="glacier2.pdb_14" Component_="glacier2.pdb_10" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x86\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_14"/>
+    <ROW File="glacier2.pdb_9" Component_="glacier2.pdb" FileName="glacier2.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\glacier2.pdb" SelfReg="false" NextFile="ice.pdb_9"/>
+    <ROW File="glacier235.pdb" Component_="dumpdb.pdb" FileName="glacie~3.pdb|glacier235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\glacier235.pdb" SelfReg="false" NextFile="ice35.pdb"/>
+    <ROW File="glacier235.pdb_1" Component_="dumpdb.pdb_1" FileName="glacie~3.pdb|glacier235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\glacier235.pdb" SelfReg="false" NextFile="ice35.pdb_1"/>
+    <ROW File="glacier235.pdb_2" Component_="dumpdb.pdb_2" FileName="glacie~3.pdb|glacier235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\glacier235.pdb" SelfReg="false" NextFile="ice35.pdb_2"/>
+    <ROW File="glacier235.pdb_3" Component_="dumpdb.pdb_3" FileName="glacie~3.pdb|glacier235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\glacier235.pdb" SelfReg="false" NextFile="ice35.pdb_3"/>
     <ROW File="glacier235d.pdb" Component_="dumpdb.pdb" FileName="glacie~1.pdb|glacier235d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\glacier235d.pdb" SelfReg="false" NextFile="glacier2router.pdb"/>
     <ROW File="glacier235d.pdb_1" Component_="dumpdb.pdb_1" FileName="glacie~1.pdb|glacier235d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\glacier235d.pdb" SelfReg="false" NextFile="glacier2router.pdb_1"/>
     <ROW File="glacier235d.pdb_2" Component_="dumpdb.pdb_2" FileName="glacie~1.pdb|glacier235d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\glacier235d.pdb" SelfReg="false" NextFile="glacier2router.pdb_2"/>
@@ -99,13 +173,29 @@
     <ROW File="glacier2router.pdb_1" Component_="dumpdb.pdb_1" FileName="glacie~2.pdb|glacier2router.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\glacier2router.pdb" SelfReg="false" NextFile="ice35d.pdb_1"/>
     <ROW File="glacier2router.pdb_2" Component_="dumpdb.pdb_2" FileName="glacie~2.pdb|glacier2router.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\glacier2router.pdb" SelfReg="false" NextFile="ice35d.pdb_2"/>
     <ROW File="glacier2router.pdb_3" Component_="dumpdb.pdb_3" FileName="glacie~2.pdb|glacier2router.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\glacier2router.pdb" SelfReg="false" NextFile="ice35d.pdb_3"/>
-    <ROW File="ice.pdb_3" Component_="glacier2.pdb" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_3"/>
-    <ROW File="ice.pdb_4" Component_="glacier2.pdb_1" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_4"/>
-    <ROW File="ice.pdb_5" Component_="glacier2.pdb_2" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_5"/>
+    <ROW File="ice.pdb_10" Component_="glacier2.pdb_6" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_10"/>
+    <ROW File="ice.pdb_11" Component_="glacier2.pdb_7" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_11"/>
+    <ROW File="ice.pdb_12" Component_="glacier2.pdb_8" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\arm\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_12"/>
+    <ROW File="ice.pdb_13" Component_="glacier2.pdb_9" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x64\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_13"/>
+    <ROW File="ice.pdb_14" Component_="glacier2.pdb_10" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x86\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_14"/>
+    <ROW File="ice.pdb_9" Component_="glacier2.pdb" FileName="ice.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\ice.pdb" SelfReg="false" NextFile="icegrid.pdb_9"/>
+    <ROW File="ice35.pdb" Component_="dumpdb.pdb" FileName="ice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\ice35.pdb" SelfReg="false" NextFile="ice35_vc90.pdb"/>
+    <ROW File="ice35.pdb_1" Component_="dumpdb.pdb_1" FileName="ice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\ice35.pdb" SelfReg="false" NextFile="icebox.pdb_3"/>
+    <ROW File="ice35.pdb_2" Component_="dumpdb.pdb_2" FileName="ice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\ice35.pdb" SelfReg="false" NextFile="icebox.pdb_4"/>
+    <ROW File="ice35.pdb_3" Component_="dumpdb.pdb_3" FileName="ice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\ice35.pdb" SelfReg="false" NextFile="icebox.pdb_5"/>
+    <ROW File="ice35_vc90.pdb" Component_="dumpdb.pdb" FileName="ice35_~1.pdb|ice35_vc90.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\ice35_vc90.pdb" SelfReg="false" NextFile="icebox.pdb_2"/>
     <ROW File="ice35d.pdb" Component_="dumpdb.pdb" FileName="ice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\ice35d.pdb" SelfReg="false" NextFile="icebox35d.pdb"/>
     <ROW File="ice35d.pdb_1" Component_="dumpdb.pdb_1" FileName="ice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\ice35d.pdb" SelfReg="false" NextFile="icebox35d.pdb_1"/>
     <ROW File="ice35d.pdb_2" Component_="dumpdb.pdb_2" FileName="ice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\ice35d.pdb" SelfReg="false" NextFile="icebox35d.pdb_2"/>
     <ROW File="ice35d.pdb_3" Component_="dumpdb.pdb_3" FileName="ice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\ice35d.pdb" SelfReg="false" NextFile="icebox35d.pdb_3"/>
+    <ROW File="icebox.pdb_2" Component_="dumpdb.pdb" FileName="icebox.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icebox.pdb" SelfReg="false" NextFile="icebox35.pdb"/>
+    <ROW File="icebox.pdb_3" Component_="dumpdb.pdb_1" FileName="icebox.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icebox.pdb" SelfReg="false" NextFile="icebox35.pdb_1"/>
+    <ROW File="icebox.pdb_4" Component_="dumpdb.pdb_2" FileName="icebox.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icebox.pdb" SelfReg="false" NextFile="icebox35.pdb_2"/>
+    <ROW File="icebox.pdb_5" Component_="dumpdb.pdb_3" FileName="icebox.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icebox.pdb" SelfReg="false" NextFile="icebox35.pdb_3"/>
+    <ROW File="icebox35.pdb" Component_="dumpdb.pdb" FileName="icebox35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icebox35.pdb" SelfReg="false" NextFile="icedb35.pdb"/>
+    <ROW File="icebox35.pdb_1" Component_="dumpdb.pdb_1" FileName="icebox35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icebox35.pdb" SelfReg="false" NextFile="icedb35.pdb_1"/>
+    <ROW File="icebox35.pdb_2" Component_="dumpdb.pdb_2" FileName="icebox35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icebox35.pdb" SelfReg="false" NextFile="icedb35.pdb_2"/>
+    <ROW File="icebox35.pdb_3" Component_="dumpdb.pdb_3" FileName="icebox35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icebox35.pdb" SelfReg="false" NextFile="icedb35.pdb_3"/>
     <ROW File="icebox35d.pdb" Component_="dumpdb.pdb" FileName="icebox~1.pdb|icebox35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icebox35d.pdb" SelfReg="false" NextFile="iceboxadmin.pdb"/>
     <ROW File="icebox35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icebox~1.pdb|icebox35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icebox35d.pdb" SelfReg="false" NextFile="iceboxadmin.pdb_1"/>
     <ROW File="icebox35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icebox~1.pdb|icebox35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icebox35d.pdb" SelfReg="false" NextFile="iceboxadmin.pdb_2"/>
@@ -120,13 +210,24 @@
     <ROW File="iceboxd.pdb_3" Component_="dumpdb.pdb_3" FileName="iceboxd.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\iceboxd.pdb" SelfReg="false" NextFile="icedb35d.pdb_3"/>
     <ROW File="iceboxnet.pdb" Component_="iceboxnet.pdb" FileName="icebox~1.pdb|iceboxnet.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\cf\iceboxnet.pdb" SelfReg="false" NextFile="policyserver.pdb"/>
     <ROW File="iceboxnet.pdb_1" Component_="dumpdb.pdb" FileName="icebox~3.pdb|iceboxnet.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\iceboxnet.pdb" SelfReg="false" NextFile="icedb35d.pdb"/>
+    <ROW File="icedb35.pdb" Component_="dumpdb.pdb" FileName="icedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icedb35.pdb" SelfReg="false" NextFile="icegrid35.pdb"/>
+    <ROW File="icedb35.pdb_1" Component_="dumpdb.pdb_1" FileName="icedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icedb35.pdb" SelfReg="false" NextFile="icegrid35.pdb_1"/>
+    <ROW File="icedb35.pdb_2" Component_="dumpdb.pdb_2" FileName="icedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icedb35.pdb" SelfReg="false" NextFile="icegrid35.pdb_2"/>
+    <ROW File="icedb35.pdb_3" Component_="dumpdb.pdb_3" FileName="icedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icedb35.pdb" SelfReg="false" NextFile="icegrid35.pdb_3"/>
     <ROW File="icedb35d.pdb" Component_="dumpdb.pdb" FileName="icedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icedb35d.pdb" SelfReg="false" NextFile="icegrid35d.pdb"/>
     <ROW File="icedb35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icedb35d.pdb" SelfReg="false" NextFile="icegrid35d.pdb_1"/>
     <ROW File="icedb35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icedb35d.pdb" SelfReg="false" NextFile="icegrid35d.pdb_2"/>
     <ROW File="icedb35d.pdb_3" Component_="dumpdb.pdb_3" FileName="icedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icedb35d.pdb" SelfReg="false" NextFile="icegrid35d.pdb_3"/>
-    <ROW File="icegrid.pdb_3" Component_="glacier2.pdb" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_3"/>
-    <ROW File="icegrid.pdb_4" Component_="glacier2.pdb_1" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_4"/>
-    <ROW File="icegrid.pdb_5" Component_="glacier2.pdb_2" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_5"/>
+    <ROW File="icegrid.pdb_10" Component_="glacier2.pdb_6" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_10"/>
+    <ROW File="icegrid.pdb_11" Component_="glacier2.pdb_7" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_11"/>
+    <ROW File="icegrid.pdb_12" Component_="glacier2.pdb_8" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\arm\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_12"/>
+    <ROW File="icegrid.pdb_13" Component_="glacier2.pdb_9" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x64\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_13"/>
+    <ROW File="icegrid.pdb_14" Component_="glacier2.pdb_10" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x86\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_14"/>
+    <ROW File="icegrid.pdb_9" Component_="glacier2.pdb" FileName="icegrid.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\icegrid.pdb" SelfReg="false" NextFile="icestorm.pdb_9"/>
+    <ROW File="icegrid35.pdb" Component_="dumpdb.pdb" FileName="icegri~6.pdb|icegrid35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icegrid35.pdb" SelfReg="false" NextFile="icegridfreezedb35.pdb"/>
+    <ROW File="icegrid35.pdb_1" Component_="dumpdb.pdb_1" FileName="icegri~6.pdb|icegrid35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icegrid35.pdb" SelfReg="false" NextFile="icegridfreezedb35.pdb_1"/>
+    <ROW File="icegrid35.pdb_2" Component_="dumpdb.pdb_2" FileName="icegri~6.pdb|icegrid35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icegrid35.pdb" SelfReg="false" NextFile="icegridfreezedb35.pdb_2"/>
+    <ROW File="icegrid35.pdb_3" Component_="dumpdb.pdb_3" FileName="icegri~6.pdb|icegrid35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icegrid35.pdb" SelfReg="false" NextFile="icegridfreezedb35.pdb_3"/>
     <ROW File="icegrid35d.pdb" Component_="dumpdb.pdb" FileName="icegri~1.pdb|icegrid35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icegrid35d.pdb" SelfReg="false" NextFile="icegridadmin.pdb"/>
     <ROW File="icegrid35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icegri~1.pdb|icegrid35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icegrid35d.pdb" SelfReg="false" NextFile="icegridadmin.pdb_1"/>
     <ROW File="icegrid35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icegri~1.pdb|icegrid35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icegrid35d.pdb" SelfReg="false" NextFile="icegridadmin.pdb_2"/>
@@ -135,6 +236,10 @@
     <ROW File="icegridadmin.pdb_1" Component_="dumpdb.pdb_1" FileName="icegri~2.pdb|icegridadmin.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icegridadmin.pdb" SelfReg="false" NextFile="icegridfreezedb35d.pdb_1"/>
     <ROW File="icegridadmin.pdb_2" Component_="dumpdb.pdb_2" FileName="icegri~2.pdb|icegridadmin.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icegridadmin.pdb" SelfReg="false" NextFile="icegridfreezedb35d.pdb_2"/>
     <ROW File="icegridadmin.pdb_3" Component_="dumpdb.pdb_3" FileName="icegri~2.pdb|icegridadmin.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icegridadmin.pdb" SelfReg="false" NextFile="icegridfreezedb35d.pdb_3"/>
+    <ROW File="icegridfreezedb35.pdb" Component_="dumpdb.pdb" FileName="icegri~7.pdb|icegridfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icegridfreezedb35.pdb" SelfReg="false" NextFile="icepatch235.pdb"/>
+    <ROW File="icegridfreezedb35.pdb_1" Component_="dumpdb.pdb_1" FileName="icegri~7.pdb|icegridfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icegridfreezedb35.pdb" SelfReg="false" NextFile="icepatch235.pdb_1"/>
+    <ROW File="icegridfreezedb35.pdb_2" Component_="dumpdb.pdb_2" FileName="icegri~7.pdb|icegridfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icegridfreezedb35.pdb" SelfReg="false" NextFile="icepatch235.pdb_2"/>
+    <ROW File="icegridfreezedb35.pdb_3" Component_="dumpdb.pdb_3" FileName="icegri~7.pdb|icegridfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icegridfreezedb35.pdb" SelfReg="false" NextFile="icepatch235.pdb_3"/>
     <ROW File="icegridfreezedb35d.pdb" Component_="dumpdb.pdb" FileName="icegri~3.pdb|icegridfreezedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icegridfreezedb35d.pdb" SelfReg="false" NextFile="icegridnode.pdb"/>
     <ROW File="icegridfreezedb35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icegri~3.pdb|icegridfreezedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icegridfreezedb35d.pdb" SelfReg="false" NextFile="icegridnode.pdb_1"/>
     <ROW File="icegridfreezedb35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icegri~3.pdb|icegridfreezedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icegridfreezedb35d.pdb" SelfReg="false" NextFile="icegridnode.pdb_2"/>
@@ -147,6 +252,10 @@
     <ROW File="icegridregistry.pdb_1" Component_="dumpdb.pdb_1" FileName="icegri~5.pdb|icegridregistry.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icegridregistry.pdb" SelfReg="false" NextFile="icepatch235d.pdb_1"/>
     <ROW File="icegridregistry.pdb_2" Component_="dumpdb.pdb_2" FileName="icegri~5.pdb|icegridregistry.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icegridregistry.pdb" SelfReg="false" NextFile="icepatch235d.pdb_2"/>
     <ROW File="icegridregistry.pdb_3" Component_="dumpdb.pdb_3" FileName="icegri~5.pdb|icegridregistry.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icegridregistry.pdb" SelfReg="false" NextFile="icepatch235d.pdb_3"/>
+    <ROW File="icepatch235.pdb" Component_="dumpdb.pdb" FileName="icepat~5.pdb|icepatch235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icepatch235.pdb" SelfReg="false" NextFile="icessl35.pdb"/>
+    <ROW File="icepatch235.pdb_1" Component_="dumpdb.pdb_1" FileName="icepat~5.pdb|icepatch235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icepatch235.pdb" SelfReg="false" NextFile="icessl35.pdb_1"/>
+    <ROW File="icepatch235.pdb_2" Component_="dumpdb.pdb_2" FileName="icepat~5.pdb|icepatch235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icepatch235.pdb" SelfReg="false" NextFile="icessl35.pdb_2"/>
+    <ROW File="icepatch235.pdb_3" Component_="dumpdb.pdb_3" FileName="icepat~5.pdb|icepatch235.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icepatch235.pdb" SelfReg="false" NextFile="icessl35.pdb_3"/>
     <ROW File="icepatch235d.pdb" Component_="dumpdb.pdb" FileName="icepat~1.pdb|icepatch235d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icepatch235d.pdb" SelfReg="false" NextFile="icepatch2calc.pdb"/>
     <ROW File="icepatch235d.pdb_1" Component_="dumpdb.pdb_1" FileName="icepat~1.pdb|icepatch235d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icepatch235d.pdb" SelfReg="false" NextFile="icepatch2calc.pdb_1"/>
     <ROW File="icepatch235d.pdb_2" Component_="dumpdb.pdb_2" FileName="icepat~1.pdb|icepatch235d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icepatch235d.pdb" SelfReg="false" NextFile="icepatch2calc.pdb_2"/>
@@ -167,13 +276,25 @@
     <ROW File="iceserviceinstall.pdb_1" Component_="dumpdb.pdb_1" FileName="iceser~1.pdb|iceserviceinstall.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\iceserviceinstall.pdb" SelfReg="false" NextFile="icessl35d.pdb_1"/>
     <ROW File="iceserviceinstall.pdb_2" Component_="dumpdb.pdb_2" FileName="iceser~1.pdb|iceserviceinstall.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\iceserviceinstall.pdb" SelfReg="false" NextFile="icessl35d.pdb_2"/>
     <ROW File="iceserviceinstall.pdb_3" Component_="dumpdb.pdb_3" FileName="iceser~1.pdb|iceserviceinstall.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\iceserviceinstall.pdb" SelfReg="false" NextFile="icessl35d.pdb_3"/>
+    <ROW File="icessl35.pdb" Component_="dumpdb.pdb" FileName="icessl35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icessl35.pdb" SelfReg="false" NextFile="icessl35_vc90.pdb"/>
+    <ROW File="icessl35.pdb_1" Component_="dumpdb.pdb_1" FileName="icessl35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icessl35.pdb" SelfReg="false" NextFile="icestorm35.pdb_1"/>
+    <ROW File="icessl35.pdb_2" Component_="dumpdb.pdb_2" FileName="icessl35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icessl35.pdb" SelfReg="false" NextFile="icestorm35.pdb_2"/>
+    <ROW File="icessl35.pdb_3" Component_="dumpdb.pdb_3" FileName="icessl35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icessl35.pdb" SelfReg="false" NextFile="icestorm35.pdb_3"/>
+    <ROW File="icessl35_vc90.pdb" Component_="dumpdb.pdb" FileName="icessl~2.pdb|icessl35_vc90.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icessl35_vc90.pdb" SelfReg="false" NextFile="icestorm35.pdb"/>
     <ROW File="icessl35d.pdb" Component_="dumpdb.pdb" FileName="icessl~1.pdb|icessl35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icessl35d.pdb" SelfReg="false" NextFile="icestorm35d.pdb"/>
     <ROW File="icessl35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icessl~1.pdb|icessl35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icessl35d.pdb" SelfReg="false" NextFile="icestorm35d.pdb_1"/>
     <ROW File="icessl35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icessl~1.pdb|icessl35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icessl35d.pdb" SelfReg="false" NextFile="icestorm35d.pdb_2"/>
     <ROW File="icessl35d.pdb_3" Component_="dumpdb.pdb_3" FileName="icessl~1.pdb|icessl35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icessl35d.pdb" SelfReg="false" NextFile="icestorm35d.pdb_3"/>
-    <ROW File="icestorm.pdb_3" Component_="glacier2.pdb" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb"/>
-    <ROW File="icestorm.pdb_4" Component_="glacier2.pdb_1" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_1"/>
-    <ROW File="icestorm.pdb_5" Component_="glacier2.pdb_2" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_2"/>
+    <ROW File="icestorm.pdb_10" Component_="glacier2.pdb_6" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_6"/>
+    <ROW File="icestorm.pdb_11" Component_="glacier2.pdb_7" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_7"/>
+    <ROW File="icestorm.pdb_12" Component_="glacier2.pdb_8" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\arm\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_8"/>
+    <ROW File="icestorm.pdb_13" Component_="glacier2.pdb_9" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x64\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_9"/>
+    <ROW File="icestorm.pdb_14" Component_="glacier2.pdb_10" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x86\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb_10"/>
+    <ROW File="icestorm.pdb_9" Component_="glacier2.pdb" FileName="icestorm.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\icestorm.pdb" SelfReg="false" NextFile="iceutil.pdb"/>
+    <ROW File="icestorm35.pdb" Component_="dumpdb.pdb" FileName="icesto~6.pdb|icestorm35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icestorm35.pdb" SelfReg="false" NextFile="icestormfreezedb35.pdb"/>
+    <ROW File="icestorm35.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~6.pdb|icestorm35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestorm35.pdb" SelfReg="false" NextFile="icestormfreezedb35.pdb_1"/>
+    <ROW File="icestorm35.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~6.pdb|icestorm35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestorm35.pdb" SelfReg="false" NextFile="icestormfreezedb35.pdb_2"/>
+    <ROW File="icestorm35.pdb_3" Component_="dumpdb.pdb_3" FileName="icesto~6.pdb|icestorm35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icestorm35.pdb" SelfReg="false" NextFile="icestormfreezedb35.pdb_3"/>
     <ROW File="icestorm35d.pdb" Component_="dumpdb.pdb" FileName="icesto~1.pdb|icestorm35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icestorm35d.pdb" SelfReg="false" NextFile="icestormadmin.pdb"/>
     <ROW File="icestorm35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~1.pdb|icestorm35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestorm35d.pdb" SelfReg="false" NextFile="icestormadmin.pdb_1"/>
     <ROW File="icestorm35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~1.pdb|icestorm35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestorm35d.pdb" SelfReg="false" NextFile="icestormadmin.pdb_2"/>
@@ -182,6 +303,10 @@
     <ROW File="icestormadmin.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~2.pdb|icestormadmin.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestormadmin.pdb" SelfReg="false" NextFile="icestormfreezedb35d.pdb_1"/>
     <ROW File="icestormadmin.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~2.pdb|icestormadmin.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestormadmin.pdb" SelfReg="false" NextFile="icestormfreezedb35d.pdb_2"/>
     <ROW File="icestormadmin.pdb_3" Component_="dumpdb.pdb_3" FileName="icesto~2.pdb|icestormadmin.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icestormadmin.pdb" SelfReg="false" NextFile="icestormfreezedb35d.pdb_3"/>
+    <ROW File="icestormfreezedb35.pdb" Component_="dumpdb.pdb" FileName="icesto~7.pdb|icestormfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icestormfreezedb35.pdb" SelfReg="false" NextFile="icestormservice35.pdb"/>
+    <ROW File="icestormfreezedb35.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~7.pdb|icestormfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestormfreezedb35.pdb" SelfReg="false" NextFile="icestormservice35.pdb_1"/>
+    <ROW File="icestormfreezedb35.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~7.pdb|icestormfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestormfreezedb35.pdb" SelfReg="false" NextFile="icestormservice35.pdb_2"/>
+    <ROW File="icestormfreezedb35.pdb_3" Component_="dumpdb.pdb_3" FileName="icesto~7.pdb|icestormfreezedb35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icestormfreezedb35.pdb" SelfReg="false" NextFile="icestormservice35.pdb_3"/>
     <ROW File="icestormfreezedb35d.pdb" Component_="dumpdb.pdb" FileName="icesto~3.pdb|icestormfreezedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icestormfreezedb35d.pdb" SelfReg="false" NextFile="icestormmigrate.pdb"/>
     <ROW File="icestormfreezedb35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~3.pdb|icestormfreezedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestormfreezedb35d.pdb" SelfReg="false" NextFile="icestormmigrate.pdb_1"/>
     <ROW File="icestormfreezedb35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~3.pdb|icestormfreezedb35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestormfreezedb35d.pdb" SelfReg="false" NextFile="icestormmigrate.pdb_2"/>
@@ -190,23 +315,49 @@
     <ROW File="icestormmigrate.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~4.pdb|icestormmigrate.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestormmigrate.pdb" SelfReg="false" NextFile="icestormservice35d.pdb_1"/>
     <ROW File="icestormmigrate.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~4.pdb|icestormmigrate.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestormmigrate.pdb" SelfReg="false" NextFile="icestormservice35d.pdb_2"/>
     <ROW File="icestormmigrate.pdb_3" Component_="dumpdb.pdb_3" FileName="icesto~4.pdb|icestormmigrate.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icestormmigrate.pdb" SelfReg="false" NextFile="icestormservice35d.pdb_3"/>
+    <ROW File="icestormservice35.pdb" Component_="dumpdb.pdb" FileName="icesto~8.pdb|icestormservice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icestormservice35.pdb" SelfReg="false" NextFile="iceutil35.pdb"/>
+    <ROW File="icestormservice35.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~8.pdb|icestormservice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestormservice35.pdb" SelfReg="false" NextFile="iceutil35.pdb_1"/>
+    <ROW File="icestormservice35.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~8.pdb|icestormservice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestormservice35.pdb" SelfReg="false" NextFile="iceutil35.pdb_2"/>
+    <ROW File="icestormservice35.pdb_3" Component_="dumpdb.pdb_3" FileName="icesto~8.pdb|icestormservice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icestormservice35.pdb" SelfReg="false" NextFile="iceutil35.pdb_3"/>
     <ROW File="icestormservice35d.pdb" Component_="dumpdb.pdb" FileName="icesto~5.pdb|icestormservice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icestormservice35d.pdb" SelfReg="false" NextFile="iceutil35d.pdb"/>
     <ROW File="icestormservice35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icesto~5.pdb|icestormservice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icestormservice35d.pdb" SelfReg="false" NextFile="iceutil35d.pdb_1"/>
     <ROW File="icestormservice35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icesto~5.pdb|icestormservice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icestormservice35d.pdb" SelfReg="false" NextFile="iceutil35d.pdb_2"/>
     <ROW File="icestormservice35d.pdb_3" Component_="dumpdb.pdb_3" FileName="icesto~5.pdb|icestormservice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icestormservice35d.pdb" SelfReg="false" NextFile="iceutil35d.pdb_3"/>
-    <ROW File="iceutil.pdb" Component_="glacier2.pdb" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_4"/>
-    <ROW File="iceutil.pdb_1" Component_="glacier2.pdb_1" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_5"/>
-    <ROW File="iceutil.pdb_2" Component_="glacier2.pdb_2" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\iceutil.pdb" SelfReg="false"/>
+    <ROW File="iceutil.pdb" Component_="glacier2.pdb" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\arm\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_10"/>
+    <ROW File="iceutil.pdb_10" Component_="glacier2.pdb_10" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x86\iceutil.pdb" SelfReg="false"/>
+    <ROW File="iceutil.pdb_6" Component_="glacier2.pdb_6" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x64\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_11"/>
+    <ROW File="iceutil.pdb_7" Component_="glacier2.pdb_7" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Debug\x86\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_12"/>
+    <ROW File="iceutil.pdb_8" Component_="glacier2.pdb_8" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\arm\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_13"/>
+    <ROW File="iceutil.pdb_9" Component_="glacier2.pdb_9" FileName="iceutil.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs\Ice\3.5\DesignTime\Retail\x64\iceutil.pdb" SelfReg="false" NextFile="glacier2.pdb_14"/>
+    <ROW File="iceutil35.pdb" Component_="dumpdb.pdb" FileName="iceuti~2.pdb|iceutil35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\iceutil35.pdb" SelfReg="false" NextFile="iceutil35_vc90.pdb"/>
+    <ROW File="iceutil35.pdb_1" Component_="dumpdb.pdb_1" FileName="iceuti~2.pdb|iceutil35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\iceutil35.pdb" SelfReg="false" NextFile="icexml35.pdb_1"/>
+    <ROW File="iceutil35.pdb_2" Component_="dumpdb.pdb_2" FileName="iceuti~2.pdb|iceutil35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\iceutil35.pdb" SelfReg="false" NextFile="icexml35.pdb_2"/>
+    <ROW File="iceutil35.pdb_3" Component_="dumpdb.pdb_3" FileName="iceuti~2.pdb|iceutil35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\iceutil35.pdb" SelfReg="false" NextFile="icexml35.pdb_3"/>
+    <ROW File="iceutil35_vc90.pdb" Component_="dumpdb.pdb" FileName="iceuti~3.pdb|iceutil35_vc90.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\iceutil35_vc90.pdb" SelfReg="false" NextFile="icexml35.pdb"/>
     <ROW File="iceutil35d.pdb" Component_="dumpdb.pdb" FileName="iceuti~1.pdb|iceutil35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\iceutil35d.pdb" SelfReg="false" NextFile="icexml35d.pdb"/>
     <ROW File="iceutil35d.pdb_1" Component_="dumpdb.pdb_1" FileName="iceuti~1.pdb|iceutil35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\iceutil35d.pdb" SelfReg="false" NextFile="icexml35d.pdb_1"/>
     <ROW File="iceutil35d.pdb_2" Component_="dumpdb.pdb_2" FileName="iceuti~1.pdb|iceutil35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\iceutil35d.pdb" SelfReg="false" NextFile="icexml35d.pdb_2"/>
     <ROW File="iceutil35d.pdb_3" Component_="dumpdb.pdb_3" FileName="iceuti~1.pdb|iceutil35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\iceutil35d.pdb" SelfReg="false" NextFile="icexml35d.pdb_3"/>
+    <ROW File="icexml35.pdb" Component_="dumpdb.pdb" FileName="icexml35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icexml35.pdb" SelfReg="false" NextFile="libdb53.pdb"/>
+    <ROW File="icexml35.pdb_1" Component_="dumpdb.pdb_1" FileName="icexml35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icexml35.pdb" SelfReg="false" NextFile="libdb53.pdb_1"/>
+    <ROW File="icexml35.pdb_2" Component_="dumpdb.pdb_2" FileName="icexml35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icexml35.pdb" SelfReg="false" NextFile="libdb53.pdb_2"/>
+    <ROW File="icexml35.pdb_3" Component_="dumpdb.pdb_3" FileName="icexml35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icexml35.pdb" SelfReg="false" NextFile="libdb53.pdb_3"/>
     <ROW File="icexml35d.pdb" Component_="dumpdb.pdb" FileName="icexml~1.pdb|icexml35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\icexml35d.pdb" SelfReg="false" NextFile="libdb53d.pdb"/>
     <ROW File="icexml35d.pdb_1" Component_="dumpdb.pdb_1" FileName="icexml~1.pdb|icexml35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\icexml35d.pdb" SelfReg="false" NextFile="libeay32.pdb_1"/>
     <ROW File="icexml35d.pdb_2" Component_="dumpdb.pdb_2" FileName="icexml~1.pdb|icexml35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\icexml35d.pdb" SelfReg="false" NextFile="libeay32.pdb_2"/>
     <ROW File="icexml35d.pdb_3" Component_="dumpdb.pdb_3" FileName="icexml~1.pdb|icexml35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\icexml35d.pdb" SelfReg="false" NextFile="libdb53d.pdb_1"/>
+    <ROW File="libdb53.pdb" Component_="dumpdb.pdb" FileName="libdb53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\libdb53.pdb" SelfReg="false" NextFile="libdb_java53.pdb"/>
+    <ROW File="libdb53.pdb_1" Component_="dumpdb.pdb_1" FileName="libdb53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\libdb53.pdb" SelfReg="false" NextFile="libdb53d.pdb_2"/>
+    <ROW File="libdb53.pdb_2" Component_="dumpdb.pdb_2" FileName="libdb53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\libdb53.pdb" SelfReg="false" NextFile="libdb53d.pdb_3"/>
+    <ROW File="libdb53.pdb_3" Component_="dumpdb.pdb_3" FileName="libdb53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\libdb53.pdb" SelfReg="false" NextFile="libdb_java53.pdb_3"/>
     <ROW File="libdb53d.pdb" Component_="dumpdb.pdb" FileName="libdb53d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\libdb53d.pdb" SelfReg="false" NextFile="libeay32.pdb"/>
     <ROW File="libdb53d.pdb_1" Component_="dumpdb.pdb_3" FileName="libdb53d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\libdb53d.pdb" SelfReg="false" NextFile="libeay32.pdb_3"/>
+    <ROW File="libdb53d.pdb_2" Component_="dumpdb.pdb_1" FileName="libdb53d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.pdb_1"/>
+    <ROW File="libdb53d.pdb_3" Component_="dumpdb.pdb_2" FileName="libdb53d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.pdb_2"/>
+    <ROW File="libdb_java53.pdb" Component_="dumpdb.pdb" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\libdb_java53.pdb" SelfReg="false" NextFile="slice35.pdb"/>
+    <ROW File="libdb_java53.pdb_1" Component_="dumpdb.pdb_1" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\libdb_java53.pdb" SelfReg="false" NextFile="slice35.pdb_1"/>
+    <ROW File="libdb_java53.pdb_2" Component_="dumpdb.pdb_2" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\libdb_java53.pdb" SelfReg="false" NextFile="slice35.pdb_2"/>
+    <ROW File="libdb_java53.pdb_3" Component_="dumpdb.pdb_3" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\libdb_java53.pdb" SelfReg="false" NextFile="slice35.pdb_3"/>
     <ROW File="libeay32.pdb" Component_="dumpdb.pdb" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\libeay32.pdb" SelfReg="false" NextFile="libeay32_vc90.pdb"/>
     <ROW File="libeay32.pdb_1" Component_="dumpdb.pdb_1" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\libeay32.pdb" SelfReg="false" NextFile="slice2cpp.pdb_1"/>
     <ROW File="libeay32.pdb_2" Component_="dumpdb.pdb_2" FileName="libeay32.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\libeay32.pdb" SelfReg="false" NextFile="slice2cpp.pdb_2"/>
@@ -250,6 +401,11 @@
     <ROW File="slice2rb.pdb_1" Component_="dumpdb.pdb_1" FileName="slice2rb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\slice2rb.pdb" SelfReg="false" NextFile="slice35d.pdb_1"/>
     <ROW File="slice2rb.pdb_2" Component_="dumpdb.pdb_2" FileName="slice2rb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\slice2rb.pdb" SelfReg="false" NextFile="slice35d.pdb_2"/>
     <ROW File="slice2rb.pdb_3" Component_="dumpdb.pdb_3" FileName="slice2rb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\slice2rb.pdb" SelfReg="false" NextFile="slice35d.pdb_3"/>
+    <ROW File="slice35.pdb" Component_="dumpdb.pdb" FileName="slice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\slice35.pdb" SelfReg="false" NextFile="slice35_vc90.pdb"/>
+    <ROW File="slice35.pdb_1" Component_="dumpdb.pdb_1" FileName="slice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\slice35.pdb" SelfReg="false" NextFile="db_archive.pdb_2"/>
+    <ROW File="slice35.pdb_2" Component_="dumpdb.pdb_2" FileName="slice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\slice35.pdb" SelfReg="false" NextFile="db_archive.pdb_3"/>
+    <ROW File="slice35.pdb_3" Component_="dumpdb.pdb_3" FileName="slice35.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\slice35.pdb" SelfReg="false" NextFile="glacier2.pdb_9"/>
+    <ROW File="slice35_vc90.pdb" Component_="dumpdb.pdb" FileName="slice3~1.pdb|slice35_vc90.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\slice35_vc90.pdb" SelfReg="false" NextFile="db_archive.pdb_1"/>
     <ROW File="slice35d.pdb" Component_="dumpdb.pdb" FileName="slice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\slice35d.pdb" SelfReg="false" NextFile="ssleay32.pdb"/>
     <ROW File="slice35d.pdb_1" Component_="dumpdb.pdb_1" FileName="slice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\slice35d.pdb" SelfReg="false" NextFile="ssleay32.pdb_1"/>
     <ROW File="slice35d.pdb_2" Component_="dumpdb.pdb_2" FileName="slice35d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\slice35d.pdb" SelfReg="false" NextFile="ssleay32.pdb_2"/>
@@ -262,7 +418,7 @@
     <ROW File="transformdb.pdb" Component_="dumpdb.pdb" FileName="transf~1.pdb|transformdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\transformdb.pdb" SelfReg="false" NextFile="dumpdb.pdb_1"/>
     <ROW File="transformdb.pdb_1" Component_="dumpdb.pdb_1" FileName="transf~1.pdb|transformdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\transformdb.pdb" SelfReg="false" NextFile="dumpdb.pdb_2"/>
     <ROW File="transformdb.pdb_2" Component_="dumpdb.pdb_2" FileName="transf~1.pdb|transformdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\vc110\x64\transformdb.pdb" SelfReg="false" NextFile="dumpdb.pdb_3"/>
-    <ROW File="transformdb.pdb_3" Component_="dumpdb.pdb_3" FileName="transf~1.pdb|transformdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\transformdb.pdb" SelfReg="false" NextFile="glacier2.pdb_3"/>
+    <ROW File="transformdb.pdb_3" Component_="dumpdb.pdb_3" FileName="transf~1.pdb|transformdb.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\bin\x64\transformdb.pdb" SelfReg="false" NextFile="db_archive.pdb"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="." Languages="en" InstallationType="4" UseLargeSchema="true"/>
@@ -297,6 +453,9 @@
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="installerheader.bmp" SourcePath="installer-header.bmp"/>
     <ROW Name="installermain.bmp" SourcePath="installer-main.bmp"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
+    <ROW Feature_="WINRTSDK" Level="1" Condition="(VersionNT &gt;= 602)" Options="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="BrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="BrowseDlg#OK"/>
@@ -368,8 +527,6 @@
     <ROW Dialog_="VerifyRepairDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin the repair of [ProductName]." Order="800" TextLocId="Control.Text.VerifyRepairDlg#Description" MsiKey="VerifyRepairDlg#Description"/>
     <ROW Dialog_="VerifyRepairDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="900" MsiKey="VerifyRepairDlg#BannerLine"/>
     <ATTRIBUTE name="DeletedRows" value="ProgressDlg#Logo@VerifyReadyDlg#Logo@CustomizeDlg#Logo@MaintenanceTypeDlg#Logo@OutOfDiskDlg#Logo@BrowseDlg#Logo@LicenseAgreementDlg#Logo@VerifyRemoveDlg#Logo@VerifyRepairDlg#Logo@DiskCostDlg#Logo"/>
-    <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
-    <ATTRIBUTE name="MultiBuildFixedSizeBitmaps" value="DefaultBuild:1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -398,6 +555,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH" Target="[AI_SETUPEXEPATH_ORIGINAL]"/>
@@ -422,14 +580,16 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
-    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="52"/>
     <ROW Action="AI_SETMIXINSTLOCATION" Sequence="748"/>
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99"/>
     <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition=" (ICE_INSTALL_DIR) " Description="Ice 3.5.1 must be installed first."/>
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
@@ -444,6 +604,7 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
-    <ROW Directory_="ICE_INSTALL_DIR" SourcePath="..\..\..\installer\Ice-3.5.1-PDBs" Feature="MainFeature" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
+    <ROW Directory_="ICE_INSTALL_DIR" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs" Feature="MainFeature" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
+    <ROW Directory_="SDKs_Dir" SourcePath="&lt;ICE_BUILD_HOME&gt;installer\Ice-3.5.1-PDBs\SDKs" Feature="WINRTSDK" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
   </COMPONENT>
 </DOCUMENT>
