@@ -1123,7 +1123,7 @@ class Windows(Platform):
         
     def makeDemosCommand(self, compiler, arch, buildConfiguration, lang, buildDir):
         bConf = "Debug" if buildConfiguration == "debug" else "Release"
-        bArch = ".NET" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "x64"
+        bArch = "Any CPU" if lang in ["cs", "vb"] else "Win32" if arch == "x86" else "x64"
         commands = []
         #
         # For VC110 demos we need first to upgrade the project files, the projects in the archive are for VC100,
