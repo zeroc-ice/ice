@@ -456,14 +456,14 @@ class Platform:
         if self.is64(arch) and not self.isWindows():
             env["LP64"] = "yes"
             
-        if lang == "java":
-            javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
-            if javaHome:
-                env["JAVA_HOME"] = javaHome
-                prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
+        javaHome = self.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
+        if javaHome:
+            env["JAVA_HOME"] = javaHome
+            prependPathToEnvironVar(env, "PATH", os.path.join(javaHome, "bin"))
             
-            if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
-                prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
+        if os.path.exists(os.path.join(self._iceHome, "lib", "db.jar")):
+            prependPathToEnvironVar(env, "CLASSPATH", os.path.join(self._iceHome, "lib", "db.jar"))
+
         return env
     
     def checkJavaSupport(self, arch, buildConfiguration, output):
@@ -1199,8 +1199,8 @@ class Windows(Platform):
             archs.append("x64")
         return archs
 
-    def getJavaHome(self, arch, buildConfiguration):
-        return BuildUtils.getJavaHome(arch, self.getJavaVersion(buildConfiguration))
+    def getJavaHome(self, arch, version):
+        return BuildUtils.getJavaHome(arch, version)
 
     def getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist):
         env = Platform.getPlatformEnvironment(self, compiler, arch, buildConfiguration, lang, useBinDist)
