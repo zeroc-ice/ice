@@ -3152,7 +3152,7 @@ public class Coordinator
         if(c1 == null)
         {
             JOptionPane.showMessageDialog(_mainFrame, 
-                                          "IceGrid Admin was build without Metrics Graph Support",
+                                          "IceGrid Admin was built without Metrics Graph Support",
                                           "IceGrid Admin Info", 
                                           JOptionPane.INFORMATION_MESSAGE);
         }
