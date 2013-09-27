@@ -446,6 +446,9 @@ class Platform:
         
         if buildConfiguration != "debug":
             env["OPTIMIZE"] = "yes"
+            
+        if buildConfiguration == "winrt":
+            env["WINRT"] = "yes"
 
         if self._iceHome:
             env["ICE_HOME"] = self._iceHome
