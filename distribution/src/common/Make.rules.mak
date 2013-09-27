@@ -94,8 +94,12 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(libsuff)"
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
-SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
+!if "$(OPTIMIZE)" != "yes"
+SLICEPARSERLIB		= $(SLICE2CPP)
+!else
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib
+!endif
 SLICE2XSD		= $(ice_dir)\bin$(x64suffix)\slice2xsd.exe
 SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
 
