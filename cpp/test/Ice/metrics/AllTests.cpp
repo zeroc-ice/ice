@@ -1053,7 +1053,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     test(obsv->threadObserver->getTotal() > 0);
     test(obsv->connectionObserver->getTotal() > 0);
     test(obsv->connectionEstablishmentObserver->getTotal() > 0);
+#ifndef ICE_OS_WINRT
     test(obsv->endpointLookupObserver->getTotal() > 0);
+#endif
     test(obsv->dispatchObserver->getTotal() > 0);
     test(obsv->invocationObserver->getTotal() > 0);
     test(obsv->invocationObserver->remoteObserver->getTotal() > 0);
@@ -1061,7 +1063,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     test(obsv->threadObserver->getCurrent() > 0);
     test(obsv->connectionObserver->getCurrent() > 0);
     test(obsv->connectionEstablishmentObserver->getCurrent() == 0);
+#ifndef ICE_OS_WINRT
     test(obsv->endpointLookupObserver->getCurrent() == 0);
+#endif
     test(obsv->dispatchObserver->getCurrent() == 0);
     test(obsv->invocationObserver->getCurrent() == 0);
     test(obsv->invocationObserver->remoteObserver->getCurrent() == 0);
@@ -1069,7 +1073,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     test(obsv->threadObserver->getFailedCount() == 0);
     test(obsv->connectionObserver->getFailedCount() > 0);
     test(obsv->connectionEstablishmentObserver->getFailedCount() > 0);
+#ifndef ICE_OS_WINRT
     test(obsv->endpointLookupObserver->getFailedCount() > 0);
+#endif
     //test(obsv->dispatchObserver->getFailedCount() > 0);
     test(obsv->invocationObserver->getFailedCount() > 0);
     test(obsv->invocationObserver->remoteObserver->getFailedCount() > 0);
