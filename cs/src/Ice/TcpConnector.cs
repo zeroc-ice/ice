@@ -28,9 +28,11 @@ namespace IceInternal
 
             try
             {
-
+#if SILVERLIGHT
+                Socket fd = Network.createSocket(false, _addr.AddressFamily == AddressFamily.InterNetworkV6 ?
+                                                        AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+#else
                 Socket fd = Network.createSocket(false, _addr.AddressFamily);
-#if !SILVERLIGHT
                 Network.setBlock(fd, false);
 #endif
 #if !COMPACT

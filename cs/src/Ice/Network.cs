@@ -969,14 +969,7 @@ namespace IceInternal
                 }
 
 #if SILVERLIGHT
-                if(protocol == EnableIPv4)
-                {
-                    addresses.Add(new DnsEndPoint(host, port, AddressFamily.InterNetwork));
-                }
-                else
-                {
-                    addresses.Add(new DnsEndPoint(host, port, AddressFamily.InterNetworkV6));
-                }
+                addresses.Add(new DnsEndPoint(host, port));
 #else
 # if COMPACT
                 foreach(IPAddress a in Dns.GetHostEntry(host).AddressList)
