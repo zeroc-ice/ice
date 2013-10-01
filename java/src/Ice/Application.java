@@ -170,9 +170,14 @@ public abstract class Application
         {
             initData.properties = Util.createProperties(argHolder, initData.properties);
         }
-        catch(Ice.Exception ex)
+        catch(LocalException ex)
         {
-            Util.getProcessLogger().error("createProperties failed: " + IceInternal.Ex.toString(ex));
+            Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
+            return 1;
+        }
+        catch(java.lang.Exception ex)
+        {
+            Util.getProcessLogger().error("unknown exception: " + IceInternal.Ex.toString(ex));
             return 1;
         }
         _appName = initData.properties.getPropertyWithDefault("Ice.ProgramName", _appName);

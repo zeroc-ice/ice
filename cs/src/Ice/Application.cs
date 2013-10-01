@@ -210,6 +210,11 @@ namespace Ice
             }
             catch(Ice.Exception ex)
             {
+                Util.getProcessLogger().error(ex.ToString());
+                return 1;
+            }
+            catch(System.Exception ex)
+            {
                 Util.getProcessLogger().error("unknown exception:\n" + ex);
                 return 1;
             }

@@ -387,10 +387,16 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
     {
         initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
     }
-    catch(const Ice::Exception& ex)
+    catch(const std::exception& ex)
     {
-        Error err(getProcessLogger());
-        err << "createProperties failed: " << ex;
+        Error out(getProcessLogger());
+        out << ex;
+        return EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        Error out(getProcessLogger());
+        out << "unknown exception";
         return EXIT_FAILURE;
     }
     IceInternal::Application::_appName = initData.properties->getPropertyWithDefault("Ice.ProgramName", 
