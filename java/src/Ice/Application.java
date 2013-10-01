@@ -166,8 +166,15 @@ public abstract class Application
             initData = new InitializationData();
         }
         StringSeqHolder argHolder = new StringSeqHolder(args);
-        initData.properties = Util.createProperties(argHolder, initData.properties);
-
+        try
+        {
+            initData.properties = Util.createProperties(argHolder, initData.properties);
+        }
+        catch(Ice.Exception ex)
+        {
+            Util.getProcessLogger().error("createProperties failed: " + IceInternal.Ex.toString(ex));
+            return 1;
+        }
         _appName = initData.properties.getPropertyWithDefault("Ice.ProgramName", _appName);
 
         //

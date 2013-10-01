@@ -203,8 +203,16 @@ namespace Ice
             {
                 initData = new InitializationData();
             }
-            initData.properties = Util.createProperties(ref args, initData.properties);
-
+            
+            try
+            {
+                initData.properties = Util.createProperties(ref args, initData.properties);
+            }
+            catch(Ice.Exception ex)
+            {
+                Util.getProcessLogger().error("unknown exception:\n" + ex);
+                return 1;
+            }
             appName__ = initData.properties.getPropertyWithDefault("Ice.ProgramName", appName__);
 
             nohup__ = initData.properties.getPropertyAsInt("Ice.Nohup") > 0;

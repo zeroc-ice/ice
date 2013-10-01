@@ -383,8 +383,16 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
     // We parse the properties here to extract Ice.ProgramName.
     //
     InitializationData initData = initializationData;
-    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
-    
+    try
+    {
+        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error err(getProcessLogger());
+        err << "createProperties failed: " << ex;
+        return EXIT_FAILURE;
+    }
     IceInternal::Application::_appName = initData.properties->getPropertyWithDefault("Ice.ProgramName", 
                                                                                  IceInternal::Application::_appName);
     
