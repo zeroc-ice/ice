@@ -13,10 +13,11 @@ Homepage: http://www.zeroc.com
 Package: ice
 Architecture: all
 Section: libs
-Depends: ice@mmver@-common, libice@mmver@++, libfreeze@mmver@++, libice@mmver@-java, 
- libfreeze@mmver@-java, libice@mmver@-cil, libice@mmver@-php, libice@mmver@-python, 
- libice@mmver@-ruby, ice-utils, icebox, icebox-cil, libicestorm@mmver@, 
- glacier2, icepatch2, icegrid
+Depends: ice@mmver@-common (=${binary:Version}), libice@mmver@++ (=${binary:Version}), 
+ libfreeze@mmver@++ (=${binary:Version}), libice@mmver@-java (=${binary:Version}),  libfreeze@mmver@-java (=${binary:Version}), 
+ libice@mmver@-cil (=${binary:Version}), libice@mmver@-php (=${binary:Version}), libice@mmver@-python (=${binary:Version}), 
+ libice@mmver@-ruby (=${binary:Version}), ice-utils (=${binary:Version}), icebox (=${binary:Version}), icebox-cil (=${binary:Version}), 
+ libicestorm@mmver@ (=${binary:Version}), glacier2 (=${binary:Version}), icepatch2 (=${binary:Version}), icegrid (=${binary:Version})
 Replaces: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
 Conflicts: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
 Description: Ice (Internet Communications Engine)
@@ -32,8 +33,9 @@ Description: Ice (Internet Communications Engine)
 Package: ice-dev
 Architecture: all
 Section: devel
-Depends: libice++-dev, libfreeze++-dev, libice-java-dev, libfreeze-java-dev,
- libice-cil-dev, libice-php-dev, libice-python-dev, libice-ruby-dev
+Depends: libice++-dev (=${binary:Version}), libfreeze++-dev (=${binary:Version}), libice-java-dev (=${binary:Version}), 
+ libfreeze-java-dev (=${binary:Version}), libice-cil-dev (=${binary:Version}), libice-php-dev (=${binary:Version}), 
+ libice-python-dev (=${binary:Version}), libice-ruby-dev (=${binary:Version})
 Replaces: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
 Conflicts: zeroc-ice, zeroc-ice32, zeroc-ice33, zeroc-ice34
 Description: Ice development packages
@@ -79,7 +81,7 @@ Package: libfreeze++-dev
 Architecture: any
 Section: devel
 Depends: ${shlibs:Depends}, ${misc:Depends}, ice@mmver@-common (=${binary:Version}), 
- libice++-dev (=${binary:Version}), libdb5.3++-dev (>=5.3.21)
+ libice++-dev (=${binary:Version}), libdb5.3++-dev (>=5.3.21), libfreeze@mmver@++ (=${binary:Version})
 Replaces: libzeroc-ice-dev, libzeroc-ice32-dev, libzeroc-ice33-dev, libzeroc-ice34-dev,
   ice-translators, ice32-translators, ice33-translators, ice34-translators
 Conflicts: libzeroc-ice-dev, libzeroc-ice32-dev, libzeroc-ice33-dev, libzeroc-ice34-dev,
