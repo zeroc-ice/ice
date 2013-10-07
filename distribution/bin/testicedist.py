@@ -1018,7 +1018,7 @@ class Linux(Platform):
 
         if self.isUbuntu():
             minorVersion = version.split('.')[1]
-            jvmDir += "/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i836")
+            jvmDir += "/jvm/java-%s-openjdk-%s" % (minorVersion, "amd64" if arch == "x64" else "i386")
             if not os.path.exists(jvmDir):
                 jvmDir += "/jvm/java-%s-oracle" % (minorVersion)
         else:
