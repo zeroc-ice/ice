@@ -347,8 +347,8 @@ IceBox::ServiceManagerI::start()
 
         //
         // Check if some services are using the shared communicator in which
-        // case we create the shared communicator now with a property set which
-        // is the union of all the service properties (services which are using
+        // case we create the shared communicator now with a property set that
+        // is the union of all the service properties (from services that use
         // the shared communicator).
         //
         PropertyDict sharedCommunicatorServices = properties->getPropertiesForPrefix("IceBox.UseSharedCommunicator.");
@@ -370,9 +370,7 @@ IceBox::ServiceManagerI::start()
                 PropertiesPtr svcProperties = createProperties(q->args, initData.properties);
 
                 //
-                // Erase properties from the shared communicator which don't exist in the
-                // service properties (which include the shared communicator properties
-                // overriden by the service properties).
+                // Remove properties from the shared property set that a service explicitly clears.
                 //
                 PropertyDict allProps = initData.properties->getPropertiesForPrefix("");
                 for(PropertyDict::iterator p = allProps.begin(); p != allProps.end(); ++p)
@@ -394,7 +392,7 @@ IceBox::ServiceManagerI::start()
 
                 //
                 // Parse <service>.* command line options (the Ice command line options
-                // were parsed by the createProperties above)
+                // were parsed by the call to createProperties above).
                 //
                 q->args = initData.properties->parseCommandLineOptions(q->name, q->args);
             }

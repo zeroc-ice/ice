@@ -297,8 +297,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             //
             // Check if some services are using the shared communicator in which
-            // case we create the shared communicator now with a property set which
-            // is the union of all the service properties (services which are using
+            // case we create the shared communicator now with a property set that
+            // is the union of all the service properties (from services that use
             // the shared communicator).
             //
             if(properties.getPropertiesForPrefix("IceBox.UseSharedCommunicator.").size() > 0)
@@ -321,9 +321,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     service.args = serviceArgs.value;
 
                     //
-                    // Erase properties from the shared communicator which don't exist in the
-                    // service properties (which include the shared communicator properties
-                    // overriden by the service properties).
+                    // Remove properties from the shared property set that a service explicitly clears.
                     //
                     java.util.Map<String, String> allProps = initData.properties.getPropertiesForPrefix("");
                     for(String key : allProps.keySet())
@@ -344,7 +342,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
                     //
                     // Parse <service>.* command line options (the Ice command line options
-                    // were parsed by the createProperties above)
+                    // were parsed by the call to createProperties above).
                     //
                     service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
                 }
