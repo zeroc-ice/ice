@@ -183,7 +183,7 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 #MCSFLAGS		= $(MCSFLAGS) -define:CODE_ANALYSIS
 
 !if "$(FRAMEWORK)" == "3.5"
-MCSFLAGS = $(MCSFLAGS) /noconfig /nostdlib+ 
+MCSFLAGS = $(MCSFLAGS) /noconfig /nostdlib+ /define:DOTNET3_5
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\mscorlib.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
