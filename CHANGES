@@ -20,6 +20,20 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
+Changes since version 3.5.1
+======================================================================
+
+
+General Changes
+===============
+
+- Fixed an IceGrid registry replication bug where database
+  synchronization could fail on startup or connection establishment
+  with the master if multiple applications refered to a replica group
+  defined in another application which wasn't yet added.
+
+
+======================================================================
 Changes since version 3.5.0
 ======================================================================
 

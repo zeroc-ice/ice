@@ -2088,7 +2088,7 @@ Database::reload(const ApplicationHelper& oldApp,
         {
             ReplicaGroupEntryPtr entry = ReplicaGroupEntryPtr::dynamicCast(_adapterCache.get(r->id));
             assert(entry);
-            entry->update(r->loadBalancing);
+            entry->update(application, r->loadBalancing);
         }
         catch(const AdapterNotExistException&)
         {
