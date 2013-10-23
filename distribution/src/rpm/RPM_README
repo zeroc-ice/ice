@@ -148,9 +148,8 @@ in step 3 above. The following additional steps are also necessary:
    'javac' command is present in your PATH
 
    Note: JDK 1.7 with JavaFX is necessary for compiling the IceGrid
-   Admin GUI client. Java7 is required to run this client, but the
-   other Ice JAR files (Ice.jar, Glacier2.jar, etc.) are compiled to
-   be compatible with Java6.
+   Admin GUI client with full functionality. The build still
+   maintains compatibility with Java6.
 
  - Install Apache Ant 1.7 or later and verify that the 'ant'
    command is present in your PATH, such as by running
