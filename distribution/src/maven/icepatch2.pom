@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>IcePatch2</name>
-  <url>http://www.zerxoc.com</url>
+  <url>http://www.zeroc.com</url>
 
   <dependencies>
     <dependency>
