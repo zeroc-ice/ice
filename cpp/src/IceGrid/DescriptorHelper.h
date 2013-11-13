@@ -247,7 +247,6 @@ public:
     ServerInstanceHelper(const ServerInstanceDescriptor&, const Resolver&, bool);
     ServerInstanceHelper(const ServerDescriptorPtr&, const Resolver&, bool);
     
-    void operator=(const ServerInstanceHelper&);
     bool operator==(const ServerInstanceHelper&) const;
     bool operator!=(const ServerInstanceHelper&) const;
 
