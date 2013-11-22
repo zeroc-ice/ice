@@ -11,10 +11,12 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
+OSX_TARGET_MIN_SDK_VERSION      = 10.8
+
 CXX			= xcrun clang++
 
-CPPFLAGS 	        += -pthread
-CXXFLAGS		+= -Wall -Werror
+CPPFLAGS 	        += -pthread 
+CXXFLAGS		+= -Wall -Werror -mmacosx-version-min=$(OSX_TARGET_MIN_SDK_VERSION)
 
 ifeq ($(OPTIMIZE),yes)
      #

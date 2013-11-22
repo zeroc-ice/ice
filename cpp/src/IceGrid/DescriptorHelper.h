@@ -264,7 +264,7 @@ private:
 
     void init(const ServerDescriptorPtr&, const Resolver&, bool);
 
-    const ServerInstanceDescriptor _def;
+    ServerInstanceDescriptor _def;
     std::string _id;
     ServerInstanceDescriptor _instance;
 
