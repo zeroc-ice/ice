@@ -167,10 +167,19 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
     {
         try
         {
+//
+// SocketProtectionLevel::Ssl deprecated in Windows 8.1
+//
+#if defined(_MSC_VER) && _MSC_VER >= 1800
+#  pragma warning (disable : 4973)
+#endif
             IAsyncAction^ action = safe_cast<StreamSocket^>(_fd)->ConnectAsync(
                 _connectAddr.host,
                 _connectAddr.port,
                 _type == IceSSL::EndpointType ? SocketProtectionLevel::Ssl : SocketProtectionLevel::PlainSocket);
+#if defined(_MSC_VER) && _MSC_VER >= 1800
+#  pragma warning (default : 4973)
+#endif
 
             if(!checkIfErrorOrCompleted(SocketOperationConnect, action))
             {

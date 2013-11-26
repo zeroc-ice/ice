@@ -256,6 +256,7 @@ def createSourceDist(platform, destDir):
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2008.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2010.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2012.AddIn"), *versions)
+        fixVersion(os.path.join("vsaddin", "config", "Ice-VS2013.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice.props"), *versions)
 
 

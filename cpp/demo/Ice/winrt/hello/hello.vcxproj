@@ -98,7 +98,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>hello_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>7307E1ECC4246EE77A7D9F5317876EB0CBB90DC8</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>0E11C0D04AF5C4ACA0EFE17C1BDA45AB686D2F3A</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>

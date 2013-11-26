@@ -100,7 +100,7 @@ def getCppCompiler():
     else:
         config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-        if compiler != "VC90" and compiler != "VC100" and compiler != "VC110":
+        if compiler != "VC90" and compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
             compiler = ""
                 
         if compiler == "":
@@ -115,6 +115,8 @@ def getCppCompiler():
                 compiler = "VC100"
             elif l.find("Version 17") != -1:
                 compiler = "VC110"
+            elif l.find("Version 18") != -1:
+                compiler = "VC120"
             else:
                 print("Cannot detect C++ compiler")
                 sys.exit(1)
@@ -137,6 +139,12 @@ def isVS2012():
         return False
     compiler = getCppCompiler()
     return compiler == "VC110"
+
+def isVS2013():
+    if not isWin32():
+        return False
+    compiler = getCppCompiler()
+    return compiler == "VC120"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -1431,8 +1439,11 @@ def getCppBinDir(lang = None):
     if iceHome:
         if lang == None:
             lang = getDefaultMapping()
-        if lang == "cpp" and isVS2012():
+        if lang == "cpp":
+          if isVS2012():
             binDir = os.path.join(binDir, "vc110")
+          elif isVS2013():
+            binDir = os.path.join(binDir, "vc120")
         if x64:
             if isSolaris():
                 if isSparc():

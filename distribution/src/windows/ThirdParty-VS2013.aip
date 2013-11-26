@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="10.5.2" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
+    <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="2147483647" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="3" ColumnIndex="7" ColumnSize="4" MsiKey="File#Sequence"/>
+    <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="2147483647" Description="File sequence number for the last file for this media." Options="0" ColumnType="3" ColumnIndex="1" ColumnSize="4" MsiKey="Media#LastSequence"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_ThemeStyle" Value="default" MsiKey="AI_ThemeStyle"/>
+    <ROW Property="AI_UPGRADE" Value="No"/>
+    <ROW Property="ALLUSERS" Value="2"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
+    <ROW Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
+    <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="DefaultBuild:installerheader.bmp" Type="1" MsiKey="BannerBitmap"/>
+    <ROW Property="CTRLS" Value="1"/>
+    <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="DefaultBuild:installermain.bmp" Type="1" MsiKey="DialogBitmap"/>
+    <ROW Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
+    <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
+    <ROW Property="Manufacturer" Value="Zeroc, Inc" ValueLocId="*"/>
+    <ROW Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
+    <ROW Property="ProductCode" Value="1033:{639B90A2-BD68-4E57-A16B-56056926F771} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="Ice 3.5.1 for Visual Studio 2013 Third Party Packages" ValueLocId="*"/>
+    <ROW Property="ProductVersion" Value="3.5.1" Type="32"/>
+    <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{E5901C56-F874-4B56-9EED-52D2918BA7FE}"/>
+    <ROW Property="VIEWREADME" Value="1" Type="4"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="THIRD_PARTY_INSTALL_DIR" Directory_Parent="TARGETDIR" DefaultDir="THIRD_~1|THIRD_PARTY_INSTALL_DIR" IsPseudoRoot="1"/>
+    <ROW Directory="bin_Dir" Directory_Parent="THIRD_PARTY_INSTALL_DIR" DefaultDir="bin"/>
+    <ROW Directory="lib_Dir" Directory_Parent="THIRD_PARTY_INSTALL_DIR" DefaultDir="lib"/>
+    <ROW Directory="vc120_1_Dir" Directory_Parent="lib_Dir" DefaultDir="vc120"/>
+    <ROW Directory="vc120_Dir" Directory_Parent="bin_Dir" DefaultDir="vc120"/>
+    <ROW Directory="x64_1_Dir" Directory_Parent="vc120_1_Dir" DefaultDir="x64"/>
+    <ROW Directory="x64_Dir" Directory_Parent="vc120_Dir" DefaultDir="x64"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="InstallDir" ComponentId="{0BD670EE-B611-4691-A494-6AE217C9094A}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
+    <ROW Component="README.txt" ComponentId="{91335432-862E-49BD-BFE8-3AF715E9C259}" Directory_="THIRD_PARTY_INSTALL_DIR" Attributes="0" KeyPath="README.txt" Type="0"/>
+    <ROW Component="bzip2.dll" ComponentId="{F5726119-0E35-4A50-A471-B9AD26080F63}" Directory_="vc120_Dir" Attributes="0" KeyPath="bzip2.dll"/>
+    <ROW Component="bzip2.dll_1" ComponentId="{703C985E-1837-4E7A-9721-96BA943F91C9}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2.dll_1"/>
+    <ROW Component="bzip2d.dll" ComponentId="{DCF51416-F1AB-4AB3-A950-49C27C920717}" Directory_="vc120_Dir" Attributes="0" KeyPath="bzip2d.dll"/>
+    <ROW Component="bzip2d.dll_1" ComponentId="{3A4D4F7F-51C1-4FF1-8085-2B3D1224320A}" Directory_="x64_Dir" Attributes="256" KeyPath="bzip2d.dll_1"/>
+    <ROW Component="db_archive.exe" ComponentId="{804969DB-9D4A-4431-9875-7EC4BB048415}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_archive.exe"/>
+    <ROW Component="db_archive.exe_1" ComponentId="{1D55979C-A04F-4D70-BCE1-2730A8F7794F}" Directory_="x64_Dir" Attributes="256" KeyPath="db_archive.exe_1"/>
+    <ROW Component="db_checkpoint.exe" ComponentId="{F2884632-6BF1-44C7-92B0-B4227B1F12D0}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_checkpoint.exe"/>
+    <ROW Component="db_checkpoint.exe_1" ComponentId="{02F8E959-5CC0-4705-AC6D-5D57F19EC401}" Directory_="x64_Dir" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
+    <ROW Component="db_deadlock.exe" ComponentId="{FA23DD23-FE27-4777-995D-8C5287D7CC8D}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_deadlock.exe"/>
+    <ROW Component="db_deadlock.exe_1" ComponentId="{B2A223B6-D22F-49AD-A299-4858A57B322F}" Directory_="x64_Dir" Attributes="256" KeyPath="db_deadlock.exe_1"/>
+    <ROW Component="db_dump.exe" ComponentId="{3F1A1FC6-1011-4D1C-AEC3-7D74BF45C185}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_dump.exe"/>
+    <ROW Component="db_dump.exe_1" ComponentId="{35893DBC-7075-468E-9CAB-BE48564F737B}" Directory_="x64_Dir" Attributes="256" KeyPath="db_dump.exe_1"/>
+    <ROW Component="db_hotbackup.exe" ComponentId="{D95CFF65-4764-4AF6-B764-94A1CF7CBD9D}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_hotbackup.exe"/>
+    <ROW Component="db_hotbackup.exe_1" ComponentId="{F776DD45-7556-4861-BEDF-2880CF422D7A}" Directory_="x64_Dir" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
+    <ROW Component="db_load.exe" ComponentId="{60EF4A57-EFB0-492F-95BA-8726C574E2E1}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_load.exe"/>
+    <ROW Component="db_load.exe_1" ComponentId="{59372397-E40D-4177-82DA-834C5B17EDB2}" Directory_="x64_Dir" Attributes="256" KeyPath="db_load.exe_1"/>
+    <ROW Component="db_log_verify.exe" ComponentId="{C10262AC-3712-40C9-AD26-3EA61777BFF9}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_log_verify.exe"/>
+    <ROW Component="db_log_verify.exe_1" ComponentId="{15F8069B-707D-4FC6-A0E2-F8C310C09ADF}" Directory_="x64_Dir" Attributes="256" KeyPath="db_log_verify.exe_1"/>
+    <ROW Component="db_printlog.exe" ComponentId="{E74D41CE-CAE4-406E-ABFD-2C6B065BC4C0}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_printlog.exe"/>
+    <ROW Component="db_printlog.exe_1" ComponentId="{A5815C4B-3AA9-46B8-9E09-9A8FC8CB2CB7}" Directory_="x64_Dir" Attributes="256" KeyPath="db_printlog.exe_1"/>
+    <ROW Component="db_recover.exe" ComponentId="{83F58795-121C-4248-829D-209CAC8D9CAF}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_recover.exe"/>
+    <ROW Component="db_recover.exe_1" ComponentId="{F27B227F-F7B2-45C2-BC51-1EDB3E91E6E1}" Directory_="x64_Dir" Attributes="256" KeyPath="db_recover.exe_1"/>
+    <ROW Component="db_stat.exe" ComponentId="{235D9B00-3D1D-4FEB-88F2-6B3204EA3A84}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_stat.exe"/>
+    <ROW Component="db_stat.exe_1" ComponentId="{C3C8FA7E-4B33-4394-A00E-EF733DBFC119}" Directory_="x64_Dir" Attributes="256" KeyPath="db_stat.exe_1"/>
+    <ROW Component="db_tuner.exe" ComponentId="{892E7264-0163-4350-B1A0-D9E5DEF47049}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_tuner.exe"/>
+    <ROW Component="db_tuner.exe_1" ComponentId="{A582AE55-23F6-4A6D-9BB4-571F9BB0BA0E}" Directory_="x64_Dir" Attributes="256" KeyPath="db_tuner.exe_1"/>
+    <ROW Component="db_upgrade.exe" ComponentId="{C37E7043-790E-457B-BFE9-77A7A50F648C}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_upgrade.exe"/>
+    <ROW Component="db_upgrade.exe_1" ComponentId="{FA8DB268-0211-4A9C-BA62-E6DA507809BE}" Directory_="x64_Dir" Attributes="256" KeyPath="db_upgrade.exe_1"/>
+    <ROW Component="db_verify.exe" ComponentId="{93A441A2-ADDE-4AEC-9FF2-1306D1827D34}" Directory_="vc120_Dir" Attributes="0" KeyPath="db_verify.exe"/>
+    <ROW Component="db_verify.exe_1" ComponentId="{9884BF2A-A6BA-48C0-8C99-8ED4E8A3FD1B}" Directory_="x64_Dir" Attributes="256" KeyPath="db_verify.exe_1"/>
+    <ROW Component="libbz2.lib" ComponentId="{776F6E55-5FF3-4810-9C3E-38C69B92FE67}" Directory_="vc120_1_Dir" Attributes="0" KeyPath="libbz2.lib" Type="0"/>
+    <ROW Component="libbz2.lib_1" ComponentId="{24525C0F-00EF-4377-A584-D9D4F8DE9BFA}" Directory_="x64_1_Dir" Attributes="0" KeyPath="libbz2.lib_1" Type="0"/>
+    <ROW Component="libdb53.dll" ComponentId="{A4B236D5-E995-48C5-8227-E68469A9188F}" Directory_="vc120_Dir" Attributes="0" KeyPath="libdb53.dll"/>
+    <ROW Component="libdb53.dll_1" ComponentId="{AD49E7A0-7F2D-4F98-B1AB-A30A0E701CCD}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb53.dll_1"/>
+    <ROW Component="libdb53d.dll" ComponentId="{1DC5A703-2334-4236-9ABE-9FA1B5DF5894}" Directory_="vc120_Dir" Attributes="0" KeyPath="libdb53d.dll"/>
+    <ROW Component="libdb53d.dll_1" ComponentId="{7F272094-541F-4786-9E26-B5A69F0B73C6}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb53d.dll_1"/>
+    <ROW Component="libdb_java53.dll" ComponentId="{84C5DBC8-5BAB-42F0-B50B-729A76FB1315}" Directory_="vc120_Dir" Attributes="0" KeyPath="libdb_java53.dll"/>
+    <ROW Component="libdb_java53.dll_1" ComponentId="{875D4452-8172-4F87-A9CC-BBE124291047}" Directory_="x64_Dir" Attributes="256" KeyPath="libdb_java53.dll_1"/>
+    <ROW Component="libeay32.dll" ComponentId="{B4DE0876-B9C4-4B36-AD92-8F98753D9ABB}" Directory_="vc120_Dir" Attributes="0" KeyPath="libeay32.dll"/>
+    <ROW Component="libeay32.dll_1" ComponentId="{8333693D-78BB-4CF5-BD1C-3EC557A942AE}" Directory_="x64_Dir" Attributes="256" KeyPath="libeay32.dll_1"/>
+    <ROW Component="libexpat.dll" ComponentId="{DFDF8A73-D65F-4DFF-BA93-C12F2EA487B7}" Directory_="vc120_Dir" Attributes="0" KeyPath="libexpat.dll"/>
+    <ROW Component="libexpat.dll_1" ComponentId="{079C9760-C2DB-4E1A-AC1E-338894750158}" Directory_="x64_Dir" Attributes="256" KeyPath="libexpat.dll_1"/>
+    <ROW Component="openssl.exe" ComponentId="{C4068A8C-0622-4A2B-B869-D7B2F8D874DE}" Directory_="vc120_Dir" Attributes="0" KeyPath="openssl.exe"/>
+    <ROW Component="openssl.exe_1" ComponentId="{2D550627-94F8-4441-A7AB-6B7AE876C97B}" Directory_="x64_Dir" Attributes="256" KeyPath="openssl.exe_1"/>
+    <ROW Component="ssleay32.dll" ComponentId="{7CF12BFB-B60B-40A8-9EE3-AE67375B7D5D}" Directory_="vc120_Dir" Attributes="0" KeyPath="ssleay32.dll"/>
+    <ROW Component="ssleay32.dll_1" ComponentId="{C2E53D4C-E673-4B2A-A5FA-A7277D84F8D5}" Directory_="x64_Dir" Attributes="256" KeyPath="ssleay32.dll_1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="InstallDir README.txt bzip2.dll bzip2.dll_1 bzip2d.dll bzip2d.dll_1 db_archive.exe db_archive.exe_1 db_checkpoint.exe db_checkpoint.exe_1 db_deadlock.exe db_deadlock.exe_1 db_dump.exe db_dump.exe_1 db_hotbackup.exe db_hotbackup.exe_1 db_load.exe db_load.exe_1 db_log_verify.exe db_log_verify.exe_1 db_printlog.exe db_printlog.exe_1 db_recover.exe db_recover.exe_1 db_stat.exe db_stat.exe_1 db_tuner.exe db_tuner.exe_1 db_upgrade.exe db_upgrade.exe_1 db_verify.exe db_verify.exe_1 libbz2.lib libbz2.lib_1 libdb53.dll libdb53.dll_1 libdb53d.dll libdb53d.dll_1 libdb_java53.dll libdb_java53.dll_1 libeay32.dll libeay32.dll_1 libexpat.dll libexpat.dll_1 openssl.exe openssl.exe_1 ssleay32.dll ssleay32.dll_1"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="README.txt" Component_="README.txt" FileName="README.txt" Attributes="0" SourcePath="&lt;ProgramFilesFolder&gt;ZeroC\Ice-3.5.1-ThirdParty\README.txt" SelfReg="false"/>
+    <ROW File="bzip2.dll" Component_="bzip2.dll" FileName="bzip2.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\bzip2.dll" SelfReg="false" NextFile="bzip2d.dll"/>
+    <ROW File="bzip2.dll_1" Component_="bzip2.dll_1" FileName="bzip2.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\bzip2.dll" SelfReg="false" NextFile="bzip2d.dll_1"/>
+    <ROW File="bzip2d.dll" Component_="bzip2d.dll" FileName="bzip2d.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\bzip2d.dll" SelfReg="false" NextFile="db_archive.exe"/>
+    <ROW File="bzip2d.dll_1" Component_="bzip2d.dll_1" FileName="bzip2d.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\bzip2d.dll" SelfReg="false" NextFile="db_archive.exe_1"/>
+    <ROW File="db_archive.exe" Component_="db_archive.exe" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_archive.exe" SelfReg="false" NextFile="db_archive.pdb" DigSign="true"/>
+    <ROW File="db_archive.exe_1" Component_="db_archive.exe_1" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_archive.exe" SelfReg="false" NextFile="db_archive.pdb_1" DigSign="true"/>
+    <ROW File="db_archive.pdb" Component_="db_archive.exe" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.exe"/>
+    <ROW File="db_archive.pdb_1" Component_="db_archive.exe_1" FileName="db_arc~1.pdb|db_archive.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_archive.pdb" SelfReg="false" NextFile="db_checkpoint.exe_1"/>
+    <ROW File="db_checkpoint.exe" Component_="db_checkpoint.exe" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_checkpoint.exe" SelfReg="false" NextFile="db_checkpoint.pdb" DigSign="true"/>
+    <ROW File="db_checkpoint.exe_1" Component_="db_checkpoint.exe_1" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_checkpoint.exe" SelfReg="false" NextFile="db_checkpoint.pdb_1" DigSign="true"/>
+    <ROW File="db_checkpoint.pdb" Component_="db_checkpoint.exe" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.exe"/>
+    <ROW File="db_checkpoint.pdb_1" Component_="db_checkpoint.exe_1" FileName="db_che~1.pdb|db_checkpoint.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_checkpoint.pdb" SelfReg="false" NextFile="db_deadlock.exe_1"/>
+    <ROW File="db_deadlock.exe" Component_="db_deadlock.exe" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_deadlock.exe" SelfReg="false" NextFile="db_deadlock.pdb" DigSign="true"/>
+    <ROW File="db_deadlock.exe_1" Component_="db_deadlock.exe_1" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_deadlock.exe" SelfReg="false" NextFile="db_deadlock.pdb_1" DigSign="true"/>
+    <ROW File="db_deadlock.pdb" Component_="db_deadlock.exe" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.exe"/>
+    <ROW File="db_deadlock.pdb_1" Component_="db_deadlock.exe_1" FileName="db_dea~1.pdb|db_deadlock.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_deadlock.pdb" SelfReg="false" NextFile="db_dump.exe_1"/>
+    <ROW File="db_dump.exe" Component_="db_dump.exe" FileName="db_dump.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_dump.exe" SelfReg="false" NextFile="db_dump.pdb" DigSign="true"/>
+    <ROW File="db_dump.exe_1" Component_="db_dump.exe_1" FileName="db_dump.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_dump.exe" SelfReg="false" NextFile="db_dump.pdb_1" DigSign="true"/>
+    <ROW File="db_dump.pdb" Component_="db_dump.exe" FileName="db_dump.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.exe"/>
+    <ROW File="db_dump.pdb_1" Component_="db_dump.exe_1" FileName="db_dump.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_dump.pdb" SelfReg="false" NextFile="db_hotbackup.exe_1"/>
+    <ROW File="db_hotbackup.exe" Component_="db_hotbackup.exe" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_hotbackup.exe" SelfReg="false" NextFile="db_hotbackup.pdb" DigSign="true"/>
+    <ROW File="db_hotbackup.exe_1" Component_="db_hotbackup.exe_1" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_hotbackup.exe" SelfReg="false" NextFile="db_hotbackup.pdb_1" DigSign="true"/>
+    <ROW File="db_hotbackup.pdb" Component_="db_hotbackup.exe" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.exe"/>
+    <ROW File="db_hotbackup.pdb_1" Component_="db_hotbackup.exe_1" FileName="db_hot~1.pdb|db_hotbackup.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_hotbackup.pdb" SelfReg="false" NextFile="db_load.exe_1"/>
+    <ROW File="db_load.exe" Component_="db_load.exe" FileName="db_load.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_load.exe" SelfReg="false" NextFile="db_load.pdb" DigSign="true"/>
+    <ROW File="db_load.exe_1" Component_="db_load.exe_1" FileName="db_load.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_load.exe" SelfReg="false" NextFile="db_load.pdb_1" DigSign="true"/>
+    <ROW File="db_load.pdb" Component_="db_load.exe" FileName="db_load.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_load.pdb" SelfReg="false" NextFile="db_log_verify.exe"/>
+    <ROW File="db_load.pdb_1" Component_="db_load.exe_1" FileName="db_load.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_load.pdb" SelfReg="false" NextFile="db_log_verify.exe_1"/>
+    <ROW File="db_log_verify.exe" Component_="db_log_verify.exe" FileName="db_log~1.exe|db_log_verify.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_log_verify.exe" SelfReg="false" NextFile="db_log_verify.pdb" DigSign="true"/>
+    <ROW File="db_log_verify.exe_1" Component_="db_log_verify.exe_1" FileName="db_log~1.exe|db_log_verify.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_log_verify.exe" SelfReg="false" NextFile="db_log_verify.pdb_1" DigSign="true"/>
+    <ROW File="db_log_verify.pdb" Component_="db_log_verify.exe" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.exe"/>
+    <ROW File="db_log_verify.pdb_1" Component_="db_log_verify.exe_1" FileName="db_log~1.pdb|db_log_verify.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_log_verify.pdb" SelfReg="false" NextFile="db_printlog.exe_1"/>
+    <ROW File="db_printlog.exe" Component_="db_printlog.exe" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_printlog.exe" SelfReg="false" NextFile="db_printlog.pdb" DigSign="true"/>
+    <ROW File="db_printlog.exe_1" Component_="db_printlog.exe_1" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_printlog.exe" SelfReg="false" NextFile="db_printlog.pdb_1" DigSign="true"/>
+    <ROW File="db_printlog.pdb" Component_="db_printlog.exe" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_printlog.pdb" SelfReg="false" NextFile="db_recover.exe"/>
+    <ROW File="db_printlog.pdb_1" Component_="db_printlog.exe_1" FileName="db_pri~1.pdb|db_printlog.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_printlog.pdb" SelfReg="false" NextFile="db_recover.exe_1"/>
+    <ROW File="db_recover.exe" Component_="db_recover.exe" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_recover.exe" SelfReg="false" NextFile="db_recover.pdb" DigSign="true"/>
+    <ROW File="db_recover.exe_1" Component_="db_recover.exe_1" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_recover.exe" SelfReg="false" NextFile="db_recover.pdb_1" DigSign="true"/>
+    <ROW File="db_recover.pdb" Component_="db_recover.exe" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_recover.pdb" SelfReg="false" NextFile="db_stat.exe"/>
+    <ROW File="db_recover.pdb_1" Component_="db_recover.exe_1" FileName="db_rec~1.pdb|db_recover.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_recover.pdb" SelfReg="false" NextFile="db_stat.exe_1"/>
+    <ROW File="db_stat.exe" Component_="db_stat.exe" FileName="db_stat.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_stat.exe" SelfReg="false" NextFile="db_stat.pdb" DigSign="true"/>
+    <ROW File="db_stat.exe_1" Component_="db_stat.exe_1" FileName="db_stat.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_stat.exe" SelfReg="false" NextFile="db_stat.pdb_1" DigSign="true"/>
+    <ROW File="db_stat.pdb" Component_="db_stat.exe" FileName="db_stat.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_stat.pdb" SelfReg="false" NextFile="db_tuner.exe"/>
+    <ROW File="db_stat.pdb_1" Component_="db_stat.exe_1" FileName="db_stat.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_stat.pdb" SelfReg="false" NextFile="db_tuner.exe_1"/>
+    <ROW File="db_tuner.exe" Component_="db_tuner.exe" FileName="db_tuner.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_tuner.exe" SelfReg="false" NextFile="db_tuner.pdb" DigSign="true"/>
+    <ROW File="db_tuner.exe_1" Component_="db_tuner.exe_1" FileName="db_tuner.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_tuner.exe" SelfReg="false" NextFile="db_tuner.pdb_1" DigSign="true"/>
+    <ROW File="db_tuner.pdb" Component_="db_tuner.exe" FileName="db_tuner.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.exe"/>
+    <ROW File="db_tuner.pdb_1" Component_="db_tuner.exe_1" FileName="db_tuner.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_tuner.pdb" SelfReg="false" NextFile="db_upgrade.exe_1"/>
+    <ROW File="db_upgrade.exe" Component_="db_upgrade.exe" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_upgrade.exe" SelfReg="false" NextFile="db_upgrade.pdb" DigSign="true"/>
+    <ROW File="db_upgrade.exe_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_upgrade.exe" SelfReg="false" NextFile="db_upgrade.pdb_1" DigSign="true"/>
+    <ROW File="db_upgrade.pdb" Component_="db_upgrade.exe" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.exe"/>
+    <ROW File="db_upgrade.pdb_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.pdb|db_upgrade.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_upgrade.pdb" SelfReg="false" NextFile="db_verify.exe_1"/>
+    <ROW File="db_verify.exe" Component_="db_verify.exe" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_verify.exe" SelfReg="false" NextFile="db_verify.pdb" DigSign="true"/>
+    <ROW File="db_verify.exe_1" Component_="db_verify.exe_1" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_verify.exe" SelfReg="false" NextFile="db_verify.pdb_1" DigSign="true"/>
+    <ROW File="db_verify.pdb" Component_="db_verify.exe" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\db_verify.pdb" SelfReg="false" NextFile="libdb53.dll"/>
+    <ROW File="db_verify.pdb_1" Component_="db_verify.exe_1" FileName="db_ver~1.pdb|db_verify.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\db_verify.pdb" SelfReg="false" NextFile="libdb53.dll_1"/>
+    <ROW File="libbz2.lib" Component_="libbz2.lib" FileName="libbz2.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\libbz2.lib" SelfReg="false" NextFile="libbz2d.lib"/>
+    <ROW File="libbz2.lib_1" Component_="libbz2.lib_1" FileName="libbz2.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\libbz2.lib" SelfReg="false" NextFile="libbz2d.lib_1"/>
+    <ROW File="libbz2d.lib" Component_="libbz2.lib" FileName="libbz2d.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\libbz2d.lib" SelfReg="false" NextFile="libdb53.lib"/>
+    <ROW File="libbz2d.lib_1" Component_="libbz2.lib_1" FileName="libbz2d.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\libbz2d.lib" SelfReg="false" NextFile="libdb53.lib_1"/>
+    <ROW File="libdb53.dll" Component_="libdb53.dll" FileName="libdb53.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libdb53.dll" SelfReg="false" NextFile="libdb53.pdb"/>
+    <ROW File="libdb53.dll_1" Component_="libdb53.dll_1" FileName="libdb53.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libdb53.dll" SelfReg="false" NextFile="libdb53.pdb_1"/>
+    <ROW File="libdb53.lib" Component_="libbz2.lib" FileName="libdb53.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\libdb53.lib" SelfReg="false" NextFile="libdb53d.lib"/>
+    <ROW File="libdb53.lib_1" Component_="libbz2.lib_1" FileName="libdb53.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\libdb53.lib" SelfReg="false" NextFile="libdb53d.lib_1"/>
+    <ROW File="libdb53.pdb" Component_="libdb53.dll" FileName="libdb53.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libdb53.pdb" SelfReg="false" NextFile="libdb53d.dll"/>
+    <ROW File="libdb53.pdb_1" Component_="libdb53.dll_1" FileName="libdb53.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libdb53.pdb" SelfReg="false" NextFile="libdb53d.dll_1"/>
+    <ROW File="libdb53d.dll" Component_="libdb53d.dll" FileName="libdb53d.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libdb53d.dll" SelfReg="false" NextFile="libdb53d.pdb"/>
+    <ROW File="libdb53d.dll_1" Component_="libdb53d.dll_1" FileName="libdb53d.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libdb53d.dll" SelfReg="false" NextFile="libdb53d.pdb_1"/>
+    <ROW File="libdb53d.lib" Component_="libbz2.lib" FileName="libdb53d.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\libdb53d.lib" SelfReg="false" NextFile="libeay32.lib"/>
+    <ROW File="libdb53d.lib_1" Component_="libbz2.lib_1" FileName="libdb53d.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\libdb53d.lib" SelfReg="false" NextFile="libeay32.lib_1"/>
+    <ROW File="libdb53d.pdb" Component_="libdb53d.dll" FileName="libdb53d.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.dll"/>
+    <ROW File="libdb53d.pdb_1" Component_="libdb53d.dll_1" FileName="libdb53d.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libdb53d.pdb" SelfReg="false" NextFile="libdb_java53.dll_1"/>
+    <ROW File="libdb_java53.dll" Component_="libdb_java53.dll" FileName="libdb_~1.dll|libdb_java53.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libdb_java53.dll" SelfReg="false" NextFile="libdb_java53.pdb"/>
+    <ROW File="libdb_java53.dll_1" Component_="libdb_java53.dll_1" FileName="libdb_~1.dll|libdb_java53.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libdb_java53.dll" SelfReg="false" NextFile="libdb_java53.pdb_1"/>
+    <ROW File="libdb_java53.pdb" Component_="libdb_java53.dll" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libdb_java53.pdb" SelfReg="false" NextFile="libeay32.dll"/>
+    <ROW File="libdb_java53.pdb_1" Component_="libdb_java53.dll_1" FileName="libdb_~1.pdb|libdb_java53.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libdb_java53.pdb" SelfReg="false" NextFile="libeay32.dll_1"/>
+    <ROW File="libeay32.dll" Component_="libeay32.dll" FileName="libeay32.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libeay32.dll" SelfReg="false" NextFile="libeay32.pdb"/>
+    <ROW File="libeay32.dll_1" Component_="libeay32.dll_1" FileName="libeay32.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libeay32.dll" SelfReg="false" NextFile="libeay32.pdb_1"/>
+    <ROW File="libeay32.lib" Component_="libbz2.lib" FileName="libeay32.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\libeay32.lib" SelfReg="false" NextFile="libexpat.lib"/>
+    <ROW File="libeay32.lib_1" Component_="libbz2.lib_1" FileName="libeay32.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\libeay32.lib" SelfReg="false" NextFile="libexpat.lib_1"/>
+    <ROW File="libeay32.pdb" Component_="libeay32.dll" FileName="libeay32.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libeay32.pdb" SelfReg="false" NextFile="libexpat.dll"/>
+    <ROW File="libeay32.pdb_1" Component_="libeay32.dll_1" FileName="libeay32.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libeay32.pdb" SelfReg="false" NextFile="libexpat.dll_1"/>
+    <ROW File="libexpat.dll" Component_="libexpat.dll" FileName="libexpat.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\libexpat.dll" SelfReg="false" NextFile="openssl.exe"/>
+    <ROW File="libexpat.dll_1" Component_="libexpat.dll_1" FileName="libexpat.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\libexpat.dll" SelfReg="false" NextFile="openssl.exe_1"/>
+    <ROW File="libexpat.lib" Component_="libbz2.lib" FileName="libexpat.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\libexpat.lib" SelfReg="false" NextFile="mcpp.lib"/>
+    <ROW File="libexpat.lib_1" Component_="libbz2.lib_1" FileName="libexpat.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\libexpat.lib" SelfReg="false" NextFile="mcpp.lib_1"/>
+    <ROW File="mcpp.lib" Component_="libbz2.lib" FileName="mcpp.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\mcpp.lib" SelfReg="false" NextFile="mcppd.lib"/>
+    <ROW File="mcpp.lib_1" Component_="libbz2.lib_1" FileName="mcpp.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\mcpp.lib" SelfReg="false" NextFile="mcppd.lib_1"/>
+    <ROW File="mcppd.lib" Component_="libbz2.lib" FileName="mcppd.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\mcppd.lib" SelfReg="false" NextFile="ssleay32.lib"/>
+    <ROW File="mcppd.lib_1" Component_="libbz2.lib_1" FileName="mcppd.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\mcppd.lib" SelfReg="false" NextFile="ssleay32.lib_1"/>
+    <ROW File="openssl.exe" Component_="openssl.exe" FileName="openssl.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\openssl.exe" SelfReg="false" NextFile="ssleay32.dll" DigSign="true"/>
+    <ROW File="openssl.exe_1" Component_="openssl.exe_1" FileName="openssl.exe" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\openssl.exe" SelfReg="false" NextFile="ssleay32.dll_1" DigSign="true"/>
+    <ROW File="ssleay32.dll" Component_="ssleay32.dll" FileName="ssleay32.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\ssleay32.dll" SelfReg="false" NextFile="ssleay32.pdb"/>
+    <ROW File="ssleay32.dll_1" Component_="ssleay32.dll_1" FileName="ssleay32.dll" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\ssleay32.dll" SelfReg="false" NextFile="ssleay32.pdb_1"/>
+    <ROW File="ssleay32.lib" Component_="libbz2.lib" FileName="ssleay32.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\ssleay32.lib" SelfReg="false" NextFile="libbz2.lib_1"/>
+    <ROW File="ssleay32.lib_1" Component_="libbz2.lib_1" FileName="ssleay32.lib" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120\x64\ssleay32.lib" SelfReg="false" NextFile="README.txt"/>
+    <ROW File="ssleay32.pdb" Component_="ssleay32.dll" FileName="ssleay32.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\ssleay32.pdb" SelfReg="false" NextFile="bzip2.dll_1"/>
+    <ROW File="ssleay32.pdb_1" Component_="ssleay32.dll_1" FileName="ssleay32.pdb" Attributes="0" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120\x64\ssleay32.pdb" SelfReg="false" NextFile="libbz2.lib"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="dist-HEAD\distfiles-3.5.1\src\windows" Languages="en" InstallationType="4"/>
+    <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
+    <ROW DigitalCertificate="RC3\distfiles-3.5.1\src\windows\zeroc2013.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
+    <ROW Property="THIRD_PARTY_INSTALL_DIR" Signature_="AppSearchSign"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="installerheader.bmp" SourcePath="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\installer-header.bmp"/>
+    <ROW Name="installermain.bmp" SourcePath="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\installer-main.bmp"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="AdminBrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="AdminBrowseDlg#OK"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Cancel" Type="PushButton" X="240" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="400" TextLocId="-" MsiKey="AdminBrowseDlg#Cancel"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="ComboLabel" Type="Text" X="25" Y="58" Width="60" Height="10" Attributes="3" Text="&amp;Look in:" Order="500" TextLocId="Control.Text.AdminBrowseDlg#ComboLabel" MsiKey="AdminBrowseDlg#ComboLabel"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="DirectoryCombo" Type="DirectoryCombo" X="86" Y="55" Width="204" Height="80" Attributes="458755" Property="TARGETDIR" Order="600" MsiKey="AdminBrowseDlg#DirectoryCombo"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Up" Type="PushButton" X="298" Y="55" Width="19" Height="19" Attributes="3670019" Text="[UpDirIcon]" Help="Up One Level|" Order="700" HelpLocId="Control.Help.AdminBrowseDlg#Up" MsiKey="AdminBrowseDlg#Up"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="NewFolder" Type="PushButton" X="325" Y="55" Width="19" Height="19" Attributes="3670019" Text="[NewDirIcon]" Help="Create A New Folder|" Order="800" HelpLocId="Control.Help.AdminBrowseDlg#NewFolder" MsiKey="AdminBrowseDlg#NewFolder"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="DirectoryList" Type="DirectoryList" X="25" Y="83" Width="320" Height="110" Attributes="7" Property="TARGETDIR" Order="900" MsiKey="AdminBrowseDlg#DirectoryList"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="PathLabel" Type="Text" X="25" Y="205" Width="75" Height="10" Attributes="3" Text="&amp;Folder name:" Order="1000" TextLocId="Control.Text.AdminBrowseDlg#PathLabel" MsiKey="AdminBrowseDlg#PathLabel"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="1100" MsiKey="AdminBrowseDlg#BannerBitmap"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Change current destination folder" TextStyle="[DlgTitleFont]" Order="1200" TextLocId="Control.Text.AdminBrowseDlg#Title" MsiKey="AdminBrowseDlg#Title"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Browse to the destination folder" Order="1300" TextLocId="Control.Text.AdminBrowseDlg#Description" MsiKey="AdminBrowseDlg#Description"/>
+    <ROW Dialog_="AdminBrowseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="AdminBrowseDlg#BannerLine"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="AdminInstallPointDlg#Back" Options="1"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="600" TextLocId="-" MsiKey="AdminInstallPointDlg#Next" Options="1"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="700" TextLocId="-" MsiKey="AdminInstallPointDlg#Cancel" Options="1"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="800" MsiKey="AdminInstallPointDlg#BannerBitmap"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Network Location" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.AdminInstallPointDlg#Title" MsiKey="AdminInstallPointDlg#Title"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Description" Type="Text" X="25" Y="20" Width="280" Height="20" Attributes="196611" Text="Please specify a network location for the server image of [ProductName] product" Order="1000" TextLocId="Control.Text.AdminInstallPointDlg#Description" MsiKey="AdminInstallPointDlg#Description"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1100" MsiKey="AdminInstallPointDlg#BannerLine"/>
+    <ROW Dialog_="AdminWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.AdminWelcomeDlg#Title" MsiKey="AdminWelcomeDlg#Title"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="300" TextLocId="-" Options="1"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="400"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="500"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Berkeley DB License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\docs\thirdparty\BERKEYLEY_DB_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
+    <ROW Dialog_="BrowseDlg" Control="OK" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_OK]" Order="300" TextLocId="-" MsiKey="BrowseDlg#OK"/>
+    <ROW Dialog_="BrowseDlg" Control="Cancel" Type="PushButton" X="240" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="400" TextLocId="-" MsiKey="BrowseDlg#Cancel"/>
+    <ROW Dialog_="BrowseDlg" Control="ComboLabel" Type="Text" X="25" Y="58" Width="60" Height="10" Attributes="3" Text="&amp;Look in:" Order="500" TextLocId="Control.Text.BrowseDlg#ComboLabel" MsiKey="BrowseDlg#ComboLabel"/>
+    <ROW Dialog_="BrowseDlg" Control="DirectoryCombo" Type="DirectoryCombo" X="86" Y="55" Width="204" Height="80" Attributes="393227" Property="_BrowseProperty" Order="600" MsiKey="BrowseDlg#DirectoryCombo"/>
+    <ROW Dialog_="BrowseDlg" Control="Up" Type="PushButton" X="298" Y="55" Width="19" Height="19" Attributes="3670019" Text="[UpDirIcon]" Help="Up One Level|" Order="700" HelpLocId="Control.Help.BrowseDlg#Up" MsiKey="BrowseDlg#Up"/>
+    <ROW Dialog_="BrowseDlg" Control="NewFolder" Type="PushButton" X="325" Y="55" Width="19" Height="19" Attributes="3670019" Text="[NewDirIcon]" Help="Create A New Folder|" Order="800" HelpLocId="Control.Help.BrowseDlg#NewFolder" MsiKey="BrowseDlg#NewFolder"/>
+    <ROW Dialog_="BrowseDlg" Control="DirectoryList" Type="DirectoryList" X="25" Y="83" Width="320" Height="110" Attributes="15" Property="_BrowseProperty" Order="900" MsiKey="BrowseDlg#DirectoryList"/>
+    <ROW Dialog_="BrowseDlg" Control="PathLabel" Type="Text" X="25" Y="205" Width="75" Height="10" Attributes="3" Text="&amp;Folder name:" Order="1000" TextLocId="Control.Text.BrowseDlg#PathLabel" MsiKey="BrowseDlg#PathLabel"/>
+    <ROW Dialog_="BrowseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="1100" MsiKey="BrowseDlg#BannerBitmap"/>
+    <ROW Dialog_="BrowseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Change current destination folder" TextStyle="[DlgTitleFont]" Order="1200" TextLocId="Control.Text.BrowseDlg#Title" MsiKey="BrowseDlg#Title"/>
+    <ROW Dialog_="BrowseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Browse to the destination folder" Order="1300" TextLocId="Control.Text.BrowseDlg#Description" MsiKey="BrowseDlg#Description"/>
+    <ROW Dialog_="BrowseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="BrowseDlg#BannerLine"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="300" TextLocId="-" Options="1"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="400"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="500"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Bzip2 License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
+    <ROW Dialog_="CustomizeDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="600" TextLocId="-" MsiKey="CustomizeDlg#Back" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="700" TextLocId="-" MsiKey="CustomizeDlg#Next" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="800" TextLocId="-" MsiKey="CustomizeDlg#Cancel" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="900" MsiKey="CustomizeDlg#BannerBitmap"/>
+    <ROW Dialog_="CustomizeDlg" Control="LocationLabel" Type="Text" X="25" Y="200" Width="50" Height="10" Attributes="3" Text="Location:" Order="1000" TextLocId="Control.Text.CustomizeDlg#LocationLabel" MsiKey="CustomizeDlg#LocationLabel"/>
+    <ROW Dialog_="CustomizeDlg" Control="Location" Type="Text" X="75" Y="200" Width="215" Height="20" Attributes="3" Property="APPDIR" Text="&lt;The selection&apos;s path&gt;" Order="1100" TextLocId="Control.Text.CustomizeDlg#Location" MsiKey="CustomizeDlg#Location"/>
+    <ROW Dialog_="CustomizeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Select the way you want features to be installed." Order="1200" TextLocId="Control.Text.CustomizeDlg#Description" MsiKey="CustomizeDlg#Description"/>
+    <ROW Dialog_="CustomizeDlg" Control="Box" Type="GroupBox" X="210" Y="81" Width="140" Height="98" Attributes="1" Order="1300" MsiKey="CustomizeDlg#Box"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemSize" Type="Text" X="215" Y="128" Width="131" Height="50" Attributes="3" Text="The size of the currently selected item." Order="1400" TextLocId="Control.Text.CustomizeDlg#ItemSize" MsiKey="CustomizeDlg#ItemSize"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemDescription" Type="Text" X="215" Y="90" Width="131" Height="30" Attributes="3" Text="Multiline description of the currently selected item." Order="1500" TextLocId="Control.Text.CustomizeDlg#ItemDescription" MsiKey="CustomizeDlg#ItemDescription"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1600" MsiKey="CustomizeDlg#BannerLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Custom Setup" TextStyle="[DlgTitleFont]" Order="1700" TextLocId="Control.Text.CustomizeDlg#Title" MsiKey="CustomizeDlg#Title"/>
+    <ROW Dialog_="CustomizeDlg" Control="Text" Type="Text" X="25" Y="55" Width="320" Height="20" Attributes="3" Text="Click on the icons in the tree below to change the way features will be installed." Order="1800" TextLocId="Control.Text.CustomizeDlg#Text" MsiKey="CustomizeDlg#Text"/>
+    <ROW Dialog_="DiskCostDlg" Control="VolumeList" Type="VolumeCostList" X="20" Y="100" Width="330" Height="120" Attributes="393223" Text="{120}{70}{70}{70}{70}" Order="400" TextLocId="Control.Text.DiskCostDlg#VolumeList" MsiKey="DiskCostDlg#VolumeList"/>
+    <ROW Dialog_="DiskCostDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Disk Space Requirements" TextStyle="[DlgTitleFont]" Order="500" TextLocId="Control.Text.DiskCostDlg#Title" MsiKey="DiskCostDlg#Title"/>
+    <ROW Dialog_="DiskCostDlg" Control="Text" Type="Text" X="20" Y="53" Width="330" Height="40" Attributes="3" Text="The highlighted volumes (if any) do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination       drive(s)." Order="600" TextLocId="Control.Text.DiskCostDlg#Text" MsiKey="DiskCostDlg#Text"/>
+    <ROW Dialog_="DiskCostDlg" Control="Description" Type="Text" X="20" Y="20" Width="280" Height="20" Attributes="196611" Text="The disk space required for the installation of the selected features." Order="700" TextLocId="Control.Text.DiskCostDlg#Description" MsiKey="DiskCostDlg#Description"/>
+    <ROW Dialog_="DiskCostDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="DiskCostDlg#BannerLine"/>
+    <ROW Dialog_="ExitDialog" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Completing the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="700" TextLocId="Control.Text.ExitDialog#Title" MsiKey="ExitDialog#Title"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="300" TextLocId="-" Options="1"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="400"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="500"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Expat License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
+    <ROW Dialog_="FatalError" Control="LogCheckBox" Type="CheckBox" X="135" Y="158" Width="10" Height="10" Attributes="2" Property="AI_LOG_CHECKBOX" Order="800" MsiKey="FatalError#LogCheckBox"/>
+    <ROW Dialog_="FatalError" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="The [ProductName] [Wizard] ended prematurely" TextStyle="DlgFontBold8" Order="900" TextLocId="Control.Text.FatalError#Title" MsiKey="FatalError#Title"/>
+    <ROW Dialog_="FilesInUse" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Files in Use" TextStyle="[DlgTitleFont]" Order="600" TextLocId="Control.Text.FilesInUse#Title" MsiKey="FilesInUse#Title"/>
+    <ROW Dialog_="FilesInUse" Control="Text" Type="Text" X="20" Y="55" Width="330" Height="30" Attributes="3" Text="The following applications are using files that need to be updated by this setup. You can either close the applications and then click &quot;Retry&quot;, or click &quot;Ignore&quot; so that the installer continues the installation and replaces these files when your system restarts." Order="700" TextLocId="Control.Text.FilesInUse#Text" MsiKey="FilesInUse#Text"/>
+    <ROW Dialog_="FilesInUse" Control="List" Type="ListBox" X="20" Y="87" Width="330" Height="130" Attributes="7" Property="FileInUseProcess" Order="800" MsiKey="FilesInUse#List"/>
+    <ROW Dialog_="FilesInUse" Control="Description" Type="Text" X="20" Y="23" Width="280" Height="20" Attributes="196611" Text="Some files that need to be updated are currently in use." Order="900" TextLocId="Control.Text.FilesInUse#Description" MsiKey="FilesInUse#Description"/>
+    <ROW Dialog_="FilesInUse" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1000" MsiKey="FilesInUse#BannerLine"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="20" Attributes="196611" Text="Select the operation you wish to perform." Order="1200" TextLocId="Control.Text.MaintenanceTypeDlg#Description" MsiKey="MaintenanceTypeDlg#Description"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="ChangeText" Type="Text" X="105" Y="78" Width="230" Height="20" Attributes="3" Text="Allows users to change the way features are installed." Order="1300" TextLocId="Control.Text.MaintenanceTypeDlg#ChangeText" MsiKey="MaintenanceTypeDlg#ChangeText"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="MaintenanceTypeDlg#BannerLine"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="Title" Type="Text" X="15" Y="6" Width="240" Height="15" Attributes="196611" Text="Modify, Repair or Remove installation" TextStyle="[DlgTitleFont]" Order="1500" TextLocId="Control.Text.MaintenanceTypeDlg#Title" MsiKey="MaintenanceTypeDlg#Title"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="RepairText" Type="Text" X="105" Y="127" Width="230" Height="30" Attributes="3" Text="Repairs errors in the most recent installation state - fixes missing or corrupt files, shortcuts and registry entries." Order="1600" TextLocId="Control.Text.MaintenanceTypeDlg#RepairText" MsiKey="MaintenanceTypeDlg#RepairText"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="RemoveText" Type="Text" X="105" Y="176" Width="230" Height="20" Attributes="3" Text="Removes [ProductName] from your computer." Order="1700" TextLocId="Control.Text.MaintenanceTypeDlg#RemoveText" MsiKey="MaintenanceTypeDlg#RemoveText"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.MaintenanceWelcomeDlg#Title" MsiKey="MaintenanceWelcomeDlg#Title"/>
+    <ROW Dialog_="McppLicensDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
+    <ROW Dialog_="McppLicensDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
+    <ROW Dialog_="McppLicensDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="300" TextLocId="-" Options="1"/>
+    <ROW Dialog_="McppLicensDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="400"/>
+    <ROW Dialog_="McppLicensDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="500"/>
+    <ROW Dialog_="McppLicensDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
+    <ROW Dialog_="McppLicensDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
+    <ROW Dialog_="McppLicensDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="MCPP License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
+    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="300" TextLocId="-" Options="1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="400"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="500"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="600"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="OpenSSL License Agreement" TextStyle="[DlgTitleFont]" Order="800"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\distfiles-3.5.1\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Order="900"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1000"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="VolumeList" Type="VolumeCostList" X="20" Y="100" Width="330" Height="120" Attributes="393223" Text="{120}{70}{70}{70}{70}" Order="400" TextLocId="Control.Text.OutOfDiskDlg#VolumeList" MsiKey="OutOfDiskDlg#VolumeList"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Out of Disk Space" TextStyle="[DlgTitleFont]" Order="500" TextLocId="Control.Text.OutOfDiskDlg#Title" MsiKey="OutOfDiskDlg#Title"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="Text" Type="Text" X="20" Y="53" Width="330" Height="40" Attributes="3" Text="The highlighted volumes do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination drive(s)." Order="600" TextLocId="Control.Text.OutOfDiskDlg#Text" MsiKey="OutOfDiskDlg#Text"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="Description" Type="Text" X="20" Y="20" Width="280" Height="20" Attributes="196611" Text="Disk space required for the installation exceeds available disk space." Order="700" TextLocId="Control.Text.OutOfDiskDlg#Description" MsiKey="OutOfDiskDlg#Description"/>
+    <ROW Dialog_="OutOfDiskDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="OutOfDiskDlg#BannerLine"/>
+    <ROW Dialog_="OutOfRbDiskDlg" Control="Text2" Type="Text" X="20" Y="94" Width="330" Height="40" Attributes="3" Text="Alternatively, you may choose to disable the installer&apos;s rollback functionality.  This allows the installer to restore your computer&apos;s original state should the installation be interrupted in any way.  Click &quot;Yes&quot; if you wish to take the risk to disable rollback." Order="500" TextLocId="Control.Text.OutOfRbDiskDlg#Text2" MsiKey="OutOfRbDiskDlg#Text2"/>
+    <ROW Dialog_="OutOfRbDiskDlg" Control="Text" Type="Text" X="20" Y="53" Width="330" Height="40" Attributes="3" Text="The highlighted volumes do not have enough disk space available for the currently selected features.  You can either remove some files from the highlighted volumes, or choose to install less features onto local drive(s), or select different destination drive(s)." Order="600" TextLocId="Control.Text.OutOfRbDiskDlg#Text" MsiKey="OutOfRbDiskDlg#Text"/>
+    <ROW Dialog_="OutOfRbDiskDlg" Control="Description" Type="Text" X="20" Y="20" Width="280" Height="20" Attributes="196611" Text="Disk space required for the installation exceeds available disk space." Order="700" TextLocId="Control.Text.OutOfRbDiskDlg#Description" MsiKey="OutOfRbDiskDlg#Description"/>
+    <ROW Dialog_="OutOfRbDiskDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="OutOfRbDiskDlg#BannerLine"/>
+    <ROW Dialog_="OutOfRbDiskDlg" Control="VolumeList" Type="VolumeCostList" X="20" Y="140" Width="330" Height="80" Attributes="4587527" Text="{120}{70}{70}{70}{70}" Order="900" TextLocId="Control.Text.OutOfRbDiskDlg#VolumeList" MsiKey="OutOfRbDiskDlg#VolumeList"/>
+    <ROW Dialog_="OutOfRbDiskDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Out of Disk Space" TextStyle="[DlgTitleFont]" Order="1000" TextLocId="Control.Text.OutOfRbDiskDlg#Title" MsiKey="OutOfRbDiskDlg#Title"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] Patch [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.PatchWelcomeDlg#Title" MsiKey="PatchWelcomeDlg#Title"/>
+    <ROW Dialog_="PrepareDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="300" TextLocId="Control.Text.PrepareDlg#Title" MsiKey="PrepareDlg#Title"/>
+    <ROW Dialog_="ProgressDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="1" Text="[ButtonText_Back]" Order="400" TextLocId="-" MsiKey="ProgressDlg#Back" Options="1"/>
+    <ROW Dialog_="ProgressDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="1" Text="[ButtonText_Next]" Order="500" TextLocId="-" MsiKey="ProgressDlg#Next" Options="1"/>
+    <ROW Dialog_="ProgressDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="600" MsiKey="ProgressDlg#BannerLine"/>
+    <ROW Dialog_="ProgressDlg" Control="ActionText" Type="Text" X="80" Y="100" Width="255" Height="10" Attributes="3" Order="700" MsiKey="ProgressDlg#ActionText"/>
+    <ROW Dialog_="ProgressDlg" Control="Title" Type="Text" X="20" Y="15" Width="272" Height="15" Attributes="196611" Text="[Progress1] [ProductName]" TextStyle="[DlgTitleFont]" Order="800" TextLocId="Control.Text.ProgressDlg#Title" MsiKey="ProgressDlg#Title"/>
+    <ROW Dialog_="ProgressDlg" Control="Text" Type="Text" X="35" Y="65" Width="300" Height="30" Attributes="3" Text="Please wait while the [Wizard] [Progress2] [ProductName].  This may take several minutes." Order="900" TextLocId="Control.Text.ProgressDlg#Text" MsiKey="ProgressDlg#Text"/>
+    <ROW Dialog_="ProgressDlg" Control="StatusLabel" Type="Text" X="35" Y="100" Width="45" Height="10" Attributes="3" Text="Status:" Order="1000" TextLocId="Control.Text.ProgressDlg#StatusLabel" MsiKey="ProgressDlg#StatusLabel"/>
+    <ROW Dialog_="ProgressDlg" Control="ProgressBar" Type="ProgressBar" X="35" Y="115" Width="300" Height="10" Attributes="65537" Text="Progress done" Order="1100" TextLocId="Control.Text.ProgressDlg#ProgressBar" MsiKey="ProgressDlg#ProgressBar"/>
+    <ROW Dialog_="ResumeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Resuming the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.ResumeDlg#Title" MsiKey="ResumeDlg#Title"/>
+    <ROW Dialog_="UserExit" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="The [ProductName] [Wizard] was interrupted" TextStyle="DlgFontBold8" Order="500" TextLocId="Control.Text.UserExit#Title" MsiKey="UserExit#Title"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="VerifyReadyDlg#Back" Options="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="40" Attributes="3" Text="Click &quot;Install&quot; to begin the installation.  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Order="600" TextLocId="Control.Text.VerifyReadyDlg#Text" MsiKey="VerifyReadyDlg#Text"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin installation" Order="700" TextLocId="Control.Text.VerifyReadyDlg#Description" MsiKey="VerifyReadyDlg#Description"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="800" MsiKey="VerifyReadyDlg#BannerLine"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Title" Type="Text" X="15" Y="6" Width="304" Height="15" Attributes="196611" Text="Ready to Install" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.VerifyReadyDlg#Title" MsiKey="VerifyReadyDlg#Title"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Remove [ProductName]" TextStyle="DlgFontBold8" Order="600" TextLocId="Control.Text.VerifyRemoveDlg#Title" MsiKey="VerifyRemoveDlg#Title"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="60" Attributes="3" Text="Click &quot;Remove&quot; to remove [ProductName] from your computer.  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Order="700" TextLocId="Control.Text.VerifyRemoveDlg#Text" MsiKey="VerifyRemoveDlg#Text"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="You have chosen to remove the program from your computer." Order="800" TextLocId="Control.Text.VerifyRemoveDlg#Description" MsiKey="VerifyRemoveDlg#Description"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="900" MsiKey="VerifyRemoveDlg#BannerLine"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="500" TextLocId="-" MsiKey="VerifyRepairDlg#Back" Options="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Repair [ProductName]" TextStyle="DlgFontBold8" Order="600" TextLocId="Control.Text.VerifyRepairDlg#Title" MsiKey="VerifyRepairDlg#Title"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="60" Attributes="3" Text="Click &quot;Repair&quot; to repair the installation of [ProductName].  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Order="700" TextLocId="Control.Text.VerifyRepairDlg#Text" MsiKey="VerifyRepairDlg#Text"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin the repair of [ProductName]." Order="800" TextLocId="Control.Text.VerifyRepairDlg#Description" MsiKey="VerifyRepairDlg#Description"/>
+    <ROW Dialog_="VerifyRepairDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="900" MsiKey="VerifyRepairDlg#BannerLine"/>
+    <ROW Dialog_="WelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.WelcomeDlg#Title" MsiKey="WelcomeDlg#Title"/>
+    <ROW Dialog_="WelcomeDlg" Control="BottomLine" Type="Line" X="0" Y="234" Width="372" Height="0" Attributes="1" Order="700" MsiKey="WelcomeDlg#BottomLine"/>
+    <ROW Dialog_="WelcomeDlg" Control="WelcomeDlgText_1" Type="Text" X="135" Y="181" Width="220" Height="26" Attributes="65539" Property="WELCOMEDLGTEXT_1_PROP" Text="WARNING: This program is protected by copyright laws and international treaties." Order="800"/>
+    <ATTRIBUTE name="DeletedRows" value="AdminBrowseDlg#Logo@ProgressDlg#Logo@VerifyReadyDlg#Logo@CustomizeDlg#Logo@MaintenanceTypeDlg#Logo@OutOfDiskDlg#Logo@AdminInstallPointDlg#Logo@BrowseDlg#Logo@MsiRMFilesInUse#Logo@OutOfRbDiskDlg#Logo@FilesInUse#Logo@DiskCostDlg#Logo@VerifyRemoveDlg#Logo@VerifyRepairDlg#Logo"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlConditionComponent">
+    <ROW Dialog_="BerkeleyLicenseDlg" Control_="Next" Action="Enable" Condition="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control_="Next" Action="Disable" Condition="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+    <ROW Dialog_="McppLicensDlg" Control_="Next" Action="Enable" Condition="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="McppLicensDlg" Control_="Next" Action="Disable" Condition="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control_="Next" Action="Enable" Condition="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control_="Next" Action="Disable" Condition="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control_="Next" Action="Enable" Condition="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control_="Next" Action="Disable" Condition="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control_="Next" Action="Enable" Condition="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control_="Next" Action="Disable" Condition="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="2"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="3"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
+    <ROW Dialog_="McppLicensDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="301"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="201"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="299"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="399"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="601"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Type="1" Source="aicustact.dll" Target="GetLocalizedCredentials"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="AI_ViewReadme" Type="1" Source="aicustact.dll" Target="[#README.txt]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDialogComponent">
+    <ROW Dialog="BerkeleyLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_Default="Next" Control_Cancel="Cancel"/>
+    <ROW Dialog="Bzip2LicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_Default="Next" Control_Cancel="Cancel"/>
+    <ROW Dialog="ExpatLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_Default="Next" Control_Cancel="Cancel"/>
+    <ROW Dialog="McppLicensDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_Default="Next" Control_Cancel="Cancel"/>
+    <ROW Dialog="OpensslLicesneDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_Default="Next" Control_Cancel="Cancel"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="52"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="THIRD_PARTY_INSTALL_DIR" Description="Ice 3.5.1 Third Party Packages must be installed before installing this update."/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRadioButtonComponent">
+    <ROW Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+    <ROW Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+    <ROW Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+    <ROW Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+    <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
+    <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\ZeroC\Ice 3.5.1 Third Party Packages" Name="InstallDir" Type="18"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="InstallDir" Root="2" Key="Software\ZeroC\[ProductName]" Name="InstallDir" Value="[APPDIR]" Component_="InstallDir"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiTextStyleComponent">
+    <ROW TextStyle="DlgFontBold10" FaceName="Tahoma" Size="10" Color="0" StyleBits="1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMax="[|ProductVersion]" Attributes="1025" ActionProperty="OLDPRODUCTS"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
+    <ROW Directory_="vc120_Dir" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\bin\vc120" Feature="MainFeature" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
+    <ROW Directory_="vc120_1_Dir" SourcePath="..\..\..\Program Files (x86)\ZeroC\Ice-3.5.1-ThirdParty\lib\vc120" Feature="MainFeature" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
+  </COMPONENT>
+</DOCUMENT>

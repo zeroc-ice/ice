@@ -21,7 +21,7 @@
 
 #
 # Specify your C++ compiler, or leave unset for auto-detection.
-# Supported values are: VC100, VC110
+# Supported values are: VC100, VC110 or VC120
 #
 #CPP_COMPILER           = VCxxx 
 
@@ -49,13 +49,15 @@ CPP_COMPILER            = VC110
 CPP_COMPILER            = VC100
 !elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
 CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
+CPP_COMPILER            = VC120
 !else
 !error Cannot detect C++ compiler 
 !endif
 
 #!message CPP_COMPILER set to $(CPP_COMPILER)
-!elseif "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100 or VC110.
+!elseif "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110 or VC120.
 !endif
 
 #
@@ -77,7 +79,9 @@ SETARGV			= setargv.obj
 !include        $(top_srcdir)/config/Make.rules.msvc
 
 !if "$(CPP_COMPILER)" == "VC110"
-libsuff			= \vc110$(x64suffix)
+libsuff                 = \vc110$(x64suffix)
+!elseif "$(CPP_COMPILER)" == "VC120"
+libsuff                 = \vc120$(x64suffix)
 !else
 libsuff			= $(x64suffix)
 !endif

@@ -71,6 +71,8 @@ def getVcVarsAll(compiler):
         version = "10.0"
     elif compiler == "VC110":
         version = "11.0"
+    elif compiler == "VC120":
+        version = "12.0"
     else:
         return None # Unsuported VC compiler 
 

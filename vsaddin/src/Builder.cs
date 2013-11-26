@@ -2891,74 +2891,42 @@ namespace Ice.VisualStudio
                 {
                     project = Util.getProjectByNameOrFile(_applicationObject.Solution, projectName);
                 }
+                
+                List<Project> projects = new List<Project>();
+                if(scope.Equals(vsBuildScope.vsBuildScopeProject))
+                {
+                    projects.Add(project);
+                }
+                else if(scope.Equals(vsBuildScope.vsBuildScopeSolution))
+                {
+                    projects = Util.buildOrder(_applicationObject.Solution);
+                }
+                else if(project != null && project.Kind.Equals(EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder))
+                {
+                     projects = Util.solutionFolderProjects(project);
+                }
 
                 if(action == vsBuildAction.vsBuildActionBuild || action == vsBuildAction.vsBuildActionRebuildAll)
                 {
-                    if(scope.Equals(vsBuildScope.vsBuildScopeProject) ||
-                       (project != null && project.Kind.Equals(EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)))
+                    foreach(Project p in projects)
                     {
-                        List<Project> projects = new List<Project>();
-                        if(project.Kind.Equals(EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder))
+                        _buildProject = p;
+                        if(p == null)
                         {
-                            projects = Util.solutionFolderProjects(project);
-                        }
-                        else
-                        {
-                            projects.Add(project);
+                            continue;
                         }
 
-                        foreach(Project p in projects)
+                        clearErrors(p);
+                        if(action == vsBuildAction.vsBuildActionRebuildAll)
                         {
-                            _buildProject = p;
-                            if(p == null)
-                            {
-                                continue;
-                            }
-
-                            clearErrors(p);
-                            if(action == vsBuildAction.vsBuildActionRebuildAll)
-                            {
-                                cleanProject(p, false);
-                            }
-                            buildProject(p, false, scope, true);
-
-                            if(hasErrors(p))
-                            {
-                                bringErrorsToFront();
-                                Util.write(project, Util.msgLevel.msgError,
-                                    "------ Slice compilation contains errors. Build canceled. ------\n");
-                                if (_connectMode == ext_ConnectMode.ext_cm_CommandLine)
-                                {
-                                    // Is this the best we can do? Is there a clean way to exit?
-                                    Environment.Exit(-1);
-                                }
-                                _applicationObject.ExecuteCommand("Build.Cancel", "");
-                            }
+                            cleanProject(p, false);
                         }
-                    }
-                    else
-                    {
-                        clearErrors();
-                        List<Project> projects = Util.buildOrder(_applicationObject.Solution);
-                        foreach(Project p in projects)
-                        {
-                            if(p != null)
-                            {
-                                if(!Util.isSliceBuilderEnabled(p))
-                                {
-                                    continue;
-                                }
-                                if(action == vsBuildAction.vsBuildActionRebuildAll)
-                                {
-                                    cleanProject(p, false);
-                                }
-                                buildProject(p, false, scope, false);
-                            }
-                        }
-                        if(hasErrors())
+                        buildProject(p, false, scope, true);
+
+                        if(hasErrors(p))
                         {
                             bringErrorsToFront();
-                            Util.write(null, Util.msgLevel.msgError,
+                            Util.write(project, Util.msgLevel.msgError,
                                 "------ Slice compilation contains errors. Build canceled. ------\n");
                             if(_connectMode == ext_ConnectMode.ext_cm_CommandLine)
                             {
@@ -2971,39 +2939,13 @@ namespace Ice.VisualStudio
                 }
                 else if(action == vsBuildAction.vsBuildActionClean)
                 {
-                    if(scope.Equals(vsBuildScope.vsBuildScopeProject) ||
-                       (project != null && project.Kind.Equals(EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)))
+                    foreach(Project p in projects)
                     {
-                        List<Project> projects = new List<Project>();
-                        if (project.Kind.Equals(EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder))
+                        if(p == null)
                         {
-                            projects = Util.solutionFolderProjects(project);
+                            continue;
                         }
-                        else
-                        {
-                            projects.Add(project);
-                        }
-                        foreach(Project p in projects)
-                        {
-                            _buildProject = p;
-                            if (p == null)
-                            {
-                                continue;
-                            }
-                            cleanProject(p, false);
-                        }
-                    }
-                    else
-                    {
-                        List<Project> projects = Util.buildOrder(_applicationObject.Solution);
-                        foreach(Project p in projects)
-                        {
-                            if (p == null)
-                            {
-                                continue;
-                            }
-                            cleanProject(p, false);
-                        }
+                        cleanProject(p, false);
                     }
                 }
             }

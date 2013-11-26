@@ -75,7 +75,7 @@ install::$(TARGETS)
 	@reg ADD "$(DOTNET_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
 	echo "Could not add registry keyword $(DOTNET_ASSEMBLIES_KEY)" && exit 1
 
-!if "$(VS)" == "VS2010" || "$(VS)" == "VS2012"
+!if "$(VS)" == "VS2010" || "$(VS)" == "VS2012" || "$(VS)" == "VS2013"
 install::
 	@if not exist $(ALLUSERSPROFILE)\ZeroC \
 	    @echo "Creating $(ALLUSERSPROFILE)\ZeroC ..." && \

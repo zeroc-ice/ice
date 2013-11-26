@@ -67,7 +67,7 @@ def run(clientCmd, serverCmd):
     #
     # No IPv6 support in Windows with Java 1.6.x
     #
-    if not Util.isWin32() or not Util.getJavaVersion().startswith("1.6"):
+    if Util.getMapping() != "java" or not Util.isWin32() or not Util.getJavaVersion().startswith("1.6"):
     
         sys.stdout.write("testing multicast discovery (IPv6)... ")
         sys.stdout.flush()

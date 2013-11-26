@@ -333,11 +333,21 @@ builds = {
             "debug": ["cpp"]},
         "arm": {
             "release": ["cpp"], 
+            "debug": ["cpp"]}},
+    "VC120": {
+        "x86": {
+            "release": ["cpp", "vsaddin"], 
+            "debug": ["cpp"]},
+        "amd64": {
+            "release": ["cpp"], 
+            "debug": ["cpp"]},
+        "arm": {
+            "release": ["cpp"], 
             "debug": ["cpp"]}}}
             
 if not skipBuild:
     
-    for compiler in ["MINGW", "VC90", "VC100", "VC110"]:
+    for compiler in ["MINGW", "VC90", "VC100", "VC110", "VC120"]:
 
         if filterCompilers and compiler not in filterCompilers:
             continue
@@ -479,6 +489,8 @@ if not skipBuild:
                             env["VS"] = "VS2010"
                         elif compiler == "VC110":
                             env["VS"] = "VS2012"
+                        elif compiler == "VC120":
+                            env["VS"] = "VS2013"
                             
                     #
                     # Uset the release key to sign .NET assemblies.
@@ -502,7 +514,7 @@ if not skipBuild:
 
                         setMakefileOption(os.path.join(sourceDir, lang, "config", rules), "prefix", installDir)
 
-                    if lang == "cpp" and compiler == "VC110":
+                    if lang == "cpp" and compiler in ["VC110", "VC120"]:
                         for profile in ["DESKTOP", "WINRT"]:
 
                             if filterProfiles and profile not in filterProfiles:
@@ -601,7 +613,7 @@ if os.path.exists(installerDir):
 os.makedirs(installerDir)
 
 for arch in ["x86", "amd64", "arm"]:
-    for compiler in ["VC100", "MINGW", "VC90", "VC110"]:
+    for compiler in ["VC100", "MINGW", "VC90", "VC110", "VC120"]:
         for conf in ["release", "debug"]:
 
             buildDir = os.path.join(iceBuildHome, "build-%s-%s-%s" % (arch, compiler, conf))
@@ -683,7 +695,7 @@ for arch in ["x86", "amd64", "arm"]:
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
 
-            if compiler == "VC110" and arch == "x86" and conf == "release":
+            if compiler in ["VC110", "VC120"] and arch == "x86" and conf == "release":
                 for d in ["vsaddin"]:
                     for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
                         for f in filenames:
@@ -721,11 +733,48 @@ for arch in ["x86", "amd64", "arm"]:
                                 copy(os.path.join(root, f), targetFile, verbose = verbose)
 
 
+                        #
+            # VC120 binaries and libaries
+            #
+            if compiler == "VC120" and arch == "x86":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d)):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            targetFile = os.path.join(os.path.dirname(targetFile), "vc120", \
+                                                        os.path.basename(targetFile))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+            if compiler == "VC120" and arch == "amd64":
+                for d in ["bin", "lib"]:
+                    for root, dirnames, filenames in os.walk(os.path.join(installDir, d, "x64")):
+                        for f in filenames:
+                            if f in filterFiles:
+                                continue
+                            targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                            targetFile = os.path.join(os.path.dirname(os.path.dirname(targetFile)), "vc120", "x64", \
+                                                        os.path.basename(targetFile))
+                            if not os.path.exists(targetFile):
+                                copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+
             #
             # WinRT SDKs
             #
             if compiler == "VC110":
-                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs")):
+                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs", "Ice")):
+                    for f in filenames:
+                        if f in filterFiles:
+                            continue
+                        targetFile = relPath(installDir, installerDir, os.path.join(root, f))
+                        if not os.path.exists(targetFile):
+                            copy(os.path.join(root, f), targetFile, verbose = verbose)
+
+            if compiler == "VC120":
+                for root, dirnames, filenames in os.walk(os.path.join(installDir, "SDKs", "8.1")):
                     for f in filenames:
                         if f in filterFiles:
                             continue

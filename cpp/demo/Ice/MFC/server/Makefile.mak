@@ -24,14 +24,14 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN
+CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN -D_UNICODE
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
 $(SERVER): $(OBJS) $(COBJS) HelloServer.res
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) HelloServer.res \
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) $(COBJS) HelloServer.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
