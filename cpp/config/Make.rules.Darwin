@@ -68,11 +68,6 @@ curdir			= $(shell pwd)
 
 mkshlib     = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) -install_name @rpath/$(2) $(3) $(4)
 
-#
-# Avoid OpenSSL deprecation warnings on OS X
-#
-OPENSSL_FLAGS   	= -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_6
-
 BASELIBS		= -lIceUtil 
 LIBS			= -lIce $(BASELIBS)
 

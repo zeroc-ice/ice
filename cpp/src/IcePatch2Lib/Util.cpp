@@ -34,6 +34,11 @@
 
 #include <iterator>
 
+// Ignore OS X OpenSSL deprecation warnings
+#ifdef __APPLE__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 const char* IcePatch2::checksumFile = "IcePatch2.sum";
 const char* IcePatch2::logFile = "IcePatch2.log";
 

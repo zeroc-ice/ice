@@ -19,6 +19,11 @@
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 
+// Ignore OS X OpenSSL deprecation warnings
+#ifdef __APPLE__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #ifdef __SUNPRO_CC
 
 //
