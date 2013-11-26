@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler, or leave unset for auto-detection.
-# Supported values are: VC90, VC100, VC110
+# Supported values are: VC90, VC100, VC110, VC120
 #
 # CPP_COMPILER = VCxxx
 
@@ -81,6 +81,8 @@ CPP_COMPILER            = VC110
 CPP_COMPILER            = VC100
 !elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
 CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
+CPP_COMPILER            = VC120
 !elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
 CPP_COMPILER            = VC90
 !else
@@ -88,8 +90,8 @@ CPP_COMPILER            = VC90
 !endif
 
 #!message CPP_COMPILER set to $(CPP_COMPILER)
-!elseif "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC90, VC100 or VC110.
+!elseif "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC90, VC100, VC110 or VC120.
 !endif
 
 #
@@ -137,14 +139,16 @@ SETARGV			= setargv.obj
 #
 !include        $(top_srcdir)/config/Make.rules.msvc
 
-!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110"
+!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
 !error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
 !if "$(CPP_COMPILER)" == "VC90"
 libsuff			= \vc90$(x64suffix)
 !elseif "$(CPP_COMPILER)" == "VC110"
-libsuff			= \vc110$(x64suffix)
+libsuff                 = \vc110$(x64suffix)
+!elseif "$(CPP_COMPILER)" == "VC120"
+libsuff                 = \vc120$(x64suffix)
 !else
 libsuff			= $(x64suffix)
 !endif
@@ -164,6 +168,8 @@ COMPSUFFIX	= _vc90
 COMPSUFFIX	= _vc100
 !elseif "$(CPP_COMPILER)" == "VC110"
 COMPSUFFIX  = _vc110
+!elseif "$(CPP_COMPILER)" == "VC120"
+COMPSUFFIX  = _vc120
 !endif
 !endif
 

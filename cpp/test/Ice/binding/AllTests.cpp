@@ -849,7 +849,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
         OSVERSIONINFO ver;
         ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+#  if defined(_MSC_VER) && _MSC_VER >= 1800
+#    pragma warning (disable : 4996)
+#  endif
         GetVersionEx(&ver);
+#  if defined(_MSC_VER) && _MSC_VER >= 1800
+#    pragma warning (default : 4996)
+#  endif
         const bool dualStack = ver.dwMajorVersion >= 6; // Windows XP IPv6 doesn't support dual-stack
 #else
         const bool dualStack = true;

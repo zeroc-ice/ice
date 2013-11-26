@@ -25,6 +25,16 @@
         <IceLib>$(IceHome)\lib\vc110\$(Platform)</IceLib>
         <IceBin>$(IceHome)\bin\vc110\$(Platform)</IceBin>
     </PropertyGroup>
+    
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v120'">
+        <IceLib>$(IceHome)\lib\vc120</IceLib>
+        <IceBin>$(IceHome)\bin\vc120</IceBin>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(PlatformToolset)' == 'v120'">
+        <IceLib>$(IceHome)\lib\vc120\$(Platform)</IceLib>
+        <IceBin>$(IceHome)\bin\vc120\$(Platform)</IceBin>
+    </PropertyGroup>
 
     <PropertyGroup Condition="Exists('$(IceSourceHome)')">
         <IceHome>$(IceSourceHome)</IceHome>

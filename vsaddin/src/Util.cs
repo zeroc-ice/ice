@@ -511,7 +511,7 @@ namespace Ice.VisualStudio
             propSheetFileName += ".vsprops";
 #endif
 
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
             propSheetFileName += ".props";
 #endif
 
@@ -539,7 +539,7 @@ namespace Ice.VisualStudio
                     }
 #endif
 
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
                     newSheet = vcConfig.AddPropertySheet(propSheetFileName);
 #endif
 
@@ -676,7 +676,7 @@ namespace Ice.VisualStudio
                 configuration.InheritedPropertySheets = sheets.ToString();
             }
 #endif
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
             VCPropertySheet sheet = null;
             IVCCollection sheets = (IVCCollection)configuration.PropertySheets;
             foreach(VCPropertySheet s in sheets)
@@ -748,19 +748,27 @@ namespace Ice.VisualStudio
             }
             return false;
         }
-
-#if VS2012
+        
+#if VS2012 || VS2013
         public static void addSdkReference(VCProject project, string component)
         {
             if(!Builder.commandLine)
             {
                 string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
                 VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
+
+#  if VS2012
                 if (reference != null)
                 {
                     reference.Remove();
                 }
                 project.AddSdkReference(sdkId);
+#  else
+                if(reference == null)
+                {
+                    project.AddSdkReference(sdkId);
+                }
+#  endif
             }
         }
 
@@ -950,7 +958,7 @@ namespace Ice.VisualStudio
 
         public static string cppBinDir(Project project, CPUType arch)
         {
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
             return isWinRTProject(project) ? "$(IceBin)\\winrt" : "$(IceBin)";
 #else
             string cppBinDir = Path.Combine("$(IceHome)", "bin");
@@ -1007,7 +1015,7 @@ namespace Ice.VisualStudio
                 path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), Path.Combine(iceHome, dir));
             }
 
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
             path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), "$(IceBin)\\winrt");
             path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), "$(IceBin)");
 #endif
@@ -1058,7 +1066,7 @@ namespace Ice.VisualStudio
                 }
             }
 
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
             if(libs.Remove(quote("$(IceLib)")) || 
                libs.Remove("$(IceLib)") ||
                libs.Remove(quote("$(IceLib)\\winrt")) || 
@@ -1133,20 +1141,23 @@ namespace Ice.VisualStudio
 
         public static bool isSliceBuilderEnabled(Project project)
         {
-            try
+            if(project != null)
             {
-                if(isCppProject(project) ||
-                   isCSharpProject(project) ||
-                   isVBProject(project) ||
-                   isSilverlightProject(project) ||
-                   isCSharpSmartDeviceProject(project) ||
-                   isVBSmartDeviceProject(project))
+                try
                 {
-                    return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
+                    if(isCppProject(project) ||
+                       isCSharpProject(project) ||
+                       isVBProject(project) ||
+                       isSilverlightProject(project) ||
+                       isCSharpSmartDeviceProject(project) ||
+                       isVBSmartDeviceProject(project))
+                    {
+                        return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
+                    }
                 }
-            }
-            catch(System.NotImplementedException)
-            {
+                catch(System.NotImplementedException)
+                {
+                }
             }
             return false;
         }
@@ -1770,7 +1781,7 @@ namespace Ice.VisualStudio
         // Reference from the project file; this value doesn't change as does CopyLocal.
         //
 
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
         //
         // This method requires .NET 4. Microsoft.Build.BuildEngine is deprecated 
         // in .NET 4, so this method uses the new API Microsoft.Build.Evaluation.
@@ -2043,7 +2054,7 @@ namespace Ice.VisualStudio
                         // Remove ice.props, old property sheet used by VS 2010
                         // from all project configurations.
                         //
-#if VS2010 || VS2012
+#if VS2010 || VS2012 || VS2013
                         VCPropertySheet sheet = null;
                         IVCCollection sheets = (IVCCollection)conf.PropertySheets;
                         foreach(VCPropertySheet s in sheets)
@@ -2324,7 +2335,7 @@ namespace Ice.VisualStudio
             {
                 Util.addIcePropertySheet(project);
             }
-#if VS2012
+#if VS2012 || VS2013
             if(winrt)
             {
                 VCProject vcProject = (VCProject)project.Object;
@@ -2477,7 +2488,7 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-#if VS2012
+#if VS2012 || VS2013
             else
             {
                 Util.removeSdkReference((VCProject)project.Object, "Ice");

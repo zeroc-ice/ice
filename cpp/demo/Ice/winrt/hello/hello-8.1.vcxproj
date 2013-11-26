@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -27,78 +27,79 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{c56bdb5e-9829-49d6-b5eb-9089ad7e89cc}</ProjectGuid>
-    <RootNamespace>chat</RootNamespace>
+    <ProjectGuid>{dc1a22cc-0ad9-40cf-9159-952962f71520}</ProjectGuid>
+    <RootNamespace>hello</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and '$(VisualStudioVersion)' == ''">$(VCTargetsPath11)</VCTargetsPath>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <ApplicationTypeRevision>8.1</ApplicationTypeRevision>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\Ice\3.5@)\DesignTime\CommonConfiguration\Neutral\Ice.props" />
+    <Import Project="$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props" Condition="exists('$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\Ice\3.5@)\DesignTime\CommonConfiguration\Neutral\Ice.props" />
+    <Import Project="$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props" Condition="exists('$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\Ice\3.5@)\DesignTime\CommonConfiguration\Neutral\Ice.props" />
+    <Import Project="$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props" Condition="exists('$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\Ice\3.5@)\DesignTime\CommonConfiguration\Neutral\Ice.props" />
+    <Import Project="$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props" Condition="exists('$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\Ice\3.5@)\DesignTime\CommonConfiguration\Neutral\Ice.props" />
+    <Import Project="$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props" Condition="exists('$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(Registry:HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\Windows\v8.0\ExtensionSDKS\Ice\3.5@)\DesignTime\CommonConfiguration\Neutral\Ice.props" />
+    <Import Project="$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props" Condition="exists('$([MSBuild]::GetRegistryValue(`HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft SDKs\$(TargetPlatformIdentifier)\v$(TargetPlatformVersion)\ExtensionSDKS\Ice\3.5`, ``))\DesignTime\CommonConfiguration\Neutral\Ice.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <PackageCertificateKeyFile>chat_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>C4DC5FE3362475B84F0E0B3920CE11F5B4D73F19</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>hello_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>0E11C0D04AF5C4ACA0EFE17C1BDA45AB686D2F3A</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -156,13 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Chat.h" />
-    <ClInclude Include="ChatView.xaml.h">
-      <DependentUpon>ChatView.xaml</DependentUpon>
-    </ClInclude>
-    <ClInclude Include="LoginView.xaml.h">
-      <DependentUpon>LoginView.xaml</DependentUpon>
-    </ClInclude>
+    <ClInclude Include="Hello.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -175,13 +170,7 @@
     <ApplicationDefinition Include="App.xaml">
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ChatView.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Common\StandardStyles.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="LoginView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
@@ -189,14 +178,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
+    <AppxManifest Include="Package-8.1.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="..\..\..\..\..\certs\winrt\cacert.pem">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="Chat.ice" />
-    <None Include="chat_TemporaryKey.pfx" />
+    <None Include="Hello.ice" />
+    <None Include="hello_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Logo.png" />
@@ -208,13 +197,7 @@
     <ClCompile Include="App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>
-    <ClCompile Include="Chat.cpp" />
-    <ClCompile Include="ChatView.xaml.cpp">
-      <DependentUpon>ChatView.xaml</DependentUpon>
-    </ClCompile>
-    <ClCompile Include="LoginView.xaml.cpp">
-      <DependentUpon>LoginView.xaml</DependentUpon>
-    </ClCompile>
+    <ClCompile Include="Hello.cpp" />
     <ClCompile Include="MainPage.xaml.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClCompile>
@@ -238,7 +221,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_ProjectVersion="1" />
+      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

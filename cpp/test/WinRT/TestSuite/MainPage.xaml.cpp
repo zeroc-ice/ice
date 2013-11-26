@@ -48,7 +48,11 @@ printToConsoleOutput(const std::string& message)
                                      {
                                          output->Text += msg;
                                          output->UpdateLayout();
+#if (_WIN32_WINNT > 0x0602)
+                                         scroller->ChangeView(nullptr, scroller->ScrollableHeight, nullptr);
+#else
                                          scroller->ScrollToVerticalOffset(scroller->ScrollableHeight);
+#endif
                                      }, CallbackContext::Any));
 }
 
