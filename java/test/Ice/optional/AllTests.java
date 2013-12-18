@@ -396,6 +396,15 @@ public class AllTests
         initial2.returnOptionalClass(true, oo);
         test(!oo.isSet());
 
+        Recursive[] recursive1 = new Recursive[1];
+        recursive1[0] = new Recursive();
+        Recursive[] recursive2 = new Recursive[1];
+        recursive2[0] = new Recursive();
+        recursive1[0].setValue(recursive2);
+        Recursive outer = new Recursive();
+        outer.setValue(recursive1);
+        initial.pingPong(outer);
+
         out.println("ok");
 
         out.print("testing marshaling of large containers with fixed size elements... ");

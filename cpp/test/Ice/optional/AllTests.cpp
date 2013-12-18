@@ -610,6 +610,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
     test(!oo);
 
+    RecursiveSeq recursive1;
+    recursive1.push_back(new Recursive());
+    RecursiveSeq recursive2;
+    recursive2.push_back(new Recursive());
+    recursive1[0]->value = recursive2;
+    RecursivePtr outer = new Recursive();
+    outer->value = recursive1;
+    initial->pingPong(outer);
+    
     cout << "ok" << endl;
 
     cout << "testing marshalling of large containers with fixed size elements..." << flush;

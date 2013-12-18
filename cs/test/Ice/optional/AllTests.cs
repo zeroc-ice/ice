@@ -425,6 +425,15 @@ public class AllTests : TestCommon.TestApp
         initial2.returnOptionalClass(true, out oo);
         test(!oo.HasValue);
 
+        Test.Recursive[] recursive1 = new Test.Recursive[1];
+        recursive1[0] = new Test.Recursive();
+        Test.Recursive[] recursive2 = new Test.Recursive[1];
+        recursive2[0] = new Test.Recursive();
+        recursive1[0].value = recursive2;
+        Test.Recursive outer = new Test.Recursive();
+        outer.value = recursive1;
+        initial.pingPong(outer);
+        
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");

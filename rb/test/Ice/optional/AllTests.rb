@@ -311,6 +311,14 @@ def allTests(communicator)
     r = initial.ice_encodingVersion(Ice::Encoding_1_0).returnOptionalClass(true)
     test(r == Ice::Unset)
 
+    recursive1 = [ Test::Recursive.new ]
+    recursive2 = [ Test::Recursive.new ]
+    recursive1[0].value = recursive2;
+
+    outer = Test::Recursive.new
+    outer.value = recursive1
+    initial.pingPong(outer)
+
     puts "ok"
 
     print "testing marshaling of large containers with fixed size elements... "

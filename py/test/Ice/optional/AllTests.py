@@ -317,6 +317,14 @@ def allTests(communicator):
     r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalClass(True)
     test(r == Ice.Unset)
 
+    recursive1 = [ Test.Recursive() ]
+    recursive2 = [ Test.Recursive() ]
+    recursive1[0].value = recursive2;
+
+    outer = Test.Recursive()
+    outer.value = recursive1
+    initial.pingPong(outer)
+
     print("ok")
 
     sys.stdout.write("testing marshaling of large containers with fixed size elements... ")

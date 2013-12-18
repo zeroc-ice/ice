@@ -171,6 +171,13 @@ class F extends E
     optional(1) A af;
 };
 
+class Recursive;
+sequence<Recursive> RecursiveSeq;
+
+class Recursive {
+    optional(0) RecursiveSeq value;
+};
+
 ["ami"]
 class Initial
 {

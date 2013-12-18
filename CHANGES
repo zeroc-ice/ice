@@ -27,6 +27,9 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Fixed marshalling bug where the marshalling of a type with nested
+  optionals of variable size could trigger and assert.
+
 - Fixed an IceGrid registry replication bug where database
   synchronization could fail on startup or connection establishment
   with the master if multiple applications refered to a replica group
