@@ -306,8 +306,39 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
                 }
                 else
                 {
+                    //
+                    // This case occurs in old (Ice <= 3.5.1) code that used implicit
+                    // relative imports, such as:
+                    //
+                    // File: outer/__init__.py
+                    //
+                    // import inner
+                    //
+                    // These aren't supported in Python 3. We'll translate these into
+                    // explicit relative imports:
+                    //
+                    // from . import inner
+                    //
                     submodules.push_back(name);
                 }
+            }
+            else if(s.find("from . import") == 0)
+            {
+                if(state != InSubmodules)
+                {
+                    ostringstream os;
+                    os << "invalid line `" << s << "' in `" << initPath << "'";
+                    throw os.str();
+                }
+
+                if(s.size() < 15)
+                {
+                    ostringstream os;
+                    os << "invalid line `" << s << "' in `" << initPath << "'";
+                    throw os.str();
+                }
+
+                submodules.push_back(s.substr(14));
             }
         }
 
@@ -351,7 +382,7 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
     os << _submoduleTag << endl;
     for(StringList::const_iterator p = submodules.begin(); p != submodules.end(); ++p)
     {
-        os << "import " << *p << endl;
+        os << "from . import " << *p << endl;
     }
 }
 

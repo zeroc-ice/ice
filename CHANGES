@@ -27,13 +27,20 @@ Changes since version 3.5.1
 General Changes
 ===============
 
-- Fixed marshalling bug where the marshalling of a type with nested
-  optionals of variable size could trigger and assert.
+- Fixed a marshaling bug where the marshaling of a type with nested
+  optionals of variable size could trigger an assertion.
 
 - Fixed an IceGrid registry replication bug where database
   synchronization could fail on startup or connection establishment
-  with the master if multiple applications refered to a replica group
-  defined in another application which wasn't yet added.
+  with the master if multiple applications referred to a replica group
+  defined in another application that wasn't yet added.
+
+
+Python Changes
+==============
+
+- Fixed a bug in the Slice-to-Python translator that eliminates the
+  use of implicit relative imports for nested Slice modules.
 
 
 ======================================================================
@@ -103,7 +110,7 @@ General Changes
 
 - The Visual Studio Add-in now supports configuration-specific
   compiler options.
-  
+
 
 C++ Changes
 ===========

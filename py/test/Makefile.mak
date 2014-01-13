@@ -7,21 +7,13 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= modules python test
-
-install:: install-common
-	@if not exist "$(install_pythondir)" \
-	    @echo "Creating $(install_pythondir)..." && \
-	    mkdir "$(install_pythondir)"
+SUBDIRS		= Slice
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-
-test::
-	@python $(top_srcdir)/allTests.py

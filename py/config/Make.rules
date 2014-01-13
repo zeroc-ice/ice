@@ -177,6 +177,7 @@ all:: $(SRCS)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.pyc *.bak
+	-rm -rf __pycache__
 
 all:: $(SRCS) $(TARGETS)
 

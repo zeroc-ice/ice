@@ -7,24 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= modules python test
-
-INSTALL_SUBDIRS = $(install_pythondir) $(install_libdir)
-
-install:: install-common
-	@for subdir in $(INSTALL_SUBDIRS); \
-	do \
-	    if test ! -d $(DESTDIR)$$subdir ; \
-	    then \
-		echo "Creating $(DESTDIR)$$subdir..." ; \
-		mkdir -p $(DESTDIR)$$subdir ; \
-		chmod a+rx $(DESTDIR)$$subdir ; \
-	    fi ; \
-	done
+SUBDIRS		= import
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
@@ -32,6 +19,3 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
-
-test::
-	@python $(top_srcdir)/allTests.py
