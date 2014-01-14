@@ -78,6 +78,7 @@ LDFLAGS   = $(LDFLAGS) /LIBPATH:"$(VCINSTALLDIR)\lib\store\$(ARCH)"
 !else
 LDFLAGS		= $(LDFLAGS) /FIXED:no
 !endif
+!endif
 
 !if "$(OPTIMIZE)" == "yes"
 LDFLAGS         = $(LDFLAGS) /OPT:REF
