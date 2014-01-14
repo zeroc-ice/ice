@@ -715,7 +715,7 @@ class Platform:
         output.write("*** [%s] building %s tests (%s/%s/%s)\n" % (index, lang, compiler, arch, buildConfiguration))
         output.flush()
         
-        if lang == "py" or lang == "rb":
+        if lang == "rb":
             trace("ok", report)
             return True
 
