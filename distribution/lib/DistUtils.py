@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -209,10 +209,8 @@ def fixMakefileForFile(path):
     (dir,file) = os.path.split(path)
     (base,ext) = os.path.splitext(file)
     # File the makefile file from the same directory as the file.
-    if os.path.exists(os.path.join(dir, "Makefile")):
-        fixMakefile(os.path.join(dir, "Makefile"), base, ext)
-    if os.path.exists(os.path.join(dir, "Makefile.mak")):
-        fixMakefile(os.path.join(dir, "Makefile.mak"), base, ext)
+    for f in glob.glob(os.path.join(dir, "Makefile*")):
+        fixMakefile(f, base, ext)
 
 #
 # Comment out rules in a Makefile.
@@ -1141,7 +1139,8 @@ def getPlatform(thirdParties):
         if sysname == "Linux":
             p = subprocess.Popen("lsb_release -i", shell = True, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
             if(p.wait() != 0):
-                os.exists(1)
+                print("lsb_release failed:\n" + p.stdout.read().strip())
+                sys.exit(1)
             distribution = re.sub("Distributor ID:", "", p.stdout.readline().decode('UTF-8')).strip()
             if distribution.find("RedHat") != -1:
                 languages[sysname].remove("cs")

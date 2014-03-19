@@ -12,3 +12,11 @@ $ python Client.py
 Note that this demo hardwires port 10000. If port 10000 is not
 available on your machine, you need to edit both client and server
 to use a free port.
+
+To run the server with web socket support:
+
+$ python Server.py --Ice.Default.Protocol=ws --Ice.Plugin.IceWS="IceWS:createIceWS"
+
+To run the client with web socket support:
+
+$ python Client.py --Ice.Default.Protocol=ws --Ice.Plugin.IceWS="IceWS:createIceWS"

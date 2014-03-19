@@ -1,0 +1,162 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bidir Demo | Ice for JavaScript</title>
+    <!-- Bundle with all the stylesheets used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <link rel="stylesheet" type="text/css" href="../../../assets/common.css" />
+    <link rel="icon" type="image/x-icon" href="../../../assets/favicon.ico">
+  </head>
+  <body>
+    <!-- Header section that contains title and navigation bar -->
+    <section id="header">
+        <nav class="top-bar" data-topbar>
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="../../../index.html">Ice for JavaScript</a></h1>
+                </li>
+                <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+            </ul>
+            <section class="top-bar-section">
+                <!-- Right Nav Section -->
+                <ul class="right">
+                    <li class="divider"></li>
+                    <li><a href="#" id="viewReadme">Readme</a></li>
+                    <li><a href="#" id="viewSource" class="disabled">Source</a></li>
+                </ul>
+            </section>
+        </nav>
+        <ul class="breadcrumbs">
+            <li><a href="../../../index.html">Ice</a></li>
+            <li><a href="../../index.html">Demos</a></li>
+            <li class="current"><a href="#">Bidir</a></li>
+        </ul>
+    </section>
+    <!-- Main section that contains the user interface -->
+    <section role="main" id="body">
+        <div class="row">
+            <div class="large-12 medium-12 columns">
+                <form>
+                    <a href="#" class="button small" id="start">Start</a>
+                    <a href="#" class="button small disabled" id="stop">Stop</a>
+                    <textarea id="output" class="disabled" readonly></textarea>
+                    <div id="progress" class="row hide">
+                    <div class="small-12 columns left">
+                        <div class="inline left icon"></div>
+                        <div class="text"></div>
+                    </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- Modal dialog to show the client README -->
+    <div id="readme-modal" class="reveal-modal medium" data-reveal>
+        <h4>Bidir Demo Readme</h4>
+        <hr/>
+        <p>This demo shows how to use bidirectional connections for callbacks.</p>
+        <p>This is typically used if the server cannot open a connection to the
+           client to send callbacks, for example, because firewalls block
+           incoming connections to the client.</p>
+
+        <p>To run the demo, first you need to start the Ice bidir server. This
+           distribution includes server implementations in Python and C++, and
+           each one has its own README file with instructions for starting the
+           server. Please refer to the Python or C++ README in the appropriate
+           demo subdirectory for more information.
+        </p>
+            
+        <div class="panel callout radius">
+            <ul>
+                <li>To use the Python server you'll need a Python installation that is
+                    compatible with the Ice for Python module included in Ice 3.5.1.</li>
+                   
+                <li>To use the C++ server you'll need a C++ compiler compatible with your 
+                    Ice for JavaScript distribution.</li>
+            </ul>
+        </div>
+
+        <p>Then you can use the <strong>Start</strong> and <strong>Stop</strong> buttons to
+           add or remove a callback to the server, respectively.</p>
+
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <!-- Modal dialog to show the client source code -->
+    <div id="source-modal" class="reveal-modal" data-reveal>
+        <a class="close-reveal-modal">&#215;</a>
+        <dl class="tabs" data-tab>
+            <dt></dt>
+            <dd class="active"><a href="#panel2-1">Slice</a></dd>
+            <dd><a href="#panel2-2">JavaScript</a></dd>
+            <dd><a href="#panel2-3">HTML</a></dd>
+        </dl>
+        <div class="tabs-content">
+            <div class="content active" id="panel2-1">
+                <h6>File: demo/Ice/bidir/Callback.ice</h6>
+                <pre class="source language-c" data-code="Callback.ice"></pre>
+            </div>
+            <div class="content" id="panel2-2">
+                <h6>File: demo/Ice/bidir/browser/Client.js</h6>
+                <pre class="source" data-code="browser/Client.js"></pre>
+            </div>
+            <div class="content" id="panel2-3">
+                <h6>File: demo/Ice/bidir/index.html</h6>
+                <pre class="source" data-code="index.html"></pre>
+            </div>
+        </div>
+    </div>
+    <div id="no-https-modal" class="reveal-modal" data-reveal>
+        <p>This client uses a non-secure WebSocket connection, but your browser does not allow
+            the client to make a non-secure connection from a page loaded via HTTPS. You can run the
+            demo from an HTTP page by navigating to <a href=""></a>.
+        </p>
+    </div>
+    <!-- Footer section -->
+    <section id="footer">
+        <div class="logo">
+            <h4><strong>ZeroC</strong></h4>
+        </div>
+        <div class="copyright">
+            <h6>© 2014 ZeroC, Inc. All rights reserved.</h6>
+        </div>
+    </section>
+    <!-- Bundle with all the scripts used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <script type="text/javascript" src="../../../assets/common.min.js"></script>
+    <!-- Ice.js (Ice run-time library) -->
+    <script type="text/javascript" src="../../../lib/Ice.js"></script>
+    <!-- Callback.js (Demo generated code) -->
+    <script type="text/javascript" src="Callback.js"></script>
+    <!-- browser/Client.js (Bidir Demo Application) -->
+    <script type="text/javascript" src="browser/Client.js"></script>
+    <script type="text/javascript">
+        //
+        // Firefox and IE we doesn't allow WS connections from 
+        // HTTPS pages.
+        //
+        if(document.location.protocol === "https:" &&
+           (navigator.userAgent.indexOf("MSIE") !== -1 || 
+            navigator.userAgent.indexOf("Firefox") !== -1 ||
+            navigator.userAgent.indexOf("Trident/7.0") !== -1))
+        {
+            var href = "http://" + document.location.hostname + ":8080" + document.location.pathname;
+            $("#no-https-modal a").attr("href", href);
+            $("#no-https-modal a").text(href);
+            $("#no-https-modal").foundation({
+                reveal:
+                {
+                    close_on_background_click: false,
+                    close_on_esc: false
+                }
+            });
+            $("#no-https-modal").foundation("reveal", "open");
+        }
+        else if(document.location.protocol === "http:")
+        {
+            checkGenerated(["Callback.js"]);
+        }
+    </script>
+  </body>
+</html>

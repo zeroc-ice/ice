@@ -121,7 +121,7 @@ BEGIN
             VALUE "FileDescription", "Ice Hello Client"
             VALUE "FileVersion", "3.5.1"
             VALUE "InternalName", "HelloClient.exe"
-            VALUE "LegalCopyright", "Copyright (c) 2003-2013 ZeroC, Inc.  All rights reserved."
+            VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved."
             VALUE "OriginalFilename", "HelloClient.exe"
             VALUE "ProductName", "Ice"
             VALUE "ProductVersion", "3.5.1"

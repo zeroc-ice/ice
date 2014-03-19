@@ -1,0 +1,142 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
+#
+#embedded_runpath_prefix  ?= /opt/IceJS-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define OPTIMIZE as yes if you want to build with
+# optimization. Otherwise Ice is build with debug information.
+#
+#OPTIMIZE		= yes
+
+#
+# Define LP64 as yes or no if you want force a 32 or 64 bit. The
+# default is platform-dependent
+#
+#LP64			?= yes
+
+#
+# The build architectures for gcc based builds. The format of these
+# build flags are OS dependent. For example, under OS X to build
+# binaries which support both i386 and x86_64 you would use "-arch
+# i386 -arch x86_64". The default is OS version dependent. Be aware
+# that this value may conflict with the setting of LP64 above.
+#
+#CXXARCHFLAGS		     = -arch i386 -arch x86_64
+
+#
+# Define CPP11 as yes if you want to enable C++11 features in GCC or 
+# Clang.
+#
+#CPP11     ?= yes
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+#
+# Common definitions
+#
+ice_language     = cpp
+slice_translator = slice2cpp
+ice_require_cpp  = 1
+
+include $(top_srcdir)/config/Make.common.rules
+
+includedir		= $(ice_dir)/include
+
+#
+# Platform specific definitions
+#
+include	 $(top_srcdir)/config/Make.rules.$(UNAME)
+
+ifneq ($(embedded_runpath_prefix),)
+    runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)$(cpp11suffix)
+endif
+
+ICECPPFLAGS		= -I$(slicedir)
+
+SLICE2CPPFLAGS		= $(ICECPPFLAGS)
+
+ifeq ($(ice_dir), /usr) 
+    LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+else
+    CPPFLAGS	+= -I$(includedir)
+    LDFLAGS	= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)$(cpp11suffix)
+endif
+
+ifeq ($(FLEX_NOLINE),yes)
+    FLEXFLAGS	       := -L
+else
+    FLEXFLAGS	       :=
+endif
+
+ifeq ($(BISON_NOLINE),yes)
+    BISONFLAGS		:= -dvtl
+else
+    BISONFLAGS		:= -dvt
+endif
+
+ifeq ($(mkshlib),)
+    $(error You need to define mkshlib in Make.rules.$(UNAME)) 
+endif
+
+SLICE2CPP	= $(ice_cpp_dir)/$(binsubdir)$(cpp11suffix)/slice2cpp
+RPATH_DIR	= $(ice_dir)/$(libsubdir)$(cpp11suffix)
+
+EVERYTHING		= all clean
+EVERYTHING_EXCEPT_ALL   = clean
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .c .o
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+.c.o:
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
+
+%.h %.cpp: %.y
+	rm -f $(*F).h $(*F).cpp
+	bison $(BISONFLAGS) $<
+	mv $(*F).tab.c $(*F).cpp
+	mv $(*F).tab.h $(*F).h
+	rm -f $(*F).output
+
+%.cpp: %.l
+	flex $(FLEXFLAGS) $<
+	rm -f $@
+	echo '#include <IceUtil/Config.h>' > $@
+	cat lex.yy.c >> $@
+	rm -f lex.yy.c
+
+all:: $(SRCS) $(TARGETS)
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.bak
+
+ifneq ($(SLICE_SRCS),)
+clean::
+	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
+	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
+endif
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif

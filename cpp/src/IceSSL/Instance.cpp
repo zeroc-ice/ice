@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,6 @@
 #endif
 
 #include <IceSSL/Instance.h>
-#include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/TrustManager.h>
 
@@ -22,7 +21,6 @@
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
-#include <Ice/ProtocolPluginFacade.h>
 #include <Ice/StringConverter.h>
 
 #include <IceUtil/Mutex.h>
@@ -44,6 +42,7 @@ using namespace Ice;
 using namespace IceSSL;
 
 IceUtil::Shared* IceSSL::upCast(IceSSL::Instance* p) { return p; }
+IceUtil::Shared* IceSSL::upCast(IceSSL::SharedInstance* p) { return p; }
 
 namespace
 {
@@ -124,7 +123,7 @@ IceSSL_opensslThreadIdCallback()
 int
 IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 {
-    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(userData);
+    IceSSL::SharedInstance* p = reinterpret_cast<IceSSL::SharedInstance*>(userData);
     string passwd = p->password(flag == 1);
     int sz = static_cast<int>(passwd.size());
     if(sz > size)
@@ -146,7 +145,7 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 DH*
 IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 {
-    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
+    IceSSL::SharedInstance* p = reinterpret_cast<IceSSL::SharedInstance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
     return p->dhParams(keyLength);
 }
 #endif
@@ -155,7 +154,7 @@ int
 IceSSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
 {
     SSL* ssl = reinterpret_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
-    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
+    IceSSL::SharedInstance* p = reinterpret_cast<IceSSL::SharedInstance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
     return p->verifyCallback(ok, ssl, ctx);
 }
 
@@ -171,7 +170,8 @@ passwordError()
             reason == PEM_R_PROBLEMS_GETTING_PASSWORD);
 }
 
-IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
+IceSSL::SharedInstance::SharedInstance(const CommunicatorPtr& communicator) :
+    _communicator(communicator),
     _logger(communicator->getLogger()),
     _initialized(false),
     _ctx(0)
@@ -307,22 +307,14 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
         }
     }
 
-    _facade = IceInternal::getProtocolPluginFacade(communicator);
     _securityTraceLevel = communicator->getProperties()->getPropertyAsInt("IceSSL.Trace.Security");
     _securityTraceCategory = "Security";
     _trustManager = new TrustManager(communicator);
-    
-    //
-    // Register the endpoint factory. We have to do this now, rather than
-    // in initialize, because the communicator may need to interpret
-    // proxies before the plug-in is fully initialized.
-    //
-    _facade->addEndpointFactory(new EndpointFactoryI(this));
 
     __setNoDelete(false);
 }
 
-IceSSL::Instance::~Instance()
+IceSSL::SharedInstance::~SharedInstance()
 {
     //
     // Clean up OpenSSL resources.
@@ -349,7 +341,7 @@ IceSSL::Instance::~Instance()
 }
 
 void
-IceSSL::Instance::initialize()
+IceSSL::SharedInstance::initialize()
 {
     if(_initialized)
     {
@@ -694,7 +686,7 @@ IceSSL::Instance::initialize()
         //
         // Although we disable session caching, we still need to set a session ID
         // context (ICE-5103). The value can be anything; here we just use the
-        // pointer to this Instance object.
+        // pointer to this SharedInstance object.
         //
         SSL_CTX_set_session_id_context(_ctx, reinterpret_cast<unsigned char*>(this),
                                        static_cast<unsigned int>(sizeof(this)));
@@ -762,7 +754,7 @@ IceSSL::Instance::initialize()
 }
 
 void
-IceSSL::Instance::context(SSL_CTX* context)
+IceSSL::SharedInstance::context(SSL_CTX* context)
 {
     if(_initialized)
     {
@@ -776,91 +768,31 @@ IceSSL::Instance::context(SSL_CTX* context)
 }
 
 SSL_CTX*
-IceSSL::Instance::context() const
+IceSSL::SharedInstance::context() const
 {
     return _ctx;
 }
 
 void
-IceSSL::Instance::setCertificateVerifier(const CertificateVerifierPtr& verifier)
+IceSSL::SharedInstance::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 {
     _verifier = verifier;
 }
 
 void
-IceSSL::Instance::setPasswordPrompt(const PasswordPromptPtr& prompt)
+IceSSL::SharedInstance::setPasswordPrompt(const PasswordPromptPtr& prompt)
 {
     _prompt = prompt;
 }
 
 CommunicatorPtr
-IceSSL::Instance::communicator() const
+IceSSL::SharedInstance::communicator() const
 {
-    return _facade->getCommunicator();
-}
-
-IceInternal::EndpointHostResolverPtr
-IceSSL::Instance::endpointHostResolver() const
-{
-    return _facade->getEndpointHostResolver();
-}
-
-IceInternal::ProtocolSupport
-IceSSL::Instance::protocolSupport() const
-{
-    return _facade->getProtocolSupport();
-}
-
-bool
-IceSSL::Instance::preferIPv6() const
-{
-    return _facade->preferIPv6();
-}
-
-IceInternal::NetworkProxyPtr
-IceSSL::Instance::networkProxy() const
-{
-    return _facade->getNetworkProxy();
-}
-
-string
-IceSSL::Instance::defaultHost() const
-{
-    return _facade->getDefaultHost();
-}
-
-Ice::EncodingVersion
-IceSSL::Instance::defaultEncoding() const
-{
-    return _facade->getDefaultEncoding();
-}
-
-int
-IceSSL::Instance::networkTraceLevel() const
-{
-    return _facade->getNetworkTraceLevel();
-}
-
-string
-IceSSL::Instance::networkTraceCategory() const
-{
-    return _facade->getNetworkTraceCategory();
-}
-
-int
-IceSSL::Instance::securityTraceLevel() const
-{
-    return _securityTraceLevel;
-}
-
-string
-IceSSL::Instance::securityTraceCategory() const
-{
-    return _securityTraceCategory;
+    return _communicator;
 }
 
 void
-IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const NativeConnectionInfoPtr& info)
+IceSSL::SharedInstance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const NativeConnectionInfoPtr& info)
 {
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)
@@ -1054,16 +986,14 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const N
 }
 
 string
-IceSSL::Instance::sslErrors() const
+IceSSL::SharedInstance::sslErrors() const
 {
     return getSslErrors(_securityTraceLevel >= 1);
 }
 
 void
-IceSSL::Instance::destroy()
+IceSSL::SharedInstance::destroy()
 {
-    _facade = 0;
-
     if(_ctx)
     {
         SSL_CTX_free(_ctx);
@@ -1071,7 +1001,7 @@ IceSSL::Instance::destroy()
 }
 
 string
-IceSSL::Instance::password(bool /*encrypting*/)
+IceSSL::SharedInstance::password(bool /*encrypting*/)
 {
     if(_prompt)
     {
@@ -1094,7 +1024,7 @@ IceSSL::Instance::password(bool /*encrypting*/)
 }
 
 int
-IceSSL::Instance::verifyCallback(int ok, SSL* ssl, X509_STORE_CTX* c)
+IceSSL::SharedInstance::verifyCallback(int ok, SSL* ssl, X509_STORE_CTX* c)
 {
     if(!ok && _securityTraceLevel >= 1)
     {
@@ -1118,38 +1048,14 @@ IceSSL::Instance::verifyCallback(int ok, SSL* ssl, X509_STORE_CTX* c)
 
 #ifndef OPENSSL_NO_DH
 DH*
-IceSSL::Instance::dhParams(int keyLength)
+IceSSL::SharedInstance::dhParams(int keyLength)
 {
     return _dhParams->get(keyLength);
 }
 #endif
 
-void
-IceSSL::Instance::traceConnection(SSL* ssl, bool incoming)
-{
-    Trace out(_logger, _securityTraceCategory);
-    out << "SSL summary for " << (incoming ? "incoming" : "outgoing") << " connection\n";
-
-    //
-    // The const_cast is necesary because Solaris still uses OpenSSL 0.9.7.
-    //
-    //const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
-    SSL_CIPHER *cipher = const_cast<SSL_CIPHER*>(SSL_get_current_cipher(ssl));
-    if(!cipher)
-    {
-        out << "unknown cipher\n";
-    }
-    else
-    {
-        out << "cipher = " << SSL_CIPHER_get_name(cipher) << "\n";
-        out << "bits = " << SSL_CIPHER_get_bits(cipher, 0) << "\n";
-        out << "protocol = " << SSL_get_version(ssl) << "\n";
-    }
-    out << IceInternal::fdToString(SSL_get_fd(ssl));
-}
-
 int
-IceSSL::Instance::parseProtocols(const StringSeq& protocols)
+IceSSL::SharedInstance::parseProtocols(const StringSeq& protocols)
 {
     int v = 0;
 
@@ -1185,7 +1091,7 @@ IceSSL::Instance::parseProtocols(const StringSeq& protocols)
 }
 
 SSL_METHOD*
-IceSSL::Instance::getMethod(int /*protocols*/)
+IceSSL::SharedInstance::getMethod(int /*protocols*/)
 {
     //
     // Despite its name, the SSLv23 method can negotiate SSL3, TLS1.0, TLS1.1, and TLS1.2.
@@ -1206,7 +1112,7 @@ IceSSL::Instance::getMethod(int /*protocols*/)
 }
 
 void
-IceSSL::Instance::setOptions(int protocols)
+IceSSL::SharedInstance::setOptions(int protocols)
 {
     long opts = SSL_OP_NO_SSLv2; // SSLv2 is not supported.
     if(!(protocols & SSLv3))
@@ -1238,3 +1144,52 @@ IceSSL::Instance::setOptions(int protocols)
 #endif
     SSL_CTX_set_options(_ctx, opts);
 }
+
+IceSSL::Instance::Instance(const SharedInstancePtr& sharedInstance, Ice::Short type, const std::string& protocol) :
+    ProtocolInstance(sharedInstance->communicator(), type, protocol),
+    _sharedInstance(sharedInstance)
+{
+    _securityTraceLevel = properties()->getPropertyAsInt("IceSSL.Trace.Security");
+    _securityTraceCategory = "Security";
+}
+
+IceSSL::Instance::~Instance()
+{
+}
+
+void
+IceSSL::Instance::traceConnection(SSL* ssl, bool incoming)
+{
+    Trace out(_logger, _securityTraceCategory);
+    out << "SSL summary for " << (incoming ? "incoming" : "outgoing") << " connection\n";
+
+    //
+    // The const_cast is necesary because Solaris still uses OpenSSL 0.9.7.
+    //
+    //const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
+    SSL_CIPHER *cipher = const_cast<SSL_CIPHER*>(SSL_get_current_cipher(ssl));
+    if(!cipher)
+    {
+        out << "unknown cipher\n";
+    }
+    else
+    {
+        out << "cipher = " << SSL_CIPHER_get_name(cipher) << "\n";
+        out << "bits = " << SSL_CIPHER_get_bits(cipher, 0) << "\n";
+        out << "protocol = " << SSL_get_version(ssl) << "\n";
+    }
+    out << IceInternal::fdToString(SSL_get_fd(ssl));
+}
+
+int
+IceSSL::Instance::securityTraceLevel() const
+{
+    return _securityTraceLevel;
+}
+
+string
+IceSSL::Instance::securityTraceCategory() const
+{
+    return _securityTraceCategory;
+}
+

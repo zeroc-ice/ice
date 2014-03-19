@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -140,6 +140,7 @@ Selector::initialize(EventHandler* handler)
         throw ex;
     }
     handler->__incRef();
+    handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
 }
 
 void
@@ -178,11 +179,11 @@ Selector::finish(EventHandler* handler)
 }
 
 EventHandler*
-Selector::getNextHandler(SocketOperation& status, int timeout)
+Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int timeout)
 {
     ULONG_PTR key;
     LPOVERLAPPED ol;
-    DWORD count;
+    error = 0;
 
     if(!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
     {
@@ -205,16 +206,14 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
         status = info->status;
-        info->count = SOCKET_ERROR;
-        info->error = WSAGetLastError();
+        count = SOCKET_ERROR;
+        error = WSAGetLastError();
         return reinterpret_cast<EventHandler*>(key);
     }
 
     assert(ol);
     AsyncInfo* info = static_cast<AsyncInfo*>(ol);
     status = info->status;
-    info->count = count;
-    info->error = 0;
     return reinterpret_cast<EventHandler*>(key);
 }
 
@@ -482,15 +481,16 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
     }
 
     assert(ret > 0);
-    handlers.clear();
     for(int i = 0; i < ret; ++i)
     {
         pair<EventHandler*, SocketOperation> p;
 #if defined(ICE_USE_EPOLL)
         struct epoll_event& ev = _events[i];
         p.first = reinterpret_cast<EventHandler*>(ev.data.ptr);
-        p.second = static_cast<SocketOperation>(((ev.events & EPOLLIN) ? SocketOperationRead : SocketOperationNone) | 
-                                                ((ev.events & EPOLLOUT) ? SocketOperationWrite : SocketOperationNone));
+        p.second = static_cast<SocketOperation>(((ev.events & EPOLLIN) ? 
+                                                 SocketOperationRead : SocketOperationNone) | 
+                                                ((ev.events & (EPOLLOUT | EPOLLERR)) ? 
+                                                 SocketOperationWrite : SocketOperationNone));
 #else
         struct kevent& ev = _events[i];
         if(ev.flags & EV_ERROR)
@@ -701,7 +701,6 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
     }
 
     assert(ret > 0);
-    handlers.clear();
 
 #if defined(ICE_USE_SELECT)
     if(_selectedReadFdSet.fd_count == 0 && _selectedWriteFdSet.fd_count == 0 && _selectedErrorFdSet.fd_count == 0)

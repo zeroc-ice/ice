@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -39,7 +39,7 @@ public:
     FILE* preprocess(bool, const std::string& = "");
     bool close();
 
-    enum Language { CPlusPlus, Java, JavaXML, CSharp, Python, Ruby, PHP };
+    enum Language { CPlusPlus, Java, JavaXML, CSharp, Python, Ruby, PHP, JS };
 
     bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "", const std::string& = "cpp",
                                    const std::string& = "");

@@ -1,7 +1,7 @@
 @echo off
 rem ********************************************************************
 rem
-rem Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+rem Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 rem
 rem This copy of Ice is licensed to you under the terms described in the
 rem ICE_LICENSE file included in this distribution.

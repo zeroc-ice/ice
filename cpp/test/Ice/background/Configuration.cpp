@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,7 +15,8 @@ Configuration::Configuration() :
     _initializeSocketOperation(IceInternal::SocketOperationNone),
     _initializeResetCount(0),
     _readReadyCount(0),
-    _writeReadyCount(0)
+    _writeReadyCount(0),
+    _buffered(false)
 {
     assert(!_instance);
     _instance = this;
@@ -172,6 +173,20 @@ Configuration::checkWriteException()
     {
         _writeException->ice_throw();
     }
+}
+
+void
+Configuration::buffered(bool buffered)
+{
+    Lock sync(*this);
+    _buffered = buffered;
+}
+
+bool
+Configuration::buffered()
+{
+    Lock sync(*this);
+    return _buffered;
 }
 
 Configuration*

@@ -1,0 +1,21 @@
+A simple latency test that measures the basic call dispatch delay of
+Ice.
+
+To run the demo, first you need to start the Ice latency server. This
+distribution includes server implementations in Python and C++, and
+each one has its own README file with instructions for starting the
+server. Please refer to the Python or C++ README in the appropriate
+demo subdirectory for more information.
+
+Note:
+
+ * To use the Python server you'll need a Python installation that is
+   compatible with the Ice for Python module included in Ice 3.5.1.
+
+ * To use the C++ server you'll need a C++ compiler compatible with
+   the Ice 3.5.1 C++ distribution.
+
+After starting the server, open a separate window and start the
+client:
+
+$ node Client.js

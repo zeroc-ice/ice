@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -127,6 +127,7 @@ private:
     std::vector<std::pair<EventHandler*, SocketOperation> > _handlers;
     std::vector<std::pair<EventHandler*, SocketOperation> >::const_iterator _nextHandler;
 #endif
+    std::set<EventHandler*> _pendingHandlers;
 
     bool _promote;
 };
@@ -165,6 +166,9 @@ private:
     bool _ioCompleted;
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
     bool _leader;
+#else
+    DWORD _count;
+    int _error;
 #endif
     friend class ThreadPool;
 };    

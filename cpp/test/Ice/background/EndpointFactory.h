@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,9 +20,11 @@ public:
 
     virtual ::Ice::Short type() const;
     virtual ::std::string protocol() const;
-    virtual IceInternal::EndpointIPtr create(const std::string&, bool) const;
+    virtual IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const;
     virtual IceInternal::EndpointIPtr read(IceInternal::BasicStream*) const;
     virtual void destroy();
+
+    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
 
 protected:
 

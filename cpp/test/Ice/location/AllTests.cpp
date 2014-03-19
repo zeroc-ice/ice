@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -570,6 +570,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing object migration... " << flush;
     hello = HelloPrx::checkedCast(communicator->stringToProxy("hello"));
     obj->migrateHello();
+    // TODO: enable after fixing ICE-5489
+    //hello->ice_getConnection()->close(false);
     hello->sayHello();
     obj->migrateHello();
     hello->sayHello();

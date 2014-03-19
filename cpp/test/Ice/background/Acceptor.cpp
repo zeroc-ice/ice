@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ Acceptor::listen()
 }
 
 #ifdef ICE_USE_IOCP
-void 
+void
 Acceptor::startAccept()
 {
     _acceptor->startAccept();
@@ -51,6 +51,12 @@ Acceptor::accept()
 }
 
 string
+Acceptor::protocol() const
+{
+    return _acceptor->protocol();
+}
+
+string
 Acceptor::toString() const
 {
     return _acceptor->toString();
@@ -59,4 +65,3 @@ Acceptor::toString() const
 Acceptor::Acceptor(const IceInternal::AcceptorPtr& acceptor) : _acceptor(acceptor)
 {
 }
-

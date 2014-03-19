@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyProduct("seqMapping")]
-[assembly: AssemblyCopyright("Copyright © 2012-2013 ZeroC, Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2012-2014 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

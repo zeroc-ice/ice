@@ -1,0 +1,6 @@
+{
+  "node": true,
+  "undef": true,
+  "globals": { "WebSocket" : false, "Ice" : false, "IceWS" : false, "Slice" : false, "window": false,
+               "escape" : false, "unescape": false}
+}

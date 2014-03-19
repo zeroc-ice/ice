@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,10 +11,7 @@
 #define ICE_TCP_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Protocol.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/ProtocolInstanceF.h>
 #include <Ice/Connector.h>
 #include <Ice/Network.h>
 
@@ -36,13 +33,11 @@ public:
 
 private:
     
-    TcpConnector(const InstancePtr&, const Address&, const NetworkProxyPtr&, Ice::Int, const std::string&);
+    TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, Ice::Int, const std::string&);
     virtual ~TcpConnector();
     friend class TcpEndpointI;
 
-    const InstancePtr _instance;
-    const TraceLevelsPtr _traceLevels;
-    const ::Ice::LoggerPtr _logger;
+    const ProtocolInstancePtr _instance;
     const Address _addr;
     const NetworkProxyPtr _proxy;
     const Ice::Int _timeout;

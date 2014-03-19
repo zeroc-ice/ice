@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,6 @@
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>
-#include <Ice/EndpointIF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/EndpointTypes.h>
 #include <Ice/ObjectF.h>

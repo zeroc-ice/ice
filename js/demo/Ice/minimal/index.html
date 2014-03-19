@@ -1,0 +1,205 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimal Demo | Ice for JavaScript</title>
+    <!-- Bundle with all the stylesheets used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <link rel="stylesheet" type="text/css" href="../../../assets/common.css" />
+    <link rel="icon" type="image/x-icon" href="../../../assets/favicon.ico">
+  </head>
+  <body>
+    <!-- Header section that contains title and navigation bar -->
+    <section id="header">
+        <nav class="top-bar" data-topbar>
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="../../../index.html">Ice for JavaScript</a></h1>
+                </li>
+                <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+            </ul>
+            <section class="top-bar-section">
+                <!-- Right Nav Section -->
+                <ul class="right">
+                    <li class="divider"></li>
+                    <li><a href="#" id="viewReadme">Readme</a></li>
+                    <li><a href="#" id="viewSource">Source</a></li>
+                </ul>
+            </section>
+        </nav>
+        <ul class="breadcrumbs">
+            <li><a href="../../../index.html">Ice</a></li>
+            <li><a href="../../index.html">Demos</a></li>
+            <li class="current"><a href="#">Minimal</a></li>
+        </ul>
+    </section>
+    <!-- Main section that contains the user interface -->
+    <section role="main" id="body">
+        <div class="row">
+            <div class="large-12 medium-12 columns">
+                <form>
+                    <div class="row">
+                        <div class="small-12 columns">
+                            <a href="#" class="button small" id="hello">Hello World!</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-12 columns">
+                            <textarea id="output" readonly></textarea>
+                        </div>
+                    </div>
+                    <div id="progress" class="row hide">
+                        <div class="small-12 columns left">
+                            <div class="inline left icon"></div>
+                            <div class="text">Sending Request...</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- Modal dialog to show the client README -->
+    <div id="readme-modal" class="reveal-modal" data-reveal>
+        <h4>Minimal Demo Readme</h4>
+        <hr/>
+        <p>This demo is a minimal Ice "hello world" application. Each time the
+        client is run a "sayHello" invocation is sent to the server.</p>
+
+        <p>To run the demo, first you need to start the Ice minimal server. This
+           distribution includes server implementations in Python and C++, and
+           each one has its own README file with instructions for starting the
+           server. Please refer to the Python or C++ README in the appropriate
+           demo subdirectory for more information.
+        </p>
+            
+        <div class="panel callout radius">
+            <ul>
+                <li>To use the Python server you'll need a Python installation that is
+                    compatible with the Ice for Python module included in Ice 3.5.1.</li>
+                   
+                <li>To use the C++ server you'll need a C++ compiler compatible with your 
+                    Ice for JavaScript distribution.</li>
+            </ul>
+        </div>
+
+        <p>To run the client click the <strong>"Hello World!"</strong> button.</p>
+        <div class="panel callout radius">
+            <p>Note that this demo hardwires port 10000. If port 10000 is not
+            available on your machine, you need to edit both client and server
+            to use a free port.</p>
+        </div>
+        <h4>Using the minified scripts</h4>
+        <p>When the demo is built with optimizations enabled it creates a minified
+        script <code>browser/Client.min.js</code> that includes:
+        </p>
+        <ul>
+            <li>Ice.js (The Ice run-time library)</li>
+            <li>Hello.js (The generated code for this demo)</li>
+            <li>browser/Client.js (The demo source)</li>
+        </ul>
+        <p>To use the minified version you should edit the <code>demo/Ice/minimal/index.html</code>
+        file and comment out the non-optimized scripts:</p>
+        <pre>
+    &lt;!-- Scripts used during development, for optimized builds 
+    comment out the following scripts and use browser/Client.min.js below --&gt;
+    &lt;!-- Ice.js (Ice run-time library) --&gt;
+    &lt;script type="text/javascript" src="../../../lib/Ice.js"&gt;&lt;/script&gt;
+    &lt;!-- Hello.js (Demo generated code) --&gt;
+    &lt;script type="text/javascript" src="Hello.js"&gt;&lt;/script&gt;
+    &lt;!-- browser/Client.js (Minimal Demo Application) --&gt;
+    &lt;script type="text/javascript" src="browser/Client.js"&gt;&lt;/script&gt;
+        </pre>
+        <p>Then uncomment the script tag for the minified version</p>
+        <pre>
+    &lt;!-- Uncomment the following line to use a minified version of the 
+         scripts that includes: the Ice run-time library, the generated code
+         and the demo application. --&gt;
+    &lt;!--&lt;script type="text/javascript" src="browser/Client.min.js"&gt;&lt;/script&gt;--&gt;
+        </pre>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <!-- Modal dialog to show the client source code -->
+    <div id="source-modal" class="reveal-modal" data-reveal>
+        <a class="close-reveal-modal">&#215;</a>
+        <dl class="tabs" data-tab>
+            <dt></dt>
+            <dd class="active"><a href="#panel2-1">Slice</a></dd>
+            <dd><a href="#panel2-2">JavaScript</a></dd>
+            <dd><a href="#panel2-3">HTML</a></dd>
+        </dl>
+        <div class="tabs-content">
+            <div class="content active" id="panel2-1">
+                <h6>File: Ice/minimal/Hello.ice</h6>
+                <pre class="source language-c" data-code="Hello.ice"></pre>
+            </div>
+            <div class="content" id="panel2-2">
+                <h6>File: Ice/minimal/browser/Client.js</h6>
+                <pre class="source" data-code="browser/Client.js"></pre>
+            </div>
+            <div class="content" id="panel2-3">
+                <h6>File: Ice/minimal/index.html</h6>
+                <pre class="source" data-code="index.html"></pre>
+            </div>
+        </div>
+    </div>
+    <div id="no-https-modal" class="reveal-modal" data-reveal>
+        <p>This client uses a non-secure WebSocket connection, but your browser does not allow
+            the client to make a non-secure connection from a page loaded via HTTPS. You can run the
+            demo from an HTTP page by navigating to <a href=""></a>.
+        </p>
+    </div>
+    <!-- Footer section -->
+    <section id="footer">
+        <div class="logo">
+            <h4><strong>ZeroC</strong></h4>
+        </div>
+        <div class="copyright">
+            <h6>© 2014 ZeroC, Inc. All rights reserved.</h6>
+        </div>
+    </section>
+    <!-- Bundle with all the scripts used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <script type="text/javascript" src="../../../assets/common.min.js"></script>
+    <!-- Scripts used during development, for optimized builds
+         comment the following scripts and uncomment browser/Client.min.js 
+         below -->
+    <!-- Ice.js (Ice run-time library) -->
+    <script type="text/javascript" src="../../../lib/Ice.js"></script>
+    <!-- Hello.js (Demo generated code) -->
+    <script type="text/javascript" src="Hello.js"></script>
+    <!-- browser/Client.js (Minimal Demo Application) -->
+    <script type="text/javascript" src="browser/Client.js"></script>
+    <!-- Uncomment the following line to use a minified version of the 
+         scripts that includes: (the Ice run-time library, the generated code
+         and the demo application). -->
+    <!--<script type="text/javascript" src="browser/Client.min.js"></script>-->
+    <script type="text/javascript">
+        //
+        // Firefox and IE we doesn't allow WS connections from 
+        // HTTPS pages.
+        //
+        if(document.location.protocol === "https:" &&
+           (navigator.userAgent.indexOf("MSIE") !== -1 || 
+            navigator.userAgent.indexOf("Firefox") !== -1 ||
+            navigator.userAgent.indexOf("Trident/7.0") !== -1))
+        {
+            var href = "http://" + document.location.hostname + ":8080" + document.location.pathname;
+            $("#no-https-modal a").attr("href", href);
+            $("#no-https-modal a").text(href);
+            $("#no-https-modal").foundation({
+                reveal:
+                {
+                    close_on_background_click: false,
+                    close_on_esc: false
+                }
+            });
+            $("#no-https-modal").foundation("reveal", "open");
+        }
+        else if(document.location.protocol == "http:")
+        {
+            checkGenerated(["Hello.js"]);
+        }
+    </script>
+  </body>
+</html>

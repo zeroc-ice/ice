@@ -1,0 +1,189 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Demo | Ice for JavaScript</title>
+    <!-- Bundle with all the stylesheets used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <link rel="stylesheet" type="text/css" href="../../../assets/common.css" />
+    <link rel="icon" type="image/x-icon" href="../../../assets/favicon.ico">
+  </head>
+  <body>
+    <!-- Header section that contains title and navigation bar -->
+    <section id="header">
+        <nav class="top-bar" data-topbar>
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="../../../index.html">Ice for JavaScript</a></h1>
+                </li>
+                <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+            </ul>
+            <section class="top-bar-section">
+                <!-- Right Nav Section -->
+                <ul class="right">
+                    <li class="divider"></li>
+                    <li><a href="#" id="viewReadme">Readme</a></li>
+                    <li><a href="#" id="viewSource">Source</a></li>
+                </ul>
+            </section>
+        </nav>
+        <ul class="breadcrumbs">
+            <li><a href="../../../index.html">Ice</a></li>
+            <li><a href="../../index.html">Demos</a></li>
+            <li class="current"><a href="#">Glacier2</a></li>
+            <li class="current"><a href="#">Chat</a></li>
+        </ul>
+    </section>
+    <!-- Main section that contains the user interface -->
+    <section role="main" id="body">
+        <!-- Sign In Form -->
+        <div class="row" id="signin-form">
+            <div class="large-12 medium-12 columns">
+                <form>
+                    <div class="row">
+                        <div class="small-4 medium-3 columns">
+                            <label class="right inline" for="username">Username:</label>
+                        </div>
+                        <div class="small-8 medium-9 columns">
+                            <input type="text" id="username"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-4 medium-3 columns">
+                            <label class="right inline" for="password">Password:</label>
+                        </div>
+                        <div class="small-8 medium-9 columns">
+                            <input type="password" id="password"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-12 columns">
+                            <a href="#" class="button small right" id="signin">Sign in</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Error Alert -->
+        <div class="row" style="display:none;opacity:0;" id="signin-alert">
+            <div class="large-12 medium-12 columns">
+                <div data-alert class="alert-box warning round">
+                    <span class="error-message"></span>
+                </div>
+            </div>
+        </div>
+        <!-- Loading Indicator -->
+        <div class="row" id="loading" style="display:none;opacity:0;">
+            <div class="large-12 medium-12 columns">
+                <div class="panel">
+                    <h3>Loading Please Wait...</h3>
+                    <div class="progress radius round">
+                        <span class="meter" style="width:0%"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Chat Form -->
+        <div class="row" id="chat-form" style="display:none;opacity:0;">
+            <div class="large-12 medium-12 columns">
+                <nav class="top-bar" data-topbar>
+                    <ul class="title-area">
+                        <li class="name">
+                            <h1><a href="#">Chat</a></h1>
+                        </li>
+                        <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+                    </ul>
+                    <section class="top-bar-section">
+                        <!-- Right Nav Section -->
+                        <ul class="right">
+                            <li class="divider"></li>
+                            <li class="has-form">
+                                <a href="#" id="signout" class="button">Sign out</a>
+                            </li>
+                        </ul>
+                    </section>
+                </nav>
+                <form>
+                    <textarea id="output" class="disabled" readonly></textarea>
+                    <input type="text" id="input" autocomplete="off"/>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- Modal dialog to show the client README -->
+    <div id="readme-modal" class="reveal-modal medium" data-reveal>
+        <h4>Chat Demo Readme</h4>
+        <hr/>
+        <p>This example demonstrates the use of a Glacier2 session to create a
+           very simple chat client.</p>
+        
+        <p>First follow the instructions from the C++ Glacier2 chat demo README to
+           start the server.</p>
+        <div class="panel callout radius">
+            <ul>
+                <li>To use the C++ server you'll need a C++ compiler compatible with your 
+                    Ice for JavaScript distribution.</li>
+            </ul>
+        </div>
+        
+        <p>Once the chat server is ready you can sign in using any username 
+           and password.</p>
+        <div class="panel callout radius">
+            <p>The client is configured to use WSS secure endpoints when the page
+               is loaded over HTTPS and WS unsecure endpoints when loaded over HTTP.</p>
+        </div>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <!-- Modal dialog to show the client source code -->
+    <div id="source-modal" class="reveal-modal" data-reveal>
+        <a class="close-reveal-modal">&#215;</a>
+        <dl class="tabs" data-tab>
+            <dt></dt>
+            <dd class="active"><a href="#panel2-1">Slice</a></dd>
+            <dd><a href="#panel2-2">JavaScript</a></dd>
+            <dd><a href="#panel2-3">HTML</a></dd>
+        </dl>
+        <div class="tabs-content">
+            <div class="content active" id="panel2-1">
+                <h6>File: Glacier2/chat/Chat.ice</h6>
+                <pre class="source language-c" data-code="Chat.ice"></pre>
+            </div>
+            <div class="content" id="panel2-2">
+                <h6>File: Glacier2/chat/browser/Client.js</h6>
+                <pre class="source" data-code="browser/Client.js"></pre>
+            </div>
+            <div class="content" id="panel2-3">
+                <h6>File: Glacier2/chat/index.html</h6>
+                <pre class="source" data-code="index.html"></pre>
+            </div>
+        </div>
+    </div>
+    <!-- Footer section -->
+    <section id="footer">
+        <div class="logo">
+            <h4><strong>ZeroC</strong></h4>
+        </div>
+        <div class="copyright">
+            <h6>© 2014 ZeroC, Inc. All rights reserved.</h6>
+        </div>
+    </section>
+    <!-- Bundle with all the scripts used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <script type="text/javascript" src="../../../assets/common.min.js"></script>
+    <!-- Ice.js (Ice run-time library) -->
+    <script type="text/javascript" src="../../../lib/Ice.js"></script>
+    <!-- Glacier2.js (Glacier2 client run-time library) -->
+    <script type="text/javascript" src="../../../lib/Glacier2.js"></script>
+    <!-- Chat.js (Demo generated code) -->
+    <script type="text/javascript" src="Chat.js"></script>
+    <!-- browser/Client.js (Chat Demo Application) -->
+    <script type="text/javascript" src="browser/Client.js"></script>
+    <script type="text/javascript">
+        if(["http:", "https:"].indexOf(document.location.protocol) !== -1)
+        {
+            checkGenerated(["Chat.js"]);
+        }
+    </script>
+  </body>
+</html>

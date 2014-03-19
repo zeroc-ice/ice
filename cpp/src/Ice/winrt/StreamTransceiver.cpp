@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -86,7 +86,7 @@ IceInternal::StreamTransceiver::setCompletedHandler(SocketOperationCompletedHand
 }
 
 SocketOperation
-IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&)
+IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&,bool&)
 {
     if(_state == StateNeedConnect)
     {
@@ -127,6 +127,14 @@ IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&)
 }
 
 void
+IceInternal::StreamTransceiver::closing(bool, const Ice::LocalException&)
+{
+    // If we are initiating the connection closure, wait for the peer
+    // to close the TCP/IP connection. Otherwise, close immediately.
+    return initiator ? SocketOperationRead : SocketOperationNone;
+}
+
+void
 IceInternal::StreamTransceiver::close()
 {
     if(_state == StateConnected && _traceLevels->network >= 1)
@@ -148,16 +156,16 @@ IceInternal::StreamTransceiver::close()
     }
 }
 
-bool
+SocketOperation
 IceInternal::StreamTransceiver::write(Buffer&)
 {
-    return false;
+    return SocketOperationWrite;
 }
 
 bool
 IceInternal::StreamTransceiver::read(Buffer&)
 {
-    return false;
+    return SocketOperationRead;
 }
 
 bool

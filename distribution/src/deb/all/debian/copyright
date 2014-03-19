@@ -3,9 +3,9 @@ Upstream-Name: ZeroC Ice
 Source: http://www.zeroc.com/download/Ice/
 
 Files: *
-Copyright: Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+Copyright: Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 License: GPL-2+
- Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License version 2 as

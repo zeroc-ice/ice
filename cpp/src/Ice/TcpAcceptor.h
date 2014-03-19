@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,9 +11,7 @@
 #define ICE_TCP_ACCEPTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/ProtocolInstanceF.h>
 #include <Ice/Acceptor.h>
 #include <Ice/Network.h>
 
@@ -39,19 +37,18 @@ public:
 #endif
 
     virtual TransceiverPtr accept();
+    virtual std::string protocol() const;
     virtual std::string toString() const;
 
     int effectivePort() const;
 
 private:
 
-    TcpAcceptor(const InstancePtr&, const std::string&, int);
+    TcpAcceptor(const ProtocolInstancePtr&, const std::string&, int);
     virtual ~TcpAcceptor();
     friend class TcpEndpointI;
 
-    const InstancePtr _instance;
-    const TraceLevelsPtr _traceLevels;
-    const ::Ice::LoggerPtr _logger;
+    const ProtocolInstancePtr _instance;
     const Address _addr;
 
     int _backlog;

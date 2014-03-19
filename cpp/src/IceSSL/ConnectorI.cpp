@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,10 +33,10 @@ IceSSL::ConnectorI::connect()
         throw ex;
     }
 
-    if(_instance->networkTraceLevel() >= 2)
+    if(_instance->traceLevel() >= 2)
     {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "trying to establish ssl connection to " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "trying to establish " << _instance->protocol() << " connection to " << toString();
     }
 
     try
@@ -45,10 +45,10 @@ IceSSL::ConnectorI::connect()
     }
     catch(const Ice::LocalException& ex)
     {
-        if(_instance->networkTraceLevel() >= 2)
+        if(_instance->traceLevel() >= 2)
         {
-            Trace out(_logger, _instance->networkTraceCategory());
-            out << "failed to establish ssl connection to " << toString() << "\n" << ex;
+            Trace out(_instance->logger(), _instance->traceCategory());
+            out << "failed to establish " << _instance->protocol() << " connection to " << toString() << "\n" << ex;
         }
         throw;
     }
@@ -57,7 +57,7 @@ IceSSL::ConnectorI::connect()
 Short
 IceSSL::ConnectorI::type() const
 {
-    return IceSSL::EndpointType;
+    return _instance->type();
 }
 
 string
@@ -133,7 +133,6 @@ IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, 
                                const IceInternal::NetworkProxyPtr& proxy, Ice::Int timeout,
                                const string& connectionId) :
     _instance(instance),
-    _logger(instance->communicator()->getLogger()),
     _host(host),
     _addr(addr),
     _proxy(proxy),

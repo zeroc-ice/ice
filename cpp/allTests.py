@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -57,7 +57,7 @@ tests = [
     ("Ice/checksum", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),
-    ("Ice/custom", ["core", "nossl"]),
+    ("Ice/custom", ["core", "nossl", "nows"]),
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
     ("Ice/background", ["core", "nomingw"]),
@@ -71,7 +71,7 @@ tests = [
     ("Ice/plugin", ["core", "nomingw"]),
     ("Ice/hash", ["once"]),
     ("Ice/admin", ["core", "noipv6"]),
-    ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress", "nomingw", "nosocks"]),
+    ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nomingw", "nosocks"]),
     ("Ice/enums", ["once"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc90", "nomingw", "nomx"]),
@@ -100,7 +100,7 @@ tests = [
     ("IceGrid/replication", ["service", "novc90", "nomingw", "nomx"]),
     ("IceGrid/allocation", ["service", "novc90", "nomingw"]),
     ("IceGrid/distribution", ["service", "novc90", "nomingw"]),
-    ("IceGrid/admin", ["service", "novc90", "nomingw"]),
+    ("IceGrid/admin", ["service", "novc90", "nomingw","nows"]),
     ("Glacier2/router", ["service", "novc90", "nomingw"]),
     ("Glacier2/attack", ["service", "novc90", "nomingw", "nomx"]),
     ("Glacier2/override", ["service", "novc90", "nomingw"]),

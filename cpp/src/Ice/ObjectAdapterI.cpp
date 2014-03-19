@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1034,7 +1034,6 @@ Ice::ObjectAdapterI::initialize(const RouterPrx& router)
             vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
-
                 IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(_instance, *p, this);
                  factory->initialize(_name);
                 _incomingConnectionFactories.push_back(factory);

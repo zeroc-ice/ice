@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "Transform Database\0"
             VALUE "FileVersion", "3.5.1\0"
             VALUE "InternalName", "transformdb\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003-2013 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "transformdb.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.5.1\0"

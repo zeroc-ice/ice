@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -888,7 +888,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 continue; // IP version not supported.
             }
 
-            string strPrx = oa->createProxy(serverCommunicator->stringToIdentity("dummy"))->ice_toString();
+            // Ensure the published endpoints are actually valid. On
+            // Fedora, binding to "localhost" with IPv6 only works but
+            // resolving localhost don't return the IPv6 adress.
+            Ice::ObjectPrx prx = oa->createProxy(serverCommunicator->stringToIdentity("dummy"));
+            try
+            {
+                prx->ice_collocationOptimized(false)->ice_ping();
+            }
+            catch(const Ice::LocalException&)
+            {
+                serverCommunicator->destroy();
+                continue; // IP version not supported.
+            }
+
+            string strPrx = prx->ice_toString();
             for(vector<Ice::PropertiesPtr>::const_iterator q = clientProps.begin(); q != clientProps.end(); ++q)
             {
                 Ice::InitializationData clientInitData;

@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "Slice To Freeze Translator\0"
             VALUE "FileVersion", "3.5.1\0"
             VALUE "InternalName", "slice2freeze\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003-2013 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "slice2freeze.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.5.1\0"

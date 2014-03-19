@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2007-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2007-2014 ZeroC, Inc. All rights reserved.
 #
 # icegridregistry   This shell script takes care of starting and 
 #               	stopping the icegridregistry daemon.

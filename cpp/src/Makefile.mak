@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -26,6 +26,7 @@ SUBDIRS		= IceUtil \
 		  slice2php \
 		  Ice \
 		  IceSSL \
+		  IceWS \
 !else
 SUBDIRS		= IceUtil \
 		  Slice \
@@ -38,8 +39,10 @@ SUBDIRS		= IceUtil \
 		  slice2html \
 		  slice2php \
 		  slice2rb \
+		  slice2js \
 		  Ice \
 		  IceSSL \
+		  IceWS \
 		  ca \
 		  IceXML \
 		  Freeze \

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2007-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2007-2014 ZeroC, Inc. All rights reserved.
 #
 # This is a heavily modified version of the spec file in Fedora Core 7's db4-4.5.20-4.fc7.src.rpm   
 #

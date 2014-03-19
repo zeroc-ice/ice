@@ -2,7 +2,19 @@
 # The client reads this property to create the reference to the
 # "Throughput" object in the server.
 #
-Throughput.Proxy=throughput:default -p 10000 -h localhost
+Throughput.Proxy=throughput:tcp -p 10000
+#Throughput.Proxy=throughput:ssl -p 10001
+
+#
+# Uncomment to use the WebSocket transports instead.
+#
+#Throughput.Proxy=throughput:ws -p 10002
+#Throughput.Proxy=throughput:wss -p 10003
+
+#
+# Only connect to the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Disable client-side ACM.
@@ -21,7 +33,12 @@ IceSSL.KeyFile=c_rsa1024_priv.pem
 #
 # IceMX configuration.
 #
-#Ice.Admin.Endpoints=tcp -h localhost -p 10003
+#Ice.Admin.Endpoints=tcp -p 10004
 Ice.Admin.InstanceName=client
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS:createIceWS

@@ -7,7 +7,7 @@
 showHelp ()
 {
     echo "Ice @ver@ uninstall script"
-    echo "Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved."
+    echo "Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved."
     echo "usage: "
     echo "  \"sudo $0\" -- uninstall all Ice @ver@ packages installed on this system."
 }

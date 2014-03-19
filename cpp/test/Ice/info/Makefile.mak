@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -40,7 +40,7 @@ CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(WINRT)" != "yes"
 LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
-LIBS		= $(LIBS) icessl$(LIBSUFFIX).lib
+LIBS		= $(LIBS) icessl$(LIBSUFFIX).lib icews$(LIBSUFFIX).lib
 !else
 LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 !endif

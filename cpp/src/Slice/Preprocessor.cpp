@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -555,6 +555,18 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".cs");
+            }
+            break;
+        }
+        case JS:
+        {
+            //
+            // Change .o[bj] suffix to .js suffix.
+            //
+            string::size_type pos;
+            if((pos = result.find(suffix)) != string::npos)
+            {
+                result.replace(pos, suffix.size() - 1, ".js");
             }
             break;
         }

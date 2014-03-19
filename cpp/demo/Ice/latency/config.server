@@ -2,7 +2,17 @@
 # The server creates one single object adapter with the name
 # "Latency". The following line sets the endpoints for this adapter.
 #
-Latency.Endpoints=default -p 10000 -h localhost
+Latency.Endpoints=tcp -p 10000:ssl -p 10001:ws -p 10002:wss -p 10003
+
+#
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
+
+#
+# We need to disable VerifyPeer for secure WebSocket (WSS) clients.
+#
+IceSSL.VerifyPeer=0
 
 #
 # Warn about connection exceptions
@@ -21,7 +31,12 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 #
 # IceMX configuration.
 #
-#Ice.Admin.Endpoints=tcp -h localhost -p 10002
+#Ice.Admin.Endpoints=tcp -p 10004
 Ice.Admin.InstanceName=server
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS:createIceWS

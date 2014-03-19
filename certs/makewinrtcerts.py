@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -75,7 +75,7 @@ config = {\
 "ca.cnf":"\
 # **********************************************************************\n\
 #\n\
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.\n\
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.\n\
 #\n\
 # This copy of Ice is licensed to you under the terms described in the\n\
 # ICE_LICENSE file included in this distribution.\n\
@@ -124,7 +124,7 @@ emailAddress           = info@zeroc.com\n\
 "server.cnf":"\
 # **********************************************************************\n\
 #\n\
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.\n\
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.\n\
 #\n\
 # This copy of Ice is licensed to you under the terms described in the\n\
 # ICE_LICENSE file included in this distribution.\n\
@@ -212,6 +212,9 @@ if debug:
 os.system(cmd)
 shutil.copyfile(os.path.join(caHome, "cakey.pem"), caKey)
 shutil.copyfile(os.path.join(caHome, "cacert.pem"), caCert)
+
+cmd = "openssl x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "cacert.der")
+os.system(cmd)
 
 #
 # C++ server RSA certificate and key.

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,6 +15,7 @@
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -66,23 +67,24 @@ IceInternal::EndpointFactoryManager::get(Short type) const
 EndpointIPtr
 IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) const
 {
-    const string delim = " \t\n\r";
+    vector<string> v;
+    bool b = IceUtilInternal::splitString(str, " \t\n\r", v);
+    if(!b)
+    {
+        EndpointParseException ex(__FILE__, __LINE__);
+        ex.str = "mismatched quote";
+        throw ex;
+    }
 
-    string::size_type beg = str.find_first_not_of(delim);
-    if(beg == string::npos)
+    if(v.empty())
     {
         EndpointParseException ex(__FILE__, __LINE__);
         ex.str = "value has no non-whitespace characters";
         throw ex;
     }
 
-    string::size_type end = str.find_first_of(delim, beg);
-    if(end == string::npos)
-    {
-        end = str.length();
-    }
-
-    string protocol = str.substr(beg, end - beg);
+    string protocol = v.front();
+    v.erase(v.begin());
 
     if(protocol == "default")
     {
@@ -92,7 +94,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     EndpointFactoryPtr factory;
     {
         IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
-        
+
         //
         // TODO: Optimize with a map?
         //
@@ -108,7 +110,14 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     if(factory)
     {
 #if 1
-        return factory->create(str.substr(end), oaEndpoint);
+        EndpointIPtr e = factory->create(v, oaEndpoint);
+        if(!v.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'";
+            throw ex;
+        }
+        return e;
 #else
         // Code below left in place for debugging.
 
@@ -131,7 +140,13 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     //
     if(protocol == "opaque")
     {
-        EndpointIPtr ue = new OpaqueEndpointI(str.substr(end));
+        EndpointIPtr ue = new OpaqueEndpointI(v);
+        if(!v.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'";
+            throw ex;
+        }
         factory = get(ue->type());
         if(factory)
         {
@@ -141,11 +156,15 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
             // the actual endpoint.
             //
             BasicStream bs(_instance.get(), Ice::currentProtocolEncoding);
+            bs.write(ue->type());
             ue->streamWrite(&bs);
             bs.i = bs.b.begin();
             short type;
             bs.read(type);
-            return factory->read(&bs);
+            bs.startReadEncaps();
+            EndpointIPtr e = factory->read(&bs);
+            bs.endReadEncaps();
+            return e;
         }
         return ue; // Endpoint is opaque, but we don't have a factory for its type.
     }
@@ -160,12 +179,22 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
     s->read(type);
 
     EndpointFactoryPtr factory = get(type);
+    EndpointIPtr e;
+
+    s->startReadEncaps();
+
     if(factory)
     {
-        return factory->read(s);
+        e = factory->read(s);
+    }
+    else
+    {
+        e = new OpaqueEndpointI(type, s);
     }
 
-    return new OpaqueEndpointI(type, s);
+    s->endReadEncaps();
+
+    return e;
 }
 
 void

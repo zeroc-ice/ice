@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,8 +10,7 @@
 #include <Ice/TcpConnector.h>
 #include <Ice/TcpTransceiver.h>
 #include <Ice/TcpEndpointI.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
+#include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
@@ -23,10 +22,10 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::TcpConnector::connect()
 {
-    if(_traceLevels->network >= 2)
+    if(_instance->traceLevel() >= 2)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "trying to establish tcp connection to " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "trying to establish " << _instance->protocol() << " connection to " << toString();
     }
 
     try
@@ -37,10 +36,10 @@ IceInternal::TcpConnector::connect()
     }
     catch(const Ice::LocalException& ex)
     {
-        if(_traceLevels->network >= 2)
+        if(_instance->traceLevel() >= 2)
         {
-            Trace out(_logger, _traceLevels->networkCat);
-            out << "failed to establish tcp connection to " << toString() << "\n" << ex;
+            Trace out(_instance->logger(), _instance->traceCategory());
+            out << "failed to establish " << _instance->protocol() << " connection to " << toString() << "\n" << ex;
         }
         throw;
     }
@@ -49,7 +48,7 @@ IceInternal::TcpConnector::connect()
 Short
 IceInternal::TcpConnector::type() const
 {
-    return TCPEndpointType;
+    return _instance->type();
 }
 
 string
@@ -120,11 +119,9 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) < 0;
 }
 
-IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const Address& addr, const NetworkProxyPtr& proxy,
-                                        Ice::Int timeout, const string& connectionId) :
+IceInternal::TcpConnector::TcpConnector(const ProtocolInstancePtr& instance, const Address& addr, 
+                                        const NetworkProxyPtr& proxy, Ice::Int timeout, const string& connectionId) :
     _instance(instance),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->initializationData().logger),
     _addr(addr),
     _proxy(proxy),
     _timeout(timeout),

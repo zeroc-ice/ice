@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/UdpConnector.h>
-
+#include <Ice/ProtocolInstance.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/UdpEndpointI.h>
 #include <Ice/LocalException.h>
@@ -26,7 +26,7 @@ IceInternal::UdpConnector::connect()
 Short
 IceInternal::UdpConnector::type() const
 {
-    return UDPEndpointType;
+    return _instance->type();
 }
 
 string
@@ -110,7 +110,7 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) == -1;
 }
 
-IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const Address& addr, 
+IceInternal::UdpConnector::UdpConnector(const ProtocolInstancePtr& instance, const Address& addr, 
                                         const string& mcastInterface, int mcastTtl, const std::string& connectionId) :
     _instance(instance),
     _addr(addr),

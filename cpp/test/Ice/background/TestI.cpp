@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -109,6 +109,12 @@ BackgroundControllerI::writeException(bool enable, const Ice::Current&)
     _configuration->writeException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
 }
     
+void
+BackgroundControllerI::buffered(bool enable, const Ice::Current&)
+{
+    _configuration->buffered(enable);
+}
+
 BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter, 
                                              const ConfigurationPtr& configuration) :
     _adapter(adapter),

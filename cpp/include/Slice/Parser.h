@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -458,6 +458,7 @@ public:
     bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
+    bool hasOnlyClassDecls() const;
     bool hasAbstractClassDefs() const;
     bool hasNonLocalDataOnlyClasses() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
@@ -1062,6 +1063,9 @@ public:
     virtual void visit(ParserVisitor*, bool);
 
     BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
+    
+    void addTopLevelModule(const std::string&, const std::string&);
+    std::set<std::string> getTopLevelModules(const std::string&) const;
 
 private:
 
@@ -1087,6 +1091,7 @@ private:
     FeatureProfile _featureProfile;
     std::map<std::string, DefinitionContextPtr> _definitionContextMap;
     std::map<int, std::string> _typeIds;
+    std::map< std::string, std::set<std::string> > _fileTopLevelModules;
 };
 
 extern SLICE_API Unit* unit; // The current parser for bison/flex

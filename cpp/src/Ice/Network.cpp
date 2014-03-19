@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -542,6 +542,24 @@ IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
 {
     ZeroMemory(this, sizeof(AsyncInfo));
     status = s;
+}
+
+void
+IceInternal::NativeInfo::initialize(HANDLE handle, ULONG_PTR key)
+{
+    _handle = handle;
+    _key = key;
+}
+
+void
+IceInternal::NativeInfo::completed(SocketOperation operation)
+{
+    if(!PostQueuedCompletionStatus(_handle, 0, _key, getAsyncInfo(operation)))
+    {
+        Ice::SocketException ex(__FILE__, __LINE__);
+        ex.error = GetLastError();
+        throw ex;
+    }
 }
 #endif
 

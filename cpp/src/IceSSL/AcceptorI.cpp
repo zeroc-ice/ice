@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,10 +50,10 @@ IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation)
 void
 IceSSL::AcceptorI::close()
 {
-    if(_instance->networkTraceLevel() >= 1)
+    if(_instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "stopping to accept ssl connections at " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "stopping to accept " << _instance->protocol() << " connections at " << toString();
     }
 
     SOCKET fd = _fd;
@@ -74,10 +74,10 @@ IceSSL::AcceptorI::listen()
         throw;
     }
 
-    if(_instance->networkTraceLevel() >= 1)
+    if(_instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "listening for ssl connections at " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "listening for " << _instance->protocol() << " connections at " << toString();
 
         vector<string> interfaces = 
             IceInternal::getHostsForEndpointExpand(IceInternal::inetAddrToString(_addr), _instance->protocolSupport(),
@@ -175,10 +175,10 @@ IceSSL::AcceptorI::accept()
     _acceptFd = INVALID_SOCKET;
 #endif
 
-    if(_instance->networkTraceLevel() >= 1)
+    if(_instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "attempting to accept ssl connection\n" << IceInternal::fdToString(fd);
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "attempting to accept " << _instance->protocol() << " connection\n" << IceInternal::fdToString(fd);
     }
 
     //
@@ -186,6 +186,12 @@ IceSSL::AcceptorI::accept()
     // accept must not block.
     //
     return new TransceiverI(_instance, fd, _adapterName);
+}
+
+string
+IceSSL::AcceptorI::protocol() const
+{
+    return _instance->protocol();
 }
 
 string
@@ -210,7 +216,6 @@ IceSSL::AcceptorI::effectivePort() const
 IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
     _instance(instance),
     _adapterName(adapterName),
-    _logger(instance->communicator()->getLogger()),
     _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6()))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET),
@@ -218,9 +223,9 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
 #endif
 {
 #ifdef SOMAXCONN
-    _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
+    _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
 #else
-    _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+    _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
     IceInternal::ProtocolSupport protocol = instance->protocolSupport();
@@ -229,7 +234,7 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif
     IceInternal::setBlock(_fd, false);
-    IceInternal::setTcpBufSize(_fd, _instance->communicator()->getProperties(), _logger);
+    IceInternal::setTcpBufSize(_fd, _instance->properties(), _instance->logger());
 #ifndef _WIN32
     //
     // Enable SO_REUSEADDR on Unix platforms to allow re-using the
@@ -245,10 +250,10 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     //
     IceInternal::setReuseAddress(_fd, true);
 #endif
-    if(_instance->networkTraceLevel() >= 2)
+    if(_instance->traceLevel() >= 2)
     {
-        Trace out(_logger, _instance->networkTraceCategory());
-        out << "attempting to bind to ssl socket " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "attempting to bind to " << _instance->protocol() << " socket " << toString();
     }
     const_cast<IceInternal::Address&>(_addr) = IceInternal::doBind(_fd, _addr);
 }

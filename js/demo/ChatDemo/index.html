@@ -1,0 +1,271 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Demo | Ice for JavaScript</title>
+    <!-- Bundle with all the stylesheets used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <link rel="stylesheet" type="text/css" href="../../assets/common.css" />
+    <link rel="icon" type="image/x-icon" href="../../assets/favicon.ico">
+  </head>
+  <body>
+    <!-- Header section that contains title and navigation bar -->
+    <section id="header">
+        <nav class="top-bar" data-topbar>
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="../../index.html">Ice for JavaScript</a></h1>
+                </li>
+                <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+            </ul>
+            <section class="top-bar-section">
+                <!-- Right Nav Section -->
+                <ul class="right">
+                    <li class="divider"></li>
+                    <li><a href="#" id="viewReadme">Readme</a></li>
+                    <li><a href="#" id="viewSource">Source</a></li>
+                </ul>
+            </section>
+        </nav>
+        <ul class="breadcrumbs">
+            <li><a href="../../index.html">Ice</a></li>
+            <li><a href="../index.html">Demos</a></li>
+            <li class="current"><a href="#">Chat Demo</a></li>
+        </ul>
+    </section>
+    <!-- Main section that contains the user interface -->
+    <section role="main" id="body">
+        <!-- Sign In Form -->
+        <div class="row" id="signin-form">
+            <div class="large-12 medium-12 columns">
+                <form>
+                    <div class="row">
+                        <div class="small-4 medium-3 columns">
+                            <label class="right inline" for="username">Username:</label>
+                        </div>
+                        <div class="small-8 medium-9 columns">
+                            <input type="text" id="username"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-4 medium-3 columns">
+                            <label class="right inline" for="password">Password:</label>
+                        </div>
+                        <div class="small-8 medium-9 columns">
+                            <input type="password" id="password"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-12 columns">
+                            <a href="#" class="button small right" id="signin">Sign in</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Error Alert -->
+        <div class="row" style="display:none;opacity:0;" id="signin-alert">
+            <div class="large-12 medium-12 columns">
+                <div data-alert class="alert-box warning round">
+                    <span class="error-message"></span>
+                </div>
+            </div>
+        </div>
+        <!-- Loading Indicator -->
+        <div class="row" id="loading" style="display:none;opacity:0;">
+            <div class="large-12 medium-12 columns">
+                <div class="panel">
+                    <h3>Loading Please Wait...</h3>
+                    <div class="progress radius round">
+                        <span class="meter" style="width:0%"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Chat Form -->
+        <div class="row" id="chat-form" style="display:none;opacity:0;">
+            <div class="large-12 medium-12 columns">
+                <nav class="top-bar" data-topbar>
+                    <ul class="title-area">
+                        <li class="name">
+                            <h1><a href="#">Chat Demo</a></h1>
+                        </li>
+                        <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+                    </ul>
+                    <section class="top-bar-section">
+                        <!-- Right Nav Section -->
+                        <ul class="right">
+                            <li class="divider"></li>
+                            <li class="has-form">
+                                <a href="#" id="signout" class="button">Sign out</a>
+                            </li>
+                        </ul>
+                    </section>
+                </nav>
+                <form>
+                    <div class="row">
+                        <div class="large-2 columns">
+                            <ul id="users" class="side-nav"></ul>
+                        </div>
+                        <div class="large-10 columns">
+                            <textarea id="output" class="disabled" readonly></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <input type="text" id="input" autocomplete="off"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <!-- Modal dialog to show the client README -->
+    <div id="readme-modal" class="reveal-modal" data-reveal>
+        <h4>Chat Demo Readme</h4>
+        <hr/>
+        <p>This demo implements a push client for the 
+            <a href="http://www.zeroc.com/chat/index.html">ZeroC's Chat Demo Application</a>. You can use the 
+            <a href="#" class="chatbutton">Live Client</a> if you don't want to setup your own server.
+        </p>
+        
+        <p>To set up the server follow the instructions from the 
+            <a href="http://www.zeroc.com/chat/download.html">Chat Demo Distribution</a>.</p>
+            
+        <p>You will need to update the Glacier2 configuration to include WSS endpoints.
+        Edit <code>ChatDemo-1.4.0/config/config.glacier2router</code>
+        and update the <code>Glacier2.Client.Endpoints</code> property with the value shown below:</p>
+        <p>
+        <code style="color:#858585;font-weight:normal;font-size:80%;">
+        Glacier2.Client.Endpoints=ssl -p 4064 -t 10000 -h 127.0.0.1:tcp -p 4502 -t 10000 -h 127.0.0.1:wss -p 5064 -t 10000 -h 127.0.0.1
+        </code>
+        </p>
+        <p>You also need to enable the Web Socket transport plug-in. Add the following lines
+        to <code>ChatDemo-1.4.0/config/config.glacier2router</code>:</p>
+        <p>
+        <code style="color:#858585;font-weight:normal;font-size:80%;">
+        Ice.Plugin.IceWS=IceWS:createIceWS
+        </code>
+        </p>
+        
+        <p>After making those modifications to the Glacier2 router configuration, you can start the Chat Demo 
+           server and Glacier2 router as documented in the Chat Demo distribution.</p>
+        
+        <div class="panel callout radius">
+            <p>You must configure your environment to run IceWS applications as documented in the Ice for JavaScript
+            <a href="http://doc.zeroc.com/display/Rel/Ice+for+JavaScript+0.1.0+Release+Notes">Release Notes</a>.</p>
+        </div>
+        
+        <p>Once you have configured and started the Chat Demo server and router, 
+           you can log into the chat using the sign-in form below.</p>
+        
+        <h4>Using the minified scripts</h4>
+        <p>When the demo is built with optimizations enabled, it creates a minified
+        script <code>browser/Client.min.js</code> that includes:
+        </p>
+        <ul>
+            <li>Ice.js (The Ice run-time library)</li>
+            <li>Glacier2.js (The Glacier2 library)</li>
+            <li>Chat.js & ChatSession.js (The generated code for this demo)</li>
+            <li>Client.js (The client application)</li>
+        </ul>
+        <p>To use the minified version you should edit the <code>demo/ChatDemo/index.html</code>
+        file and comment out the non-optimized scripts:</p>
+        <pre>
+    &lt;!-- Scripts used during development, for optimized builds
+         comment the following scripts and uncomment browser/Client.min.js 
+         below -->
+    &lt;!-- Ice.js (Ice run-time library) --&gt;
+    &lt;script type="text/javascript" src="../../../lib/Ice.js"&gt;&lt;/script&gt;
+    &lt;!-- Glacier2.js (Glacier2 run-time library) --&gt;
+    &lt;script type="text/javascript" src="../../../lib/Glacier2.js"&gt;&lt;/script&gt;
+    &lt;!-- Chat.js (Demo generated code) --&gt;
+    &lt;script type="text/javascript" src="Chat.js"&gt;&lt;/script&gt;
+    &lt;!-- ChatSession.js (Demo generated code) --&gt;
+    &lt;script type="text/javascript" src="ChatSession.js"&gt;&lt;/script&gt;
+    &lt;!-- Client.js (Chat Demo Application) --&gt;
+    &lt;script type="text/javascript" src="Client.js"&gt;&lt;/script&gt;
+        </pre>
+        <p>Then uncomment the script tag for the minified version</p>
+        <pre>
+    &lt;!-- Uncomment the following script to use a minified version of the 
+         scripts that includes: the Ice and Glacier2 run-time libraries, 
+         the generated code and the demo application. --&gt;
+    &lt;!--&lt;script src="Client.min.js"&gt;&lt;/script&gt;--&gt;
+        </pre>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <!-- Modal dialog to show the client source code -->
+    <div id="source-modal" class="reveal-modal" data-reveal>
+        <a class="close-reveal-modal">&#215;</a>
+        <dl class="tabs" data-tab>
+            <dt></dt>
+            <dd class="active"><a href="#panel2-1">Slice</a></dd>
+            <dd><a href="#panel2-2">JavaScript</a></dd>
+            <dd><a href="#panel2-3">HTML</a></dd>
+        </dl>
+        <div class="tabs-content">
+            <div class="content active" id="panel2-1">
+                <h6>File: ChatDemo/Chat.ice</h6>
+                <pre class="source language-c" data-code="Chat.ice"></pre>
+                <h6>File: ChatDemo/ChatSession.ice</h6>
+                <pre class="source language-c" data-code="ChatSession.ice"></pre>
+            </div>
+            <div class="content" id="panel2-2">
+                <h6>File: ChatDemo/Client.js</h6>
+                <pre class="source" data-code="Client.js"></pre>
+            </div>
+            <div class="content" id="panel2-3">
+                <h6>File: ChatDemo/index.html</h6>
+                <pre class="source" data-code="index.html"></pre>
+            </div>
+        </div>
+    </div>
+    <!-- Footer section -->
+    <section id="footer">
+        <div class="logo">
+            <h4><strong>ZeroC</strong></h4>
+        </div>
+        <div class="copyright">
+            <h6>© 2014 ZeroC, Inc. All rights reserved.</h6>
+        </div>
+    </section>
+    <!-- Bundle with all the scripts used to build the user interface,
+         see assets/Makefile in your distribution for details -->
+    <script type="text/javascript" src="../../assets/common.min.js"></script>
+    <!-- Scripts used during development, for optimized builds
+         comment the following scripts and uncomment Client.min.js 
+         below -->
+    <!-- Ice.js (Ice run-time library) -->
+    <script type="text/javascript" src="../../lib/Ice.js"></script>
+    <!-- Glacier2.js (Glacier2 run-time library) -->
+    <script type="text/javascript" src="../../lib/Glacier2.js"></script>
+    <!-- Chat.js (Demo generated code) -->
+    <script type="text/javascript" src="Chat.js"></script>
+    <!-- ChatSession.js (Demo generated code) -->
+    <script type="text/javascript" src="ChatSession.js"></script>
+    <!-- Client.js (Chat Demo Application) -->
+    <script type="text/javascript" src="Client.js"></script>
+    <!-- Uncomment the following script to use a minified version of the 
+         scripts that includes: the Ice and Glacier2 run-time libraries, 
+         the generated code and the demo application. -->
+    <!--<script type="text/javascript" src="Client.min.js"></script>-->
+    
+    <script type="text/javascript">
+        $(".chatbutton").click(
+            function(e)
+            {
+                window.open("https://demo.zeroc.com/chat/js/index.html", "ChatDemo", 
+                            "width=800,height=600,location=no,directories=no,status=yes," +
+                            "menubar=no,scrollbars=yes,resizable=yes,toolbar=no");
+                return false;
+            });
+        
+        if(["http:", "https:"].indexOf(document.location.protocol) !== -1)
+        {
+            checkGenerated(["Chat.js"]);
+        }
+    </script>
+  </body>
+</html>

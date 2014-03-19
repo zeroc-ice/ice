@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,12 +10,11 @@
 #ifndef ICE_SSL_CONNECTOR_I_H
 #define ICE_SSL_CONNECTOR_I_H
 
-#include <Ice/LoggerF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Connector.h>
-#include <Ice/Protocol.h>
-#include <IceSSL/InstanceF.h>
 #include <Ice/Network.h>
+
+#include <IceSSL/InstanceF.h>
 
 namespace IceSSL
 {
@@ -43,7 +42,6 @@ private:
     friend class EndpointI;
 
     const InstancePtr _instance;
-    const Ice::LoggerPtr _logger;
     const std::string _host;
     const IceInternal::Address _addr;
     const IceInternal::NetworkProxyPtr _proxy;

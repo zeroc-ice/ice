@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -544,6 +544,11 @@ Slice::Container::createModule(const string& name)
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort(); // Modules can occur many times...
     matches.unique(); // ... but we only want one instance of each.
+    
+    if(thisScope() == "::")
+    {
+        _unit->addTopLevelModule(_unit->currentFile(), name);
+    }
 
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -1643,6 +1648,8 @@ Slice::Container::hasNonLocalExceptions() const
     return false;
 }
 
+
+
 bool
 Slice::Container::hasClassDecls() const
 {
@@ -1736,6 +1743,28 @@ Slice::Container::hasClassDefs() const
     }
 
     return false;
+}
+
+bool
+Slice::Container::hasOnlyClassDecls() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ModulePtr m = ModulePtr::dynamicCast(*p);
+        if(m)
+        {
+            if(!m->hasOnlyClassDecls())
+            {
+                return false;
+            }
+        }
+        else if(!ClassDeclPtr::dynamicCast(*p))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool
@@ -6169,6 +6198,35 @@ Slice::Unit::builtin(Builtin::Kind kind)
     BuiltinPtr builtin = new Builtin(this, kind);
     _builtins.insert(make_pair(kind, builtin));
     return builtin;
+}
+
+void
+Slice::Unit::addTopLevelModule(const string& file, const string& module)
+{
+    map<string, set<string> >::iterator i = _fileTopLevelModules.find(file);
+    if(i == _fileTopLevelModules.end())
+    {
+        set<string> modules;
+        modules.insert(module);
+        _fileTopLevelModules.insert(make_pair(file, modules));
+    }
+    else
+    {
+        i->second.insert(module);
+    }
+}
+set<string>
+Slice::Unit::getTopLevelModules(const string& file) const
+{
+    map<string, set<string> >::const_iterator i = _fileTopLevelModules.find(file);
+    if(i == _fileTopLevelModules.end())
+    {
+        return set<string>();
+    }
+    else
+    {
+        return i->second;
+    }
 }
 
 Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,

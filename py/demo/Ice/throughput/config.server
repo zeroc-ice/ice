@@ -3,7 +3,7 @@
 # "Throughput". The following line sets the endpoints for this
 # adapter.
 #
-Throughput.Endpoints=default -p 10000 -h localhost
+Throughput.Endpoints=tcp -p 10000 -h localhost:ssl -p 10001 -h localhost:ws -p 10002 -h localhost:wss -p 10003 -h localhost
 
 #
 # Warn about connection exceptions
@@ -14,15 +14,25 @@ Ice.Warn.Connections=1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
-IceSSL.DefaultDir=../../../../certs
+IceSSL.DefaultDir=../../../../certs/wss
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
 
 #
+# For secure web sockets we need to disable VerifyPeer.
+#
+IceSSL.VerifyPeer=0
+
+#
 # IceMX configuration.
 #
-#Ice.Admin.Endpoints=tcp -h localhost -p 10002
+#Ice.Admin.Endpoints=tcp -h localhost -p 10004
 Ice.Admin.InstanceName=server
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Websocket transport plugin
+#
+Ice.Plugin.IceWS=IceWS:createIceWS

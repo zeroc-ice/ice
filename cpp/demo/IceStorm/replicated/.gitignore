@@ -8,3 +8,4 @@ Clock.h
 db/node/*
 db/registry/*
 db/*.db
+db/*.out

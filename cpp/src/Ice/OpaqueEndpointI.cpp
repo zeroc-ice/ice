@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,189 +19,38 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : 
-    EndpointI(""), _rawEncoding(Encoding_1_0)
+namespace
 {
-    const string delim = " \t\n\r";
 
-    string::size_type beg;
-    string::size_type end = 0;
+static string opaqueEndpointProtocol = "opaque";
+static string opaqueEndpointConnectionId;
 
-    int topt = 0;
-    int vopt = 0;
+}
 
-    while(true)
-    {
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
-        {
-            break;
-        }
-        
-        end = str.find_first_of(delim, beg);
-        if(end == string::npos)
-        {
-            end = str.length();
-        }
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) : 
+    _type(-1), _rawEncoding(Encoding_1_0)
+{
+    initWithOptions(args);
 
-        string option = str.substr(beg, end - beg);
-        if(option.length() != 2 || option[0] != '-')
-        {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "expected an endpoint option but found `" + option + "' in endpoint `opaque " + str + "'";
-            throw ex;
-        }
-
-        string argument;
-        string::size_type argumentBeg = str.find_first_not_of(delim, end);
-        if(argumentBeg != string::npos && str[argumentBeg] != '-')
-        {
-            beg = argumentBeg;
-            end = str.find_first_of(delim, beg);
-            if(end == string::npos)
-            {
-                end = str.length();
-            }
-            argument = str.substr(beg, end - beg);
-        }
-
-        switch(option[1])
-        {
-            case 't':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "no argument provided for -t option in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                istringstream p(argument);
-                Ice::Int t;
-                if(!(p >> t) || !p.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "invalid type value `" + argument + "' in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                else if(t < 0 || t > 65535)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "type value `" + argument + "' out of range in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                _type = static_cast<Ice::Short>(t);
-                ++topt;
-                if(topt > 1)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "multiple -t options in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                break;
-            }
-
-            case 'v':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "no argument provided for -v option in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                for(string::size_type i = 0; i < argument.size(); ++i)
-                {
-                    if(!Base64::isBase64(argument[i]))
-                    {
-                        EndpointParseException ex(__FILE__, __LINE__);
-                        ostringstream ostr;
-                        ostr << "invalid base64 character `" << argument[i] << "' (ordinal " << (int)argument[i]
-                             << ") in endpoint `opaque " << str << "'";
-                        ex.str = ostr.str();
-                        throw ex;
-                    }
-                }
-                const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
-                ++vopt;
-                if(vopt > 1)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "multiple -v options in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                break;
-            }
-
-            case 'e':
-            {
-                if(argument.empty())
-                {
-                    Ice::EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "no argument provided for -e option in endpoint `opaque " + str + "'";
-                    throw ex;
-                }
-                
-                try 
-                {
-                    _rawEncoding = Ice::stringToEncodingVersion(argument);
-                }
-                catch(const Ice::VersionParseException& e)
-                {
-                    Ice::EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "invalid encoding version `" + argument + "' in endpoint `opaque " + str + "':\n" + e.str;
-                    throw ex;
-                }
-                break;
-            }
-
-            default:
-            {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "invalid option `" + option + "' in endpoint `opaque " + str + "'";
-                throw ex;
-            }
-        }
-    }
-
-    if(topt != 1)
+    if(_type < 0)
     {
         EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "no -t option in endpoint `opaque " + str + "'";
+        ex.str = "no -t option in endpoint " + toString();
         throw ex;
     }
-    if(vopt != 1)
+    if(_rawBytes.empty())
     {
         EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "no -v option in endpoint `opaque " + str + "'";
+        ex.str = "no -v option in endpoint " + toString();
         throw ex;
     }
 }
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) :
-    EndpointI(""),
-    _type(type)
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) : _type(type)
 {
-    _rawEncoding = s->startReadEncaps();
+    _rawEncoding = s->getReadEncoding();
     Int sz = s->getReadEncapsSize();
     s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
-    s->endReadEncaps();
-}
-
-void
-IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
-{
-    s->write(_type);
-    s->startWriteEncaps(_rawEncoding, DefaultFormat);
-    s->writeBlob(_rawBytes);
-    s->endWriteEncaps();
-}
-
-string
-IceInternal::OpaqueEndpointI::toString() const
-{
-    ostringstream s;
-    string val = Base64::encode(_rawBytes);
-    s << "opaque -t " << _type << " -e " << _rawEncoding << " -v " << val;
-    return s.str();
 }
 
 namespace
@@ -210,7 +59,7 @@ namespace
 class InfoI : public Ice::OpaqueEndpointInfo
 {
 public:
-    
+
     InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawByes);
 
     virtual Ice::Short
@@ -218,13 +67,13 @@ public:
     {
         return _type;
     }
-        
+
     virtual bool
     datagram() const
     {
         return false;
     }
-    
+
     virtual bool
     secure() const
     {
@@ -232,20 +81,26 @@ public:
     }
 
 private:
-    
+
     Ice::Short _type;
 };
 
-
+}
 //
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
-InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes) : 
-    Ice::OpaqueEndpointInfo(-1, false, rawEncoding, rawBytes), 
+InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes) :
+    Ice::OpaqueEndpointInfo(-1, false, rawEncoding, rawBytes),
     _type(type)
 {
 }
 
+void
+IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
+{
+    s->startWriteEncaps(_rawEncoding, DefaultFormat);
+    s->writeBlob(_rawBytes);
+    s->endWriteEncaps();
 }
 
 Ice::EndpointInfoPtr
@@ -260,10 +115,10 @@ IceInternal::OpaqueEndpointI::type() const
     return _type;
 }
 
-std::string
+const string&
 IceInternal::OpaqueEndpointI::protocol() const
 {
-    return "opaque";
+    return opaqueEndpointProtocol;
 }
 
 Int
@@ -276,6 +131,12 @@ EndpointIPtr
 IceInternal::OpaqueEndpointI::timeout(Int) const
 {
     return const_cast<OpaqueEndpointI*>(this);
+}
+
+const string&
+IceInternal::OpaqueEndpointI::connectionId() const
+{
+    return opaqueEndpointConnectionId;
 }
 
 EndpointIPtr
@@ -347,6 +208,34 @@ bool
 IceInternal::OpaqueEndpointI::equivalent(const EndpointIPtr&) const
 {
     return false;
+}
+
+
+Int
+IceInternal::OpaqueEndpointI::hash() const
+{
+    Int h = 5381;
+    hashAdd(h, type());
+    hashAdd(h, _rawEncoding.major);
+    hashAdd(h, _rawEncoding.minor);
+    hashAdd(h, _rawBytes);
+    return h;
+}
+
+string
+IceInternal::OpaqueEndpointI::options() const
+{
+    ostringstream s;
+    if(_type > -1)
+    {
+        s << " -t " << _type;
+    }
+    s << " -e " << _rawEncoding;
+    if(!_rawBytes.empty())
+    {
+        s << " -v " << Base64::encode(_rawBytes);
+    }
+    return s.str();
 }
 
 bool
@@ -430,13 +319,98 @@ IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
     return false;
 }
 
-Ice::Int
-IceInternal::OpaqueEndpointI::hashInit() const
+bool
+IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
-    Ice::Int h = 5381;
-    hashAdd(h, _type);
-    hashAdd(h, _rawEncoding.major);
-    hashAdd(h, _rawEncoding.minor);
-    hashAdd(h, _rawBytes);
-    return h;
+    switch(option[1])
+    {
+    case 't':
+    {
+        if(_type > -1)
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "multiple -t options in endpoint " + endpoint;
+            throw ex;
+        }
+        if(argument.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for -t option in endpoint " + endpoint;
+            throw ex;
+        }
+        istringstream p(argument);
+        Ice::Int t;
+        if(!(p >> t) || !p.eof())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid type value `" + argument + "' in endpoint " + endpoint;
+            throw ex;
+        }
+        else if(t < 0 || t > 65535)
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "type value `" + argument + "' out of range in endpoint " + endpoint;
+            throw ex;
+        }
+        _type = static_cast<Ice::Short>(t);
+        return true;
+    }
+
+    case 'v':
+    {
+        if(!_rawBytes.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "multiple -v options in endpoint " + endpoint;
+            throw ex;
+        }
+        if(argument.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for -v option in endpoint " + endpoint;
+            throw ex;
+        }
+        for(string::size_type i = 0; i < argument.size(); ++i)
+        {
+            if(!Base64::isBase64(argument[i]))
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ostringstream ostr;
+                ostr << "invalid base64 character `" << argument[i] << "' (ordinal " << (int)argument[i]
+                     << ") in endpoint " << endpoint;
+                ex.str = ostr.str();
+                throw ex;
+            }
+        }
+        const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
+        return true;
+    }
+
+    case 'e':
+    {
+        if(argument.empty())
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for -e option in endpoint " + endpoint;
+            throw ex;
+        }
+
+        try
+        {
+            _rawEncoding = Ice::stringToEncodingVersion(argument);
+        }
+        catch(const Ice::VersionParseException& e)
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid encoding version `" + argument + "' in endpoint " + endpoint + ":\n" + e.str;
+            throw ex;
+        }
+        return true;
+    }
+
+    default:
+    {
+        return false;
+    }
+    }
 }

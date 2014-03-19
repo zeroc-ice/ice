@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,8 +13,8 @@
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/UtilF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/LoggerF.h>
 #include <Ice/Network.h>
+#include <Ice/ProtocolInstance.h>
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/TrustManagerF.h>
@@ -23,12 +23,12 @@
 namespace IceSSL
 {
 
-class Instance : public IceUtil::Shared
+class SharedInstance : public IceUtil::Shared
 {
 public:
 
-    Instance(const Ice::CommunicatorPtr&);
-    ~Instance();
+    SharedInstance(const Ice::CommunicatorPtr&);
+    ~SharedInstance();
 
     void initialize();
     void context(SSL_CTX*);
@@ -37,22 +37,10 @@ public:
     void setPasswordPrompt(const PasswordPromptPtr&);
 
     Ice::CommunicatorPtr communicator() const;
-    IceInternal::EndpointHostResolverPtr endpointHostResolver() const;
-    IceInternal::ProtocolSupport protocolSupport() const;
-    bool preferIPv6() const;
-    IceInternal::NetworkProxyPtr networkProxy() const;
-    std::string defaultHost() const;
-    Ice::EncodingVersion defaultEncoding() const;
-    int networkTraceLevel() const;
-    std::string networkTraceCategory() const;
-    int securityTraceLevel() const;
-    std::string securityTraceCategory() const;
 
     void verifyPeer(SSL*, SOCKET, const std::string&, const NativeConnectionInfoPtr&);
 
     std::string sslErrors() const;
-
-    void traceConnection(SSL*, bool);
 
     void destroy();
 
@@ -74,9 +62,9 @@ private:
 
     void setOptions(int);
 
-    Ice::LoggerPtr _logger;
     bool _initOpenSSL;
-    IceInternal::ProtocolPluginFacadePtr _facade;
+    const Ice::CommunicatorPtr _communicator;
+    const Ice::LoggerPtr _logger;
     int _securityTraceLevel;
     std::string _securityTraceCategory;
     bool _initialized;
@@ -92,6 +80,48 @@ private:
     CertificateVerifierPtr _verifier;
     PasswordPromptPtr _prompt;
     TrustManagerPtr _trustManager;
+};
+
+class Instance : public IceInternal::ProtocolInstance
+{
+public:
+
+    Instance(const SharedInstancePtr&, Ice::Short, const std::string&);
+    virtual ~Instance();
+
+    SSL_CTX* 
+    context() const
+    {
+        return _sharedInstance->context();
+    }
+
+    std::string 
+    sslErrors() const
+    {
+        return _sharedInstance->sslErrors();
+    }
+
+    SharedInstancePtr 
+    sharedInstance() const
+    {
+        return _sharedInstance;
+    }
+
+    void 
+    verifyPeer(SSL* ssl, SOCKET fd, const std::string& host, const NativeConnectionInfoPtr& info)
+    {
+        _sharedInstance->verifyPeer(ssl, fd, host, info);
+    }
+
+    void traceConnection(SSL*, bool);
+    int securityTraceLevel() const;
+    std::string securityTraceCategory() const;
+
+private:
+
+    const SharedInstancePtr _sharedInstance;
+    int _securityTraceLevel;
+    std::string _securityTraceCategory;
 };
 
 }

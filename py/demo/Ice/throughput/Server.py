@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -15,7 +15,7 @@ import Demo
 
 class ThroughputI(Demo.Throughput):
     def __init__(self):
-        warmup = False
+        self.warmup = False
         
         if sys.version_info[0] == 2:
             b = []

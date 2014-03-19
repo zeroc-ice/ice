@@ -3,7 +3,7 @@
 # "Callback.Server". The following line sets the endpoints for this
 # adapter.
 #
-Callback.Server.Endpoints=tcp -h localhost -p 10000
+Callback.Server.Endpoints=tcp -h localhost -p 10000:ws -h localhost -p 10002
 
 #
 # Warn about connection exceptions
@@ -27,3 +27,8 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
+
+#
+# Websocket transport plugin
+#
+Ice.Plugin.IceWS=IceWS:createIceWS

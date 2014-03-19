@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ public:
     // From EndpointI
     virtual void streamWrite(IceInternal::BasicStream*) const;
     virtual Ice::Short type() const;
-    virtual std::string protocol() const;
+    virtual const std::string& protocol() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
@@ -38,6 +38,7 @@ public:
     virtual std::string toString() const;
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Int timeout() const;
+    virtual const std::string& connectionId() const;
     virtual bool compress() const;
     virtual bool datagram() const;
     virtual bool secure() const;
@@ -45,13 +46,10 @@ public:
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
 
-#ifdef __SUNPRO_CC
+    virtual int hash() const;
+    virtual std::string options() const;
+
     using IceInternal::EndpointI::connectionId;
-#endif
-
-protected:
-
-    virtual Ice::Int hashInit() const;
     using IceInternal::EndpointI::connectors;
     
 private:

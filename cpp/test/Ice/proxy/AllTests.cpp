@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -863,11 +863,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         // Working?
 #ifndef ICE_OS_WINRT
-        bool ssl = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
+        const bool ssl = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
 #else
-        bool ssl = true;
+        const bool ssl = true;
 #endif
-        if(!ssl)
+        const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
+        if(tcp)
         {
             p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
         }
@@ -881,19 +882,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Test that an SSL endpoint and a nonsense endpoint get written
         // back out as an opaque endpoint.
         //
-        p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
+        p1 = communicator->stringToProxy(
+                "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
         pstr = communicator->proxyToString(p1);
-        if(!ssl)
-        {
-            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
-        else
+        if(ssl)
         {
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
         }
+        else if(tcp)
+        {
+            test(pstr ==
+                 "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
+        }
 
         //
-        // Try to invoke on the SSL endpoint to verify that we get a
+        // Try to invoke on the endpoint to verify that we get a
         // NoEndpointException (or ConnectionRefusedException when
         // running with SSL).
         //
@@ -908,7 +911,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Ice::ConnectFailedException&)
         {
-            test(ssl);
+            test(!tcp);
         }
 
         //
@@ -919,13 +922,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::ObjectPrx p2 = derived->echo(p1);
         pstr = communicator->proxyToString(p2);
-        if(!ssl)
-        {
-            test(pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
-        }
-        else
+        if(ssl)
         {
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+        }
+        else if(tcp)
+        {
+            test(pstr ==
+                 "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
     }
 

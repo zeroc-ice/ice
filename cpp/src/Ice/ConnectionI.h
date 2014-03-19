@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -72,10 +72,10 @@ class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
 
         Observer();
 
-        void startRead(Ice::Byte*);
-        void finishRead(Ice::Byte*);
-        void startWrite(Ice::Byte*);
-        void finishWrite(Ice::Byte*);
+        void startRead(const IceInternal::Buffer&);
+        void finishRead(const IceInternal::Buffer&);
+        void startWrite(const IceInternal::Buffer&);
+        void finishWrite(const IceInternal::Buffer&);
 
         void attach(const Ice::Instrumentation::ConnectionObserverPtr&);
 
@@ -216,6 +216,7 @@ private:
         StateActive,
         StateHolding,
         StateClosing,
+        StateClosingPending,
         StateClosed,
         StateFinished
     };
@@ -269,61 +270,21 @@ private:
 
     bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
     bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
-    void sendNextMessage(std::vector<SentCallback>&);
+    IceInternal::SocketOperation sendNextMessage(std::vector<SentCallback>&);
     IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
 #ifndef ICE_OS_WINRT
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 #endif
-    void parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
-                      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
+    IceInternal::SocketOperation parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
+                                              IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, 
+                                              IceInternal::OutgoingAsyncPtr&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
-    void scheduleTimeout(IceInternal::SocketOperation status, int timeout)
-    {
-        if(timeout < 0)
-        {
-            return;
-        }
-
-        try
-        {
-            if(status & IceInternal::SocketOperationRead)
-            {
-                _timer->schedule(_readTimeout, IceUtil::Time::milliSeconds(timeout));
-                _readTimeoutScheduled = true;
-            }
-            if(status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect))
-            {
-                _timer->schedule(_writeTimeout, IceUtil::Time::milliSeconds(timeout));
-                _writeTimeoutScheduled = true;
-            }
-        }
-        catch(const IceUtil::Exception&)
-        {
-            assert(false);
-        }
-    }
-
-    void unscheduleTimeout(IceInternal::SocketOperation status)
-    {
-        if((status & IceInternal::SocketOperationRead) && _readTimeoutScheduled)
-        {
-            _timer->cancel(_readTimeout);
-            _readTimeoutScheduled = false;
-        }
-        if((status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect)) &&
-           _writeTimeoutScheduled)
-        {
-            _timer->cancel(_writeTimeout);
-            _writeTimeoutScheduled = false;
-        }
-    }
-
-    int connectTimeout();
-    int closeTimeout();
+    void scheduleTimeout(IceInternal::SocketOperation status);
+    void unscheduleTimeout(IceInternal::SocketOperation status);
 
     Ice::ConnectionInfoPtr initConnectionInfo() const;
     Ice::Instrumentation::ConnectionState toConnectionState(State) const;

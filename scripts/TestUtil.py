@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -10,7 +10,7 @@
 import sys, os, re, getopt, time, string, threading, atexit, platform
 
 # Global flags and their default values.
-protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
+protocol = ""                   # If unset, default to TCP. Valid values are "tcp", "ssl", "ws" or "wss".
 compress = False                # Set to True to enable bzip2 compression.
 serialize = False               # Set to True to have tests use connection serialization
 host = None                     # Will default to loopback.
@@ -58,7 +58,7 @@ def isCygwin():
 
 def isWin32():
     return sys.platform == "win32" or isCygwin()
-    
+
 def isVista():
     return isWin32() and sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] == 0
 
@@ -102,7 +102,7 @@ def getCppCompiler():
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
         if compiler != "VC90" and compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
             compiler = ""
-                
+
         if compiler == "":
             p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             if not p or not p.stdout:
@@ -208,6 +208,8 @@ def dumpenv(env, lang):
         vars.append("PYTHONPATH")
     elif lang ==  "rb":
         vars.append("RUBYLIB")
+    elif lang ==  "js":
+        vars.append("NODE_PATH")
     for i in vars:
         if i in env:
             print("%s=%s" % (i, env[i]))
@@ -244,8 +246,8 @@ crossTests = [ "Ice/adapterDeactivation",
                "Ice/binding",
                "Ice/checksum",
                #"Ice/custom",
-               "Ice/ami", 
-               "Ice/info", 
+               "Ice/ami",
+               "Ice/info",
                "Ice/exceptions",
                "Ice/enums",
                "Ice/facets",
@@ -267,42 +269,42 @@ crossTests = [ "Ice/adapterDeactivation",
 def run(tests, root = False):
     def usage():
         print("usage: " + sys.argv[0] + """
-          --all                   Run all sensible permutations of the tests.
-          --all-cross             Run all sensible permutations of cross language tests.
-          --start=index           Start running the tests at the given index.
-          --loop                  Run the tests in a loop.
-          --filter=<regex>        Run all the tests that match the given regex.
-          --rfilter=<regex>       Run all the tests that do not match the given regex.
-          --debug                 Display debugging information on each test.
-          --protocol=tcp|ssl      Run with the given protocol.
-          --compress              Run the tests with protocol compression.
-          --host=host             Set --Ice.Default.Host=<host>.
-          --valgrind              Run the test with valgrind.
-          --appverifier           Run the test with appverifier under Windows.
-          --serialize             Run with connection serialization.
-          --continue              Keep running when a test fails
-          --ipv6                  Use IPv6 addresses.
-          --socks                 Use SOCKS proxy running on localhost.
-          --no-ipv6               Don't use IPv6 addresses.
-          --ice-home=<path>       Use the binary distribution from the given path.
-          --x64                   Binary distribution is 64-bit.
-          --c++11                 Binary distribution is c++11.
-          --cross=lang            Run cross language test.
-          --client-home=<dir>     Run cross test clients from the given Ice source distribution.
-          --script                Generate a script to run the tests.
-          --env                   Print important environment variables.
-          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
-          --sql-db=<db>           Set SQL database name. (deprecated)
-          --sql-host=<host>       Set SQL host name. (deprecated)
-          --sql-port=<port>       Set SQL server port. (deprecated)
-          --sql-user=<user>       Set SQL user name. (deprecated)
-          --sql-passwd=<passwd>   Set SQL password. (deprecated)
-          --service-dir=<dir>     Where to locate services for builds without service support.
-          --compact               Ice for .NET uses the Compact Framework.
-          --silverlight           Ice for .NET uses Silverlight.
-          --winrt                 Run server with configuration suited for WinRT client.
-          --server                Run only the server.
-          --mx                    Enable IceMX when running the tests.
+          --all                       Run all sensible permutations of the tests.
+          --all-cross                 Run all sensible permutations of cross language tests.
+          --start=index               Start running the tests at the given index.
+          --loop                      Run the tests in a loop.
+          --filter=<regex>            Run all the tests that match the given regex.
+          --rfilter=<regex>           Run all the tests that do not match the given regex.
+          --debug                     Display debugging information on each test.
+          --protocol=tcp|ssl|ws|wss   Run with the given protocol.
+          --compress                  Run the tests with protocol compression.
+          --host=host                 Set --Ice.Default.Host=<host>.
+          --valgrind                  Run the test with valgrind.
+          --appverifier               Run the test with appverifier under Windows.
+          --serialize                 Run with connection serialization.
+          --continue                  Keep running when a test fails
+          --ipv6                      Use IPv6 addresses.
+          --socks                     Use SOCKS proxy running on localhost.
+          --no-ipv6                   Don't use IPv6 addresses.
+          --ice-home=<path>           Use the binary distribution from the given path.
+          --x64                       Binary distribution is 64-bit.
+          --c++11                     Binary distribution is c++11.
+          --cross=lang                Run cross language test.
+          --client-home=<dir>         Run cross test clients from the given Ice source distribution.
+          --script                    Generate a script to run the tests.
+          --env                       Print important environment variables.
+          --sql-type=<driver>         Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
+          --sql-db=<db>               Set SQL database name. (deprecated)
+          --sql-host=<host>           Set SQL host name. (deprecated)
+          --sql-port=<port>           Set SQL server port. (deprecated)
+          --sql-user=<user>           Set SQL user name. (deprecated)
+          --sql-passwd=<passwd>       Set SQL password. (deprecated)
+          --service-dir=<dir>         Where to locate services for builds without service support.
+          --compact                   Ice for .NET uses the Compact Framework.
+          --silverlight               Ice for .NET uses Silverlight.
+          --winrt                     Run server with configuration suited for WinRT client.
+          --server                    Run only the server.
+          --mx                        Enable IceMX when running the tests.
         """)
         sys.exit(2)
 
@@ -310,10 +312,10 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", 
-                                    "script", "env", 
-                                    "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", 
-                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", 
+                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64",
+                                    "script", "env",
+                                    "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=",
+                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
                                     "c++11"])
     except getopt.GetoptError:
         usage()
@@ -364,9 +366,9 @@ def run(tests, root = False):
         elif o == "--script":
             script = True
         elif o == "--protocol":
-            if a not in ( "ssl", "tcp"):
+            if a not in ( "ws", "wss", "ssl", "tcp"):
                 usage()
-            if not root and getDefaultMapping() == "cs" and a == "ssl":
+            if not root and getDefaultMapping() == "cs" and (a == "ssl" or a == "wss"):
                 if mono:
                     print("SSL is not supported with mono")
                     sys.exit(1)
@@ -400,6 +402,9 @@ def run(tests, root = False):
         a = '--protocol=ssl %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
+        a = '--protocol=ws %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
         a = '--protocol=tcp --compress %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
@@ -411,6 +416,9 @@ def run(tests, root = False):
             expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
             a = "--ipv6 --protocol=ssl %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
+            a = "--ipv6 --protocol=ws %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         a = "--protocol=tcp %s" % arg
@@ -485,7 +493,7 @@ def getIceDir(subdir = None, testdir = None):
     # sub-directory of the client home directory, run the test against
     # the client-home source distribution.
     #
-    global clientHome 
+    global clientHome
     if testdir and clientHome and os.path.commonprefix([testdir, clientHome]) == clientHome:
         return os.path.join(clientHome, subdir)
 
@@ -691,37 +699,51 @@ class InvalidSelectorString(Exception):
 
 sslConfigTree = {
         "cpp" : {
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --Ice.Default.Protocol=ssl " +
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL " +
             "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem",
             "server" : " --IceSSL.CertFile=s_rsa1024_pub.pem --IceSSL.KeyFile=s_rsa1024_priv.pem",
             "colloc" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem"
             },
         "java" : {
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory --Ice.Default.Protocol=ssl " +
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory " +
             "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Password=password --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.Keystore=client.jks",
             "server" : " --IceSSL.Keystore=server.jks",
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "cs" : {
-            "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
+            "plugin" : " --Ice.Plugin.IceSSL=%(icesslcs)s:IceSSL.PluginFactory " +
             " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
             "server" : " --IceSSL.CertFile=s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem",
-            "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem --IceSSL.CheckCertName=0"
+            "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem " +
+            "--IceSSL.CheckCertName=0"
             },
         }
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"]
 
+wsConfigTree = {
+        "cpp" : {
+            "plugin" : " --Ice.Plugin.IceWS=IceWS:createIceWS ",
+            "client" : " ",
+            "server" : " ",
+            "colloc" : " ",
+            },
+        }
+wsConfigTree["py"] = wsConfigTree["cpp"]
+wsConfigTree["rb"] = wsConfigTree["cpp"]
+wsConfigTree["php"] = wsConfigTree["cpp"]
+wsConfigTree["js"] = wsConfigTree["cpp"]
+
 def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
     here = os.getcwd().split(os.sep)
     here.reverse()
     for i in range(0, len(here)):
-        if here[i] in ["cpp", "cs", "java", "php", "py", "rb", "cppe", "javae", "tmp"]:
+        if here[i] in ["cpp", "cs", "java", "js", "php", "py", "rb", "cppe", "javae", "tmp"]:
             return here[i]
     raise RuntimeError("cannot determine mapping")
 
@@ -842,17 +864,28 @@ def getCommandLineProperties(exe, config):
     # Now we add additional components dependent on the desired
     # configuration.
     #
-    if config.protocol == "ssl":
+    if config.protocol == "ssl" or config.protocol == "wss":
         sslenv = {}
         sslenv["icesslcs"] = quoteArgument("\\\"" + os.path.join(getIceDir("cs"), "Assemblies", "IceSSL.dll") + "\\\"")
         if winrt:
             sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs", "winrt")))
+            sslenv["verifyPeer"] = "0"
+        elif config.protocol == "wss":
+            sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
             sslenv["verifyPeer"] = "0"
         else:
             sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
             sslenv["verifyPeer"] = "2"
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
+
+    if config.protocol == "ws" or config.protocol == "wss":
+        wsenv = {}
+        wsenv["icewscs"] = quoteArgument("\\\"" + os.path.join(getIceDir("cs"), "Assemblies", "IceWS.dll") + "\\\"")
+        components.append(wsConfigTree[config.lang]["plugin"] % wsenv)
+        components.append(wsConfigTree[config.lang][config.type] % wsenv)
+
+    components.append("--Ice.Default.Protocol=" + config.protocol)
 
     if config.compress:
         components.append("--Ice.Override.Compress=1")
@@ -939,7 +972,7 @@ def getCommandLine(exe, config, options = ""):
         output.write("ruby '" + exe + "' ")
     elif config.silverlight and config.lang == "cs" and config.type == "client":
         xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
-        if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":	
+        if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":
             output.write('"%s (x86)\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
         else:
             output.write('"%s\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
@@ -954,6 +987,8 @@ def getCommandLine(exe, config, options = ""):
         output.write(sys.executable + ' "%s" ' % exe)
     elif config.lang == "php" and config.type == "client":
         output.write(phpCmd + " -c tmp.ini -f \""+ exe +"\" -- ")
+    elif config.lang == "js":
+        output.write('node "%s" ' % exe)
     elif config.lang == "cpp" and config.valgrind:
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
@@ -1002,7 +1037,7 @@ def directoryToPackage():
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
-    if lang in ["rb", "php", "cpp", "cs", "cppe"]:
+    if lang in ["js", "rb", "php", "cpp", "cs", "cppe"]:
         return "server"
     if lang == "py":
         return "Server.py"
@@ -1029,6 +1064,8 @@ def getDefaultClientFile(lang = None):
         if len(pkg) > 0:
             pkg = pkg + "."
         return pkg + "Client"
+    if lang == "js":
+        return "run.js"
     raise RuntimeError("unknown language")
 
 def getDefaultCollocatedFile():
@@ -1216,6 +1253,21 @@ def getMirrorDir(base, mapping):
         raise RuntimeError("cannot find language dir")
     return os.path.join(before, mapping, *after)
 
+def getMappingDir(base, mapping, dirnames):
+    """Get the directory for the given mapping."""
+    lang = getDefaultMapping()
+    after = []
+    before = base
+    while len(before) > 0:
+        current = os.path.basename(before)
+        before = os.path.dirname(before)
+        if current == lang:
+            break
+        after.insert(0, current)
+    else:
+        raise RuntimeError("cannot find language dir")
+    return os.path.join(before, mapping, *dirnames)
+
 def getClientCrossTestDir(base):
     """Get the client directory from client-home for the given test."""
     global clientHome
@@ -1249,7 +1301,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
     testdir = os.getcwd()
 
     # Setup the server.
-    if lang in ["rb", "php"]:
+    if lang in ["rb", "php", "js"]:
         serverdir = getMirrorDir(testdir, "cpp")
     else:
         serverdir = testdir
@@ -1257,11 +1309,11 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
-        if lang in ["rb", "php"]:
+        if lang in ["rb", "php", "js"]:
             serverenv = getTestEnv("cpp", serverdir)
         else:
             serverenv = getTestEnv(lang, serverdir)
-            
+
 
     global cross
     if len(cross) == 0:
@@ -1311,7 +1363,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         sys.stdout.write("starting " + serverDesc + "... ")
         sys.stdout.flush()
         serverCfg = DriverConfig("server")
-        if lang in ["rb", "php"]:
+        if lang in ["rb", "php", "js"]:
             serverCfg.lang = "cpp"
         server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
@@ -1363,6 +1415,103 @@ def collocatedTest(additionalOptions = ""):
     collocatedProc.waitTestSuccess()
     if appverifier:
         appVerifierAfterTestEnd([exe])
+
+def clientEchoTest(additionalServerOptions = "", additionalClientOptions = "",
+                   server = None, client = None, serverenv = None, clientenv = None):
+    if server is None:
+        server = getDefaultServerFile()
+    if client is None:
+        client = getDefaultClientFile()
+    serverDesc = server
+    clientDesc = client
+
+    lang = getDefaultMapping()
+    testdir = os.getcwd()
+
+    # Setup the server.
+    if lang in ["rb", "php", "js"]:
+        serverdir = getMappingDir(testdir, "cpp", ["test", "Ice", "echo"])
+    else:
+        serverdir = testdir
+    if lang != "java":
+        server = os.path.join(serverdir, server)
+
+    if serverenv is None:
+        if lang in ["rb", "php", "js"]:
+            serverenv = getTestEnv("cpp", serverdir)
+        else:
+            serverenv = getTestEnv(lang, serverdir)
+
+    global cross
+    if len(cross) == 0:
+        cross.append(lang)
+
+    global clientHome
+    for clientLang in cross:
+        clientCfg = DriverConfig("client")
+        if clientLang != lang:
+            if clientDesc != getDefaultClientFile():
+                print("** skipping cross test")
+                return
+
+            clientCfg.lang = clientLang
+            client = getDefaultClientFile(clientLang)
+            if clientHome:
+                clientdir = getMirrorDir(getClientCrossTestDir(testdir), clientLang)
+            else:
+                clientdir = getMirrorDir(testdir, clientLang)
+            if not os.path.exists(clientdir):
+                print("** no matching test for %s" % clientLang)
+                return
+        else:
+            if clientHome:
+                clientdir = getClientCrossTestDir(testdir)
+            else:
+                clientdir = testdir
+            if not os.path.exists(clientdir):
+                print("** no matching test for %s" % clientLang)
+                return
+
+        if clientLang != "java":
+            client = os.path.join(clientdir, client)
+
+        if clientenv is None:
+            clientenv = getTestEnv(clientLang, clientdir)
+
+        if lang == "php":
+            phpSetup()
+
+        clientExe = client
+        serverExe = server
+
+        if appverifier:
+            setAppVerifierSettings([clientExe, serverExe])
+
+        sys.stdout.write("starting " + serverDesc + "... ")
+        sys.stdout.flush()
+        serverCfg = DriverConfig("server")
+        if lang in ["rb", "php", "js"]:
+            serverCfg.lang = "cpp"
+        server = getCommandLine(server, serverCfg, additionalServerOptions)
+        serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
+        print("ok")
+
+        if not serverOnly:
+            if clientLang == lang:
+                sys.stdout.write("starting %s... " % clientDesc)
+            else:
+                sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
+            sys.stdout.flush()
+            client = getCommandLine(client, clientCfg, additionalClientOptions)
+            clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
+            print("ok")
+            clientProc.startReader()
+            clientProc.waitTestSuccess()
+
+        serverProc.waitTestSuccess()
+
+        if appverifier:
+            appVerifierAfterTestEnd([clientExe, serverExe])
 
 def cleanDbDir(path):
     if os.path.exists(os.path.join(path, "__Freeze", "lock")):
@@ -1553,6 +1702,10 @@ def getTestEnv(lang, testdir):
     if lang == "rb":
         addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
 
+    if lang == "js":
+        addPathToEnv("NODE_PATH", os.path.join(getIceDir("js", testdir), "src"), env)
+        addPathToEnv("NODE_PATH", os.path.join(testdir), env)
+
     return env;
 
 def getTestName():
@@ -1623,34 +1776,34 @@ class WatchDog(threading.Thread):
 def processCmdLine():
     def usage():
         print("usage: " + sys.argv[0] + """
-          --debug                 Display debugging information on each test.
-          --trace=<file>          Display tracing.
-          --protocol=tcp|ssl      Run with the given protocol.
-          --compress              Run the tests with protocol compression.
-          --valgrind              Run the tests with valgrind.
-          --appverifier           Run the tests with appverifier.
-          --host=host             Set --Ice.Default.Host=<host>.
-          --serialize             Run with connection serialization.
-          --ipv6                  Use IPv6 addresses.
-          --socks                 Use SOCKS proxy running on localhost.
-          --ice-home=<path>       Use the binary distribution from the given path.
-          --x64                   Binary distribution is 64-bit.
-          --c++11                 Binary distribution is c++11.
-          --env                   Print important environment variables.
-          --cross=lang            Run cross language test.
-          --client-home=<dir>      Run cross test clients from the given Ice source distribution.
-          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
-          --sql-db=<db>           Set SQL database name. (deprecated)
-          --sql-host=<host>       Set SQL host name. (deprecated)
-          --sql-port=<port>       Set SQL server port. (deprecated)
-          --sql-user=<user>       Set SQL user name. (deprecated)
-          --sql-passwd=<passwd>   Set SQL password. (deprecated)
-          --service-dir=<dir>     Where to locate services for builds without service support.
-          --compact               Ice for .NET uses the Compact Framework.
-          --silverlight           Ice for .NET uses Silverlight.
-          --winrt                 Run server with configuration suited for WinRT client.
-          --server                Run only the server.
-          --mx                    Enable IceMX when running the tests.
+          --debug                     Display debugging information on each test.
+          --trace=<file>              Display tracing.
+          --protocol=tcp|ssl|ws|wss   Run with the given protocol.
+          --compress                  Run the tests with protocol compression.
+          --valgrind                  Run the tests with valgrind.
+          --appverifier               Run the tests with appverifier.
+          --host=host                 Set --Ice.Default.Host=<host>.
+          --serialize                 Run with connection serialization.
+          --ipv6                      Use IPv6 addresses.
+          --socks                     Use SOCKS proxy running on localhost.
+          --ice-home=<path>           Use the binary distribution from the given path.
+          --x64                       Binary distribution is 64-bit.
+          --c++11                     Binary distribution is c++11.
+          --env                       Print important environment variables.
+          --cross=lang                Run cross language test.
+          --client-home=<dir>         Run cross test clients from the given Ice source distribution.
+          --sql-type=<driver>         Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
+          --sql-db=<db>               Set SQL database name. (deprecated)
+          --sql-host=<host>           Set SQL host name. (deprecated)
+          --sql-port=<port>           Set SQL server port. (deprecated)
+          --sql-user=<user>           Set SQL user name. (deprecated)
+          --sql-passwd=<passwd>       Set SQL password. (deprecated)
+          --service-dir=<dir>         Where to locate services for builds without service support.
+          --compact                   Ice for .NET uses the Compact Framework.
+          --silverlight               Ice for .NET uses Silverlight.
+          --winrt                     Run server with configuration suited for WinRT client.
+          --server                    Run only the server.
+          --mx                        Enable IceMX when running the tests.
         """)
         sys.exit(2)
 
@@ -1727,10 +1880,10 @@ def processCmdLine():
             global printenv
             printenv = True
         elif o == "--protocol":
-            if a not in ( "ssl", "tcp"):
+            if a not in ( "ws", "wss", "ssl", "tcp"):
                 usage()
             # ssl protocol isn't directly supported with mono.
-            if mono and getDefaultMapping() == "cs" and a == "ssl":
+            if mono and getDefaultMapping() == "cs" and (a == "ssl" or a == "wss"):
                 print("SSL is not supported with mono")
                 sys.exit(1)
             global protocol
@@ -1770,6 +1923,10 @@ def processCmdLine():
         elif o == "--mx":
             global mx
             mx = True
+
+        if protocol in ["ssl", "wss"] and not serverOnly and getDefaultMapping() == "js":
+            print("SSL is not supported with Node.js")
+            sys.exit(1)
 
     if len(args) > 0:
         usage()
@@ -1900,12 +2057,29 @@ def runTests(start, expanded, num = 0, script = False):
 
             # If this is mono and we're running ssl protocol tests
             # then skip. This occurs when using --all.
-            if mono and ("nomono" in config or (i.find(os.path.join("cs","test")) != -1 and args.find("ssl") != -1)):
+            if mono and ("nomono" in config or (i.find(os.path.join("cs","test")) != -1 and
+                                                (args.find("ssl") != -1 or args.find("wss") != -1))):
                 print("%s*** test not supported with mono%s" % (prefix, suffix))
                 continue
 
-            if args.find("ssl") != -1 and ("nossl" in config):
+            #
+            # Skip configurations not supported by node
+            #
+            if (i.find(os.path.join("js","test")) != -1 and
+                                  ((not serverOnly and (args.find("ssl") != -1 or
+                                                        args.find("wss") != -1 or
+                                                        args.find("ws") != -1)) or
+                                   args.find("compress") != -1 or
+                                   args.find("mx") != -1)):
+                print("%s*** test not supported with node%s" % (prefix, suffix))
+                continue
+
+            if (args.find("ssl") != -1 or args.find("wss") != -1) and ("nossl" in config):
                 print("%s*** test not supported with IceSSL%s" % (prefix, suffix))
+                continue
+
+            if (args.find("ws") != -1 or args.find("wss") != -1) and ("nows" in config):
+                print("%s*** test not supported with IceWS%s" % (prefix, suffix))
                 continue
 
             # If this is java and we're running ipv6 under windows then skip.
@@ -1915,12 +2089,14 @@ def runTests(start, expanded, num = 0, script = False):
                 continue
 
             # Skip tests not supported by valgrind
-            if args.find("valgrind") != -1 and ("novalgrind" in config or args.find("ssl") != -1):
+            if args.find("valgrind") != -1 and ("novalgrind" in config or args.find("ssl") != -1 or
+                                                args.find("wss") != -1):
                 print("%s*** test not supported with valgrind%s" % (prefix, suffix))
                 continue
 
             # Skip tests not supported by appverifier
-            if args.find("appverifier") != -1 and ("noappverifier" in config or args.find("ssl") != -1):
+            if args.find("appverifier") != -1 and ("noappverifier" in config or args.find("ssl") != -1 or
+                                                   args.find("wss") != -1):
                 print("%s*** test not supported with appverifier%s" % (prefix, suffix))
                 continue
 

@@ -71,7 +71,7 @@
         <!-- Footer -->
         <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
             <TextBlock Margin="5, 5, 5, 5"  Style="{StaticResource FooterStyle}" 
-                       Text="Copyright © 2012-2013 ZeroC, Inc. All rights reserved."  TextWrapping="Wrap"/>
+                       Text="Copyright © 2012-2014 ZeroC, Inc. All rights reserved."  TextWrapping="Wrap"/>
         </StackPanel>
     </Grid>
 </Page>

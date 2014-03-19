@@ -64,3 +64,5 @@ cpp/demo/ipch
 cpp/demo/Debug
 
 cpp/test/IceBox/configuration/build.txt
+
+js/lib

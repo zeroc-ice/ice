@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,7 +11,7 @@
 import sys
 import Expect
 
-def runtests(client, server, secure):
+def runtests(client, server, secure, datagram):
     sys.stdout.write("testing twoway ")
     sys.stdout.flush()
     client.sendline('t')
@@ -20,7 +20,7 @@ def runtests(client, server, secure):
     sys.stdout.flush()
     client.sendline('o')
     server.expect('Hello World!')
-    if not secure:
+    if not secure and datagram:
         sys.stdout.write("datagram ")
         sys.stdout.flush()
         client.sendline('d')
@@ -38,7 +38,7 @@ def runtests(client, server, secure):
     client.sendline('f')
     server.expect('Hello World!')
     server.expect('Hello World!')
-    if not secure:
+    if not secure and datagram:
         sys.stdout.write("datagram ")
         sys.stdout.flush()
         client.sendline('D')
@@ -68,17 +68,18 @@ def runtests(client, server, secure):
     client.sendline('T')
     print("ok")
 
-def run(client, server):
-    runtests(client, server, False)
+def run(client, server, sslSupport = True, datagramSupport = True):
+    runtests(client, server, False, datagramSupport)
 
-    print("repeating tests with SSL")
+    if sslSupport:
+        print("repeating tests with SSL")
+        client.sendline('S')
 
-    client.sendline('S')
-
-    runtests(client, server, True)
+        runtests(client, server, True, datagramSupport)
 
     client.sendline('s')
     server.waitTestSuccess()
-
+    print("server shutdown");
     client.sendline('x')
     client.waitTestSuccess()
+    print("client shutdown");

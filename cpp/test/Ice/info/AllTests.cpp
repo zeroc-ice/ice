@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
+#include <IceWS/IceWS.h>
 #include <TestCommon.h>
 #include <TestI.h>
 
@@ -34,9 +35,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(ipEndpoint->compress);
         test(!ipEndpoint->datagram());
         test((ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
-             (ipEndpoint->type() == IceSSL::EndpointType && ipEndpoint->secure()));
+             (ipEndpoint->type() == IceSSL::EndpointType && ipEndpoint->secure()) ||
+             (ipEndpoint->type() == IceWS::WSEndpointType && !ipEndpoint->secure()) ||
+             (ipEndpoint->type() == IceWS::WSSEndpointType && ipEndpoint->secure()));
         test((ipEndpoint->type() == Ice::TCPEndpointType && Ice::TCPEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
-             (ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint)));
+             (ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
+             (ipEndpoint->type() == IceWS::WSEndpointType && IceWS::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
+             (ipEndpoint->type() == IceWS::WSSEndpointType && IceWS::EndpointInfoPtr::dynamicCast(ipEndpoint)));
 
         Ice::UDPEndpointInfoPtr udpEndpoint = Ice::UDPEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
         test(udpEndpoint);
@@ -72,7 +77,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         Ice::IPEndpointInfoPtr ipEndpoint = Ice::IPEndpointInfoPtr::dynamicCast(endpoints[0]->getInfo());
         test(ipEndpoint);
-        test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == IceSSL::EndpointType);
+        test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == IceSSL::EndpointType ||
+             ipEndpoint->type() == IceWS::WSEndpointType || ipEndpoint->type() == IceWS::WSSEndpointType);
         test(ipEndpoint->host == defaultHost);
         test(ipEndpoint->port > 0);
         test(ipEndpoint->timeout == 15000);

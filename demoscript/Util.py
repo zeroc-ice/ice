@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -302,7 +302,7 @@ def configurePaths():
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if isCompactFramework():
-        addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies", "cf"))
+        addenv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies", "cf"))
     elif isWin32():
         addenv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies"))
     else:
@@ -316,11 +316,16 @@ def configurePaths():
     else:
         addenv("PYTHONPATH", os.path.join(getIceDir("py"), "python"))
     addenv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
+    
+    if getMapping() == "js":
+        addenv("NODE_PATH", os.path.join(getIceDir("js"), "src"))
+        addenv("NODE_PATH", ".")
 
 # Mapping to the associated subdirectory.
 mappingDirs = {
     "cpp" : ( os.path.join("cpp", "demo"), "demo"),
     "java" : ( os.path.join("java", "demo"), "demoj"),
+    "js" : ( os.path.join("js", "demo"), "demojs"),
     "cs" : ( os.path.join("cs", "demo"), "democs"),
     "vb" : ( os.path.join("vb", "demo"), "demovb"),
     "py" : ( os.path.join("py", "demo"), "demopy"),
@@ -411,9 +416,9 @@ def getMapping():
     dir = here[len(toplevel)+1:].split(os.sep)[0]
 
     if sourcedist:
-        mapping = { "cpp": "cpp", "cs": "cs", "java": "java", "php": "php", "py": "py", "rb": "rb", "vb": "vb" }
+        mapping = { "cpp": "cpp", "cs": "cs", "java": "java", "js": "js", "php": "php", "py": "py", "rb": "rb", "vb": "vb" }
     else:
-        mapping = { "demo": "cpp", "democs": "cs", "demoj": "java", "demophp": "php", "demopy": "py",
+        mapping = { "demo": "cpp", "democs": "cs", "demoj": "java", "demojs": "js", "demophp": "php", "demopy": "py",
                     "demorb": "rb", "demovb": "vb" }
     return mapping[dir]
 

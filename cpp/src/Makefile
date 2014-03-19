@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -17,7 +17,8 @@ ifneq ($(findstring MINGW,$(UNAME)),)
 			  slice2cpp \
 			  slice2rb \
 			  Ice \
-			  IceSSL
+			  IceSSL \
+			  IceWS
 else
     SUBDIRS		= IceUtil \
 			  Slice \
@@ -30,9 +31,11 @@ else
 			  slice2py \
 			  slice2rb \
 			  slice2html \
+			  slice2js \
 			  Ice \
 			  IceXML \
 			  IceSSL \
+			  IceWS \
 			  Freeze \
 			  FreezeScript \
 			  IceBox \
@@ -56,11 +59,11 @@ endif
 
 Slice: IceUtil
 
-slice2cpp slice2cs slice2freeze slice2freezej slice2java slice2php slice2py slice2rb slice2html: Slice
+slice2cpp slice2cs slice2freeze slice2freezej slice2java slice2js slice2php slice2py slice2rb slice2html: Slice
 
 Ice: slice2cpp
 
-IceXML IceSSL Freeze FreezeScript IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
+IceXML IceSSL IceWS Freeze FreezeScript IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
 
 Freeze: slice2freeze
 
@@ -90,4 +93,3 @@ $(EVERYTHING_EXCEPT_ALL)::
                 ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
             fi; \
         done
-

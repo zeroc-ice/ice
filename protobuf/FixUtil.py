@@ -7,7 +7,7 @@ def copyright(commentMark, product, license):
     result = [ ]
     result.append(commentMark + " **********************************************************************\n")
     result.append(commentMark + "\n")
-    result.append(commentMark + " Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.\n")
+    result.append(commentMark + " Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark + "\n")
     line1 = commentMark + (" This copy of %s is licensed to you under the terms described in the") % product
     line2 = commentMark
@@ -29,7 +29,7 @@ def copyright(commentMark, product, license):
 
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice Protobuf is licensed to you under the terms
 # described in the ICE_PROTOBUF_LICENSE file included in this

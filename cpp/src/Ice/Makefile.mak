@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -53,6 +53,7 @@ OBJS		= Acceptor.obj \
 		  Incoming.obj \
 		  Initialize.obj \
 		  Instance.obj \
+		  IPEndpointI.obj \
 		  LocalException.obj \
 		  LocalObject.obj \
 		  LocatorInfo.obj \
@@ -85,6 +86,7 @@ OBJS		= Acceptor.obj \
 		  Properties.obj \
 		  PropertyNames.obj \
 		  Protocol.obj \
+		  ProtocolInstance.obj \
 		  ProtocolPluginFacade.obj \
 		  ProxyFactory.obj \
 		  Proxy.obj \

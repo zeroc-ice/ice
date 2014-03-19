@@ -7,7 +7,12 @@ Glacier2.InstanceName=DemoGlacier2
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
+Glacier2.Client.Endpoints=tcp -p 4063 -h 127.0.0.1:ssl -p 4064 -h 127.0.0.1:ws -p 5063 -h 127.0.0.1:wss -p 5064 -h 127.0.0.1
+
+#
+# We need to disable VerifyPeer for secure WebSocket (WSS) and Windows Store App clients.
+#
+IceSSL.VerifyPeer=0
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -58,7 +63,6 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 # Windows Store App chat client. 
 #
 #Glacier2.Client.Endpoints=ssl -p 4064
-#IceSSL.VerifyPeer=0
 #IceSSL.DefaultDir=../../../../certs/winrt
 
 #
@@ -68,3 +72,8 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 Ice.Admin.InstanceName=glacier2router
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS:createIceWS
