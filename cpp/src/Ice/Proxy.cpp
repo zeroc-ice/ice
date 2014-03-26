@@ -1435,10 +1435,20 @@ IceProxy::Ice::Object::__end(const ::Ice::AsyncResultPtr& __result, const std::s
     }
 }
 
+namespace IceProxy
+{
+
+namespace Ice
+{
+
 ostream&
 operator<<(ostream& os, const ::IceProxy::Ice::Object& p)
 {
     return os << p.ice_toString();
+}
+
+}
+
 }
 
 Handle< ::IceDelegate::Ice::Object>
