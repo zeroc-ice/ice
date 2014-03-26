@@ -171,7 +171,7 @@ compile(int argc, char* argv[])
         if(depend)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2CS__");
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JS__");
 
             if(cppHandle == 0)
             {
