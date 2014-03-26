@@ -2572,40 +2572,6 @@ public class BasicStream
         return "";
     }
 
-    private static final class DynamicUserExceptionFactory
-        implements UserExceptionFactory
-    {
-        DynamicUserExceptionFactory(Class<?> c)
-        {
-            _class = c;
-        }
-
-        public void
-        createAndThrow(String typeId)
-            throws Ice.UserException
-        {
-            try
-            {
-                throw (Ice.UserException)_class.newInstance();
-            }
-            catch(Ice.UserException ex)
-            {
-                throw ex;
-            }
-            catch(java.lang.Exception ex)
-            {
-                throw new Ice.SyscallException(ex);
-            }
-        }
-
-        public void
-        destroy()
-        {
-        }
-
-        private Class<?> _class;
-    }
-
     private Ice.UserException
     createUserException(String id)
     {
@@ -2765,18 +2731,6 @@ public class BasicStream
 
         return buf.toString();
     }
-
-    //
-    // Optional data member format.
-    //
-    private static final int MemberFormatF1           = 0;
-    private static final int MemberFormatF2           = 1;
-    private static final int MemberFormatF4           = 2;
-    private static final int MemberFormatF8           = 3;
-    private static final int MemberFormatVSize        = 4;
-    private static final int MemberFormatFSize        = 5;
-    private static final int MemberFormatReserved     = 6;
-    private static final int MemberFormatEndMarker    = 7;
 
     private Instance _instance;
     private Buffer _buf;
