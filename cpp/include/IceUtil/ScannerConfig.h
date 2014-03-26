@@ -25,4 +25,12 @@
 #   include <stdint.h>
 #endif
 
+//
+// Apple clang++ >= 5.1  deprecate 'register' storage class specifier
+// used by lex generated Scanners.
+//
+#if defined(__clang__) && defined(__apple_build_version__) && __apple_build_version__ >= 5030038
+#   pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+
 #endif
