@@ -24,6 +24,13 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
+namespace IceUtilInternal
+{
+
+extern bool ICE_DECLSPEC_IMPORT printStackTraces;
+
+}
+
 IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalException& ex, bool r) :
     _retry(r)
 {
@@ -60,9 +67,10 @@ IceInternal::LocalExceptionWrapper::throwWrapper(const std::exception& ex)
         }
         stringstream s;
         s << *le;
-#ifdef __GNUC__
-        s << "\n" << le->ice_stackTrace();
-#endif
+        if(IceUtilInternal::printStackTraces)
+        {
+            s << "\n" << le->ice_stackTrace();
+        }
         throw LocalExceptionWrapper(UnknownLocalException(__FILE__, __LINE__, s.str()), false);
     }
     string msg = "std::exception: ";
