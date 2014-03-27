@@ -68,20 +68,7 @@ public class AppSession
             IceSSL.Plugin plugin = (IceSSL.Plugin)_communicator.getPluginManager().getPlugin("IceSSL");
             plugin.setTruststoreStream(certStream);
             _communicator.getPluginManager().initializePlugins();
-            
-            //
-            // BUGFIX: When connecting to demo.zeroc.com in secure mode, we should connect to the
-            // glacier2 listening in port 5064 that use the new SSL certificates included in this
-            // distribution.
-            //
-            if(hostname.equals("demo.zeroc.com"))
-            {
-                s = "Glacier2/router:ssl -p 5064 -h " + hostname + " -t 10000";
-            }
-            else
-            {
-                s = "Glacier2/router:ssl -p 4064 -h " + hostname + " -t 10000";
-            }
+            s = "Glacier2/router:ssl -p 4064 -h " + hostname + " -t 10000";
         }
         else
         {

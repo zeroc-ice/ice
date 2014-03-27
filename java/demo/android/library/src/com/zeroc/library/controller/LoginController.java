@@ -95,19 +95,7 @@ public class LoginController
                         s.append("DemoGlacier2/router:");
                         s.append(secure ? "ssl " : "tcp");
                         s.append(" -p ");
-                        //
-                        // BUGFIX: When connecting to demo2.zeroc.com in secure mode, we should connect to the
-                        // glacier2 listening in port 5064 that use the new SSL certificates included in this
-                        // distribution.
-                        //
-                        if(secure && hostname.equals("demo2.zeroc.com"))
-                        {
-                            s.append("5064");
-                        }
-                        else
-                        {
-                            s.append(secure ? "4064" : "4063");
-                        }
+                        s.append(secure ? "4064" : "4063");
                         s.append(" -h ");
                         s.append(hostname);
                         s.append(" -t 10000");
@@ -159,18 +147,7 @@ public class LoginController
                         s.append("SessionFactory:");
                         s.append(secure ? "ssl " : "tcp");
                         s.append(" -p ");
-                        //
-                        // BUGFIX: When connecting to demo2.zeroc.com in secure mode, we should connect to the
-                        // server listening in port 20001 that use the new SSL certificates included in 3.5.1
-                        //
-                        if(secure && hostname.equals("demo2.zeroc.com"))
-                        {
-                            s.append("20001");
-                        }
-                        else
-                        {
-                            s.append(secure ? "10001" : "10000");
-                        }
+                        s.append(secure ? "10001" : "10000");
                         s.append(" -h ");
                         s.append(hostname);
                         s.append(" -t 10000");
