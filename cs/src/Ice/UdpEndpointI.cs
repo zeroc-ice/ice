@@ -226,7 +226,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    parseOption(option, argument, "udp", str);
+                    throw new Ice.EndpointParseException("unknown option `" + option + "' in endpoint `udp " + str + "'");
                 }
             }
 

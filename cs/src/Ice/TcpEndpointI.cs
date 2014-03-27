@@ -149,8 +149,7 @@ namespace IceInternal
 
                     default:
                     {
-                        parseOption(option, argument, "tcp", str);
-                        break;
+                        throw new Ice.EndpointParseException("unknown option `" + option + "' in endpoint `tcp " + str + "'");
                     }
                 }
             }

@@ -173,51 +173,6 @@ namespace IceInternal
             return null;
         }
 
-        protected void
-        parseOption(string option, string arg, string desc, string str)
-        {
-            if(option.Equals("-v"))
-            {
-                if(arg == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `" +
-                                                         desc + " "+ str + "'");
-                }
-
-                try
-                {
-                    protocol_ = Ice.Util.stringToProtocolVersion(arg);
-                }
-                catch(Ice.VersionParseException e)
-                {
-                    throw new Ice.EndpointParseException("invalid protocol version `" + arg + "' in endpoint `" +
-                                                         desc + " "+ str + "':\n" + e.str);
-                }
-            }            
-            else if(option.Equals("-e"))
-            {
-                if(arg == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `" +
-                                                         desc + " " + str + "'");
-                }
-            
-                try
-                {
-                    encoding_ = Ice.Util.stringToEncodingVersion(arg);
-                }
-                catch(Ice.VersionParseException e)
-                {
-                    throw new Ice.EndpointParseException("invalid encoding version `" + arg + "' in endpoint `" +
-                                                         desc + " "+ str + "':\n" + e.str);
-                }
-            }
-            else
-            {
-                throw new Ice.EndpointParseException("unknown option `" + option + "' in `" + desc + " " + str + "'");
-            }
-        }
-
         protected Ice.ProtocolVersion protocol_;
         protected Ice.EncodingVersion encoding_;
         protected string connectionId_ = "";

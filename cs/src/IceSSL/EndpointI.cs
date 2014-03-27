@@ -150,8 +150,7 @@ namespace IceSSL
 
                     default:
                     {
-                        parseOption(option, argument, "ssl", str);
-                        break;
+                        throw new Ice.EndpointParseException("unknown option `" + option + "' in endpoint `ssl " + str + "'");
                     }
                 }
             }
