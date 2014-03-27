@@ -63,8 +63,6 @@
       __cplusplus >= 201103) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1600))
 #   define ICE_CPP11
-#elif __cplusplus >= 201103 || defined(__GXX_EXPERIMENTAL_CXX0X__)
-#   error Unsupported C++11 compiler
 #endif
 
 #if defined(ICE_CPP11) && !defined(_MSC_VER)
