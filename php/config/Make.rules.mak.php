@@ -39,7 +39,7 @@ USE_NAMESPACES		= no
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.4.20
+PHP_HOME		= C:\php-5.5.11
 !endif
 
 #
@@ -82,19 +82,19 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 !if "$(CPP_COMPILER)" == ""
 
 !if "$(VISUALSTUDIOVERSION)" == "11.0"
-!error Detected VC110 compiler
+CPP_COMPILER            = VC110
 !elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-CPP_COMPILER            = VC90
+!error Detected VC90 compiler
 !elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
 !error Detected VC100 compiler
 !elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
-!error Detected VC110 compiler
+CPP_COMPILER            = VC110
 !else
 !error Cannot detect C++ compiler 
 !endif
 
-!elseif "$(CPP_COMPILER)" != "VC90"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC90.
+!elseif "$(CPP_COMPILER)" != "VC110"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC110.
 !endif
 
 !endif
