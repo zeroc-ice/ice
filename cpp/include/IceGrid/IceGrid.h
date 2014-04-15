@@ -20,5 +20,16 @@
 #include <IceGrid/Registry.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/UserAccountMapper.h>
+#include <IceGrid/PluginFacade.h>
+
+namespace IceGrid
+{
+
+//
+// Global function to obtain a RegistryPluginFacade
+//
+ICE_GRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
+
+}
 
 #endif

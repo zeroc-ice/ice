@@ -48,7 +48,8 @@ public:
 
     virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&) = 0;
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&) = 0;
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, 
+                                       const std::set<std::string>&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
     virtual AdapterPrx getProxy(const std::string&, bool) const = 0;
@@ -75,14 +76,20 @@ public:
 
     virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&);
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&,
+                                       const std::set<std::string>&);
+
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual AdapterPrx getProxy(const std::string&, bool) const;
 
+    void getLocatorAdapterInfo(LocatorAdapterInfoSeq&) const;
     const std::string& getReplicaGroupId() const { return _replicaGroupId; }
     int getPriority() const;
-    
+
+    std::string getServerId() const;
+    std::string getNodeName() const;
+
 private:
 
     const std::string _replicaGroupId;
@@ -95,11 +102,13 @@ class ReplicaGroupEntry : public AdapterEntry, public IceUtil::Monitor<IceUtil::
 {
 public:
 
-    ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
+    ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&, 
+                      const std::string&);
 
     virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&);
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&,
+                                       const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
     virtual AdapterPrx getProxy(const std::string&, bool) const { return 0; }
@@ -107,14 +116,17 @@ public:
     void addReplica(const std::string&, const ServerAdapterEntryPtr&);
     bool removeReplica(const std::string&);
 
-    void update(const std::string&, const LoadBalancingPolicyPtr&);
+    void update(const std::string&, const LoadBalancingPolicyPtr&, const std::string&);
     bool hasAdaptersFromOtherApplications() const;
+
+    const std::string& getFilter() const { return _filter; }
 
 private:
 
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
     LoadSample _loadSample;
+    std::string _filter;
     std::vector<ServerAdapterEntryPtr> _replicas;
     int _lastReplica;
     bool _requestInProgress;

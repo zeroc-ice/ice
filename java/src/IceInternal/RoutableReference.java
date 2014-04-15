@@ -655,9 +655,10 @@ public class RoutableReference extends Reference
                       boolean cacheConnection,
                       boolean prefereSecure,
                       Ice.EndpointSelectionType endpointSelection,
-                      int locatorCacheTimeout)
+                      int locatorCacheTimeout,
+                      java.util.Map<String, String> context)
     {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, context);
         _endpoints = endpoints;
         _adapterId = adapterId;
         _locatorInfo = locatorInfo;

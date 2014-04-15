@@ -23,13 +23,14 @@ public:
 int
 Server::run(int, char**)
 {
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ReplicatedAdapter");
+    Ice::ObjectAdapterPtr adpt = communicator()->createObjectAdapter("ReplicatedAdapter");
     Ice::ObjectPtr object = new TestI(communicator()->getProperties());
-    adapter->add(object, communicator()->stringToIdentity(communicator()->getProperties()->getProperty("Identity")));
+    adpt->add(object, communicator()->stringToIdentity(communicator()->getProperties()->getProperty("Ice.ProgramName")));
+    adpt->add(object, communicator()->stringToIdentity(communicator()->getProperties()->getProperty("Identity")));
     shutdownOnInterrupt();
     try
     {
-        adapter->activate();
+        adpt->activate();
         communicator()->getAdmin();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)

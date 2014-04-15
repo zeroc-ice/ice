@@ -1,0 +1,15 @@
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 4061 -t 30000
+
+#
+# The `currency' context sent to the IceGrid locator. This context is
+# used by the replica group filter from the plugin to filter out
+# replicas. You can set the currency to one of the configured currency
+# for the servers in application.xml (USD, EUR, GBP, INR, AUD, JPY).
+#
+# You can also unset this property and the client will ask for your
+# prefered currency.
+#
+Ice.Default.Locator.Context.currency=USD

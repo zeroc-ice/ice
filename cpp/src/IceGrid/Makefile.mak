@@ -43,6 +43,7 @@ NODE_OBJS	= NodeI.obj \
 
 REGISTRY_OBJS	= AdminCallbackRouter.obj \
                   RegistryI.obj \
+		  PluginFacadeI.obj \
                   RegistryServerAdminRouter.obj \
 		  InternalRegistryI.obj \
 		  Database.obj \

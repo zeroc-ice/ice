@@ -464,14 +464,16 @@ public:
                       const LocatorIPtr& locator,
                       const DatabasePtr database,
                       const string& id,
-                      const Ice::EncodingVersion& encoding,
+                      const Ice::Current& current,
                       const LocatorAdapterInfoSeq& adapters,
                       int count) :
         _amdCB(amdCB),
         _locator(locator),
         _database(database),
         _id(id),
-        _encoding(encoding),
+        _encoding(current.encoding),
+        _connection(current.con),
+        _context(current.ctx),
         _adapters(adapters),
         _traceLevels(locator->getTraceLevels()),
         _count(count),
@@ -650,8 +652,8 @@ private:
                 {
                     if(!_waitForActivation)
                     {
-                        _database->getLocatorAdapterInfo(_id, _adapters, _count, replicaGroup, roundRobin, 
-                                                         _activatingOrFailed);
+                        _database->getLocatorAdapterInfo(_id, _connection, _context, _adapters, _count, replicaGroup, 
+                                                         roundRobin, _activatingOrFailed);
                     }
                     
                     if(_waitForActivation || (_adapters.empty() && _activatingOrFailed.size() > _failed.size()))
@@ -660,7 +662,8 @@ private:
                         // If there are no more adapters to try and some servers were being activated, we 
                         // try again but this time we wait for the server activation.
                         //
-                        _database->getLocatorAdapterInfo(_id, _adapters, _count, replicaGroup, roundRobin, _failed);
+                        _database->getLocatorAdapterInfo(_id, _connection, _context, _adapters, _count, replicaGroup, 
+                                                         roundRobin, _failed);
                         _waitForActivation = true;
                     }
                     break;
@@ -740,6 +743,8 @@ private:
     const DatabasePtr _database;
     const std::string _id;
     const Ice::EncodingVersion _encoding;
+    const Ice::ConnectionPtr _connection;
+    const Ice::Context _context;
     LocatorAdapterInfoSeq _adapters;
     const TraceLevelsPtr _traceLevels;
     int _count;
@@ -863,7 +868,8 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         {
             try
             {
-                _database->getLocatorAdapterInfo(id, adapters, count, replicaGroup, roundRobin);
+                _database->getLocatorAdapterInfo(id, current.con, current.ctx, adapters, count, replicaGroup, 
+                                                 roundRobin);
                 break;
             }
             catch(const SynchronizationException&)
@@ -878,7 +884,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         RequestPtr request;
         if(roundRobin)
         {
-            request = new RoundRobinRequest(cb, self, _database, id, current.encoding, adapters, count);
+            request = new RoundRobinRequest(cb, self, _database, id, current, adapters, count);
         }
         else if(replicaGroup)
         {
@@ -916,7 +922,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 
     try
     {
-        cb->ice_response(_database->getAdapterDirectProxy(id, current.encoding));
+        cb->ice_response(_database->getAdapterDirectProxy(id, current.encoding, current.con, current.ctx));
     }
     catch(const AdapterNotExistException&)
     {

@@ -341,6 +341,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!b1->ice_isCollocationOptimized());
     prop->setProperty(property, "");
 
+    property = propertyPrefix + ".Context.c1";
+    test(b1->ice_getContext()["c1"].empty());
+    prop->setProperty(property, "TEST");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getContext()["c1"] == "TEST");
+
+    property = propertyPrefix + ".Context.c2";
+    test(b1->ice_getContext()["c2"].empty());
+    prop->setProperty(property, "TEST");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getContext()["c2"] == "TEST");
+
+    prop->setProperty(propertyPrefix + ".Context.c1", "");
+    prop->setProperty(propertyPrefix + ".Context.c2", "");
+
     cout << "ok" << endl;
 
     cout << "testing proxyToProperty... " << flush;

@@ -355,6 +355,21 @@ public class AllTests : TestCommon.TestApp
         test(!b1.ice_isCollocationOptimized());
         prop.setProperty(property, "");
 
+        property = propertyPrefix + ".Context.c1";
+        test(!b1.ice_getContext().ContainsKey("c1"));
+        prop.setProperty(property, "TEST");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getContext()["c1"].Equals("TEST"));
+
+        property = propertyPrefix + ".Context.c2";
+        test(!b1.ice_getContext().ContainsKey("c2"));
+        prop.setProperty(property, "TEST");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getContext()["c2"].Equals("TEST"));
+
+        prop.setProperty(propertyPrefix + ".Context.c1", "");
+        prop.setProperty(propertyPrefix + ".Context.c2", "");
+
         WriteLine("ok");
 
         Write("testing proxyToProperty... ");

@@ -11,6 +11,7 @@ Session.cpp
 Observer.cpp
 Descriptor.cpp
 UserAccountMapper.cpp
+PluginFacade.cpp
 Admin.h
 Exception.h
 FileParser.h

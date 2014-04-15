@@ -39,26 +39,25 @@ QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
 }
 
 Ice::ObjectPrx
-QueryI::findObjectByType(const string& type, const Ice::Current&) const
+QueryI::findObjectByType(const string& type, const Ice::Current& current) const
 {
-    return _database->getObjectByType(type);
+    return _database->getObjectByType(type, current.con, current.ctx);
 }
 
 Ice::ObjectPrx
-QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current&) const
+QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current& current) const
 {
-    return _database->getObjectByTypeOnLeastLoadedNode(type, sample);
+    return _database->getObjectByTypeOnLeastLoadedNode(type, sample, current.con, current.ctx);
 }
 
 Ice::ObjectProxySeq
-QueryI::findAllObjectsByType(const string& type, const Ice::Current&) const
+QueryI::findAllObjectsByType(const string& type, const Ice::Current& current) const
 {
-    return _database->getObjectsByType(type);
+    return _database->getObjectsByType(type, current.con, current.ctx);
 }
 
-
 Ice::ObjectProxySeq
-QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current&) const
+QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current& current) const
 {
     if(!proxy)
     {
@@ -86,7 +85,7 @@ QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current&) const
 
     try
     {
-        AdapterInfoSeq infos = _database->getAdapterInfo(prx->ice_getAdapterId());
+        AdapterInfoSeq infos = _database->getFilteredAdapterInfo(prx->ice_getAdapterId(), current.con, current.ctx);
         if(infos.empty() || infos[0].replicaGroupId != prx->ice_getAdapterId()) 
         {
             // The adapter id doesn't refer to a replica group or the replica group is empty.

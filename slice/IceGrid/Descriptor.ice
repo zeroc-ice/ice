@@ -755,6 +755,13 @@ struct ReplicaGroupDescriptor
      *
      **/
     string description;
+
+    /**
+     *
+     * The filter to use for this replica group.
+     *
+     **/
+    string filter;
 };
 
 /**

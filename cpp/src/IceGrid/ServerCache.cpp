@@ -225,11 +225,11 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
     {
         for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
-            _objectCache.remove(r->id);
+            _objectCache.remove((*r).id);
         }
         for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
-            _allocatableObjectCache.remove(r->id);
+            _allocatableObjectCache.remove((*r).id);
         }
         _adapterCache.removeServerAdapter(q->id);
     }

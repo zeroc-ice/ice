@@ -23,7 +23,9 @@ LIB_OBJS	= Admin.obj \
 		  Observer.obj \
 		  Session.obj \
 		  Registry.obj \
-		  UserAccountMapper.obj
+		  UserAccountMapper.obj \
+		  PluginFacade.obj \
+		  PluginFacadeI.obj
 
 SRCS		= $(LIB_OBJS:.obj=.cpp)
 

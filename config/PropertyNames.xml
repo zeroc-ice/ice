@@ -250,6 +250,7 @@ generated from the section label.
         <suffix name="Locator" />
         <suffix name="Router" />
         <suffix name="CollocationOptimized" />
+        <suffix name="Context.[any]" />
     </class>
 
     <class name="threadpool" prefix-only="true">

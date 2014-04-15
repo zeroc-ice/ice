@@ -63,14 +63,17 @@ IceGrid::toString(const Ice::Exception& exception)
 string
 IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
 {    
-    string result = def;
-
+    string result;
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
         if(q->name == name)
         {
             result = q->value;
         }
+    }
+    if(result.empty())
+    {
+        return def;
     }
     return result;
 }
@@ -175,15 +178,15 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
 }
 
 ObjectInfo
-IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDescriptor& object, const string& adapterId)
+IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDescriptor& obj, const string& adapterId)
 {
     ObjectInfo info;
-    info.type = object.type;
+    info.type = obj.type;
     ostringstream proxyStr;
-    proxyStr << "\"" << communicator->identityToString(object.id) << "\"";
-    if(!object.proxyOptions.empty())
+    proxyStr << "\"" << communicator->identityToString(obj.id) << "\"";
+    if(!obj.proxyOptions.empty())
     {
-        proxyStr << ' ' << object.proxyOptions;
+        proxyStr << ' ' << obj.proxyOptions;
     }
     proxyStr << " @ " << adapterId;
     try
@@ -193,7 +196,7 @@ IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDesc
     catch(const Ice::ProxyParseException&)
     {
         ostringstream fallbackProxyStr;
-        fallbackProxyStr << "\"" << communicator->identityToString(object.id) << "\"" << " @ " << adapterId;
+        fallbackProxyStr << "\"" << communicator->identityToString(obj.id) << "\"" << " @ " << adapterId;
         info.proxy = communicator->stringToProxy(fallbackProxyStr.str());
     }
     return info;

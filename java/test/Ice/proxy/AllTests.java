@@ -355,6 +355,21 @@ public class AllTests
         test(!b1.ice_isCollocationOptimized());
         prop.setProperty(property, "");
 
+        property = propertyPrefix + ".Context.c1";
+        test(b1.ice_getContext().get("c1") == null);
+        prop.setProperty(property, "TEST");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getContext().get("c1").equals("TEST"));
+
+        property = propertyPrefix + ".Context.c2";
+        test(b1.ice_getContext().get("c2") == null);
+        prop.setProperty(property, "TEST");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getContext().get("c2").equals("TEST"));
+
+        prop.setProperty(propertyPrefix + ".Context.c1", "");
+        prop.setProperty(propertyPrefix + ".Context.c2", "");
+
         out.println("ok");
 
         out.print("testing proxyToProperty... ");

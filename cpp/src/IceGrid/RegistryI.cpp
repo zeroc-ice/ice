@@ -810,7 +810,7 @@ RegistryI::stop()
     //
     if(_database)
     {
-        _database->destroyTopics();
+        _database->destroy();
     }
 
     try

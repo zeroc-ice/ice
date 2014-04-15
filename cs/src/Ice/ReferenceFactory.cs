@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace IceInternal
 {
@@ -677,7 +678,8 @@ namespace IceInternal
             "LocatorCacheTimeout",
             "Locator",
             "Router",
-            "CollocationOptimized"
+            "CollocationOptimized",
+            "Context\\..*"
         };
 
         private void
@@ -702,7 +704,8 @@ namespace IceInternal
                 bool valid = false;
                 for(int i = 0; i < _suffixes.Length; ++i)
                 {
-                    if(prop.Equals(prefix + "." + _suffixes[i]))
+                    string pattern = "^" + Regex.Escape(prefix + ".") + _suffixes[i] + "$";
+                    if(new Regex(pattern).Match(prop).Success)
                     {
                         valid = true;
                         break;
@@ -763,7 +766,8 @@ namespace IceInternal
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
             Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
             int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
-        
+            Dictionary<string, string> context = null;
+ 
             //
             // Override the defaults with the proxy properties if a property prefix is defined.
             //
@@ -842,6 +846,17 @@ namespace IceInternal
         
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+
+                property = propertyPrefix + ".Context.";
+                Dictionary<string, string> contexts = properties.getPropertiesForPrefix(property);
+                if(contexts.Count != 0)
+                {
+                    context = new Dictionary<string, string>();
+                    foreach(KeyValuePair<string, string> e in contexts)
+                    {
+                        context.Add(e.Key.Substring(property.Length), e.Value); 
+                    }
+                }
             }
         
             //
@@ -863,7 +878,8 @@ namespace IceInternal
                                          cacheConnection,
                                          preferSecure,
                                          endpointSelection,
-                                         locatorCacheTimeout);
+                                         locatorCacheTimeout,
+                                         context);
         }
 
         private Instance instance_;

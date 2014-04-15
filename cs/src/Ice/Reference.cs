@@ -466,7 +466,8 @@ namespace IceInternal
                             Mode mode,
                             bool secure,
                             Ice.ProtocolVersion protocol,
-                            Ice.EncodingVersion encoding)
+                            Ice.EncodingVersion encoding,
+                            Dictionary<string, string> context)
         {
             //
             // Validate string arguments.
@@ -479,7 +480,7 @@ namespace IceInternal
             communicator_ = communicator;
             mode_ = mode;
             identity_ = identity;
-            context_ = _emptyContext;
+            context_ = context != null ? new Dictionary<string, string>(context) : _emptyContext;
             facet_ = facet;
             protocol_ = protocol;
             encoding_ = encoding;
@@ -502,7 +503,7 @@ namespace IceInternal
                               bool secure,
                               Ice.EncodingVersion encoding,
                               Ice.ConnectionI connection)
-            : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding)
+            : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null)
         {
             _fixedConnection = connection;
         }
@@ -1391,8 +1392,9 @@ namespace IceInternal
                                  bool cacheConnection,
                                  bool preferSecure,
                                  Ice.EndpointSelectionType endpointSelection,
-                                 int locatorCacheTimeout)
-            : base(instance, communicator, identity, facet, mode, secure, protocol, encoding)
+                                 int locatorCacheTimeout,
+                                 Dictionary<string, string> context)
+            : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, context)
         {
             _endpoints = endpoints;
             _adapterId = adapterId;

@@ -140,7 +140,7 @@ public:
 protected:
 
     Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode, bool,
-              const Ice::ProtocolVersion&, const Ice::EncodingVersion&);
+              const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const Ice::Context& ctx);
     Reference(const Reference&);
 
     virtual Ice::Int hashInit() const;
@@ -226,7 +226,7 @@ public:
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
                       bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::vector<EndpointIPtr>&,
                       const std::string&, const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool, 
-                      Ice::EndpointSelectionType, int);
+                      Ice::EndpointSelectionType, int, const Ice::Context&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;

@@ -28,7 +28,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-struct GetReplicaGroupId : unary_function<ReplicaGroupDescriptor&, const string&>
+struct GetReplicaGroupId : unary_function<const ReplicaGroupDescriptor&, const string&>
 {
     const string&
     operator()(const ReplicaGroupDescriptor& desc)
@@ -36,6 +36,50 @@ struct GetReplicaGroupId : unary_function<ReplicaGroupDescriptor&, const string&
         return desc.id;
     }
 };
+
+struct GetAdapterId : unary_function<const AdapterDescriptor&, const string&>
+{
+    const string&
+    operator()(const AdapterDescriptor& desc)
+    {
+        return desc.id;
+    }
+};
+
+struct GetObjectId : unary_function<const ObjectDescriptor&, const Ice::Identity&>
+{
+    const Ice::Identity&
+    operator()(const ObjectDescriptor& desc)
+    {
+        return desc.id;
+    }
+};
+
+template <typename GetKeyFunc, typename Seq, typename EqFunc> bool
+isSeqEqual(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq = equal_to<typename Seq::value_type>())
+{
+    if(rseq.size() != lseq.size())
+    {
+        return false;
+    }
+
+    for(typename Seq::const_iterator p = rseq.begin(); p != rseq.end(); ++p)
+    {
+        typename Seq::const_iterator q = lseq.begin();
+        for(; q != lseq.end(); ++q)
+        {
+            if(func(*p) == func(*q))
+            {
+                break;
+            }
+        }
+        if(q == lseq.end() || !eq(*p, *q))
+        {
+            return false;
+        }
+    }
+    return true;
+}
 
 struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, TemplateDescriptor&, bool>
 {
@@ -81,7 +125,73 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
     }
 };
 
-struct ReplicaGroupEq : std::binary_function<ReplicaGroupDescriptor&, ReplicaGroupDescriptor&, bool>
+struct ObjectDescriptorEq : std::binary_function<const ObjectDescriptor&, const ObjectDescriptor&, bool>
+{
+    bool
+    operator()(const ObjectDescriptor& lhs, const ObjectDescriptor& rhs)
+    {
+        if(lhs.id != rhs.id)
+        {
+            return false;
+        }
+        if(lhs.type != rhs.type)
+        {
+            return false;
+        }
+        if(lhs.proxyOptions != rhs.proxyOptions)
+        {
+            return false;
+        }
+        return true;
+    }
+};
+
+struct AdapterEq : std::binary_function<const AdapterDescriptor&, const AdapterDescriptor&, bool>
+{
+    bool
+    operator()(const AdapterDescriptor& lhs, const AdapterDescriptor& rhs)
+    {
+        if(lhs.id != rhs.id)
+        {
+            return false;
+        }
+        if(lhs.name != rhs.name)
+        {
+            return false;
+        }
+        if(lhs.description != rhs.description)
+        {
+            return false;
+        }
+        if(lhs.replicaGroupId != rhs.replicaGroupId)
+        {
+            return false;
+        }
+        if(lhs.priority != rhs.priority)
+        {
+            return false;
+        }
+        if(lhs.registerProcess != rhs.registerProcess)
+        {
+            return false;
+        }
+        if(lhs.serverLifetime != rhs.serverLifetime)
+        {
+            return false;
+        }
+        if(!isSeqEqual(lhs.objects, rhs.objects, GetObjectId(), ObjectDescriptorEq()))
+        {
+            return false;
+        }
+        if(!isSeqEqual(lhs.allocatables, rhs.allocatables, GetObjectId(), ObjectDescriptorEq()))
+        {
+            return false;
+        }
+        return true;
+    }
+};
+
+struct ReplicaGroupEq : std::binary_function<const ReplicaGroupDescriptor&, const ReplicaGroupDescriptor&, bool>
 {
     bool
     operator()(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)
@@ -94,8 +204,11 @@ struct ReplicaGroupEq : std::binary_function<ReplicaGroupDescriptor&, ReplicaGro
         {
             return false;
         }
-        if(set<ObjectDescriptor>(lhs.objects.begin(), lhs.objects.end()) != 
-           set<ObjectDescriptor>(rhs.objects.begin(), rhs.objects.end()))
+        if(lhs.filter != rhs.filter)
+        {
+            return false;
+        }
+        if(!isSeqEqual(lhs.objects, rhs.objects, GetObjectId(), ObjectDescriptorEq()))
         {
             return false;
         }
@@ -975,8 +1088,7 @@ CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
         return false;
     }
 
-    if(set<AdapterDescriptor>(_desc->adapters.begin(), _desc->adapters.end())  != 
-       set<AdapterDescriptor>(helper._desc->adapters.begin(), helper._desc->adapters.end()))
+    if(!isSeqEqual(_desc->adapters, helper._desc->adapters, GetAdapterId(), AdapterEq()))
     {
         return false;
     }
@@ -2581,6 +2693,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
             desc.description = resolve(r->description, "replica group description");
             desc.proxyOptions = resolve(r->proxyOptions, "replica group proxy options");
             validateProxyOptions(resolve, desc.proxyOptions);
+            desc.filter = resolve(r->filter, "replica group filter");
             desc.objects = resolve(r->objects, r->proxyOptions, "replica group well-known");
             if(!r->loadBalancing)
             {
@@ -3020,6 +3133,10 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             {
                 out << nl << "proxy options = `" << p->proxyOptions << "'";
             }
+            if(!p->filter.empty())
+            {
+                out << nl << "filter = `" << p->filter << "'";
+            }
             out << "'";
         }
         out << eb;
@@ -3028,7 +3145,8 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     {
         out << nl << "server templates";
         out << sb;
-        for(TemplateDescriptorDict::const_iterator p = _instance.serverTemplates.begin(); p != _instance.serverTemplates.end(); ++p)
+        for(TemplateDescriptorDict::const_iterator p = _instance.serverTemplates.begin(); 
+            p != _instance.serverTemplates.end(); ++p)
         {
             out << nl << p->first;
         }
@@ -3099,8 +3217,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
             for(ReplicaGroupDescriptorSeq::iterator p = updated.begin(); p != updated.end();)
             {
                 ReplicaGroupDescriptorSeq::const_iterator r;
-                for(r = helper._def.replicaGroups.begin(); r != helper._def.replicaGroups.end(); 
-                    ++r)
+                for(r = helper._def.replicaGroups.begin(); r != helper._def.replicaGroups.end(); ++r)
                 {
                     if(p->id == r->id)
                     {

@@ -716,7 +716,8 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimized"
+        "CollocationOptimized",
+        "Context.*"
     };
 
     //
@@ -738,7 +739,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
         {
             string prop = prefix + "." + suffixes[i];
-            if(p->first == prop)
+            if(IceUtilInternal::match(p->first, prop))
             {
                 valid = true;
                 break;
@@ -796,6 +797,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
     Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
     int locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
+    Ice::Context ctx;
 
     //
     // Override the defaults with the proxy properties if a property prefix is defined.
@@ -871,6 +873,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         
         property = propertyPrefix + ".LocatorCacheTimeout";
         locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+
+        property = propertyPrefix + ".Context.";
+        PropertyDict contexts = properties->getPropertiesForPrefix(property);
+        for(PropertyDict::const_iterator p = contexts.begin(); p != contexts.end(); ++p)
+        {
+            ctx.insert(make_pair(p->first.substr(property.length()), p->second)); 
+        }
     }
 
     //
@@ -892,6 +901,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                  cacheConnection,
                                  preferSecure,
                                  endpointSelection,
-                                 locatorCacheTimeout);
+                                 locatorCacheTimeout,
+                                 ctx);
 }
 

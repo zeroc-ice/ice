@@ -262,6 +262,7 @@ ApplicationDescriptorBuilder::addReplicaGroup(const XmlAttributesHelper& attrs)
     ReplicaGroupDescriptor adapter;
     adapter.id = attrs("id");
     adapter.proxyOptions = attrs("proxy-options", "");
+    adapter.filter = attrs("filter", "");
     _descriptor.replicaGroups.push_back(adapter);
 }
 

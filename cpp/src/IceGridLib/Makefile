@@ -25,7 +25,9 @@ LIB_OBJS	= Admin.o \
 		  Observer.o \
 		  Session.o \
 		  Registry.o \
-		  UserAccountMapper.o
+		  UserAccountMapper.o \
+		  PluginFacade.o \
+		  PluginFacadeI.o
 
 SRCS		= $(LIB_OBJS:.o=.cpp)
 
@@ -39,6 +41,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Descriptor.ice \
 		  $(SDIR)/UserAccountMapper.ice \
+		  $(SDIR)/PluginFacade.ice
 
 HDIR		= $(headerdir)/IceGrid
 LOCAL_HDIR	= ../IceGrid

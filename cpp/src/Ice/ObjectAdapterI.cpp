@@ -1522,9 +1522,6 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
                 valid = true;
                 break;
             }
-            else
-            {
-            }
         }
 
         if(!valid && addUnknown)

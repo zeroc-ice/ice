@@ -489,14 +489,15 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
                                   Mode mode,
                                   bool secure,
                                   const ProtocolVersion& protocol,
-                                  const EncodingVersion& encoding) :
+                                  const EncodingVersion& encoding,
+                                  const Ice::Context& ctx) :
     _hashInitialized(false),
     _instance(instance),
     _communicator(communicator),
     _mode(mode),
     _secure(secure),
     _identity(id),
-    _context(new SharedContext),
+    _context(new SharedContext(ctx)),
     _facet(facet),
     _protocol(protocol),
     _encoding(encoding),
@@ -553,7 +554,7 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             bool secure,
                                             const EncodingVersion& encoding,
                                             const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding),
+    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding, Ice::Context()),
     _fixedConnection(fixedConnection)
 {
 }
@@ -873,8 +874,9 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   bool cacheConnection,
                                                   bool preferSecure, 
                                                   EndpointSelectionType endpointSelection,
-                                                  int locatorCacheTimeout) :
-    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding),
+                                                  int locatorCacheTimeout,
+                                                  const Ice::Context& ctx) :
+    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, ctx),
     _endpoints(endpoints),
     _adapterId(adapterId),
     _locatorInfo(locatorInfo),

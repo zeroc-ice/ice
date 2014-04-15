@@ -12,6 +12,7 @@ top_srcdir	= ..\..
 !include $(top_srcdir)\config\Make.rules.mak
 
 SUBDIRS		= allocate \
+		  customLoadBalancing \
 		  sessionActivation \
 		  simple \
 		  replication \

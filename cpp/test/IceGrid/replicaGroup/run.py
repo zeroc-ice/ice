@@ -28,6 +28,8 @@ import TestUtil, IceGridAdmin
 #
 IceGridAdmin.nreplicas=0
 
+IceGridAdmin.registryOptions += " --Ice.Plugin.RegistryPlugin=RegistryPlugin:createRegistryPlugin"
+
 if TestUtil.isDarwin():
     #
     # On OS X, make sure to also run the IceBox services in 32bits mode if

@@ -66,6 +66,7 @@ class ReplicaGroups extends ListTreeNode
                 null,
                 "",
                 new java.util.LinkedList<ObjectDescriptor>(),
+                "",
                 "");
 
         newReplicaGroup(descriptor);

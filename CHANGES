@@ -27,6 +27,12 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added support for IceGrid custom load balancing with the addition of
+  replica group and type filters. Those filters allow to select the
+  set of replicas which are sent back to the client when it resolves
+  replica group endpoints. It's also possible to filter the objects
+  returned to the client when it uses the IceGrid::Query interface.
+
 - Fixed a marshaling bug where the marshaling of a type with nested
   optionals of variable size could trigger an assertion.
 

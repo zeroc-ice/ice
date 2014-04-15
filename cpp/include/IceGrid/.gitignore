@@ -11,3 +11,4 @@ Session.h
 Observer.h
 Descriptor.h
 UserAccountMapper.h
+PluginFacade.h

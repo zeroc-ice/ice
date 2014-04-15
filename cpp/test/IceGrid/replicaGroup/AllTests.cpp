@@ -531,7 +531,162 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
 
-    cout << "testing load balancing n-replicas..." << flush;
+    cout << "testing filters... " << flush;
+    {
+        map<string, string> params;
+        params["replicaGroup"] = "Ordered-Filtered";
+        params["id"] = "Server1";
+        instantiateServer(admin, "Server", "localnode", params);
+        params["id"] = "Server2";
+        instantiateServer(admin, "Server", "localnode", params);
+//        params["id"] = "Server3";
+//        instantiateServer(admin, "Server", "localnode", params);
+        params["id"] = "Server3";
+        instantiateServer(admin, "IceBox1", "localnode", params);
+
+        Ice::LocatorPrx locator = comm->getDefaultLocator();
+        Ice::Context ctx;
+        ctx["server"] = "Server3";
+        locator->ice_context(ctx);
+
+        TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Ordered-Filtered"));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+        try
+        {
+            ctx["server"] = "Server3";
+            test(obj->ice_locator(locator->ice_context(ctx))->getReplicaId() == "Server3.Service.Service");
+            ctx["server"] = "Server1";
+            test(obj->ice_locator(locator->ice_context(ctx))->getReplicaId() == "Server1.ReplicatedAdapter");
+            ctx["server"] = "Server2";
+            test(obj->ice_locator(locator->ice_context(ctx))->getReplicaId() == "Server2.ReplicatedAdapter");
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
+        test(query);
+
+        try
+        {
+            ctx["server"] = "Server3";
+            test(query->ice_context(ctx)->findAllReplicas(obj)[0]->ice_getAdapterId() == "Server3.Service.Service");
+            ctx["server"] = "Server1";
+            test(query->ice_context(ctx)->findAllReplicas(obj)[0]->ice_getAdapterId() == "Server1.ReplicatedAdapter");
+            ctx["server"] = "Server2";
+            test(query->ice_context(ctx)->findAllReplicas(obj)[0]->ice_getAdapterId() == "Server2.ReplicatedAdapter");
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        try
+        {
+            ctx["server"] = "Server3";
+            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() == 
+                 "Server3.Service.Service");
+            ctx["server"] = "Server1";
+            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() == 
+                 "Server1.ReplicatedAdapter");
+            ctx["server"] = "Server2";
+            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() == 
+                 "Server2.ReplicatedAdapter");
+
+            ctx["server"] = "Server3";
+            test(query->ice_context(ctx)->findObjectByTypeOnLeastLoadedNode(
+                     "::Test::TestIntf2", LoadSample5)->ice_getAdapterId() == "Server3.Service.Service");
+            ctx["server"] = "Server1";
+            test(query->ice_context(ctx)->findObjectByTypeOnLeastLoadedNode(
+                     "::Test::TestIntf2", LoadSample5)->ice_getAdapterId() == "Server1.ReplicatedAdapter");
+            ctx["server"] = "Server2";
+            test(query->ice_context(ctx)->findObjectByTypeOnLeastLoadedNode(
+                     "::Test::TestIntf2", LoadSample5)->ice_getAdapterId() == "Server2.ReplicatedAdapter");
+
+            ctx["server"] = "Server3";
+            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() == 
+                 "Server3.Service.Service");
+            ctx["server"] = "Server1";
+            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() == 
+                 "Server1.ReplicatedAdapter");
+            ctx["server"] = "Server2";
+            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() == 
+                 "Server2.ReplicatedAdapter");
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        removeServer(admin, "Server1");
+        removeServer(admin, "Server2");
+        removeServer(admin, "Server3");
+    }
+    {
+        map<string, string> params;
+        params["replicaGroup"] = "Unknown";
+        params["id"] = "UnknownServer";
+        instantiateServer(admin, "Server", "localnode", params);
+
+        TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Unknown"));
+        obj->getReplicaId();
+
+        removeServer(admin, "UnknownServer");
+    }
+    {
+        map<string, string> params;
+        params["replicaGroup"] = "Exclude";
+        params["id"] = "ExcludeServer";
+        instantiateServer(admin, "Server", "localnode", params);
+
+        TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Exclude"));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+        try
+        {
+            obj->getReplicaId();
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+
+        Ice::LocatorPrx locator = comm->getDefaultLocator();
+        try
+        {
+            Ice::Context ctx;
+            ctx["server"] = "Server2";
+            obj->ice_locator(locator->ice_context(ctx))->getReplicaId();
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+        try
+        {
+            Ice::Context ctx;
+            ctx["server"] = "Server3";
+            obj->ice_locator(locator->ice_context(ctx))->getReplicaId();
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+
+        Ice::Context ctx;
+        ctx["server"] = "Server1";
+        string id = obj->ice_locator(locator->ice_context(ctx))->getReplicaId();
+
+        removeServer(admin, "ExcludeServer");
+    }
+    cout << "ok" << endl;
+
+    cout << "testing load balancing n-replicas... " << flush;
     {
         TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-2"));
         obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));

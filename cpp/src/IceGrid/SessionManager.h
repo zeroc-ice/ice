@@ -15,6 +15,9 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 
+#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
+
 #include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
 

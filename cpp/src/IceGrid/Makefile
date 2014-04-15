@@ -43,6 +43,7 @@ NODE_OBJS	= NodeI.o \
 
 REGISTRY_OBJS   = AdminCallbackRouter.o \
                   RegistryI.o \
+		  PluginFacadeI.o \
                   RegistryServerAdminRouter.o \
 	  	  InternalRegistryI.o \
 	          Allocatable.o \

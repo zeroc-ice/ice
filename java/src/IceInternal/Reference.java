@@ -491,7 +491,8 @@ public abstract class Reference implements Cloneable
               int mode,
               boolean secure,
               Ice.ProtocolVersion protocol,
-              Ice.EncodingVersion encoding)
+              Ice.EncodingVersion encoding,
+              java.util.Map<String, String> context)
     {
         //
         // Validate string arguments.
@@ -505,7 +506,7 @@ public abstract class Reference implements Cloneable
         _mode = mode;
         _secure = secure;
         _identity = identity;
-        _context = _emptyContext;
+        _context = context != null ? new java.util.HashMap<String, String>(context) : _emptyContext;
         _facet = facet;
         _protocol = protocol;
         _encoding = encoding;

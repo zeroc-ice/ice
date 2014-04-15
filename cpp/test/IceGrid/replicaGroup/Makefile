@@ -15,7 +15,10 @@ SERVER		= server
 SVCFILENAME     = $(call mklibfilename,TestService)
 SVCSONAME	= $(call mksoname,TestService) 
 
-TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) 
+PLUGINFILENAME  = $(call mklibfilename,RegistryPlugin,$(VERSION))
+PLUGINSONAME	= $(call mksoname,RegistryPlugin,$(SOVERSION)) 
+
+TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME ) $(call mklibtargets,$(PLUGINFILENAME),$(PLUGINSONAME))
 
 OBJS		= Test.o
 
@@ -24,6 +27,8 @@ COBJS		= Client.o \
 
 SOBJS		= TestI.o \
 		  Server.o
+
+POBJS		= RegistryPlugin.o
 
 SERVICE_OBJS	= TestI.o \
 		  Service.o
@@ -38,7 +43,7 @@ SLICE_SRCS	= Test.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -50,7 +55,15 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 $(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS),-lIceBox $(LINKWITH))
+
+$(PLUGINFILENAME): $(POBJS)
+	rm -f $@
+	$(call mkshlib,$@,$(PLUGINSONAME),$(POBJS),-lIceGrid -lGlacier2 $(LINKWITH))
+
+$(PLUGINSONAME): $(PLUGINFILENAME)
+	rm -f $@
+	ln -s $(PLUGINFILENAME) $@
 
 clean::
 	-rm -f build.txt

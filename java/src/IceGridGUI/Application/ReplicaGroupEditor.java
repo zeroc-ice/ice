@@ -219,6 +219,10 @@ class ReplicaGroupEditor extends Editor
 
         _proxyOptions.getDocument().addDocumentListener(_updateListener);
         _proxyOptions.setToolTipText("The proxy options used for proxies created by IceGrid for the replica group");
+
+        _filter.getDocument().addDocumentListener(_updateListener);
+        _filter.setToolTipText("An optional filter for this replica group. Filters are installed by registry" +
+                               "plugin to provide custom load balancing for replica groups.");
     }
 
     void writeDescriptor()
@@ -229,6 +233,7 @@ class ReplicaGroupEditor extends Editor
         descriptor.description = _description.getText();
         descriptor.objects = _objectList;
         descriptor.proxyOptions = _proxyOptions.getText().trim();
+        descriptor.filter = _filter.getText();
         Object loadBalancing = _loadBalancing.getSelectedItem();
         if(loadBalancing == ORDERED)
         {
@@ -277,6 +282,10 @@ class ReplicaGroupEditor extends Editor
 
         builder.append("Proxy Options");
         builder.append(_proxyOptions, 3);
+        builder.nextLine();
+
+        builder.append("Filter");
+        builder.append(_filter, 3);
         builder.nextLine();
 
         builder.append("Well-known Objects");
@@ -348,6 +357,9 @@ class ReplicaGroupEditor extends Editor
 
         _proxyOptions.setText(descriptor.proxyOptions);
         _proxyOptions.setEditable(isEditable);
+
+        _filter.setText(descriptor.filter);
+        _filter.setEditable(isEditable);
 
         _objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
 
@@ -459,11 +471,12 @@ class ReplicaGroupEditor extends Editor
     private JTextField _id = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
     private JTextField _proxyOptions = new JTextField(20);
+    private JTextField _filter = new JTextField(20);
 
     private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE, 
-                                                                                   ORDERED, 
-                                                                                   RANDOM, 
-                                                                                   ROUND_ROBIN});
+                                                                   ORDERED, 
+                                                                   RANDOM, 
+                                                                   ROUND_ROBIN});
 
     private JTextField _nReplicas = new JTextField(20);
 

@@ -675,7 +675,8 @@ public final class ReferenceFactory
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimized"
+        "CollocationOptimized",
+        "Context\\..*"
     };
 
     private void
@@ -702,7 +703,8 @@ public final class ReferenceFactory
             boolean valid = false;
             for(String suffix : _suffixes)
             {
-                if(prop.equals(prefix + "." + suffix))
+                String pattern = java.util.regex.Pattern.quote(prefix + ".") + suffix;
+                if(java.util.regex.Pattern.compile(pattern).matcher(prop).matches())
                 {
                     valid = true;
                     break;
@@ -757,7 +759,8 @@ public final class ReferenceFactory
         boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
-        
+        java.util.Map<String, String> context = null;
+
         //
         // Override the defaults with the proxy properties if a property prefix is defined.
         //
@@ -835,6 +838,17 @@ public final class ReferenceFactory
         
             property = propertyPrefix + ".LocatorCacheTimeout";
             locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+
+            property = propertyPrefix + ".Context.";
+            java.util.Map<String, String> contexts = properties.getPropertiesForPrefix(property);
+            if(!contexts.isEmpty())
+            {
+                context = new java.util.HashMap<String, String>();
+                for(java.util.Map.Entry<String, String> e : contexts.entrySet())
+                {
+                    context.put(e.getKey().substring(property.length()), e.getValue()); 
+                }
+            }
         }
         
         //
@@ -856,7 +870,8 @@ public final class ReferenceFactory
                                      cacheConnection,
                                      preferSecure,
                                      endpointSelection,
-                                     locatorCacheTimeout);
+                                     locatorCacheTimeout,
+                                     context);
     }
 
     final private Instance _instance;

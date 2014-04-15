@@ -15,7 +15,10 @@ SERVER		= server.exe
 LIBNAME		= testservice$(LIBSUFFIX).lib
 DLLNAME		= testservice$(LIBSUFFIX).dll
 
-TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME)
+PLUGINLIBNAME	= registryplugin$(LIBSUFFIX).lib
+PLUGINDLLNAME	= registryplugin$(LIBSUFFIX).dll
+
+TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME) $(PLUGINLIBNAME) $(PLUGINDLLNAME)
 
 OBJS		= Test.obj
 
@@ -47,11 +50,19 @@ SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 $(LIBNAME) : $(DLLNAME)
 
 $(DLLNAME): $(OBJS) $(SERVICE_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
-	  freeze$(LIBSUFFIX).lib
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
+
+$(PLUGINLIBNAME) : $(PLUGINDLLNAME)
+
+$(PLUGINDLLNAME): RegistryPlugin.obj
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) RegistryPlugin.obj $(PREOUT)$(PLUGINDLLNAME) $(PRELIBS)$(LINKWITH) \
+	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+	@if exist $(PLUGINDLLNAME:.dll=.exp) del /q $(PLUGINDLLNAME:.dll=.exp)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \

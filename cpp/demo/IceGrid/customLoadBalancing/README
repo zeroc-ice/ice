@@ -1,0 +1,24 @@
+To run the demo, first start the IceGrid service:
+
+$ icegridnode --Ice.Config=config.grid
+
+In a separate window:
+
+$ icegridadmin --Ice.Config=config.grid -e \
+    "application add 'application.xml'"
+$ client
+
+This will deploy the application described in the file
+"application.xml" and start the client.
+
+The client makes an invocation on the "pricing" well-known object to
+retrieve the prefered currencies of the server. The client sets up a
+context to indicate its prefered currency to the replica group
+filter. The replica group filter filters out servers that don't match.
+
+You can execute multiple times the client to ensure it doesn't always
+talk to the same server. The client should always talk to a server
+that supports its prefered currency.
+
+You can edit config.client to change or comment out the client's
+prefered currency.
