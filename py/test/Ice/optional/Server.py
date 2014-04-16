@@ -33,9 +33,9 @@ class InitialI(Test.Initial):
         e.a = a
         e.b = b
         e.o = o
-        if b != Ice.Unset:
+        if b is not Ice.Unset:
             e.ss = b
-        if o != Ice.Unset:
+        if o is not Ice.Unset:
             e.o2 = o
         raise e
 

@@ -28,10 +28,11 @@ General Changes
 ===============
 
 - Added support for IceGrid custom load balancing with the addition of
-  replica group and type filters. Those filters allow to select the
-  set of replicas which are sent back to the client when it resolves
-  replica group endpoints. It's also possible to filter the objects
-  returned to the client when it uses the IceGrid::Query interface.
+  replica group and type filters. These filters allow you to select
+  the set of replicas that are sent back to the client when it
+  resolves replica group endpoints. It's also possible to filter the
+  objects returned to the client when it uses the IceGrid::Query
+  interface.
 
 - Fixed a marshaling bug where the marshaling of a type with nested
   optionals of variable size could trigger an assertion.
@@ -44,6 +45,9 @@ General Changes
 
 Python Changes
 ==============
+
+- Changed the semantics of Ice.Unset so that it evaluates as false in
+  a boolean context.
 
 - Fixed a bug in the Slice-to-Python translator that eliminates the
   use of implicit relative imports for nested Slice modules.

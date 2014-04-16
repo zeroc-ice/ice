@@ -168,6 +168,36 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static void
+unsetDealloc(PyTypeObject* /*self*/)
+{
+    Py_FatalError("deallocating Unset");
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static int
+unsetNonzero(PyObject* /*v*/)
+{
+    //
+    // We define tp_as_number->nb_nonzero so that the Unset marker value evaluates as "zero" or "false".
+    //
+    return 0;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+unsetRepr(PyObject* /*v*/)
+{
+    return PyString_FromString("Unset");
+}
+
 //
 // addClassInfo()
 //
@@ -3809,8 +3839,105 @@ PyTypeObject ExceptionInfoType =
     0,                               /* tp_is_gc */
 };
 
+static PyNumberMethods UnsetAsNumber =
+{
+    0,                          /* nb_add */
+    0,                          /* nb_subtract */
+    0,                          /* nb_multiply */
+    0,                          /* nb_divide */
+    0,                          /* nb_remainder */
+    0,                          /* nb_divmod */
+    0,                          /* nb_power */
+    0,                          /* nb_negative */
+    0,                          /* nb_positive */
+    0,                          /* nb_absolute */
+    reinterpret_cast<inquiry>(unsetNonzero), /* nb_nonzero */
+    0,                          /* nb_invert */
+    0,                          /* nb_lshift */
+    0,                          /* nb_rshift */
+    0,                          /* nb_and */
+    0,                          /* nb_xor */
+    0,                          /* nb_or */
+    0,                          /* nb_coerce */
+    0,                          /* nb_int */
+    0,                          /* nb_long */
+    0,                          /* nb_float */
+    0,                          /* nb_oct */
+    0,                          /* nb_hex */
+    0,                          /* nb_inplace_add */
+    0,                          /* nb_inplace_subtract */
+    0,                          /* nb_inplace_multiply */
+    0,                          /* nb_inplace_divide */
+    0,                          /* nb_inplace_remainder */
+    0,                          /* nb_inplace_power */
+    0,                          /* nb_inplace_lshift */
+    0,                          /* nb_inplace_rshift */
+    0,                          /* nb_inplace_and */
+    0,                          /* nb_inplace_xor */
+    0,                          /* nb_inplace_or */
+    0,                          /* nb_floor_divide */
+    0,                          /* nb_true_divide */
+    0,                          /* nb_inplace_floor_divide */
+    0,                          /* nb_inplace_true_divide */
+};
 
-PyObject* Unset;
+PyTypeObject UnsetType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    STRCAST("IcePy.UnsetType"),      /* tp_name */
+    0,                               /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    reinterpret_cast<destructor>(unsetDealloc), /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    reinterpret_cast<reprfunc>(unsetRepr), /* tp_repr */
+    &UnsetAsNumber,                  /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,              /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    0,                               /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
+//
+// Unset is a singleton, similar to None.
+//
+PyObject UnsetValue =
+{
+    _PyObject_EXTRA_INIT
+    1, &UnsetType
+};
+
+PyObject* Unset = &UnsetValue;
 
 }
 
@@ -3901,13 +4028,11 @@ IcePy::initTypes(PyObject* module)
     }
     stringTypeObj.release(); // PyModule_AddObject steals a reference.
 
-    PyObjectHandle unsetObj = PyObject_New(PyObject, &PyBaseObject_Type);
-    if(PyModule_AddObject(module, STRCAST("Unset"), unsetObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("Unset"), Unset) < 0)
     {
         return false;
     }
-    Unset = unsetObj.get(); // Borrow a reference to the object, which is held by the IcePy module.
-    unsetObj.release(); // PyModule_AddObject steals a reference.
+    Py_IncRef(Unset); // PyModule_AddObject steals a reference.
 
     return true;
 }
