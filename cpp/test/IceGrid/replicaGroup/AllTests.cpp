@@ -539,8 +539,6 @@ allTests(const Ice::CommunicatorPtr& comm)
         instantiateServer(admin, "Server", "localnode", params);
         params["id"] = "Server2";
         instantiateServer(admin, "Server", "localnode", params);
-//        params["id"] = "Server3";
-//        instantiateServer(admin, "Server", "localnode", params);
         params["id"] = "Server3";
         instantiateServer(admin, "IceBox1", "localnode", params);
 

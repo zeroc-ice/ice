@@ -53,7 +53,7 @@ public:
                     test(_facade->getApplicationInfo(_facade->getAdapterApplication(*p)).descriptor.name == "Test");
                     test(_facade->getServerInfo(_facade->getAdapterServer(*p)).application == "Test");
                     test(_facade->getNodeInfo(_facade->getAdapterNode(*p)).name == "localnode");
-                    test(_facade->getNodeLoad(_facade->getAdapterNode(*p)).avg1 > 0.0);
+                    test(_facade->getNodeLoad(_facade->getAdapterNode(*p)).avg1 >= 0.0);
                     test(_facade->getAdapterInfo(*p)[0].replicaGroupId == id);
                     test(_facade->getPropertyForAdapter(*p, "Identity") == id);
                 }

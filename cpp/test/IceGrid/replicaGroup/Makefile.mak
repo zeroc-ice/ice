@@ -15,8 +15,8 @@ SERVER		= server.exe
 LIBNAME		= testservice$(LIBSUFFIX).lib
 DLLNAME		= testservice$(LIBSUFFIX).dll
 
-PLUGINLIBNAME	= registryplugin$(LIBSUFFIX).lib
-PLUGINDLLNAME	= registryplugin$(LIBSUFFIX).dll
+PLUGINLIBNAME	= registryplugin$(SOVERSION)$(LIBSUFFIX).lib
+PLUGINDLLNAME	= registryplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LIBNAME) $(DLLNAME) $(PLUGINLIBNAME) $(PLUGINDLLNAME)
 
