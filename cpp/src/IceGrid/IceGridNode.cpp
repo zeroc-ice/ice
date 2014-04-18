@@ -807,15 +807,6 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
 
     //
-    // Default backend database plugin is Freeze if none is specified.
-    //
-    if(initData.properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0 &&
-       initData.properties->getProperty("Ice.Plugin.DB").empty())
-    {
-        initData.properties->setProperty("Ice.Plugin.DB", "IceGridFreezeDB:createFreezeDB");
-    }
-
-    //
     // Setup the client thread pool size.
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);

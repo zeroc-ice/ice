@@ -93,7 +93,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
 
         sys.stdout.write("starting icegrid " + name + "... ")
         sys.stdout.flush()
-        cmd = command + ' ' + TestUtil.getQtSqlOptions('IceGrid') + \
+        cmd = command + ' ' + \
               r' --Ice.ProgramName=' + name + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + '" ' + \
               r' --IceGrid.Registry.Data="' + dataDir + '" '

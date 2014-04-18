@@ -69,7 +69,11 @@ REGISTRY_OBJS   = AdminCallbackRouter.o \
 		  QueryI.o \
 		  FileUserAccountMapperI.o \
 		  ReplicaSessionManager.o \
-		  WellKnownObjectsManager.o
+		  WellKnownObjectsManager.o \
+		  StringApplicationInfoDict.o \
+		  IdentityObjectInfoDict.o \
+		  StringAdapterInfoDict.o \
+		  SerialsDict.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
@@ -104,6 +108,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(OPENSSL_FLAGS) $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
+SLICE2FREEZECMD	:= $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
@@ -113,12 +118,44 @@ $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lGlacier2 -lIcePatch2 \
-	-lIceDB -lIceBox $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
+	-lFreeze -lIceBox $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lIceBox -lGlacier2 \
-	-lIcePatch2 -lIceDB $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
+	-lFreeze -lIcePatch2 $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
+
+# The slice2freeze rules are structured like this to avoid issues with
+# parallel make.
+../IceGrid/StringApplicationInfoDict.h: StringApplicationInfoDict.cpp
+StringApplicationInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
+	StringApplicationInfoDict $(SDIR)/Admin.ice
+
+../IceGrid/IdentityObjectInfoDict.h: IdentityObjectInfoDict.cpp
+IdentityObjectInfoDict.cpp: $(slicedir)/Ice/Identity.ice $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
+	--dict-index IceGrid::IdentityObjectInfoDict,type \
+	IdentityObjectInfoDict $(slicedir)/Ice/Identity.ice $(SDIR)/Admin.ice
+
+../IceGrid/StringAdapterInfoDict.h: StringAdapterInfoDict.cpp
+StringAdapterInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
+	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)/Admin.ice
+
+../IceGrid/SerialsDict.h: SerialsDict.cpp
+SerialsDict.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f SerialsDict.h SerialsDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::SerialsDict,string,long SerialsDict
+
+clean::
+	-rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
+	-rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	-rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	-rm -f SerialsDict.h SerialsDict.cpp
 
 install:: all
 	$(call installprogram,$(ADMIN),$(DESTDIR)$(install_bindir))
@@ -128,16 +165,5 @@ install:: all
 	$(call installprogram,$(REGISTRY_SERVER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/icegridregistry.1,$(DESTDIR)$(install_mandir))
 
-SUBDIRS = FreezeDB
-
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    if test -d $$subdir ; \
-	    then \
-		echo "making $@ in $$subdir"; \
-		( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	    fi; \
-	done
 
 include .depend

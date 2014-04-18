@@ -325,25 +325,29 @@ RegistryI::startImpl()
     //
     // Create the registry database.
     //
-    DatabasePluginPtr plugin;
-    try
+    string dbPath = _communicator->getProperties()->getProperty("IceGrid.Registry.Data");
+    if(dbPath.empty())
     {
-        plugin = DatabasePluginPtr::dynamicCast(_communicator->getPluginManager()->getPlugin("DB"));
-    }
-    catch(const NotRegisteredException&)
-    {
-    }
-    if(!plugin)
-    {
-        Error out(_communicator->getLogger());
-        out << "no database plugin configured with `Ice.Plugin.DB' or plugin is not a database plugin";
+        Ice::Error out(_communicator->getLogger());
+        out << "property `IceGrid.Registry.Data' is not set";
         return false;
     }
-    if(!plugin->initDB())
+    else
     {
-        return false;
-    }
+        if(!IceUtilInternal::directoryExists(dbPath))
+        {
+            Ice::SyscallException ex(__FILE__, __LINE__);
+            ex.error = IceInternal::getSystemErrno();
 
+            Ice::Error out(_communicator->getLogger());
+            out << "property `IceGrid.Registry.Data' is set to an invalid path:\n" << ex;
+            return false;
+        }
+    }
+    _communicator->getProperties()->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
+    const string envName = "Registry";
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, envName);
+    
     //
     // Ensure that nothing is running on this port. This is also
     // useful to ensure that we don't run twice the same instance of
@@ -387,10 +391,10 @@ RegistryI::startImpl()
                                                   registryAdapter, 
                                                   "IceGrid.Registry", 
                                                   registryTopicManagerId,
-                                                  "Registry");
+                                                  envName);
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
-    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), plugin, _readonly);
+    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), connection, "Registry", _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     if(!_initFromReplica.empty())

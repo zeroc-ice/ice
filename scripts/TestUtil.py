@@ -36,12 +36,6 @@ printenv = False
 cross = []
 watchDog = None
 clientHome = None
-sqlType = None
-sqlDbName = None
-sqlHost = None
-sqlPort = None
-sqlUser = None
-sqlPassword = None
 serviceDir = None
 compact = False
 silverlight = False
@@ -293,12 +287,6 @@ def run(tests, root = False):
           --client-home=<dir>         Run cross test clients from the given Ice source distribution.
           --script                    Generate a script to run the tests.
           --env                       Print important environment variables.
-          --sql-type=<driver>         Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
-          --sql-db=<db>               Set SQL database name. (deprecated)
-          --sql-host=<host>           Set SQL host name. (deprecated)
-          --sql-port=<port>           Set SQL server port. (deprecated)
-          --sql-user=<user>           Set SQL user name. (deprecated)
-          --sql-passwd=<passwd>       Set SQL password. (deprecated)
           --service-dir=<dir>         Where to locate services for builds without service support.
           --compact                   Ice for .NET uses the Compact Framework.
           --silverlight               Ice for .NET uses Silverlight.
@@ -314,7 +302,6 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64",
                                     "script", "env",
-                                    "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=",
                                     "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
                                     "c++11"])
     except getopt.GetoptError:
@@ -381,8 +368,7 @@ def run(tests, root = False):
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--socks", "--ice-home", "--x64", "--env", \
-                  "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
-                  "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
+                  "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
                   "--server", "--mx", "--client-home", "--c++11"):
             arg += " " + o
             if len(a) > 0:
@@ -770,12 +756,6 @@ class DriverConfig:
     socksProxy = False
     x64 = False
     cpp11 = False
-    sqlType = None
-    sqlDbName = None
-    sqlHost = None
-    sqlPort = None
-    sqlUser = None
-    sqlPassword = None
     serviceDir = None
     mx = False
 
@@ -791,12 +771,6 @@ class DriverConfig:
         global socksProxy
         global x64
         global cpp11
-        global sqlType
-        global sqlDbName
-        global sqlHost
-        global sqlPort
-        global sqlUser
-        global sqlPassword
         global serviceDir
         global compact
         global silverlight
@@ -814,12 +788,6 @@ class DriverConfig:
         self.socksProxy = socksProxy
         self.x64 = x64
         self.cpp11 = cpp11
-        self.sqlType = sqlType
-        self.sqlDbName = sqlDbName
-        self.sqlHost = sqlHost
-        self.sqlPort = sqlPort
-        self.sqlUser = sqlUser
-        self.sqlPassword = sqlPassword
         self.serviceDir = serviceDir
         self.compact = compact
         self.silverlight = silverlight
@@ -1083,50 +1051,6 @@ def getDefaultCollocatedFile():
 
 def isDebug():
     return debug
-
-def getQtSqlOptions(prefix, dataDir = None):
-    if sqlType is None:
-        return '';
-
-    options = '--Ice.Plugin.DB=' + prefix + 'SqlDB:createSqlDB';
-    options += ' --' + prefix+ '.SQL.DatabaseType=' + sqlType
-
-    options += ' --' + prefix+ '.SQL.DatabaseName='
-    if sqlDbName is None:
-        if sqlType == "QSQLITE":
-            if dataDir != None:
-                options += dataDir + '/SQL.db'
-        elif sqlType == "QODBC":
-            options += 'testdsn'
-        else:
-            options += 'test'
-    else:
-        options += sqlDbName
-
-    options += ' --' + prefix+ '.SQL.HostName='
-    if sqlHost is None:
-        if sqlType == "QODBC":
-            options += '.\SQLExpress'
-        else:
-            options += 'localhost'
-    else:
-        options += sqlHost
-
-    options += ' --' + prefix+ '.SQL.Port='
-    if sqlPort != None:
-        options += sqlPort
-
-    options += ' --' + prefix+ '.SQL.UserName='
-    if sqlUser is None:
-        options += 'test'
-    else:
-        options += sqlUser
-
-    options += ' --' + prefix+ '.SQL.Password='
-    if sqlPassword != None:
-        options += sqlPassword
-
-    return options
 
 import Expect
 
@@ -1792,12 +1716,6 @@ def processCmdLine():
           --env                       Print important environment variables.
           --cross=lang                Run cross language test.
           --client-home=<dir>         Run cross test clients from the given Ice source distribution.
-          --sql-type=<driver>         Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
-          --sql-db=<db>               Set SQL database name. (deprecated)
-          --sql-host=<host>           Set SQL host name. (deprecated)
-          --sql-port=<port>           Set SQL server port. (deprecated)
-          --sql-user=<user>           Set SQL user name. (deprecated)
-          --sql-passwd=<passwd>       Set SQL password. (deprecated)
           --service-dir=<dir>         Where to locate services for builds without service support.
           --compact                   Ice for .NET uses the Compact Framework.
           --silverlight               Ice for .NET uses Silverlight.
@@ -1810,8 +1728,8 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                               "socks", "ice-home=", "x64", "cross=", "client-home=", "env", "sql-type=", "sql-db=", \
-                               "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=", "appverifier", \
+                               "socks", "ice-home=", "x64", "cross=", "client-home=", "env", \
+                               "service-dir=", "appverifier", \
                                "compact", "silverlight", "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
@@ -1888,24 +1806,6 @@ def processCmdLine():
                 sys.exit(1)
             global protocol
             protocol = a
-        elif o == "--sql-type":
-            global sqlType
-            sqlType = a
-        elif o == "--sql-db":
-            global sqlDbName
-            sqlDbName = a
-        elif o == "--sql-host":
-            global sqlHost
-            sqlHost = a
-        elif o == "--sql-port":
-            global sqlPort
-            sqlPort = a
-        elif o == "--sql-user":
-            global sqlUser
-            sqlUser = a
-        elif o == "--sql-passwd":
-            global sqlPassword
-            sqlPassword = a
         elif o == "--service-dir":
             global serviceDir
             serviceDir = a

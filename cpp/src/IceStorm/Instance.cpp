@@ -9,7 +9,6 @@
 
 #include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceStorm/DB.h>
 #include <IceStorm/Observers.h>
 #include <IceStorm/NodeI.h>
 #include <IceStorm/InstrumentationI.h>
@@ -27,7 +26,6 @@ Instance::Instance(
     const string& instanceName,
     const string& name,
     const Ice::CommunicatorPtr& communicator,
-    const ConnectionPoolPtr& connectionPool,
     const Ice::ObjectAdapterPtr& publishAdapter,
     const Ice::ObjectAdapterPtr& topicAdapter,
     const Ice::ObjectAdapterPtr& nodeAdapter,
@@ -45,8 +43,7 @@ Instance::Instance(
     _flushInterval(IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsIntWithDefault(
                                                    name + ".Flush.Timeout", 1000))), // default one second.
     // default one minute.
-    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
-    _connectionPool(connectionPool)
+    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000))
 {
     try
     {
@@ -191,12 +188,6 @@ Ice::ObjectPrx
 Instance::publisherReplicaProxy() const
 {
     return _publisherReplicaProxy;
-}
-
-ConnectionPoolPtr
-Instance::connectionPool() const
-{
-    return _connectionPool;
 }
 
 IceStorm::Instrumentation::TopicManagerObserverPtr

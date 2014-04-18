@@ -14,11 +14,20 @@
 
 #include <Ice/Ice.h>
 
+#include <Freeze/Freeze.h>
+#include <IceStorm/LLURecord.h>
+
 namespace IceStormInternal
 {
 
 std::string
 describeEndpoints(const Ice::ObjectPrx&);
+
+void
+putLLU(const Freeze::ConnectionPtr&, const IceStormElection::LogUpdate&);
+
+IceStormElection::LogUpdate
+getLLU(const Freeze::ConnectionPtr&);
 
 }
 #endif

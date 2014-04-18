@@ -41,7 +41,6 @@ else
 			  IceBox \
 			  Glacier2Lib \
 			  Glacier2 \
-			  IceDB \
 			  IcePatch2Lib \
 			  IcePatch2 \
 			  IceStormLib \
@@ -67,15 +66,15 @@ IceXML IceSSL IceWS Freeze FreezeScript IceBox Glacier2Lib IcePatch2Lib IceStorm
 
 Freeze: slice2freeze
 
-FreezeScript IceDB: Freeze
+FreezeScript: Freeze
 
 Glacier2 IceGridLib: Glacier2Lib
 
 IcePatch2: IcePatch2Lib
 
-IceStorm: IceBox IceDB IceGridLib
+IceStorm: IceBox IceGridLib
 
-IceGrid: IceGridLib IceStorm IcePatch2Lib IceDB
+IceGrid: IceGridLib IceStorm IcePatch2Lib
 
 
 all:: $(SUBDIRS)

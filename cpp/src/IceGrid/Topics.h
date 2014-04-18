@@ -14,7 +14,6 @@
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Observer.h>
-#include <IceGrid/DB.h>
 #include <set>
 
 namespace IceGrid
@@ -115,7 +114,7 @@ class ApplicationObserverTopic : public ObserverTopic
 {
 public:
 
-    ApplicationObserverTopic(const IceStorm::TopicManagerPrx&, const ApplicationsWrapperPtr&);
+    ApplicationObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<std::string, ApplicationInfo>&, Ice::Long);
 
     int applicationInit(Ice::Long, const ApplicationInfoSeq&);
     int applicationAdded(Ice::Long, const ApplicationInfo&);
@@ -135,7 +134,7 @@ class AdapterObserverTopic : public ObserverTopic
 {
 public:
 
-    AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const AdaptersWrapperPtr&);
+    AdapterObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<std::string, AdapterInfo>&, Ice::Long);
 
     int adapterInit(Ice::Long, const AdapterInfoSeq&);
     int adapterAdded(Ice::Long, const AdapterInfo&);
@@ -155,7 +154,7 @@ class ObjectObserverTopic : public ObserverTopic
 {
 public:
 
-    ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const ObjectsWrapperPtr&);
+    ObjectObserverTopic(const IceStorm::TopicManagerPrx&, const std::map<Ice::Identity, ObjectInfo>&, Ice::Long);
 
     int objectInit(Ice::Long, const ObjectInfoSeq&);
     int objectAdded(Ice::Long, const ObjectInfo&);

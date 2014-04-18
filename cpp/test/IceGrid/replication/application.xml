@@ -59,8 +59,6 @@
         <property name="IceGrid.Registry.Trace.Locator" value="0"/> 
         <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>
         <property name="Ice.Admin.Endpoints" value=""/>
-        <property name="Ice.Plugin.DB" value="${db-plugin}"/>
-        <property name="IceGrid.SQL.DatabaseType" value="QSQLITE"/>
 
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
       </server>

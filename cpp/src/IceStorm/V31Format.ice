@@ -11,13 +11,13 @@
 
 [["cpp:header-ext:h"]]
 
-#include <IceStorm/FreezeDB/LinkRecord.ice>
+#include <IceStorm/LinkRecord.ice>
 
 module IceStorm
 {
 
-/** sequence of link records. */
-sequence<LinkRecord> LinkRecordSeq;
+/** Dictionary of link name to link record. */
+dictionary<string, LinkRecord> LinkRecordDict;
 
 }; // End module IceStorm
 

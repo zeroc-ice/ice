@@ -69,7 +69,11 @@ REGISTRY_OBJS	= AdminCallbackRouter.obj \
 		  QueryI.obj \
 		  FileUserAccountMapperI.obj \
 		  ReplicaSessionManager.obj \
-		  WellKnownObjectsManager.obj
+		  WellKnownObjectsManager.obj \
+		  StringApplicationInfoDict.obj \
+		  IdentityObjectInfoDict.obj \
+		  StringAdapterInfoDict.obj \
+		  SerialsDict.obj
 
 NODE_SVR_OBJS	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
@@ -91,12 +95,14 @@ SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
 HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
 
+SLICE2FREEZECMD = $(SLICE2FREEZE) -I.. --ice --include-dir IceGrid $(ICECPPFLAGS)
+
 !include $(top_srcdir)\config\Make.rules.mak
 
 LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
 ALINKWITH 	= $(LINKWITH) icegrid$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib icepatch2$(LIBSUFFIX).lib \
 		  icebox$(LIBSUFFIX).lib
-NLINKWITH	= $(ALINKWITH) icedb$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
+NLINKWITH	= $(ALINKWITH) freeze$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
 		  icessl$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib $(OPENSSL_LIBS) pdh.lib ws2_32.lib
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
@@ -142,8 +148,32 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
+StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SDIR)\Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
+	StringApplicationInfoDict $(SDIR)\Admin.ice
+
+IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(slicedir)\Ice\Identity.ice $(SDIR)\Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
+	--dict-index IceGrid::IdentityObjectInfoDict,type \
+	IdentityObjectInfoDict $(slicedir)\Ice\Identity.ice $(SDIR)\Admin.ice
+
+StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SDIR)\Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
+	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)\Admin.ice
+
+SerialsDict.h SerialsDict.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q SerialsDict.h SerialsDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::SerialsDict,string,long SerialsDict
+
 clean::
 	-del /q Internal.cpp Internal.h
+	-del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp
+	-del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	-del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	-del /q SerialsDict.h SerialsDict.cpp
 	-del /q $(ADMIN:.exe=.*)
 	-del /q $(NODE_SERVER:.exe=.*)
 	-del /q $(REGISTRY_SERVER:.exe=.*)

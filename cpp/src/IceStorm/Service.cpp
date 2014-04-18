@@ -15,7 +15,6 @@
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TransientTopicManagerI.h>
 #include <IceStorm/Instance.h>
-#include <IceStorm/DB.h>
 
 #define ICE_STORM_API ICE_DECLSPEC_EXPORT
 #include <IceStorm/Service.h>
@@ -141,7 +140,7 @@ ServiceI::start(
 
     if(properties->getPropertyAsIntWithDefault(name+ ".Transient", 0))
     {
-        _instance = new Instance(instanceName, name, communicator, 0, publishAdapter, topicAdapter, 0);
+        _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 0);
         try
         {
             TransientTopicManagerImplPtr manager = new TransientTopicManagerImpl(_instance);
@@ -164,47 +163,9 @@ ServiceI::start(
         return;
     }
 
-    //
-    // Create the database cache.
-    //
-    DatabasePluginPtr plugin;
-    try
-    {
-        plugin = DatabasePluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("DB"));
-    }
-    catch(const NotRegisteredException&)
-    {
-        try
-        {
-            Ice::StringSeq cmdArgs;
-            IceInternal::loadPlugin(communicator, "DB", "IceStormFreezeDB:createFreezeDB", cmdArgs);
-            plugin = DatabasePluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("DB"));
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            LoggerOutputBase s;
-            s << "failed to load default Freeze database plugin:\n" << ex;
-
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
-        }
-    }
-
-    if(!plugin)
-    {
-        ostringstream s;
-        s << "no database plugin configured with `Ice.Plugin.DB' or plugin is not an IceStorm database plugin";
-        
-        IceBox::FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
-    }
-    ConnectionPoolPtr connectionPool = plugin->getConnectionPool(name);
-
     if(id == -1) // No replication.
     {
-        _instance = new Instance(instanceName, name, communicator, connectionPool, publishAdapter, topicAdapter);
+        _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
 
         try
         {
@@ -352,7 +313,7 @@ ServiceI::start(
             }
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
-            _instance = new Instance(instanceName, name, communicator, connectionPool, publishAdapter, topicAdapter, 
+            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, 
                                      nodeAdapter, nodes[id]);
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
             
@@ -433,7 +394,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
     // This is for IceGrid only and as such we use a transient
     // implementation of IceStorm.
     string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
-    _instance = new Instance(instanceName, name, communicator, 0, publishAdapter, topicAdapter);
+    _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
 
     try
     {

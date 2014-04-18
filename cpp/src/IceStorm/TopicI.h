@@ -26,9 +26,6 @@ typedef IceUtil::Handle<Instance> InstancePtr;
 class Subscriber;
 typedef IceUtil::Handle<Subscriber> SubscriberPtr;
 
-class ConnectionPool;
-typedef IceUtil::Handle<ConnectionPool> ConnectionPoolPtr;
-
 class TopicImpl : public IceUtil::Shared
 {
 public:
@@ -84,7 +81,6 @@ private:
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
     const std::string _envName;
-    const ConnectionPoolPtr _connectionPool; // The connection pool
 
     IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 

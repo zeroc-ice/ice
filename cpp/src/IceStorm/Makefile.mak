@@ -32,7 +32,14 @@ OBJS		= NodeI.obj \
 		  IceStormInternal.obj \
 		  Instrumentation.obj \
 		  InstrumentationI.obj \
-		  Util.obj
+		  Util.obj \
+		  LLUMap.obj \
+		  SubscriberMap.obj \
+		  V32FormatDB.obj \
+		  V31FormatDB.obj \
+		  LinkRecord.obj \
+		  V32Format.obj \
+		  V31Format.obj
 
 AOBJS		= Admin.obj \
 		  Grammar.obj \
@@ -49,12 +56,14 @@ SRCS		= $(OBJS:.obj=.cpp) \
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
 
+SLICE2FREEZECMD = $(SLICE2FREEZE) -I.. --ice --include-dir IceStorm $(ICECPPFLAGS)
+
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. -Idummyinclude -DICE_STORM_SERVICE_API_EXPORTS $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 ICECPPFLAGS	= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
-LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib icedb$(LIBSUFFIX).lib
+LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib
 
 !if "$(GENERATE_PDB)" == "yes"
@@ -98,12 +107,39 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
+LLUMap.h LLUMap.cpp: ..\IceStorm\LLURecord.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q LLUMap.h LLUMap.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::LLUMap,string,IceStormElection::LogUpdate LLUMap ..\IceStorm\LLURecord.ice
+
+SubscriberMap.h SubscriberMap.cpp: ..\IceStorm\SubscriberRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q SubscriberMap.h SubscriberMap.cpp
+	$(SLICE2FREEZECMD) \
+	--dict IceStorm::SubscriberMap,IceStorm::SubscriberRecordKey,IceStorm::SubscriberRecord,sort \
+	SubscriberMap ..\IceStorm\SubscriberRecord.ice
+
+# Needed for migration.
+V32FormatDB.h V32FormatDB.cpp: V32Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q V32FormatDB.h V32FormatDB.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::V32Format,Ice::Identity,IceStorm::LinkRecordSeq \
+	V32FormatDB V32Format.ice
+
+V31FormatDB.h V31FormatDB.cpp: V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q V31FormatDB.h V31FormatDB.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::V31Format,string,IceStorm::LinkRecordDict \
+	V31FormatDB V31Format.ice
+
 clean::
 	-del /q IceStormInternal.cpp IceStormInternal.h
 	-del /q LLURecord.cpp LLURecord.h
 	-del /q Election.cpp Election.h
 	-del /q SubscriberRecord.cpp SubscriberRecord.h
 	-del /q Instrumentation.cpp Instrumentation.h
+	-del /q LLUMap.h LLUMap.cpp
+	-del /q SubscriberMap.h SubscriberMap.cpp
+	-del /q LinkRecord.cpp LinkRecord.h
+	-del /q V32FormatDB.cpp V31FormatDB.cpp V32FormatDB.h V31FormatDB.h
+	-del /q V32Format.cpp V32Format.h
+	-del /q V31Format.cpp V31Format.h
 	-del /q $(ADMIN:.exe=.*)
 	-del /q IceStormAdmin.res IceStormDB.res IceStormService.res
 
@@ -119,13 +155,5 @@ install:: all
         copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
-
-SUBDIRS = FreezeDB
-
-$(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @if exist %i \
-	        @echo "making $@ in %i" && \
-	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
 !include .depend.mak

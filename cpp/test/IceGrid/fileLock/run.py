@@ -38,7 +38,7 @@ def runIceGridRegistry():
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
 
-    cmd = command + ' ' + TestUtil.getQtSqlOptions('IceGrid') + \
+    cmd = command + ' ' + \
             r' --Ice.ProgramName=registry' + \
             r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(IceGridAdmin.iceGridPort) + '" ' + \
             r' --IceGrid.Registry.Data="' + dataDir + '"'

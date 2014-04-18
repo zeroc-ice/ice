@@ -33,11 +33,6 @@ for filename in [os.path.join("db", f) for f in os.listdir("db") if f.endswith("
 
 variables = "icebox.exe='%s'" % TestUtil.getIceBox()
 
-if TestUtil.sqlType != None:
-    variables += " db-plugin=IceStormSqlDB:createSqlDB"
-else:
-    variables += " db-plugin=IceStormFreezeDB:createFreezeDB"
-
 #
 # Don't use a slave registry for this test.
 #

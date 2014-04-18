@@ -8,7 +8,11 @@
 // **********************************************************************
 
 #include <IceStorm/Util.h>
+#include <IceStorm/LLUMap.h>
 
+using namespace Freeze;
+using namespace IceStormElection;
+using namespace IceStorm;
 using namespace std;
 
 string
@@ -32,4 +36,35 @@ IceStormInternal::describeEndpoints(const Ice::ObjectPrx& proxy)
         os << "subscriber proxy is null";
     }
     return os.str();
+}
+
+namespace
+{
+
+const string lluDbName = "llu";
+
+}
+
+void
+IceStormInternal::putLLU(const ConnectionPtr& connection, const LogUpdate& llu)
+{
+    LLUMap llumap(connection, lluDbName);
+    LLUMap::iterator ci = llumap.find("_manager");
+    if(ci == llumap.end())
+    {
+        llumap.put(LLUMap::value_type("_manager", llu));
+    }
+    else
+    {
+        ci.set(llu);
+    }
+}
+
+LogUpdate
+IceStormInternal::getLLU(const ConnectionPtr& connection)
+{
+    LLUMap llumap(connection, lluDbName);
+    LLUMap::iterator ci = llumap.find("_manager");
+    assert(ci != llumap.end());
+    return ci->second;
 }

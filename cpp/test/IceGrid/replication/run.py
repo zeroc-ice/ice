@@ -22,16 +22,7 @@ import TestUtil, IceGridAdmin
 
 TestUtil.addLdPath(os.getcwd())
 
-if TestUtil.sqlType != None and TestUtil.sqlType != "QSQLITE":
-    print("*** This test only supports Freeze or SQLite databases")
-    sys.exit(0)
-
 variables = "properties-override='%s'" % IceGridAdmin.iceGridNodePropertiesOverride()
-
-if TestUtil.sqlType != None:
-    variables += " db-plugin=IceGridSqlDB:createSqlDB"
-else:
-    variables += " db-plugin=IceGridFreezeDB:createFreezeDB"
 
 IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --TestDir="%s"' % (TestUtil.toplevel, os.getcwd()),
                          variables)

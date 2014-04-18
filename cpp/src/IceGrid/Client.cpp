@@ -229,12 +229,6 @@ Client::main(StringSeq& args)
         _appName = args[0];
         InitializationData id;
         id.properties = createProperties(args);
-        //
-        // We don't want to load DB plug-ins with icegridadmin, as this will
-        // cause FileLock issues when run with the same configuration file
-        // used by the service.
-        //
-        id.properties->setProperty("Ice.Plugin.DB", "");
         _communicator = initialize(id);
 
         {

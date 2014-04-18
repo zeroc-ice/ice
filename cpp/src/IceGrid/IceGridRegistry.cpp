@@ -170,14 +170,6 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
     //
-    // Default backend database plugin is Freeze if none is specified.
-    //
-    if(initData.properties->getProperty("Ice.Plugin.DB").empty())
-    {
-        initData.properties->setProperty("Ice.Plugin.DB", "IceGridFreezeDB:createFreezeDB");
-    }
-
-    //
     // Setup the client thread pool size.
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);

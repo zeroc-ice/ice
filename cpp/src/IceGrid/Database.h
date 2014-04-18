@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <Ice/CommunicatorF.h>
+#include <Freeze/Freeze.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/ServerCache.h>
@@ -23,7 +24,10 @@
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/Topics.h>
 #include <IceGrid/PluginFacadeI.h>
-#include <IceGrid/DB.h>
+
+#include <IceGrid/StringApplicationInfoDict.h>
+#include <IceGrid/StringAdapterInfoDict.h>
+#include <IceGrid/IdentityObjectInfoDict.h>
 
 namespace IceGrid
 {
@@ -54,9 +58,8 @@ public:
 #endif
 
 
-    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
-             const RegistryInfo&, const DatabasePluginPtr&, bool);
-    virtual ~Database();
+    Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&,
+             const TraceLevelsPtr&, const RegistryInfo&, const Freeze::ConnectionPtr&, const std::string&, bool);
     
     std::string getInstanceName() const;
     bool isReadOnly() const { return _readonly; }
@@ -150,13 +153,13 @@ public:
 
 private:
 
-    void checkForAddition(const ApplicationHelper&, const IceDB::DatabaseConnectionPtr&);
-    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&, const IceDB::DatabaseConnectionPtr&);
+    void checkForAddition(const ApplicationHelper&, const Freeze::ConnectionPtr&);
+    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&, const Freeze::ConnectionPtr&);
     void checkForRemove(const ApplicationHelper&);
 
     void checkServerForAddition(const std::string&);
-    void checkAdapterForAddition(const std::string&, const AdaptersWrapperPtr&);
-    void checkObjectForAddition(const Ice::Identity&, const ObjectsWrapperPtr&);
+    void checkAdapterForAddition(const std::string&, const StringAdapterInfoDict&);
+    void checkObjectForAddition(const Ice::Identity&, const IdentityObjectInfoDict&);
     void checkReplicaGroupExists(const std::string&);
     void checkReplicaGroupForRemove(const std::string&);
 
@@ -166,8 +169,8 @@ private:
 
     void checkUpdate(const ApplicationHelper&, const ApplicationHelper&, const std::string&, int, bool);
 
-    Ice::Long saveApplication(const ApplicationInfo&, const IceDB::DatabaseConnectionPtr&, Ice::Long = 0);
-    Ice::Long removeApplication(const std::string&, const IceDB::DatabaseConnectionPtr&, Ice::Long = 0);
+    Ice::Long saveApplication(const ApplicationInfo&, const Freeze::ConnectionPtr&, Ice::Long = 0);
+    Ice::Long removeApplication(const std::string&, const Freeze::ConnectionPtr&, Ice::Long = 0);
 
     void finishApplicationUpdate(const ApplicationUpdateInfo&, const ApplicationInfo&, const ApplicationHelper&,
                                  const ApplicationHelper&, AdminSessionI*, bool, Ice::Long = 0);
@@ -207,8 +210,13 @@ private:
     AdapterObserverTopicPtr _adapterObserverTopic;
     ObjectObserverTopicPtr _objectObserverTopic;
 
-    ConnectionPoolPtr _connectionPool;
-    DatabasePluginPtr _databasePlugin;
+    Freeze::ConnectionPtr _connection;
+    const std::string _envName;
+    
+    StringApplicationInfoDict _applications;
+    StringAdapterInfoDict _adapters;
+    IdentityObjectInfoDict _objects;
+    IdentityObjectInfoDict _internalObjects;
     
     RegistryPluginFacadeIPtr _pluginFacade;
     

@@ -50,9 +50,6 @@
            <property name="${service}.InstanceName" value="${instance-name}"/>
            <property name="${service}.NodeId" value="${node-id}"/>
            <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
-           <property name="Ice.Plugin.DB" value="${db-plugin}"/>
-           <property name="${service}.SQL.DatabaseType" value="QSQLITE"/>
-           <property name="${service}.SQL.DatabaseName" value="db/${instance-name}${node-id}.db"/>
         </properties>
       </service>
 

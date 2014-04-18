@@ -54,10 +54,9 @@ SUBDIRS		= IceUtil \
 		  IceBox \
 		  IcePatch2 \
 		  Glacier2 \
-		  IceDB \
 		  IceStorm \
 		  IceGrid \
-                  iceserviceinstall
+		  iceserviceinstall
 !endif
 
 $(EVERYTHING)::
