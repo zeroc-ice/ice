@@ -12,7 +12,8 @@ package Ice;
 /**
  * Callback object for {@link ObjectPrx#.begin_ice_invoke}.
  **/
-public abstract class Callback_Object_ice_invoke extends TwowayCallback
+public abstract class Callback_Object_ice_invoke
+    extends IceInternal.TwowayCallback implements _Callback_Object_ice_invoke
 {
     /**
      * The Ice run time calls <code>response</code> when an asynchronous operation invocation
@@ -24,21 +25,10 @@ public abstract class Callback_Object_ice_invoke extends TwowayCallback
      * is <code>true</code>; otherwise, if <code>ok</code> is <code>false</code>, contains the
      * encoded user exception raised by the operation.
      **/
-    public abstract void response(boolean __ret, byte[] outParams);
+    public abstract void response(boolean ret, byte[] outParams);
 
     public final void __completed(AsyncResult __result)
     {
-        ByteSeqHolder outParams = new ByteSeqHolder();
-        boolean __ret = false;
-        try
-        {
-            __ret = __result.getProxy().end_ice_invoke(outParams, __result);
-        }
-        catch(LocalException __ex)
-        {
-            exception(__ex);
-            return;
-        }
-        response(__ret, outParams.value);
+        ObjectPrxHelperBase.__ice_invoke_completed(this, __result);
     }
 }

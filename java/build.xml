@@ -581,11 +581,12 @@
             <include name="IceCompactId/**"/>
             <include name="test/**"/>
             <exclude name="test/android/"/>
+            <exclude name="**/lambda/"/>
             <exclude name="test/ejb/"/>
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
         </depend>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}" 
                deprecation="on" fork="true" memoryinitialsize="256m" memorymaximumsize="512m">
             <exclude name="${generated.test.dir}/**"/>
             <classpath>
@@ -601,7 +602,19 @@
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
             <exclude name="test/android/"/>
+            <exclude name="**/lambda/"/>
             <exclude name="test/ejb/"/>
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+    
+    <target name="test-compile-lambda" depends="test-generate, test-compile" if="lambda-support">
+        <javac srcdir="test" destdir="${lib.dir}" debug="${debug}" 
+               deprecation="on" fork="true" memoryinitialsize="256m" memorymaximumsize="512m">
+            <classpath>
+                <path refid="ice.classpath"/>
+            </classpath>
+            <include name="**/lambda/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
@@ -615,7 +628,7 @@
         </jar>
     </target>
 
-    <target name="test-jar" depends="test-compile, ice-jar, freeze-jar, glacier2-jar, icebox-jar, icestorm-jar,
+    <target name="test-jar" depends="test-compile, test-compile-lambda, ice-jar, freeze-jar, glacier2-jar, icebox-jar, icestorm-jar,
                                      icegrid-jar, test-plugins-jar">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>

@@ -12,7 +12,8 @@ package Ice;
 /**
  * Callback object for {@link ObjectPrx#.begin_ice_ids}.
  **/
-public abstract class Callback_Object_ice_ids extends TwowayCallback
+public abstract class Callback_Object_ice_ids extends IceInternal.TwowayCallback
+    implements Ice.TwowayCallbackArg1<String[]>
 {
     /**
      * Called when the invocation completes successfully.
@@ -23,16 +24,6 @@ public abstract class Callback_Object_ice_ids extends TwowayCallback
 
     public final void __completed(AsyncResult __result)
     {
-        String[] __ret = null;
-        try
-        {
-            __ret = __result.getProxy().end_ice_ids(__result);
-        }
-        catch(LocalException __ex)
-        {
-            exception(__ex);
-            return;
-        }
-        response(__ret);
+        ObjectPrxHelperBase.__ice_ids_completed(this, __result);
     }
 }

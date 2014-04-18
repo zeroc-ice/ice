@@ -2250,6 +2250,32 @@ public class AllTests
             }
         }
         out.println("ok");
+        
+        //
+        // Use reflection to load TwowaysLambdaAMI as that is only supported with Java >= 1.8
+        // 
+        try
+        {
+            Class<?> cls = IceInternal.Util.findClass("test.Ice.optional.lambda.AllTests", null);
+            if(cls != null)
+            {
+                java.lang.reflect.Method allTests = cls.getDeclaredMethod("allTests", 
+                    new Class<?>[]{test.Util.Application.class, java.io.PrintWriter.class});
+                allTests.invoke(null, app, out);
+            }
+        }
+        catch(java.lang.NoSuchMethodException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+        catch(java.lang.IllegalAccessException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+        catch(java.lang.reflect.InvocationTargetException ex)
+        {
+            throw new RuntimeException(ex);
+        }
 
         return initial;
     }

@@ -29,6 +29,9 @@ protected:
 
     enum ParamDir { InParam, OutParam };
 
+    
+    ParamDeclList getOutParams(const OperationPtr&);
+    
     //
     // Compose the parameter lists for an operation.
     //
@@ -37,6 +40,16 @@ protected:
     std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool, bool);
     std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool, bool);
     std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&, bool, bool);
+    
+    std::string getAsyncCallbackInterface(const OperationPtr&, const std::string&);
+    std::string getAsyncCallbackBaseClass(const OperationPtr&, bool);
+    std::string getLambdaResposeCB(const OperationPtr&, const std::string&);
+    std::vector<std::string> getParamsAsyncLambda(const OperationPtr&, const std::string&, 
+                                                  bool context = false, bool sentCB = false, 
+                                                  bool optionalMapping = false,
+                                                  bool inParams = true);
+    std::vector<std::string> getArgsAsyncLambda(const OperationPtr&, const std::string&, 
+                                                bool context = false, bool sentCB = false);
 
     //
     // Compose the argument lists for an operation.
@@ -346,10 +359,6 @@ private:
         AsyncVisitor(const std::string&);
 
         virtual void visitOperation(const OperationPtr&);
-
-    private:
-
-        static std::string initValue(const TypePtr&);
     };
 };
 

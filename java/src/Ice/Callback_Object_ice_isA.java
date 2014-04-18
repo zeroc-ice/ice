@@ -12,7 +12,7 @@ package Ice;
 /**
  * Callback object for {@link ObjectPrx#.begin_ice_isA}.
  **/
-public abstract class Callback_Object_ice_isA extends TwowayCallback
+public abstract class Callback_Object_ice_isA extends IceInternal.TwowayCallback implements Ice.TwowayCallbackBool
 {
     /**
      * Called when the invocation completes successfully.
@@ -23,16 +23,6 @@ public abstract class Callback_Object_ice_isA extends TwowayCallback
 
     public final void __completed(AsyncResult __result)
     {
-        boolean __ret = false;
-        try
-        {
-            __ret = __result.getProxy().end_ice_isA(__result);
-        }
-        catch(LocalException __ex)
-        {
-            exception(__ex);
-            return;
-        }
-        response(__ret);
+        ObjectPrxHelperBase.__ice_isA_completed(this, __result);
     }
 }

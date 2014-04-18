@@ -51,7 +51,37 @@ public class AllTests
             TwowaysNewAMI.twowaysNewAMI(app, cl);
             TwowaysNewAMI.twowaysNewAMI(app, derived);
             out.println("ok");
-
+            
+            //
+            // Use reflection to load TwowaysLambdaAMI as that is only supported with Java >= 1.8
+            // 
+            try
+            {
+                Class<?> cls = IceInternal.Util.findClass("test.Ice.operations.lambda.TwowaysLambdaAMI", null);
+                if(cls != null)
+                {
+                    java.lang.reflect.Method twowaysLambdaAMI = cls.getDeclaredMethod("twowaysLambdaAMI", 
+                        new Class<?>[]{test.Util.Application.class, MyClassPrx.class});
+                    out.print("testing twoway operations with lambda AMI mapping... ");
+                    out.flush();
+                    twowaysLambdaAMI.invoke(null, app, cl);
+                    twowaysLambdaAMI.invoke(null, app, derived);
+                    out.println("ok");
+                }
+            }
+            catch(java.lang.NoSuchMethodException ex)
+            {
+                throw new RuntimeException(ex);
+            }
+            catch(java.lang.IllegalAccessException ex)
+            {
+                throw new RuntimeException(ex);
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                throw new RuntimeException(ex);
+            }
+            
             out.print("testing oneway operations with AMI... ");
             out.flush();
             OnewaysAMI.onewaysAMI(app, cl);
@@ -61,6 +91,36 @@ public class AllTests
             out.flush();
             OnewaysNewAMI.onewaysNewAMI(app, cl);
             out.println("ok");
+            
+            //
+            // Use reflection to load OnewaysLambdaAMI as that is only supported with Java >= 1.8
+            // 
+            try
+            {
+                Class<?> cls = IceInternal.Util.findClass("test.Ice.operations.lambda.OnewaysLambdaAMI", null);
+                if(cls != null)
+                {
+                    java.lang.reflect.Method onewaysLambdaAMI = cls.getDeclaredMethod("onewaysLambdaAMI", 
+                        new Class<?>[]{test.Util.Application.class, MyClassPrx.class});
+                    out.print("testing twoway operations with lambda AMI mapping... ");
+                    out.flush();
+                    onewaysLambdaAMI.invoke(null, app, cl);
+                    onewaysLambdaAMI.invoke(null, app, derived);
+                    out.println("ok");
+                }
+            }
+            catch(java.lang.NoSuchMethodException ex)
+            {
+                throw new RuntimeException(ex);
+            }
+            catch(java.lang.IllegalAccessException ex)
+            {
+                throw new RuntimeException(ex);
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                throw new RuntimeException(ex);
+            }
 
             out.print("testing batch oneway operations... ");
             out.flush();

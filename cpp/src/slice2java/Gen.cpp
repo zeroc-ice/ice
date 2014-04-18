@@ -88,6 +88,75 @@ getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string&
     return deprecateReason;
 }
 
+string
+initValue(const TypePtr& p)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+        case Builtin::KindBool:
+        {
+            return "false";
+        }
+        case Builtin::KindByte:
+        {
+            return "(byte)0";
+        }
+        case Builtin::KindShort:
+        {
+            return "(short)0";
+        }
+        case Builtin::KindInt:
+        case Builtin::KindLong:
+        {
+            return "0";
+        }
+        case Builtin::KindFloat:
+        {
+            return "(float)0.0";
+        }
+        case Builtin::KindDouble:
+        {
+            return "0.0";
+        }
+        case Builtin::KindString:
+        case Builtin::KindObject:
+        case Builtin::KindObjectProxy:
+        case Builtin::KindLocalObject:
+        {
+            return "null";
+        }
+        }
+    }
+    return "null";
+}
+
+void
+writeParamList(Output& out, vector<string> params, bool end = true, bool newLine = true)
+{
+    out << "(";
+    out.useCurrentPosAsIndent();
+    for(vector<string>::const_iterator i = params.begin(); i != params.end();)
+    {
+        out << (*i);
+        if(++i != params.end() || !end)
+        {
+            out << ", ";
+            if(newLine)
+            {
+                out << nl;
+            }
+        }
+    }
+    if(end)
+    {
+        out << ")";
+        out.restoreIndent();
+    }
+}
+
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
     JavaGenerator(dir)
 {
@@ -95,6 +164,21 @@ Slice::JavaVisitor::JavaVisitor(const string& dir) :
 
 Slice::JavaVisitor::~JavaVisitor()
 {
+}
+
+ParamDeclList
+Slice::JavaVisitor::getOutParams(const OperationPtr& op)
+{
+    ParamDeclList outParams;
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
+    {
+        if((*i)->isOutParam())
+        {
+            outParams.push_back(*i);
+        }
+    }
+    return outParams;
 }
 
 vector<string>
@@ -210,6 +294,249 @@ Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& packa
     }
 
     return params;
+}
+
+namespace
+{
+
+const char* builtinAsyncCallbackTable[] =
+{
+    "TwowayCallbackByte",
+    "TwowayCallbackBool",
+    "TwowayCallbackShort",
+    "TwowayCallbackInt",
+    "TwowayCallbackLong",
+    "TwowayCallbackFloat",
+    "TwowayCallbackDouble"
+};
+
+}
+
+string
+Slice::JavaVisitor::getAsyncCallbackInterface(const OperationPtr& op, const string& package)
+{
+    TypePtr ret = op->returnType();
+    ParamDeclList outParams = getOutParams(op);
+    bool throws = !op->throws().empty();
+    const string suffix = throws ? "UE" : "";
+    
+    if(!ret && outParams.empty())
+    {
+        return throws ? "Ice.TwowayCallbackVoidUE" : "Ice.OnewayCallback";
+    }
+    else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+    {
+        TypePtr t = ret ? ret : outParams.front()->type();
+        bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
+        if(builtin && !optional)
+        {
+            const string prefix = "Ice.";
+            switch(builtin->kind())
+            {
+                case Builtin::KindByte:
+                case Builtin::KindBool:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
+                {
+                    return prefix + builtinAsyncCallbackTable[builtin->kind()] + suffix;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+        }
+        
+        return "Ice.TwowayCallbackArg1" + suffix + "<" +
+            typeToString(t, TypeModeIn, package, op->getMetaData(), true, optional) + ">";
+    }
+    else
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+        return "_Callback_" + cl->name() + "_" + op->name();
+    }
+}
+
+string
+Slice::JavaVisitor::getAsyncCallbackBaseClass(const OperationPtr& op, bool functional)
+{
+    assert(op->returnsData());
+    TypePtr ret = op->returnType();
+    ParamDeclList outParams = getOutParams(op);
+    
+    bool throws = !op->throws().empty();
+    const string suffix = throws ? "UE" : "";
+    if(!ret && outParams.empty())
+    {
+        assert(throws);
+        return functional ? 
+            "IceInternal.Functional_TwowayCallbackVoidUE" :
+            "IceInternal.TwowayCallback implements Ice.TwowayCallbackVoidUE";
+    }
+    else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+    {
+        TypePtr t = ret ? ret : outParams.front()->type();
+        bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
+        if(builtin && !optional)
+        {
+            switch(builtin->kind())
+            {
+                case Builtin::KindByte:
+                case Builtin::KindBool:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
+                {
+                    ostringstream os;
+                    os << (functional ? "IceInternal.Functional_" : "IceInternal.TwowayCallback implements Ice.")
+                       << builtinAsyncCallbackTable[builtin->kind()] + suffix;
+                    return os.str();
+                }
+                default:
+                {
+                    break;
+                }
+            }
+        }
+        
+        ostringstream os;
+        if(functional)
+        {
+            os << "IceInternal.Functional_TwowayCallbackArg1";
+        }
+        else
+        {
+            os << "IceInternal.TwowayCallback implements Ice.TwowayCallbackArg1";
+        }
+        os << suffix << "<" << typeToString(t, TypeModeIn, getPackage(op), op->getMetaData(), true, optional) + ">";
+        return os.str();
+    }
+    else
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+        ostringstream os;
+        if(functional)
+        {
+            os << "IceInternal.Functional_TwowayCallback" << suffix << " implements ";
+        }
+        else
+        {
+            os << "IceInternal.TwowayCallback implements ";
+        }
+        os << "_Callback_" << cl->name() << "_" << op->name();
+        return os.str();
+    }
+}
+
+string
+Slice::JavaVisitor::getLambdaResposeCB(const OperationPtr& op, const string& package)
+{
+    TypePtr ret = op->returnType();
+    ParamDeclList outParams = getOutParams(op);
+    if(!ret && outParams.empty())
+    {
+        return "IceInternal.Functional_VoidCallback";
+    }
+    else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+    {
+        TypePtr t = ret ? ret : outParams.front()->type();
+        bool optional = ret ? op->returnIsOptional() : outParams.front()->optional();
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
+        if(builtin && !optional)
+        {
+            static const char* builtinTable[] = 
+            {
+                "IceInternal.Functional_ByteCallback",
+                "IceInternal.Functional_BoolCallback",
+                "IceInternal.Functional_ShortCallback",
+                "IceInternal.Functional_IntCallback",
+                "IceInternal.Functional_LongCallback",
+                "IceInternal.Functional_FloatCallback",
+                "IceInternal.Functional_DoubleCallback"
+            };
+            switch(builtin->kind())
+            {
+                case Builtin::KindByte:
+                case Builtin::KindBool:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
+                {
+                    return builtinTable[builtin->kind()];
+                }
+                default:
+                {
+                    break;
+                }
+            }
+        }
+        
+        return "IceInternal.Functional_GenericCallback1<" +
+            typeToString(t, TypeModeIn, package, op->getMetaData(), true, optional) + ">";
+    }
+    else
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+        return "FunctionalCallback_" + cl->name() + "_" + op->name() + "_Response";
+    }
+}
+
+vector<string>
+Slice::JavaVisitor::getParamsAsyncLambda(const OperationPtr& op, const string& package, bool context, bool sentCB,
+                                         bool optionalMapping, bool inParams)
+{
+    vector<string> params;
+    
+    if(inParams)
+    {
+        params = getInOutParams(op, package, InParam, false, optionalMapping);
+    }
+    
+    if(context)
+    {
+        params.push_back("java.util.Map<String, String> __ctx");
+    }
+    
+    params.push_back(getLambdaResposeCB(op, package) + " __responseCb");
+    
+    if(!op->throws().empty())
+    {
+        params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> __userExceptionCb");
+    }
+    
+    params.push_back("IceInternal.Functional_GenericCallback1<Ice.LocalException> __localExceptionCb");
+    
+    if(sentCB)
+    {
+        params.push_back("IceInternal.Functional_BoolCallback __sentCb");
+    }
+
+    return params;
+}
+
+vector<string>
+Slice::JavaVisitor::getArgsAsyncLambda(const OperationPtr& op, const string& package, bool context, bool sentCB)
+{
+    vector<string> args = getInOutArgs(op, InParam);
+    args.push_back(context ? "__ctx" : "null");
+    args.push_back(context ? "true" : "false");
+    args.push_back("__responseCb");
+    if(!op->throws().empty())
+    {
+        args.push_back("__userExceptionCb");
+    }
+    args.push_back("__localExceptionCb");
+    args.push_back(sentCB ? "__sentCb" : "null");
+    return args;
 }
 
 vector<string>
@@ -2722,6 +3049,18 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 string cb = "Callback_" + name + "_" + opname + " __cb";
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << cb << epar << ';';
+                
+                
+                out << sp;
+                writeDocCommentAMI(out, op, InParam);
+                out << nl;
+                if(!p->isInterface())
+                {
+                    out << "public abstract ";
+                }
+                out << nl << "Ice.AsyncResult begin_" << opname;
+                writeParamList(out, getParamsAsyncLambda(op, package, false, true));
+                out << ';';
 
                 vector<string> outParams = getInOutParams(op, package, OutParam, true, true);
                 out << sp;
@@ -2731,6 +3070,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << "public abstract ";
                 }
+                
                 out << retS << " end_" << opname << spar << outParams << "Ice.AsyncResult __result" << epar << ';';
             }
         }
@@ -4496,6 +4836,87 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "__end(__result, __" << op->name() << "_name);";
         }
         out << eb;
+        
+        //
+        // The async callbacks implementation of __completed method delegate to the static
+        // __<op-name>_completed method implemented bellow.
+        //
+        if(op->returnsData())
+        {
+            const ParamDeclList paramList = op->parameters();
+            ParamDeclList outParams;
+            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+            {
+                if((*pli)->isOutParam())
+                {
+                    outParams.push_back(*pli);
+                }
+            }
+            
+            out << sp << nl << "static public void __" << op->name() << "_completed("
+                << getAsyncCallbackInterface(op, package) << " __cb, Ice.AsyncResult __result)";
+            out << sb;
+            out << nl << getAbsolute(cl, "", "", "Prx") << " __proxy = ("
+                << getAbsolute(cl, "", "", "Prx") << ")__result.getProxy();";
+                
+            TypePtr ret = op->returnType();
+            if(ret)
+            {
+                out << nl << typeToString(ret, TypeModeIn, package, op->getMetaData(), true, 
+                                            op->returnIsOptional())
+                    << " __ret = " << (op->returnIsOptional() ? "null" : initValue(ret)) << ';';
+            }
+            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
+            {
+                string ts = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData(), true,
+                                            (*pli)->optional());
+                out << nl << ts << ' ' << fixKwd((*pli)->name()) << " = new " << ts << "();";
+            }
+            out << nl << "try";
+            out << sb;
+            out << nl;
+            if(op->returnType())
+            {
+                out << "__ret = ";
+            }
+            out << "__proxy.end_" << op->name() << spar << getInOutArgs(op, OutParam) << "__result" << epar 
+                << ';';
+            
+            out << eb;
+            if(!throws.empty())
+            {
+                out << nl << "catch(Ice.UserException __ex)";
+                out << sb;
+                out << nl << "__cb.exception(__ex);";
+                out << nl << "return;";
+                out << eb;
+            }
+            out << nl << "catch(Ice.LocalException __ex)";
+            out << sb;
+            out << nl << "__cb.exception(__ex);";
+            out << nl << "return;";
+            out << eb;
+            
+            out << nl << "__cb.response" << spar;
+            if(op->returnType())
+            {
+                out << "__ret";
+            }
+            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
+            {
+                if((*pli)->optional())
+                {
+                    out << fixKwd((*pli)->name());
+                }
+                else
+                {
+                    out << fixKwd((*pli)->name()) + ".value";
+                }
+            }
+            out << epar << ';';
+
+            out << eb;
+        }
 
         if(cl->hasMetaData("ami") || op->hasMetaData("ami"))
         {
@@ -5271,13 +5692,152 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         out << sb;
         out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "__cb" << epar << ';';
         out << eb;
-
+        
+        //
+        // Async methods that accept Java 8 lambda callbacks.
+        //
+        out << sp;
+        out << nl << "public Ice.AsyncResult begin_" << op->name();
+        writeParamList(out, getParamsAsyncLambda(op, package, false, false, optionalMapping));
+        out << sb;
+        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package) << epar << ';';
+        out << eb;
+        
+        out << sp;
+        out << nl << "public Ice.AsyncResult begin_" << op->name();
+        writeParamList(out, getParamsAsyncLambda(op, package, false, true, optionalMapping));
+        out << sb;
+        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, false, true) << epar
+            << ';';
+        out << eb;
+        
+        out << sp;
+        out << nl << "public Ice.AsyncResult begin_" << op->name();
+        writeParamList(out, getParamsAsyncLambda(op, package, true, false, optionalMapping));
+        out << sb;
+        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true) << epar << ';';
+        out << eb;
+        
+        out << sp;
+        out << nl << "public Ice.AsyncResult begin_" << op->name();
+        writeParamList(out, getParamsAsyncLambda(op, package, true, true, optionalMapping));
+        out << sb;
+        out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true, true) << epar << ';';
+        out << eb;
+        
+        vector<string> params = inParams;
+        params.push_back(contextParam);
+        params.push_back("boolean __explicitCtx");
+        vector<string> asyncParams = getParamsAsyncLambda(op, package, false, true, optionalMapping, false);
+        copy(asyncParams.begin(), asyncParams.end(), back_inserter(params));
+        
+        out << sp;
+        out << nl << "private Ice.AsyncResult begin_" << op->name();
+        writeParamList(out, params);
+        out << sb;
+        
+        ParamDeclList outParams = getOutParams(op);
+        
+        if(!op->returnsData())
+        {
+            params = getInOutArgs(op, InParam);
+            params.push_back("__ctx");
+            params.push_back("__explicitCtx");
+            params.push_back("new IceInternal.Functional_OnewayCallback(__responseCb, __localExceptionCb, __sentCb)");
+            out << nl << "return begin_" << op->name();
+            writeParamList(out, params);
+            out << ';';
+        }
+        else if((ret && !outParams.empty()) || (outParams.size() > 1))
+        {
+            params.clear();
+            params.push_back(getLambdaResposeCB(op, package) + " responseCb");
+            if(!throws.empty())
+            {
+                params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> userExceptionCb");
+            }
+            params.push_back("IceInternal.Functional_GenericCallback1<Ice.LocalException> localExceptionCb");
+            params.push_back("IceInternal.Functional_BoolCallback sentCb");
+            
+            out << sp;
+            out << nl << "class CB extends " << getAsyncCallbackBaseClass(op, true);
+            out << sb;
+            out << nl << "public CB";
+            writeParamList(out, params);
+            out << sb;
+            out << nl << "super(responseCb != null, ";
+            if(!throws.empty())
+            {
+                out << "userExceptionCb, ";
+            }
+            out << "localExceptionCb, sentCb);";
+            out << nl << "__responseCb = responseCb;";
+            out << eb;
+            
+            out << sp;
+            out << nl << "public void response" << spar << getParamsAsyncCB(op, package, false, true) << epar;
+            out << sb;
+            out << nl << "if(__responseCb != null)";
+            out << sb;
+            out << nl << "__responseCb.apply" << spar;
+            if(ret)
+            {
+                out << "__ret";
+            }
+            out << getInOutArgs(op, OutParam) << epar << ';';
+            out << eb;
+            out << eb;
+            
+            out << sp;
+            out << nl << "public final void __completed(Ice.AsyncResult __result)";
+            out << sb;
+            out << nl << p->name() << "PrxHelper.__" << op->name() << "_completed(this, __result);";
+            out << eb;
+            out << sp;
+            out << nl << "private final " << getLambdaResposeCB(op, package) << " __responseCb;";
+            out << eb;
+            
+            
+            out << nl << "return begin_" << op->name() << spar << getInOutArgs(op, InParam) << "__ctx" << "__explicitCtx"
+                << (throws.empty() ? "new CB(__responseCb, __localExceptionCb, __sentCb)" : 
+                                     "new CB(__responseCb, __userExceptionCb, __localExceptionCb, __sentCb)") 
+                << epar << ';';
+        }
+        else
+        {
+            params = getInOutArgs(op, InParam);
+            params.push_back("__ctx");
+            params.push_back("__explicitCtx");
+            
+            const string baseClass = getAsyncCallbackBaseClass(op, true);
+            out << nl << "return begin_" << op->name();
+            writeParamList(out, params, false, false);
+            out << nl << (throws.empty() ? "new " + baseClass + "(__responseCb, __localExceptionCb, __sentCb)" : 
+                                           "new " + baseClass + "(__responseCb, __userExceptionCb, __localExceptionCb, __sentCb)");
+            out.inc();
+            out << sb;
+            out << nl << "public final void __completed(Ice.AsyncResult __result)";
+            out << sb;
+            out << nl << p->name() << "PrxHelper.__" << op->name() << "_completed(this, __result);";
+            out << eb;
+            out << eb;
+            out << ");";
+            out.dec();
+            out.restoreIndent();
+        }
+        out << eb;
+        
         //
         // Implementation of begin method
         //
+        params = inParams;
+        params.push_back(contextParam);
+        params.push_back("boolean __explicitCtx");
+        params.push_back("IceInternal.CallbackBase __cb");
+        
         out << sp;
-        out << nl << "private Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
-            << "boolean __explicitCtx" << "IceInternal.CallbackBase __cb" << epar;
+        out << nl << "private Ice.AsyncResult begin_" << op->name();
+        writeParamList(out, params);
         out << sb;
         if(op->returnsData())
         {
@@ -5496,6 +6056,49 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam
             << typeSafeCallbackParam << epar << ';';
+            
+        //
+        // Generate the Callback Response interface if the operation has more that one
+        // return parameter. Operations with just one return parameter use one of the
+        // builtin async callbacks interfaces.
+        //
+        {
+            ParamDeclList outParams = getOutParams(p);
+            if((ret && !outParams.empty()) || outParams.size() > 1)
+            {
+                vector<string> params = getParamsAsyncCB(p, package, false, true);
+                out << sp;
+                out << nl << "public interface " << getLambdaResposeCB(p, package);
+                out << sb;
+                out << nl << "void apply" << spar << params << epar << ';';
+                out << eb;
+            }
+        }
+        
+        //
+        // Async methods that accept Java 8 lambda callbacks.
+        //
+        {
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name(); 
+            writeParamList(out, getParamsAsyncLambda(p, package, false, false, true));
+            out << ';';
+            
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package, false, true, true));
+            out << ';';
+            
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package, true, false, true));
+            out << ';';
+            
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package, true, true, true));
+            out << ';';
+        }
 
         vector<string> outParams = getInOutParams(p, package, OutParam, true, true);
 
@@ -5532,6 +6135,32 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << callbackParam
             << epar << ';';
+            
+            
+        //
+        // Async methods that accept Java 8 lambda callbacks.
+        //
+        {
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package));
+            out << ';';
+            
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package, false, true));
+            out << ';';
+            
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package, true));
+            out << ';';
+            
+            out << sp;
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
+            writeParamList(out, getParamsAsyncLambda(p, package, true, true));
+            out << ';';
+        }
 
         //
         // Type-safe begin methods.
@@ -6635,15 +7264,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     // Generate new-style callback.
     //
     {
-        string classNameAsync = "Callback_" + cl->name();
-        string absoluteAsync = getAbsolute(cl, "", "Callback_", "_" + name);
-
-        open(absoluteAsync, p->file());
-
-        Output& out = output();
-
         TypePtr ret = p->returnType();
-
         ParamDeclList outParams;
         ParamDeclList paramList = p->parameters();
         for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
@@ -6653,80 +7274,53 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 outParams.push_back(*pli);
             }
         }
-
-        ExceptionList throws = p->throws();
-
+        
         vector<string> params = getParamsAsyncCB(p, classPkg, false, true);
         vector<string> args = getInOutArgs(p, OutParam);
+        ExceptionList throws = p->throws();
+        
+        //
+        // If the operation has more than one return parameter we generate a Callback
+        // interface to use in the method signatures.
+        //
+        if(p->returnsData() && ((ret && !outParams.empty()) || outParams.size() > 1))
+        {
+            open(getAbsolute(cl, "", "_Callback_", "_" + name), p->file());
+
+            Output& out = output();
+            
+            writeDocCommentOp(out, p);
+            out << sp << nl << "public interface " << ("_Callback_" + cl->name()) << '_' << name
+                << " extends " << (throws.empty() ? "Ice.TwowayCallback" : "Ice.TwowayCallbackUE");
+            out << sb;
+            out << nl << "public void response" << spar << params << epar << ';';
+            out << eb;
+            
+            close();
+        }
+        
+        string classNameAsync = "Callback_" + cl->name();
+        string absoluteAsync = getAbsolute(cl, "", "Callback_", "_" + name);
+
+        open(absoluteAsync, p->file());
+
+        Output& out = output();
 
         writeDocCommentOp(out, p);
         out << sp << nl << "public abstract class " << classNameAsync << '_' << name;
 
         if(p->returnsData())
         {
-            out << " extends Ice.TwowayCallback";
+            out.inc();
+            out << nl << "extends " << getAsyncCallbackBaseClass(p, false);
+            out.dec();
             out << sb;
-            out << nl << "public abstract void response" << spar << params << epar << ';';
-            if(!throws.empty())
-            {
-                out << nl << "public abstract void exception(Ice.UserException __ex);";
-            }
 
             out << sp << nl << "public final void __completed(Ice.AsyncResult __result)";
             out << sb;
-            out << nl << cl->name() << "Prx __proxy = (" << cl->name() << "Prx)__result.getProxy();";
-            if(ret)
-            {
-                out << nl << typeToString(ret, TypeModeIn, classPkg, p->getMetaData(), true, p->returnIsOptional())
-                    << " __ret = " << (p->returnIsOptional() ? "null" : initValue(ret)) << ';';
-            }
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                string ts = typeToString((*pli)->type(), TypeModeOut, classPkg, (*pli)->getMetaData(), true,
-                                         (*pli)->optional());
-                out << nl << ts << ' ' << fixKwd((*pli)->name()) << " = new " << ts << "();";
-            }
-            out << nl << "try";
-            out << sb;
-            out << nl;
-            if(p->returnType())
-            {
-                out << "__ret = ";
-            }
-            out << "__proxy.end_" << p->name() << spar << args << "__result" << epar << ';';
+            out << nl << cl->name() << "PrxHelper.__" << p->name() << "_completed(this, __result);";
             out << eb;
-            if(!throws.empty())
-            {
-                out << nl << "catch(Ice.UserException __ex)";
-                out << sb;
-                out << nl << "exception(__ex);";
-                out << nl << "return;";
-                out << eb;
-            }
-            out << nl << "catch(Ice.LocalException __ex)";
-            out << sb;
-            out << nl << "exception(__ex);";
-            out << nl << "return;";
-            out << eb;
-            out << nl << "response" << spar;
-            if(p->returnType())
-            {
-                out << "__ret";
-            }
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                if((*pli)->optional())
-                {
-                    out << fixKwd((*pli)->name());
-                }
-                else
-                {
-                    out << fixKwd((*pli)->name()) + ".value";
-                }
-            }
-            out << epar << ';';
-            out << eb;
-
+            
             out << eb;
         }
         else
@@ -6951,47 +7545,3 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-string
-Slice::Gen::AsyncVisitor::initValue(const TypePtr& p)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-        case Builtin::KindBool:
-        {
-            return "false";
-        }
-        case Builtin::KindByte:
-        {
-            return "(byte)0";
-        }
-        case Builtin::KindShort:
-        {
-            return "(short)0";
-        }
-        case Builtin::KindInt:
-        case Builtin::KindLong:
-        {
-            return "0";
-        }
-        case Builtin::KindFloat:
-        {
-            return "(float)0.0";
-        }
-        case Builtin::KindDouble:
-        {
-            return "0.0";
-        }
-        case Builtin::KindString:
-        case Builtin::KindObject:
-        case Builtin::KindObjectProxy:
-        case Builtin::KindLocalObject:
-        {
-            return "null";
-        }
-        }
-    }
-    return "null";
-}

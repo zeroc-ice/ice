@@ -206,6 +206,28 @@ public final class CommunicatorI implements Communicator
     {
         return begin_flushBatchRequestsInternal(cb);
     }
+    
+    public AsyncResult
+    begin_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
+                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __localExceptionCb,
+                             IceInternal.Functional_BoolCallback __sentCb)
+    {
+        return begin_flushBatchRequestsInternal(
+            new IceInternal.Functional_CallbackBase(false, __localExceptionCb, __sentCb)
+                {
+                    public final void __completed(AsyncResult __result)
+                    {
+                        try
+                        {
+                            __result.getCommunicator().end_flushBatchRequests(__result);
+                        }
+                        catch(LocalException __ex)
+                        {
+                            __localExceptionCb.apply(__ex);
+                        }
+                    }
+                });
+    }
 
     private static final String __flushBatchRequests_name = "flushBatchRequests";
 

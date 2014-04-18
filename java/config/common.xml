@@ -108,6 +108,14 @@
     <condition property="javac.lint" value="-Xlint:${lint}" else="-Xlint:none">
         <isset property="lint"/>
     </condition>
+    
+    <!-- FunctionalInterface annotation was introduced in Java 8 as
+         an informative annotation type used to indicate that an interface 
+         type declaration is intended to be a functional interface.
+         We use it to check if lambda support is available (Java >= 1.8) -->
+    <condition property="lambda-support" value="yes">
+        <available classname="java.lang.FunctionalInterface"/>
+    </condition>
 
     <!-- Default build suffix is empty. This can be defined by build
          scripts to build the jars and classes file in other
