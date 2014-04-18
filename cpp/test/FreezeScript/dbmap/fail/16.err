@@ -9,7 +9,6 @@ transformdb: unsupported type change in c1m6 from class ::Test::C1 to float
 transformdb: unsupported type change in c1m7 from class ::Test::C1 to double
 transformdb: unsupported type change in c1m8 from class ::Test::C1 to string
 transformdb: unsupported type change in c1m9 from class ::Test::C1 to enumeration ::Test::E
-transformdb: unsupported type change in c1m10 from class ::Test::C1 to struct ::Test::S1
 transformdb: unsupported type change in c1m11 from class ::Test::C1 to sequence ::Test::Seq1
 transformdb: unsupported type change in c1m12 from class ::Test::C1 to dictionary ::Test::D1
 transformdb: unsupported type change in c1m13 from class ::Test::C1 to Object*
@@ -23,7 +22,6 @@ transformdb: unsupported type change in c2m6 from class ::Test::C1 to float
 transformdb: unsupported type change in c2m7 from class ::Test::C1 to double
 transformdb: unsupported type change in c2m8 from class ::Test::C1 to string
 transformdb: unsupported type change in c2m9 from class ::Test::C1 to enumeration ::Test::E
-transformdb: unsupported type change in c2m10 from class ::Test::C1 to struct ::Test::S1
 transformdb: unsupported type change in c2m11 from class ::Test::C1 to sequence ::Test::Seq1
 transformdb: unsupported type change in c2m12 from class ::Test::C1 to dictionary ::Test::D1
 transformdb: unsupported type change in c2m13 from class ::Test::C1 to Object*
@@ -37,7 +35,6 @@ transformdb: unsupported type change in m6 from class ::Test::C1 to float
 transformdb: unsupported type change in m7 from class ::Test::C1 to double
 transformdb: unsupported type change in m8 from class ::Test::C1 to string
 transformdb: unsupported type change in m9 from class ::Test::C1 to enumeration ::Test::E
-transformdb: unsupported type change in m10 from class ::Test::C1 to struct ::Test::S1
 transformdb: unsupported type change in m11 from class ::Test::C1 to sequence ::Test::Seq1
 transformdb: unsupported type change in m12 from class ::Test::C1 to dictionary ::Test::D1
 transformdb: unsupported type change in m13 from class ::Test::C1 to Object*

@@ -266,6 +266,28 @@
         <add target="new.stringToEnumDict" key="0" value="'E2'"/>
         <add target="new.stringToEnumDict" key="1" value="'E3'"/>
 
+        <!-- Struct <-> class transformations -->
+
+        <set target="new.classToStructSeq" length="3"/>
+        <set target="new.classToStructSeq[0]" type="::Test::Small2"/>
+        <set target="new.classToStructSeq[0].seq" length="2"/>
+        <set target="new.classToStructSeq[0].seq[0].b" value="100"/>
+        <set target="new.classToStructSeq[0].seq[0].intToString" value="101"/>
+        <set target="new.classToStructSeq[0].seq[1].b" value="102"/>
+        <set target="new.classToStructSeq[0].seq[1].intToString" value="103"/>
+        <set target="new.classToStructSeq[1]" type="::Test::Small2"/>
+        <set target="new.classToStructSeq[1].seq" length="2"/>
+        <set target="new.classToStructSeq[1].seq[0].b" value="110"/>
+        <set target="new.classToStructSeq[1].seq[0].intToString" value="111"/>
+        <set target="new.classToStructSeq[1].seq[1].b" value="112"/>
+        <set target="new.classToStructSeq[1].seq[1].intToString" value="113"/>
+        <set target="new.classToStructSeq[2]" type="::Test::Small2"/>
+        <set target="new.classToStructSeq[2].seq" length="2"/>
+        <set target="new.classToStructSeq[2].seq[0].b" value="120"/>
+        <set target="new.classToStructSeq[2].seq[0].intToString" value="121"/>
+        <set target="new.classToStructSeq[2].seq[1].b" value="122"/>
+        <set target="new.classToStructSeq[2].seq[1].intToString" value="123"/>
+
         <!-- Objects -->
 
         <set target="new.baseObject" type="::Test::F"/>

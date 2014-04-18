@@ -202,13 +202,17 @@ FreezeScript::TransformVisitor::visitStruct(const StructDataPtr& dest)
     Slice::TypePtr type = dest->getType();
     if(_info->doDefaultTransform(type))
     {
+        //
+        // Support struct->struct and class->struct transforms.
+        //
         StructDataPtr s = StructDataPtr::dynamicCast(_src);
-        if(s && isCompatible(type, _src->getType()))
+        ObjectRefPtr obj = ObjectRefPtr::dynamicCast(_src);
+        if((s || obj) && isCompatible(type, _src->getType()))
         {
             //
             // Transform members with the same name.
             //
-            DataMemberMap srcMap = s->getMembers();
+            DataMemberMap srcMap = s ? s->getMembers() : obj->getValue()->getMembers();
             DataMemberMap destMap = dest->getMembers();
             string typeName = typeToString(type);
             for(DataMemberMap::iterator p = destMap.begin(); p != destMap.end(); ++p)
@@ -391,97 +395,172 @@ FreezeScript::TransformVisitor::visitDictionary(const DictionaryDataPtr& dest)
 void
 FreezeScript::TransformVisitor::visitObject(const ObjectRefPtr& dest)
 {
+    //
+    // Support struct->class and class->class transforms.
+    //
     Slice::TypePtr type = dest->getType();
     ObjectRefPtr src = ObjectRefPtr::dynamicCast(_src);
-    if(!src)
+    StructDataPtr s = StructDataPtr::dynamicCast(_src);
+    if(!src && !s)
     {
         typeMismatchError(type, _src->getType());
     }
     else if(_info->doDefaultTransform(type))
     {
-        ObjectDataPtr srcValue = src->getValue();
-        Slice::TypePtr srcType = src->getType();
-        if(!srcValue)
+        if(src)
         {
             //
-            // Allow a nil value from type Object.
+            // class->class transform
             //
-            if(Slice::BuiltinPtr::dynamicCast(srcType) || isCompatible(type, srcType))
+            ObjectDataPtr srcValue = src->getValue();
+            Slice::TypePtr srcType = src->getType();
+            if(!srcValue)
             {
-                dest->setValue(0);
+                //
+                // Allow a nil value from type Object.
+                //
+                if(Slice::BuiltinPtr::dynamicCast(srcType) || isCompatible(type, srcType))
+                {
+                    dest->setValue(0);
+                }
+                else
+                {
+                    typeMismatchError(type, srcType);
+                }
             }
             else
             {
-                typeMismatchError(type, srcType);
+                Slice::TypePtr srcValueType = srcValue->getType();
+                if(isCompatible(type, srcValueType))
+                {
+                    //
+                    // If the types are in the same Slice unit, then we can simply
+                    // copy the reference. Otherwise, we check the object map to
+                    // see if an equivalent object has already been created, and
+                    // if not, then we have to create one.
+                    //
+                    if(type->unit().get() == srcValueType->unit().get())
+                    {
+                        dest->setValue(srcValue);
+                    }
+                    else
+                    {
+                        ObjectDataMap& objectDataMap = _info->getObjectDataMap();
+                        ObjectDataMap::iterator p = objectDataMap.find(srcValue.get());
+                        if(p != objectDataMap.end() && p->second)
+                        {
+                            dest->setValue(p->second);
+                        }
+                        else
+                        {
+                            //
+                            // If the type has been renamed, we need to get its equivalent
+                            // in the new Slice definitions.
+                            //
+                            Slice::TypePtr newType = _info->getRenamedType(srcValueType);
+                            if(!newType)
+                            {
+                                string name = typeToString(srcValueType);
+                                Slice::TypeList l = type->unit()->lookupType(name, false);
+                                if(l.empty())
+                                {
+                                    throw ClassNotFoundException(name);
+                                }
+                                newType = l.front();
+                            }
+
+                            //
+                            // Use createObject() so that an initializer is invoked if necessary.
+                            //
+                            DataPtr newObj = _info->getDataFactory()->createObject(newType, false);
+                            ObjectRefPtr newRef = ObjectRefPtr::dynamicCast(newObj);
+                            assert(newRef);
+
+                            ObjectDataPtr newValue = newRef->getValue();
+                            try
+                            {
+                                transformObject(newValue, srcValue);
+                            }
+                            catch(...)
+                            {
+                                newObj->destroy();
+                                throw;
+                            }
+
+                            dest->setValue(newValue);
+                            newObj->destroy();
+                        }
+                    }
+                }
+                else
+                {
+                    typeMismatchError(type, srcValueType);
+                }
             }
         }
         else
         {
-            Slice::TypePtr srcValueType = srcValue->getType();
-            if(isCompatible(type, srcValueType))
+            //
+            // struct->class transform
+            //
+            Slice::TypePtr srcType = _src->getType();
+            if(isCompatible(type, srcType))
             {
                 //
-                // If the types are in the same Slice unit, then we can simply
-                // copy the reference. Otherwise, we check the object map to
-                // see if an equivalent object has already been created, and
-                // if not, then we have to create one.
+                // If the type has been renamed, we need to get its equivalent
+                // in the new Slice definitions.
                 //
-                if(type->unit().get() == srcValueType->unit().get())
+                Slice::TypePtr newType = _info->getRenamedType(srcType);
+                if(!newType)
                 {
-                    dest->setValue(srcValue);
-                }
-                else
-                {
-                    ObjectDataMap& objectDataMap = _info->getObjectDataMap();
-                    ObjectDataMap::iterator p = objectDataMap.find(srcValue.get());
-                    if(p != objectDataMap.end() && p->second)
+                    string name = typeToString(srcType);
+                    Slice::TypeList l = type->unit()->lookupType(name, false);
+                    if(l.empty())
                     {
-                        dest->setValue(p->second);
+                        throw ClassNotFoundException(name);
                     }
-                    else
+                    newType = l.front();
+                }
+
+                //
+                // Use createObject() so that an initializer is invoked if necessary.
+                //
+                DataPtr newObj = _info->getDataFactory()->createObject(newType, false);
+                ObjectRefPtr newRef = ObjectRefPtr::dynamicCast(newObj);
+                assert(newRef);
+
+                ObjectDataPtr newValue = newRef->getValue();
+                try
+                {
+                    //
+                    // Transform members with the same name.
+                    //
+                    DataMemberMap srcMap = s->getMembers();
+                    DataMemberMap destMap = newValue->getMembers();
+                    string typeName = typeToString(type);
+                    for(DataMemberMap::iterator p = destMap.begin(); p != destMap.end(); ++p)
                     {
-                        //
-                        // If the type has been renamed, we need to get its equivalent
-                        // in the new Slice definitions.
-                        //
-                        Slice::TypePtr newType = _info->getRenamedType(srcValueType);
-                        if(!newType)
+                        DataMemberMap::iterator q = srcMap.find(p->first);
+                        if(q != srcMap.end())
                         {
-                            string name = typeToString(srcValueType);
-                            Slice::TypeList l = type->unit()->lookupType(name, false);
-                            if(l.empty())
-                            {
-                                throw ClassNotFoundException(name);
-                            }
-                            newType = l.front();
+                            string context = typeName + " member " + p->first + " value";
+                            TransformVisitor v(q->second, _info, context);
+                            p->second->visit(v);
                         }
-
-                        //
-                        // Use createObject() so that an initializer is invoked if necessary.
-                        //
-                        DataPtr newObj = _info->getDataFactory()->createObject(newType, false);
-                        ObjectRefPtr newRef = ObjectRefPtr::dynamicCast(newObj);
-                        assert(newRef);
-
-                        ObjectDataPtr newValue = newRef->getValue();
-                        try
-                        {
-                            transformObject(newValue, srcValue);
-                        }
-                        catch(...)
-                        {
-                            newObj->destroy();
-                            throw;
-                        }
-
-                        dest->setValue(newValue);
-                        newObj->destroy();
                     }
                 }
+                catch(...)
+                {
+                    newObj->destroy();
+                    throw;
+                }
+
+                dest->setValue(newValue);
+                newObj->destroy();
             }
             else
             {
-                typeMismatchError(type, srcValueType);
+                typeMismatchError(type, srcType);
             }
         }
     }
@@ -711,6 +790,20 @@ FreezeScript::TransformVisitor::isCompatible(const Slice::TypePtr& dest, const S
             return true;
         }
 
+        Slice::StructPtr s2 = Slice::StructPtr::dynamicCast(src);
+        if(s2)
+        {
+            if(checkRename(dest, src))
+            {
+                return true;
+            }
+
+            if(s2 && cl1->scoped() == s2->scoped())
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -723,7 +816,8 @@ FreezeScript::TransformVisitor::isCompatible(const Slice::TypePtr& dest, const S
         }
 
         Slice::StructPtr s2 = Slice::StructPtr::dynamicCast(src);
-        if(s2 && s1->scoped() == s2->scoped())
+        Slice::ClassDeclPtr cl2 = Slice::ClassDeclPtr::dynamicCast(src);
+        if((s2 && s1->scoped() == s2->scoped()) || (cl2 && s1->scoped() == cl2->scoped()))
         {
             return true;
         }

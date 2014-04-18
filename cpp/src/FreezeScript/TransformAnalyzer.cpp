@@ -158,8 +158,12 @@ FreezeScript::AnalyzeTransformVisitor::visitClassDefStart(const ClassDefPtr& v)
         return false;
     }
 
+    //
+    // Allow transforming from class to struct.
+    //
     ClassDeclPtr decl = ClassDeclPtr::dynamicCast(l.front());
-    if(!decl || decl->isInterface())
+    StructPtr newStruct = StructPtr::dynamicCast(l.front());
+    if(!newStruct && (!decl || decl->isInterface()))
     {
         if(!_ignoreTypeChanges)
         {
@@ -168,20 +172,42 @@ FreezeScript::AnalyzeTransformVisitor::visitClassDefStart(const ClassDefPtr& v)
         return false;
     }
 
-    ClassDefPtr newClass = decl->definition();
-    if(!newClass)
+    ClassDefPtr newClass;
+    if(decl)
     {
-        _missingTypes.push_back(scoped);
-        return false;
+        newClass = decl->definition();
+        if(!newClass)
+        {
+            _missingTypes.push_back(scoped);
+            return false;
+        }
+    }
+
+    DataMemberList oldMembers, newMembers;
+
+    if(newClass)
+    {
+        oldMembers = v->dataMembers();
+        newMembers = newClass->dataMembers();
+    }
+    else
+    {
+        oldMembers = v->allDataMembers();
+        newMembers = newStruct->dataMembers();
     }
 
     _out.newline();
     _out.newline();
-    _out << "<!-- class " << scoped << " -->";
+    if(newStruct)
+    {
+        _out << "<!-- struct " << scoped << " -->";
+    }
+    else
+    {
+        _out << "<!-- class " << scoped << " -->";
+    }
     _out << se("transform") << attr("type", scoped);
 
-    DataMemberList oldMembers = v->dataMembers();
-    DataMemberList newMembers = newClass->dataMembers();
     compareMembers(oldMembers, newMembers);
 
     _out << ee;
@@ -210,8 +236,22 @@ FreezeScript::AnalyzeTransformVisitor::visitStructStart(const StructPtr& v)
         return false;
     }
 
+    //
+    // Allow transforming from struct to class.
+    //
     StructPtr newStruct = StructPtr::dynamicCast(l.front());
-    if(!newStruct)
+    ClassDeclPtr decl = ClassDeclPtr::dynamicCast(l.front());
+    ClassDefPtr newClass;
+    if(decl)
+    {
+        newClass = decl->definition();
+        if(!newClass)
+        {
+            _missingTypes.push_back(scoped);
+            return false;
+        }
+    }
+    else if(!newStruct)
     {
         if(!_ignoreTypeChanges)
         {
@@ -222,11 +262,29 @@ FreezeScript::AnalyzeTransformVisitor::visitStructStart(const StructPtr& v)
 
     _out.newline();
     _out.newline();
-    _out << "<!-- struct " << scoped << " -->";
+    if(newClass)
+    {
+        _out << "<!-- class " << scoped << " -->";
+    }
+    else
+    {
+        _out << "<!-- struct " << scoped << " -->";
+    }
     _out << se("transform") << attr("type", scoped);
 
-    DataMemberList oldMembers = v->dataMembers();
-    DataMemberList newMembers = newStruct->dataMembers();
+    DataMemberList oldMembers, newMembers;
+
+    if(newClass)
+    {
+        oldMembers = v->dataMembers();
+        newMembers = newClass->allDataMembers();
+    }
+    else
+    {
+        oldMembers = v->dataMembers();
+        newMembers = newStruct->dataMembers();
+    }
+
     compareMembers(oldMembers, newMembers);
 
     _out << ee;
@@ -723,6 +781,14 @@ FreezeScript::AnalyzeTransformVisitor::compareTypes(const string& desc, const Ty
             return;
         }
 
+        //
+        // Allow target type of struct.
+        //
+        if(StructPtr::dynamicCast(newType))
+        {
+            return;
+        }
+
         ClassDeclPtr newcl = ClassDeclPtr::dynamicCast(newType);
         if(newcl)
         {
@@ -747,6 +813,14 @@ FreezeScript::AnalyzeTransformVisitor::compareTypes(const string& desc, const Ty
     {
         StructPtr news = StructPtr::dynamicCast(newType);
         if(news && s->scoped() == news->scoped())
+        {
+            return;
+        }
+
+        //
+        // Allow target type of class.
+        //
+        if(ClassDeclPtr::dynamicCast(newType))
         {
             return;
         }
@@ -1109,6 +1183,7 @@ FreezeScript::AnalyzeInitVisitor::typeChange(const TypePtr& t, const string& sco
     ContainedPtr c = ContainedPtr::dynamicCast(t);
     ProxyPtr p = ProxyPtr::dynamicCast(t);
 
+    _out.newline();
     _out.newline();
     _out << "<!-- NOTICE: " << scoped << " has changed from ";
     if(b)

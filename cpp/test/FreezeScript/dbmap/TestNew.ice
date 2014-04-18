@@ -79,6 +79,19 @@ class F
     StringEnumSeq stringToEnumSeq;
 };
 
+class Small1
+{
+    byte b;
+    string intToString;
+};
+sequence<Small1> Small1Seq;
+
+struct Small2
+{
+    Small1Seq seq;
+};
+sequence<Small2> Small2Seq;
+
 struct S
 {
     //
@@ -194,6 +207,11 @@ struct S
     StringLongDict stringToLongDict;
     StringDoubleDict stringToDoubleDict;
     StringEnumDict stringToEnumDict;
+
+    //
+    // Struct<->class transformations.
+    //
+    Small2Seq classToStructSeq;
 
     //
     // Object transformations.

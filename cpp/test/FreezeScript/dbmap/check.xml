@@ -276,6 +276,31 @@
         <fail test="new.stringToEnumDict[0] != ::New::Test::E2"/>
         <fail test="new.stringToEnumDict[1] != ::New::Test::E3"/>
 
+        <!-- Struct <-> class transformations -->
+
+        <fail test="new.classToStructSeq.length != 3"/>
+        <fail test="new.classToStructSeq[0].seq.length != 2"/>
+        <fail test="new.classToStructSeq[0].seq[0].ice_id != '::Test::Small1'"/>
+        <fail test="new.classToStructSeq[0].seq[0].b != 100"/>
+        <fail test="new.classToStructSeq[0].seq[0].intToString != '101'"/>
+        <fail test="new.classToStructSeq[0].seq[1].ice_id != '::Test::Small1'"/>
+        <fail test="new.classToStructSeq[0].seq[1].b != 102"/>
+        <fail test="new.classToStructSeq[0].seq[1].intToString != '103'"/>
+        <fail test="new.classToStructSeq[1].seq.length != 2"/>
+        <fail test="new.classToStructSeq[1].seq[0].ice_id != '::Test::Small1'"/>
+        <fail test="new.classToStructSeq[1].seq[0].b != 110"/>
+        <fail test="new.classToStructSeq[1].seq[0].intToString != '111'"/>
+        <fail test="new.classToStructSeq[1].seq[1].ice_id != '::Test::Small1'"/>
+        <fail test="new.classToStructSeq[1].seq[1].b != 112"/>
+        <fail test="new.classToStructSeq[1].seq[1].intToString != '113'"/>
+        <fail test="new.classToStructSeq[2].seq.length != 2"/>
+        <fail test="new.classToStructSeq[2].seq[0].ice_id != '::Test::Small1'"/>
+        <fail test="new.classToStructSeq[2].seq[0].b != 120"/>
+        <fail test="new.classToStructSeq[2].seq[0].intToString != '121'"/>
+        <fail test="new.classToStructSeq[2].seq[1].ice_id != '::Test::Small1'"/>
+        <fail test="new.classToStructSeq[2].seq[1].b != 122"/>
+        <fail test="new.classToStructSeq[2].seq[1].intToString != '123'"/>
+
         <!-- Objects -->
 
         <fail test="new.nilObject != nil"/>

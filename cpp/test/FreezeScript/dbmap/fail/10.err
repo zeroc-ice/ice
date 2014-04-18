@@ -14,7 +14,6 @@ transformdb: unsupported type change in c1m12 from struct ::Test::S1 to dictiona
 transformdb: unsupported type change in c1m13 from struct ::Test::S1 to Object*
 transformdb: unsupported type change in c1m14 from struct ::Test::S1 to Object
 transformdb: unsupported type change in c1m15 from struct ::Test::S1 to ::Test::C1*
-transformdb: unsupported type change in c1m16 from struct ::Test::S1 to class ::Test::C1
 transformdb: unsupported type change in c2m1 from struct ::Test::S1 to bool
 transformdb: unsupported type change in c2m2 from struct ::Test::S1 to byte
 transformdb: unsupported type change in c2m3 from struct ::Test::S1 to short
@@ -29,7 +28,6 @@ transformdb: unsupported type change in c2m12 from struct ::Test::S1 to dictiona
 transformdb: unsupported type change in c2m13 from struct ::Test::S1 to Object*
 transformdb: unsupported type change in c2m14 from struct ::Test::S1 to Object
 transformdb: unsupported type change in c2m15 from struct ::Test::S1 to ::Test::C1*
-transformdb: unsupported type change in c2m16 from struct ::Test::S1 to class ::Test::C1
 transformdb: unsupported type change in m1 from struct ::Test::S1 to bool
 transformdb: unsupported type change in m2 from struct ::Test::S1 to byte
 transformdb: unsupported type change in m3 from struct ::Test::S1 to short
@@ -44,4 +42,3 @@ transformdb: unsupported type change in m12 from struct ::Test::S1 to dictionary
 transformdb: unsupported type change in m13 from struct ::Test::S1 to Object*
 transformdb: unsupported type change in m14 from struct ::Test::S1 to Object
 transformdb: unsupported type change in m15 from struct ::Test::S1 to ::Test::C1*
-transformdb: unsupported type change in m16 from struct ::Test::S1 to class ::Test::C1
