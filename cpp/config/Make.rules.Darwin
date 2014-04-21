@@ -77,15 +77,3 @@ ICEUTIL_OS_LIBS         =
 ICE_OS_LIBS             = -ldl
 
 PLATFORM_HAS_READLINE   := yes
-
-#
-# QT is used only for the deprecated IceGrid and IceStorm SQL plugins
-#
-ifneq ($(QT_HOME),)
-   ifneq ($(QT_HOME), /Library/Frameworks)
-      # Frameworks are installed in the lib directory
-      QT_FLAGS             = -F$(QT_HOME)/lib
-      QT_LIBS              = -F$(QT_HOME)/lib
-   endif
-   QT_LIBS := $(QT_LIBS) -framework QtCore -framework QtSql
-endif

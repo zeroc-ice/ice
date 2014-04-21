@@ -23,7 +23,7 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler, or leave unset for auto-detection.
-# Supported values are: VC90, VC100
+# The only value currently supported is VC100.
 #
 # CPP_COMPILER = VCxxx
 
@@ -48,16 +48,17 @@ PYTHON_HOME		= C:\Python33
 !elseif ([cl 2>&1 | findstr "Version\ 16" > nul] == 0)
 CPP_COMPILER            = VC100
 !elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-CPP_COMPILER            = VC90
+!error Detected VC90
 !elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
 !error Detected VC110
+!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
+!error Detected VC120
 !else
 !error Cannot detect C++ compiler 
 !endif
 
-#!message CPP_COMPILER set to $(CPP_COMPILER)
-!elseif "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC100"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC90, VC100.
+!elseif "$(CPP_COMPILER)" != "VC100"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be set to VC100.
 !endif
 
 

@@ -117,10 +117,3 @@ LIBS			    = $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 ICEUTIL_OS_LIBS		    = -lpthread -lrt
 ICE_OS_LIBS		    = -ldl -lsocket
 
-#
-# QT is used only for the deprecated IceGrid and IceStorm SQL plugins
-#
-ifneq ($(QT_HOME),)
-   QT_FLAGS                 = -I$(QT_HOME)/include
-   QT_LIBS                  = -L$(QT_HOME)/$(libsubdir) -lQtCore -lQtSql
-endif

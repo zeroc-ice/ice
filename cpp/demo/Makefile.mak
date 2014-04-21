@@ -11,13 +11,6 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-!if "$(CPP_COMPILER)" == "VC90"
-
-SUBDIRS		= IceUtil \
-		  Ice
-
-!else
-
 SUBDIRS		= IceUtil \
 		  Ice \
 		  book \
@@ -30,7 +23,6 @@ SUBDIRS		= IceUtil \
 !if "$(HAS_MFC)" == "yes"
 SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
-!endif
 !endif
 
 $(EVERYTHING)::

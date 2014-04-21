@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler, or leave unset for auto-detection.
-# Supported values are: VC90, VC100, VC110, VC120
+# Supported values are: VC100, VC110, VC120
 #
 # CPP_COMPILER = VCxxx
 
@@ -60,8 +60,7 @@ THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 
 #
 # Define if you want the Ice DLLs to have compiler specific names.
-# Will be set to yes by default when CPP_COMPILER=VC90, and unset 
-# otherwise 
+# Will be unset by default.
 #
 #UNIQUE_DLL_NAMES	= yes
 
@@ -84,21 +83,14 @@ CPP_COMPILER            = VC110
 !elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
 CPP_COMPILER            = VC120
 !elseif ([cl 2>&1 | findstr "Version\ 15" > nul] == 0)
-CPP_COMPILER            = VC90
+!error Detected VC90
 !else
 !error Cannot detect C++ compiler 
 !endif
 
 #!message CPP_COMPILER set to $(CPP_COMPILER)
-!elseif "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
-!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC90, VC100, VC110 or VC120.
-!endif
-
-#
-# With VC90, we want unique dll names by default
-#
-!if "$(CPP_COMPILER)" == "VC90" && "$(UNIQUE_DLL_NAMES)" == ""
-UNIQUE_DLL_NAMES	= yes
+!elseif "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC120"
+!error Invalid CPP_COMPILER setting: $(CPP_COMPILER). Must be one of: VC100, VC110 or VC120.
 !endif
 
 #
@@ -143,9 +135,7 @@ SETARGV			= setargv.obj
 !error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
-!if "$(CPP_COMPILER)" == "VC90"
-libsuff			= \vc90$(x64suffix)
-!elseif "$(CPP_COMPILER)" == "VC110"
+!if "$(CPP_COMPILER)" == "VC110"
 libsuff                 = \vc110$(x64suffix)
 !elseif "$(CPP_COMPILER)" == "VC120"
 libsuff                 = \vc120$(x64suffix)
@@ -162,9 +152,7 @@ LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(libsuff)" $(LDFLAGS)
 !endif
 
 !if "$(UNIQUE_DLL_NAMES)" == "yes"
-!if "$(CPP_COMPILER)" == "VC90"
-COMPSUFFIX	= _vc90
-!elseif "$(CPP_COMPILER)" == "VC100"
+!if "$(CPP_COMPILER)" == "VC100"
 COMPSUFFIX	= _vc100
 !elseif "$(CPP_COMPILER)" == "VC110"
 COMPSUFFIX  = _vc110
@@ -180,11 +168,6 @@ RCFLAGS		= -D_DEBUG
 
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 EXPAT_LIBS              = libexpat.lib
-
-#
-# QT is used only for the deprecated IceGrid and IceStorm SQL plugins
-#
-QT_LIBS			= QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
 ICECPPFLAGS		= -I"$(slicedir)"

@@ -22,10 +22,10 @@ prefix			= C:\Ice-$(VERSION)
 OPTIMIZE		= yes
 
 #
-# Specify your C++ compiler. The only value currently supported is VC90.
+# Specify your C++ compiler. The only value currently supported is VC110.
 # Leave unset for auto-detection.
 #
-#CPP_COMPILER           = VC90
+#CPP_COMPILER           = VC110
 
 #
 # Determines whether the extension uses PHP namespaces (requires
@@ -89,6 +89,8 @@ CPP_COMPILER            = VC110
 !error Detected VC100 compiler
 !elseif ([cl 2>&1 | findstr "Version\ 17" > nul] == 0)
 CPP_COMPILER            = VC110
+!elseif ([cl 2>&1 | findstr "Version\ 18" > nul] == 0)
+!error Detected VC120 compiler
 !else
 !error Cannot detect C++ compiler 
 !endif
