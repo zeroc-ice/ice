@@ -13,6 +13,7 @@ top_srcdir	= ..
 
 SUBDIRS		= IceUtil \
 		  Ice \
+		  IceDiscovery \
 		  book \
 		  Glacier2 \
 		  Freeze \

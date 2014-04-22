@@ -112,7 +112,7 @@ public final class LocatorInfo
                 if(!_sent)
                 {
                     _sent = true;
-                    send(true);
+                    send();
                 }
             }
         }
@@ -129,7 +129,7 @@ public final class LocatorInfo
                 if(!_sent)
                 {
                     _sent = true;
-                    send(true);
+                    send();
                 }
                 
                 while(!_response && _exception == null)
@@ -201,12 +201,6 @@ public final class LocatorInfo
         protected void 
         exception(Exception ex)
         {
-            if(ex instanceof Ice.CollocationOptimizationException)
-            {
-                send(false); // Use synchronous collocation optimized locator request instead.
-                return;
-            }
-            
             synchronized(this)
             {
                 _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex instanceof Ice.UserException);
@@ -219,7 +213,7 @@ public final class LocatorInfo
             }
         }
 
-        protected abstract void send(boolean async);
+        protected abstract void send();
 
         final protected LocatorInfo _locatorInfo;
         final protected Reference _ref;
@@ -241,38 +235,32 @@ public final class LocatorInfo
         }
 
         protected void 
-        send(boolean async)
+        send()
         {
             try
             {
-                if(async)
-                {
-                    _locatorInfo.getLocator().begin_findObjectById(_ref.getIdentity(),
-                        new Ice.Callback_Locator_findObjectById()
+                _locatorInfo.getLocator().begin_findObjectById(
+                    _ref.getIdentity(),
+                    new Ice.Callback_Locator_findObjectById()
+                    {
+                        public void
+                        response(Ice.ObjectPrx proxy)
                         {
-                            public void
-                            response(Ice.ObjectPrx proxy)
-                            {
-                                ObjectRequest.this.response(proxy);
-                            }
-                            
-                            public void
-                            exception(Ice.UserException ex)
-                            {
-                                ObjectRequest.this.exception(ex);
-                            }
-                            
-                            public void
-                            exception(Ice.LocalException ex)
-                            {
-                                ObjectRequest.this.exception(ex);
-                            }
-                        });
-                }
-                else
-                {
-                    response(_locatorInfo.getLocator().findObjectById(_ref.getIdentity()));
-                }
+                            ObjectRequest.this.response(proxy);
+                        }
+                        
+                        public void
+                        exception(Ice.UserException ex)
+                        {
+                            ObjectRequest.this.exception(ex);
+                        }
+                        
+                        public void
+                        exception(Ice.LocalException ex)
+                        {
+                            ObjectRequest.this.exception(ex);
+                        }
+                    });
             }
             catch(Exception ex)
             {
@@ -290,38 +278,32 @@ public final class LocatorInfo
         }
     
         protected void
-        send(boolean async)
+        send()
         {
             try
             {
-                if(async)
-                {
-                    _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId(),
-                        new Ice.Callback_Locator_findAdapterById()
+                _locatorInfo.getLocator().begin_findAdapterById(
+                    _ref.getAdapterId(),
+                    new Ice.Callback_Locator_findAdapterById()
+                    {
+                        public void
+                        response(Ice.ObjectPrx proxy)
                         {
-                            public void
-                            response(Ice.ObjectPrx proxy)
-                            {
-                                AdapterRequest.this.response(proxy);
-                            }
-                            
-                            public void
-                            exception(Ice.UserException ex)
-                            {
-                                AdapterRequest.this.exception(ex);
-                            }
-                            
-                            public void
-                            exception(Ice.LocalException ex)
-                            {
-                                AdapterRequest.this.exception(ex);
-                            }
-                        });
-                }
-                else
-                {
-                    response(_locatorInfo.getLocator().findAdapterById(_ref.getAdapterId()));
-                }
+                            AdapterRequest.this.response(proxy);
+                        }
+                        
+                        public void
+                        exception(Ice.UserException ex)
+                        {
+                            AdapterRequest.this.exception(ex);
+                        }
+                        
+                        public void
+                        exception(Ice.LocalException ex)
+                        {
+                            AdapterRequest.this.exception(ex);
+                        }
+                    });
             }
             catch(Exception ex)
             {
@@ -332,7 +314,7 @@ public final class LocatorInfo
 
     LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, boolean background)
     {
-        _locator = locator;
+        _locator = (Ice.LocatorPrx)locator.ice_collocationOptimized(false);
         _table = table;
         _background = background;
     }
@@ -389,7 +371,8 @@ public final class LocatorInfo
         //
         // Do not make locator calls from within sync.
         //
-        Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
+        Ice.LocatorRegistryPrx locatorRegistry = 
+            (Ice.LocatorRegistryPrx)_locator.getRegistry().ice_collocationOptimized(false);
 
         synchronized(this)
         {

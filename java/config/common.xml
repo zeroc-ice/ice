@@ -37,6 +37,7 @@
     </condition>
 
     <property name="ant-ice.jar.name" value="ant-ice${version.suffix}.jar"/>
+    <property name="icediscovery.jar.name" value="IceDiscovery${version.suffix}.jar"/>
     <property name="freeze.jar.name" value="Freeze${version.suffix}.jar"/>
     <property name="glacier2.jar.name" value="Glacier2${version.suffix}.jar"/>
     <property name="icebox.jar.name" value="IceBox${version.suffix}.jar"/>
@@ -499,6 +500,25 @@
 
         <path id="ice.classpath">
             <pathelement location="${ice.jar.file}"/>
+        </path>
+
+        <!-- IceDiscovery jar file -->
+        <condition property="icediscovery.jar.file" value="${dist.lib.dir}/IceDiscovery-${ice.version}.jar">
+            <and>
+                <not><isset property="icediscovery.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceDiscovery-${ice.version}.jar"/>
+            </and>
+        </condition>
+
+        <condition property="icediscovery.jar.file" value="${dist.lib.dir}/IceDiscovery.jar">
+            <and>
+                <not><isset property="icediscovery.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceDiscovery.jar"/>
+            </and>
+        </condition>
+
+        <path id="icediscovery.classpath">
+            <pathelement location="${icediscovery.jar.file}"/>
         </path>
 
         <!-- Glacier2 jar file -->

@@ -122,7 +122,7 @@ namespace IceInternal
                         if(!_sent)
                         {
                             _sent = true;
-                            send(true);
+                            send();
                         }
                     }
                 }
@@ -148,7 +148,7 @@ namespace IceInternal
                         if(!_sent)
                         {
                             _sent = true;
-                            send(true);
+                            send();
                         }
                 
                         while(!_response && _exception == null)
@@ -227,12 +227,6 @@ namespace IceInternal
             public void 
             exception(Ice.Exception ex)
             {
-                if(ex is Ice.CollocationOptimizationException)
-                {
-                    send(false); // Use synchronous collocation optimized locator request instead.
-                    return;
-                }
-                
                 _m.Lock();
                 try
                 {
@@ -250,7 +244,7 @@ namespace IceInternal
                 }
             }
 
-            protected abstract void send(bool async);
+            protected abstract void send();
 
             readonly protected LocatorInfo _locatorInfo;
             readonly protected Reference _ref;
@@ -272,19 +266,12 @@ namespace IceInternal
             }
 
             override protected void 
-            send(bool async)
+            send()
             {
                 try
                 {
-                    if(async)
-                    {
-                        _locatorInfo.getLocator().begin_findObjectById(_ref.getIdentity()).whenCompleted(
-                            this.response, this.exception);
-                    }
-                    else
-                    {
-                        response(_locatorInfo.getLocator().findObjectById(_ref.getIdentity()));
-                    }
+                    _locatorInfo.getLocator().begin_findObjectById(_ref.getIdentity()).whenCompleted(
+                        this.response, this.exception);
                 }
                 catch(Ice.Exception ex)
                 {
@@ -300,19 +287,12 @@ namespace IceInternal
             }
 
             override protected void
-            send(bool async)
+            send()
             {
                 try
                 {
-                    if(async)
-                    {
-                        _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId()).whenCompleted(
-                            this.response, this.exception);
-                    }
-                    else
-                    {
-                        response(_locatorInfo.getLocator().findAdapterById(_ref.getAdapterId()));
-                    }
+                    _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId()).whenCompleted(
+                        this.response, this.exception);
                 }
                 catch(Ice.Exception ex)
                 {
@@ -323,7 +303,7 @@ namespace IceInternal
 
         internal LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, bool background)
         {
-            _locator = locator;
+            _locator = (Ice.LocatorPrx)locator.ice_collocationOptimized(false);
             _table = table;
             _background = background;
         }
@@ -374,7 +354,8 @@ namespace IceInternal
             //
             // Do not make locator calls from within sync.
             //
-            Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
+            Ice.LocatorRegistryPrx locatorRegistry = 
+                (Ice.LocatorRegistryPrx)_locator.getRegistry().ice_collocationOptimized(false);
 
             lock(this)
             {

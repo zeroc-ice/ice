@@ -23,7 +23,8 @@ SUBDIRS		:= $(SUBDIRS) \
 		   Freeze \
 		   FreezeScript \
 		   Glacier2 \
-		   IceGrid
+		   IceGrid \
+		   IceDiscovery
 endif
 
 

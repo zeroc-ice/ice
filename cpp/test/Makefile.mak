@@ -26,7 +26,8 @@ SUBDIRS		= IceUtil \
 		  IceStorm \
 		  FreezeScript \
 		  IceGrid \
-		  IceBox
+		  IceBox \
+		  IceDiscovery
 
 !endif
 

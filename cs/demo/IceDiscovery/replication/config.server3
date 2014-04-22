@@ -1,0 +1,31 @@
+#
+# The server creates one single object adapter with the name "Hello".
+#
+# The following configures the object adapter. We set endpoints with
+# no fixed port and we assign it a unique adapter ID that will be
+# embedded in indirect proxies. 
+#
+# We also configure the replica group ID, object adapters sharing the
+# same replica group ID are part of the same replica group. When the
+# client resolves an indirect proxy refering to this replica group,
+# the locator implementation will return the endpoints of all the
+# object adapters part of the replica group.
+#
+Hello.Endpoints=tcp
+Hello.AdapterId=HelloAdapter3
+Hello.ReplicaGroupId=ReplicatedHelloAdapter
+
+#
+# Identify the server
+#
+Ice.ProgramName=Server3
+
+#
+# Enable the Ice discovery plugin
+#
+Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory
+
+#
+# Ensure connection establishment doesn't take too long.
+#
+Ice.Override.ConnectTimeout=1000

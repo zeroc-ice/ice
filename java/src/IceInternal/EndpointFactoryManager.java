@@ -126,7 +126,6 @@ public final class EndpointFactoryManager
     read(BasicStream s)
     {
         short type = s.readShort();
-
         for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = _factories.get(i);

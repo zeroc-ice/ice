@@ -390,6 +390,20 @@ generated from the section label.
         <property name="Metrics.[any]" class="mx" />
     </section>
 
+    <section name="IceDiscovery">
+        <property name="Multicast" class="objectadapter" />
+        <property name="Reply" class="objectadapter" />
+        <property name="Locator" class="objectadapter" />
+        <property name="Lookup"/>
+        <property name="Timeout"/>
+        <property name="RetryCount"/>
+        <property name="LatencyMultiplier"/>
+        <property name="Address"/>
+        <property name="Port"/>
+        <property name="Interface"/>
+        <property name="DomainId"/>
+    </section>
+
     <section name="IceBox">
         <property name="InheritProperties" />
         <property name="InstanceName" />

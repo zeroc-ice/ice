@@ -412,7 +412,8 @@ public class AllTests
 
         test(proxyProps.get("Test.Locator").equals(
                  "locator -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding())));
-        test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
+        // Locator collocation optimization is always disabled.
+        //test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
         test(proxyProps.get("Test.Locator.ConnectionCached").equals("0"));
         test(proxyProps.get("Test.Locator.PreferSecure").equals("1"));
         test(proxyProps.get("Test.Locator.EndpointSelection").equals("Random"));

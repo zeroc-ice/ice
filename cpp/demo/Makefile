@@ -13,6 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= IceUtil \
 		  Ice \
+		  IceDiscovery \
 		  Freeze \
 		  IceBox \
 		  IceStorm \

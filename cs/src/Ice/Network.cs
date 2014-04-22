@@ -643,50 +643,41 @@ namespace IceInternal
             }
         }
 
-        public static void setMcastGroup(Socket socket, IPAddress group, string iface)
+        public static void setMcastGroup(Socket s, IPAddress group, string iface)
         {
             try
             {
+                int index = getInterfaceIndex(iface, group.AddressFamily);
                 if(group.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    IPAddress ifaceAddr = IPAddress.Any;
-                    if(iface.Length != 0)
+                    MulticastOption option;
+                    if(index == -1)
                     {
-                        ifaceAddr = getInterfaceAddress(iface);
-                        if(ifaceAddr == IPAddress.Any)
-                        {
-                            ifaceAddr = ((IPEndPoint)getAddressForServer(iface, 0, EnableIPv4, false)).Address;
-                        }
+                        option = new MulticastOption(group);
                     }
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-                                           new MulticastOption(group, ifaceAddr));
+                    else
+                    {
+                        option = new MulticastOption(group, index);
+                    }
+                    s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
                 }
                 else
                 {
-                    int ifaceIndex = 0;
-                    if(iface.Length != 0)
+                    IPv6MulticastOption option;
+                    if(index == -1)
                     {
-                        ifaceIndex = getInterfaceIndex(iface);
-                        if(ifaceIndex == 0)
-                        {
-                            try
-                            {
-                                ifaceIndex = System.Int32.Parse(iface, CultureInfo.InvariantCulture);
-                            }
-                            catch(System.FormatException ex)
-                            {
-                                closeSocketNoThrow(socket);
-                                throw new Ice.SocketException(ex);
-                            }
-                        }
+                        option = new IPv6MulticastOption(group);
                     }
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-                                           new IPv6MulticastOption(group, ifaceIndex));
+                    else
+                    {
+                        option = new IPv6MulticastOption(group, index);
+                    }
+                    s.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, option);
                 }
             }
-            catch(SocketException ex)
+            catch(Exception ex)
             {
-                closeSocketNoThrow(socket);
+                closeSocketNoThrow(s);
                 throw new Ice.SocketException(ex);
             }
         }
@@ -1320,16 +1311,78 @@ namespace IceInternal
         }
 
         private static int
-        getInterfaceIndex(string name)
+        getInterfaceIndex(string iface, AddressFamily family)
         {
+            if(iface.Length == 0)
+            {
+                return -1;
+            }
+
+            //
+            // The iface parameter must either be an IP address, an
+            // index or the name of an interface. If it's an index we
+            // just return it. If it's an IP addess we search for an
+            // interface which has this IP address. If it's a name we
+            // search an interface with this name.
+            // 
+            try
+            {
+                return System.Int32.Parse(iface, CultureInfo.InvariantCulture);
+            }
+            catch(System.FormatException)
+            {
+            }
+
 #if !COMPACT && !SILVERLIGHT && !UNITY
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-            foreach(NetworkInterface ni in nics)
+            try
             {
-                if(ni.Name == name)
+                IPAddress addr = IPAddress.Parse(iface);
+                foreach(NetworkInterface ni in nics)
                 {
                     IPInterfaceProperties ipProps = ni.GetIPProperties();
-                    try
+                    foreach(UnicastIPAddressInformation uni in ipProps.UnicastAddresses)
+                    {
+                        if(uni.Address.Equals(addr))
+                        {
+                            if(addr.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                IPv4InterfaceProperties ipv4Props = ipProps.GetIPv4Properties();
+                                if(ipv4Props != null)
+                                {
+                                    return ipv4Props.Index;
+                                }
+                            }
+                            else
+                            {
+                                IPv6InterfaceProperties ipv6Props = ipProps.GetIPv6Properties();
+                                if(ipv6Props != null)
+                                {
+                                    return ipv6Props.Index;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(FormatException)
+            {
+            }
+
+            foreach(NetworkInterface ni in nics)
+            {
+                if(ni.Name == iface)
+                {
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
+                    if(family == AddressFamily.InterNetwork)
+                    {
+                        IPv4InterfaceProperties ipv4Props = ipProps.GetIPv4Properties();
+                        if(ipv4Props != null)
+                        {
+                            return ipv4Props.Index;
+                        }
+                    }
+                    else
                     {
                         IPv6InterfaceProperties ipv6Props = ipProps.GetIPv6Properties();
                         if(ipv6Props != null)
@@ -1337,37 +1390,10 @@ namespace IceInternal
                             return ipv6Props.Index;
                         }
                     }
-                    catch(System.NotImplementedException)
-                    {
-                    }
                 }
             }
 #endif
-            return 0;
-        }
-
-        private static IPAddress
-        getInterfaceAddress(string name)
-        {
-#if !COMPACT && !SILVERLIGHT && !UNITY
-            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-            foreach(NetworkInterface ni in nics)
-            {
-                if(ni.Name == name)
-                {
-                    IPInterfaceProperties ipProps = ni.GetIPProperties();
-                    UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
-                    foreach(UnicastIPAddressInformation uni in uniColl)
-                    {
-                        if(uni.Address.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            return uni.Address;
-                        }
-                    }
-                }
-            }
-#endif
-            return IPAddress.Any;
+            return -1;
         }
 
         public static string

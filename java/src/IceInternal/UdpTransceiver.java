@@ -563,9 +563,14 @@ final class UdpTransceiver implements Transceiver
                     intf = java.net.NetworkInterface.getByName(interfaceAddr);
                     if(intf == null)
                     {
-                        java.net.InetSocketAddress addr = Network.getAddressForServer(interfaceAddr, 0, 
-                                                                                      Network.EnableIPv4, false);
-                        intf = java.net.NetworkInterface.getByInetAddress(addr.getAddress());
+                        try
+                        {
+                            intf = java.net.NetworkInterface.getByInetAddress(
+                                java.net.InetAddress.getByName(interfaceAddr));
+                        }
+                        catch(Exception ex)
+                        {
+                        }
                     }
                 }
 

@@ -119,7 +119,7 @@ public:
 
         Request(const LocatorInfoPtr&, const ReferencePtr&);
 
-        virtual void send(bool) = 0;
+        virtual void send() = 0;
 
         const LocatorInfoPtr _locatorInfo;
         const ReferencePtr _ref;

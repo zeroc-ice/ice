@@ -89,6 +89,7 @@ tests = [
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc90", "nomingw"]),
     ("FreezeScript/dbmap", ["once", "novc90", "nomingw"]),
     ("FreezeScript/evictor", ["once", "novc90", "nomingw"]),
+    ("IceDiscovery/simple", ["service", "novc90", "nomingw"]),
     ("IceGrid/simple", ["service", "novc90", "nomingw"]),
     ("IceGrid/fileLock", ["service", "novc90", "nomingw"]),
     ("IceGrid/deployer", ["service", "novc90", "nomingw"]),

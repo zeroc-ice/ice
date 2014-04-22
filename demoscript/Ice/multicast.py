@@ -77,7 +77,7 @@ def run(clientCmd, serverCmd):
         # a "Host not reachable" error, instead we use a link-local address with on loopback.
         #
         if Util.isDarwin():
-            endpoint = 'udp -h \\"ff02::1:1\\" -p 10000 --interface \\"lo0\\"'
+            endpoint = 'udp -h \\"ff02::1:1\\" -p 10000 --interface \\"::1\\"'
         else:
             endpoint = 'udp -h \\"ff01::1:1\\" -p 10000'
         serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="%s"' % (endpoint)

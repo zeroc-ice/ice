@@ -40,22 +40,15 @@ public:
         assert(ref->isWellKnown());
     }
 
-    virtual void send(bool async)
+    virtual void send()
     {
         try
         {
-            if(async)
-            {
-                _locatorInfo->getLocator()->begin_findObjectById(
-                    _ref->getIdentity(), 
-                    newCallback_Locator_findObjectById(static_cast<LocatorInfo::Request*>(this),
-                                                       &LocatorInfo::Request::response, 
-                                                       &LocatorInfo::Request::exception));
-            }
-            else
-            {
-                response(_locatorInfo->getLocator()->findObjectById(_ref->getIdentity()));
-            }
+            _locatorInfo->getLocator()->begin_findObjectById(
+                _ref->getIdentity(), 
+                newCallback_Locator_findObjectById(static_cast<LocatorInfo::Request*>(this),
+                                                   &LocatorInfo::Request::response, 
+                                                   &LocatorInfo::Request::exception));
         }
         catch(const Ice::Exception& ex)
         {
@@ -73,22 +66,15 @@ public:
         assert(ref->isIndirect() && !ref->isWellKnown());
     }
     
-    virtual void send(bool async)
+    virtual void send()
     {
         try
         {
-            if(async)
-            {
-                _locatorInfo->getLocator()->begin_findAdapterById(
-                    _ref->getAdapterId(),
-                    newCallback_Locator_findAdapterById(static_cast<LocatorInfo::Request*>(this),
-                                                        &LocatorInfo::Request::response, 
-                                                        &LocatorInfo::Request::exception));
-            }
-            else
-            {
-                response(_locatorInfo->getLocator()->findAdapterById(_ref->getAdapterId()));
-            }
+            _locatorInfo->getLocator()->begin_findAdapterById(
+                _ref->getAdapterId(),
+                newCallback_Locator_findAdapterById(static_cast<LocatorInfo::Request*>(this),
+                                                    &LocatorInfo::Request::response, 
+                                                    &LocatorInfo::Request::exception));
         }
         catch(const Ice::Exception& ex)
         {
@@ -406,7 +392,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
         {
             _sent = true;
             sync.release();
-            send(true); // send() might call exception() from this thread so we need to release the mutex.
+            send(); // send() might call exception() from this thread so we need to release the mutex.
         }
     }
 }
@@ -428,7 +414,7 @@ IceInternal::LocatorInfo::Request::getEndpoints(const ReferencePtr& ref,
         {
             _sent = true;
             sync.release();
-            send(true); // send() might call exception() from this thread so we need to release the mutex.
+            send(); // send() might call exception() from this thread so we need to release the mutex.
             sync.acquire();
         }
 
@@ -493,12 +479,6 @@ IceInternal::LocatorInfo::Request::response(const Ice::ObjectPrx& proxy)
 void 
 IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
 {
-    if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
-    {
-        send(false); // Use synchronous collocation optimized locator request instead.
-        return;
-    }
-
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     _locatorInfo->finishRequest(_ref, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
     _exception.reset(ex.ice_clone());
@@ -510,7 +490,7 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
 }
 
 IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table, bool background) :
-    _locator(locator),
+    _locator(locator->ice_collocationOptimized(false)),
     _table(table),
     _background(background)
 {
@@ -559,7 +539,7 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     //
     // Do not make locator calls from within sync.
     //
-    LocatorRegistryPrx locatorRegistry = _locator->getRegistry();
+    LocatorRegistryPrx locatorRegistry = _locator->getRegistry()->ice_collocationOptimized(false);
     
     {
         IceUtil::Mutex::Lock sync(*this);

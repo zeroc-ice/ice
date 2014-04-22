@@ -457,7 +457,29 @@ isWildcard(const string& host, ProtocolSupport protocol)
 int
 getInterfaceIndex(const string& name)
 {
+    if(name.empty())
+    {
+        return 0;
+    }
+    
     int index = 0;
+
+    //
+    // First check if index
+    //
+    istringstream p(name);
+    if((p >> index) && p.eof())
+    {
+        return index;
+    }
+
+    //
+    // Then check if it's an IPv6 address. If it's an address we'll
+    // look for the interface index by address.
+    //
+    in6_addr addr;
+    bool isAddr = inet_pton(AF_INET6, name.c_str(), &addr) > 0;
+    
 #ifdef _WIN32
     IP_ADAPTER_ADDRESSES addrs;
     ULONG buflen = 0;
@@ -470,10 +492,35 @@ getInterfaceIndex(const string& name)
         {
             while(paddrs)
             {
-                if(IceUtil::wstringToString(paddrs->FriendlyName) == name)
+                if(isAddr)
                 {
-                    index = paddrs->Ipv6IfIndex;
-                    break;
+                    PIP_ADAPTER_UNICAST_ADDRESS ipAddr = paddrs->FirstUnicastAddress;
+                    while(ipAddr)
+                    {
+                        if(ipAddr->Address.lpSockaddr->sa_family == AF_INET6)
+                        {
+                            struct sockaddr_in6* ipv6Addr = 
+                                reinterpret_cast<struct sockaddr_in6*>(ipAddr->Address.lpSockaddr);
+                            if(memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
+                            {
+                                break;
+                            }
+                        }
+                        ipAddr = ipAddr->Next;
+                    }
+                    if(ipAddr)
+                    {
+                        index = paddrs->Ipv6IfIndex;
+                        break;
+                    }
+                }
+                else
+                {
+                    if(IceUtil::wstringToString(paddrs->FriendlyName) == name)
+                    {
+                        index = paddrs->Ipv6IfIndex;
+                        break;
+                    }
                 }
                 paddrs = paddrs->Next;
             }
@@ -481,8 +528,104 @@ getInterfaceIndex(const string& name)
         delete[] buf;
     }
 #elif !defined(__hpux)
-    index = if_nametoindex(name.c_str());
+
+    //
+    // Look for an interface with a matching IP address
+    // 
+    if(isAddr)
+    {
+#if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+        struct ifaddrs* ifap;
+        if(::getifaddrs(&ifap) != SOCKET_ERROR)
+        {
+            struct ifaddrs* curr = ifap;
+            while(curr != 0)
+            {
+                if(curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET6)
+                {
+                    struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(curr->ifa_addr);
+                    if(memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
+                    {
+                        index = if_nametoindex(curr->ifa_name);
+                        break;
+                    }
+                }            
+                curr = curr->ifa_next;
+            }
+            ::freeifaddrs(ifap);
+        }
+#else
+        SOCKET fd = createSocketImpl(false, AF_INET6);
+#ifdef _AIX
+        int cmd = CSIOCGIFCONF;
+#else
+        int cmd = SIOCGIFCONF;
 #endif
+        struct ifconf ifc;
+        int numaddrs = 10;
+        int old_ifc_len = 0;
+
+        //
+        // Need to call ioctl multiple times since we do not know up front
+        // how many addresses there will be, and thus how large a buffer we need.
+        // We keep increasing the buffer size until subsequent calls return
+        // the same length, meaning we have all the addresses.
+        //
+        while(true)
+        {
+            int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
+            ifc.ifc_len = bufsize;
+            ifc.ifc_buf = (char*)malloc(bufsize);
+
+            int rs = ioctl(fd, cmd, &ifc);
+            if(rs == SOCKET_ERROR)
+            {
+                free(ifc.ifc_buf);
+                ifc.ifc_buf = 0;
+                break;
+            }
+            else if(ifc.ifc_len == old_ifc_len)
+            {
+                //
+                // Returned same length twice in a row, finished.
+                //
+                break;
+            }
+            else
+            {
+                old_ifc_len = ifc.ifc_len;
+            }
+            numaddrs += 10;
+            free(ifc.ifc_buf);
+        }
+        closeSocketNoThrow(fd);
+
+        if(ifc.ifc_buf)
+        {
+            numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
+            struct ifreq* ifr = ifc.ifc_req;
+            for(int i = 0; i < numaddrs; ++i)
+            {
+                if(ifr[i].ifr_addr.sa_family == AF_INET6)
+                {
+                    struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(&ifr[i].ifr_addr);
+                    if(memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
+                    {
+                        index = if_nametoindex(ifr[i].ifr_name);
+                        break;
+                    }
+                }
+            }
+            free(ifc.ifc_buf);
+        }
+#endif
+    }
+    else // Look for an interface with the given name.
+    {
+        index = if_nametoindex(name.c_str());
+    }
+#endif
+
     return index;
 }
 
@@ -491,6 +634,16 @@ getInterfaceAddress(const string& name)
 {
     struct in_addr addr;
     addr.s_addr = INADDR_ANY;
+    if(name.empty())
+    {
+        return addr;
+    }
+
+    if(inet_pton(AF_INET, name.c_str(), &addr) > 0)
+    {
+        return addr;
+    }
+
 #ifdef _WIN32
     IP_ADAPTER_ADDRESSES addrs;
     ULONG buflen = 0;
@@ -1656,44 +1809,14 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
     {
         struct ip_mreq mreq;
         mreq.imr_multiaddr = group.saIn.sin_addr;
-        mreq.imr_interface.s_addr = INADDR_ANY;
-        if(intf.size() > 0)
-        {
-            //
-            // First see if it is the interface name. If not check if IP Address.
-            //
-            mreq.imr_interface = getInterfaceAddress(intf);
-            if(mreq.imr_interface.s_addr == INADDR_ANY)
-            {
-                Address addr = getAddressForServer(intf, 0, EnableIPv4, false);
-                mreq.imr_interface = addr.saIn.sin_addr;
-            }
-        }
+        mreq.imr_interface = getInterfaceAddress(intf);
         rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq)));
     }
     else
     {
         struct ipv6_mreq mreq;
         mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
-        mreq.ipv6mr_interface = 0;
-        if(intf.size() != 0)
-        {
-            //
-            // First check if it is the interface name. If not check if index.
-            //
-            mreq.ipv6mr_interface = getInterfaceIndex(intf);
-            if(mreq.ipv6mr_interface == 0)
-            {
-                istringstream p(intf);
-                if(!(p >> mreq.ipv6mr_interface) || !p.eof())
-                {
-                    closeSocketNoThrow(fd);
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
-                }
-            }
-        }
+        mreq.ipv6mr_interface = getInterfaceIndex(intf);
         rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, int(sizeof(mreq)));
     }
     if(rc == SOCKET_ERROR)
@@ -1734,33 +1857,12 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
     int rc;
     if(addr.saStorage.ss_family == AF_INET)
     {
-        //
-        // First see if it is the interface name. If not check if IP Address.
-        //
         struct in_addr iface = getInterfaceAddress(intf);
-        if(iface.s_addr == INADDR_ANY)
-        {
-            Address addr = getAddressForServer(intf, 0, EnableIPv4, false);
-            iface = addr.saIn.sin_addr;
-        }
         rc = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&iface, int(sizeof(iface)));
     }
     else
     {
-        //
-        // First check if it is the interface name. If not check if index.
-        //
         int interfaceNum = getInterfaceIndex(intf);
-        if(interfaceNum == 0)
-        {
-            istringstream p(intf);
-            if(!(p >> interfaceNum) || !p.eof())
-            {
-                closeSocketNoThrow(fd);
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = 0;
-            }
-        }
         rc = setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_IF, (char*)&interfaceNum, int(sizeof(int)));
     }
     if(rc == SOCKET_ERROR)

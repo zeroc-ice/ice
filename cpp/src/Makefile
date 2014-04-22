@@ -36,6 +36,7 @@ else
 			  IceXML \
 			  IceSSL \
 			  IceWS \
+			  IceDiscovery \
 			  Freeze \
 			  FreezeScript \
 			  IceBox \

@@ -43,6 +43,7 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  IceSSL \
 		  IceWS \
+		  IceDiscovery \
 		  ca \
 		  IceXML \
 		  Freeze \

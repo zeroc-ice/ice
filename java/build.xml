@@ -79,6 +79,9 @@
                 <include name="Instrumentation.ice" />
                 <include name="Metrics.ice" />
             </fileset>
+            <fileset dir="${slice.dir}/IceDiscovery">
+                <include name="IceDiscovery.ice" />
+            </fileset>    
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
                 <include name="Connection.ice" />
@@ -239,6 +242,34 @@
             <include name="Ice/*.java"/>
             <include name="IceMX/*.java"/>
             <include name="IceSSL/*.java"/>
+        </jar>
+    </target>
+
+    <target name="icediscovery-compile" depends="ice-compile" unless="ice.bin.dist">
+        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${cache.dir}"/>
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+            <include name="IceDiscovery/**"/>
+        </depend>
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+               deprecation="on">
+            <include name="IceDiscovery/**"/>
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="icediscovery-jar" depends="icediscovery-compile, ice-jar" unless="ice.bin.dist">
+        <jar jarfile="${lib.dir}/${icediscovery.jar.name}" basedir="${lib.dir}">
+            <include name="IceDiscovery/*.class"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+            </manifest>
+        </jar>
+        <jar jarfile="${lib.dir}/${icediscovery.jar.name}" basedir="${src.dir}" update="yes">
+            <include name="IceDiscovery/*.java"/>
+        </jar>
+        <jar jarfile="${lib.dir}/${icediscovery.jar.name}" basedir="${generated.dir}" update="yes">
+            <include name="IceDiscovery/*.java"/>
         </jar>
     </target>
 
@@ -466,6 +497,7 @@
                 <include name="test/Freeze/complex/Complex.ice" />
                 <include name="test/Glacier2/router/Callback.ice" />
                 <include name="test/Glacier2/sessionHelper/Callback.ice" />
+                <include name="test/IceDiscovery/simple/Test.ice" />
                 <include name="test/IceGrid/simple/Test.ice" />
                 <include name="test/IceBox/admin/Test.ice" />
                 <include name="test/IceBox/configuration/Test.ice" />
@@ -573,7 +605,9 @@
     </target>
 
     <target name="test-compile" depends="ice-compile, freeze-compile, glacier2-compile, icebox-compile, 
-                                         icestorm-compile, icegrid-compile, test-generate">
+                                         icestorm-compile,
+                                         icegrid-compile,
+                                         icediscovery-compile, test-generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir=".:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
@@ -901,11 +935,14 @@
     </target>
 
     <target name="compile" depends="ice-compile, icebox-compile, glacier2-compile, icestorm-compile, icegrid-compile, 
-                                    freeze-compile, icepatch2-compile, icegridadmin-compile"/>
+                                    icediscovery-compile, freeze-compile, icepatch2-compile, icegridadmin-compile"/>
 
     <target name="dist-jar" 
-            depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, freeze-jar, icepatch2-jar,
-                     icegridadmin-plain-jar, icegridadmin-pro-jar, icegridadmin-javafx-jar, icegridadmin-bundle"/>
+            depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar,
+                     icegrid-jar, freeze-jar, icepatch2-jar, 
+                     icediscovery-jar, icegridadmin-plain-jar,
+                     icegridadmin-pro-jar,
+                     icegridadmin-javafx-jar, icegridadmin-bundle"/>
 
     <target name="jar" depends="dist-jar, test-jar, test-android-jar"/>
 
@@ -938,7 +975,8 @@
 
     <target name="install-icegridgui-bundle" if="build-icegridadmin-bundle">
         <mkdir dir="${prefix}/bin"/>
-        <!-- Don't use the copy task, it will lost the folder flags -->
+        <!-- Don't use the copy task, it will lost the folder flags
+             -->
         <exec executable="cp">
             <arg value="-rf"/>
             <arg value="${lib.dir}/IceGrid Admin.app"/>

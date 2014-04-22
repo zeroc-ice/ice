@@ -412,7 +412,8 @@ public class AllTests : TestCommon.TestApp
 
         test(proxyProps["Test.Locator"].Equals(
                  "locator -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
-        test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
+        // Locator collocation optimization is always disabled.
+        //test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
         test(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
         test(proxyProps["Test.Locator.PreferSecure"].Equals("1"));
         test(proxyProps["Test.Locator.EndpointSelection"].Equals("Random"));

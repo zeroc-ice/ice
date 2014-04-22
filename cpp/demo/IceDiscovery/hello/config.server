@@ -1,0 +1,49 @@
+#
+# The server creates one single object adapter with the name
+# "Hello". The following sets the endpoints and the adapter ID for
+# this adapter.
+#
+Hello.Endpoints=tcp -h localhost:udp -h localhost:ssl -h localhost
+Hello.AdapterId=HelloAdapter
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Locator tracing
+#
+Ice.Trace.Locator=0
+
+#
+# Enable the Ice discovery plugin
+#
+Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL:createIceSSL
+IceSSL.DefaultDir=../../../../certs
+IceSSL.CertAuthFile=cacert.pem
+IceSSL.CertFile=s_rsa1024_pub.pem
+IceSSL.KeyFile=s_rsa1024_priv.pem
+
+#
+# Uncomment the properties below if you want run the demo with the
+# Windows Store App hello client.
+#
+#Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+#IceSSL.VerifyPeer=0
+#IceSSL.DefaultDir=../../../../certs/winrt
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10002
+Ice.Admin.InstanceName=server
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent
+
+Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery

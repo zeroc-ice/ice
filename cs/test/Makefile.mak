@@ -13,7 +13,7 @@ top_srcdir	= ..
 
 SUBDIRS		= Slice IceUtil Ice IceBox Glacier2 IceGrid
 !if "$(COMPACT)" == ""
-SUBDIRS		= $(SUBDIRS) IceSSL
+SUBDIRS		= $(SUBDIRS) IceSSL IceDiscovery
 !endif
 
 

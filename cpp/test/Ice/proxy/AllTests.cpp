@@ -396,7 +396,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.LocatorCacheTimeout"] == "100");
 
     test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding));
-    test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
+    // Locator collocation optimization is always disabled.
+    //test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test(proxyProps["Test.Locator.ConnectionCached"] == "0");
     test(proxyProps["Test.Locator.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
