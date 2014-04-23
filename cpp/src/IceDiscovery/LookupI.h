@@ -10,7 +10,7 @@
 #ifndef LOOKUPI_H
 #define LOOKUPI_H
 
-#include <IceDiscovery/Internal.h>
+#include <IceDiscovery/IceDiscovery.h>
 #include <IceDiscovery/LocatorI.h>
 
 #include <Ice/Properties.h>
