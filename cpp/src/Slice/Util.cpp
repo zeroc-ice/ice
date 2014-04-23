@@ -13,7 +13,9 @@
 #include <IceUtil/StringUtil.h>
 #include <climits>
 
-#include <unistd.h> // For readlink()
+#ifndef _MSC_VER
+#  include <unistd.h> // For readlink()
+#endif
 
 using namespace std;
 using namespace Slice;

@@ -39,7 +39,7 @@ HDIR		= $(headerdir)\FreezeScript
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= slice$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS) $(DB_LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
