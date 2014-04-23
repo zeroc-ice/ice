@@ -793,7 +793,7 @@ IcePHP::runtimeError(const char* fmt TSRMLS_DC, ...)
     va_start(args, fmt);
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1500)
+#if defined(_MSC_VER)
     vsprintf_s(msg, fmt, args);
 #else
     vsprintf(msg, fmt, args);
@@ -816,7 +816,7 @@ IcePHP::invalidArgument(const char* fmt TSRMLS_DC, ...)
     va_start(args, fmt);
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1500)
+#if defined(_MSC_VER)
     vsprintf_s(msg, fmt, args);
 #else
     vsprintf(msg, fmt, args);
