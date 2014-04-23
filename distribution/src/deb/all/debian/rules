@@ -17,7 +17,7 @@ export GAC_ROOT=$(prefix)/lib
 export APPEND_VERSION_SUFFIX=yes
 
 %:
-	dh $@ --with python2
+	dh $@ --with python2 --with php5
 
 override_dh_auto_build:
 	make embedded_runpath_prefix="" PYTHON_LIBS="" install
@@ -27,8 +27,7 @@ override_dh_install:
 	cp java/bin/icegridgui.deb $(DESTDIR)$(prefix)/bin/icegridgui && \
 	chmod 755 $(DESTDIR)$(prefix)/bin/icegridgui
 
-	mkdir -p $(DESTDIR)/etc/php5/conf.d
-	cp debian/libice@mmver@-php.ice.ini $(DESTDIR)/etc/php5/conf.d/ice.ini
+	mkdir -p $(DESTDIR)/etc/php5/mods-available
 
 	mkdir -p $(DESTDIR)/etc
 	cp debian/glacier2.glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
