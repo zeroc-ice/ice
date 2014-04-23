@@ -585,7 +585,8 @@ Database::getObjects(Ice::Long& serial) const
 StringLongDict
 Database::getSerials() const
 {
-    return toMap(SerialsDict(Freeze::createConnection(_communicator, _envName), serialsDbName));
+    SerialsDict serials(Freeze::createConnection(_communicator, _envName), serialsDbName);
+    return toMap(serials);
 }
 
 void
