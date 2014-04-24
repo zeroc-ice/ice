@@ -77,6 +77,7 @@ IceStorm: IceBox IceGridLib
 
 IceGrid: IceGridLib IceStorm IcePatch2Lib
 
+IceDiscovery: Ice
 
 all:: $(SUBDIRS)
 

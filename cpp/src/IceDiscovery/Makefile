@@ -49,7 +49,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(SONAME) $@
 endif
 
-IceDiscovery.h IceDiscovery.cpp: $(slicedir)/IceDiscovery/IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+../IceDiscovery/IceDiscovery.h IceDiscovery.cpp: $(slicedir)/IceDiscovery/IceDiscovery.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f IceDiscovery.h IceDiscovery.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(slicedir)/IceDiscovery/IceDiscovery.ice
 
