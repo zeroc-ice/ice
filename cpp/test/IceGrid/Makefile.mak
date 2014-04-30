@@ -7,26 +7,25 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ..\..
 
-include $(top_srcdir)/config/Make.rules
-
-
-SUBDIRS		= simple deployer session update noRestartUpdate activation replicaGroup allocation replication distribution admin
+!include $(top_srcdir)/config/Make.rules.mak
 
 
-.PHONY: $(EVERYTHING) $(SUBDIRS)
+SUBDIRS		= activation \
+		admin \
+		allocation \
+		deployer \
+		distribution \
+		fileLock \
+		noRestartUpdate \
+		replicaGroup \
+		replication \
+		session \
+		simple \
+		update
 
-all:: $(SUBDIRS)
-
-$(SUBDIRS):
-	@echo "making all in $@"
-	@$(MAKE) all --directory=$@
-
-
-$(EVERYTHING_EXCEPT_ALL)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(EVERYTHING)::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
