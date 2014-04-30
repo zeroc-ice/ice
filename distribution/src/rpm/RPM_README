@@ -39,7 +39,7 @@ The gpg settings are only needed if you want to sign your RPMs.
 Replace "/home/rpmbuilder" with a path name that is appropriate for
 your system.
 
-The value for %dist should be ".sles11" or ".el6".
+The value for %dist should be ".sles11", ".el6" or ".amzn1".
 
 
 ======================================================================
@@ -47,8 +47,8 @@ The value for %dist should be ".sles11" or ".el6".
 ======================================================================
 
 The RPM package build directory is /usr/src/packages on SLES. For 
-RHEL 6, create and use ~/rpmbuild. In this document we refer to the 
-package directory symbolically as <rpm-package>.
+RHEL 6 and Amazon Linux, create and use ~/rpmbuild. In this document
+we refer to the package directory symbolically as <rpm-package>.
 
 You may need to adjust the permissions on all subdirectories of this
 directory to be able to create RPMs as a non-root user.
@@ -89,9 +89,10 @@ dependencies are listed below:
  - openssl-devel
  - jpackage-utils
  - python-devel
- - bzip2-devel (RHEL)
- - expat-devel (RHEL)
- - php-devel (RHEL)
+ - bzip2-devel (RHEL/Amzn)
+ - expat-devel (RHEL/Amzn)
+ - php-devel (RHEL/Amzn)
+ - ruby18-devel (Amzn)
  - php5-devel (SLES)
  - mono-core (SLES)
  - mono-devel (SLES)
@@ -169,7 +170,7 @@ $ find-jar proguard.jar
 
 Finally, build the RPMs as a non-root user.
 
-On Red Hat Enterprise Linux:
+On Red Hat Enterprise Linux and Amazon Linux:
 
 $ cd <rpm-package>/SPECS
 $ rpmbuild -bb --sign --target i386,noarch ice.spec

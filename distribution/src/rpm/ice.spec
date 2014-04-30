@@ -7,17 +7,18 @@
 #
 # **********************************************************************
 
+%define ruby 0
+%define mono 0
+
 %if "%{dist}" == ".el6"
   %define ruby 1
-  %define mono 0
-%else
-  %if "%{dist}" == ".sles11"
-    %define ruby 1
-    %define mono 1
-  %else
-    %define ruby 0
-    %define mono 0
-  %endif
+%endif
+%if "%{dist}" == ".amzn1"
+  %define ruby 1
+%endif
+%if "%{dist}" == ".sles11"
+  %define ruby 1
+  %define mono 1
 %endif
 
 %define buildall 1
@@ -52,6 +53,7 @@ Group: System Environment/Libraries
 Vendor: ZeroC, Inc.
 URL: http://www.zeroc.com/
 Source0: Ice-%{version}.tar.gz
+Patch1: patch.Ice.3.5.1.amzn1-1
 Source1: Ice-rpmbuild-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -96,6 +98,13 @@ BuildRequires: mono-core >= 2.0.1, mono-devel >= 2.0.1
 BuildRequires: bzip2-devel >= 1.0.5
 BuildRequires: expat-devel >= 2.0.1
 BuildRequires: php-devel >= 5.3.2
+BuildRequires: python-devel >= 2.6.5
+%endif
+%if "%{dist}" == ".amzn1"
+BuildRequires: bzip2-devel >= 1.0.6
+BuildRequires: expat-devel >= 2.0.1
+BuildRequires: php-devel >= 5.3.2
+BuildRequires: php-devel < 5.4
 BuildRequires: python-devel >= 2.6.5
 %endif
 %if "%{dist}" == ".sles11"
@@ -174,6 +183,9 @@ Requires(pre): pwdutils
 %if "%{dist}" == ".el6"
 Requires(pre): shadow-utils
 %endif
+%if "%{dist}" == ".amzn1"
+Requires(pre): shadow-utils
+%endif
 # Requirements for the init.d services
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -210,7 +222,15 @@ Tools for developing Ice applications in C#.
 %package ruby
 Summary: The Ice run time for Ruby
 Group: System Environment/Libraries
-Requires: ice-libs = %{version}-%{release}, ruby
+Requires: ice-libs = %{version}-%{release}
+#
+# Amazon Linux 2014.03 defaults to Ruby 2.0
+#
+%if "%{dist}" == ".amzn1"
+Requires: ruby18
+%else
+Requires: ruby
+%endif
 %description ruby
 The Ice run time for Ruby.
 
@@ -246,6 +266,9 @@ Requires: php53
 %if "%{dist}" == ".el6"
 Requires: php
 %endif
+%if "%{dist}" == ".amzn1"
+Requires: php < 5.4
+%endif
 %description php
 The Ice run time for PHP.
 
@@ -261,6 +284,7 @@ Tools for developing Ice applications in PHP.
 
 %if %{buildall}
 %setup -n Ice-%{version} -q
+%patch1 -p1 -b .Ice.3.5.1.amzn1-1
 %setup -q -n Ice-rpmbuild-%{version} -T -b 1
 %endif
 
@@ -376,6 +400,15 @@ cd $RPM_BUILD_DIR/Ice-%{version}/php
 make prefix=$RPM_BUILD_ROOT install
 
 %if "%{dist}" == ".el6"
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
+mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
+mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/php
+mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
+%endif
+
+%if "%{dist}" == ".amzn1"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
@@ -883,6 +916,12 @@ fi
 %defattr(-, root, root, -)
 
 %if "%{dist}" == ".el6"
+%{_datadir}/php
+%{_libdir}/php/modules/IcePHP.so
+%config(noreplace) %{_sysconfdir}/php.d/ice.ini
+%endif
+
+%if "%{dist}" == ".amzn1"
 %{_datadir}/php
 %{_libdir}/php/modules/IcePHP.so
 %config(noreplace) %{_sysconfdir}/php.d/ice.ini
