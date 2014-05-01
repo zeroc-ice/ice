@@ -288,6 +288,29 @@
         <set target="new.classToStructSeq[2].seq[1].b" value="122"/>
         <set target="new.classToStructSeq[2].seq[1].intToString" value="123"/>
 
+        <add target="new.small1Dict" key="0"/>
+        <set target="new.small1Dict[0].b" value="120"/>
+        <set target="new.small1Dict[0].intToString" value="121"/>
+        <add target="new.small1Dict" key="10"/>
+        <set target="new.small1Dict[10].b" value="122"/>
+        <set target="new.small1Dict[10].intToString" value="123"/>
+        <add target="new.small1Dict" key="100"/>
+        <set target="new.small1Dict[100].b" value="124"/>
+        <set target="new.small1Dict[100].intToString" value="125"/>
+
+        <add target="new.small2Dict" key="0" type="::Test::Small2"/>
+        <set target="new.small2Dict[0].seq" length="1"/>
+        <set target="new.small2Dict[0].seq[0].b" value="220"/>
+        <set target="new.small2Dict[0].seq[0].intToString" value="221"/>
+        <add target="new.small2Dict" key="10" type="::Test::Small2"/>
+        <set target="new.small2Dict[10].seq" length="1"/>
+        <set target="new.small2Dict[10].seq[0].b" value="222"/>
+        <set target="new.small2Dict[10].seq[0].intToString" value="223"/>
+        <add target="new.small2Dict" key="100" type="::Test::Small2"/>
+        <set target="new.small2Dict[100].seq" length="1"/>
+        <set target="new.small2Dict[100].seq[0].b" value="224"/>
+        <set target="new.small2Dict[100].seq[0].intToString" value="225"/>
+
         <!-- Objects -->
 
         <set target="new.baseObject" type="::Test::F"/>
@@ -314,6 +337,9 @@
         <set target="new.dObject.stringToByteSeq[0]" value="'0'"/>
         <set target="new.dObject.stringToByteSeq[1]" value="'255'"/>
         <set target="new.dObject.obj" value="new.cObject"/>
+
+        <set target="new.compactObject" type="::Test::Small3"/>
+        <set target="new.compactObject.name" value="'compactObject'"/>
 
     </transform>
 </transformdb>

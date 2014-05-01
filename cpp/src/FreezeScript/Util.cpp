@@ -254,3 +254,51 @@ FreezeScript::readCatalog(const Ice::CommunicatorPtr& communicator, const string
 
     return result;
 }
+
+string
+FreezeScript::CompactIdResolverI::resolve(Ice::Int id) const
+{
+    string type;
+    map<Ice::Int, string>::const_iterator p = _ids.find(id);
+    if(p != _ids.end())
+    {
+        type = p->second;
+    }
+    return type;
+}
+
+void
+FreezeScript::CompactIdResolverI::add(Ice::Int id, const string& type)
+{
+    map<Ice::Int, string>::const_iterator p = _ids.find(id);
+    assert(p == _ids.end());
+
+    _ids[id] = type;
+}
+
+void
+FreezeScript::collectCompactIds(const UnitPtr& unit, const FreezeScript::CompactIdResolverIPtr& r)
+{
+    class Visitor : public ParserVisitor
+    {
+    public:
+
+        Visitor(const FreezeScript::CompactIdResolverIPtr& resolver) : _r(resolver)
+        {
+        }
+
+        virtual bool visitClassDefStart(const ClassDefPtr& p)
+        {
+            if(p->compactId() != -1)
+            {
+                _r->add(p->compactId(), p->scoped());
+            }
+            return true;
+        }
+
+        FreezeScript::CompactIdResolverIPtr _r;
+    };
+
+    Visitor v(r);
+    unit->visit(&v, false);
+}

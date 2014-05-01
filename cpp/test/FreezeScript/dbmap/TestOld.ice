@@ -85,12 +85,19 @@ struct Small1
     int intToString;
 };
 sequence<Small1> Small1Seq;
+dictionary<int, Small1> IntSmall1Dict;
 
 class Small2
 {
     Small1Seq seq;
 };
 sequence<Small2> Small2Seq;
+dictionary<int, Small2> IntSmall2Dict;
+
+class Small3(99)
+{
+    string name;
+};
 
 struct S
 {
@@ -212,6 +219,8 @@ struct S
     // Struct<->class transformations.
     //
     Small2Seq classToStructSeq;
+    IntSmall1Dict small1Dict;
+    IntSmall2Dict small2Dict;
 
     //
     // Object transformations.
@@ -221,6 +230,7 @@ struct S
     C cObject;
     C dAsCObject;
     D dObject;
+    Small3 compactObject;
 };
 
 };

@@ -11,7 +11,7 @@
 #define FREEZE_SCRIPT_UTIL_H
 
 #include <Slice/Parser.h>
-#include <Ice/CommunicatorF.h>
+#include <Ice/Initialize.h>
 #include <Freeze/CatalogData.h>
 
 namespace FreezeScript
@@ -61,6 +61,22 @@ bool parseSlice(const std::string&, const Slice::UnitPtr&, const std::vector<std
 typedef std::map<std::string, Freeze::CatalogData> CatalogDataMap;
 
 CatalogDataMap readCatalog(const Ice::CommunicatorPtr&, const std::string&);
+
+class CompactIdResolverI : public Ice::CompactIdResolver
+{
+public:
+
+    virtual std::string resolve(Ice::Int) const;
+
+    void add(Ice::Int, const std::string&);
+
+private:
+
+    std::map<Ice::Int, std::string> _ids;
+};
+typedef IceUtil::Handle<CompactIdResolverI> CompactIdResolverIPtr;
+
+void collectCompactIds(const Slice::UnitPtr&, const CompactIdResolverIPtr&);
 
 } // End of namespace FreezeScript
 

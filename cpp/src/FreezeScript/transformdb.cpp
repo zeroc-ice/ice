@@ -211,7 +211,8 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
 }
 
 static int
-run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator)
+run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator,
+    const FreezeScript::CompactIdResolverIPtr& resolver)
 {
     vector<string> oldCppArgs;
     vector<string> newCppArgs;
@@ -436,16 +437,16 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> oldD(oldUnit);
-    if(!FreezeScript::parseSlice(appName, oldUnit, oldSlice, oldCppArgs, debug, 
-                                 "-D__TRANSFORMDB__"))
+    if(!FreezeScript::parseSlice(appName, oldUnit, oldSlice, oldCppArgs, debug, "-D__TRANSFORMDB__"))
     {
         return EXIT_FAILURE;
     }
 
+    FreezeScript::collectCompactIds(oldUnit, resolver);
+
     Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> newD(newUnit);
-    if(!FreezeScript::parseSlice(appName, newUnit, newSlice, newCppArgs, debug, 
-                                 "-D__TRANSFORMDB__"))
+    if(!FreezeScript::parseSlice(appName, newUnit, newSlice, newCppArgs, debug, "-D__TRANSFORMDB__"))
     {
         return EXIT_FAILURE;
     }
@@ -985,12 +986,17 @@ main(int argc, char* argv[])
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
     assert(args.size() > 0);
     const string appName = args[0];
+
+    Ice::InitializationData initData;
+    FreezeScript::CompactIdResolverIPtr resolver = new FreezeScript::CompactIdResolverI;
+    initData.compactIdResolver = resolver;
+
     Ice::CommunicatorPtr communicator;
     int status = EXIT_SUCCESS;
     try
     {
-        communicator = Ice::initialize(args);
-        status = run(args, communicator);
+        communicator = Ice::initialize(args, initData);
+        status = run(args, communicator, resolver);
     }
     catch(const FreezeScript::FailureException& ex)
     {

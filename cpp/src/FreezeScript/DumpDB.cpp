@@ -126,7 +126,8 @@ printCatalogData(const string& dbName, const Freeze::CatalogData& data)
 }
 
 static int
-run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator)
+run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator,
+    const FreezeScript::CompactIdResolverIPtr& resolver)
 {
     vector<string> cppArgs;
     bool debug;
@@ -349,6 +350,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     }
 
     FreezeScript::createEvictorSliceTypes(unit);
+
+    FreezeScript::collectCompactIds(unit, resolver);
 
     //
     // If no input file was provided, then we need to generate default descriptors.
@@ -653,12 +656,17 @@ main(int argc, char* argv[])
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
     assert(args.size() > 0);
     const string appName = args[0];
+
+    Ice::InitializationData initData;
+    FreezeScript::CompactIdResolverIPtr resolver = new FreezeScript::CompactIdResolverI;
+    initData.compactIdResolver = resolver;
+
     Ice::CommunicatorPtr communicator;
     int status = EXIT_SUCCESS;
     try
     {
-        communicator = Ice::initialize(args);
-        status = run(args, communicator);
+        communicator = Ice::initialize(args, initData);
+        status = run(args, communicator, resolver);
     }
     catch(const FreezeScript::FailureException& ex)
     {

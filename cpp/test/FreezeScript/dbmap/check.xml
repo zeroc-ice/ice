@@ -301,6 +301,28 @@
         <fail test="new.classToStructSeq[2].seq[1].b != 122"/>
         <fail test="new.classToStructSeq[2].seq[1].intToString != '123'"/>
 
+        <fail test="new.small1Dict.length != 3"/>
+        <fail test="new.small1Dict[0].ice_id != '::Test::Small1'"/>
+        <fail test="new.small1Dict[0].b != 120"/>
+        <fail test="new.small1Dict[0].intToString != '121'"/>
+        <fail test="new.small1Dict[10].ice_id != '::Test::Small1'"/>
+        <fail test="new.small1Dict[10].b != 122"/>
+        <fail test="new.small1Dict[10].intToString != '123'"/>
+        <fail test="new.small1Dict[100].ice_id != '::Test::Small1'"/>
+        <fail test="new.small1Dict[100].b != 124"/>
+        <fail test="new.small1Dict[100].intToString != '125'"/>
+
+        <fail test="new.small2Dict.length != 3"/>
+        <fail test="new.small2Dict[0].seq.length != 1"/>
+        <fail test="new.small2Dict[0].seq[0].b != 220"/>
+        <fail test="new.small2Dict[0].seq[0].intToString != '221'"/>
+        <fail test="new.small2Dict[10].seq.length != 1"/>
+        <fail test="new.small2Dict[10].seq[0].b != 222"/>
+        <fail test="new.small2Dict[10].seq[0].intToString != '223'"/>
+        <fail test="new.small2Dict[100].seq.length != 1"/>
+        <fail test="new.small2Dict[100].seq[0].b != 224"/>
+        <fail test="new.small2Dict[100].seq[0].intToString != '225'"/>
+
         <!-- Objects -->
 
         <fail test="new.nilObject != nil"/>
@@ -332,6 +354,9 @@
         <fail test="new.dObject.stringToByteSeq[0] != 0"/>
         <fail test="new.dObject.stringToByteSeq[1] != 255"/>
         <fail test="new.dObject.obj.ice_id != '::Test::C'"/>
+
+        <fail test="new.compactObject.ice_id != '::Test::Small3'"/>
+        <fail test="new.compactObject.name != 'compactObject'"/>
 
     </transform>
 </transformdb>
