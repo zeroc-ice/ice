@@ -42,6 +42,10 @@ General Changes
   with the master if multiple applications referred to a replica group
   defined in another application that wasn't yet added.
 
+- FreezeScript can now transform classes to structures and structures
+  to classes. It also supports the use of compact type IDs for
+  classes.
+
 
 Python Changes
 ==============
