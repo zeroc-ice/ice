@@ -1771,7 +1771,7 @@ compile(int argc, char* argv[])
         if(depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2FREEZEJ");
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2FREEZEJ__");
 
             if(cppHandle == 0)
             {
@@ -1788,7 +1788,7 @@ compile(int argc, char* argv[])
             }
 
             if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths,
-                                                  "-DICE_COMPILER=ICE_SLICE2FREEZEJ"))
+                                                  "-D__SLICE2FREEZEJ__"))
             {
                 u->destroy();
                 return EXIT_FAILURE;

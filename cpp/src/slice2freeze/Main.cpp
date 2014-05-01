@@ -1952,7 +1952,7 @@ compile(int argc, char* argv[])
         //
         includes.push_back(icecpp->getBaseName() + ".h");
 
-        FILE* cppHandle = icecpp->preprocess(false, "-DICE_COMPILER=ICE_SLICE2FREEZE");
+        FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2FREEZE__");
 
         if(cppHandle == 0)
         {

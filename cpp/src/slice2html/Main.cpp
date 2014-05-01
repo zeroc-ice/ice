@@ -222,7 +222,7 @@ compile(int argc, char* argv[])
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
-        FILE* cppHandle = icecpp->preprocess(true, "-DICE_COMPILER=ICE_SLICE2HTML");
+        FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2HTML__");
 
         if(cppHandle == 0)
         {
