@@ -31,9 +31,13 @@ def allTests(communicator, collocated):
     test(ipEndpoint.compress)
     test(not ipEndpoint.datagram())
     test((ipEndpoint.type() == Ice.TCPEndpointType and not ipEndpoint.secure()) or
-         (ipEndpoint.type() == 2 and ipEndpoint.secure())) # SSL
+         (ipEndpoint.type() == 2 and ipEndpoint.secure()) or # SSL
+         (ipEndpoint.type() == 4 and not ipEndpoint.secure()) or # WS
+         (ipEndpoint.type() == 5 and ipEndpoint.secure())) # WS
     test((ipEndpoint.type() == Ice.TCPEndpointType and isinstance(ipEndpoint, Ice.TCPEndpointInfo)) or
-         (ipEndpoint.type() == 2)) # SSL
+         (ipEndpoint.type() == 2) or # SSL
+         (ipEndpoint.type() == 4) or # WS
+         (ipEndpoint.type() == 5)) # WSS
 
     udpEndpoint = endps[1].getInfo()
     test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
@@ -66,7 +70,8 @@ def allTests(communicator, collocated):
     test(endpoints == publishedEndpoints)
 
     ipEndpoint = endpoints[0].getInfo()
-    test(ipEndpoint.type() == Ice.TCPEndpointType or ipEndpoint.type() == 2)
+    test(ipEndpoint.type() == Ice.TCPEndpointType or ipEndpoint.type() == 2 or ipEndpoint.type() == 4 or
+         ipEndpoint.type() == 5)
     test(ipEndpoint.host == defaultHost)
     test(ipEndpoint.port > 0)
     test(ipEndpoint.timeout == 15000)

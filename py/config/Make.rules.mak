@@ -31,7 +31,7 @@ OPTIMIZE		= yes
 # Set PYTHON_HOME to your Python installation directory.
 #
 !if "$(PYTHON_HOME)" == ""
-PYTHON_HOME		= C:\Python33
+PYTHON_HOME		= C:\Python34
 !endif
 
 # ----------------------------------------------------------------------
