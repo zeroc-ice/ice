@@ -140,7 +140,6 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/Stats.ice \
 		  $(SDIR)/Version.ice
 
 SDIR		= $(slicedir)/Ice

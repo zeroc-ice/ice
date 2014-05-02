@@ -202,11 +202,6 @@ final class TcpTransceiver implements Transceiver
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
-                if(_stats != null)
-                {
-                    _stats.bytesSent(type(), ret);
-                }
-
                 if(packetSize == _maxSendPacketSize)
                 {
                     assert(buf.b.position() == buf.b.limit());
@@ -260,11 +255,6 @@ final class TcpTransceiver implements Transceiver
                     {
                         String s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
                         _logger.trace(_traceLevels.networkCat, s);
-                    }
-
-                    if(_stats != null)
-                    {
-                        _stats.bytesReceived(type(), ret);
                     }
                 }
 
@@ -331,7 +321,6 @@ final class TcpTransceiver implements Transceiver
         _addr = addr;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
-        _stats = instance.initializationData().stats;
         _state = StateNeedConnect;
         _desc = "";
 
@@ -357,7 +346,6 @@ final class TcpTransceiver implements Transceiver
         _fd = fd;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
-        _stats = instance.initializationData().stats;
         _state = StateConnected;
         _desc = Network.fdToString(_fd);
 
@@ -400,8 +388,6 @@ final class TcpTransceiver implements Transceiver
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
 
-    @SuppressWarnings("deprecation")
-    private Ice.Stats _stats;
     private String _desc;
     private int _state;
     private int _maxSendPacketSize;

@@ -16,7 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
-#include <Ice/Stats.h>
 #include <Ice/Base64.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/StringUtil.h>

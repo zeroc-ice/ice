@@ -252,12 +252,6 @@ Ice::CommunicatorI::getLogger() const
     return _instance->initializationData().logger;
 }
 
-StatsPtr
-Ice::CommunicatorI::getStats() const
-{
-    return _instance->initializationData().stats;
-}
-
 Ice::Instrumentation::CommunicatorObserverPtr
 Ice::CommunicatorI::getObserver() const
 {

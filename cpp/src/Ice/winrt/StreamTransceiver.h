@@ -71,7 +71,6 @@ private:
     const TraceLevelsPtr _traceLevels;
     const Ice::Short _type;
     const Ice::LoggerPtr _logger;
-    const Ice::StatsPtr _stats;
     
     State _state;
     std::string _desc;

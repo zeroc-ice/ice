@@ -12,7 +12,6 @@
 [["cpp:header-ext:h"]]
 
 #include <Ice/LoggerF.ice>
-#include <Ice/StatsF.ice>
 #include <Ice/InstrumentationF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ObjectFactoryF.ice>
@@ -42,7 +41,6 @@ module Ice
  * is language-specific, and not specified in Slice code.
  *
  * @see Logger
- * @see Stats
  * @see ObjectAdapter
  * @see Properties
  * @see ObjectFactory
@@ -381,22 +379,9 @@ local interface Communicator
 
     /**
      *
-     * Get the statistics callback object for this communicator.
-     *
-     * @return This communicator's statistics callback object.
-     *
-     * @see Stats
-     *
-     **/
-    ["cpp:const"] Stats getStats();
-
-    /**
-     *
      * Get the observer resolver object for this communicator.
      *
      * @return This communicator's observer resolver object.
-     *
-     * @see Stats
      *
      **/
     ["cpp:const"] Ice::Instrumentation::CommunicatorObserver getObserver();

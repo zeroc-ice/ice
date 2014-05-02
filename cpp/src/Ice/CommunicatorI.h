@@ -49,7 +49,6 @@ public:
 
     virtual PropertiesPtr getProperties() const;
     virtual LoggerPtr getLogger() const;
-    virtual StatsPtr getStats() const;
     virtual Ice::Instrumentation::CommunicatorObserverPtr getObserver() const;
 
     virtual RouterPrx getDefaultRouter() const;

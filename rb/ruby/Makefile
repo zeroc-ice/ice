@@ -36,8 +36,6 @@ ICE_SRCS	= Ice/LocalException.rb \
 		  Ice/PluginF.rb \
 		  Ice/Locator.rb \
 		  Ice/LocatorF.rb \
-		  Ice/StatsF.rb \
-		  Ice/Stats.rb \
 		  Ice/Process.rb \
 		  Ice/ProcessF.rb \
 		  Ice/FacetMap.rb \

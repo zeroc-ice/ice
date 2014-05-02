@@ -14,7 +14,6 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
-#include <Ice/StatsF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/IPEndpointIF.h>
@@ -54,11 +53,6 @@ public:
         return _type;
     }
 
-    const Ice::StatsPtr& stats() const
-    {
-        return _stats;
-    }
-
     const Ice::PropertiesPtr& properties() const
     {
         return _properties;
@@ -86,7 +80,6 @@ protected:
     const int _traceLevel;
     const std::string _traceCategory;
     const Ice::LoggerPtr _logger;
-    const Ice::StatsPtr _stats;
     const Ice::PropertiesPtr _properties;
     const std::string _protocol;
     const Ice::Short _type;

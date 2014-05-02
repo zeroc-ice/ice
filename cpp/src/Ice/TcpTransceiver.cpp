@@ -15,7 +15,6 @@
 #include <Ice/LocalException.h>
 
 #include <IceUtil/DisableWarnings.h>
-#include <Ice/Stats.h>
 
 using namespace std;
 using namespace Ice;
@@ -265,11 +264,6 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
                 << toString();
         }
 
-        if(_instance->stats())
-        {
-            _instance->stats()->bytesSent(_instance->protocol(), static_cast<Int>(ret));
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -342,11 +336,6 @@ IceInternal::TcpTransceiver::read(Buffer& buf, bool&)
             Trace out(_instance->logger(), _instance->traceCategory());
             out << "received " << ret << " of " << packetSize << " bytes via " << _instance->protocol() << '\n' 
                 << toString();
-        }
-
-        if(_instance->stats())
-        {
-            _instance->stats()->bytesReceived(_instance->protocol(), static_cast<Int>(ret));
         }
 
         buf.i += ret;
@@ -438,11 +427,6 @@ IceInternal::TcpTransceiver::finishWrite(Buffer& buf)
             << toString();
     }
 
-    if(_instance->stats())
-    {
-        _instance->stats()->bytesSent(_instance->protocol(), _write.count);
-    }
-
     buf.i += _write.count;
 }
 
@@ -515,11 +499,6 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf)
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "received " << _read.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n' 
             << toString();
-    }
-
-    if(_instance->stats())
-    {
-        _instance->stats()->bytesReceived(_instance->protocol(), static_cast<Int>(_read.count));
     }
 
     buf.i += _read.count;

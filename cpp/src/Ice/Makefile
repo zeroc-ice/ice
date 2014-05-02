@@ -102,7 +102,6 @@ OBJS		= Acceptor.o \
 		  SliceChecksumDict.o \
 		  SliceChecksums.o \
 		  SlicedData.o \
-		  Stats.o \
 		  StreamI.o \
 		  Stream.o \
 		  StringConverterPlugin.o \
@@ -164,8 +163,6 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ServantLocatorF.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/StatsF.ice \
-		  $(SDIR)/Stats.ice \
 		  $(SDIR)/Version.ice \
 
 HDIR		= $(headerdir)/Ice

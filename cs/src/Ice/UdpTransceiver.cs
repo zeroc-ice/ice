@@ -180,16 +180,7 @@ namespace IceInternal
                 string s = "sent " + ret + " bytes via udp\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            
-            if(_stats != null)
-            {
-#pragma warning disable 618
-                _stats.bytesSent(type(), ret);
-#pragma warning restore 618
-            }
-            
             Debug.Assert(ret == buf.b.limit());
-
             return true;
 #endif
         }
@@ -304,13 +295,6 @@ namespace IceInternal
             {
                 string s = "received " + ret + " bytes via udp\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
-            }
-
-            if(_stats != null)
-            {
-#pragma warning disable 618
-                _stats.bytesReceived(type(), ret);
-#pragma warning restore 618
             }
 
             buf.resize(ret, true);
@@ -499,13 +483,6 @@ namespace IceInternal
                 _logger.trace(_traceLevels.networkCat, s);
             }
 
-            if(_stats != null)
-            {
-#pragma warning disable 618
-                _stats.bytesReceived(type(), ret);
-#pragma warning restore 618
-            }
-
             buf.resize(ret, true);
             buf.b.position(ret);
         }
@@ -658,20 +635,12 @@ namespace IceInternal
             }
             
             Debug.Assert(ret > 0);
-                
+            
             if(_traceLevels.network >= 3)
             {
                 string s = "sent " + ret + " bytes via udp\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
-
-            if(_stats != null)
-            {
-#pragma warning disable 618
-                _stats.bytesSent(type(), ret);
-#pragma warning restore 618
-            }
-
             Debug.Assert(ret == buf.b.limit());
             buf.b.position(buf.b.position() + ret);
         }
@@ -778,7 +747,6 @@ namespace IceInternal
         {
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-            _stats = instance.initializationData().stats;
             _addr = addr;
 
 #if ICE_SOCKET_ASYNC_API
@@ -846,7 +814,6 @@ namespace IceInternal
         {
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-            _stats = instance.initializationData().stats;
             _state = connect ? StateNeedConnect : StateNotConnected;
             _incoming = true;
             
@@ -1055,7 +1022,6 @@ namespace IceInternal
 
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
-        private Ice.Stats _stats;
         private int _state;
         private bool _incoming;
         private int _rcvSize;

@@ -173,14 +173,6 @@ namespace IceInternal
                         string s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
                         _logger.trace(_traceLevels.networkCat, s);
                     }
-
-                    if(_stats != null)
-                    {
-#pragma warning disable 618                        
-                        _stats.bytesSent(type(), ret);
-#pragma warning restore 618
-                    }
-
                     buf.b.position(buf.b.position() + ret);
                     if(packetSize > buf.b.remaining())
                     {
@@ -249,14 +241,7 @@ namespace IceInternal
                         string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
                         _logger.trace(_traceLevels.networkCat, s);
                     }
-
-                    if(_stats != null)
-                    {
-#pragma warning disable 618
-                        _stats.bytesReceived(type(), ret);
-#pragma warning restore 618
-                    }
-
+                    
                     remaining -= ret;
                     buf.b.position(position += ret);
                 }
@@ -378,13 +363,6 @@ namespace IceInternal
                     }
                     string s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
                     _logger.trace(_traceLevels.networkCat, s);
-                }
-
-                if(_stats != null)
-                {
-#pragma warning disable 618
-                    _stats.bytesReceived(type(), ret);
-#pragma warning restore 618
                 }
 
                 buf.b.position(buf.b.position() + ret);
@@ -542,13 +520,6 @@ namespace IceInternal
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
-                if(_stats != null)
-                {
-#pragma warning disable 618
-                    _stats.bytesSent(type(), ret);
-#pragma warning restore 618
-                }
-
                 buf.b.position(buf.b.position() + ret);
 
                 if(_state == StateProxyConnectRequest)
@@ -616,7 +587,6 @@ namespace IceInternal
             
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-            _stats = instance.initializationData().stats;
             _state = connected ? StateConnected : StateNeedConnect;
             _desc = connected ? Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
             
@@ -692,7 +662,6 @@ namespace IceInternal
         private NetworkProxy _proxy;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
-        private Ice.Stats _stats;
         private string _desc;
         private int _state;
         private int _maxSendPacketSize;

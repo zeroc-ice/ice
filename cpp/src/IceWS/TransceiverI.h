@@ -15,7 +15,6 @@
 #include <IceWS/Util.h>
 
 #include <Ice/LoggerF.h>
-#include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>

@@ -20,7 +20,6 @@
 #include <IceSSL/ConnectionInfo.h>
 
 #include <IceUtil/DisableWarnings.h>
-#include <Ice/Stats.h>
 
 using namespace std;
 using namespace Ice;
@@ -268,10 +267,6 @@ IceInternal::StreamTransceiver::finishWrite(Buffer& buf)
             << toString();
     }
     
-    if(_stats)
-    {
-        _stats->bytesSent(type(), _write.count);
-    }
     buf.i += _write.count;
 }
 
@@ -340,11 +335,6 @@ IceInternal::StreamTransceiver::finishRead(Buffer& buf)
             << toString();
     }
 
-    if(_stats)
-    {
-        _stats->bytesReceived(type(), static_cast<Int>(_read.count));
-    }
-
     buf.i += _read.count;
 }
 
@@ -393,7 +383,6 @@ IceInternal::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
     _traceLevels(instance->traceLevels()),
     _type(type),
     _logger(instance->initializationData().logger),
-    _stats(instance->initializationData().stats),
     _state(connected ? StateConnected : StateNeedConnect),
     _desc(connected ? fdToString(_fd) : string())
 {

@@ -18,7 +18,6 @@
 #include <IceUtil/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/StatsF.h>
 #include <Ice/InstrumentationF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
@@ -63,7 +62,6 @@ public:
 
     bool destroyed() const;
     const Ice::InitializationData& initializationData() const { return _initData; }
-    void stats(const Ice::StatsPtr&);
     TraceLevelsPtr traceLevels() const;
     DefaultsAndOverridesPtr defaultsAndOverrides() const;
     RouterManagerPtr routerManager() const;

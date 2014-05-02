@@ -15,7 +15,6 @@ package Ice;
  * @see Communicator#intialize
  * @see Properties
  * @see Logger
- * @see Stats
  * @see ThreadNotification
  **/
 public final class InitializationData implements Cloneable
@@ -62,12 +61,6 @@ public final class InitializationData implements Cloneable
      * The communicator observer used by the Ice run-time.
      **/
     public Ice.Instrumentation.CommunicatorObserver observer;
-
-    /**
-     * The <Stats> instance for the communicator.
-     **/
-    @SuppressWarnings("deprecation")
-    public Stats stats;
 
     /**
      * The thread hook for the communicator.

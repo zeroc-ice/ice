@@ -95,11 +95,6 @@ namespace Ice
         public Ice.Instrumentation.CommunicatorObserver observer;
 
         /// <summary>
-        /// The Stats instance for the communicator.
-        /// </summary>
-        public Stats stats;
-
-        /// <summary>
         /// The thread hook for the communicator.
         /// </summary>
         public ThreadNotification threadHook;

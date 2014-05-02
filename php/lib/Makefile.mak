@@ -36,8 +36,6 @@ ICE_SRCS	= Ice\LocalException.php \
 		  Ice\PluginF.php \
 		  Ice\Locator.php \
 		  Ice\LocatorF.php \
-		  Ice\StatsF.php \
-		  Ice\Stats.php \
 		  Ice\Process.php \
 		  Ice\ProcessF.php \
 		  Ice\FacetMap.php \

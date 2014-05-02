@@ -119,11 +119,6 @@ namespace Ice
             return instance_.initializationData().logger;
         }
 
-        public Stats getStats()
-        {
-            return instance_.initializationData().stats;
-        }
-
         public Ice.Instrumentation.CommunicatorObserver getObserver()
         {
             return instance_.getObserver();

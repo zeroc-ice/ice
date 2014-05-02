@@ -15,7 +15,6 @@
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/StreamF.h>
-#include <Ice/StatsF.h>
 #include <Ice/InstrumentationF.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/FactoryTable.h>
@@ -84,7 +83,6 @@ struct InitializationData
 {
     PropertiesPtr properties;
     LoggerPtr logger;
-    StatsPtr stats;
     Instrumentation::CommunicatorObserverPtr observer;
     ThreadNotificationPtr threadHook;
     DispatcherPtr dispatcher;

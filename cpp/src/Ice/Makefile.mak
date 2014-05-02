@@ -103,7 +103,6 @@ OBJS		= Acceptor.obj \
 		  SliceChecksumDict.obj \
 		  SliceChecksums.obj \
 		  SlicedData.obj \
-		  Stats.obj \
 		  StreamI.obj \
 		  Stream.obj \
                   StringConverterPlugin.obj \
@@ -194,8 +193,6 @@ clean::
 	-del /q ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
 	-del /q ServantLocator.cpp $(HDIR)\ServantLocator.h
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
-	-del /q StatsF.cpp $(HDIR)\StatsF.h
-	-del /q Stats.cpp $(HDIR)\Stats.h
         -del /q Version.cpp $(HDIR)\Version.h
 	-del /q Ice.res
 

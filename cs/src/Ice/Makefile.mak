@@ -141,7 +141,6 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Router.cs \
 		  $(GDIR)\ServantLocator.cs \
 		  $(GDIR)\SliceChecksumDict.cs \
-		  $(GDIR)\Stats.cs \
 		  $(GDIR)\Version.cs
 
 SDIR		= $(slicedir)\Ice

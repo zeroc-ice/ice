@@ -20,7 +20,6 @@
 #include <Ice/LocalException.h>
 
 #include <IceUtil/DisableWarnings.h>
-#include <Ice/Stats.h>
 
 #include <openssl/err.h>
 #include <openssl/bio.h>
@@ -610,11 +609,6 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
             out << "sent " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
         }
 
-        if(_instance->stats())
-        {
-            _instance->stats()->bytesSent(_instance->protocol(), static_cast<Int>(ret));
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -789,11 +783,6 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
         }
 
-        if(_instance->stats())
-        {
-            _instance->stats()->bytesReceived(_instance->protocol(), static_cast<Int>(ret));
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -900,11 +889,6 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
                 out << "sent " << _sentBytes << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
             }
             
-            if(_instance->stats())
-            {
-                _instance->stats()->bytesSent(_instance->protocol(), static_cast<Int>(_sentBytes));
-            }
-            
             buf.i += _sentBytes;
             _sentBytes = 0;
         }
@@ -939,11 +923,6 @@ IceSSL::TransceiverI::startRead(IceInternal::Buffer& buf)
                 {
                     Trace out(_instance->logger(), _instance->traceCategory());
                     out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-                }
-                
-                if(_instance->stats())
-                {
-                    _instance->stats()->bytesReceived(_instance->protocol(), static_cast<Int>(ret));
                 }
                 
                 buf.i += ret;
@@ -1020,11 +999,6 @@ IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
                     {
                         Trace out(_instance->logger(), _instance->traceCategory());
                         out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-                    }
-                
-                    if(_instance->stats())
-                    {
-                        _instance->stats()->bytesReceived(_instance->protocol(), static_cast<Int>(ret));
                     }
                 
                     buf.i += ret;
@@ -1458,11 +1432,6 @@ IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
             out << "sent " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
         }
 
-        if(_instance->stats())
-        {
-            _instance->stats()->bytesSent(protocol(), static_cast<Int>(ret));
-        }
-
         buf.i += ret;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -1529,11 +1498,6 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
         {
             Trace out(_instance->logger(), _instance->traceCategory());
             out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-
-        if(_instance->stats())
-        {
-            _instance->stats()->bytesReceived(protocol(), static_cast<Int>(ret));
         }
 
         buf.i += ret;

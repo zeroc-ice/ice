@@ -116,11 +116,6 @@ final class UdpTransceiver implements Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        if(_stats != null)
-        {
-            _stats.bytesSent(type(), ret);
-        }
-
         assert(ret == buf.b.limit());
         return true;
     }
@@ -188,11 +183,6 @@ final class UdpTransceiver implements Transceiver
         {
             String s = "received " + ret + " bytes via udp\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
-        }
-
-        if(_stats != null)
-        {
-            _stats.bytesReceived(type(), ret);
         }
 
         buf.resize(ret, true);
@@ -304,7 +294,6 @@ final class UdpTransceiver implements Transceiver
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
-        _stats = instance.initializationData().stats;
         _state = StateNeedConnect;
         _addr = addr;
 
@@ -345,7 +334,6 @@ final class UdpTransceiver implements Transceiver
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
-        _stats = instance.initializationData().stats;
         _state = connect ? StateNeedConnect : StateNotConnected;
 
         try
@@ -746,8 +734,6 @@ final class UdpTransceiver implements Transceiver
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
 
-    @SuppressWarnings("deprecation")
-    private Ice.Stats _stats;
     private int _state;
     private int _rcvSize;
     private int _sndSize;

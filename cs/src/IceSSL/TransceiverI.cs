@@ -221,13 +221,6 @@ namespace IceSSL
                     _logger.trace(_instance.networkTraceCategory(), s);
                 }
 
-                if(_stats != null)
-                {
-#pragma warning disable 618
-                    _stats.bytesReceived(type(), ret);
-#pragma warning restore 618
-                }
-
                 buf.b.position(buf.b.position() + ret);
 
                 if(_state == StateProxyConnectRequestPending)
@@ -387,13 +380,6 @@ namespace IceSSL
                     _logger.trace(_instance.networkTraceCategory(), s);
                 }
 
-                if(_stats != null)
-                {
-#pragma warning disable 618
-                    _stats.bytesSent(type(), packetSize);
-#pragma warning restore 618
-                }
-
                 buf.b.position(buf.b.position() + packetSize);
 
                 if(_state == StateProxyConnectRequest)
@@ -465,7 +451,6 @@ namespace IceSSL
             _proxy = proxy;
             _stream = null;
             _logger = instance.communicator().getLogger();
-            _stats = instance.communicator().getStats();
             _desc = connected ? IceInternal.Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
             _state = connected ? StateNeedAuthenticate : StateNeedConnect;
 
@@ -842,7 +827,6 @@ namespace IceSSL
         private IceInternal.NetworkProxy _proxy;
         private SslStream _stream;
         private Ice.Logger _logger;
-        private Ice.Stats _stats;
         private string _desc;
         private int _verifyPeer;
         private int _maxSendPacketSize;

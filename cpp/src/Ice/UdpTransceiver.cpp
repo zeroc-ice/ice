@@ -17,7 +17,6 @@
 #include <IceUtil/StringUtil.h>
 
 #include <IceUtil/DisableWarnings.h>
-#include <Ice/Stats.h>
 
 #ifdef ICE_OS_WINRT
 #   include <ppltasks.h> // For Concurrency::task
@@ -240,11 +239,6 @@ repeat:
         out << "sent " << ret << " bytes via " << _instance->protocol() << '\n' << toString();
     }
 
-    if(_instance->stats())
-    {
-        _instance->stats()->bytesSent(protocol(), static_cast<Int>(ret));
-    }
-
     assert(ret == static_cast<ssize_t>(buf.b.size()));
     buf.i = buf.b.end();
     return SocketOperationNone;
@@ -359,11 +353,6 @@ repeat:
     {
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "received " << ret << " bytes via " << _instance->protocol() << '\n' << toString();
-    }
-
-    if(_instance->stats())
-    {
-        _instance->stats()->bytesReceived(protocol(), static_cast<Int>(ret));
     }
 
     buf.b.resize(ret);
@@ -622,11 +611,6 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
         out << "sent " << _write.count << " bytes via " << _instance->protocol() << '\n' << toString();
     }
 
-    if(_instance->stats())
-    {
-        _instance->stats()->bytesSent(protocol(), static_cast<Int>(_write.count));
-    }
-
     assert(_write.count == buf.b.size());
     buf.i = buf.b.end();
 }
@@ -765,11 +749,6 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
     {
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "received " << ret << " bytes via " << _instance->protocol() << '\n' << toString();
-    }
-
-    if(_instance->stats())
-    {
-        _instance->stats()->bytesReceived(protocol(), static_cast<Int>(ret));
     }
 
     buf.b.resize(ret);

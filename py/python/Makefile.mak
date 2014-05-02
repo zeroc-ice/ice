@@ -36,8 +36,6 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_PluginF_ice.py \
 		  Ice_Locator_ice.py \
 		  Ice_LocatorF_ice.py \
-		  Ice_StatsF_ice.py \
-		  Ice_Stats_ice.py \
 		  Ice_Process_ice.py \
 		  Ice_ProcessF_ice.py \
 		  Ice_FacetMap_ice.py \
