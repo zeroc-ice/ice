@@ -238,7 +238,7 @@ IceInternal::Reference::toString() const
         // the reference parser uses as separators, then we enclose
         // the facet string in quotes.
         //
-        string fs = Ice::nativeToUTF8(_instance->initializationData().stringConverter, _facet);
+        string fs = nativeToUTF8(_instance->getStringConverter(), _facet);
         fs = IceUtilInternal::escapeString(fs, "");
         if(fs.find_first_of(" :@") != string::npos)
         {
@@ -1207,7 +1207,7 @@ IceInternal::RoutableReference::toString() const
         // reference parser uses as separators, then we enclose the
         // adapter id string in quotes.
         //
-        string a = Ice::nativeToUTF8(getInstance()->initializationData().stringConverter, _adapterId);
+        string a = nativeToUTF8(getInstance()->getStringConverter(), _adapterId);
         a = IceUtilInternal::escapeString(a, "");
         if(a.find_first_of(" :@") != string::npos)
         {

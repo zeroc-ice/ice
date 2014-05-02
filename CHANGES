@@ -46,7 +46,26 @@ General Changes
   to classes. It also supports the use of compact type IDs for
   classes.
 
+C++ Changes
+===========
 
+- Added per process string converters for narrow and wide strings,
+  setProcessStringConverter and getProcessStringConverter in IceUtil
+  namespace can be used to establish and access the process narrow
+  string converter, likewise setProcessWstringConverter and 
+  getProcessWstringConverter can be used to establish and access the
+  process wide string converter.
+  
+- Added Ice.LogStdErr.Convert property which control whenever or not
+  the default StdErr logger convert messages from native narrow encoding
+  to the console code page, the default value is 1 meaning by default
+  messages are converted to the console code page encoding, the property
+  doesn't affect non Windows OS.
+  
+- Added IceUtil::nativeToWnative and IceUtil::wnativeToNative functions
+  which allow to convert between narrow and wide strings, stringToWstring
+  and wstringToString have been deprecated.
+  
 Python Changes
 ==============
 

@@ -9,44 +9,67 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <TestI.h>
-#include <WstringI.h>
-#include <StringConverterI.h>
+#include <Test.h>
+
+DEFINE_TEST("server");
 
 using namespace std;
 
-DEFINE_TEST("server")
+//
+// Server side is pure unicode
+//
+class MyObjectI : public Test::MyObject
+{
+public:
+
+    virtual wstring widen(const string& msg, const Ice::Current&)
+    {
+        const Ice::Byte* cmsg = reinterpret_cast<const Ice::Byte*>(msg.c_str());
+
+        if(!IceUtil::isLegalUTF8Sequence(cmsg, cmsg + msg.size()))
+        {
+            throw Test::BadEncodingException();
+        }
+
+        return IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(),
+                                        IceUtil::getProcessWstringConverter(), msg);
+    }
+    
+    virtual string narrow(const wstring& wmsg, const Ice::Current&)
+    {
+        return IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(),
+                                        IceUtil::getProcessWstringConverter(), wmsg);
+    }
+    
+    virtual void shutdown(const Ice::Current& current)
+    {
+        current.adapter->getCommunicator()->shutdown();
+    }
+};
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(new TestIntfI(communicator), communicator->stringToIdentity("test"));
-    adapter->add(new Test1::WstringClassI, communicator->stringToIdentity("wstring1"));
-    adapter->add(new Test2::WstringClassI, communicator->stringToIdentity("wstring2"));
-
+    adapter->add(new MyObjectI, communicator->stringToIdentity("test"));
     adapter->activate();
+    
     TEST_READY
     communicator->waitForShutdown();
-
     return EXIT_SUCCESS;
 }
 
 int
-main(int argc, char** argv)
+main(int argc, char* argv[])
 {
     int status;
     Ice::CommunicatorPtr communicator;
 
     try
     {
-        IceUtil::setProcessStringConverter(new Test::StringConverterI());
-        IceUtil::setProcessWstringConverter(new Test::WstringConverterI());
-        
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010");
-        
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

@@ -1186,10 +1186,6 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
     }
     else if(!passwordsProperty.empty())
     {
-        //
-        // No nativeToUTF8 conversion necessary here, since no string
-        // converter is installed by IceGrid the string is UTF-8.
-        //
         IceUtilInternal::ifstream passwordFile(passwordsProperty);
         if(!passwordFile)
         {

@@ -513,8 +513,8 @@ IceInternal::Instance::stringToIdentity(const string& s) const
         }
     }
 
-    ident.name = Ice::UTF8ToNative(_initData.stringConverter, ident.name);
-    ident.category = Ice::UTF8ToNative(_initData.stringConverter, ident.category);
+    ident.name = UTF8ToNative(_stringConverter, ident.name);
+    ident.category = UTF8ToNative(_stringConverter, ident.category);
 
     return ident;
 }
@@ -526,8 +526,8 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     // This method returns the stringified identity. The returned string only
     // contains printable ascii. It can contain UTF8 in the escaped form.
     //
-    string name = Ice::nativeToUTF8(_initData.stringConverter, ident.name);
-    string category = Ice::nativeToUTF8(_initData.stringConverter, ident.category);
+    string name = nativeToUTF8(_stringConverter, ident.name);
+    string category = nativeToUTF8(_stringConverter, ident.category);
 
     if(category.empty())
     {
@@ -788,21 +788,28 @@ IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
 }
 
 void
-IceInternal::Instance::setStringConverter(const Ice::StringConverterPtr& stringConverter)
+IceInternal::Instance::setStringConverter(const IceUtil::StringConverterPtr& stringConverter)
 {
     //
     // No locking, as it can only be called during plug-in loading
     //
-    _initData.stringConverter = stringConverter;
+    _stringConverter = stringConverter;
 }
 
 void
-IceInternal::Instance::setWstringConverter(const Ice::WstringConverterPtr& wstringConverter)
+IceInternal::Instance::setWstringConverter(const IceUtil::WstringConverterPtr& wstringConverter)
 {
     //
     // No locking, as it can only be called during plug-in loading
     //
-    _initData.wstringConverter = wstringConverter;
+    if(wstringConverter == 0)
+    {
+        _wstringConverter = new IceUtil::UnicodeWstringConverter;
+    }
+    else
+    {
+        _wstringConverter = wstringConverter;
+    }
 }
 
 void
@@ -823,13 +830,22 @@ IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHoo
     _initData.threadHook = threadHook;
 }
 
+namespace
+{
+
+bool logStdErrConvert = true;
+
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
     _messageSizeMax(0),
     _clientACM(0),
     _serverACM(0),
-    _implicitContext(0)
+    _implicitContext(0),
+    _stringConverter(IceUtil::getProcessStringConverter()),
+    _wstringConverter(IceUtil::getProcessWstringConverter())
 {
     try
     {
@@ -853,17 +869,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 
                 if(stdOutFilename != "")
                 {
-#ifdef _LARGEFILE64_SOURCE
-                    FILE* file = freopen64(stdOutFilename.c_str(), "a", stdout);
-#else
-#ifdef _WIN32
-                    FILE* file = _wfreopen(IceUtil::stringToWstring(nativeToUTF8(_initData.stringConverter, 
-                                                                                 stdOutFilename)).c_str(),
-                                           L"a", stdout);
-#else
-                    FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
-#endif
-#endif
+                    FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
                     if(file == 0)
                     {
                         FileException ex(__FILE__, __LINE__);
@@ -875,17 +881,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 
                 if(stdErrFilename != "")
                 {
-#ifdef _LARGEFILE64_SOURCE
-                    FILE* file = freopen64(stdErrFilename.c_str(), "a", stderr);
-#else
-#ifdef _WIN32
-                    FILE* file = _wfreopen(IceUtil::stringToWstring(nativeToUTF8(_initData.stringConverter,
-                                                                                 stdErrFilename)).c_str(), 
-                                           L"a", stderr);
-#else
-                    FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
-#endif
-#endif
+                    FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
                     if(file == 0)
                     {
                         FileException ex(__FILE__, __LINE__);
@@ -957,7 +953,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             
             if(instanceCount == 1)
             {                   
-                
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
                 WORD version = MAKEWORD(1, 1);
                 WSADATA data;
@@ -984,6 +979,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     }
                     openlog(identForOpenlog.c_str(), LOG_PID, LOG_USER);
                 }
+#else
+                logStdErrConvert =
+                    initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
+                    initData.properties->getProperty("Ice.StdErr").empty();
 #endif
             }
         }
@@ -1008,12 +1007,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
             if(!logfile.empty())
             {
-                _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"),
-                                               nativeToUTF8(_initData.stringConverter, logfile));
+                _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), logfile);
             }
             else
             {
                 _initData.logger = getProcessLogger();
+                if(LoggerIPtr::dynamicCast(_initData.logger))
+                {
+                    _initData.logger = new LoggerI("", "", logStdErrConvert, _stringConverter);
+                }
             }
         }
 
@@ -1123,9 +1125,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         
         _retryQueue = new RetryQueue(this);
 
-        if(_initData.wstringConverter == 0)
+        if(_wstringConverter == 0)
         {
-            _initData.wstringConverter = new UnicodeWstringConverter();
+            _wstringConverter = new IceUtil::UnicodeWstringConverter();
         }
 
         //

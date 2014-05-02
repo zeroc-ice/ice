@@ -44,7 +44,12 @@ socketErrorToString(int error)
     }
     else
     {
-        return IceUtil::wstringToString(
+        //
+        // Don't need to use a wide string converter as the wide string come
+        // from Windows API.
+        //
+        return IceUtil::wnativeToNative(
+            IceUtil::getProcessStringConverter(), 0,
             static_cast<Windows::Networking::Sockets::SocketErrorStatus>(error).ToString()->Data());
     }
 #else

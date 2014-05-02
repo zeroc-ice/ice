@@ -9,6 +9,7 @@
 
 #include <IceUtil/Unicode.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/StringConverter.h>
 #include <TestCommon.h>
 
 #ifdef _WIN32
@@ -21,7 +22,7 @@ using namespace IceUtil;
 using namespace std;
 
 //
-// Note that each file starts with a BOM; stringToWstring and wstringToString
+// Note that each file starts with a BOM; nativeToWnative and wnativeToNative
 // converts these BOMs back and forth.
 //
 
@@ -47,7 +48,7 @@ main(int argc, char* argv[])
 #   ifdef __MINGW32__
         dir = argv[1];
 #   else
-        dir = IceUtil::wstringToString(argv[1]);
+        dir = IceUtil::wnativeToNative(0, 0, argv[1]);
 #   endif
         dir += "\\";
 #else
@@ -83,7 +84,7 @@ main(int argc, char* argv[])
             test(isLegalUTF8Sequence(reinterpret_cast<const Byte*>(line.data()), 
                                      reinterpret_cast<const Byte*>(line.data() + line.size())));
             lineNumber++;
-            wstring wline = stringToWstring(line);
+            wstring wline = nativeToWnative(0, 0, line);
             
             for(size_t i = 0; i < wline.length(); ++i)
             {
@@ -156,7 +157,7 @@ main(int argc, char* argv[])
             }
         } while(bis.good());
         
-        string s = wstringToString(ws);
+        string s = wnativeToNative(0, 0, ws);
         
         IceUtilInternal::ifstream nbis((dir + "coeur.utf8"), ios_base::binary);
         test(nbis.good());

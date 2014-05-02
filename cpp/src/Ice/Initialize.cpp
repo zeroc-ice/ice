@@ -27,6 +27,7 @@
 #include <Ice/Instance.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/StringConverter.h>
 
 using namespace std;
 using namespace Ice;
@@ -80,20 +81,17 @@ Ice::argsToStringSeq(int argc, char* argv[])
 #ifdef _WIN32
 
 StringSeq
-Ice::argsToStringSeq(int argc, wchar_t* argv[])
+Ice::argsToStringSeq(int /*argc*/, wchar_t* argv[])
 {
-   return argsToStringSeq(argc, argv, 0);
-}
-
-StringSeq
-Ice::argsToStringSeq(int /*argc*/, wchar_t* argv[], const StringConverterPtr& converter)
-{
+    //
+    // Don't need to use a wide string converter argv is expected to
+    // come from Windows API.
+    //
+    const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
     StringSeq args;
     for(int i=0; argv[i] != 0; i++)
     {
-        string value = IceUtil::wstringToString(argv[i]);
-        value = Ice::UTF8ToNative(converter, value);
-        args.push_back(value);
+        args.push_back(IceUtil::wnativeToNative(converter, 0, argv[i]));
     }
     return args;
 }
@@ -138,22 +136,22 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 }
 
 PropertiesPtr
-Ice::createProperties(const StringConverterPtr& converter)
+Ice::createProperties()
 {
-    return new PropertiesI(converter);
+    return new PropertiesI(IceUtil::getProcessStringConverter());
 }
 
 PropertiesPtr
-Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults, const StringConverterPtr& converter)
+Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return new PropertiesI(args, defaults, converter);
+    return new PropertiesI(args, defaults, IceUtil::getProcessStringConverter());
 }
 
 PropertiesPtr
-Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults, const StringConverterPtr& converter)
+Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
 {
     StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults, converter);
+    PropertiesPtr properties = createProperties(args, defaults);
     stringSeqToArgs(args, argc, argv);
     return properties;
 }
@@ -233,7 +231,7 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
     checkIceVersion(version);
 
     InitializationData initData = initializationData;
-    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+    initData.properties = createProperties(argc, argv, initData.properties);
 
     CommunicatorI* communicatorI = new CommunicatorI(initData);
     CommunicatorPtr result = communicatorI; // For exception safety.
@@ -366,7 +364,7 @@ Ice::getProcessLogger()
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
        //
-       processLogger = new Ice::LoggerI("", "");
+       processLogger = new Ice::LoggerI("", "", true, IceUtil::getProcessStringConverter());
     }
     return processLogger;
 }

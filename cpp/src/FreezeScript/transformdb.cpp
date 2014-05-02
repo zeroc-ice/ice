@@ -724,10 +724,6 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
 
         if(!outputFile.empty())
         {
-            //
-            // No nativeToUTF8 conversion necessary here, no string converter is installed 
-            // by wmain() on Windows and args are assumbed to be UTF8 on Unix platforms.
-            //
             IceUtilInternal::ofstream of(outputFile);
             if(!of.good())
             {
@@ -743,9 +739,6 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     {
         //
         // Read the input file.
-        //
-        // No nativeToUTF8 conversion necessary here, no string converter is installed 
-        // by wmain() on Windows and args are assumbed to be UTF8 on Unix platforms.
         //
         IceUtilInternal::ifstream in(inputFile);
         char buff[1024];

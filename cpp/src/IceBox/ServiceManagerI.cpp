@@ -523,8 +523,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     // Load the entry point.
     //
-    IceInternal::DynamicLibraryPtr library = 
-        new IceInternal::DynamicLibrary(IceInternal::getInstance(_communicator)->initializationData().stringConverter);
+    IceInternal::DynamicLibraryPtr library = new IceInternal::DynamicLibrary();
     IceInternal::DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint, false);
     if(sym == 0)
     {

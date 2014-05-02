@@ -126,7 +126,11 @@ private:
 void
 setNoIndexingAttribute(const string& pa)
 {
-    wstring path = IceUtil::stringToWstring(pa);
+    //
+    // We don't need to pass a wide string converter the wide
+    // string is passed to Windows API.
+    //
+    wstring path = IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, pa);
     DWORD attrs = GetFileAttributesW(path.c_str());
     if(attrs == INVALID_FILE_ATTRIBUTES)
     {

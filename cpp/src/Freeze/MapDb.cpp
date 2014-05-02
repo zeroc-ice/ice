@@ -14,10 +14,11 @@
 #include <Freeze/CatalogIndexList.h>
 #include <algorithm>
 
-#include <Ice/StringConverter.h>
+#include <IceUtil/StringConverter.h>
 
 using namespace std;
 using namespace Ice;
+using namespace IceUtil;
 using namespace Freeze;
 
 namespace
@@ -184,8 +185,11 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
                 flags |= DB_CREATE;
             }
 
-            open(txn, Ice::nativeToUTF8(_communicator, _dbName).c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
-            
+            //
+            // Berkeley DB expects file paths to be UTF8 encoded.
+            //
+            open(txn, nativeToUTF8(getProcessStringConverter(), _dbName).c_str(), 0, DB_BTREE,
+                 flags, FREEZE_DB_MODE);
             
             StringSeq oldIndices;
             StringSeq newIndices;
@@ -435,7 +439,11 @@ Freeze::MapDb::MapDb(const Ice::CommunicatorPtr& communicator,
 
         u_int32_t flags = DB_THREAD | DB_CREATE | DB_AUTO_COMMIT;
 
-        open(0, Ice::nativeToUTF8(_communicator, _dbName).c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+        //
+        // Berkeley DB expects file paths to be UTF8 encoded.
+        //
+        open(0, nativeToUTF8(getProcessStringConverter(), _dbName).c_str(), 0, DB_BTREE, flags,
+             FREEZE_DB_MODE);
     }
     catch(const ::DbException& dx)
     {

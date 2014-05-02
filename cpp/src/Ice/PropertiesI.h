@@ -12,7 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <Ice/Properties.h>
-#include <Ice/StringConverter.h>
+#include <IceUtil/StringConverter.h>
 
 #include <set>
 
@@ -41,15 +41,15 @@ public:
     std::set<std::string> getUnusedProperties();
 
 private:
-    PropertiesI(const StringConverterPtr&);
-    PropertiesI(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
+    PropertiesI(const IceUtil::StringConverterPtr&);
+    PropertiesI(StringSeq&, const PropertiesPtr&, const IceUtil::StringConverterPtr&);
     PropertiesI(const PropertiesI*);
 
-    friend ICE_API PropertiesPtr createProperties(const StringConverterPtr&);
-    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
-    friend ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr&, const StringConverterPtr&);
+    friend ICE_API PropertiesPtr createProperties();
+    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
+    friend ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr&);
 
-    void parseLine(const std::string&, const StringConverterPtr&);
+    void parseLine(const std::string&, const IceUtil::StringConverterPtr&);
 
     void loadConfig();
 
@@ -70,7 +70,7 @@ private:
         bool used;
     };
     std::map<std::string, PropertyValue> _properties;
-    const StringConverterPtr _converter;
+    const IceUtil::StringConverterPtr _converter;
 };
 
 }

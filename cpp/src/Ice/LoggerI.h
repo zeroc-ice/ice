@@ -12,6 +12,7 @@
 
 #include <Ice/Logger.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/StringConverter.h>
 
 namespace Ice
 {
@@ -20,7 +21,8 @@ class LoggerI : public Logger
 {
 public:
 
-    LoggerI(const std::string&, const std::string&);
+    LoggerI(const std::string&, const std::string&, bool convert = true,
+            const IceUtil::StringConverterPtr& converter = 0);
     ~LoggerI();
 
     virtual void print(const std::string&);
@@ -34,7 +36,10 @@ private:
     void write(const std::string&, bool);
 
     std::string _prefix;
+    const bool _convert;
+    const IceUtil::StringConverterPtr _converter;
     IceUtilInternal::ofstream _out;
+
     std::string _file;
 };
 

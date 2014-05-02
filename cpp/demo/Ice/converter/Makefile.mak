@@ -9,16 +9,21 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= client.exe
+CLIENT1		= client1.exe
+CLIENT2		= client2.exe
 SERVER		= server.exe
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT1) $(CLIENT2) $(SERVER)
 
-OBJS		= Greet.obj \
-		  StringConverterI.obj
+OBJS		= Greet.obj
 
-COBJS		= Client.obj
+C1OBJS		= Client.obj \
+		  StringConverterI.obj \
+		  ClientWithConverter.obj
 
+C2OBJS		= Client.obj \
+		  ClientWithoutConverter.obj
+		  
 SOBJS		= GreetI.obj \
 		  Server.obj
 
@@ -31,12 +36,18 @@ SRCS		= $(OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(GENERATE_PDB)" == "yes"
-CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+C1PDBFLAGS        = /pdb:$(CLIENT1:.exe=.pdb)
+C2PDBFLAGS        = /pdb:$(CLIENT2:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(CLIENT): $(OBJS) $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(CLIENT1): $(OBJS) $(C1OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(C1PDBFLAGS) $(SETARGV) $(OBJS) $(C1OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+$(CLIENT2): $(OBJS) $(C2OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(C2PDBFLAGS) $(SETARGV) $(OBJS) $(C2OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

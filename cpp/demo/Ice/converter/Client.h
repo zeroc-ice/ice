@@ -7,20 +7,19 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef DEMO_CLIENT_H
+#define DEMO_CLIENT_H
 
-module Test
+#include <Ice/Ice.h>
+
+namespace Demo
 {
 
-exception BadEncodingException {};
-
-interface MyObject
+class Client : public Ice::Application
 {
-    ["cpp:type:wstring"] string widen(string msg) throws BadEncodingException;
-    string narrow(["cpp:type:wstring"] string wmsg);
-    
-    void shutdown();
+    virtual int run(int, char*[]);
 };
 
-};
+}
 
+#endif

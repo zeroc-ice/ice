@@ -316,7 +316,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
     if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
     {
-        setProcessLogger(new LoggerI(argv[0], ""));
+        setProcessLogger(new LoggerI(argv[0], "", true, IceUtil::getProcessStringConverter()));
     }
 
     InitializationData initData;
@@ -358,7 +358,7 @@ Ice::Application::main(int argc, wchar_t* argv[], const Ice::InitializationData&
     // On Windows the given wchar_t* strings are UTF16 and therefore
     // needs to be converted to native narow string encoding.
     //
-    return main(argsToStringSeq(argc, argv, initData.stringConverter), initData);
+    return main(argsToStringSeq(argc, argv), initData);
 }
 
 #endif
@@ -368,7 +368,10 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
 {
     if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
     {
-        setProcessLogger(new LoggerI(argv[0], ""));
+        const bool convert = initializationData.properties ?
+                initializationData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
+                initializationData.properties->getProperty("Ice.StdErr").empty() : true;
+        setProcessLogger(new LoggerI(argv[0], "", convert, IceUtil::getProcessStringConverter()));
     }
 
     if(IceInternal::Application::_communicator != 0)
@@ -385,7 +388,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
     InitializationData initData = initializationData;
     try
     {
-        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+        initData.properties = createProperties(argc, argv, initData.properties);
     }
     catch(const std::exception& ex)
     {
@@ -656,7 +659,12 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
         //
         if(initData.properties->getProperty("Ice.ProgramName") != "" && LoggerIPtr::dynamicCast(getProcessLogger()))
         {
-            setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName"), ""));
+            const bool convert = 
+                initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
+                initData.properties->getProperty("Ice.StdErr").empty();
+
+            setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName"), "", convert,
+                                         IceUtil::getProcessStringConverter()));
         }
 
         IceInternal::Application::_communicator = initialize(argc, argv, initData);

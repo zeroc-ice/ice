@@ -422,8 +422,12 @@ IcePatch2::readDirectory(const string& pa)
 
 #ifdef _WIN32
 
+    //
+    // IcePatch2 doesn't support to use string converters, so don't need to use
+    // any string converter in nativeToWnative or wnativeToNative conversions.
+    //
     StringSeq result;
-    const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
+    const wstring fs = IceUtil::nativeToWnative(0, 0, simplify(path + "/*"));
 
     struct _wfinddata_t data;
     intptr_t h = _wfindfirst(fs.c_str(), &data);
@@ -434,7 +438,7 @@ IcePatch2::readDirectory(const string& pa)
 
     while(true)
     {
-        string name = IceUtil::wstringToString(data.name);
+        string name = IceUtil::wnativeToNative(0, 0, data.name);
         assert(!name.empty());
 
         if(name != ".." && name != ".")

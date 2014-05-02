@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/StringConverter.h>
 #include <cstring>
 
 #ifdef ICE_OS_WINRT
-#include <IceUtil/ScopedArray.h>
+#  include <IceUtil/ScopedArray.h>
 #endif
 
 using namespace std;
@@ -575,7 +575,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
                 LocalFree(msg);
             }
 #endif
-            return IceUtil::wstringToString(result);
+            return wnativeToNative(getProcessStringConverter(), getProcessWstringConverter(), result);
         }
         else
         {

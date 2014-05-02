@@ -47,8 +47,5 @@
 #ifndef ICE_OS_WINRT
 #   include <Ice/Service.h>
 #endif
-#ifndef _WIN32
-#   include <Ice/IconvStringConverter.h>
-#endif
 
 #endif

@@ -135,6 +135,27 @@ private:
     static const char* _name;
 };
 
+#ifndef _WIN32
+class ICE_UTIL_API IconvInitializationException : public Exception
+{
+public:
+
+    IconvInitializationException(const char*, int, const std::string&);
+    virtual ~IconvInitializationException() throw();
+    virtual std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual IconvInitializationException* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason() const;
+
+private:
+
+    static const char* _name;
+    std::string _reason;
+};
+#endif
+
 }
 
 #endif

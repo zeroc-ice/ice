@@ -700,7 +700,8 @@ def main():
         contentHandler = MultiHandler(infile, "")
         contentHandler.addHandlers([CppPropertyHandler(infile, className), 
             JavaPropertyHandler(infile, className),
-            CSPropertyHandler(infile, className)])
+            CSPropertyHandler(infile, className),
+            JSPropertyHandler(infile, className)])
     else:
         if lang == "cpp":
             contentHandler = CppPropertyHandler(infile, className)

@@ -70,6 +70,7 @@ ICE_UTIL_API int rmdir(const std::string&);
 
 ICE_UTIL_API int mkdir(const std::string&, int);
 ICE_UTIL_API FILE* fopen(const std::string&, const std::string&);
+ICE_UTIL_API FILE* freopen(const std::string&, const std::string&, FILE*);
 ICE_UTIL_API int open(const std::string&, int);
 
 #ifndef ICE_OS_WINRT

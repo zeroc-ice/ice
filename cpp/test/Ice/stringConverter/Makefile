@@ -10,22 +10,32 @@
 top_srcdir	= ../../..
 
 CLIENT		= $(call mktestname,client)
+SERVER		= $(call mktestname,server)
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Test.o \
-		  Client.o 
+COBJS		= Test.o \
+		  Client.o
 
-SRCS		= $(OBJS:.o=.cpp)
+SOBJS		= Test.o \
+		  Server.o
+
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
+
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(OBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(OBJS),$(LIBS) $(ICONV_LIBS))
+	$(call mktest,$@,$(COBJS),$(OPENSSL_RPATH_LINK) $(ICESSL_LIBS) $(ICEWS_LIBS))
+
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(call mktest,$@,$(SOBJS),$(ICESSL_LIBS) $(ICEWS_LIBS))
 
 include .depend

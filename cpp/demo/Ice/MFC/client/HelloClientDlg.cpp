@@ -390,7 +390,7 @@ CHelloClientDlg::createProxy()
 {
     CString h;
     _host->GetWindowText(h);
-    string host = IceUtil::wstringToString(wstring(h));
+    string host = IceUtil::wnativeToNative(getProcessStringConverter(), 0, wstring(h));
     if(host.size() == 0)
     {
         _status->SetWindowText(CString(" No hostname"));

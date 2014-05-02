@@ -10,6 +10,7 @@
 #ifndef ICE_BASIC_STREAM_H
 #define ICE_BASIC_STREAM_H
 
+#include <IceUtil/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
 #include <Ice/ProxyF.h>
@@ -26,14 +27,6 @@ namespace Ice
 {
 
 class UserException;
-
-template<typename charT> class BasicStringConverter;
-
-typedef BasicStringConverter<char> StringConverter;
-typedef IceUtil::Handle<StringConverter> StringConverterPtr;
-
-typedef BasicStringConverter<wchar_t> WstringConverter;
-typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
 
 }
 
@@ -1244,8 +1237,8 @@ private:
     const Container::size_type _messageSizeMax;
     bool _unlimited;
 
-    const Ice::StringConverterPtr& _stringConverter;
-    const Ice::WstringConverterPtr& _wstringConverter;
+    const IceUtil::StringConverterPtr _stringConverter;
+    const IceUtil::WstringConverterPtr _wstringConverter;
 
     int _startSeq;
     int _minSeqSize;

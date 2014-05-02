@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <StringConverterI.h>
 
 using namespace std;
+using namespace IceUtil;
 
 Demo::StringConverterI::StringConverterI()
 {
@@ -20,14 +20,14 @@ Demo::StringConverterI::~StringConverterI()
 {
 }
 
-Ice::Byte*
-Demo::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, Ice::UTF8Buffer& buffer) const
+Byte*
+Demo::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     size_t inputSize = static_cast<size_t>(sourceEnd - sourceStart);
     size_t chunkSize = std::max<size_t>(inputSize, 6);
     size_t outputBytesLeft = chunkSize;
     
-    Ice::Byte* targetStart = buffer.getMoreBytes(chunkSize, 0);
+    Byte* targetStart = buffer.getMoreBytes(chunkSize, 0);
     size_t offset = 0;
 
     for(unsigned int i = 0; i < inputSize; ++i)
@@ -66,7 +66,7 @@ Demo::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
 }
 
 void
-Demo::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
+Demo::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, 
                                  string& target) const
 {
     size_t inSize = static_cast<size_t>(sourceEnd - sourceStart);
@@ -80,7 +80,7 @@ Demo::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* 
         {
             if(i + 1 >= inSize)
             {
-                throw Ice::StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
+                throw IllegalConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
             }
             target[targetIndex] = (sourceStart[i] & 0x03) << 6;
             target[targetIndex] = target[targetIndex] | (sourceStart[i + 1] & 0x3F);

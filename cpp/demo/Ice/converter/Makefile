@@ -9,15 +9,20 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
+CLIENT1		= client1
+CLIENT2		= client2
 SERVER		= server
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT1) $(CLIENT2) $(SERVER)
 
 OBJS		= Greet.o
 
-COBJS		= Client.o \
-		  StringConverterI.o
+C1OBJS		= Client.o \
+		  StringConverterI.o \
+		  ClientWithConverter.o
+		  
+C2OBJS		= Client.o \
+		  ClientWithoutConverter.o
 
 SOBJS		= GreetI.o \
 		  Server.o
@@ -32,9 +37,13 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT1): $(OBJS) $(C1OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(C1OBJS) $(LIBS)
+	
+$(CLIENT2): $(OBJS) $(C2OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(C2OBJS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

@@ -47,7 +47,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
             ex.id = _instance->identityToString(ident);
             if(!facet.empty())
             {
-                string fs = nativeToUTF8(_instance->initializationData().stringConverter, facet);
+                string fs = nativeToUTF8(_instance->getStringConverter(), facet);
                 ex.id += " -f " + IceUtilInternal::escapeString(fs, "");
             }
             throw ex;
@@ -107,7 +107,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
         ex.id = _instance->identityToString(ident);
         if(!facet.empty())
         {
-            string fs = nativeToUTF8(_instance->initializationData().stringConverter, facet);
+            string fs = nativeToUTF8(_instance->getStringConverter(), facet);
             ex.id += " -f " + IceUtilInternal::escapeString(fs, "");
         }
         throw ex;

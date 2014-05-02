@@ -11,13 +11,14 @@
 #include <IceUtil/Unicode.h>
 
 using namespace std;
+using namespace IceUtil;
 
-Ice::Byte*
-Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, Ice::UTF8Buffer& buffer) const
+Byte*
+Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, IceUtil::UTF8Buffer& buffer) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    Ice::Byte* targetStart = buffer.getMoreBytes(size, 0);
-    Ice::Byte* targetEnd = targetStart + size;
+    Byte* targetStart = buffer.getMoreBytes(size, 0);
+    Byte* targetEnd = targetStart + size;
 
     size_t j = size;
     for(size_t i = 0; i < size; ++i)
@@ -29,7 +30,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
 }
 
 void
-Test::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
+Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, 
                                  string& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
@@ -43,26 +44,26 @@ Test::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* 
 }
 
 
-Ice::Byte*
-Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, Ice::UTF8Buffer& buffer) const
+Byte*
+Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, IceUtil::UTF8Buffer& buffer) const
 {
     wstring ws(sourceStart, sourceEnd);
-    string s = IceUtil::wstringToString(ws);
+    string s = IceUtil::wnativeToNative(0, 0, ws);
 
     size_t size = s.size();
-    Ice::Byte* targetStart = buffer.getMoreBytes(size, 0);
-    Ice::Byte* targetEnd = targetStart + size;
+    Byte* targetStart = buffer.getMoreBytes(size, 0);
+    Byte* targetEnd = targetStart + size;
 
     size_t j = size;
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = static_cast<Ice::Byte>(s[--j]);
+        targetStart[i] = static_cast<Byte>(s[--j]);
     }
     return targetEnd;
 }
 
 void
-Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
+Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, 
                                   wstring& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
@@ -75,6 +76,6 @@ Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte*
         s[i] = sourceStart[--j];
     }
 
-    target = IceUtil::stringToWstring(s);
+    target = IceUtil::nativeToWnative(0, 0, s);
 }
 

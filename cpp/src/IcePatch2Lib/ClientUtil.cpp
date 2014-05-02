@@ -10,7 +10,7 @@
 #include <IceUtil/Unicode.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <Ice/StringConverter.h>
+#include <IceUtil/StringConverter.h>
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>
@@ -19,6 +19,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceUtil;
 using namespace IcePatch2;
 
 namespace IcePatch2
@@ -526,7 +527,7 @@ IcePatch2::Patcher::prepare()
 bool
 IcePatch2::Patcher::patch(const string& d)
 {
-    string dir = simplify(nativeToUTF8(_serverNoCompress->ice_getCommunicator(), d));
+    string dir = simplify(d);
 
     if(dir.empty() || dir == ".")
     {
@@ -649,11 +650,7 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
 
     Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
 
-    //
-    // Transform dataDir to a UTF8 string (it's either read from the properties or 
-    // provided by the user application directly).
-    //
-    const_cast<string&>(_dataDir) = simplify(nativeToUTF8(communicator, _dataDir));
+    const_cast<string&>(_dataDir) = simplify(_dataDir);
 
     //
     // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise

@@ -334,6 +334,7 @@ generated from the section label.
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
         <property name="LogFile" />
+        <property name="LogStdErr.Convert"/>
         <property name="MessageSizeMax" />
         <property name="MonitorConnections" />
         <property name="Nohup" />

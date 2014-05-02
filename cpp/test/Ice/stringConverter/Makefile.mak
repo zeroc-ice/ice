@@ -10,32 +10,38 @@
 top_srcdir	= ..\..\..
 
 CLIENT		= client.exe
+SERVER		= server.exe
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Client.obj \
-		  Test.obj
+OBJS		= Test.obj
+
+COBJS		= Client.obj
+
+SOBJS		= Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(ICONV_HOME)" != ""
-CPPFLAGS	=  $(CPPFLAGS) -I$(ICONV_HOME)\include -DICONV_ON_WINDOWS -DICE_NO_ERRNO
-LIBS            =  $(LIBS) -LIBPATH:$(ICONV_HOME)\lib $(ICONV_LIB)
-!endif
 
 !if "$(GENERATE_PDB)" == "yes"
-PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+CPDBFLAGS        = /pdb:$(CLIENT).pdb
+SPDBFLAGS        = /pdb:$(SERVER).pdb
 !endif
 
-$(CLIENT): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS)
+$(CLIENT): $(COBJS) $(OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-all:: $(CLIENT)
+$(SERVER): $(SOBJS) $(OBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+all:: $(TARGETS)
 
 clean::
 	del /q Test.cpp Test.h

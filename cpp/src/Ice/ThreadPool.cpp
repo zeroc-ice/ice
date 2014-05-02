@@ -950,8 +950,13 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #ifdef ICE_OS_WINRT
         catch(Platform::Exception^ ex)
         {
+            //
+            // We don't need to pass the wide string converter in the call to wnativeToNative
+            // because the wide string is using the platform default encoding.
+            //
             Error out(_instance->initializationData().logger);
-            out << "exception in `" << _prefix << "':\n" << IceUtil::wstringToString(ex->Message->Data())
+            out << "exception in `" << _prefix << "':\n" 
+                << IceUtil::wnativeToNative(_instance->getStringConverter(), 0, ex->Message->Data())
                 << "\nevent handler: " << current._handler->toString();
         }
 #endif

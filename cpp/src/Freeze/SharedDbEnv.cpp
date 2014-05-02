@@ -20,7 +20,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/IceUtil.h>
 
-#include <Ice/StringConverter.h>
+#include <IceUtil/StringConverter.h>
 
 #include <cstdlib>
 
@@ -591,7 +591,10 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             // 
             flags |= DB_THREAD;
 
-            _env->open(Ice::nativeToUTF8(_communicator, dbHome).c_str(), flags, FREEZE_DB_MODE);
+            //
+            // Berkeley DB expects file paths to be UTF8 encoded.
+            //
+            _env->open(nativeToUTF8(getProcessStringConverter(), dbHome).c_str(), flags, FREEZE_DB_MODE);
        
             //
             // Default checkpoint period is every 120 seconds

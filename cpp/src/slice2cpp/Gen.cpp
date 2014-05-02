@@ -444,7 +444,7 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <" << changeInclude(*q, _includePaths) << "." << extension << ">";
     }
 
-    H << "\n#include <Ice/UndefSysMacros.h>";
+    H << "\n#include <IceUtil/UndefSysMacros.h>";
 
     if(_ice)
     {

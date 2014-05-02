@@ -39,7 +39,7 @@
 #ifdef ICE_WIN32_STACK_TRACES
 #  if defined(_MSC_VER) && _MSC_VER >= 1700
 #    define DBGHELP_TRANSLATE_TCHAR
-#    include <IceUtil/Unicode.h>
+#    include <IceUtil/StringConverter.h>
 #  endif
 #  include <DbgHelp.h>
 #  include <tchar.h>
@@ -207,6 +207,9 @@ getStackTrace()
 
         // TODO: call SymRefreshModuleList here? (not available on XP)
 
+#ifdef DBGHELP_TRANSLATE_TCHAR
+        const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
+#endif
         for(int i = 0; i < frames; i++)
         {
             if(!stackTrace.empty())
@@ -219,11 +222,16 @@ getStackTrace()
 
             DWORD64 address = reinterpret_cast<DWORD64>(stack[i]);
 
+            //
+            // Don't need to use pass a wide string converter in the bellow
+            // calls to wnativeToNative as the wide strings come from
+            // Windows API.
+            //
             BOOL ok = SymFromAddr(process, address, 0, symbol);
             if(ok)
             {
 #ifdef DBGHELP_TRANSLATE_TCHAR
-                s << IceUtil::wstringToString(symbol->Name);
+                s << IceUtil::wnativeToNative(converter, 0, symbol->Name);
 #else
                 s << symbol->Name;
 #endif
@@ -231,8 +239,8 @@ getStackTrace()
                 if(ok)
                 {
                     s << " at line " << line.LineNumber << " in " 
-#ifdef DBGHELP_TRANSLATE_TCHAR                 
-                      << IceUtil::wstringToString(line.FileName);
+#ifdef DBGHELP_TRANSLATE_TCHAR
+                      << IceUtil::wnativeToNative(converter, 0, line.FileName);
 #else
                       << line.FileName;
 #endif
@@ -668,3 +676,47 @@ IceUtil::OptionalNotSetException::ice_throw() const
     throw *this;
 }
 
+#ifndef _WIN32
+IceUtil::IconvInitializationException::IconvInitializationException(const char* file, int line, const string& reason) :
+    Exception(file, line),
+    _reason(reason)
+{
+}
+
+IceUtil::IconvInitializationException::~IconvInitializationException() throw()
+{
+}
+
+const char* IceUtil::IconvInitializationException::_name = "IceUtil::IconvInitializationException";
+
+string
+IceUtil::IconvInitializationException::ice_name() const
+{
+    return _name;
+}
+
+void
+IceUtil::IconvInitializationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ": " << _reason;
+}
+
+IceUtil::IconvInitializationException*
+IceUtil::IconvInitializationException::ice_clone() const
+{
+    return new IconvInitializationException(*this);
+}
+
+void
+IceUtil::IconvInitializationException::ice_throw() const
+{
+    throw *this;
+}
+
+string
+IceUtil::IconvInitializationException::reason() const
+{
+    return _reason;
+}
+#endif

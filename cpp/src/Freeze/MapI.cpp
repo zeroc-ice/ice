@@ -15,9 +15,8 @@
 #include <Freeze/Catalog.h>
 #include <Freeze/CatalogIndexList.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/StringConverter.h>
 #include <stdlib.h>
-
-#include <Ice/StringConverter.h>
 
 using namespace std;
 using namespace Ice;
@@ -202,8 +201,12 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 Db oldDb(connectionI->dbEnv()->getEnv(), 0);
 
 
-                oldDb.open(txn, Ice::nativeToUTF8(connectionI->communicator(), oldDbName).c_str(), 0, DB_BTREE,
-                           DB_THREAD, FREEZE_DB_MODE);
+                //
+                // Berkeley DB expects file paths to be UTF8 encoded.
+                //
+                oldDb.open(txn, 
+                           IceUtil::nativeToUTF8(IceUtil::getProcessStringConverter(), oldDbName).c_str(),
+                           0, DB_BTREE, DB_THREAD, FREEZE_DB_MODE);
                     
                 IceUtil::UniquePtr<MapDb> newDb(new MapDb(connectionI, dbName, key, value, keyCompare, indices, true));
                 
@@ -1773,8 +1776,12 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, MapDb& db,
         out << "Opening index \"" << _dbName << "\"";
     }
 
-    _db->open(txn, Ice::nativeToUTF8(connection->communicator(), _dbName).c_str(), 0, DB_BTREE, flags,
-              FREEZE_DB_MODE);
+    //
+    // Berkeley DB expects file paths to be UTF8 encoded.
+    //
+    _db->open(txn, 
+              IceUtil::nativeToUTF8(IceUtil::getProcessStringConverter(), _dbName).c_str(),
+              0, DB_BTREE, flags, FREEZE_DB_MODE);
 
     //
     // To populate empty indices

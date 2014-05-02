@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceUtil/IceUtil.h>
-#include <Ice/Ice.h>
+#include <Client.h>
 #include <Greet.h>
-#include <StringConverterI.h>
 
 using namespace std;
 using namespace Demo;
@@ -20,14 +18,14 @@ menu()
 {
     cout <<
         "usage:\n"
-        "t: send greeting with conversion\n"
-        "u: send greeting without conversion\n"
+        "t: send greeting\n"
         "s: shutdown server\n"
         "x: exit\n"
         "?: help\n";
 }
 
-string decodeString(const string& str)
+string
+decodeString(const string& str)
 {
     ostringstream result;
     for(string::const_iterator p = str.begin(); p != str.end(); ++p)
@@ -46,7 +44,7 @@ string decodeString(const string& str)
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice::CommunicatorPtr& communicator2)
+Demo::Client::run(int argc, char* argv[])
 {
     if(argc > 1)
     {
@@ -55,15 +53,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
     }
 
     const string proxyProperty = "Greet.Proxy";
-    GreetPrx greet1 = GreetPrx::checkedCast(communicator1->propertyToProxy(proxyProperty));
-    if(!greet1)
-    {
-        cerr << argv[0] << ": invalid proxy" << endl;
-        return EXIT_FAILURE;
-    }
-
-    GreetPrx greet2 = GreetPrx::checkedCast(communicator2->propertyToProxy(proxyProperty));
-    if(!greet2)
+    GreetPrx greet = GreetPrx::checkedCast(communicator()->propertyToProxy(proxyProperty));
+    if(!greet)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
@@ -82,17 +73,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
             cin >> c;
             if(c == 't')
             {
-                string ret = greet1->exchangeGreeting(greeting);
-                cout << "Received: \"" << decodeString(ret) << '\"' << endl;
-            }
-            else if(c == 'u')
-            {
-                string ret = greet2->exchangeGreeting(greeting);
+                string ret = greet->exchangeGreeting(greeting);
                 cout << "Received: \"" << decodeString(ret) << '\"' << endl;
             }
             else if(c == 's')
             {
-                greet1->shutdown();
+                greet->shutdown();
             }
             else if(c == 'x')
             {
@@ -116,65 +102,4 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice
     while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator1;
-    Ice::CommunicatorPtr communicator2;
-
-    try
-    {
-        //
-        // Create two communicators, one with string converter configured
-        // and one without.
-        //
-        Ice::InitializationData initData;
-        initData.stringConverter = new StringConverterI();
-        initData.properties = Ice::createProperties(initData.stringConverter);
-        initData.properties->load("config.client");
-        communicator1 = Ice::initialize(argc, argv, initData);
-
-        Ice::InitializationData initData2;
-        initData2.properties = Ice::createProperties();
-        initData2.properties->load("config.client");
-        communicator2 = Ice::initialize(argc, argv, initData2);
-
-        status = run(argc, argv, communicator1, communicator2);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator1)
-    {
-        try
-        {
-            communicator1->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if(communicator2)
-    {
-        try
-        {
-            communicator2->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
 }

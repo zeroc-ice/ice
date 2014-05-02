@@ -24,8 +24,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
-#include <Ice/StringConverter.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/StringConverter.h>
 #include <iterator>
 
 using namespace std;
@@ -35,7 +34,7 @@ using namespace IceInternal;
 namespace
 {
 
-class StreamUTF8BufferI : public Ice::UTF8Buffer
+class StreamUTF8BufferI : public IceUtil::UTF8Buffer
 {
 public:
     
@@ -99,8 +98,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
     _unlimited(unlimited),
-    _stringConverter(instance->initializationData().stringConverter),
-    _wstringConverter(instance->initializationData().wstringConverter),
+    _stringConverter(instance->getStringConverter()),
+    _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1),
     _sizePos(-1)
 {
@@ -123,8 +122,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
     _unlimited(false),
-    _stringConverter(instance->initializationData().stringConverter),
-    _wstringConverter(instance->initializationData().wstringConverter),
+    _stringConverter(instance->getStringConverter()),
+    _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1),
     _sizePos(-1)
 {
@@ -1358,53 +1357,59 @@ IceInternal::BasicStream::writeConverted(const string& v)
     // Impossible to tell, so we guess. If we don't guess correctly,
     // we'll have to fix the mistake afterwards
     //
-        
-    Int guessedSize = static_cast<Int>(v.size());
-    writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
-        
-    size_t firstIndex = b.size();
-    StreamUTF8BufferI buffer(*this);
+    try
+    {
+        Int guessedSize = static_cast<Int>(v.size());
+        writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
             
-    Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
-    if(lastByte != b.end())
-    {
-        b.resize(lastByte - b.begin());
+        size_t firstIndex = b.size();
+        StreamUTF8BufferI buffer(*this);
+                
+        Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+        if(lastByte != b.end())
+        {
+            b.resize(lastByte - b.begin());
+        }
+        size_t lastIndex = b.size();
+            
+        Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+            
+        //
+        // Check against the guess
+        //
+        if(guessedSize != actualSize)
+        {
+            if(guessedSize <= 254 && actualSize > 254)
+            {
+                //
+                // Move the UTF-8 sequence 4 bytes further
+                // Use memmove instead of memcpy since the source and destination typically overlap.
+                //
+                resize(b.size() + 4);
+                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+            }
+            else if(guessedSize > 254 && actualSize <= 254)
+            {
+                //
+                // Move the UTF-8 sequence 4 bytes back
+                //
+                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+                resize(b.size() - 4);
+            }
+        
+            if(guessedSize <= 254)
+            {
+                rewriteSize(actualSize, b.begin() + firstIndex - 1);
+            }
+            else
+            {
+                rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+            }
+        }
     }
-    size_t lastIndex = b.size();
-        
-    Int actualSize = static_cast<Int>(lastIndex - firstIndex);
-        
-    //
-    // Check against the guess
-    //
-    if(guessedSize != actualSize)
+    catch(const IceUtil::IllegalConversionException& ex)
     {
-        if(guessedSize <= 254 && actualSize > 254)
-        {
-            //
-            // Move the UTF-8 sequence 4 bytes further
-            // Use memmove instead of memcpy since the source and destination typically overlap.
-            //
-            resize(b.size() + 4);
-            memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
-        }
-        else if(guessedSize > 254 && actualSize <= 254)
-        {
-            //
-            // Move the UTF-8 sequence 4 bytes back
-            //
-            memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
-            resize(b.size() - 4);
-        }
-    
-        if(guessedSize <= 254)
-        {
-            rewriteSize(actualSize, b.begin() + firstIndex - 1);
-        }
-        else
-        {
-            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
-        }
+        throw StringConversionException(__FILE__, __LINE__, ex.reason());
     }
 }
 
@@ -1425,7 +1430,14 @@ IceInternal::BasicStream::write(const string* begin, const string* end, bool con
 void
 IceInternal::BasicStream::readConverted(string& v, int sz)
 {
-    _stringConverter->fromUTF8(i, i + sz, v);
+    try
+    {
+        _stringConverter->fromUTF8(i, i + sz, v);
+    }
+    catch(const IceUtil::IllegalConversionException& ex)
+    {
+        throw StringConversionException(__FILE__, __LINE__, ex.reason());
+    }
 }
 
 void
@@ -1460,53 +1472,59 @@ IceInternal::BasicStream::write(const wstring& v)
     // Impossible to tell, so we guess. If we don't guess correctly,
     // we'll have to fix the mistake afterwards
     //
-        
-    Int guessedSize = static_cast<Int>(v.size());
-    writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
-        
-    size_t firstIndex = b.size();
-    StreamUTF8BufferI buffer(*this);
+    try
+    {
+        Int guessedSize = static_cast<Int>(v.size());
+        writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
             
-    Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
-    if(lastByte != b.end())
-    {
-        b.resize(lastByte - b.begin());
+        size_t firstIndex = b.size();
+        StreamUTF8BufferI buffer(*this);
+                
+        Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+        if(lastByte != b.end())
+        {
+            b.resize(lastByte - b.begin());
+        }
+        size_t lastIndex = b.size();
+            
+        Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+            
+        //
+        // Check against the guess
+        //
+        if(guessedSize != actualSize)
+        {
+            if(guessedSize <= 254 && actualSize > 254)
+            {
+                //
+                // Move the UTF-8 sequence 4 bytes further
+                // Use memmove instead of memcpy since the source and destination typically overlap.
+                //
+                resize(b.size() + 4);
+                memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+            }
+            else if(guessedSize > 254 && actualSize <= 254)
+            {
+                //
+                // Move the UTF-8 sequence 4 bytes back
+                //
+                memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+                resize(b.size() - 4);
+            }
+        
+            if(guessedSize <= 254)
+            {
+                rewriteSize(actualSize, b.begin() + firstIndex - 1);
+            }
+            else
+            {
+                rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+            }
+        }
     }
-    size_t lastIndex = b.size();
-        
-    Int actualSize = static_cast<Int>(lastIndex - firstIndex);
-        
-    //
-    // Check against the guess
-    //
-    if(guessedSize != actualSize)
+    catch(const IceUtil::IllegalConversionException& ex)
     {
-        if(guessedSize <= 254 && actualSize > 254)
-        {
-            //
-            // Move the UTF-8 sequence 4 bytes further
-            // Use memmove instead of memcpy since the source and destination typically overlap.
-            //
-            resize(b.size() + 4);
-            memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
-        }
-        else if(guessedSize > 254 && actualSize <= 254)
-        {
-            //
-            // Move the UTF-8 sequence 4 bytes back
-            //
-            memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
-            resize(b.size() - 4);
-        }
-    
-        if(guessedSize <= 254)
-        {
-            rewriteSize(actualSize, b.begin() + firstIndex - 1);
-        }
-        else
-        {
-            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
-        }
+        throw StringConversionException(__FILE__, __LINE__, ex.reason());
     }
 }
 
@@ -1535,8 +1553,15 @@ IceInternal::BasicStream::read(wstring& v)
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
 
-        _wstringConverter->fromUTF8(i, i + sz, v);
-        i += sz;
+        try
+        {
+            _wstringConverter->fromUTF8(i, i + sz, v);
+            i += sz;
+        }
+        catch(const IceUtil::IllegalConversionException& ex)
+        {
+            throw StringConversionException(__FILE__, __LINE__, ex.reason());
+        }
     }
     else
     {

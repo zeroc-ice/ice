@@ -15,6 +15,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Timer.h>
+#include <IceUtil/StringConverter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/StatsF.h>
@@ -108,8 +109,12 @@ public:
     void setDefaultLocator(const Ice::LocatorPrx&);
     void setDefaultRouter(const Ice::RouterPrx&);
 
-    void setStringConverter(const Ice::StringConverterPtr&);
-    void setWstringConverter(const Ice::WstringConverterPtr&);
+    IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
+    void setStringConverter(const IceUtil::StringConverterPtr&);
+    
+    IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
+    void setWstringConverter(const IceUtil::WstringConverterPtr&);
+    
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(const Ice::ThreadNotificationPtr&);
 
@@ -158,6 +163,8 @@ private:
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
     const Ice::ImplicitContextIPtr _implicitContext;
+    IceUtil::StringConverterPtr _stringConverter;
+    IceUtil::WstringConverterPtr _wstringConverter;
     Ice::ObjectAdapterPtr _adminAdapter;
     Ice::FacetMap _adminFacets;
     Ice::Identity _adminIdentity;

@@ -15,13 +15,14 @@
 
 #include <IceUtil/IceUtil.h>
 
-#include <Ice/StringConverter.h>
+#include <IceUtil/StringConverter.h>
 
 #include <typeinfo>
 
 using namespace std;
 using namespace Freeze;
 using namespace Ice;
+using namespace IceUtil;
 
 //
 // Static members
@@ -317,7 +318,11 @@ Freeze::EvictorIBase::allDbs() const
     {
         Db db(_dbEnv->getEnv(), 0);
 
-        db.open(0, Ice::nativeToUTF8(_communicator, _filename).c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
+        //
+        // Berkeley DB expects file paths to be UTF8 encoded.
+        //
+        db.open(0, nativeToUTF8(IceUtil::getProcessStringConverter(), _filename).c_str(), 0, DB_UNKNOWN, 
+                DB_RDONLY, 0);
 
         Dbc* dbc = 0;
         db.cursor(0, &dbc, 0);

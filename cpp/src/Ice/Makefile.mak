@@ -106,7 +106,7 @@ OBJS		= Acceptor.obj \
 		  Stats.obj \
 		  StreamI.obj \
 		  Stream.obj \
-                  StringConverter.obj \
+                  StringConverterPlugin.obj \
 		  TcpAcceptor.obj \
 		  TcpConnector.obj \
 		  TcpEndpointI.obj \

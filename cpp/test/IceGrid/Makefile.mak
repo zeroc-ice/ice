@@ -17,7 +17,6 @@ SUBDIRS		= activation \
 		allocation \
 		deployer \
 		distribution \
-		fileLock \
 		noRestartUpdate \
 		replicaGroup \
 		replication \

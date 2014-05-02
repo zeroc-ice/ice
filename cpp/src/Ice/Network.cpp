@@ -516,7 +516,11 @@ getInterfaceIndex(const string& name)
                 }
                 else
                 {
-                    if(IceUtil::wstringToString(paddrs->FriendlyName) == name)
+                    //
+                    // Don't need to pass a wide string converter as the wide string
+                    // come from Windows API.
+                    //
+                    if(IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, paddrs->FriendlyName) == name)
                     {
                         index = paddrs->Ipv6IfIndex;
                         break;
@@ -656,7 +660,11 @@ getInterfaceAddress(const string& name)
         {
             while(paddrs)
             {
-                if(IceUtil::wstringToString(paddrs->FriendlyName) == name)
+                //
+                // Don't need to pass a wide string converter as the wide string come
+                // from Windows API.
+                //
+                if(IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, paddrs->FriendlyName) == name)
                 {
                     struct sockaddr_in addrin;
                     memcpy(&addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
@@ -872,11 +880,20 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::En
         }
         else
         {
-            addr.host = ref new HostName(ref new String(IceUtil::stringToWstring(host).c_str()));
+            //
+            // Don't need to pass a wide string converter as the wide string is passed
+            // to Windows API.
+            //
+            addr.host = ref new HostName(ref new String(
+                IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, host).c_str()));
         }
         stringstream os;
         os << port;
-        addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
+        //
+        // Don't need to use any string converter here as the port number use just
+        // ACII characters.
+        //
+        addr.port = ref new String(IceUtil::nativeToWnative(0, 0, os.str()).c_str());
         result.push_back(addr);
         return result;
     }
@@ -1040,7 +1057,11 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 #ifdef ICE_OS_WINRT
         ostringstream os;
         os << port;
-        addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
+        //
+        // Don't need to use any string converter here as the port number use just
+        // ACII characters.
+        //
+        addr.port = ref new String(IceUtil::nativeToWnative(0, 0, os.str()).c_str());
         addr.host = nullptr; // Equivalent of inaddr_any, see doBind implementation.
 #else
         memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
@@ -1516,7 +1537,11 @@ IceInternal::inetAddrToString(const Address& ss)
     }
     else
     {
-        return IceUtil::wstringToString(ss.host->RawName->Data());
+        //
+        // Don't need to pass a wide string converter as the wide string come
+        // from Windows API.
+        //
+        return IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, ss.host->RawName->Data());
     }
 #endif
 }
@@ -1539,7 +1564,10 @@ IceInternal::getPort(const Address& addr)
     }
 #else
     IceUtil::Int64 port;
-    if(addr.port == nullptr || !IceUtilInternal::stringToInt64(IceUtil::wstringToString(addr.port->Data()), port))
+    //
+    // Don't need to use any string converter here as the port number use just ACII characters.
+    //
+    if(addr.port == nullptr || !IceUtilInternal::stringToInt64(IceUtil::wnativeToNative(0, 0, addr.port->Data()), port))
     {
         return -1;
     }
@@ -1563,7 +1591,11 @@ IceInternal::setPort(Address& addr, int port)
 #else
     ostringstream os;
     os << port;
-    addr.port = ref new String(IceUtil::stringToWstring(os.str()).c_str());
+    //
+    // Don't need to use any string converter here as the port number use just
+    // ACII characters.
+    //
+    addr.port = ref new String(IceUtil::nativeToWnative(0, 0, os.str()).c_str());
 #endif
 }
 
@@ -1584,7 +1616,11 @@ IceInternal::isMulticast(const Address& addr)
     {
         return false;
     }
-    string host = IceUtil::wstringToString(addr.host->RawName->Data());
+    //
+    // Don't need to use string converters here, this is just to do a local
+    // comparison to find if the address is multicast.
+    //
+    string host = IceUtil::wnativeToNative(0, 0, addr.host->RawName->Data());
     string ip = IceUtilInternal::toUpper(host);
     vector<string> tokens;
     IceUtilInternal::splitString(ip, ".", tokens);
@@ -2486,7 +2522,11 @@ IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr, Hos
     {
         DNSException ex(file, line);
         ex.error = static_cast<int>(error);
-        ex.host = IceUtil::wstringToString(host->RawName->Data());
+        //
+        // Don't need to pass a wide string converter as the wide string come from 
+        // Windows API.
+        //
+        ex.host = IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, host->RawName->Data());
         throw ex;
     }
     else

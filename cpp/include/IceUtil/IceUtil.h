@@ -41,4 +41,8 @@
 #include <IceUtil/Unicode.h>
 #include <IceUtil/UniquePtr.h>
 
+#ifndef _WIN32
+#   include <IceUtil/IconvStringConverter.h>
+#endif
+
 #endif

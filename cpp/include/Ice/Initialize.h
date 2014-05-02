@@ -18,10 +18,10 @@
 #include <Ice/StatsF.h>
 #include <Ice/InstrumentationF.h>
 #include <Ice/Dispatcher.h>
-#include <Ice/StringConverter.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Version.h>
+#include <Ice/Plugin.h>
 
 namespace Ice
 {
@@ -34,8 +34,6 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 
 ICE_API StringSeq argsToStringSeq(int, wchar_t*[]);
 
-ICE_API StringSeq argsToStringSeq(int, wchar_t*[], const StringConverterPtr&);
-
 #endif
 
 //
@@ -46,9 +44,9 @@ ICE_API StringSeq argsToStringSeq(int, wchar_t*[], const StringConverterPtr&);
 //
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
-ICE_API PropertiesPtr createProperties(const StringConverterPtr& = 0);
-ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0, const StringConverterPtr& = 0);
-ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0, const StringConverterPtr& = 0);
+ICE_API PropertiesPtr createProperties();
+ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0);
+ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0);
 
 //
 // This class is used to notify user of when Ice threads are started
@@ -88,8 +86,6 @@ struct InitializationData
     LoggerPtr logger;
     StatsPtr stats;
     Instrumentation::CommunicatorObserverPtr observer;
-    StringConverterPtr stringConverter;
-    WstringConverterPtr wstringConverter;
     ThreadNotificationPtr threadHook;
     DispatcherPtr dispatcher;
     CompactIdResolverPtr compactIdResolver;

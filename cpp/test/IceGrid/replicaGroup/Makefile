@@ -18,7 +18,7 @@ SVCSONAME	= $(call mksoname,TestService)
 PLUGINFILENAME  = $(call mklibfilename,RegistryPlugin,$(VERSION))
 PLUGINSONAME	= $(call mksoname,RegistryPlugin,$(SOVERSION)) 
 
-TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME ) $(call mklibtargets,$(PLUGINFILENAME),$(PLUGINSONAME))
+TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) $(call mklibtargets,$(PLUGINFILENAME),$(PLUGINSONAME))
 
 OBJS		= Test.o
 

@@ -10,7 +10,7 @@
 #ifndef STRING_CONVERTER_I_H
 #define STRING_CONVERTER_I_H
 
-#include <Ice/StringConverter.h>
+#include <IceUtil/StringConverter.h>
 
 namespace Demo
 {
@@ -18,15 +18,15 @@ namespace Demo
 //
 // UTF-8 converter for LATIN-1
 //
-class StringConverterI : public Ice::StringConverter
+class StringConverterI : public IceUtil::StringConverter
 {
 public:
 
     StringConverterI();
     ~StringConverterI();
 
-    virtual Ice::Byte* toUTF8(const char*, const char*, Ice::UTF8Buffer&) const;
-    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::string&) const;
+    virtual IceUtil::Byte* toUTF8(const char*, const char*, IceUtil::UTF8Buffer&) const;
+    virtual void fromUTF8(const IceUtil::Byte*, const IceUtil::Byte*, std::string&) const;
 };
 
 }

@@ -22,8 +22,11 @@ enum ConversionFlags
     lenientConversion
 };
 
-ICE_UTIL_API std::string wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
-ICE_UTIL_API std::wstring stringToWstring(const std::string&, ConversionFlags = lenientConversion);
+ICE_DEPRECATED_API std::string
+wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
+
+ICE_DEPRECATED_API std::wstring
+stringToWstring(const std::string&, ConversionFlags = lenientConversion);
 
 typedef unsigned char Byte;
 

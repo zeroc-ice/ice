@@ -103,7 +103,6 @@ ICEUTIL_OS_LIBS = $(ICE_OS_LIBS) DbgHelp.lib
 BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
 DB_LIBS         = libdb53$(LIBSUFFIX).lib
 MCPP_LIBS       = mcpp$(LIBSUFFIX).lib
-ICONV_LIB       = libiconv.lib
 !endif
 
 !if "$(WINRT)" != "yes"

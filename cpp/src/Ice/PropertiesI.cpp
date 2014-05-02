@@ -17,7 +17,6 @@
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
-#include <Ice/StringConverter.h>
 
 using namespace std;
 using namespace Ice;
@@ -304,7 +303,7 @@ Ice::PropertiesI::load(const std::string& file)
     if(file.find("HKLM\\") == 0)
     {
         HKEY iceKey;
-        const wstring keyName = IceUtil::stringToWstring(Ice::nativeToUTF8(_converter, file).substr(5)).c_str();
+        const wstring keyName = IceUtil::nativeToWnative(_converter, 0, file).substr(5).c_str();
         LONG err;
         if((err = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
@@ -351,8 +350,8 @@ Ice::PropertiesI::load(const std::string& file)
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
-                string name = IceUtil::wstringToString(wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize));
-                name = Ice::UTF8ToNative(_converter, name);
+                string name = IceUtil::wnativeToNative(_converter, 0, 
+                                                       wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize));
                 if(keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
@@ -365,7 +364,7 @@ Ice::PropertiesI::load(const std::string& file)
                 wstring valueW = wstring(reinterpret_cast<wchar_t*>(&dataBuf[0]), (dataBufSize / sizeof(wchar_t)) - 1);
                 if(keyType == REG_SZ)
                 {
-                    value = IceUtil::wstringToString(valueW);
+                    value = IceUtil::wnativeToNative(_converter, 0, valueW);
                 }
                 else // keyType == REG_EXPAND_SZ
                 {
@@ -385,9 +384,8 @@ Ice::PropertiesI::load(const std::string& file)
                             continue;
                         }
                     }
-                    value = IceUtil::wstringToString(wstring(&expandedValue[0], sz -1));
+                    value = IceUtil::wnativeToNative(_converter, 0, wstring(&expandedValue[0], sz -1));
                 }
-                value = Ice::UTF8ToNative(_converter, value);
                 setProperty(name, value);
             }
         }
@@ -401,7 +399,7 @@ Ice::PropertiesI::load(const std::string& file)
     else
 #endif
     {
-        IceUtilInternal::ifstream in(Ice::nativeToUTF8(_converter, file));
+        IceUtilInternal::ifstream in(file);
         if(!in)
         {
             FileException ex(__FILE__, __LINE__);
@@ -462,12 +460,12 @@ Ice::PropertiesI::PropertiesI(const PropertiesI* p) :
 {
 }
 
-Ice::PropertiesI::PropertiesI(const StringConverterPtr& converter) :
+Ice::PropertiesI::PropertiesI(const IceUtil::StringConverterPtr& converter) :
     _converter(converter)
 {
 }
 
-Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, const StringConverterPtr& converter) :
+Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, const IceUtil::StringConverterPtr& converter) :
     _converter(converter)
 {
     if(defaults != 0)
@@ -539,7 +537,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
 }
 
 void
-Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& converter)
+Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPtr& converter)
 {
     string key;
     string value;
@@ -705,8 +703,8 @@ Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& conver
         return;
     }
 
-    key = Ice::UTF8ToNative(converter, key);
-    value = Ice::UTF8ToNative(converter, value);
+    key = IceUtil::UTF8ToNative(converter, key);
+    value = IceUtil::UTF8ToNative(converter, value);
 
     setProperty(key, value);
 }
@@ -718,6 +716,7 @@ Ice::PropertiesI::loadConfig()
 #ifndef ICE_OS_WINRT
     //
     // WinRT cannot access environment variables
+    //
     if(value.empty() || value == "1")
     {
 #   ifdef _WIN32
@@ -730,7 +729,7 @@ Ice::PropertiesI::loadConfig()
         }
         if(ret > 0)
         {
-            value = Ice::UTF8ToNative(_converter, IceUtil::wstringToString(wstring(&v[0], ret)));
+            value = IceUtil::wnativeToNative(_converter, 0, wstring(&v[0], ret));
         }
         else
         {
