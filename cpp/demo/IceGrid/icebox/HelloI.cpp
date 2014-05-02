@@ -23,9 +23,9 @@ HelloI::sayHello(const Ice::Current&)
 #ifdef _WIN32
     vector<wchar_t> buf;
     buf.resize(1024);
-    DWORD val = GetEnvironmentVariableW(IceUtil::stringToWstring("LANG").c_str(), &buf[0], 
-                                        static_cast<DWORD>(buf.size()));
-    string lang = (val > 0 && val < buf.size()) ? IceUtil::wstringToString(&buf[0]) : string("en");
+    DWORD val = GetEnvironmentVariableW(L"LANG", &buf[0], static_cast<DWORD>(buf.size()));
+    string lang = (val > 0 && val < buf.size()) ?
+        IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, &buf[0]) : string("en");
 #else
     char* val = getenv("LANG");
     string lang = val ? string(val) : "en";
