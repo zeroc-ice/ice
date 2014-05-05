@@ -176,7 +176,7 @@ CPPFLAGS	:= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
 endif
 SLICE2CPPFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := -lIceUtil $(BZIP2_LIBS) $(ICE_OS_LIBS)
+LINKWITH        := -lIceUtil $(BZIP2_LIBS) $(ICE_OS_LIBS) $(ICONV_LIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)

@@ -42,7 +42,7 @@ SRCS		= $(OBJS:.o=.cpp)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS        := $(CPPFLAGS) $(ICEUTIL_FLAGS) -DICE_UTIL_API_EXPORTS -I..
-LINKWITH        := $(ICEUTIL_OS_LIBS) $(ICONV_LIBS)
+LINKWITH        := $(ICEUTIL_OS_LIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
