@@ -57,13 +57,13 @@ const IceUtil::Int64 Int16Min = -Int16Max - 1;
 const IceUtil::Int64 ByteMax = 0xff;
 const IceUtil::Int64 ByteMin = 0x00;
 
-SLICE_API enum FeatureProfile
+enum SLICE_API FeatureProfile
 {
     Ice,
     IceE
 };
 
-SLICE_API enum NodeType
+enum SLICE_API NodeType
 {
     Dummy,
     Real
@@ -72,7 +72,7 @@ SLICE_API enum NodeType
 //
 // Format preference for classes and exceptions.
 //
-SLICE_API enum FormatType
+enum SLICE_API FormatType
 {
     DefaultFormat,    // No preference was specified.
     CompactFormat,    // Minimal format.

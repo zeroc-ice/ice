@@ -195,8 +195,6 @@ protected:
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
 
-class ICE_API Buffer;
-
 class ICE_API NetworkProxy : virtual public IceUtil::Shared
 {
 public:

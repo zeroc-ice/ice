@@ -1476,7 +1476,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     ClassList bases = p->bases();
 
-    H << sp << nl << "class " << name << " : ";
+    H << sp << nl << "class " << _dllExport << " " << name << " : ";
     if(bases.empty())
     {
         H << "virtual public ::IceProxy::Ice::Object";
@@ -1659,14 +1659,14 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_encodingVersion(__v).get());";
     H << eb;
 
-    H << nl << nl << _dllExport << "static const ::std::string& ice_staticId();";
+    H << nl << nl << "static const ::std::string& ice_staticId();";
 
     H.dec();
     H << sp << nl << "private: ";
     H.inc();
-    H << sp << nl << _dllExport << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
-    H << nl <<  _dllExport << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
-    H << nl <<  _dllExport << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
+    H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
+    H << nl << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
+    H << nl << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
     H << eb << ';';
 
     C << sp;
@@ -2163,11 +2163,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
-    H << sp << nl << _dllExport << retS << " end_" << name << spar << outParamsDeclAMI
+    H << sp << nl << retS << " end_" << name << spar << outParamsDeclAMI
       << "const ::Ice::AsyncResultPtr&" << epar << ';';
     if(generatePrivateEnd)
     {
-        H << sp << nl << _dllExport << " void ___end_" << name << spar << outParamsDeclEndAMI;
+        H << sp << nl << " void ___end_" << name << spar << outParamsDeclEndAMI;
         H << "const ::Ice::AsyncResultPtr&" << epar << ';';
     }
 
@@ -2175,9 +2175,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.dec();
     H << nl << "private:";
     H.inc();
-    H << sp << nl << _dllExport << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar
+    H << sp << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar
       << ';';
-    H << nl << _dllExport <<  "::Ice::AsyncResultPtr begin_" << name << spar << paramsAMI << "const ::Ice::Context*"
+    H << nl <<  "::Ice::AsyncResultPtr begin_" << name << spar << paramsAMI << "const ::Ice::Context*"
       << "const ::IceInternal::CallbackBasePtr&"
       << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << ';';
     H << nl;
@@ -2411,9 +2411,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string classScopedAMI = classScope + classNameAMI;
         string opScopedAMI = classScopedAMI + "_" + name;
 
-        H << nl << _dllExport << "bool " << name << "_async" << spar << ("const " + opScopedAMI + "Ptr&")
+        H << nl << "bool " << name << "_async" << spar << ("const " + opScopedAMI + "Ptr&")
           << paramsAMI << epar << ';';
-        H << nl << _dllExport << "bool " << name << "_async" << spar << ("const " + opScopedAMI + "Ptr&")
+        H << nl << "bool " << name << "_async" << spar << ("const " + opScopedAMI + "Ptr&")
           << paramsAMI << "const ::Ice::Context&" << epar << ';';
 
         C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
