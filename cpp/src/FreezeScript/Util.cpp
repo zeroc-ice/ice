@@ -270,7 +270,11 @@ FreezeScript::CompactIdResolverI::resolve(Ice::Int id) const
 void
 FreezeScript::CompactIdResolverI::add(Ice::Int id, const string& type)
 {
+#ifndef NDEBUG
     map<Ice::Int, string>::const_iterator p = _ids.find(id);
+#else
+    _ids.find(id);
+#endif
     assert(p == _ids.end());
 
     _ids[id] = type;
