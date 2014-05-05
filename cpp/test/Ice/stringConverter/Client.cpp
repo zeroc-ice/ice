@@ -94,7 +94,7 @@ int
 Client::run(int, char*[])
 {
     Test::MyObjectPrx proxy = 
-        Test::MyObjectPrx::uncheckedCast(communicator()->stringToProxy("test:default -h localhost -p 12010"));
+        Test::MyObjectPrx::uncheckedCast(communicator()->stringToProxy("test:default -p 12010"));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";
