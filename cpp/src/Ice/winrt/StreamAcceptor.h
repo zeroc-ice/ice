@@ -11,9 +11,7 @@
 #define ICE_STREAM_ACCEPTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/ProtocolInstanceF.h>
 #include <Ice/Acceptor.h>
 #include <Ice/Network.h>
 
@@ -40,22 +38,20 @@ public:
     virtual void finishAccept();
 
     virtual TransceiverPtr accept();
+    virtual std::string protocol() const;
     virtual std::string toString() const;
 
     int effectivePort() const;
 
 private:
 
-    StreamAcceptor(const InstancePtr&, Ice::Short, const std::string&, int);
+    StreamAcceptor(const ProtocolInstancePtr&, const std::string&, int);
     virtual ~StreamAcceptor();
     friend class StreamEndpointI;
 
     virtual void queueAcceptedSocket(Windows::Networking::Sockets::StreamSocket^);
 
-    const InstancePtr _instance;
-    const Ice::Short _type;
-    const TraceLevelsPtr _traceLevels;
-    const ::Ice::LoggerPtr _logger;
+    const ProtocolInstancePtr _instance;
     const Address _addr;
 
     IceUtil::Mutex _mutex;

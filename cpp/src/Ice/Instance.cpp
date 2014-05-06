@@ -1104,9 +1104,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
         _endpointFactoryManager->add(tcpEndpointFactory);
 #else
-        EndpointFactoryPtr tcpStreamEndpointFactory = new StreamEndpointFactory(this, TCPEndpointType, "tcp");
+        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp");
+        EndpointFactoryPtr tcpStreamEndpointFactory = new StreamEndpointFactory(tcpProtocolInstance);
         _endpointFactoryManager->add(tcpStreamEndpointFactory);
-        EndpointFactoryPtr sslStreamEndpointFactory = new StreamEndpointFactory(this, IceSSL::EndpointType, "ssl");
+        
+        ProtocolInstancePtr sslProtocolInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl");
+        EndpointFactoryPtr sslStreamEndpointFactory = new StreamEndpointFactory(sslProtocolInstance);
         _endpointFactoryManager->add(sslStreamEndpointFactory);
 #endif
         ProtocolInstancePtr udpProtocolInstance = new ProtocolInstance(this, UDPEndpointType, "udp");

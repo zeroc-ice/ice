@@ -10,8 +10,8 @@
 #include <Ice/winrt/StreamAcceptor.h>
 #include <Ice/winrt/StreamTransceiver.h>
 
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
+#include <Ice/ProtocolInstance.h>
+#include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
@@ -42,10 +42,10 @@ IceInternal::StreamAcceptor::setCompletedHandler(SocketOperationCompletedHandler
 void
 IceInternal::StreamAcceptor::close()
 {
-    if(_traceLevels->network >= 1)
+    if(_instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "stopping to accept " << typeToString(_type) << " connections at " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "stopping to accept " << _instance->protocol() << " connections at " << toString();
     }
 
 
@@ -73,10 +73,10 @@ IceInternal::StreamAcceptor::close()
 void
 IceInternal::StreamAcceptor::listen()
 {
-    if(_traceLevels->network >= 1)
+    if(_instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "accepting " << typeToString(_type) << " connections at " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "accepting " << _instance->protocol() << " connections at " << toString();
 
         vector<string> interfaces = 
             getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
@@ -140,12 +140,18 @@ IceInternal::StreamAcceptor::accept()
         _accepted.pop_front();
     }
 
-    if(_traceLevels->network >= 1)
+    if(_instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "accepted " << typeToString(_type) << " connection\n" << fdToString(fd);
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "accepted " << _instance->protocol() << " connection\n" << fdToString(fd);
     }
-    return new StreamTransceiver(_instance, _type, fd, true);
+    return new StreamTransceiver(_instance, fd, true);
+}
+
+string
+IceInternal::StreamAcceptor::protocol() const
+{
+    return _instance->protocol();
 }
 
 string
@@ -160,13 +166,10 @@ IceInternal::StreamAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::StreamAcceptor::StreamAcceptor(const InstancePtr& instance, Ice::Short type, const string& host, int port)
-    : _instance(instance),
-      _type(type),
-      _traceLevels(instance->traceLevels()),
-      _logger(instance->initializationData().logger),
-      _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6())),
-      _acceptPending(false)
+IceInternal::StreamAcceptor::StreamAcceptor(const ProtocolInstancePtr& instance, const string& host, int port) :
+    _instance(instance),
+    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6())),
+    _acceptPending(false)
 {
     _fd = ref new StreamSocketListener();
 
@@ -177,10 +180,10 @@ IceInternal::StreamAcceptor::StreamAcceptor(const InstancePtr& instance, Ice::Sh
                     queueAcceptedSocket(args->Socket);
                 });
     
-    if(_traceLevels->network >= 2)
+    if(_instance->traceLevel() >= 2)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "attempting to bind to " << typeToString(_type) << " socket " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "attempting to bind to " << _instance->protocol() << " socket " << toString();
     }
     const_cast<Address&>(_addr) = doBind(_fd, _addr);
 }

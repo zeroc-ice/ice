@@ -49,6 +49,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Incoming.obj \
 		  $(ARCH)\$(CONFIG)\Initialize.obj \
 		  $(ARCH)\$(CONFIG)\Instance.obj \
+		  $(ARCH)\$(CONFIG)\IPEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\LocalException.obj \
 		  $(ARCH)\$(CONFIG)\LocalObject.obj \
 		  $(ARCH)\$(CONFIG)\LocatorInfo.obj \
@@ -82,6 +83,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\PropertiesAdminI.obj \
 		  $(ARCH)\$(CONFIG)\PropertyNames.obj \
 		  $(ARCH)\$(CONFIG)\Protocol.obj \
+		  $(ARCH)\$(CONFIG)\ProtocolInstance.obj \
 		  $(ARCH)\$(CONFIG)\ProtocolPluginFacade.obj \
 		  $(ARCH)\$(CONFIG)\ProxyFactory.obj \
 		  $(ARCH)\$(CONFIG)\Proxy.obj \
@@ -97,10 +99,8 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\SliceChecksumDict.obj \
 		  $(ARCH)\$(CONFIG)\SliceChecksums.obj \
 		  $(ARCH)\$(CONFIG)\SlicedData.obj \
-		  $(ARCH)\$(CONFIG)\Stats.obj \
 		  $(ARCH)\$(CONFIG)\StreamI.obj \
 		  $(ARCH)\$(CONFIG)\Stream.obj \
-	          $(ARCH)\$(CONFIG)\StringConverter.obj \
 		  $(ARCH)\$(CONFIG)\ThreadPool.obj \
 		  $(ARCH)\$(CONFIG)\TraceLevels.obj \
 		  $(ARCH)\$(CONFIG)\TraceUtil.obj \
@@ -115,7 +115,7 @@ LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\StreamTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\EndpointInfo.obj \
-		  $(ARCH)\$(CONFIG)\ConnectionInfo.obj
+		  $(ARCH)\$(CONFIG)\ConnectionInfo.obj \
 
 SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\CommunicatorF.ice \
@@ -151,8 +151,6 @@ SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\ServantLocatorF.ice \
 		  $(slicedir)\Ice\ServantLocator.ice \
 		  $(slicedir)\Ice\SliceChecksumDict.ice \
-		  $(slicedir)\Ice\StatsF.ice \
-		  $(slicedir)\Ice\Stats.ice \
 		  $(slicedir)\Ice\Version.ice \
 		  $(slicedir)\Ice\Metrics.ice \
 		  $(slicedir)\Ice\Instrumentation.ice
@@ -188,8 +186,7 @@ SRCS		= $(SRCS) \
 		  ..\ProcessF.cpp \
 		  ..\PropertiesF.cpp \
 		  ..\RouterF.cpp \
-		  ..\ServantLocatorF.cpp \
-		  ..\StatsF.cpp
+		  ..\ServantLocatorF.cpp
 
 HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
@@ -276,8 +273,6 @@ clean::
 	-del /q $(SOURCE_DIR)\ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
 	-del /q $(SOURCE_DIR)\ServantLocator.cpp $(HDIR)\ServantLocator.h
 	-del /q $(SOURCE_DIR)\SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
-	-del /q $(SOURCE_DIR)\StatsF.cpp $(HDIR)\StatsF.h
-	-del /q $(SOURCE_DIR)\Stats.cpp $(HDIR)\Stats.h
 	-del /q EndpointInfo.cpp $(headerdir)\IceSSL\EndpointInfo.h
 	-del /q ConnectionInfo.cpp $(headerdir)\IceSSL\ConnectionInfo.h
 	-del /q $(ARCH)\$(CONFIG)\*.obj

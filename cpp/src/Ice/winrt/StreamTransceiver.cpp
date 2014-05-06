@@ -9,7 +9,7 @@
 
 #include <Ice/winrt/StreamTransceiver.h>
 #include <Ice/Connection.h>
-#include <Ice/Instance.h>
+#include <Ice/ProtocolInstance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
@@ -55,21 +55,6 @@ createAsyncOperationCompletedHandler(SocketOperationCompletedHandler^ cb, Socket
 
 }
 
-string
-IceInternal::typeToString(Ice::Short type)
-{
-    switch(type)
-    {
-    case TCPEndpointType:
-        return "tcp";
-    case IceSSL::EndpointType:
-        return "ssl";
-    default:
-        assert(false);
-        return "";
-    }
-}
-
 NativeInfoPtr
 IceInternal::StreamTransceiver::getNativeInfo()
 {
@@ -105,28 +90,28 @@ IceInternal::StreamTransceiver::initialize(Buffer&, Buffer&,bool&)
         }
         catch(const Ice::LocalException& ex)
         {
-            if(_traceLevels->network >= 2)
+            if(_instance->traceLevel() >= 2)
             {
-                Trace out(_logger, _traceLevels->networkCat);
-                out << "failed to establish " << typeToString(_type) << " connection\n";
+                Trace out(_instance->logger(), _instance->traceCategory());
+                out << "failed to establish " << _instance->protocol() << " connection\n";
                 out << "local address: <not available>\n";
                 out << "remote address: " << addrToString(_connectAddr) << "\n" << ex;
             }
             throw;
         }
 
-        if(_traceLevels->network >= 1)
+        if(_instance->traceLevel() >= 1)
         {
-            Trace out(_logger, _traceLevels->networkCat);
-            out << "" << typeToString(_type) << " connection established\n" << _desc;
+            Trace out(_instance->logger(), _instance->traceCategory());
+            out << "" << _instance->protocol() << " connection established\n" << _desc;
         }
     }
     assert(_state == StateConnected);
     return SocketOperationNone;
 }
 
-void
-IceInternal::StreamTransceiver::closing(bool, const Ice::LocalException&)
+SocketOperation
+IceInternal::StreamTransceiver::closing(bool initiator, const Ice::LocalException&)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
@@ -136,10 +121,10 @@ IceInternal::StreamTransceiver::closing(bool, const Ice::LocalException&)
 void
 IceInternal::StreamTransceiver::close()
 {
-    if(_state == StateConnected && _traceLevels->network >= 1)
+    if(_state == StateConnected && _instance->traceLevel() >= 1)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "closing " << typeToString(_type) << " connection\n" << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "closing " << _instance->protocol() << " connection\n" << toString();
     }
 
     assert(_fd != INVALID_SOCKET);
@@ -156,15 +141,15 @@ IceInternal::StreamTransceiver::close()
 }
 
 SocketOperation
-IceInternal::StreamTransceiver::write(Buffer&)
+IceInternal::StreamTransceiver::write(Buffer& buf)
 {
-    return SocketOperationWrite;
+    return buf.i == buf.b.end() ? SocketOperationNone : SocketOperationWrite;
 }
 
-bool
-IceInternal::StreamTransceiver::read(Buffer&)
+SocketOperation
+IceInternal::StreamTransceiver::read(Buffer& buf, bool&)
 {
-    return SocketOperationRead;
+    return buf.i == buf.b.end() ? SocketOperationNone : SocketOperationRead;
 }
 
 bool
@@ -183,7 +168,8 @@ IceInternal::StreamTransceiver::startWrite(Buffer& buf)
             IAsyncAction^ action = safe_cast<StreamSocket^>(_fd)->ConnectAsync(
                 _connectAddr.host,
                 _connectAddr.port,
-                _type == IceSSL::EndpointType ? SocketProtectionLevel::Ssl : SocketProtectionLevel::PlainSocket);
+                _instance->type() == IceSSL::EndpointType ? SocketProtectionLevel::Ssl : 
+                SocketProtectionLevel::PlainSocket);
 #if defined(_MSC_VER) && _MSC_VER >= 1800
 #  pragma warning (default : 4973)
 #endif
@@ -255,15 +241,15 @@ IceInternal::StreamTransceiver::finishWrite(Buffer& buf)
         checkErrorCode(__FILE__, __LINE__, _write.error);
     }
 
-    if(_traceLevels->network >= 3)
+    if(_instance->traceLevel() >= 3)
     {
         int packetSize = static_cast<int>(buf.b.end() - buf.i);
         if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
         { 
             packetSize = _maxSendPacketSize;
         }
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "sent " << _write.count << " of " << packetSize << " bytes via " << typeToString(_type) << "\n"
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "sent " << _write.count << " of " << packetSize << " bytes via " << _instance->protocol() << "\n"
             << toString();
     }
     
@@ -323,15 +309,15 @@ IceInternal::StreamTransceiver::finishRead(Buffer& buf)
         checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
 
-    if(_traceLevels->network >= 3)
+    if(_instance->traceLevel() >= 3)
     {
         int packetSize = static_cast<int>(buf.b.end() - buf.i);
         if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
         {
             packetSize = _maxReceivePacketSize;
         }
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "received " << _read.count << " of " << packetSize << " bytes via " << typeToString(_type) << "\n"
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "received " << _read.count << " of " << packetSize << " bytes via " << _instance->protocol() << "\n"
             << toString();
     }
 
@@ -339,9 +325,9 @@ IceInternal::StreamTransceiver::finishRead(Buffer& buf)
 }
 
 string
-IceInternal::StreamTransceiver::type() const
+IceInternal::StreamTransceiver::protocol() const
 {
-    return "tcp";
+    return _instance->protocol();
 }
 
 string
@@ -354,7 +340,7 @@ Ice::ConnectionInfoPtr
 IceInternal::StreamTransceiver::getInfo() const
 {
     Ice::IPConnectionInfoPtr info;
-    if(_type == IceSSL::EndpointType)
+    if(_instance->type() == IceSSL::EndpointType)
     {
         info = new IceSSL::ConnectionInfo();
     }
@@ -375,14 +361,9 @@ IceInternal::StreamTransceiver::checkSendSize(const Buffer& buf, size_t messageS
     }
 }
 
-IceInternal::StreamTransceiver::StreamTransceiver(const InstancePtr& instance, 
-                                                  Ice::Short type, 
-                                                  SOCKET fd, 
-                                                  bool connected) :
+IceInternal::StreamTransceiver::StreamTransceiver(const ProtocolInstancePtr& instance, SOCKET fd, bool connected) :
     NativeInfo(fd),
-    _traceLevels(instance->traceLevels()),
-    _type(type),
-    _logger(instance->initializationData().logger),
+    _instance(instance),
     _state(connected ? StateConnected : StateNeedConnect),
     _desc(connected ? fdToString(_fd) : string())
 {
@@ -391,8 +372,8 @@ IceInternal::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
     _reader = ref new DataReader(streamSocket->InputStream);
     _reader->InputStreamOptions = InputStreamOptions::Partial;
 
-    Ice::PropertiesPtr properties = instance->initializationData().properties;
-    setTcpBufSize(_fd, properties, _logger);
+    Ice::PropertiesPtr properties = instance->properties();
+    setTcpBufSize(_fd, properties, _instance->logger());
 
     _maxSendPacketSize = streamSocket->Control->OutboundBufferSizeInBytes / 2;
     if(_maxSendPacketSize < 512)
@@ -415,7 +396,7 @@ IceInternal::StreamTransceiver::connect(const Address& addr)
 }
 
 bool
-IceInternal::StreamTransceiver::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info)
+IceInternal::StreamTransceiver::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, int count)
 {
     //
     // NOTE: It's important to only check for info->Status once as it

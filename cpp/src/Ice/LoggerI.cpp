@@ -197,7 +197,7 @@ Ice::LoggerI::write(const string& message, bool indent)
     }
     else
     {
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(ICE_OS_WINRT)
         cerr << s << endl;
 #else
         //
@@ -225,8 +225,8 @@ Ice::LoggerI::write(const string& message, bool indent)
                 // We cannot use cerr here as writing to console using cerr
                 // will do its own conversion and will corrupt the messages.
                 //
-                fprintf_s(stderr, "%s\n", UTF8ToCodePage(IceUtil::nativeToUTF8(_converter, s), 
-                                                         GetConsoleOutputCP()).c_str());
+               fprintf_s(stderr, "%s\n", UTF8ToCodePage(IceUtil::nativeToUTF8(_converter, s), 
+                                                        GetConsoleOutputCP()).c_str());
             }
             catch(const IceUtil::IllegalConversionException&)
             {

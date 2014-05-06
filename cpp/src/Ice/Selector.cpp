@@ -37,7 +37,7 @@ Selector::initialize(IceInternal::EventHandler* handler)
 {
     handler->__incRef();
     handler->getNativeInfo()->setCompletedHandler(
-        ref new SocketOperationCompletedHandler([=](int operation)
+        ref new SocketOperationCompletedHandler([=](int operation) 
                                                 {
                                                     completed(handler, static_cast<SocketOperation>(operation));
                                                 }));
@@ -88,7 +88,8 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
     }
     assert(!_events.empty());
     IceInternal::EventHandler* handler = _events.front().handler;
-    status = _events.front().status;
+    const SelectEvent& event = _events.front();
+    status = event.status;
     _events.pop_front();
     return handler;
 }

@@ -868,8 +868,12 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         try
         {
             current._ioCompleted = false;
+#ifdef ICE_OS_WINRT
+            current._handler = _selector.getNextHandler(current.operation, _threadIdleTime);
+#else
             current._handler = _selector.getNextHandler(current.operation, current._count, current._error,
                                                         _threadIdleTime);
+#endif
         }
         catch(const SelectorTimeoutException&)
         {
@@ -914,8 +918,12 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 
             try
             {
+#ifdef ICE_OS_WINRT
+                current._handler = _selector.getNextHandler(current.operation, _serverIdleTime);
+#else
                 current._handler = _selector.getNextHandler(current.operation, current._count, current._error,
                                                             _serverIdleTime);
+#endif
             }
             catch(const SelectorTimeoutException&)
             {
@@ -1086,9 +1094,11 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         current._handler->_ready = static_cast<SocketOperation>(current._handler->_ready | current.operation);
         current._handler->_started = static_cast<SocketOperation>(current._handler->_started & ~current.operation);
 
+#ifndef ICE_OS_WINRT
         AsyncInfo* info = current._handler->getNativeInfo()->getAsyncInfo(current.operation);
         info->count = current._count;
         info->error = current._error;
+#endif
 
         if(!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {

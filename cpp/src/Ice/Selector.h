@@ -46,7 +46,8 @@ class SelectorTimeoutException
 
 struct SelectEvent
 {
-    SelectEvent(IceInternal::EventHandler* handler, SocketOperation status) : handler(handler), status(status)
+    SelectEvent(IceInternal::EventHandler* handler, SocketOperation status) :
+        handler(handler), status(status)
     {
     }
 

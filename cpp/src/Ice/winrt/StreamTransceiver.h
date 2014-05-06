@@ -10,10 +10,7 @@
 #ifndef ICE_STREAM_TRANSCEIVER_H
 #define ICE_STREAM_TRANSCEIVER_H
 
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
-#include <Ice/StatsF.h>
+#include <Ice/ProtocolInstanceF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 
@@ -22,8 +19,6 @@ namespace IceInternal
 
 class StreamConnector;
 class StreamAcceptor;
-
-std::string typeToString(Ice::Short);
 
 class StreamTransceiver : public Transceiver, public NativeInfo
 {
@@ -40,37 +35,34 @@ public:
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
     
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
-    virtual SocketOperation initialize();
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&);
+    virtual SocketOperation read(Buffer&, bool&);
 
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
     virtual void finishRead(Buffer&);
 
-    virtual std::string type() const;
+    virtual std::string protocol() const;
     virtual std::string toString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const Buffer&, size_t);
 
 private:
 
-    StreamTransceiver(const InstancePtr&, Ice::Short, SOCKET, bool);
+    StreamTransceiver(const ProtocolInstancePtr&, SOCKET, bool);
     virtual ~StreamTransceiver();
 
     void connect(const Address&);
 
-    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^);
+    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, int = 0);
 
     friend class StreamConnector;
     friend class StreamAcceptor;
-
-    const TraceLevelsPtr _traceLevels;
-    const Ice::Short _type;
-    const Ice::LoggerPtr _logger;
+    
+    const ProtocolInstancePtr _instance;
     
     State _state;
     std::string _desc;

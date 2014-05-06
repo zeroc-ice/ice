@@ -11,9 +11,7 @@
 #define ICE_TCP_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
+#include <Ice/ProtocolInstanceF.h>
 #include <Ice/Connector.h>
 #include <Ice/Network.h>
 
@@ -35,14 +33,11 @@ public:
 
 private:
 
-    StreamConnector(const InstancePtr&, Ice::Short, const Address&, Ice::Int, const std::string&); 
+    StreamConnector(const ProtocolInstancePtr&, const Address&, Ice::Int, const std::string&); 
     virtual ~StreamConnector();
     friend class StreamEndpointI;
 
-    const InstancePtr _instance;
-    const Ice::Short _type;
-    const TraceLevelsPtr _traceLevels;
-    const ::Ice::LoggerPtr _logger;
+    const ProtocolInstancePtr _instance;
     const Address _addr;
     const Ice::Int _timeout;
     const std::string _connectionId;

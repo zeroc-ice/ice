@@ -15,7 +15,7 @@
 #include <Ice/Network.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
-#include <Ice/Instance.h>
+#include <Ice/ProtocolInstance.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/HashUtil.h>
 
@@ -62,265 +62,43 @@ private:
 
 }
 
-IceInternal::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Short type, const string& ho, Int po, 
-                                              Int ti, const string& conId, bool co) :
-    EndpointI(conId),
-    _instance(instance),
-    _type(type),
-    _host(ho),
-    _port(po),
+IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, Int ti,
+                                              const string& conId, bool co) :
+    IPEndpointI(instance, ho, po, conId),
     _timeout(ti),
     _compress(co)
 {
 }
 
-IceInternal::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Short type, const string& str, 
-                                              bool oaEndpoint) :
-    EndpointI(""),
-    _instance(instance),
-    _type(type),
-    _port(0),
+IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance) :
+    IPEndpointI(instance),
     _timeout(-1),
     _compress(false)
 {
-    const string delim = " \t\n\r";
-
-    string::size_type beg;
-    string::size_type end = 0;
-
-    while(true)
-    {
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
-        {
-            break;
-        }
-        
-        end = str.find_first_of(delim, beg);
-        if(end == string::npos)
-        {
-            end = str.length();
-        }
-
-        string option = str.substr(beg, end - beg);
-        if(option.length() != 2 || option[0] != '-')
-        {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "expected an endpoint option but found `" + option + "' in endpoint `" + typeToString(_type) +
-                " " + str + "'";
-            throw ex;
-        }
-
-        string argument;
-        string::size_type argumentBeg = str.find_first_not_of(delim, end);
-        if(argumentBeg != string::npos && str[argumentBeg] != '-')
-        {
-            beg = argumentBeg;
-            end = str.find_first_of(delim, beg);
-            if(end == string::npos)
-            {
-                end = str.length();
-            }
-            argument = str.substr(beg, end - beg);
-            if(argument[0] == '\"' && argument[argument.size() - 1] == '\"')
-            {
-                argument = argument.substr(1, argument.size() - 2);
-            }
-        }
-
-        switch(option[1])
-        {
-            case 'h':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "no argument provided for -h option in endpoint `" + typeToString(_type) + " " +
-                        str + "'";
-                    throw ex;
-                }
-                const_cast<string&>(_host) = argument;
-                break;
-            }
-
-            case 'p':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "no argument provided for -p option in endpoint `" + typeToString(_type) + " " + str + "'";
-                    throw ex;
-                }
-                istringstream p(argument);
-                if(!(p >> const_cast<Int&>(_port)) || !p.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "invalid port value `" + argument + "' in endpoint `" + typeToString(_type) + " " + 
-                        str + "'";
-                    throw ex;
-                }
-                else if(_port < 0 || _port > 65535)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "port value `" + argument + "' out of range in endpoint `" + typeToString(_type) + " " + 
-                        str + "'";
-                    throw ex;
-                }
-                break;
-            }
-
-            case 't':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "no argument provided for -t option in endpoint `" + typeToString(_type) + " " + str + "'";
-                    throw ex;
-                }
-                istringstream t(argument);
-                if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "invalid timeout value `" + argument + "' in endpoint `" + typeToString(_type) + " " +
-                        str + "'";
-                    throw ex;
-                }
-                break;
-            }
-
-            case 'z':
-            {
-                if(!argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "unexpected argument `" + argument + "' provided for -z option in `" + 
-                        typeToString(_type) + " " + str + "'";
-                    throw ex;
-                }
-                const_cast<bool&>(_compress) = true;
-                break;
-            }
-
-            default:
-            {
-                Ice::EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "unknown option `" + option + "' in endpoint `"+ typeToString(_type) + " " + str + "'";
-                throw ex;
-            }
-        }
-    }
-
-    if(_host.empty())
-    {
-        const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
-    }
-    else if(_host == "*")
-    {
-        if(oaEndpoint)
-        {
-            const_cast<string&>(_host) = string();
-        }
-        else
-        {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "`-h *' not valid for proxy endpoint `" + typeToString(_type) + " " + str + "'";
-            throw ex;
-        }
-    }
 }
 
-IceInternal::StreamEndpointI::StreamEndpointI(BasicStream* s, Ice::Short type) :
-    _instance(s->instance()),
-    _type(type),
-    _port(0),
+IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
+    IPEndpointI(instance, s),
     _timeout(-1),
     _compress(false)
 {
-    s->startReadEncaps();
-    s->read(const_cast<string&>(_host), false);
-    s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(_compress));
-    s->endReadEncaps();
-}
-
-void
-IceInternal::StreamEndpointI::streamWrite(BasicStream* s) const
-{
-    s->write(_type);
-    s->startWriteEncaps();
-    s->write(_host, false);
-    s->write(_port);
-    s->write(_timeout);
-    s->write(_compress);
-    s->endWriteEncaps();
-}
-
-string
-IceInternal::StreamEndpointI::toString() const
-{
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
-    ostringstream s;
-    s << "" + typeToString(_type) + "";
-    
-    if(!_host.empty())
-    {
-        s << " -h ";
-        bool addQuote = _host.find(':') != string::npos;
-        if(addQuote)
-        {
-            s << "\"";
-        }
-        s << _host;
-        if(addQuote)
-        {
-            s << "\"";
-        }
-    }
-
-    s << " -p " << _port;
-    if(_timeout != -1)
-    {
-        s << " -t " << _timeout;
-    }
-    if(_compress)
-    {
-        s << " -z";
-    }
-    return s.str();
 }
 
 EndpointInfoPtr
 IceInternal::StreamEndpointI::getInfo() const
 {
-    switch(_type)
+    switch(_instance->type())
     {
     case TCPEndpointType:
-        return new InfoI<Ice::TCPEndpointInfo>(_type, _timeout, _compress, _host, _port);
+        return new InfoI<Ice::TCPEndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
     case IceSSL::EndpointType:
-        return new InfoI<IceSSL::EndpointInfo>(_type, _timeout, _compress, _host, _port);
+        return new InfoI<IceSSL::EndpointInfo>(_instance->type(), _timeout, _compress, _host, _port);
     default:
         assert(false);
         return 0;
     }
-}
-
-Short
-IceInternal::StreamEndpointI::type() const
-{
-    return _type;
-}
-
-string
-IceInternal::StreamEndpointI::protocol() const
-{
-    return _type == TCPEndpointType ? "tcp" : "ssl";
 }
 
 Int
@@ -338,7 +116,7 @@ IceInternal::StreamEndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new StreamEndpointI(_instance, _type, _host, _port, timeout, _connectionId, _compress);
+        return new StreamEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
     }
 }
 
@@ -351,7 +129,7 @@ IceInternal::StreamEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-      return new StreamEndpointI(_instance, _type, _host, _port, _timeout, connectionId, _compress);
+      return new StreamEndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
     }
 }
 
@@ -370,7 +148,7 @@ IceInternal::StreamEndpointI::compress(bool compress) const
     }
     else
     {
-        return new StreamEndpointI(_instance, _type, _host, _port, _timeout, _connectionId, compress);
+        return new StreamEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
     }
 }
 
@@ -383,7 +161,7 @@ IceInternal::StreamEndpointI::datagram() const
 bool
 IceInternal::StreamEndpointI::secure() const
 {
-    return _type == IceSSL::EndpointType;
+    return _instance->type() == IceSSL::EndpointType;
 }
 
 TransceiverPtr
@@ -393,61 +171,49 @@ IceInternal::StreamEndpointI::transceiver(EndpointIPtr& endp) const
     return 0;
 }
 
-vector<ConnectorPtr>
-IceInternal::StreamEndpointI::connectors(Ice::EndpointSelectionType selType) const
-{
-    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), selType, _instance->preferIPv6(), true));
-}
-
-void
-IceInternal::StreamEndpointI::connectors_async(Ice::EndpointSelectionType selType,
-                                               const EndpointI_connectorsPtr& callback) const
-{
-    callback->connectors(connectors(selType));
-}
-
 AcceptorPtr
 IceInternal::StreamEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
-    StreamAcceptor* p = new StreamAcceptor(_instance, _type, _host, _port);
-    endp = new StreamEndpointI(_instance, _type, _host, p->effectivePort(), _timeout, _connectionId, _compress);
+    StreamAcceptor* p = new StreamAcceptor(_instance, _host, _port);
+    endp = createEndpoint(_host, p->effectivePort(), _connectionId);
     return p;
 }
 
-
-vector<EndpointIPtr>
-IceInternal::StreamEndpointI::expand() const
+string
+IceInternal::StreamEndpointI::options() const
 {
-    vector<EndpointIPtr> endps;
-    vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
-    if(hosts.empty())
-    {
-        endps.push_back(const_cast<StreamEndpointI*>(this));
-    }
-    else
-    {
-        for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
-        {
-            endps.push_back(new StreamEndpointI(_instance, _type, *p, _port, _timeout, _connectionId, _compress));
-        }
-    }
-    return endps;
-}
+    //
+    // WARNING: Certain features, such as proxy validation in Glacier2,
+    // depend on the format of proxy strings. Changes to toString() and
+    // methods called to generate parts of the reference string could break
+    // these features. Please review for all features that depend on the
+    // format of proxyToString() before changing this and related code.
+    //
+    ostringstream s;
 
-bool
-IceInternal::StreamEndpointI::equivalent(const EndpointIPtr& endpoint) const
-{
-    const StreamEndpointI* streamEndpointI = dynamic_cast<const StreamEndpointI*>(endpoint.get());
-    if(!streamEndpointI)
+    s << IPEndpointI::options();
+
+    if(_timeout != -1)
     {
-        return false;
+        s << " -t " << _timeout;
     }
-    return streamEndpointI->_host == _host && streamEndpointI->_port == _port;
+
+    if(_compress)
+    {
+        s << " -z";
+    }
+
+    return s.str();
 }
 
 bool
 IceInternal::StreamEndpointI::operator==(const LocalObject& r) const
 {
+    if(!IPEndpointI::operator==(r))
+    {
+        return false;
+    }
+
     const StreamEndpointI* p = dynamic_cast<const StreamEndpointI*>(&r);
     if(!p)
     {
@@ -459,27 +225,7 @@ IceInternal::StreamEndpointI::operator==(const LocalObject& r) const
         return true;
     }
 
-    if(_type != p->_type)
-    {
-        return false;
-    }
-
-    if(_host != p->_host)
-    {
-        return false;
-    }
-
-    if(_port != p->_port)
-    {
-        return false;
-    }
-
     if(_timeout != p->_timeout)
-    {
-        return false;
-    }
-
-    if(_connectionId != p->_connectionId)
     {
         return false;
     }
@@ -511,47 +257,11 @@ IceInternal::StreamEndpointI::operator<(const LocalObject& r) const
         return false;
     }
 
-    if(_type < p->_type)
-    {
-        return true;
-    }
-    else if(p->_type < _type)
-    {
-        return false;
-    }
-
-    if(_host < p->_host)
-    {
-        return true;
-    }
-    else if (p->_host < _host)
-    {
-        return false;
-    }
-
-    if(_port < p->_port)
-    {
-        return true;
-    }
-    else if(p->_port < _port)
-    {
-        return false;
-    }
-
     if(_timeout < p->_timeout)
     {
         return true;
     }
     else if(p->_timeout < _timeout)
-    {
-        return false;
-    }
-
-    if(_connectionId < p->_connectionId)
-    {
-        return true;
-    }
-    else if(p->_connectionId < _connectionId)
     {
         return false;
     }
@@ -565,35 +275,86 @@ IceInternal::StreamEndpointI::operator<(const LocalObject& r) const
         return false;
     }
 
-    return false;
+    return IPEndpointI::operator<(r);
 }
 
-Ice::Int
-IceInternal::StreamEndpointI::hashInit() const
+void
+IceInternal::StreamEndpointI::streamWriteImpl(BasicStream* s) const
 {
-    Ice::Int h = 5381;
-    hashAdd(h, _type);
-    hashAdd(h, _host);
-    hashAdd(h, _port);
+    IPEndpointI::streamWriteImpl(s);
+    s->write(_timeout);
+    s->write(_compress);
+}
+
+void
+IceInternal::StreamEndpointI::hashInit(Ice::Int& h) const
+{
+    IPEndpointI::hashInit(h);
     hashAdd(h, _timeout);
-    hashAdd(h, _connectionId);
     hashAdd(h, _compress);
-    return h;
 }
 
-vector<ConnectorPtr>
-IceInternal::StreamEndpointI::connectors(const vector<Address>& addresses) const
+bool
+IceInternal::StreamEndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
-    vector<ConnectorPtr> connectors;
-    for(unsigned int i = 0; i < addresses.size(); ++i)
+    if(IPEndpointI::checkOption(option, argument, endpoint))
     {
-        connectors.push_back(new StreamConnector(_instance, _type, addresses[i], _timeout, _connectionId));
+        return true;
     }
-    return connectors;
+
+    switch(option[1])
+    {
+    case 't':
+    {
+        if(argument.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for -t option in endpoint " + endpoint;
+            throw ex;
+        }
+        istringstream t(argument);
+        if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+            throw ex;
+        }
+        return true;
+    }
+
+    case 'z':
+    {
+        if(!argument.empty())
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
+            throw ex;
+        }
+        const_cast<bool&>(_compress) = true;
+        return true;
+    }
+
+    default:
+    {
+        return false;
+    }
+    }
 }
 
-IceInternal::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instance, Ice::Short type)
-    : _instance(instance), _type(type)
+ConnectorPtr 
+IceInternal::StreamEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
+{
+    // TODO: Add support for network proxies?
+    return new StreamConnector(_instance, address, _timeout, _connectionId);
+}
+
+IPEndpointIPtr 
+IceInternal::StreamEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
+{
+    return new StreamEndpointI(_instance, host, port, _timeout, connectionId, _compress);
+}
+
+IceInternal::StreamEndpointFactory::StreamEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance)
 {
 }
 
@@ -604,29 +365,37 @@ IceInternal::StreamEndpointFactory::~StreamEndpointFactory()
 Short
 IceInternal::StreamEndpointFactory::type() const
 {
-    return _type;
+    return _instance->type();
 }
 
 string
 IceInternal::StreamEndpointFactory::protocol() const
 {
-    return typeToString(_type);
+    return _instance->protocol();
 }
 
 EndpointIPtr
-IceInternal::StreamEndpointFactory::create(const std::string& str, bool oaEndpoint) const
+IceInternal::StreamEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 {
-    return new StreamEndpointI(_instance, _type, str, oaEndpoint);
+    IPEndpointIPtr endpt = new StreamEndpointI(_instance);
+    endpt->initWithOptions(args, oaEndpoint);
+    return endpt;
 }
 
 EndpointIPtr
 IceInternal::StreamEndpointFactory::read(BasicStream* s) const
 {
-    return new StreamEndpointI(s, _type);
+    return new StreamEndpointI(_instance, s);
 }
 
 void
 IceInternal::StreamEndpointFactory::destroy()
 {
     _instance = 0;
+}
+
+EndpointFactoryPtr 
+IceInternal::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
+{
+    return new StreamEndpointFactory(instance);
 }

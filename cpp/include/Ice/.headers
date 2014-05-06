@@ -21,9 +21,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DynamicLibraryF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Endpoint.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointF.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointFactory.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointFactoryF.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointIF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointTypes.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Exception.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\FacetMap.h \
@@ -35,7 +32,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\GCShared.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Handle.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Ice.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IconvStringConverter.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Identity.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ImplicitContext.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ImplicitContextF.h \
@@ -59,7 +55,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MetricsFunctional.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MetricsObserverI.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\NativePropertiesAdmin.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\NetworkF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Object.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectAdapter.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectAdapterF.h \
@@ -80,8 +75,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PropertiesAdmin.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PropertiesF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Protocol.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProtocolPluginFacade.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProtocolPluginFacadeF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Proxy.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProxyF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProxyFactoryF.h \
@@ -103,7 +96,5 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Stream.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamHelpers.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StringConverter.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UndefSysMacros.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UserExceptionFactory.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Version.h \

@@ -42,7 +42,7 @@ CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
 LIBS		= $(LIBS) icessl$(LIBSUFFIX).lib icews$(LIBSUFFIX).lib
 !else
-LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
+LD_TESTFLAGS	= icews.lib $(LD_DLLFLAGS) /export:dllMain
 !endif
 
 !if "$(GENERATE_PDB)" == "yes"

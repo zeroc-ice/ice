@@ -687,7 +687,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
                                            const IPEndpointIPtr& endpoint)
 {
     return endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), selType,
-                                             _instance->preferIPv6(), false));
+                                             _instance->preferIPv6(), false), _instance->networkProxy());
 }
 
 void

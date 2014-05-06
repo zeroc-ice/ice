@@ -11,8 +11,7 @@
 #include <Ice/winrt/StreamTransceiver.h>
 #include <Ice/winrt/StreamEndpointI.h>
 
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
+#include <Ice/ProtocolInstance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
@@ -24,24 +23,24 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::StreamConnector::connect()
 {
-    if(_traceLevels->network >= 2)
+    if(_instance->traceLevel() >= 2)
     {
-        Trace out(_logger, _traceLevels->networkCat);
-        out << "trying to establish " << typeToString(_type) << " connection to " << toString();
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "trying to establish " << _instance->protocol() << " connection to " << toString();
     }
 
     try
     {
-        TransceiverPtr transceiver = new StreamTransceiver(_instance, _type, createSocket(false, _addr), false);
+        TransceiverPtr transceiver = new StreamTransceiver(_instance, createSocket(false, _addr), false);
         dynamic_cast<StreamTransceiver*>(transceiver.get())->connect(_addr);
         return transceiver;
     }
     catch(const Ice::LocalException& ex)
     {
-        if(_traceLevels->network >= 2)
+        if(_instance->traceLevel() >= 2)
         {
-            Trace out(_logger, _traceLevels->networkCat);
-            out << "failed to establish " << typeToString(_type) << " connection to " << toString() << "\n" << ex;
+            Trace out(_instance->logger(), _instance->traceCategory());
+            out << "failed to establish " << _instance->protocol() << " connection to " << toString() << "\n" << ex;
         }
         throw;
     }
@@ -50,7 +49,7 @@ IceInternal::StreamConnector::connect()
 Short
 IceInternal::StreamConnector::type() const
 {
-    return _type;
+    return _instance->type();
 }
 
 string
@@ -68,7 +67,7 @@ IceInternal::StreamConnector::operator==(const Connector& r) const
         return false;
     }
 
-    if(_type != p->_type)
+    if(type() != p->type())
     {
         return false;
     }
@@ -106,11 +105,11 @@ IceInternal::StreamConnector::operator<(const Connector& r) const
         return type() < r.type();
     }
 
-    if(_type < p->_type)
+    if(type() < p->type())
     {
         return true;
     }
-    else if(p->_type < _type)
+    else if(p->type() < type())
     {
         return false;
     }
@@ -135,12 +134,9 @@ IceInternal::StreamConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) < 0;
 }
 
-IceInternal::StreamConnector::StreamConnector(const InstancePtr& instance, Ice::Short type, const Address& addr, 
+IceInternal::StreamConnector::StreamConnector(const ProtocolInstancePtr& instance, const Address& addr, 
                                               Ice::Int timeout, const string& connectionId) :
     _instance(instance),
-    _type(type),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->initializationData().logger),
     _addr(addr),
     _timeout(timeout),
     _connectionId(connectionId)

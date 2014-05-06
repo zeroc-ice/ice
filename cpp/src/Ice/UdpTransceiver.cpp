@@ -157,13 +157,6 @@ IceInternal::UdpTransceiver::close()
 }
 
 
-#ifdef ICE_OS_WINRT
-SocketOperation
-IceInternal::UdpTransceiver::write(Buffer&)
-{
-    return SocketOperationWrite;
-}
-#else
 SocketOperation
 IceInternal::UdpTransceiver::write(Buffer& buf)
 {
@@ -171,6 +164,9 @@ IceInternal::UdpTransceiver::write(Buffer& buf)
     {
         return SocketOperationNone;
     }
+#ifdef ICE_OS_WINRT
+    return SocketOperationWrite;
+#else
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET && _state >= StateConnected);
 
@@ -242,16 +238,9 @@ repeat:
     assert(ret == static_cast<ssize_t>(buf.b.size()));
     buf.i = buf.b.end();
     return SocketOperationNone;
-}
 #endif
-
-#ifdef ICE_OS_WINRT
-SocketOperation
-IceInternal::UdpTransceiver::read(Buffer&, bool&)
-{
-    return SocketOperationRead;
 }
-#else
+
 SocketOperation
 IceInternal::UdpTransceiver::read(Buffer& buf, bool&)
 {
@@ -259,6 +248,9 @@ IceInternal::UdpTransceiver::read(Buffer& buf, bool&)
     {
         return SocketOperationNone;
     }
+#ifdef ICE_OS_WINRT
+    return SocketOperationRead;
+#else
 
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET);
@@ -358,8 +350,8 @@ repeat:
     buf.b.resize(ret);
     buf.i = buf.b.end();
     return SocketOperationNone;
-}
 #endif
+}
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
