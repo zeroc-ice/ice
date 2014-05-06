@@ -73,6 +73,7 @@ tests = [
     ("Ice/admin", ["core", "noipv6"]),
     ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nomingw", "nosocks"]),
     ("Ice/enums", ["once"]),
+    ("Ice/logger", ["once"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc90", "nomingw", "nomx"]),
     ("IceBox/admin", ["core", "noipv6", "novc90", "nomingw", "nomx"]),

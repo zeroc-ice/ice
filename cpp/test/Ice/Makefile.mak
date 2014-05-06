@@ -51,7 +51,8 @@ SUBDIRS		= $(SUBDIRS) \
 		  servantLocator \
 		  defaultServant \
 		  interceptor \
-		  defaultValue
+		  defaultValue \
+		  logger
 !endif
 
 

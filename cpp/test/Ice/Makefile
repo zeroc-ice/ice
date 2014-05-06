@@ -48,7 +48,8 @@ SUBDIRS		= proxy \
 		  admin \
 		  metrics \
 		  enums \
-		  echo
+		  echo \
+		  logger
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

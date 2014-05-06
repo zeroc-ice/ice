@@ -1014,7 +1014,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 _initData.logger = getProcessLogger();
                 if(LoggerIPtr::dynamicCast(_initData.logger))
                 {
-                    _initData.logger = new LoggerI("", "", logStdErrConvert, _stringConverter);
+                    _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), "", 
+                                                   logStdErrConvert, _stringConverter);
                 }
             }
         }

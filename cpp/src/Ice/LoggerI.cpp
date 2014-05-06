@@ -65,7 +65,7 @@ UTF8ToCodePage(const string& in, int codePage)
             int wlength = 0;
             do
             {
-                size == 0 ? 2 * in.size() : 2 * size;
+                size = size == 0 ? 2 * in.size() : 2 * size;
                 wbuffer.reset(new wchar_t[size]);
                 wlength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, in.c_str(), -1, wbuffer.get(), size);
             }
@@ -88,8 +88,8 @@ UTF8ToCodePage(const string& in, int codePage)
             int length = 0;
             do
             {
-                size == 0 ? wlength + 2 : 2 * size;
-                buffer.reset(new char[length]);
+                size = size == 0 ? wlength + 2 : 2 * size;
+                buffer.reset(new char[size]);
                 length = WideCharToMultiByte(codePage, conversionFlags, wbuffer.get(), wlength, buffer.get(), size, 0, 0);
             }
             while(length == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
@@ -207,7 +207,12 @@ Ice::LoggerI::write(const string& message, bool indent)
         //
         if(!_convert)
         {
-            cerr << s << endl;
+            //
+            // Use fprintf_s to avoid encoding conversion when stderr is connected
+            // to Windows console. When _convert is set to false we always output
+            // UTF8 encoded messages.
+            //
+            fprintf_s(stderr, "%s\n", IceUtil::nativeToUTF8(_converter, s).c_str());
         }
         else
         {

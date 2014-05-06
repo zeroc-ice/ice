@@ -38,8 +38,6 @@ Router.cpp
 ServantLocatorF.cpp
 ServantLocator.cpp
 SliceChecksumDict.cpp
-StatsF.cpp
-Stats.cpp
 Version.cpp
 BuiltinSequences.h
 CommunicatorF.h
@@ -78,6 +76,4 @@ Router.h
 ServantLocatorF.h
 ServantLocator.h
 SliceChecksumDict.h
-StatsF.h
-Stats.h
 Version.h
