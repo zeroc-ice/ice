@@ -444,7 +444,8 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 
     if(_cp == CP_UTF8)
     {
-        target.insert(0, reinterpret_cast<const char*>(sourceStart), sourceEnd - sourceStart);
+        string tmp(reinterpret_cast<const char*>(sourceStart), sourceEnd - sourceStart);
+        tmp.swap(target);
         return;
     }
 
