@@ -33,6 +33,9 @@ private:
     const Demo::DerivedPrinterPtr _derivedPrinter;
 };
 
+//
+// Virtual inheritance because we plan to reuse this implementation in DerivedPrinterI
+//
 class PrinterI : virtual public Demo::Printer
 {
 public:
@@ -40,14 +43,14 @@ public:
     virtual void printBackwards(const Ice::Current&);
 };
 
-class DerivedPrinterI : virtual public Demo::DerivedPrinter, virtual public PrinterI
+class DerivedPrinterI : public Demo::DerivedPrinter, public PrinterI
 {
 public:
 
     virtual void printUppercase(const Ice::Current&);
 };
 
-class ClientPrinterI : virtual public Demo::ClientPrinter, virtual public PrinterI
+class ClientPrinterI : public Demo::ClientPrinter, public PrinterI
 {
 };
 

@@ -36,7 +36,7 @@ namespace Filesystem
     };
     typedef IceUtil::Handle<NodeI> NodeIPtr;
 
-    class FileI : virtual public File, virtual public NodeI
+    class FileI : public File, public NodeI
     {
     public:
 
@@ -51,7 +51,7 @@ namespace Filesystem
     };
     typedef IceUtil::Handle<FileI> FileIPtr;
 
-    class DirectoryI : virtual public Directory, virtual public NodeI
+    class DirectoryI : public Directory, public NodeI
     {
     public:
 

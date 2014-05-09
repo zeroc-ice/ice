@@ -12,7 +12,7 @@
 
 #include <Printer.h>
 
-class PrinterI : virtual public Ice::Blobject
+class PrinterI : public Ice::Blobject
 {
 public:
 

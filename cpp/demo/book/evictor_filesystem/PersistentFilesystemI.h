@@ -17,7 +17,7 @@
 namespace Filesystem
 {
 
-class FileI : virtual public PersistentFile
+class FileI : public PersistentFile
 {
 public:
 
@@ -37,7 +37,7 @@ private:
     IceUtil::Mutex _mutex;
 };
 
-class DirectoryI : virtual public PersistentDirectory
+class DirectoryI : public PersistentDirectory
 {
 public:
 
@@ -60,7 +60,7 @@ public:
     IceUtil::Mutex _mutex;
 };
 
-class NodeFactory : virtual public Ice::ObjectFactory
+class NodeFactory : public Ice::ObjectFactory
 {
 public:
 

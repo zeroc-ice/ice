@@ -13,7 +13,7 @@
 #include <Hello.h>
 #include <WorkQueue.h>
 
-class HelloI : virtual public Demo::Hello
+class HelloI : public Demo::Hello
 {
 public:
 

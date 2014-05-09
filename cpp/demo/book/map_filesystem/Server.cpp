@@ -17,7 +17,7 @@ using namespace std;
 using namespace Filesystem;
 using namespace FilesystemDB;
 
-class FilesystemApp : public virtual Ice::Application
+class FilesystemApp : public Ice::Application
 {
 public:
 

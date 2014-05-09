@@ -13,7 +13,7 @@
 using namespace std;
 using namespace Filesystem;
 
-class FilesystemApp : virtual public Ice::Application
+class FilesystemApp : public Ice::Application
 {
 public:
 
