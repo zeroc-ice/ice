@@ -15,7 +15,6 @@
 #ifdef _WIN32
 #  include <IceUtil/StringUtil.h>
 #  include <IceUtil/ScopedArray.h>
-#  include <IceUtil/StringConverter.h>
 #endif
 
 #include <Ice/LocalException.h>
@@ -47,70 +46,16 @@ public:
 
 Init init;
 
-#ifdef _WIN32
-string
-UTF8ToCodePage(const string& in, int codePage)
-{
-    string out;
-    if(!in.empty())
-    {
-        if(CP_UTF8 == codePage)
-        {
-            out = in;
-        }
-        else
-        {
-            IceUtil::ScopedArray<wchar_t> wbuffer;
-            int size = 0;
-            int wlength = 0;
-            do
-            {
-                size = size == 0 ? 2 * in.size() : 2 * size;
-                wbuffer.reset(new wchar_t[size]);
-                wlength = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, in.c_str(), -1, wbuffer.get(), size);
-            }
-            while(wlength == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-
-            if(wlength == 0)
-            {
-                throw IceUtil::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
-            }
-
-            //
-            // WC_ERR_INVALID_CHARS conversion flag is only supported with 65001 (UTF-8) and
-            // 54936 (GB18030 Simplified Chinese)
-            //
-            DWORD conversionFlags = (codePage == 65001 || codePage == 54936) ? WC_ERR_INVALID_CHARS : 0;
-
-            IceUtil::ScopedArray<char> buffer;
-
-            size = 0;
-            int length = 0;
-            do
-            {
-                size = size == 0 ? wlength + 2 : 2 * size;
-                buffer.reset(new char[size]);
-                length = WideCharToMultiByte(codePage, conversionFlags, wbuffer.get(), wlength, buffer.get(), size, 0, 0);
-            }
-            while(length == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-
-            if(!length)
-            {
-                throw IceUtil::IllegalConversionException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());;
-            }
-            out.assign(buffer.get(), length);
-        }
-    }
-    return out;
-}
-#endif
-
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file, 
                       bool convert, const IceUtil::StringConverterPtr& converter) :
     _convert(convert),
     _converter(converter)
+#ifdef _WIN32
+    , _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP()))
+#endif
+
 {
     if(!prefix.empty())
     {
@@ -127,7 +72,6 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
         }
     }
 }
-
 
 Ice::LoggerI::~LoggerI()
 {
@@ -218,20 +162,19 @@ Ice::LoggerI::write(const string& message, bool indent)
         {
             try
             {
-                //
-                // First we convert the message to UTF8 using nativeToUTF8
-                // then we convert the message to the console code page
-                // using UTF8ToCodePage.
-                //
-                // nativeToUTF8 doesn't do any conversion if the converter is
-                // null likewise UTF8ToCodePage doesn't do any conversion if
-                // the code page is UTF8.
-                //
+                // Convert message to UTF-8
+                string u8s = IceUtil::nativeToUTF8(_converter, s);
+                
+                // Then from UTF-8 to console CP
+                string consoleString;
+                _consoleConverter->fromUTF8(reinterpret_cast<const Byte*>(u8s.data()),
+                                            reinterpret_cast<const Byte*>(u8s.data() + u8s.size()), 
+                                            consoleString);
+
                 // We cannot use cerr here as writing to console using cerr
                 // will do its own conversion and will corrupt the messages.
                 //
-               fprintf_s(stderr, "%s\n", UTF8ToCodePage(IceUtil::nativeToUTF8(_converter, s), 
-                                                        GetConsoleOutputCP()).c_str());
+                fprintf_s(stderr, "%s\n", consoleString.c_str());
             }
             catch(const IceUtil::IllegalConversionException&)
             {

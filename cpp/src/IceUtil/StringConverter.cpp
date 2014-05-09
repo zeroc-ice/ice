@@ -442,6 +442,12 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
         return;
     }
 
+    if(_cp == CP_UTF8)
+    {
+        target.insert(0, reinterpret_cast<const char*>(sourceStart), sourceEnd - sourceStart);
+        return;
+    }
+
     //
     // First convert to wstring (UTF-16)
     //

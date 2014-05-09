@@ -41,6 +41,11 @@ private:
     IceUtilInternal::ofstream _out;
 
     std::string _file;
+
+#ifdef _WIN32
+    const IceUtil::StringConverterPtr _consoleConverter;
+#endif
+
 };
 
 typedef IceUtil::Handle<LoggerI> LoggerIPtr;
