@@ -14,12 +14,10 @@ using namespace std;
 
 //
 // The servant implements the Slice interface Demo::Props as well as the
-// native callback class Ice::PropertiesAdminUpdateCallback. Since both
-// base classes inherit from IceUtil::Shared, the servant must use
-// virtual inheritance.
+// native callback class Ice::PropertiesAdminUpdateCallback. 
 //
-class PropsI : virtual public Demo::Props,
-               virtual public Ice::PropertiesAdminUpdateCallback,
+class PropsI : public Demo::Props,
+               public Ice::PropertiesAdminUpdateCallback,
                IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
