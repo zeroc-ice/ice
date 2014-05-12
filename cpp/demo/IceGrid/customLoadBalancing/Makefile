@@ -36,19 +36,19 @@ SLICE_SRCS	= Pricing.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-LINKWITH	:= -lIceGrid $(BZIP2_RPATH_LINK) -lGlacier2 -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 $(LINKWITH)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LINKWITH)
 
 $(LIBFILENAME): $(POBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(POBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(POBJS),-lIceGrid -lGlacier2 $(LINKWITH))
 
 $(SONAME): $(LIBFILENAME)
 	rm -f $@

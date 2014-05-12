@@ -316,11 +316,11 @@ ifeq ($(SLICE_LIBS),)
 endif
 
 ifeq ($(ICESSL_LIBS),)
-    ICESSL_LIBS         = -lIceSSL $(LIBS)
+    ICESSL_LIBS         = -lIceSSL
 endif
 
 ifeq ($(ICEWS_LIBS),)
-    ICEWS_LIBS          = -lIceWS $(LIBS)
+    ICEWS_LIBS          = -lIceWS
 endif
 
 EVERYTHING		= all depend clean install

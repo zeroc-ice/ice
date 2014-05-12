@@ -34,7 +34,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(OPENSSL_RPATH_LINK) $(LINKWITH))
+	$(call mktest,$@,$(COBJS),$(LINKWITH))
 
 $(SERVER): $(SOBJS)
 	rm -f $@

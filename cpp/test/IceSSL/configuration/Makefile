@@ -35,10 +35,10 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(OPENSSL_RPATH_LINK) $(ICESSL_LIBS))
+	$(call mktest,$@,$(COBJS),$(ICESSL_LIBS) $(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(OPENSSL_RPATH_LINK) $(ICESSL_LIBS))
+	$(call mktest,$@,$(SOBJS),$(ICESSL_LIBS) $(LIBS))
 
 include .depend

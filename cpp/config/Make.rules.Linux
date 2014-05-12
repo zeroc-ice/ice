@@ -150,6 +150,7 @@ ifneq ($(NPTL_LIB),)
     BASELIBS		:= $(NPTL_LIB) $(BASELIBS)
 endif
 
+ICESSL_LIBS             = $(OPENSSL_RPATH_LINK) -lIceSSL
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = -lrt
