@@ -63,7 +63,13 @@
                         <CheckBox x:Name="chkLoop" Content="Run In A Loop" Margin="10, 0, 0, 0"/>
                         <CheckBox x:Name="chkSerialize" Content="Enable Serialize Mode" Margin="10, 0, 0, 0"/>
                         <CheckBox x:Name="chkIPv6" Content="Use IPv6" Margin="10, 0, 0, 0"/>
-                        <CheckBox x:Name="chkSSL" Content="Enable SSL" Margin="10, 0, 0, 0"/>
+                        <TextBlock Text="Protocol" Margin="10, 0, 0, 0" VerticalAlignment="Center" Style="{StaticResource BasicTextStyle}" FontSize="16"/>
+                        <ComboBox x:Name="protocol" SelectedIndex="0" Margin="10, 0, 0, 0">
+                            <ComboBoxItem Name="tcp">tcp</ComboBoxItem>
+                            <ComboBoxItem Name="ssl">ssl</ComboBoxItem>
+                            <ComboBoxItem Name="ws">ws</ComboBoxItem>
+                            <ComboBoxItem Name="wss">wss</ComboBoxItem>
+                        </ComboBox>
                     </StackPanel>
                 </Border>
             </Grid>

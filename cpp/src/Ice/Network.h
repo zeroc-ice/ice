@@ -182,6 +182,7 @@ public:
     void completed(SocketOperation operation);
 #elif defined(ICE_OS_WINRT)
     virtual void setCompletedHandler(SocketOperationCompletedHandler^) = 0;
+    void completed(SocketOperation operation);
 #endif
 
 protected:
@@ -191,6 +192,8 @@ protected:
 #if defined(ICE_USE_IOCP)
     HANDLE _handle;
     ULONG_PTR _key;
+#elif defined(ICE_OS_WINRT)
+    SocketOperationCompletedHandler^ _completedHandler;
 #endif
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;

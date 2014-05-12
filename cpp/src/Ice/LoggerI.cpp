@@ -52,7 +52,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
                       bool convert, const IceUtil::StringConverterPtr& converter) :
     _convert(convert),
     _converter(converter)
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
     , _consoleConverter(new IceUtil::WindowsStringConverter(GetConsoleOutputCP()))
 #endif
 

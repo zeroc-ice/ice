@@ -21,11 +21,17 @@ IceWS::AcceptorI::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
 IceInternal::AsyncInfo*
 IceWS::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)
 {
     return _delegate->getNativeInfo()->getAsyncInfo(status);
+}
+#elif defined(ICE_OS_WINRT)
+void 
+IceWS::AcceptorI::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
+{
+    _delegate->getNativeInfo()->setCompletedHandler(handler);
 }
 #endif
 
@@ -41,7 +47,7 @@ IceWS::AcceptorI::listen()
     _delegate->listen();
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 void
 IceWS::AcceptorI::startAccept()
 {

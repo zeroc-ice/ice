@@ -19,7 +19,7 @@
 #include <Ice/Base64.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/StringUtil.h>
-
+  
 #include <IceUtil/DisableWarnings.h>
 
 #include <stdint.h>
@@ -123,6 +123,47 @@ Long nlltoh(const Byte* src)
     return v;
 }
 
+Short htons(Short v)
+{
+    Short result;
+    Byte* dest = reinterpret_cast<Byte*>(&result);
+
+    //
+    // Transfer a short in network (big-endian) order.
+    //
+#ifdef ICE_BIG_ENDIAN
+    const Byte* src = reinterpret_cast<const Byte*>(&v);
+    *dest++ = *src++;
+    *dest = *src;
+#else
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Short) - 1;
+    *dest++ = *src--;
+    *dest = *src;
+#endif
+    return result;
+}
+
+Short ntohs(Short value)
+{
+    const Byte* src = reinterpret_cast<Byte*>(&value);
+    Short v;
+
+    //
+    // Extract a 64-bit integer in network (big-endian) order.
+    //
+#ifdef ICE_BIG_ENDIAN
+    Byte* dest = reinterpret_cast<Byte*>(&v);
+    *dest++ = *src++;
+    *dest = *src;
+#else
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Short) - 1;
+    *dest-- = *src++;
+    *dest = *src;
+#endif
+
+    return v;
+}
+
 }
 
 NativeInfoPtr
@@ -131,11 +172,17 @@ IceWS::TransceiverI::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
 AsyncInfo*
 IceWS::TransceiverI::getAsyncInfo(SocketOperation status)
 {
     return _delegate->getNativeInfo()->getAsyncInfo(status);
+}
+#elif defined(ICE_OS_WINRT)
+void 
+IceWS::TransceiverI::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
+{
+    _delegate->getNativeInfo()->setCompletedHandler(handler);
 }
 #endif
 
@@ -539,7 +586,7 @@ IceWS::TransceiverI::read(Buffer& buf, bool& hasMoreData)
     return s;
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
 IceWS::TransceiverI::startWrite(Buffer& buf)
 {
@@ -552,7 +599,7 @@ IceWS::TransceiverI::startWrite(Buffer& buf)
         }
         else
         {
-            return _delegate->startWrite(buf);
+            return _delegate->startWrite(_writeBuffer);
         }
     }
 

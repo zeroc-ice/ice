@@ -14,7 +14,6 @@ top_srcdir	= ..
 !if "$(WINRT)" == "yes"
 SUBDIRS		= IceUtil\winrt \
 		  Ice\winrt \
-		  IceWS\winrt \
 		  Glacier2Lib\winrt \
 		  IceStormLib\winrt \
 		  IceGridLib\winrt

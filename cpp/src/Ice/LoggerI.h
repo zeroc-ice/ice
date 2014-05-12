@@ -42,7 +42,7 @@ private:
 
     std::string _file;
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
     const IceUtil::StringConverterPtr _consoleConverter;
 #endif
 

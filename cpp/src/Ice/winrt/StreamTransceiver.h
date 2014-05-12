@@ -76,7 +76,6 @@ private:
     Windows::Storage::Streams::DataReader^ _reader;
     Windows::Storage::Streams::DataWriter^ _writer;
 
-    SocketOperationCompletedHandler^ _completedHandler;
     Windows::Foundation::AsyncOperationCompletedHandler<unsigned int>^ _readOperationCompletedHandler;
     Windows::Foundation::AsyncOperationCompletedHandler<unsigned int>^ _writeOperationCompletedHandler;
 };

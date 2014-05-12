@@ -71,10 +71,22 @@ enum TestConfigType { TestConfigTypeClient, TestConfigTypeServer, TestConfigType
 struct TestConfig
 {
     TestConfigType type;
-    bool ssl;
+    string protocol;
     bool serialize;
     bool ipv6;
 };
+
+bool 
+configUseWS(const TestConfig& config)
+{
+    return config.protocol == "ws" || config.protocol == "wss";
+}
+
+bool 
+configUseSSL(const TestConfig& config)
+{
+    return config.protocol == "ssl" || config.protocol == "wss";
+}
 
 class Runnable : public IceUtil::Thread, public Test::MainHelper
 {
@@ -161,10 +173,7 @@ public:
             args.push_back("--Ice.ThreadPool.Server.SizeWarn=0");
         }
 
-        if(_config.ssl)
-        {
-            args.push_back("--Ice.Default.Protocol=ssl");
-        }
+        args.push_back("--Ice.Default.Protocol=" + _config.protocol);
 
         char** argv = new char*[args.size() + 1];
         for(unsigned int i = 0; i < args.size(); ++i)
@@ -285,8 +294,51 @@ private:
 };
 typedef IceUtil::Handle<Runnable> RunnablePtr;
 
+bool 
+isIn(const string s[], const string& name)
+{
+    for(int i = 0; i < sizeof(s); ++i)
+    {
+        if(s[i] == name)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static const string noSSL[] =
+{
+    "udp",
+    "metrics"
+};
+
+static const string noWS[] =
+{
+    "metrics"
+};
+
+static const string noIPv6[] =
+{
+    "metrics"
+};
+
 struct TestCase
 {
+    TestCase(const string& module, const string& name, const char* client, const char* server, 
+             const char* serverAMD = 0, const char* collocated = 0) :
+        name(module + "\\" + name),
+        prefix(module + "_" + name + "_"),
+        client(client),
+        server(server),
+        serverAMD(serverAMD),
+        collocated(collocated),
+        sslSupport(!isIn(noSSL, name)),
+        ipv6Support(!isIn(noIPv6, name)),
+        wsSupport(!isIn(noWS, name))
+    {
+    }
+
     string name;
     string prefix;
     const char* client;
@@ -295,35 +347,35 @@ struct TestCase
     const char* collocated;
     bool sslSupport;
     bool ipv6Support;
+    bool wsSupport;
 };
 
-}
 static const TestCase allTest[] =
 {
-    {"Ice\\adapterDeactivation", "Ice_adapterDeactivation_", "client.dll", "server.dll", 0, "collocated.dll", true, 
-     true },
-    {"Ice\\ami", "Ice_ami_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\binding", "Ice_binding_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\dispatcher", "Ice_dispatcher_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\exceptions", "Ice_exceptions_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true, true },
-    {"Ice\\facets", "Ice_facets_", "client.dll", "server.dll", 0, "collocated.dll", true, true },
-    {"Ice\\hold", "Ice_hold_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\info", "Ice_info_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\inheritance", "Ice_inheritance_", "client.dll", "server.dll", 0, "collocated.dll", true, true },
-    {"Ice\\invoke", "Ice_invoke_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\location", "Ice_location_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\objects", "Ice_objects_", "client.dll", "server.dll", 0, "collocated.dll", true, true },
-    {"Ice\\operations", "Ice_operations_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true, true },
-    {"Ice\\proxy", "Ice_proxy_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll", true, true },
-    {"Ice\\retry", "Ice_retry_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\stream", "Ice_stream_", "client.dll", 0, 0, 0, true, true },
-    {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0, false, true },
-    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0, true, true },
-    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0, false, false },
-    {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0, true, true },
-    {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0, true, true }
+    TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", 0, "collocated.dll"),
+    TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", 0, "collocated.dll"),
+    TestCase("Ice", "ami", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "binding", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "dispatcher", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "exceptions", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"),
+    TestCase("Ice", "facets", "client.dll", "server.dll", 0, "collocated.dll"),
+    TestCase("Ice", "hold", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "info", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "inheritance", "client.dll", "server.dll", 0, "collocated.dll"),
+    TestCase("Ice", "invoke", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "location", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "objects", "client.dll", "server.dll", 0, "collocated.dll"),
+    TestCase("Ice", "operations", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"),
+    TestCase("Ice", "proxy", "client.dll", "server.dll", "serveramd.dll", "collocated.dll"),
+    TestCase("Ice", "retry", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "stream", "client.dll", 0, 0, 0),
+    TestCase("Ice", "timeout", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "udp", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "hash", "client.dll", 0, 0, 0),
+    TestCase("Ice", "metrics", "client.dll", "server.dll", "serveramd.dll", 0),
+    TestCase("Ice", "optional", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "admin", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "enums", "client.dll", "server.dll", 0, 0),
 };
 
 class TestRunner : public IceUtil::Thread
@@ -339,7 +391,11 @@ public:
     {
         try
         {
-            if(_config.ssl && !_test.sslSupport)
+            if(configUseWS(_config) && !_test.wsSupport)
+            {
+                printLineToConsoleOutput("**** test " + _test.name + " not supported with WS");   
+            }
+            else if(configUseSSL(_config) && !_test.sslSupport)
             {
                 printLineToConsoleOutput("**** test " + _test.name + " not supported with SSL");   
             }
@@ -347,7 +403,7 @@ public:
             {
                 printLineToConsoleOutput("**** test " + _test.name + " not supported with IPv6");
             }
-            else if(_config.ssl && _config.ipv6)
+            else if(configUseSSL(_config) && _config.ipv6)
             {
                 printLineToConsoleOutput("**** test " + _test.name + " not supported with IPv6 SSL");
             }
@@ -377,7 +433,7 @@ public:
                 //
                 // Don't run collocated tests with SSL as there isn't SSL server side.
                 //
-                if(_test.collocated && !_config.ssl)
+                if(_test.collocated && !configUseSSL(_config))
                 {
                     printLineToConsoleOutput("*** running collocated test " + _test.name);
                     runClientTest(_test.collocated, true);
@@ -409,7 +465,7 @@ public:
     runClientServerTest(const string& server, const string& client)
     {
         RunnablePtr serverRunable;
-        if(!_config.ssl)
+        if(!configUseSSL(_config))
         {
             TestConfig svrConfig = _config;
             svrConfig.type = TestConfigTypeServer;
@@ -464,6 +520,7 @@ private:
 
 typedef IceUtil::Handle<TestRunner> TestRunnerPtr;
 
+}
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -545,8 +602,9 @@ MainPage::btnRun_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventA
 void 
 MainPage::runSelectedTest()
 {
+    static const string protocols[] = { "tcp", "ssl", "ws", "wss" };
     TestConfig config;
-    config.ssl = chkSSL->IsChecked->Value;
+    config.protocol = protocols[protocol->SelectedIndex];
     config.serialize = chkSerialize->IsChecked->Value;
     config.ipv6 = chkIPv6->IsChecked->Value;
 

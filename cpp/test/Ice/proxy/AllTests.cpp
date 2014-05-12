@@ -916,18 +916,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // NoEndpointException (or ConnectionRefusedException when
         // running with SSL).
         //
-        try
+        if(ssl)
         {
-            p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
-            test(false);
-        }
-        catch(const Ice::NoEndpointException&)
-        {
-            test(!ssl);
-        }
-        catch(const Ice::ConnectFailedException&)
-        {
-            test(!tcp);
+            try
+            {
+                p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+                test(false);
+            }
+            catch(const Ice::ConnectFailedException&)
+            {
+            }
         }
 
         //

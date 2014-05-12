@@ -30,8 +30,10 @@ class TransceiverI : public IceInternal::Transceiver
 public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
     virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
+#elif defined(ICE_OS_WINRT)
+    virtual void setCompletedHandler(IceInternal::SocketOperationCompletedHandler^);
 #endif
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
@@ -39,7 +41,7 @@ public:
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
     virtual IceInternal::SocketOperation read(IceInternal::Buffer&, bool&);
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual bool startWrite(IceInternal::Buffer&);
     virtual void finishWrite(IceInternal::Buffer&);
     virtual void startRead(IceInternal::Buffer&);

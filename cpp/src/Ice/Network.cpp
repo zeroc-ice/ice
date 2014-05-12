@@ -722,6 +722,13 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
         throw ex;
     }
 }
+#elif defined(ICE_OS_WINRT)
+void
+IceInternal::NativeInfo::completed(SocketOperation operation)
+{
+    assert(_completedHandler);
+    _completedHandler(operation);
+}
 #endif
 
 IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }

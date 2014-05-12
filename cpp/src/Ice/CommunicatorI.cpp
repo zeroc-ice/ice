@@ -26,6 +26,10 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/UUID.h>
 
+#ifdef ICE_OS_WINRT
+#   include <IceWS/PluginI.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -458,6 +462,10 @@ Ice::CommunicatorI::~CommunicatorI()
 void
 Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
 {
+#if defined(ICE_OS_WINRT)
+    Ice::PluginPtr plugin(new IceWS::PluginI(this)); // Initialize the IceWS transport.
+#endif
+
     try
     {
         _instance->finishSetup(argc, argv);

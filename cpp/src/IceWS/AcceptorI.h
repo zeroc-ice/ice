@@ -26,13 +26,15 @@ class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
 public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
     virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
+#elif defined(ICE_OS_WINRT)
+    virtual void setCompletedHandler(IceInternal::SocketOperationCompletedHandler^);
 #endif
 
     virtual void close();
     virtual void listen();
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual void startAccept();
     virtual void finishAccept();
 #endif

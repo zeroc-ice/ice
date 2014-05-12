@@ -12,8 +12,10 @@
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
 
-#include <openssl/err.h>
-#include <openssl/sha.h>
+#ifndef ICE_OS_WINRT
+#   include <openssl/err.h>
+#   include <openssl/sha.h>
+#endif
 
 #include <IceUtil/DisableWarnings.h>
 
@@ -24,9 +26,22 @@ using namespace IceWS;
 vector<unsigned char>
 IceWS::calcSHA1(const vector<unsigned char>& data)
 {
+#ifndef ICE_OS_WINRT
     vector<unsigned char> hash(SHA_DIGEST_LENGTH);
     ::SHA1(&data[0], static_cast<unsigned long>(data.size()), &hash[0]);
     return hash;
+#else
+    auto dataA = ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(&data[0]), data.size());
+    auto hasher = Windows::Security::Cryptography::Core::HashAlgorithmProvider::OpenAlgorithm("SHA1");
+    auto hashed = hasher->HashData(Windows::Security::Cryptography::CryptographicBuffer::CreateFromByteArray(dataA));
+    auto reader = ::Windows::Storage::Streams::DataReader::FromBuffer(hashed);
+    std::vector<unsigned char> result(reader->UnconsumedBufferLength);
+    if(!result.empty())
+    {
+        reader->ReadBytes(::Platform::ArrayReference<unsigned char>(&result[0], result.size()));
+    }
+    return result;
+#endif
 }
 
 WebSocketException::WebSocketException(const string& r) :
