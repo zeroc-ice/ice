@@ -157,6 +157,7 @@ Ice::LoggerI::write(const string& message, bool indent)
             // UTF8 encoded messages.
             //
             fprintf_s(stderr, "%s\n", IceUtil::nativeToUTF8(_converter, s).c_str());
+            fflush(stderr);
         }
         else
         {
@@ -184,6 +185,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                 //
                 fprintf_s(stderr, "%s\n", s.c_str());
             }
+            fflush(stderr);
         }
 #endif
     }
