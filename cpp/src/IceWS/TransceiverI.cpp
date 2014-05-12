@@ -123,6 +123,7 @@ Long nlltoh(const Byte* src)
     return v;
 }
 
+#if defined(ICE_OS_WINRT)
 Short htons(Short v)
 {
     Short result;
@@ -163,6 +164,7 @@ Short ntohs(Short value)
 
     return v;
 }
+#endif
 
 }
 
