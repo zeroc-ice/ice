@@ -28,14 +28,16 @@ SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
+LINKWITH	= $(LIBS) $(ICONV_LIBS)
+
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(OPENSSL_RPATH_LINK) $(ICESSL_LIBS) $(ICEWS_LIBS))
+	$(call mktest,$@,$(COBJS),$(OPENSSL_RPATH_LINK) $(LINKWITH))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(ICESSL_LIBS) $(ICEWS_LIBS))
+	$(call mktest,$@,$(SOBJS),$(LINKWITH))
 
 include .depend
