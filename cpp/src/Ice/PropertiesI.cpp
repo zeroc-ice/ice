@@ -657,7 +657,7 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
                 else
                 {
                     value += value.length() == 0 ? escapedspace : whitespace;
-                      value += c;
+                    value += c;
                 }
                 break;
 
@@ -672,7 +672,6 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
                   break;
 
               case '#':
-                  value += escapedspace;
                   finished = true;
                   break;
               

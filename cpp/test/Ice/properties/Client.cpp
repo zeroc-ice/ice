@@ -81,8 +81,7 @@ main(int argc, char* argv[])
         Ice::PropertiesPtr properties;
         Ice::StringSeq args;
         args.push_back("--Ice.Config=config/config.1, config/config.2, config/config.3");
-        IceUtilInternal::ArgVector a(args);
-        properties = Ice::createProperties(a.argc, a.argv);
+        properties = Ice::createProperties(args);
         test(properties->getProperty("Config1") == "Config1");
         test(properties->getProperty("Config2") == "Config2");
         test(properties->getProperty("Config3") == "Config3");
@@ -93,5 +92,55 @@ main(int argc, char* argv[])
         cerr << ex << endl;
         return EXIT_FAILURE;
     }
+
+    try
+    {
+        cout << "testing configuration file escapes... " << flush;
+        Ice::PropertiesPtr properties;
+        Ice::StringSeq args;
+        args.push_back("--Ice.Config=config/escapes.cfg");
+        properties = Ice::createProperties(args);
+
+        string props[] = { "Foo\tBar", "3",
+                           "Foo\\tBar", "4",
+                           "Escape\\ Space", "2",
+                           "Prop1", "1",
+                           "Prop2", "2",
+                           "Prop3", "3",
+                           "My Prop1", "1",
+                           "My Prop2", "2",
+                           "My.Prop1", "a property",
+                           "My.Prop2", "a     property",
+                           "My.Prop3", "  a     property  ",
+                           "My.Prop4", "  a     property  ",
+                           "My.Prop5", "a \\ property",
+                           "foo=bar", "1",
+                           "foo#bar", "2",
+                           "foo bar", "3",
+                           "A", "1",
+                           "B", "2 3 4",
+                           "C", "5=#6",
+                           "AServer", "\\\\server\\dir",
+                           "BServer", "\\server\\dir",
+                           ""
+        } ;
+
+        for(size_t i = 0; props[i] != ""; i += 2)
+        {
+            cerr << "\n" << props[i] << "=\"" << props[i+1] << "\"" << endl;
+            cerr << props[i] << "=\"" << properties->getProperty(props[i]) << "\"" << endl;
+            
+            test(properties->getProperty(props[i]) == props[i + 1]); 
+        }
+
+        cout << "ok" << endl;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        return EXIT_FAILURE;
+    }
+
+
     return EXIT_SUCCESS;
 }
