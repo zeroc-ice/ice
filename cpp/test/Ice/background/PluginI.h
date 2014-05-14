@@ -13,7 +13,15 @@
 #include <Ice/Plugin.h>
 #include <Configuration.h>
 
-class PluginI : public Ice::Plugin
+#ifndef TEST_API
+#   ifdef TEST_API_EXPORTS
+#       define TEST_API ICE_DECLSPEC_EXPORT
+#   else
+#       define TEST_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
+class TEST_API PluginI : public Ice::Plugin
 {
 public:
     
