@@ -128,7 +128,7 @@ main(int argc, char* argv[])
     }
 
     {
-        cout << "wstring (" << wstringEncoding << ") to UTF-8 conversion... ";
+        cout << "testing wstring (" << wstringEncoding << ") to UTF-8 conversion... ";
 
         IceUtilInternal::ifstream bis((dir + wcoeurFile), ios_base::binary);
         test(bis.good());
@@ -182,6 +182,60 @@ main(int argc, char* argv[])
 
         cout << "ok" << endl;
     }
+
+    {
+        cout << "testing error handling... ";
+
+        // From http://stackoverflow.com/questions/1301402/example-invalid-utf8-string
+
+        string badUTF8[] = {
+            "\xc3\x28",
+            "\xa0\xa1",
+            "\xe2\x28\xa1",
+            "\xe2\x82\x28",
+            "\xf0\x28\x8c\xbc",
+            "\xf0\x90\x28\xbc",
+            "\xf0\x28\x8c\x28",
+            "\xf8\xa1\xa1\xa1\xa1",
+            "\xfc\xa1\xa1\xa1\xa1\xa1",
+            ""
+        };
+          
+        for(size_t i = 0; badUTF8[i] != ""; ++i)
+        {
+            test(isLegalUTF8Sequence(reinterpret_cast<const Byte*>(badUTF8[i].data()), 
+                                     reinterpret_cast<const Byte*>(badUTF8[i].data() + badUTF8[i].size())) == false);
+
+            try
+            {
+                wstring ws = IceUtil::nativeToWnative(0, 0, badUTF8[i]);
+                test(false);
+            }
+            catch(const IceUtil::UTFConversionException&)
+            {}
+        }     
+
+        wstring badWstring[] = { 
+            wstring(1, wchar_t(0xD800)),
+            wstring(2, wchar_t(0xDB7F)),
+            L""
+        };
+        
+        for(size_t i = 0; badWstring[i] != L""; ++i)
+        {
+            try
+            {
+                string s = IceUtil::wnativeToNative(0, 0, badWstring[i]);
+                test(false);
+            }
+            catch(const IceUtil::UTFConversionException&)
+            {}
+        }
+
+        cout << "ok" << endl;
+       
+    }
+
 
 #ifndef __MINGW32__
     {
