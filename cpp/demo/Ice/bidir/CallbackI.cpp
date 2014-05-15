@@ -10,26 +10,18 @@
 #include <Ice/Ice.h>
 #include <CallbackI.h>
 
-#if defined(_MSC_VER) && (_MSC_VER < 1700)
-#    pragma warning( 4 : 4355 ) // C4355 'this' : used in base member initializer list
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace Demo;
 
 CallbackSenderI::CallbackSenderI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator),
-    _destroy(false),
-    _callbackSenderThread(new CallbackSenderThread(this))
+    _communicator(communicator), _destroy(false)
 {
 }
 
 void
 CallbackSenderI::destroy()
 {
-    IceUtil::ThreadPtr callbackSenderThread;
-
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
         
@@ -37,12 +29,9 @@ CallbackSenderI::destroy()
         _destroy = true;
         
         notify();
-
-        callbackSenderThread = _callbackSenderThread;
-        _callbackSenderThread = 0; // Resolve cyclic dependency.
     }
 
-    callbackSenderThread->getThreadControl().join();
+    getThreadControl().join();
 }
 
 void
@@ -54,12 +43,6 @@ CallbackSenderI::addClient(const Identity& ident, const Current& current)
 
     CallbackReceiverPrx client = CallbackReceiverPrx::uncheckedCast(current.con->createProxy(ident));
     _clients.insert(client);
-}
-
-void
-CallbackSenderI::start()
-{
-    _callbackSenderThread->start();
 }
 
 void
