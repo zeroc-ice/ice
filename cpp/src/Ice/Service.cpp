@@ -211,7 +211,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        _source = RegisterEventSourceW(0, IceUtil::nativeToWnative(_stringConverter, 0, mangleSource(source)).c_str());
+        _source = RegisterEventSourceW(0, IceUtil::stringToWstring(mangleSource(source), _stringConverter).c_str());
         if(_source == 0)
         {
             SyscallException ex(__FILE__, __LINE__);
@@ -236,7 +236,7 @@ public:
         // to Windows API.
         //
         LONG err = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
-                                   IceUtil::nativeToWnative(stringConverter, 0, createKey(source)).c_str(),
+                                   IceUtil::stringToWstring(createKey(source), stringConverter).c_str(),
                                    0, const_cast<wchar_t*>(L"REG_SZ"), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, &d);
 
         if(err != ERROR_SUCCESS)
@@ -296,7 +296,7 @@ public:
         // to Windows API.
         //
         LONG err = RegDeleteKeyW(HKEY_LOCAL_MACHINE, 
-                                 IceUtil::nativeToWnative(stringConverter, 0, createKey(source)).c_str());
+			IceUtil::stringToWstring(createKey(source), stringConverter).c_str());
         if(err != ERROR_SUCCESS)
         {
             SyscallException ex(__FILE__, __LINE__);
@@ -325,7 +325,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        wstring msg = IceUtil::nativeToWnative(_stringConverter, 0, message);
+		wstring msg = IceUtil::stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -363,7 +363,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        wstring msg = IceUtil::nativeToWnative(_stringConverter, 0, s);
+		wstring msg = IceUtil::stringToWstring(s, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -393,7 +393,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        wstring msg = IceUtil::nativeToWnative(_stringConverter, 0, message);
+		wstring msg = IceUtil::stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -423,7 +423,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-        wstring msg = IceUtil::nativeToWnative(_stringConverter, 0, message);
+		wstring msg = IceUtil::stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -1117,7 +1117,7 @@ Ice::Service::runService(int argc, char* argv[], const InitializationData& initD
     SERVICE_TABLE_ENTRYW ste[] =
     {
         { const_cast<wchar_t*>(
-            IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, _name).c_str()), 
+		    IceUtil::stringToWstring(_name, IceUtil::getProcessStringConverter()).c_str()),
             Ice_Service_ServiceMain },
         { 0, 0 },
     };
@@ -1305,7 +1305,7 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
     // as argv come from Windows API.
     //
     char** args = new char*[_serviceArgs.size() + argc];
-    args[0] =  const_cast<char*>(IceUtil::wnativeToNative(converter, 0, argv[0]).c_str());
+	args[0] = const_cast<char*>(IceUtil::wstringToString(argv[0], converter).c_str());
     int i = 1;
     for(vector<string>::iterator p = _serviceArgs.begin(); p != _serviceArgs.end(); ++p)
     {
@@ -1313,7 +1313,7 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
     }
     for(int j = 1; j < argc; ++j)
     {
-        args[i++] =  const_cast<char*>(IceUtil::wnativeToNative(converter, 0, argv[j]).c_str());
+		args[i++] = const_cast<char*>(IceUtil::wstringToString(argv[j], converter).c_str());
     }
     argc += static_cast<int>(_serviceArgs.size());
 

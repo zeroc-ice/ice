@@ -31,14 +31,14 @@ public:
             throw Test::BadEncodingException();
         }
 
-        return IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(),
-                                        IceUtil::getProcessWstringConverter(), msg);
+        return IceUtil::stringToWstring(msg, IceUtil::getProcessStringConverter(),
+                                        IceUtil::getProcessWstringConverter());
     }
     
     virtual string narrow(const wstring& wmsg, const Ice::Current&)
     {
-        return IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(),
-                                        IceUtil::getProcessWstringConverter(), wmsg);
+        return IceUtil::wstringToString(wmsg, IceUtil::getProcessStringConverter(),
+                                        IceUtil::getProcessWstringConverter());
     }
     
     virtual void shutdown(const Ice::Current& current)

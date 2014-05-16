@@ -224,14 +224,14 @@ getStackTrace()
 
             //
             // Don't need to use pass a wide string converter in the bellow
-            // calls to wnativeToNative as the wide strings come from
+            // calls to wstringToString as the wide strings come from
             // Windows API.
             //
             BOOL ok = SymFromAddr(process, address, 0, symbol);
             if(ok)
             {
 #ifdef DBGHELP_TRANSLATE_TCHAR
-                s << IceUtil::wnativeToNative(converter, 0, symbol->Name);
+                s << IceUtil::wstringToString(symbol->Name, converter);
 #else
                 s << symbol->Name;
 #endif
@@ -240,7 +240,7 @@ getStackTrace()
                 {
                     s << " at line " << line.LineNumber << " in " 
 #ifdef DBGHELP_TRANSLATE_TCHAR
-                      << IceUtil::wnativeToNative(converter, 0, line.FileName);
+                      << IceUtil::wstringToString(line.FileName, converter);
 #else
                       << line.FileName;
 #endif
@@ -551,6 +551,56 @@ IceUtil::IllegalArgumentException::reason() const
 {
     return _reason;
 }
+
+//
+// IllegalConversionException
+//
+
+const char* IceUtil::IllegalConversionException::_name = "IceUtil::IllegalConversionException";
+
+IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line):
+    Exception(file, line)
+{}
+
+IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line, 
+                                                                const string& reason): 
+    Exception(file, line),
+    _reason(reason)
+{}
+
+string
+IceUtil::IllegalConversionException::ice_name() const
+{
+    return _name;
+}
+
+void
+IceUtil::IllegalConversionException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ": " << _reason;
+    
+}
+
+IceUtil::IllegalConversionException*
+IceUtil::IllegalConversionException::ice_clone() const
+{
+    return new IllegalConversionException(*this);
+}
+
+void
+IceUtil::IllegalConversionException::ice_throw() const
+{
+    throw *this;
+}
+
+string
+IceUtil::IllegalConversionException::reason() const
+{
+    return _reason;
+}
+
+
 
 IceUtil::SyscallException::SyscallException(const char* file, int line, int err ): 
     Exception(file, line),

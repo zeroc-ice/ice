@@ -269,22 +269,22 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
     SC_HANDLE service = CreateServiceW(
         scm,
-        IceUtil::nativeToWnative(0, 0, _serviceName).c_str(),
-        IceUtil::nativeToWnative(0, 0, displayName).c_str(),
+        IceUtil::stringToWstring(_serviceName).c_str(),
+        IceUtil::stringToWstring(displayName).c_str(),
         SERVICE_ALL_ACCESS,
         SERVICE_WIN32_OWN_PROCESS,
         autoStart ? SERVICE_AUTO_START : SERVICE_DEMAND_START,
         SERVICE_ERROR_NORMAL,
-        IceUtil::nativeToWnative(0, 0, command).c_str(),
+        IceUtil::stringToWstring(command).c_str(),
         0,
         0,
-        IceUtil::nativeToWnative(0, 0, deps).c_str(),
-        IceUtil::nativeToWnative(0, 0, _sidName).c_str(),
-        IceUtil::nativeToWnative(0, 0, password).c_str());
+        IceUtil::stringToWstring(deps).c_str(),
+        IceUtil::stringToWstring(_sidName).c_str(),
+        IceUtil::stringToWstring(password).c_str());
 
     if(service == 0)
     {
@@ -296,7 +296,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     //
     // Set description
     //
-    wstring uDescription = IceUtil::nativeToWnative(0, 0, description);
+    wstring uDescription = IceUtil::stringToWstring(description);
     SERVICE_DESCRIPTIONW sd = { const_cast<wchar_t*>(uDescription.c_str()) };
 
     if(!ChangeServiceConfig2W(service, SERVICE_CONFIG_DESCRIPTION, &sd))
@@ -323,9 +323,9 @@ IceServiceInstaller::uninstall()
 
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
-    SC_HANDLE service = OpenServiceW(scm, IceUtil::nativeToWnative(0, 0, _serviceName).c_str(), SERVICE_ALL_ACCESS);
+    SC_HANDLE service = OpenServiceW(scm, IceUtil::stringToWstring(_serviceName).c_str(), SERVICE_ALL_ACCESS);
     if(service == 0)
     {
         DWORD res = GetLastError();
@@ -421,10 +421,10 @@ IceServiceInstaller::initializeSid(const string& name)
 
         //
         // We don't support to use a string converter with this tool, so don't need to
-        // use string converters in calls to nativeToWnative.
+        // use string converters in calls to stringToWstring.
         //
         SID_NAME_USE nameUse;
-        while(LookupAccountNameW(0, IceUtil::nativeToWnative(0, 0, name).c_str(), _sidBuffer.get(), &sidSize, domainName.get(),
+        while(LookupAccountNameW(0, IceUtil::stringToWstring(name).c_str(), _sidBuffer.get(), &sidSize, domainName.get(),
               &domainNameSize, &nameUse) == false)
         {
             DWORD res = GetLastError();
@@ -469,7 +469,7 @@ IceServiceInstaller::initializeSid(const string& name)
             throw "Could not retrieve full account name for " + name + ": " + IceUtilInternal::errorToString(res);
         }
 
-        _sidName = IceUtil::wnativeToNative(0, 0, domainName) + "\\" + IceUtil::wnativeToNative(0, 0, accountName);
+        _sidName = IceUtil::wstringToString(domainName) + "\\" + IceUtil::wstringToString(accountName);
     }
 
     if(_debug)
@@ -477,7 +477,7 @@ IceServiceInstaller::initializeSid(const string& name)
         Trace trace(_communicator->getLogger(), "IceServiceInstaller");
         wchar_t* sidString = 0;
         ConvertSidToStringSidW(_sid, &sidString);
-        trace << "SID: " << IceUtil::wnativeToNative(0, 0, sidString) << "; ";
+        trace << "SID: " << IceUtil::wstringToString(sidString) << "; ";
         LocalFree(sidString);
         trace << "Full name: " << _sidName;
     }
@@ -522,9 +522,9 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     PSECURITY_DESCRIPTOR sd = 0;
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
-    DWORD res = GetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::nativeToWnative(0, 0, path).c_str()), type,
+    DWORD res = GetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                       DACL_SECURITY_INFORMATION, 0, 0, &acl, 0, &sd);
     if(res != ERROR_SUCCESS)
     {
@@ -608,9 +608,9 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 
             //
             // We don't support to use a string converter with this tool, so don't need to
-            // use string converters in calls to nativeToWnative.
+            // use string converters in calls to stringToWstring.
             //
-            res = SetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::nativeToWnative(0, 0, path).c_str()), type,
+            res = SetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                         DACL_SECURITY_INFORMATION, 0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
             {
@@ -641,9 +641,9 @@ IceServiceInstaller::mkdir(const string& path) const
 {
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
-    if(CreateDirectoryW(IceUtil::nativeToWnative(0, 0, path).c_str(), 0) == 0)
+    if(CreateDirectoryW(IceUtil::stringToWstring(path).c_str(), 0) == 0)
     {
         DWORD res = GetLastError();
         if(res == ERROR_ALREADY_EXISTS)
@@ -680,9 +680,9 @@ IceServiceInstaller::addLog(const string& log) const
     DWORD disposition = 0;
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
-    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, IceUtil::nativeToWnative(0, 0, createLog(log)).c_str(), 0, L"REG_SZ",
+    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, IceUtil::stringToWstring(createLog(log)).c_str(), 0, L"REG_SZ",
                                REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
 
     if(res != ERROR_SUCCESS)
@@ -702,9 +702,9 @@ IceServiceInstaller::removeLog(const string& log) const
 {
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
-    LONG res = RegDeleteKeyW(HKEY_LOCAL_MACHINE, IceUtil::nativeToWnative(0, 0, createLog(log)).c_str());
+    LONG res = RegDeleteKeyW(HKEY_LOCAL_MACHINE, IceUtil::stringToWstring(createLog(log)).c_str());
 
     //
     // We get ERROR_ACCESS_DENIED when the log is shared by several sources
@@ -720,11 +720,11 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
 {
     //
     // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to nativeToWnative.
+    // use string converters in calls to stringToWstring.
     //
     HKEY key = 0;
     DWORD disposition = 0;
-    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, IceUtil::nativeToWnative(0, 0, createSource(source, log)).c_str(),
+    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, IceUtil::stringToWstring(createSource(source, log)).c_str(),
                                0, L"REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
     if(res != ERROR_SUCCESS)
     {
@@ -737,7 +737,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     // DLL.
     //
     res = RegSetValueExW(key, L"EventMessageFile", 0, REG_EXPAND_SZ,
-                         reinterpret_cast<const BYTE*>(IceUtil::nativeToWnative(0, 0, resourceFile).c_str()),
+                         reinterpret_cast<const BYTE*>(IceUtil::stringToWstring(resourceFile).c_str()),
                          static_cast<DWORD>(resourceFile.length() + 1) * sizeof(wchar_t));
 
     if(res == ERROR_SUCCESS)
@@ -795,11 +795,11 @@ IceServiceInstaller::removeSource(const string& source) const
             // Check if we can delete the source sub-key
             //
             // We don't support to use a string converter with this tool, so don't need to
-            // use string converters in calls to nativeToWnative.
+            // use string converters in calls to stringToWstring.
             //
             LONG delRes = RegDeleteKeyW(HKEY_LOCAL_MACHINE,
-                                        IceUtil::nativeToWnative(0, 0, createSource(source, 
-                                            IceUtil::wnativeToNative(0, 0, subkey))).c_str());
+                                        IceUtil::stringToWstring(createSource(source, 
+                                            IceUtil::wstringToString(subkey))).c_str());
             if(delRes == ERROR_SUCCESS)
             {
                 res = RegCloseKey(key);
@@ -807,7 +807,7 @@ IceServiceInstaller::removeSource(const string& source) const
                 {
                     throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
                 }
-                return IceUtil::wnativeToNative(0, 0, subkey);
+                return IceUtil::wstringToString(subkey);
             }
 
             ++index;

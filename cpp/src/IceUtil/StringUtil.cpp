@@ -575,7 +575,7 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
                 LocalFree(msg);
             }
 #endif
-            return wnativeToNative(getProcessStringConverter(), getProcessWstringConverter(), result);
+            return wstringToString(result, getProcessStringConverter(), getProcessWstringConverter());
         }
         else
         {

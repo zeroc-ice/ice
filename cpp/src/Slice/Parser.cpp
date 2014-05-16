@@ -10,7 +10,6 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Unicode.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
 #include <Slice/Util.h>

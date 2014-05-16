@@ -4,6 +4,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Unicode.h>
 
 using namespace IceUtil;
 using namespace IceUtilInternal;
@@ -34,54 +35,6 @@ public:
 
 Init init;
 
-const char* __IceUtil__IllegalConversionException_name = "IceUtil::IllegalConversionException";
-
-}
-
-IllegalConversionException::IllegalConversionException(const char* file, int line) :
-    ::IceUtil::Exception(file, line)
-{
-}
-
-IllegalConversionException::IllegalConversionException(const char* file, int line, const string& reason) :
-    ::IceUtil::Exception(file, line),
-    _reason(reason)
-{
-}
-
-IllegalConversionException::~IllegalConversionException() throw()
-{
-}
-
-string
-IllegalConversionException::ice_name() const
-{
-    return __IceUtil__IllegalConversionException_name;
-}
-
-void
-IllegalConversionException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ": " << _reason;
-}
-
-IceUtil::IllegalConversionException*
-IllegalConversionException::ice_clone() const
-{
-    return new IllegalConversionException(*this);
-}
-
-void
-IllegalConversionException::ice_throw() const
-{
-    throw *this;
-}
-
-string
-IllegalConversionException::reason() const
-{
-    return _reason;
 }
 
 
@@ -197,7 +150,8 @@ IceUtil::UTF8ToNative(const IceUtil::StringConverterPtr& converter, const string
 }
 
 string
-IceUtil::wnativeToNative(const StringConverterPtr& converter, const WstringConverterPtr& wConverter, const wstring& v)
+IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter,
+                         IceUtil::ConversionFlags flags)
 {
     string target;
     if(!v.empty())
@@ -224,14 +178,14 @@ IceUtil::wnativeToNative(const StringConverterPtr& converter, const WstringConve
             ConversionResult cr = 
                 convertUTFWstringToUTF8(
                     sourceStart, sourceStart + v.size(), 
-                    targetStart, targetEnd, lenientConversion);
+                    targetStart, targetEnd, flags);
                 
             if(cr != conversionOK)
             {
                 delete[] outBuf;
                 assert(cr == sourceExhausted || cr == sourceIllegal);
-                throw UTFConversionException(__FILE__, __LINE__, 
-                                             cr == sourceExhausted ? partialCharacter : badEncoding);
+                throw IllegalConversionException(__FILE__, __LINE__, 
+                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
             }
             
             target = string(reinterpret_cast<char*>(outBuf), static_cast<size_t>(targetStart - outBuf));
@@ -254,7 +208,8 @@ IceUtil::wnativeToNative(const StringConverterPtr& converter, const WstringConve
 }
 
 wstring
-IceUtil::nativeToWnative(const StringConverterPtr& converter, const WstringConverterPtr& wConverter, const string& v)
+IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, 
+                         const WstringConverterPtr& wConverter, IceUtil::ConversionFlags flags)
 {
     wstring target;
     if(!v.empty())
@@ -288,14 +243,14 @@ IceUtil::nativeToWnative(const StringConverterPtr& converter, const WstringConve
             const Byte* sourceStart = reinterpret_cast<const Byte*>(tmp.data());
             
             ConversionResult cr = 
-                convertUTF8ToUTFWstring(sourceStart, sourceStart + tmp.size(), target, lenientConversion);
+                convertUTF8ToUTFWstring(sourceStart, sourceStart + tmp.size(), target, flags);
 
             if(cr != conversionOK)
             {
                 assert(cr == sourceExhausted || cr == sourceIllegal);
 
-                throw UTFConversionException(__FILE__, __LINE__,
-                                             cr == sourceExhausted ? partialCharacter : badEncoding);
+                throw IllegalConversionException(__FILE__, __LINE__,
+                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
             }
         }
     }

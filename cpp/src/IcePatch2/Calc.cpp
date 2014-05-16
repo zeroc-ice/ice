@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
-#include <IceUtil/Unicode.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <IcePatch2/Util.h>

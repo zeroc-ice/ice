@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Unicode.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Options.h>

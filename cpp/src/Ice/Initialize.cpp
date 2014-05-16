@@ -91,7 +91,7 @@ Ice::argsToStringSeq(int /*argc*/, wchar_t* argv[])
     StringSeq args;
     for(int i=0; argv[i] != 0; i++)
     {
-        args.push_back(IceUtil::wnativeToNative(converter, 0, argv[i]));
+        args.push_back(IceUtil::wstringToString(argv[i], converter));
     }
     return args;
 }

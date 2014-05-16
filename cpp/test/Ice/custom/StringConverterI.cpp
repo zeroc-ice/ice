@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <StringConverterI.h>
-#include <IceUtil/Unicode.h>
 
 using namespace std;
 using namespace IceUtil;
@@ -48,7 +47,7 @@ Byte*
 Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, IceUtil::UTF8Buffer& buffer) const
 {
     wstring ws(sourceStart, sourceEnd);
-    string s = IceUtil::wnativeToNative(0, 0, ws);
+    string s = IceUtil::wstringToString(ws);
 
     size_t size = s.size();
     Byte* targetStart = buffer.getMoreBytes(size, 0);
@@ -76,6 +75,6 @@ Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd
         s[i] = sourceStart[--j];
     }
 
-    target = IceUtil::nativeToWnative(0, 0, s);
+    target = IceUtil::stringToWstring(s);
 }
 

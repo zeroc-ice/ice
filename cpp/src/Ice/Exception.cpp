@@ -16,7 +16,7 @@
 #include <Ice/Stream.h>
 #include <IceUtil/StringUtil.h>
 #ifdef ICE_OS_WINRT
-#    include <IceUtil/Unicode.h>
+#    include <IceUtil/StringConverter.h>
 #endif
 #include <iomanip>
 
@@ -48,9 +48,9 @@ socketErrorToString(int error)
         // Don't need to use a wide string converter as the wide string come
         // from Windows API.
         //
-        return IceUtil::wnativeToNative(
-            IceUtil::getProcessStringConverter(), 0,
-            static_cast<Windows::Networking::Sockets::SocketErrorStatus>(error).ToString()->Data());
+        return IceUtil::wstringToString(
+            static_cast<Windows::Networking::Sockets::SocketErrorStatus>(error).ToString()->Data(),
+            IceUtil::getProcessStringConverter());
     }
 #else
     return IceUtilInternal::errorToString(error);

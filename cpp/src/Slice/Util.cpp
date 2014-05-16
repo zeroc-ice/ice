@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Slice/Util.h>
-#include <IceUtil/Unicode.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <climits>

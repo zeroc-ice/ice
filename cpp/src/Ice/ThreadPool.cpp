@@ -28,7 +28,7 @@
 #include <Ice/TraceLevels.h>
 
 #if defined(ICE_OS_WINRT)
-#   include <IceUtil/Unicode.h>
+#   include <IceUtil/StringConverter.h>
 #endif
 
 using namespace std;
@@ -959,12 +959,12 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         catch(Platform::Exception^ ex)
         {
             //
-            // We don't need to pass the wide string converter in the call to wnativeToNative
+            // We don't need to pass the wide string converter in the call to wstringToString
             // because the wide string is using the platform default encoding.
             //
             Error out(_instance->initializationData().logger);
             out << "exception in `" << _prefix << "':\n" 
-                << IceUtil::wnativeToNative(_instance->getStringConverter(), 0, ex->Message->Data())
+                << IceUtil::wstringToString(ex->Message->Data(), _instance->getStringConverter())
                 << "\nevent handler: " << current._handler->toString();
         }
 #endif

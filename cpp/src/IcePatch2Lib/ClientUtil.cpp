@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Unicode.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <IceUtil/StringConverter.h>
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>

@@ -49,6 +49,7 @@
 
 
 #include <IceUtil/ConvertUTF.h>
+#include <IceUtil/StringConverter.h>
 
 #ifdef CVTUTF_DEBUG
 #include <stdio.h>

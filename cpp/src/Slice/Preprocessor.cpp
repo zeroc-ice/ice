@@ -14,7 +14,6 @@
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/Unicode.h>
 #include <algorithm>
 #include <fstream>
 #include <sys/types.h>
@@ -237,7 +236,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& extraArgs)
             // Don't need to pass a wide string converter the wide string
             // come from Windows API.
             //
-            _cppFile = IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, name);
+            _cppFile = IceUtil::wstringToString(name, IceUtil::getProcessStringConverter());
             free(name);
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }

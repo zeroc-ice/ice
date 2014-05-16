@@ -78,8 +78,30 @@ public:
 private:
 
     static const char* _name;
-    std::string _reason;
+    const std::string _reason;
 };
+
+//
+// IllegalConversionException is raised to report a string conversion error 
+//
+class ICE_UTIL_API IllegalConversionException : public Exception
+{
+public:
+    
+    IllegalConversionException(const char*, int);
+    IllegalConversionException(const char*, int, const std::string&);
+    virtual std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual IllegalConversionException* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason() const;
+private:
+
+    static const char* _name;   
+    const std::string _reason;
+};
+
 
 class ICE_UTIL_API SyscallException : public Exception
 {

@@ -135,7 +135,7 @@ ConversionResult ConvertUTF32toUTF8(
     UTF8** targetStart, UTF8* targetEnd, IceUtil::ConversionFlags flags);
 
 //
-// isLegalUTFSequence is declared in IceUtil/Unicode.h
+// isLegalUTFSequence is declared in IceUtil/StringConverter.h
 //
 
 /* --------------------------------------------------------------------- */

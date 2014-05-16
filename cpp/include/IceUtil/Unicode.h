@@ -11,56 +11,7 @@
 #define ICE_UTIL_UNICODE_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Exception.h>
-
-namespace IceUtil
-{
-
-enum ConversionFlags
-{
-    strictConversion = 0,
-    lenientConversion
-};
-
-ICE_DEPRECATED_API std::string
-wstringToString(const std::wstring&, ConversionFlags = lenientConversion);
-
-ICE_DEPRECATED_API std::wstring
-stringToWstring(const std::string&, ConversionFlags = lenientConversion);
-
-typedef unsigned char Byte;
-
-ICE_UTIL_API bool
-isLegalUTF8Sequence(const Byte* source, const Byte* end);
-
-enum ConversionError
-{
-    partialCharacter,
-    badEncoding
-};
-
-//
-// UTFConversionException is raised by wstringToString() or stringToWstring()
-// to report a conversion error 
-//
-class ICE_UTIL_API UTFConversionException : public Exception
-{
-public:
-    
-    UTFConversionException(const char*, int, ConversionError);
-    virtual std::string ice_name() const;
-    virtual void ice_print(std::ostream&) const;
-    virtual UTFConversionException* ice_clone() const;
-    virtual void ice_throw() const;
-
-    ConversionError conversionError() const;
-private:
-
-    const ConversionError _conversionError;
-    static const char* _name;    
-};
-
-}
+#include <IceUtil/StringConverter.h>
 
 namespace IceUtilInternal
 {
@@ -81,15 +32,15 @@ enum ConversionResult
         sourceIllegal           /* source sequence is illegal/malformed */
 };
 
-ICE_UTIL_API ConversionResult 
+ConversionResult 
 convertUTFWstringToUTF8(const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
                         IceUtil::Byte*& targetStart, IceUtil::Byte* targetEnd, IceUtil::ConversionFlags flags);
 
-ICE_UTIL_API ConversionResult
+ConversionResult
 convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
                         wchar_t*& targetStart, wchar_t* targetEnd, IceUtil::ConversionFlags flags);
 
-ICE_UTIL_API ConversionResult 
+ConversionResult 
 convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd, 
                         std::wstring& target, IceUtil::ConversionFlags flags);
 

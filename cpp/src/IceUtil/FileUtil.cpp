@@ -104,8 +104,8 @@ IceUtilInternal::freopen(const std::string& path, const std::string& mode, FILE*
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return _wfreopen(IceUtil::nativeToWnative(converter, 0, path).c_str(),
-                     IceUtil::nativeToWnative(converter, 0, mode).c_str(), stderr);
+    return _wfreopen(IceUtil::stringToWstring(path, converter).c_str(),
+                     IceUtil::stringToWstring(mode, converter).c_str(), stderr);
 #  else
     return freopen(path.c_str(), mode.c_str(), stderr);
 #  endif
@@ -124,13 +124,13 @@ IceUtilInternal::stat(const string& path, structstat* buffer)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    return _wstat(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), buffer);
+    return _wstat(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), buffer);
 }
 
 int
 IceUtilInternal::remove(const string& path)
 {
-    return ::_wremove(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str());
+    return ::_wremove(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str());
 }
 
 int
@@ -141,8 +141,8 @@ IceUtilInternal::rename(const string& from, const string& to)
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return ::_wrename(IceUtil::nativeToWnative(converter, 0, from).c_str(), 
-                      IceUtil::nativeToWnative(converter, 0, to).c_str());
+    return ::_wrename(IceUtil::stringToWstring(from, converter).c_str(), 
+                      IceUtil::stringToWstring(to, converter).c_str());
 }
 
 int
@@ -152,7 +152,7 @@ IceUtilInternal::rmdir(const string& path)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    return ::_wrmdir(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str());
+    return ::_wrmdir(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str());
 }
 
 int
@@ -162,7 +162,7 @@ IceUtilInternal::mkdir(const string& path, int)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    return ::_wmkdir(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str());
+    return ::_wmkdir(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str());
 }
 
 FILE*
@@ -173,8 +173,8 @@ IceUtilInternal::fopen(const string& path, const string& mode)
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return ::_wfopen(IceUtil::nativeToWnative(converter, 0, path).c_str(), 
-                     IceUtil::nativeToWnative(converter, 0, mode).c_str());
+    return ::_wfopen(IceUtil::stringToWstring(path, converter).c_str(), 
+                     IceUtil::stringToWstring(mode, converter).c_str());
 }
 
 int
@@ -186,12 +186,12 @@ IceUtilInternal::open(const string& path, int flags)
     //
     if(flags & _O_CREAT)
     {
-        return ::_wopen(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), 
+        return ::_wopen(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), 
                         flags, _S_IREAD | _S_IWRITE);
     }
     else
     {
-        return ::_wopen(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), flags);
+        return ::_wopen(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), flags);
     }
 }
 
@@ -208,7 +208,7 @@ IceUtilInternal::getcwd(string& cwd)
     {
         return -1;
     }
-    cwd = IceUtil::wnativeToNative(IceUtil::getProcessStringConverter(), 0, cwdbuf);
+    cwd = IceUtil::wstringToString(cwdbuf, IceUtil::getProcessStringConverter());
     return 0;
 }
 #endif
@@ -220,7 +220,7 @@ IceUtilInternal::unlink(const string& path)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    return _wunlink(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str());
+    return _wunlink(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str());
 }
 
 int
@@ -242,12 +242,12 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     // to Windows API.
     //
 #ifndef ICE_OS_WINRT
-    _fd = ::CreateFileW(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), 
+    _fd = ::CreateFileW(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), 
                         GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
     CREATEFILE2_EXTENDED_PARAMETERS params;
     params.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-    _fd = ::CreateFile2(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(),
+    _fd = ::CreateFile2(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
                         GENERIC_WRITE, 0, OPEN_ALWAYS, &params);
 #endif
     _path = path;
@@ -306,7 +306,7 @@ IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    std::ifstream(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), mode)
+    std::ifstream(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode)
 #endif
 {
 }
@@ -321,7 +321,7 @@ IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    std::ifstream::open(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), mode);
+    std::ifstream::open(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode);
 #endif
 }
 
@@ -337,7 +337,7 @@ IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    std::ofstream(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), mode)
+    std::ofstream(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode)
 #endif
 {
 }
@@ -352,7 +352,7 @@ IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    std::ofstream::open(IceUtil::nativeToWnative(IceUtil::getProcessStringConverter(), 0, path).c_str(), mode);
+    std::ofstream::open(IceUtil::stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), mode);
 #endif
 }
 

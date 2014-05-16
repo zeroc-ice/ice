@@ -33,12 +33,12 @@
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/Shared.h>
+#include <IceUtil/StringConverter.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/ThreadException.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/Unicode.h>
 #include <IceUtil/UniquePtr.h>
 
 #ifndef _WIN32

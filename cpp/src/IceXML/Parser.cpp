@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceXML/Parser.h>
-#include <IceUtil/Unicode.h>
 #include <IceUtil/FileUtil.h>
 #include <expat.h>
 #include <list>

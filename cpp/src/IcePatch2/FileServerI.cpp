@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/ScopedArray.h>
-#include <IceUtil/Unicode.h>
 #include <IcePatch2/FileServerI.h>
 
 #ifdef _WIN32

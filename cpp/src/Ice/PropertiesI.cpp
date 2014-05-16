@@ -303,7 +303,7 @@ Ice::PropertiesI::load(const std::string& file)
     if(file.find("HKLM\\") == 0)
     {
         HKEY iceKey;
-        const wstring keyName = IceUtil::nativeToWnative(_converter, 0, file).substr(5).c_str();
+        const wstring keyName = IceUtil::stringToWstring(file, _converter).substr(5).c_str();
         LONG err;
         if((err = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
@@ -350,8 +350,8 @@ Ice::PropertiesI::load(const std::string& file)
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
-                string name = IceUtil::wnativeToNative(_converter, 0, 
-                                                       wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize));
+                string name = IceUtil::wstringToString(
+                    wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize), _converter);
                 if(keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
@@ -364,7 +364,7 @@ Ice::PropertiesI::load(const std::string& file)
                 wstring valueW = wstring(reinterpret_cast<wchar_t*>(&dataBuf[0]), (dataBufSize / sizeof(wchar_t)) - 1);
                 if(keyType == REG_SZ)
                 {
-                    value = IceUtil::wnativeToNative(_converter, 0, valueW);
+                    value = IceUtil::wstringToString(valueW, _converter);
                 }
                 else // keyType == REG_EXPAND_SZ
                 {
@@ -384,7 +384,7 @@ Ice::PropertiesI::load(const std::string& file)
                             continue;
                         }
                     }
-                    value = IceUtil::wnativeToNative(_converter, 0, wstring(&expandedValue[0], sz -1));
+                    value = IceUtil::wstringToString(wstring(&expandedValue[0], sz -1), _converter);
                 }
                 setProperty(name, value);
             }
@@ -728,7 +728,7 @@ Ice::PropertiesI::loadConfig()
         }
         if(ret > 0)
         {
-            value = IceUtil::wnativeToNative(_converter, 0, wstring(&v[0], ret));
+            value = IceUtil::wstringToString(wstring(&v[0], ret), _converter);
         }
         else
         {
