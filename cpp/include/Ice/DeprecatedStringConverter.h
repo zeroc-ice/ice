@@ -18,19 +18,19 @@ namespace Ice
 {
 
 typedef IceUtil::StringConverterPtr StringConverterPtr;
-typedef IceUtil::WStringConverterPtr WStringConverterPtr;
+typedef IceUtil::WstringConverterPtr WstringConverterPtr;
 
 
-ICE_DEPRECATED_API string
+ICE_DEPRECATED_API std::string
 nativeToUTF8(const StringConverterPtr&, const std::string&);
 
-ICE_DEPRECATED_API string
+ICE_DEPRECATED_API std::string
 nativeToUTF8(const CommunicatorPtr&, const std::string&);
 
-ICE_DEPRECATED_API string
+ICE_DEPRECATED_API std::string
 UTF8toNative(const StringConverterPtr&, const std::string&);
 
-ICE_DEPRECATED_API string
+ICE_DEPRECATED_API std::string
 UTF8ToNative(const CommunicatorPtr&, const std::string&);
 
 }

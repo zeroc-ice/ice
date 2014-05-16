@@ -24,7 +24,7 @@ Ice::nativeToUTF8(const Ice::CommunicatorPtr& communicator, const std::string& s
 }
 
 std::string
-Ice::UTF8toNative(const Ice::StringConverterPt& converter, const std::string& s)
+Ice::UTF8toNative(const Ice::StringConverterPtr& converter, const std::string& s)
 {
     return IceUtil::UTF8ToNative(s, converter);
 }
