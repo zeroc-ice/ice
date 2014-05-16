@@ -214,6 +214,9 @@ main(int argc, char* argv[])
             {}
         }     
 
+	// TODO: need test for bad UTF-32 strings
+#ifdef _WIN32
+ 
         wstring badWstring[] = { 
             wstring(1, wchar_t(0xD800)),
             wstring(2, wchar_t(0xDB7F)),
@@ -230,6 +233,7 @@ main(int argc, char* argv[])
             catch(const IceUtil::IllegalConversionException&)
             {}
         }
+#endif
 
         cout << "ok" << endl;
        

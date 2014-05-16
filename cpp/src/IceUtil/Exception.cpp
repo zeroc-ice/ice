@@ -568,6 +568,9 @@ IceUtil::IllegalConversionException::IllegalConversionException(const char* file
     _reason(reason)
 {}
 
+IceUtil::IllegalConversionException::~IllegalConversionException() throw()
+{}
+
 string
 IceUtil::IllegalConversionException::ice_name() const
 {

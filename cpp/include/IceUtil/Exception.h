@@ -90,6 +90,7 @@ public:
     
     IllegalConversionException(const char*, int);
     IllegalConversionException(const char*, int, const std::string&);
+    virtual ~IllegalConversionException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual IllegalConversionException* ice_clone() const;
