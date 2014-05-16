@@ -513,8 +513,8 @@ IceInternal::Instance::stringToIdentity(const string& s) const
         }
     }
 
-    ident.name = UTF8ToNative(_stringConverter, ident.name);
-    ident.category = UTF8ToNative(_stringConverter, ident.category);
+    ident.name = UTF8ToNative(ident.name, _stringConverter);
+    ident.category = UTF8ToNative(ident.category, _stringConverter);
 
     return ident;
 }
@@ -526,8 +526,8 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     // This method returns the stringified identity. The returned string only
     // contains printable ascii. It can contain UTF8 in the escaped form.
     //
-    string name = nativeToUTF8(_stringConverter, ident.name);
-    string category = nativeToUTF8(_stringConverter, ident.category);
+    string name = nativeToUTF8(ident.name, _stringConverter);
+    string category = nativeToUTF8(ident.category, _stringConverter);
 
     if(category.empty())
     {

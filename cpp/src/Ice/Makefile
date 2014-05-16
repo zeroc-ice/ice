@@ -31,6 +31,7 @@ OBJS		= Acceptor.o \
 		  Connector.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
+                  DeprecatedStringConverter.o \
 		  Direct.o \
                   DispatchInterceptor.o \
 		  DynamicLibrary.o \

@@ -109,45 +109,24 @@ private:
 #endif
 
 //
-// Retrive the per process narrow string converter. Access to the 
-// converter is protected by a static mutex.
+// Retrieve the per process narrow string converter.
 //
 ICE_UTIL_API StringConverterPtr getProcessStringConverter();
 
 //
-// Set the per process narrow string converter. Access to the 
-// converter is protected by a static mutex.
+// Set the per process narrow string converter.
 //
 ICE_UTIL_API void setProcessStringConverter(const StringConverterPtr&);
 
 //
-// Retrive the per process wide string converter. Access to the 
-// converter is protected by a static mutex.
+// Retrieve the per process wide string converter.
 //
 ICE_UTIL_API WstringConverterPtr getProcessWstringConverter();
 
 //
-// Set the per process wide string converter. Access to the 
-// converter is protected by a static mutex.
+// Set the per process wide string converter.
 //
 ICE_UTIL_API void setProcessWstringConverter(const WstringConverterPtr&);
-
-
-//
-// Converts the given string from the native narrow string encoding to
-// UTF-8 using the given converter. If the converter is null, returns
-// the given string.
-//
-ICE_UTIL_API std::string
-nativeToUTF8(const StringConverterPtr&, const std::string&);
-
-//
-// Converts the given string from UTF-88 to the native narrow string
-// encoding using the given converter. If the converter is null,
-// returns the given string.
-//
-ICE_UTIL_API std::string
-UTF8ToNative(const StringConverterPtr&, const std::string&);
 
 
 //
@@ -174,6 +153,22 @@ ICE_UTIL_API std::wstring
 stringToWstring(const std::string&, const StringConverterPtr& = 0, 
                 const WstringConverterPtr& = 0, ConversionFlags = lenientConversion);
 
+
+//
+// Converts the given string from the native narrow string encoding to
+// UTF-8 using the given converter. If the converter is null, returns
+// the given string.
+//
+ICE_UTIL_API std::string
+nativeToUTF8(const std::string&, const StringConverterPtr&);
+
+//
+// Converts the given string from UTF-8 to the native narrow string
+// encoding using the given converter. If the converter is null,
+// returns the given string.
+//
+ICE_UTIL_API std::string
+UTF8ToNative(const std::string&, const StringConverterPtr&);
 
 }
 

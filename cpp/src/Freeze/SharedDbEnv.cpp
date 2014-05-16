@@ -594,7 +594,7 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             //
             // Berkeley DB expects file paths to be UTF8 encoded.
             //
-            _env->open(nativeToUTF8(getProcessStringConverter(), dbHome).c_str(), flags, FREEZE_DB_MODE);
+            _env->open(nativeToUTF8(dbHome, getProcessStringConverter()).c_str(), flags, FREEZE_DB_MODE);
        
             //
             // Default checkpoint period is every 120 seconds

@@ -188,7 +188,7 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
             //
             // Berkeley DB expects file paths to be UTF8 encoded.
             //
-            open(txn, nativeToUTF8(getProcessStringConverter(), _dbName).c_str(), 0, DB_BTREE,
+            open(txn, nativeToUTF8(_dbName, getProcessStringConverter()).c_str(), 0, DB_BTREE,
                  flags, FREEZE_DB_MODE);
             
             StringSeq oldIndices;
@@ -442,7 +442,7 @@ Freeze::MapDb::MapDb(const Ice::CommunicatorPtr& communicator,
         //
         // Berkeley DB expects file paths to be UTF8 encoded.
         //
-        open(0, nativeToUTF8(getProcessStringConverter(), _dbName).c_str(), 0, DB_BTREE, flags,
+        open(0, nativeToUTF8(_dbName, getProcessStringConverter()).c_str(), 0, DB_BTREE, flags,
              FREEZE_DB_MODE);
     }
     catch(const ::DbException& dx)

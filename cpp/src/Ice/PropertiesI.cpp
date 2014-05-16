@@ -702,8 +702,8 @@ Ice::PropertiesI::parseLine(const string& line, const IceUtil::StringConverterPt
         return;
     }
 
-    key = IceUtil::UTF8ToNative(converter, key);
-    value = IceUtil::UTF8ToNative(converter, value);
+    key = IceUtil::UTF8ToNative(key, converter);
+    value = IceUtil::UTF8ToNative(value, converter);
 
     setProperty(key, value);
 }

@@ -31,6 +31,7 @@ OBJS		= Acceptor.obj \
 		  ConnectionRequestHandler.obj \
 		  Current.obj \
 		  DefaultsAndOverrides.obj \
+                  DeprecatedStringConverter.obj \
 		  Direct.obj \
                   DispatchInterceptor.obj \
 		  DLLMain.obj \

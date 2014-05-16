@@ -37,7 +37,6 @@ Init init;
 
 }
 
-
 namespace
 {
 
@@ -96,166 +95,7 @@ private:
 
 }
 
-StringConverterPtr
-IceUtil::getProcessStringConverter()
-{
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-    return processStringConverter;
-}
 
-void
-IceUtil::setProcessStringConverter(const StringConverterPtr& converter)
-{
-   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-   processStringConverter = converter;
-}
-
-WstringConverterPtr
-IceUtil::getProcessWstringConverter()
-{
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-    return processWstringConverter;
-}
-
-void
-IceUtil::setProcessWstringConverter(const WstringConverterPtr& converter)
-{
-   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
-   processWstringConverter = converter;
-}
-
-string
-IceUtil::nativeToUTF8(const IceUtil::StringConverterPtr& converter, const string& str)
-{
-    if(!converter || str.empty())
-    {
-        return str;
-    }    
-    UTF8BufferI buffer;
-    Byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
-    return string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-}
-
-string
-IceUtil::UTF8ToNative(const IceUtil::StringConverterPtr& converter, const string& str)
-{
-    if(!converter || str.empty())
-    {
-        return str;
-    }
-    string tmp;
-    converter->fromUTF8(reinterpret_cast<const Byte*>(str.data()),
-                        reinterpret_cast<const Byte*>(str.data() + str.size()), tmp);
-    return tmp;
-}
-
-string
-IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter,
-                         IceUtil::ConversionFlags flags)
-{
-    string target;
-    if(!v.empty())
-    {
-        //
-        // First convert to UTF8 narrow string.
-        //
-        if(wConverter)
-        {
-            UTF8BufferI buffer;
-            Byte* last = wConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
-            target = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
-        else
-        {
-            size_t size = v.size() * 4 * sizeof(char);
-
-            Byte* outBuf = new Byte[size];
-            Byte* targetStart = outBuf; 
-            Byte* targetEnd = outBuf + size;
-
-            const wchar_t* sourceStart = v.data();
-  
-            ConversionResult cr = 
-                convertUTFWstringToUTF8(
-                    sourceStart, sourceStart + v.size(), 
-                    targetStart, targetEnd, flags);
-                
-            if(cr != conversionOK)
-            {
-                delete[] outBuf;
-                assert(cr == sourceExhausted || cr == sourceIllegal);
-                throw IllegalConversionException(__FILE__, __LINE__, 
-                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
-            }
-            
-            target = string(reinterpret_cast<char*>(outBuf), static_cast<size_t>(targetStart - outBuf));
-            delete[] outBuf;
-        }
-
-        //
-        // If narrow string converter is present convert to the native narrow string encoding, otherwise 
-        // native narrow string encoding is UTF8 and we are done.
-        //
-        if(converter)
-        {
-            string tmp;
-            converter->fromUTF8(reinterpret_cast<const Byte*>(target.data()), 
-                                reinterpret_cast<const Byte*>(target.data() + target.size()), tmp);
-            tmp.swap(target);
-        }
-    }
-    return target;
-}
-
-wstring
-IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, 
-                         const WstringConverterPtr& wConverter, IceUtil::ConversionFlags flags)
-{
-    wstring target;
-    if(!v.empty())
-    {
-        //
-        // If there is a narrow string converter use it to convert to UTF8, otherwise the narrow
-        // string is already UTF8 encoded.
-        //
-        string tmp;
-        if(converter)
-        {
-            UTF8BufferI buffer;
-            Byte* last = converter->toUTF8(v.data(), v.data() + v.size(), buffer);
-            tmp = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
-        else
-        {
-            tmp = v;
-        }
-
-        //
-        // If there is a wide string converter use fromUTF8 to convert to the wide string native encoding.
-        //
-        if(wConverter)
-        {
-            wConverter->fromUTF8(reinterpret_cast<const Byte*>(tmp.data()), 
-                                 reinterpret_cast<const Byte*>(tmp.data() + tmp.size()), target);
-        }
-        else
-        {
-            const Byte* sourceStart = reinterpret_cast<const Byte*>(tmp.data());
-            
-            ConversionResult cr = 
-                convertUTF8ToUTFWstring(sourceStart, sourceStart + tmp.size(), target, flags);
-
-            if(cr != conversionOK)
-            {
-                assert(cr == sourceExhausted || cr == sourceIllegal);
-
-                throw IllegalConversionException(__FILE__, __LINE__,
-                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
-            }
-        }
-    }
-    return target;
-}
 
 UnicodeWstringConverter::UnicodeWstringConverter(ConversionFlags flags) :
     _conversionFlags(flags)
@@ -438,3 +278,165 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 }
 
 #endif
+
+
+StringConverterPtr
+IceUtil::getProcessStringConverter()
+{
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    return processStringConverter;
+}
+
+void
+IceUtil::setProcessStringConverter(const StringConverterPtr& converter)
+{
+   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+   processStringConverter = converter;
+}
+
+WstringConverterPtr
+IceUtil::getProcessWstringConverter()
+{
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+    return processWstringConverter;
+}
+
+void
+IceUtil::setProcessWstringConverter(const WstringConverterPtr& converter)
+{
+   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processStringConverterMutex);
+   processWstringConverter = converter;
+}
+
+string
+IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, const WstringConverterPtr& wConverter,
+                         IceUtil::ConversionFlags flags)
+{
+    string target;
+    if(!v.empty())
+    {
+        //
+        // First convert to UTF8 narrow string.
+        //
+        if(wConverter)
+        {
+            UTF8BufferI buffer;
+            Byte* last = wConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+            target = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        }
+        else
+        {
+            size_t size = v.size() * 4 * sizeof(char);
+
+            Byte* outBuf = new Byte[size];
+            Byte* targetStart = outBuf; 
+            Byte* targetEnd = outBuf + size;
+
+            const wchar_t* sourceStart = v.data();
+  
+            ConversionResult cr = 
+                convertUTFWstringToUTF8(
+                    sourceStart, sourceStart + v.size(), 
+                    targetStart, targetEnd, flags);
+                
+            if(cr != conversionOK)
+            {
+                delete[] outBuf;
+                assert(cr == sourceExhausted || cr == sourceIllegal);
+                throw IllegalConversionException(__FILE__, __LINE__, 
+                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
+            }
+            
+            target = string(reinterpret_cast<char*>(outBuf), static_cast<size_t>(targetStart - outBuf));
+            delete[] outBuf;
+        }
+
+        //
+        // If narrow string converter is present convert to the native narrow string encoding, otherwise 
+        // native narrow string encoding is UTF8 and we are done.
+        //
+        if(converter)
+        {
+            string tmp;
+            converter->fromUTF8(reinterpret_cast<const Byte*>(target.data()), 
+                                reinterpret_cast<const Byte*>(target.data() + target.size()), tmp);
+            tmp.swap(target);
+        }
+    }
+    return target;
+}
+
+wstring
+IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, 
+                         const WstringConverterPtr& wConverter, IceUtil::ConversionFlags flags)
+{
+    wstring target;
+    if(!v.empty())
+    {
+        //
+        // If there is a narrow string converter use it to convert to UTF8, otherwise the narrow
+        // string is already UTF8 encoded.
+        //
+        string tmp;
+        if(converter)
+        {
+            UTF8BufferI buffer;
+            Byte* last = converter->toUTF8(v.data(), v.data() + v.size(), buffer);
+            tmp = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        }
+        else
+        {
+            tmp = v;
+        }
+
+        //
+        // If there is a wide string converter use fromUTF8 to convert to the wide string native encoding.
+        //
+        if(wConverter)
+        {
+            wConverter->fromUTF8(reinterpret_cast<const Byte*>(tmp.data()), 
+                                 reinterpret_cast<const Byte*>(tmp.data() + tmp.size()), target);
+        }
+        else
+        {
+            const Byte* sourceStart = reinterpret_cast<const Byte*>(tmp.data());
+            
+            ConversionResult cr = 
+                convertUTF8ToUTFWstring(sourceStart, sourceStart + tmp.size(), target, flags);
+
+            if(cr != conversionOK)
+            {
+                assert(cr == sourceExhausted || cr == sourceIllegal);
+
+                throw IllegalConversionException(__FILE__, __LINE__,
+                                                 cr == sourceExhausted ? "partial character" : "bad encoding");
+            }
+        }
+    }
+    return target;
+}
+
+string
+IceUtil::nativeToUTF8(const string& str, const IceUtil::StringConverterPtr& converter)
+{
+    if(!converter || str.empty())
+    {
+        return str;
+    }    
+    UTF8BufferI buffer;
+    Byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
+    return string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+}
+
+string
+IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& converter)
+{
+    if(!converter || str.empty())
+    {
+        return str;
+    }
+    string tmp;
+    converter->fromUTF8(reinterpret_cast<const Byte*>(str.data()),
+                        reinterpret_cast<const Byte*>(str.data() + str.size()), tmp);
+    return tmp;
+}

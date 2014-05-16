@@ -288,7 +288,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                     throw ex;
                 }
 
-                facet = UTF8ToNative(_instance->getStringConverter(), facet);
+                facet = UTF8ToNative(facet, _instance->getStringConverter());
                 break;
             }
 
@@ -569,7 +569,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 throw ex;
             }
 
-            adapter = UTF8ToNative(_instance->getStringConverter(), adapter);
+            adapter = UTF8ToNative(adapter, _instance->getStringConverter());
 
             return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapter, propertyPrefix);
             break;

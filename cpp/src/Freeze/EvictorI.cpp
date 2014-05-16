@@ -321,7 +321,7 @@ Freeze::EvictorIBase::allDbs() const
         //
         // Berkeley DB expects file paths to be UTF8 encoded.
         //
-        db.open(0, nativeToUTF8(IceUtil::getProcessStringConverter(), _filename).c_str(), 0, DB_UNKNOWN, 
+        db.open(0, nativeToUTF8(_filename, IceUtil::getProcessStringConverter()).c_str(), 0, DB_UNKNOWN, 
                 DB_RDONLY, 0);
 
         Dbc* dbc = 0;

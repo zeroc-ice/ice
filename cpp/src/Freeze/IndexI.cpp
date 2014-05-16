@@ -387,7 +387,7 @@ Freeze::IndexI::associate(ObjectStoreBase* store, DbTxn* txn,
     // with deployed databases.
     //
     _db->open(txn, 
-              IceUtil::nativeToUTF8(IceUtil::getProcessStringConverter(), store->evictor()->filename()).c_str(),
+              IceUtil::nativeToUTF8(store->evictor()->filename(), IceUtil::getProcessStringConverter()).c_str(),
               _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 
     flags = 0;

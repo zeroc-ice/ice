@@ -205,7 +205,7 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 // Berkeley DB expects file paths to be UTF8 encoded.
                 //
                 oldDb.open(txn, 
-                           IceUtil::nativeToUTF8(IceUtil::getProcessStringConverter(), oldDbName).c_str(),
+                           IceUtil::nativeToUTF8(oldDbName, IceUtil::getProcessStringConverter()).c_str(),
                            0, DB_BTREE, DB_THREAD, FREEZE_DB_MODE);
                     
                 IceUtil::UniquePtr<MapDb> newDb(new MapDb(connectionI, dbName, key, value, keyCompare, indices, true));
@@ -1780,7 +1780,7 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, MapDb& db,
     // Berkeley DB expects file paths to be UTF8 encoded.
     //
     _db->open(txn, 
-              IceUtil::nativeToUTF8(IceUtil::getProcessStringConverter(), _dbName).c_str(),
+              IceUtil::nativeToUTF8(_dbName, IceUtil::getProcessStringConverter()).c_str(),
               0, DB_BTREE, flags, FREEZE_DB_MODE);
 
     //

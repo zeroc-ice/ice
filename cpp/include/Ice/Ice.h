@@ -10,7 +10,8 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
+#include <Ice/DeprecatedStringConverter.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/PropertiesAdmin.h>

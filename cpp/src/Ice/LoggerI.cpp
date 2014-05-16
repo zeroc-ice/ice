@@ -154,9 +154,9 @@ Ice::LoggerI::write(const string& message, bool indent)
             //
             // Use fprintf_s to avoid encoding conversion when stderr is connected
             // to Windows console. When _convert is set to false we always output
-            // UTF8 encoded messages.
+            // UTF-8 encoded messages.
             //
-            fprintf_s(stderr, "%s\n", IceUtil::nativeToUTF8(_converter, s).c_str());
+            fprintf_s(stderr, "%s\n", IceUtil::nativeToUTF8(s, _converter).c_str());
             fflush(stderr);
         }
         else
@@ -164,7 +164,7 @@ Ice::LoggerI::write(const string& message, bool indent)
             try
             {
                 // Convert message to UTF-8
-                string u8s = IceUtil::nativeToUTF8(_converter, s);
+                string u8s = IceUtil::nativeToUTF8(s, _converter);
                 
                 // Then from UTF-8 to console CP
                 string consoleString;
