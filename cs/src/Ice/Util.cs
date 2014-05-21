@@ -237,12 +237,22 @@ namespace Ice
             Identity ident = new Identity();
 
             //
-            // Find unescaped separator.
+            // Find unescaped separator; note that the string may contain an escaped
+            // backslash before the separator.
             //
             int slash = -1, pos = 0;
             while((pos = s.IndexOf((System.Char) '/', pos)) != -1)
             {
-                if(pos == 0 || s[pos - 1] != '\\')
+                int escapes = 0;
+                while(pos - escapes > 0 && s[pos - escapes - 1] == '\\')
+                {
+                    escapes++;
+                }
+
+                //
+                // We ignore escaped escapes
+                //
+                if(escapes % 2 == 0)
                 {
                     if(slash == -1)
                     {

@@ -449,12 +449,22 @@ IceInternal::Instance::stringToIdentity(const string& s) const
     Identity ident;
 
     //
-    // Find unescaped separator.
+    // Find unescaped separator; note that the string may contain an escaped
+    // backslash before the separator.
     //
     string::size_type slash = string::npos, pos = 0;
     while((pos = s.find('/', pos)) != string::npos)
     {
-        if(pos == 0 || s[pos - 1] != '\\')
+        int escapes = 0;
+        while(static_cast<int>(pos)- escapes > 0 && s[pos - escapes - 1] == '\\')
+        {
+            escapes++;
+        }
+
+        //
+        // We ignore escaped escapes
+        //
+        if(escapes % 2 == 0)
         {
             if(slash == string::npos)
             {

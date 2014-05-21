@@ -322,6 +322,18 @@
                         test(false);
                     }
                 }
+
+                //
+                // Test for bug ICE-5543: escaped escapes in stringToIdentity
+                //
+                var id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
+                var id2 = communicator.stringToIdentity(communicator.identityToString(id));
+                test(id.equals(id2));
+                
+                id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
+                id2 = communicator.stringToIdentity(communicator.identityToString(id));
+                test(id.equals(id2));
+
                 out.writeLine("ok");
 
                 out.write("testing propertyToProxy... ");

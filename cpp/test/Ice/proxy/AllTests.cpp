@@ -252,6 +252,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::EndpointParseException&)
     {
     }
+
+    //
+    // Test for bug ICE-5543: escaped escapes in stringToIdentity
+    //
+    Ice::Identity id = { "test", ",X2QNUAzSBcJ_e$AV;E\\" };
+    Ice::Identity id2 = communicator->stringToIdentity(communicator->identityToString(id));
+    test(id == id2);
+
+    id = { "test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\" };
+    id2 = communicator->stringToIdentity(communicator->identityToString(id));
+    test(id == id2);
+
     cout << "ok" << endl;
 
     cout << "testing propertyToProxy... " << flush;

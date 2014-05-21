@@ -259,6 +259,18 @@ public class AllTests : TestCommon.TestApp
         catch(Ice.EndpointParseException)
         {
         }
+
+        //
+        // Test for bug ICE-5543: escaped escapes in stringToIdentity
+        //
+        Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
+        Ice.Identity id2 = communicator.stringToIdentity(communicator.identityToString(id));
+        test(id.Equals(id2));
+        
+        id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
+        id2 = communicator.stringToIdentity(communicator.identityToString(id));
+        test(id.Equals(id2));
+       
         WriteLine("ok");
 
         Write("testing propertyToProxy... ");

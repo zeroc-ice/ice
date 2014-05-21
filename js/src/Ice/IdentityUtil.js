@@ -33,13 +33,23 @@
         var ident = new Identity();
 
         //
-        // Find unescaped separator.
+        // Find unescaped separator; note that the string may contain an escaped
+        // backslash before the separator.
         //
         var slash = -1;
         var pos = 0;
         while((pos = s.indexOf('/', pos)) !== -1)
         {
-            if(pos === 0 || s.charAt(pos - 1) != '\\')
+            var escapes = 0;
+            while(pos - escapes > 0 && s.charAt(pos - escapes - 1) == '\\')
+            {
+                escapes++;
+            }
+               
+            //
+            // We ignore escaped escapes
+            //
+            if(escapes % 2 == 0)
             {
                 if(slash == -1)
                 {
