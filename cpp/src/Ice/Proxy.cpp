@@ -171,11 +171,11 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
         IceInternal::BasicStream* __os = __result->__startWriteParams(DefaultFormat);
         __os->write(typeId);
         __result->__endWriteParams();
-        __result->__send(true);
+        __result->__invoke(true);
     }
     catch(const LocalException& __ex)
     {
-        __result->__exceptionAsync(__ex);
+        __result->__invokeExceptionAsync(__ex);
     }
     return __result;
 }
@@ -246,11 +246,11 @@ IceProxy::Ice::Object::begin_ice_ping(const Context* ctx,
     {
         __result->__prepare(ice_ping_name, Nonmutating, ctx);
         __result->__writeEmptyParams();
-        __result->__send(true);
+        __result->__invoke(true);
     }
     catch(const LocalException& __ex)
     {
-        __result->__exceptionAsync(__ex);
+        __result->__invokeExceptionAsync(__ex);
     }
     return __result;
 }
@@ -322,11 +322,11 @@ IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
     {
         __result->__prepare(ice_ids_name, Nonmutating, ctx);
         __result->__writeEmptyParams();
-        __result->__send(true);
+        __result->__invoke(true);
     }
     catch(const LocalException& __ex)
     {
-        __result->__exceptionAsync(__ex);
+        __result->__invokeExceptionAsync(__ex);
     }
     return __result;
 }
@@ -373,11 +373,11 @@ IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
     {
         __result->__prepare(ice_id_name, Nonmutating, ctx);
         __result->__writeEmptyParams();
-        __result->__send(true);
+        __result->__invoke(true);
     }
     catch(const LocalException& __ex)
     {
-        __result->__exceptionAsync(__ex);
+        __result->__invokeExceptionAsync(__ex);
     }
     return __result;
 }
@@ -626,11 +626,11 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
     {
         __result->__prepare(operation, mode, ctx);
         __result->__writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
-        __result->__send(true);
+        __result->__invoke(true);
     }
     catch(const LocalException& __ex)
     {
-        __result->__exceptionAsync(__ex);
+        __result->__invokeExceptionAsync(__ex);
     }
     return __result;
 }
@@ -964,6 +964,27 @@ IceProxy::Ice::Object::ice_collocationOptimized(bool b) const
     }
 }
 
+Int
+IceProxy::Ice::Object::ice_getInvocationTimeout() const
+{
+    return _reference->getInvocationTimeout();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_invocationTimeout(Int newTimeout) const
+{
+    if(newTimeout == _reference->getInvocationTimeout())
+    {
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+        ObjectPrx proxy = __newInstance();
+        proxy->setup(_reference->changeInvocationTimeout(newTimeout));
+        return proxy;
+    }
+}
+
 ObjectPrx
 IceProxy::Ice::Object::ice_twoway() const
 {
@@ -1213,11 +1234,11 @@ IceProxy::Ice::Object::begin_ice_flushBatchRequestsInternal(const ::IceInternal:
         new ::IceInternal::ProxyBatchOutgoingAsync(this, ice_flushBatchRequests_name, del, cookie);
     try
     {
-        __result->__send();
+        __result->__invoke();
     }
     catch(const LocalException& __ex)
     {
-        __result->__exceptionAsync(__ex);
+        __result->__invokeExceptionAsync(__ex);
     }
     return __result;
 }

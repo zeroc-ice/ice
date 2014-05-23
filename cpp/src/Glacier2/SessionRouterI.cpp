@@ -366,6 +366,43 @@ private:
     const SSLInfo _sslInfo;
 };
 
+class ConnectionCallbackI : public Ice::ConnectionCallback
+{
+public:
+
+    ConnectionCallbackI(const SessionRouterIPtr& sessionRouter) : _sessionRouter(sessionRouter)
+    {
+    }
+    
+    virtual void
+    heartbeat(const Ice::ConnectionPtr& connection)
+    {
+        try
+        {
+            _sessionRouter->refreshSession(connection);
+        }
+        catch(const Ice::Exception&)
+        {
+        }
+    }
+
+    virtual void
+    closed(const Ice::ConnectionPtr& connection)
+    {
+        try
+        {
+            _sessionRouter->destroySession(connection);
+        }
+        catch(const Ice::Exception&)
+        {
+        }
+    }
+
+private:
+
+    const SessionRouterIPtr _sessionRouter;
+};
+
 }
 
 CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const string& user, const Ice::Current& current) :
@@ -611,6 +648,7 @@ SessionRouterI::SessionRouterI(const InstancePtr& instance,
     _sslVerifier(sslVerifier),
     _sslSessionManager(sslSessionManager),
     _sessionTimeout(IceUtil::Time::seconds(_instance->properties()->getPropertyAsInt("Glacier2.SessionTimeout"))),
+    _connectionCallback(new ConnectionCallbackI(this)),
     _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this, _sessionTimeout) : 0),
     _routersByConnectionHint(_routersByConnection.end()),
     _routersByCategoryHint(_routersByCategory.end()),
@@ -618,7 +656,6 @@ SessionRouterI::SessionRouterI(const InstancePtr& instance,
     _sessionDestroyCallback(newCallback_Session_destroy(this, &SessionRouterI::sessionDestroyException)),
     _destroy(false)
 {
-
     //
     // This session router is used directly as servant for the main
     // Glacier2 router Ice object.
@@ -704,6 +741,8 @@ SessionRouterI::destroy()
         
         sessionThread = _sessionThread;
         _sessionThread = 0;
+
+        _connectionCallback = 0;
 
         swap(destroyCallback, _sessionDestroyCallback); // Break cyclic reference count.
         _sessionPingCallback = 0; // Break cyclic reference count.
@@ -841,20 +880,54 @@ SessionRouterI::destroySession(const Current& current)
 void
 SessionRouterI::refreshSession(const Ice::Current& current)
 {
-    RouterIPtr router = getRouter(current.con, current.id, false); // getRouter updates the session timestamp.
-    if(!router)
+    Ice::Callback_Object_ice_pingPtr sessionPingCallback;
+    RouterIPtr router;
     {
-        throw SessionNotExistException();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        router = getRouterImpl(current.con, current.id, false); // getRouter updates the session timestamp.
+        if(!router)
+        {
+            throw SessionNotExistException();
+        }
+        
+        //
+        // Ping the session to ensure it does not timeout.
+        //
+        assert(_sessionPingCallback);
+        sessionPingCallback = _sessionPingCallback;
     }
 
-    //
-    // Ping the session to ensure it does not timeout.
-    //
-    assert(_sessionPingCallback);
     SessionPrx session = router->getSession();
     if(session)
     {
-        session->begin_ice_ping(_sessionPingCallback, current.con);
+        session->begin_ice_ping(sessionPingCallback, current.con);
+    }
+}
+
+void
+SessionRouterI::refreshSession(const Ice::ConnectionPtr& con)
+{
+    Ice::Callback_Object_ice_pingPtr sessionPingCallback;
+    RouterIPtr router;
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        router = getRouterImpl(con, Ice::Identity(), false); // getRouter updates the session timestamp.
+        if(!router)
+        {
+            throw SessionNotExistException();
+        }
+        
+        //
+        // Ping the session to ensure it does not timeout.
+        //
+        assert(_sessionPingCallback);
+        sessionPingCallback = _sessionPingCallback;
+    }
+
+    SessionPrx session = router->getSession();
+    if(session)
+    {
+        session->begin_ice_ping(sessionPingCallback, con);
     }
 }
 
@@ -917,6 +990,12 @@ Ice::Long
 SessionRouterI::getSessionTimeout(const Ice::Current&) const
 {
     return _sessionTimeout.toSeconds();
+}
+
+int
+SessionRouterI::getACMTimeout(const Ice::Current& current) const
+{
+    return current.con->getACM().timeout;
 }
 
 void 
@@ -1186,6 +1265,8 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const Route
         _routersByCategoryHint = rc.first;
     }
 
+    connection->setCallback(_connectionCallback);
+
     if(_sessionTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
@@ -1194,7 +1275,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const Route
 }
 
 SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& sessionRouter,
-                                                       const IceUtil::Time& sessionTimeout) :
+                                             const IceUtil::Time& sessionTimeout) :
     IceUtil::Thread("Glacier2 session thread"),
     _sessionRouter(sessionRouter),
     _sessionTimeout(sessionTimeout)

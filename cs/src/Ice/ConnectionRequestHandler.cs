@@ -30,31 +30,25 @@ namespace IceInternal
             _connection.abortBatchRequest();
         }
 
-        public Ice.ConnectionI sendRequest(Outgoing @out)
+        public bool sendRequest(OutgoingMessageCallback @out)
         {
-            if(!_connection.sendRequest(@out, _compress, _response) || _response)
-            {
-                return _connection; // The request has been sent or we're expecting a response.
-            }
-            else
-            {
-                return null; // The request hasn't been sent yet.
-            }
+            // Finished if sent and no response
+            return @out.send(_connection, _compress, _response) && !_response;
         }
 
-        public bool sendAsyncRequest(OutgoingAsync @out, out Ice.AsyncCallback sentCallback)
+        public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
         {
-            return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
+            return outAsync.send__(_connection, _compress, _response, out sentCallback);
         }
 
-        public bool flushBatchRequests(BatchOutgoing @out)
+        public void requestTimedOut(OutgoingMessageCallback @out)
         {
-            return _connection.flushBatchRequests(@out);
+            _connection.requestTimedOut(@out);
         }
 
-        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out, out Ice.AsyncCallback sentCallback)
+        public void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
         {
-            return _connection.flushAsyncBatchRequests(@out, out sentCallback);
+            _connection.asyncRequestTimedOut(outAsync);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context,

@@ -56,35 +56,28 @@ ConnectionRequestHandler::abortBatchRequest()
     _connection->abortBatchRequest();
 }
 
-Ice::ConnectionI*
-ConnectionRequestHandler::sendRequest(Outgoing* out)
-{
-    if(!_connection->sendRequest(out, _compress, _response) || _response)
-    {
-        return _connection.get(); // The request hasn't been sent or we're expecting a response.
-    }
-    else
-    {
-        return 0; // The request has been sent.
-    }
-}
-
-AsyncStatus
-ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
-{
-    return _connection->sendAsyncRequest(out, _compress, _response);
-}
-
 bool
-ConnectionRequestHandler::flushBatchRequests(BatchOutgoing* out)
+ConnectionRequestHandler::sendRequest(OutgoingMessageCallback* out)
 {
-    return _connection->flushBatchRequests(out);
+    return out->send(_connection, _compress, _response) && !_response; // Finished if sent and no response
 }
 
 AsyncStatus
-ConnectionRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
+ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr& out)
 {
-    return _connection->flushAsyncBatchRequests(out);
+    return out->__send(_connection, _compress, _response);
+}
+
+void 
+ConnectionRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
+{
+    _connection->requestTimedOut(out);
+}
+
+void 
+ConnectionRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr& outAsync)
+{
+    _connection->asyncRequestTimedOut(outAsync);
 }
 
 Ice::ConnectionIPtr

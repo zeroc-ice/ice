@@ -87,11 +87,11 @@ public class SessionKeeper
     //
     private class Session
     {
-        Session(AdminSessionPrx session, long keepAliveperiod, boolean routed, final Component parent) 
+        Session(AdminSessionPrx session, long sessionTimeout, int acmTimeout, boolean routed, final Component parent) 
             throws java.lang.Throwable
         {
             _session = session;
-
+            _routed = routed;
             try
             {
                 _admin = _session.getAdmin();
@@ -222,13 +222,53 @@ public class SessionKeeper
                 throw e;
             }
 
-            _thread = new Pinger(_session, keepAliveperiod);
-            _thread.setDaemon(true);
-            _thread.start();
+            if(acmTimeout > 0)
+            {
+                _session.ice_getConnection().setACM(
+                    new Ice.IntOptional(acmTimeout), 
+                    null, 
+                    new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
+
+                _session.ice_getConnection().setCallback(
+                    new Ice.ConnectionCallback()
+                    {
+                        public void 
+                        heartbeat(Ice.Connection con)
+                        {
+                        }
+                        
+                        public void 
+                        closed(Ice.Connection con)
+                        {
+                            try
+                            {
+                                con.getInfo(); // This throws when the connection is closed.
+                                assert(false);
+                            }
+                            catch(final Ice.LocalException ex)
+                            {
+                                SwingUtilities.invokeLater(
+                                    new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            sessionLost("Failed to contact the IceGrid registry: " + ex.toString());
+                                        }
+                                    });
+                            }
+                        }
+                    });
+            }
+            else
+            {
+                _thread = new Pinger(_session, sessionTimeout * 1000 / 2);
+                _thread.setDaemon(true);
+                _thread.start();
+            }
 
             try
             {
-                registerObservers(routed);
+                registerObservers();
             }
             catch(final Ice.LocalException e)
             {
@@ -366,22 +406,24 @@ public class SessionKeeper
                 _adapter.destroy();
                 _adapter = null;
             }
+            
+            _session.ice_getConnection().setCallback(null);
 
             if(destroySession)
             {
-                _coordinator.destroySession(_session);
+                _coordinator.destroySession(_session, _routed);
             }
             _coordinator.setConnected(false);
         }
 
-        private void registerObservers(final boolean routed) throws java.lang.Throwable 
+        private void registerObservers() throws java.lang.Throwable 
         {
             //
             // Create the object adapter for the observers
             //
             String category;
 
-            if(!routed)
+            if(!_routed)
             {
                 category = "observer";
 
@@ -454,7 +496,7 @@ public class SessionKeeper
 
                                 try
                                 {
-                                    if(routed)
+                                    if(_routed)
                                     {
                                         _session.setObservers(registryObserver,
                                                             nodeObserver,
@@ -494,6 +536,7 @@ public class SessionKeeper
         }
 
         private final AdminSessionPrx _session;
+        private final boolean _routed;
 
         private Pinger _thread;
 
@@ -4661,9 +4704,7 @@ public class SessionKeeper
                                     Cursor oldCursor = parent.getCursor();
                                     parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                     dispose();
-                                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                                    _coordinator.login(SessionKeeper.this, info,parent, oldCursor, 
-                                                       keepAlivePeriodHolder);
+                                    _coordinator.login(SessionKeeper.this, info,parent, oldCursor);
                                 }
                             }
                         };
@@ -4726,8 +4767,7 @@ public class SessionKeeper
                 {
                     Cursor oldCursor = parent.getCursor();
                     parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor, keepAlivePeriodHolder);
+                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
                 }
             }
         }
@@ -4799,9 +4839,7 @@ public class SessionKeeper
                                     Cursor oldCursor = parent.getCursor();
                                     parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                     dispose();
-                                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor, 
-                                                       keepAlivePeriodHolder);
+                                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
                                 }
                             }
                         };
@@ -4859,15 +4897,14 @@ public class SessionKeeper
                 {
                     Cursor oldCursor = parent.getCursor();
                     parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor, keepAlivePeriodHolder);
+                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
                 }
             }
         }
     }
 
-    public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long keepAliveperiod, 
-                             final AdminSessionPrx session, final ConnectionInfo info)
+    public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long sessionTimeout, 
+                             final int acmTimeout, final AdminSessionPrx session, final ConnectionInfo info)
     {
         assert session != null;
         try
@@ -4906,7 +4943,7 @@ public class SessionKeeper
                 {
                     try
                     {
-                        setSession(new Session(session, keepAliveperiod, !info.getDirect(), parent));
+                        setSession(new Session(session, sessionTimeout, acmTimeout, !info.getDirect(), parent));
                     }
                     catch(java.lang.Throwable e)
                     {
@@ -5090,9 +5127,7 @@ public class SessionKeeper
                                 Cursor oldCursor = parent.getCursor();
                                 parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                 dispose();
-                                Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                                _coordinator.login(SessionKeeper.this, info, parent,
-                                                   oldCursor, keepAlivePeriodHolder);
+                                _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
                             }
                         }
                     });
@@ -5220,8 +5255,6 @@ public class SessionKeeper
     private ConnectionManagerDialog _connectionManagerDialog;
     private CertificateManagerDialog _certificateManagerDialog;
     private static AuthDialog _authDialog;
-
-    private ConnectionInfo _connectionInfo;
 
     private final Coordinator _coordinator;
     private Preferences _loginPrefs;

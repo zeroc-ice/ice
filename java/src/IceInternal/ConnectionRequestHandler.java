@@ -32,37 +32,30 @@ public class ConnectionRequestHandler implements RequestHandler
         _connection.abortBatchRequest();
     }
 
-    public Ice.ConnectionI
-    sendRequest(Outgoing out)
-        throws LocalExceptionWrapper
-    {
-        if(!_connection.sendRequest(out, _compress, _response) || _response)
-        {
-            return _connection; // The request has been sent or we're expecting a response.
-        }
-        else
-        {
-            return null; // The request has been sent.
-        }
-    }
-
-    public int
-    sendAsyncRequest(OutgoingAsync out)
-        throws LocalExceptionWrapper
-    {
-        return _connection.sendAsyncRequest(out, _compress, _response);
-    }
-
     public boolean
-    flushBatchRequests(BatchOutgoing out)
+    sendRequest(OutgoingMessageCallback out)
+        throws LocalExceptionWrapper
     {
-        return _connection.flushBatchRequests(out);
+        return out.send(_connection, _compress, _response) && !_response; // Finished if sent and no response
     }
 
     public int
-    flushAsyncBatchRequests(BatchOutgoingAsync out)
+    sendAsyncRequest(OutgoingAsyncMessageCallback out)
+        throws LocalExceptionWrapper
     {
-        return _connection.flushAsyncBatchRequests(out);
+        return out.__send(_connection, _compress, _response);
+    }
+
+    public void 
+    requestTimedOut(OutgoingMessageCallback out)
+    {
+        _connection.requestTimedOut(out);
+    }
+
+    public void 
+    asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
+    {
+        _connection.asyncRequestTimedOut(outAsync);
     }
 
     public Outgoing

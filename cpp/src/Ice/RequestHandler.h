@@ -25,6 +25,8 @@ class BasicStream;
 class Outgoing;
 class BatchOutgoing;
 
+class OutgoingMessageCallback;
+
 class RequestHandler : virtual public ::IceUtil::Shared
 {
 public:
@@ -35,11 +37,11 @@ public:
     virtual void finishBatchRequest(BasicStream*) = 0;
     virtual void abortBatchRequest() = 0;
 
-    virtual Ice::ConnectionI* sendRequest(Outgoing*) = 0;
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncPtr&) = 0;
+    virtual bool sendRequest(OutgoingMessageCallback*) = 0;
+    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr&) = 0;
 
-    virtual bool flushBatchRequests(BatchOutgoing*) = 0;
-    virtual AsyncStatus flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&) = 0;
+    virtual void requestTimedOut(OutgoingMessageCallback*) = 0;
+    virtual void asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr&) = 0;
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 

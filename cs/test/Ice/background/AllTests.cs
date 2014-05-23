@@ -252,7 +252,7 @@ public class AllTests
         Console.Out.Flush();
         {
             Ice.LocatorPrx locator;
-            obj = communicator.stringToProxy("locator:default -p 12010 -t 500");
+            obj = communicator.stringToProxy("locator:default -p 12010").ice_invocationTimeout(250);
             locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
 
@@ -293,7 +293,7 @@ public class AllTests
         {
             Ice.RouterPrx router;
 
-            obj = communicator.stringToProxy("router:default -p 12010 -t 500");
+            obj = communicator.stringToProxy("router:default -p 12010").ice_invocationTimeout(250);
             router = Ice.RouterPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
 

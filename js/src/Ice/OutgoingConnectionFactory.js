@@ -12,7 +12,6 @@
     require("Ice/ArrayUtil");
     require("Ice/AsyncResultBase");
     require("Ice/ConnectionI");
-    require("Ice/ConnectionReaper");
     require("Ice/Debug");
     require("Ice/ExUtil");
     require("Ice/HashMap");
@@ -20,6 +19,7 @@
     require("Ice/EndpointTypes");
     require("Ice/LocalException");
     require("Ice/Exception");
+    require("Ice/ACM");
 
     var Ice = global.Ice || {};
 
@@ -32,6 +32,7 @@
     var HashMap = Ice.HashMap;
     var Promise = Ice.Promise;
     var EndpointSelectionType = Ice.EndpointSelectionType;
+    var FactoryACMMonitor = Ice.FactoryACMMonitor;
 
     var Class = Ice.Class;
     //
@@ -44,7 +45,7 @@
             this._instance = instance;
             this._destroyed = false;
 
-            this._reaper = new ConnectionReaper();
+            this._monitor = new FactoryACMMonitor(this._instance, this._instance.clientACM());
 
             this._connectionsByEndpoint = new ConnectionListMap(); // map<EndpointI, Array<Ice.ConnectionI>>
             this._pending = new HashMap(); // map<EndpointI, Array<ConnectCallback>>
@@ -321,7 +322,7 @@
             //
             // Reap closed connections
             //
-            var cons = this._reaper.swapConnections();
+            var cons = this._monitor.swapReapedConnections();
             if(cons !== null)
             {
                 for(var i = 0; i < cons.length; ++i)
@@ -396,7 +397,7 @@
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                connection = new ConnectionI(this._communicator, this._instance, this._reaper, transceiver,
+                connection = new ConnectionI(this._communicator, this._instance, this._monitor, transceiver,
                                             endpoint.changeCompress(false), false, null);
             }
             catch(ex)
@@ -701,7 +702,7 @@
             ).then(
                 function()
                 {
-                    var cons = self._reaper.swapConnections();
+                    var cons = self._monitor.swapReapedConnections();
                     if(cons !== null)
                     {
                         var arr = [];
@@ -726,6 +727,8 @@
                     
                     Debug.assert(self._waitPromise !== null);
                     self._waitPromise.succeed();
+
+                    _monitor.destroy()
                 }
             );
         }

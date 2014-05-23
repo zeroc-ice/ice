@@ -97,9 +97,9 @@ Module HelloC
                             timeout = -1
                         End If
 
-                        twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout))
-                        oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout))
-                        batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout))
+                        twoway = HelloPrxHelper.uncheckedCast(twoway.ice_invocationTimeout(timeout))
+                        oneway = HelloPrxHelper.uncheckedCast(oneway.ice_invocationTimeout(timeout))
+                        batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_invocationTimeout(timeout))
 
                         If timeout = -1 Then
                             Console.WriteLine("timeout is now switched off")

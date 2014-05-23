@@ -558,7 +558,7 @@ public class AllTests : TestCommon.TestApp
         controller.hold();
         try
         {
-            metrics.ice_timeout(500).ice_ping();
+            ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[1000000]);
             test(false);
         }
         catch(Ice.TimeoutException)
@@ -570,14 +570,13 @@ public class AllTests : TestCommon.TestApp
         while(true)
         {
             sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
-            if(sm1. failures >= 2)
+            if(sm1.failures >= 2)
             {
                 break;
             }
             System.Threading.Thread.Sleep(10);
         }
-
-        test(cm1.failures == 2 && sm1.failures >= 1);
+        test(cm1.failures == 2 && sm1.failures >= 2);
 
         checkFailure(clientMetrics, "Connection", cm1.id, "Ice::TimeoutException", 1);
         checkFailure(clientMetrics, "Connection", cm1.id, "Ice::ConnectTimeoutException", 1);

@@ -27,6 +27,36 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added support for connection closure and heartbeat callback. The
+  callback is invoked when the connection is closed or when a
+  heartbeat is received.
+
+- Active connection management improvements:
+
+ * Active connection management now support sending heartbeats over
+   the Ice connection. Depending on the configuration, heartbeats are
+   sent when there are long invocations in progress, when the
+   connection is idle or at regular time intervals.
+
+ * Connection closure by active connection management can be
+   configured to close connections under certain conditions. For
+   example, a connection can be closed gracefuly or forcefuly if it's
+   idle for the activement connection management period.
+
+ * The ACM properties to configure the ACM timeout have been
+   deprecated, you should now use the <prefix>.Timeout property where
+   <prefix> can be Ice.ACM, Ice.ACM.Client, Ice.ACM.Server or <object
+   adpater>.ACM.
+
+  See the release notes or Ice manual for more information.
+
+- Added support for invocation timeouts. Invocation timeouts can be
+  set on a per-proxy basis with the proxy ice_invocationTimeout
+  method. By default, there's no invocation timeout meaning that an
+  invocation will never timeout if the connection between the client
+  and server is alive. See the release notes and Ice manual for more
+  information.
+
 - Added support for IceGrid custom load balancing with the addition of
   replica group and type filters. These filters allow you to select
   the set of replicas that are sent back to the client when it

@@ -61,13 +61,13 @@ public:
     void
     useActivationTimeout()
     {
-        _proxy = ServerPrx::uncheckedCast(_proxy->ice_timeout(_activationTimeout * 1000));
+        _proxy = ServerPrx::uncheckedCast(_proxy->ice_invocationTimeout(_activationTimeout * 1000));
     }
 
     void
     useDeactivationTimeout()
     {
-        _proxy = ServerPrx::uncheckedCast(_proxy->ice_timeout(_deactivationTimeout * 1000));
+        _proxy = ServerPrx::uncheckedCast(_proxy->ice_invocationTimeout(_deactivationTimeout * 1000));
     }
 
     IceProxy::IceGrid::Server* 

@@ -69,7 +69,8 @@ public:
 
     virtual ~OutgoingMessageCallback() { }
  
-    virtual void sent(bool) = 0;
+    virtual bool send(const Ice::ConnectionIPtr&, bool, bool) = 0;
+    virtual void sent() = 0;
     virtual void finished(const Ice::LocalException&, bool) = 0;
 };
 
@@ -82,9 +83,13 @@ public:
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
-    virtual void sent(bool);
-    virtual void finished(BasicStream&);
-    void finished(const Ice::LocalException&, bool);
+
+    virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual void sent();
+    virtual void finished(const Ice::LocalException&, bool);
+
+    void finished(const LocalExceptionWrapper&);
+    void finished(BasicStream&);
 
     // Inlined for speed optimization.
     BasicStream* os() { return &_os; }
@@ -152,6 +157,8 @@ private:
     //
     RequestHandler* _handler;
     IceUtil::UniquePtr<Ice::LocalException> _exception;
+    bool _exceptionWrapper;
+    bool _exceptionWrapperRetry;
     InvocationObserver& _observer;
     ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
 
@@ -188,8 +195,9 @@ public:
     BatchOutgoing(Ice::ConnectionI*, Instance*, InvocationObserver&);
     
     void invoke();
-    
-    virtual void sent(bool);
+
+    virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual void sent();
     virtual void finished(const Ice::LocalException&, bool);
     
     BasicStream* os() { return &_os; }

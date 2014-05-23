@@ -39,11 +39,11 @@
         },
         sendAsyncRequest: function(out)
         {
-            return this._connection.sendAsyncRequest(out, this._compress, this._response);
+            return out.__send(this._connection, this._compress, this._response);
         },
-        flushAsyncBatchRequests: function(out)
+        asyncRequestTimedOut: function(out)
         {
-            return this._connection.flushAsyncBatchRequests(out);
+            return this._connection.asyncRequestTimedOut(out);
         },
         getReference: function()
         {
@@ -53,10 +53,6 @@
         {
             return this._connection;
         },
-        onConnection: function(r)
-        {
-            r.succeed(this._connection, r);
-        }
     });
     
     Ice.ConnectionRequestHandler = ConnectionRequestHandler;

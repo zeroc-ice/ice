@@ -247,10 +247,17 @@ generated from the section label.
         <suffix name="ConnectionCached" />
         <suffix name="PreferSecure" />
         <suffix name="LocatorCacheTimeout" />
+        <suffix name="InvocationTimeout" />
         <suffix name="Locator" />
         <suffix name="Router" />
         <suffix name="CollocationOptimized" />
         <suffix name="Context.[any]" />
+    </class>
+
+    <class name="acm" prefix-only="false">
+        <suffix name="Timeout" />
+        <suffix name="Heartbeat" />
+        <suffix name="Close" />
     </class>
 
     <class name="threadpool" prefix-only="true">
@@ -264,7 +271,7 @@ generated from the section label.
     </class>
 
     <class name="objectadapter" prefix-only="true">
-        <suffix name="ACM" />
+        <suffix name="ACM" class="acm"/>
         <suffix name="AdapterId" />
         <suffix name="Endpoints" />
         <suffix name="Locator" class="proxy"/>
@@ -301,8 +308,11 @@ generated from the section label.
     </class>
 
     <section name="Ice">
-        <property name="ACM.Client" />
-        <property name="ACM.Server" />
+        <property name="ACM.Client" deprecated="true"/>
+        <property name="ACM.Server" deprecated="true"/>
+        <property name="ACM" class="acm"/>
+        <property name="ACM.Client" class="acm"/>
+        <property name="ACM.Server" class="acm"/>
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
         <property name="Admin.Facets" />
@@ -321,6 +331,7 @@ generated from the section label.
         <property name="Default.Host" />
         <property name="Default.Locator" class="proxy" />
         <property name="Default.LocatorCacheTimeout" />
+        <property name="Default.InvocationTimeout" />
         <property name="Default.Package" />
         <property name="Default.PreferSecure" />
         <property name="Default.Protocol" />

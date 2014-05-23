@@ -870,6 +870,13 @@ public interface ObjectPrx
     int ice_getLocatorCacheTimeout();
 
     /**
+     * Returns the invocation timeout of this proxy.
+     *
+     * @return The invocation timeout value (in seconds).
+     **/
+    int ice_getInvocationTimeout();
+
+    /**
      * Returns the connection id of this proxy.
      *
      * @return The connection id.
@@ -885,6 +892,14 @@ public interface ObjectPrx
      * @see Locator
      **/
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
+
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+     *
+     * @param newTimeout The new invocation timeout (in seconds).
+     *
+     **/
+    ObjectPrx ice_invocationTimeout(int newTimeout);
 
     /**
      * Returns whether this proxy caches connections.

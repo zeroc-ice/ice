@@ -16,7 +16,6 @@
     require("Ice/FormatType");
     require("Ice/HashMap");
     require("Ice/OutgoingAsync");
-    require("Ice/ProxyBatchOutgoingAsync");
     require("Ice/ReferenceMode");
     require("Ice/Current");
     require("Ice/Exception");
@@ -36,6 +35,7 @@
     var HashMap = Ice.HashMap;
     var OutgoingAsync = Ice.OutgoingAsync;
     var ProxyBatchOutgoingAsync = Ice.ProxyBatchOutgoingAsync;
+    var GetConnectionOutgoingAsync = Ice.GetConnectionOutgoingAsync;
     var RefMode = Ice.ReferenceMode;
     var OperationMode = Ice.OperationMode;
 
@@ -164,6 +164,21 @@
             else
             {
                 return this.__newInstance(this._reference.changeLocatorCacheTimeout(newTimeout));
+            }
+        },
+        ice_getInvocationTimeout: function()
+        {
+            return this._reference.getInvocationTimeout();
+        },
+        ice_invocationTimeout: function(newTimeout)
+        {
+            if(newTimeout === this._reference.getInvocationTimeout())
+            {
+                return this;
+            }
+            else
+            {
+                return this.__newInstance(this._reference.changeInvocationTimeout(newTimeout));
             }
         },
         ice_isConnectionCached: function()
@@ -392,8 +407,15 @@
         },
         ice_getConnection: function()
         {
-            var __r = new AsyncResultBase(this._reference.getCommunicator(), "ice_getConnection", null, this, null);
-            this.__getRequestHandler().onConnection(__r);
+            var __r = new GetConnectionOutgoingAsync(this);
+            try
+            {
+                this.__getRequestHandler().sendAsyncRequest(__r);
+            }
+            catch(__ex)
+            {
+                this.__handleLocalException(__r, __ex);
+            }
             return __r;
         },
         ice_getCachedConnection: function()
@@ -405,7 +427,7 @@
             var __r = new ProxyBatchOutgoingAsync(this, "ice_flushBatchRequests");
             try
             {
-                __r.__send();
+                __r.__invoke();
             }
             catch(__ex)
             {
@@ -553,7 +575,7 @@
             {
                 __r.__prepare(operation, mode, ctx);
                 __r.__writeParamEncaps(inParams);
-                __r.__send();
+                __r.__invoke();
             }
             catch(ex)
             {
@@ -608,7 +630,7 @@
         {
             if(__ex instanceof Ice.LocalException)
             {
-                __r.__exception(__ex);
+                __r.__invokeException(__ex);
             }
             else
             {
@@ -658,7 +680,7 @@
                 marshalFn.call(null, __os, args);
                 __r.__endWriteParams();
             }
-            __r.__send();
+            __r.__invoke();
         }
         catch(ex)
         {

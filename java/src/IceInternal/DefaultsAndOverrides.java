@@ -113,6 +113,7 @@ public final class DefaultsAndOverrides
         }
 
         defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+        defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
 
         defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 
@@ -130,6 +131,7 @@ public final class DefaultsAndOverrides
     final public boolean defaultCollocationOptimization;
     final public Ice.EndpointSelectionType defaultEndpointSelection;
     final public int defaultLocatorCacheTimeout;
+    final public int defaultInvocationTimeout;
     final public boolean defaultPreferSecure;
     final public Ice.EncodingVersion defaultEncoding;
     final public Ice.FormatType defaultFormat;

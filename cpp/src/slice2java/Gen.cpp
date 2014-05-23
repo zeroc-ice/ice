@@ -4944,7 +4944,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "catch(Ice.TwowayOnlyException ex)";
                 out << sb;
                 out << nl << "__r = new IceInternal.OutgoingAsync(this, __" << op->name() << "_name, __cb);";
-                out << nl << "__r.__exceptionAsync(ex);";
+                out << nl << "__r.__invokeExceptionAsync(ex);";
                 out << eb;
             }
             else
@@ -4971,7 +4971,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "catch(Ice.TwowayOnlyException ex)";
                 out << sb;
                 out << nl << "__r = new IceInternal.OutgoingAsync(this, __" << op->name() << "_name, __cb);";
-                out << nl << "__r.__exceptionAsync(ex);";
+                out << nl << "__r.__invokeExceptionAsync(ex);";
                 out << eb;
             }
             else
@@ -5873,11 +5873,11 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         {
             out << nl << "__result.__writeEmptyParams();";
         }
-        out << nl << "__result.__send(true);";
+        out << nl << "__result.__invoke(true);";
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "__result.__exceptionAsync(__ex);";
+        out << nl << "__result.__invokeExceptionAsync(__ex);";
         out << eb;
         out << nl << "return __result;";
         out << eb;

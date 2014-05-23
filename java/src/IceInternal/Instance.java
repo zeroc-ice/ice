@@ -121,18 +121,6 @@ public final class Instance
         return _outgoingConnectionFactory;
     }
 
-    public synchronized ConnectionMonitor
-    connectionMonitor()
-    {
-        if(_state == StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
-
-        assert(_connectionMonitor != null);
-        return _connectionMonitor;
-    }
-
     public synchronized ObjectFactoryManager
     servantFactoryManager()
     {
@@ -278,14 +266,14 @@ public final class Instance
         return _cacheMessageBuffers;
     }
 
-    public int
+    public ACMConfig
     clientACM()
     {
         // No mutex lock, immutable.
         return _clientACM;
     }
 
-    public int
+    public ACMConfig
     serverACM()
     {
         // No mutex lock, immutable.
@@ -718,6 +706,18 @@ public final class Instance
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
+            _clientACM = new ACMConfig(_initData.properties,
+                                       _initData.logger,
+                                       "Ice.ACM.Client",
+                                       new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM", 
+                                                     new ACMConfig(false)));
+
+            _serverACM = new ACMConfig(_initData.properties,
+                                       _initData.logger,
+                                       "Ice.ACM.Server",
+                                       new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
+                                                     new ACMConfig(true)));
+            
             {
                 final int defaultMessageSizeMax = 1024;
                 int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
@@ -736,12 +736,6 @@ public final class Instance
             }
 
             _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
-
-            //
-            // Client ACM enabled by default. Server ACM disabled by default.
-            //
-            _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-            _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
             _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
@@ -856,7 +850,6 @@ public final class Instance
             IceUtilInternal.Assert.FinalizerAssert(_referenceFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_proxyFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-            IceUtilInternal.Assert.FinalizerAssert(_connectionMonitor == null);
             IceUtilInternal.Assert.FinalizerAssert(_servantFactoryManager == null);
             IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
             IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
@@ -945,16 +938,6 @@ public final class Instance
         }
 
         //
-        // Create the connection monitor and ensure the interval for
-        // monitoring connections is appropriate for client & server
-        // ACM.
-        //
-        int interval = _initData.properties.getPropertyAsInt("Ice.MonitorConnections");
-        _connectionMonitor = new ConnectionMonitor(this, interval);
-        _connectionMonitor.checkIntervalForACM(_clientACM);
-        _connectionMonitor.checkIntervalForACM(_serverACM);
-
-        //
         // Server thread pool initialization is lazy in serverThreadPool().
         //
 
@@ -1039,12 +1022,6 @@ public final class Instance
             _objectAdapterFactory = null;
             _outgoingConnectionFactory = null;
             _retryQueue = null;
-
-            if(_connectionMonitor != null)
-            {
-                _connectionMonitor.destroy();
-                _connectionMonitor = null;
-            }
 
             if(_serverThreadPool != null)
             {
@@ -1241,8 +1218,8 @@ public final class Instance
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
     private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
-    private final int _clientACM; // Immutable, not reset by destroy().
-    private final int _serverACM; // Immutable, not reset by destroy().
+    private final ACMConfig _clientACM; // Immutable, not reset by destroy().
+    private final ACMConfig _serverACM; // Immutable, not reset by destroy().
     private final Ice.ImplicitContextI _implicitContext;
     private final Ice.Instrumentation.CommunicatorObserver _observer;
     private RouterManager _routerManager;
@@ -1250,7 +1227,6 @@ public final class Instance
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
-    private ConnectionMonitor _connectionMonitor;
     private ObjectFactoryManager _servantFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private int _protocolSupport;

@@ -143,7 +143,7 @@ namespace IceInternal
             try
             {
                 // Ensure all the connections are finished and reapable at this point.
-                ICollection<Ice.ConnectionI> cons = _reaper.swapConnections();
+                ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
                 if(cons != null)
                 {
                     int size = 0;
@@ -160,6 +160,7 @@ namespace IceInternal
                     Debug.Assert(_connections.Count == 0);
                     Debug.Assert(_connectionsByEndpoint.Count == 0);
                 }
+                _monitor.destroy();
             }
             finally
             {
@@ -491,6 +492,7 @@ namespace IceInternal
             _communicator = communicator;
             _instance = instance;
             _destroyed = false;
+            _monitor = new FactoryACMMonitor(instance, instance.clientACM());
             _pendingConnectCount = 0;
         }
 
@@ -659,7 +661,7 @@ namespace IceInternal
                 //
                 // Reap closed connections
                 //
-                ICollection<Ice.ConnectionI> cons = _reaper.swapConnections();
+                ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
                 if(cons != null)
                 {
                     foreach(Ice.ConnectionI c in cons)
@@ -759,7 +761,7 @@ namespace IceInternal
                         throw new Ice.CommunicatorDestroyedException();
                     }
 
-                    connection = new Ice.ConnectionI(_communicator, _instance, _reaper, transceiver, ci.connector,
+                    connection = new Ice.ConnectionI(_communicator, _instance, _monitor, transceiver, ci.connector,
                                                      ci.endpoint.compress(false), null);
                 }
                 catch(Ice.LocalException)
@@ -1286,7 +1288,7 @@ namespace IceInternal
 
         private Ice.Communicator _communicator;
         private readonly Instance _instance;
-        private ConnectionReaper _reaper = new ConnectionReaper();
+        private FactoryACMMonitor _monitor;
         private bool _destroyed;
 
         private MultiDictionary<Connector, Ice.ConnectionI> _connections =
@@ -1433,14 +1435,22 @@ namespace IceInternal
             _m.Lock();
             try
             {
-                // Ensure all the connections are finished and reapable at this point.
-                ICollection<Ice.ConnectionI> cons = _reaper.swapConnections();
-                Debug.Assert((cons == null ? 0 : cons.Count) == _connections.Count);
-                if(cons != null)
+                if(_transceiver != null)
                 {
-                    cons.Clear();
+                    Debug.Assert(_connections.Count <= 1); // The connection isn't monitored or reaped.
+                }
+                else
+                {
+                    // Ensure all the connections are finished and reapable at this point.
+                    ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
+                    Debug.Assert((cons == null ? 0 : cons.Count) == _connections.Count);
+                    if(cons != null)
+                    {
+                        cons.Clear();
+                    }
                 }
                 _connections.Clear();
+                _monitor.destroy();
             }
             finally
             {
@@ -1593,7 +1603,7 @@ namespace IceInternal
                     //
                     // Reap closed connections
                     //
-                    ICollection<Ice.ConnectionI> cons = _reaper.swapConnections();
+                    ICollection<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
                     if(cons != null)
                     {
                         foreach(Ice.ConnectionI c in cons)
@@ -1644,7 +1654,7 @@ namespace IceInternal
 
                     try
                     {
-                        connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, transceiver,
+                        connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver,
                                                          null, _endpoint, _adapter);
                     }
                     catch(Ice.LocalException ex)
@@ -1758,6 +1768,7 @@ namespace IceInternal
             _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _connections = new HashSet<Ice.ConnectionI>();
             _state = StateHolding;
+            _monitor = new FactoryACMMonitor(instance, ((Ice.ObjectAdapterI)adapter).getACM());
 
             DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             if(defaultsAndOverrides.overrideTimeout)
@@ -1775,7 +1786,7 @@ namespace IceInternal
                 _transceiver = _endpoint.transceiver(ref _endpoint);
                 if(_transceiver != null)
                 {
-                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, 
+                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, 
                                                                      _transceiver, null, _endpoint, _adapter);
                     connection.start(null);
                     _connections.Add(connection);
@@ -1819,6 +1830,7 @@ namespace IceInternal
                 }
 
                 _state = StateFinished;
+                _monitor.destroy();
                 _connections.Clear();
 
                 if(ex is Ice.LocalException)
@@ -1937,7 +1949,7 @@ namespace IceInternal
         }
 
         private Instance _instance;
-        private ConnectionReaper _reaper = new ConnectionReaper();
+        private FactoryACMMonitor _monitor;
 
         private Acceptor _acceptor;
         private readonly Transceiver _transceiver;

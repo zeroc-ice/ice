@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
-#include <Ice/Instance.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>

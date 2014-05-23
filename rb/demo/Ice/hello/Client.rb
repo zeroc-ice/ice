@@ -53,8 +53,7 @@ class Client < Ice::Application
         Ice::Application::callbackOnInterrupt
 
         twoway = Demo::HelloPrx::checkedCast(
-            Ice::Application::communicator().propertyToProxy('Hello.Proxy').
-                ice_twoway().ice_timeout(-1).ice_secure(false))
+            Ice::Application::communicator().propertyToProxy('Hello.Proxy').ice_twoway().ice_secure(false))
         if not twoway
             puts $0 + ": invalid proxy"
             return 1
@@ -105,9 +104,9 @@ class Client < Ice::Application
                         timeout = -1
                     end
 
-                    twoway = twoway.ice_timeout(timeout)
-                    oneway = oneway.ice_timeout(timeout)
-                    batchOneway = batchOneway.ice_timeout(timeout)
+                    twoway = twoway.ice_invocationTimeout(timeout)
+                    oneway = oneway.ice_invocationTimeout(timeout)
+                    batchOneway = batchOneway.ice_invocationTimeout(timeout)
 
                     if timeout == -1
                         puts "timeout is now switched off"

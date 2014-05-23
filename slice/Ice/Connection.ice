@@ -49,6 +49,51 @@ local class ConnectionInfo
     string connectionId;
 };
 
+local interface Connection;
+
+local interface ConnectionCallback
+{
+    /**
+     *
+     * This method is called by the the connection when a heartbeat is
+     * received from the peer.
+     *
+     **/
+    void heartbeat(Connection con);
+
+    /**
+     *
+     * This method is called by the the connection when the connection
+     * is closed.
+     *
+     **/
+    void closed(Connection con);
+};
+
+local enum ACMClose
+{
+    CloseOff,
+    CloseOnIdle,
+    CloseOnInvocation,
+    CloseOnInvocationAndIdle,
+    CloseOnIdleForceful
+};
+    
+local enum ACMHeartbeat
+{
+    HeartbeatOff,
+    HeartbeatOnInvocation,
+    HeartbeatOnIdle,
+    HeartbeatAlways
+};
+
+local struct ACM
+{
+    int timeout;
+    ACMClose close;
+    ACMHeartbeat heartbeat;
+};
+
 /**
  *
  * The user-level interface to a connection.
@@ -139,6 +184,40 @@ local interface Connection
      *
      **/
     ["async"] void flushBatchRequests();
+
+    /**
+     *
+     * Set callback on the connection. The callback is called by the
+     * connection when it's closed. The callback is called from the
+     * Ice thread pool associated with the connection.
+     *
+     * @param callback The connection callback object.
+     *
+     **/
+    void setCallback(ConnectionCallback callback);
+
+    /**
+     *
+     * Set the active connection management parameters.
+     *
+     * @param timeout The timeout value in milliseconds.
+     *
+     * @param close The close condition
+     *
+     * @param heartbeat The hertbeat condition
+     *
+     **/
+    ["java:optional"] 
+    void setACM(optional(1) int timeout, optional(2) ACMClose close, optional(3) ACMHeartbeat heartbeat);
+
+    /**
+     *
+     * Get the ACM parameters.
+     *
+     * @return The ACM parameters.
+     *
+     **/
+    ACM getACM();
 
     /**
      *

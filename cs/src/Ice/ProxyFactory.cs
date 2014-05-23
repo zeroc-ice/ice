@@ -189,6 +189,14 @@ namespace IceInternal
                 throw ex;
             }
 
+            //
+            // Don't retry invocation timeouts.
+            //
+            if(ex is Ice.InvocationTimeoutException)
+            {
+                throw ex;
+            }
+
             ++cnt;
             Debug.Assert(cnt > 0);
 

@@ -202,6 +202,12 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="..\..\Ice\acm\Ice_acm_client.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\acm\Ice_acm_server.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="..\..\Ice\adapterDeactivation\Ice_adapterDeactivation_client.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>

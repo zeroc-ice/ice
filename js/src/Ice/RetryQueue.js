@@ -70,13 +70,13 @@
                 }
                 catch(ex)
                 {
-                    this.outAsync.__exception(ex);
+                    this.outAsync.__invokeException(ex);
                 }
             }
         },
         destroy: function()
         {
-            this.outAsync.__exception(new Ice.CommunicatorDestroyedException());
+            this.outAsync.__invokeException(new Ice.CommunicatorDestroyedException());
         }
     });
     global.Ice = Ice;

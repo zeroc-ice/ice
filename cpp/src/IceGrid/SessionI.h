@@ -49,12 +49,13 @@ public:
     Glacier2::StringSetPrx getGlacier2AdapterIdSet();
 
     const std::string& getId() const { return _id; }
+    virtual void destroyImpl(bool);
     
 protected:
 
-    virtual void destroyImpl(bool);
-
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
+
+    void setConnectionCallback(const Ice::ConnectionPtr&);
 
     const std::string _id;
     const std::string _prefix;

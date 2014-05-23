@@ -10,11 +10,6 @@ CallbackSender.Proxy=sender:ws -h localhost -p 10002
 Ice.Warn.Connections=1
 
 #
-# Client-side ACM must be disabled for bidirectional connections.
-#
-Ice.ACM.Client=0
-
-#
 # Network Tracing
 #
 # 0 = no network tracing

@@ -120,14 +120,22 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
         synchronized(this)
         {
-            // Ensure all the connections are finished and reapable at this point.
-            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
-            assert((cons == null ? 0 : cons.size()) == _connections.size());
-            if(cons != null)
+            if(_transceiver != null)
             {
-                cons.clear();
+                assert(_connections.size() <= 1); // The connection isn't monitored or reaped.
+            }
+            else
+            {
+                // Ensure all the connections are finished and reapable at this point.
+                java.util.List<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
+                assert((cons == null ? 0 : cons.size()) == _connections.size());
+                if(cons != null)
+                {
+                    cons.clear();
+                }
             }
             _connections.clear();
+            _monitor.destroy();
         }
     }
 
@@ -196,7 +204,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             //
             // Reap closed connections.
             //
-            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            java.util.List<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
             if(cons != null)
             {
                 for(Ice.ConnectionI c : cons)
@@ -246,7 +254,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
             try
             {
-                connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, transceiver, null,
+                connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _monitor, transceiver, null,
                                                  _endpoint, _adapter);
             }
             catch(Ice.LocalException ex)
@@ -343,6 +351,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         _adapter = adapter;
         _warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
+        _monitor = new FactoryACMMonitor(instance, ((Ice.ObjectAdapterI)adapter).getACM());
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         if(defaultsAndOverrides.overrideTimeout)
@@ -365,7 +374,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 _endpoint = h.value;
                 Ice.ConnectionI connection =
-                    new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, _transceiver, null, _endpoint,
+                    new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, _transceiver, null, _endpoint,
                                         _adapter);
                 connection.start(null);
                 _connections.add(connection);
@@ -410,6 +419,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             }
 
             _state = StateFinished;
+            _monitor.destroy();
             _connections.clear();
 
             if(ex instanceof Ice.LocalException)
@@ -549,7 +559,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     }
 
     private final Instance _instance;
-    private final ConnectionReaper _reaper = new ConnectionReaper();
+    private final FactoryACMMonitor _monitor;    
 
     private Acceptor _acceptor;
     private Transceiver _transceiver;

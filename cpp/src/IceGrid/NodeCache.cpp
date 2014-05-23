@@ -568,7 +568,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             // 
             if(timeout > 0)
             {
-                node = NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000));
+                node = NodePrx::uncheckedCast(node->ice_invocationTimeout(timeout * 1000));
             }
 
             ServerInfo info = server;
@@ -641,7 +641,7 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
             // 
             if(timeout > 0)
             {
-                node = NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000));
+                node = NodePrx::uncheckedCast(node->ice_invocationTimeout(timeout * 1000));
             }
         }
         

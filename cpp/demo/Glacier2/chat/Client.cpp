@@ -99,8 +99,7 @@ public:
     
 
         ChatCallbackPtr cb = new ChatCallbackI;
-        ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
-            objectAdapter()->add(cb, callbackReceiverIdent));
+        ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(objectAdapter()->add(cb, callbackReceiverIdent));
 
         ChatSessionPrx sessionPrx = ChatSessionPrx::uncheckedCast(session());
         sessionPrx->setCallback(callback);

@@ -61,6 +61,7 @@ public:
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
     const SharedContextPtr& getContext() const { return _context; }
+    int getInvocationTimeout() const { return _invocationTimeout; }
 
     Ice::CommunicatorPtr getCommunicator() const;
 
@@ -86,6 +87,7 @@ public:
     ReferencePtr changeSecure(bool) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
+    ReferencePtr changeInvocationTimeout(int) const;
     virtual ReferencePtr changeEncoding(const Ice::EncodingVersion&) const;
     virtual ReferencePtr changeCompress(bool) const;
 
@@ -140,7 +142,7 @@ public:
 protected:
 
     Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode, bool,
-              const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const Ice::Context& ctx);
+              const Ice::ProtocolVersion&, const Ice::EncodingVersion&, int, const Ice::Context& ctx);
     Reference(const Reference&);
 
     virtual Ice::Int hashInit() const;
@@ -160,6 +162,7 @@ private:
     std::string _facet;
     Ice::ProtocolVersion _protocol;
     Ice::EncodingVersion _encoding;
+    int _invocationTimeout;
 
 protected:
 
@@ -226,7 +229,7 @@ public:
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
                       bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::vector<EndpointIPtr>&,
                       const std::string&, const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool, 
-                      Ice::EndpointSelectionType, int, const Ice::Context&);
+                      Ice::EndpointSelectionType, int, int, const Ice::Context&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;

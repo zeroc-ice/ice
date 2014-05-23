@@ -34,6 +34,7 @@ SUBDIRS         = application \
                   stream \
                   retry \
                   timeout \
+		  acm \
                   servantLocator \
                   interceptor \
                   dictMapping \

@@ -16,18 +16,24 @@ package IceInternal;
 public interface OutgoingAsyncMessageCallback
 {
     //
+    // Called by the request handler to send the request over the connection.
+    //
+    int __send(Ice.ConnectionI conection, boolean compress, boolean response)
+        throws LocalExceptionWrapper;
+
+    //
     // Called by the connection when the message is confirmed sent. The connection is locked
     // when this is called so this method can call the sent callback. Instead, this method
     // returns true if there's a sent callback and false otherwise. If true is returned, the
-    // connection will call the __sent() method bellow (which in turn should call the sent
-    // callback).
+    // connection will call the __invokeSent() method bellow (which in turn should call the 
+    // sent callback).
     //
-    public abstract boolean __sent(Ice.ConnectionI connection);
+    public abstract boolean __sent();
 
     //
     // Called by the connection to call the user sent callback.
     //
-    public abstract void __sent();
+    public abstract void __invokeSent();
     
     //
     // Called by the connection when the request failed. The boolean indicates whether or

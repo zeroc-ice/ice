@@ -121,6 +121,7 @@ namespace IceInternal
             }
 
             defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+            defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
 
             defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 
@@ -138,6 +139,7 @@ namespace IceInternal
         public bool defaultCollocationOptimization;
         public Ice.EndpointSelectionType defaultEndpointSelection;
         public int defaultLocatorCacheTimeout;
+        public int defaultInvocationTimeout;
         public bool defaultPreferSecure;
         public Ice.EncodingVersion defaultEncoding;
         public Ice.FormatType defaultFormat;

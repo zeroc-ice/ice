@@ -28,6 +28,7 @@ SUBDIRS		= proxy \
 		  binding \
 		  retry \
 		  timeout \
+		  acm \
 		  udp \
 		  admin \
 		  plugin \

@@ -80,56 +80,6 @@ private:
     Ice::CommunicatorPtr _communicator;
 };
 
-class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
-        _session(session),
-        _timeout(IceUtil::Time::seconds(timeout)),
-        _destroy(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        Lock sync(*this);
-        while(!_destroy)
-        {
-            timedWait(_timeout);
-            if(_destroy)
-            {
-                break;
-            }
-            try
-            {
-                _session->keepAlive();
-            }
-            catch(const Ice::Exception&)
-            {
-                break;
-            }
-        }
-    }
-
-    void
-    destroy()
-    {
-        Lock sync(*this);
-        _destroy = true;
-        notify();
-    }
-
-private:
-
-    IceGrid::AdminSessionPrx _session;
-    const IceUtil::Time _timeout;
-    bool _destroy;
-};
-typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
-
-
 void
 logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
 {
@@ -432,8 +382,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout()/2);
-    keepAlive->start();
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -788,10 +737,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     logTests(comm, session);
 
-    keepAlive->destroy();
-    keepAlive->getThreadControl().join();
-    keepAlive = 0;
-
     session->destroy();
 }
 
@@ -803,8 +748,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& comm)
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout()/2);
-    keepAlive->start();
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -821,10 +765,6 @@ allTestsWithTarget(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("TargetProp") == "1");
 
     cout << "ok" << endl;
-
-    keepAlive->destroy();
-    keepAlive->getThreadControl().join();
-    keepAlive = 0;
 
     session->destroy();
 }

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Instance.h>
 #include <Ice/EndpointFactoryManager.h>
 
 #include <EndpointFactory.h>

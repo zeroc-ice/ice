@@ -7,20 +7,14 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_MONITOR_F_H
-#define ICE_CONNECTION_MONITOR_F_H
+package IceInternal;
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
-
-namespace IceInternal
+public interface ACMMonitor extends TimerTask
 {
-
-class ConnectionMonitor;
-ICE_API IceUtil::Shared* upCast(ConnectionMonitor*);
-typedef IceInternal::Handle<ConnectionMonitor> ConnectionMonitorPtr;
-
-}
-
-#endif
+    void add(Ice.ConnectionI con);
+    void remove(Ice.ConnectionI con);
+    void reap(Ice.ConnectionI con);
+    
+    ACMMonitor acm(Ice.IntOptional timeout, Ice.Optional<Ice.ACMClose> close, Ice.Optional<Ice.ACMHeartbeat> heartbeat);
+    Ice.ACM getACM();
+};

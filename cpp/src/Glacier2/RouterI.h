@@ -51,6 +51,7 @@ public:
     virtual void refreshSession(const ::Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
+    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;

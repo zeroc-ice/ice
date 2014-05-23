@@ -2,7 +2,12 @@
 # The server creates one single object adapter with the name
 # "Latency". The following line sets the endpoints for this adapter.
 #
-Latency.Endpoints=tcp -p 10000 -h localhost:ssl -p 10001 -h localhost:ws -p 10002 -h localhost:wss -p 10003 -h localhost
+Latency.Endpoints=tcp -p 10000:ssl -p 10001:ws -p 10002:wss -p 10003
+
+#
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Warn about connection exceptions
@@ -13,7 +18,7 @@ Ice.Warn.Connections=1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
-IceSSL.DefaultDir=../../../../certs/wss
+IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem

@@ -2,26 +2,7 @@
 # The proxy to the Glacier2 router for all outgoing connections. This
 # must match the value of Glacier2.Client.Endpoints in config.glacier2.
 #
-Ice.Default.Router=DemoGlacier2/router:wss -p 5064 -h 127.0.0.1
-
-#
-# We don't need any endpoints for the client if we use a
-# router. Incoming requests are received through connections
-# established from the client to the router.
-#
-Chat.Client.Endpoints=
-
-#
-# Disable connection management to ensure the connection remains open
-# for the lifetime of the Glacier2 session.
-#
-Ice.ACM.Client=0
-
-#
-# Connection retry is not possible with Glacier2: the Glacier2 session
-# is bound to the connection.
-#
-Ice.RetryIntervals=-1
+Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
 
 #
 # Warn about connection exceptions
@@ -70,8 +51,3 @@ IceSSL.KeyFile=c_rsa1024_priv.pem
 Ice.Admin.InstanceName=client
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
-
-#
-# Websocket transport plugin
-#
-Ice.Plugin.IceWS=IceWS:createIceWS

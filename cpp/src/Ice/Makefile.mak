@@ -15,6 +15,7 @@ DLLNAME		= $(top_srcdir)\bin\ice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= Acceptor.obj \
+		  ACM.obj \
 		  Application.obj \
                   Base64.obj \
 		  Buffer.obj \
@@ -25,7 +26,6 @@ OBJS		= Acceptor.obj \
 		  ConnectRequestHandler.obj \
 		  ConnectionFactory.obj \
 		  ConnectionI.obj \
-		  ConnectionMonitor.obj \
 		  Connection.obj \
 		  Connector.obj \
 		  ConnectionRequestHandler.obj \
@@ -127,7 +127,7 @@ SDIR		= $(slicedir)\Ice
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN -bigobj
 !if "$(UNIQUE_DLL_NAMES)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
 !endif

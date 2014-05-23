@@ -836,6 +836,9 @@ public:
     bool ice_isCollocationOptimized() const;
     ::Ice::ObjectPrx ice_collocationOptimized(bool) const;
 
+    ::Ice::Int ice_getInvocationTimeout() const;
+    ::Ice::ObjectPrx ice_invocationTimeout(::Ice::Int) const;
+
     ::Ice::ObjectPrx ice_twoway() const;
     bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;

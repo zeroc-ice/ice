@@ -9,14 +9,21 @@
 
 package IceInternal;
 
-public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback
+public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, TimerTask
 {
     public BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
     {
         super(communicator, instance, operation, callback);
     }
 
-    public boolean __sent(Ice.ConnectionI connection)
+    public int
+    __send(Ice.ConnectionI connection, boolean compress, boolean response)
+    {
+        return connection.flushAsyncBatchRequests(this);
+    }
+
+    public boolean 
+    __sent()
     {
         synchronized(_monitor)
         {
@@ -27,17 +34,24 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
                 _remoteObserver.detach();
                 _remoteObserver = null;
             }
+            if(_timeoutRequestHandler != null)
+            {
+                _instance.timer().cancel(this);
+                _timeoutRequestHandler = null;
+            }
             _monitor.notifyAll();
             return true;
         }
     }
 
-    public void __sent()
+    public void 
+    __invokeSent()
     {
-        __sentInternal();
+        __invokeSentInternal();
     }
     
-    public void __finished(Ice.LocalException exc, boolean sent)
+    public void 
+    __finished(Ice.LocalException exc, boolean sent)
     {
         if(_remoteObserver != null)
         {
@@ -45,6 +59,18 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
             _remoteObserver.detach();
             _remoteObserver = null;
         }
-        __exception(exc);
+        if(_timeoutRequestHandler != null)
+        {
+            _instance.timer().cancel(this);
+            _timeoutRequestHandler = null;
+        }
+        __invokeException(exc);
     }
+
+    public void 
+    runTimerTask()
+    {
+        __runTimerTask();
+    }
+
 }

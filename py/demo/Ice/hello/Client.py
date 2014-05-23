@@ -37,7 +37,7 @@ class Client(Ice.Application):
             return 1
 
         twoway = Demo.HelloPrx.checkedCast(\
-            self.communicator().propertyToProxy('Hello.Proxy').ice_twoway().ice_timeout(-1).ice_secure(False))
+            self.communicator().propertyToProxy('Hello.Proxy').ice_twoway().ice_secure(False))
         if not twoway:
             print(args[0] + ": invalid proxy")
             return 1
@@ -83,9 +83,9 @@ class Client(Ice.Application):
                     else:
                         timeout = -1
 
-                    twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_timeout(timeout))
-                    oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_timeout(timeout))
-                    batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_timeout(timeout))
+                    twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_invocationTimeout(timeout))
+                    oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_invocationTimeout(timeout))
+                    batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_invocationTimeout(timeout))
 
                     if timeout == -1:
                         print("timeout is now switched off")

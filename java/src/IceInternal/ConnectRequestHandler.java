@@ -22,18 +22,18 @@ public class ConnectRequestHandler
             this.os.swap(os);
         }
 
-        Request(OutgoingAsync out)
+        Request(OutgoingMessageCallback out)
         {
             this.out = out;
         }
 
-        Request(BatchOutgoingAsync out)
+        Request(OutgoingAsyncMessageCallback out)
         {
-            this.batchOut = out;
+            this.outAsync = out;
         }
 
-        OutgoingAsync out = null;
-        BatchOutgoingAsync batchOut = null;
+        OutgoingMessageCallback out = null;
+        OutgoingAsyncMessageCallback outAsync = null;
         BasicStream os = null;
     }
 
@@ -134,43 +134,24 @@ public class ConnectRequestHandler
         _connection.abortBatchRequest();
     }
 
-    public Ice.ConnectionI
-    sendRequest(Outgoing out)
-        throws LocalExceptionWrapper
-    {
-        if(!getConnection(true).sendRequest(out, _compress, _response) || _response)
-        {
-            return _connection; // The request has been sent or we're expecting a response.
-        }
-        else
-        {
-            return null; // The request hasn't been sent yet.
-        }
-    }
-
-    public int
-    sendAsyncRequest(OutgoingAsync out)
-        throws LocalExceptionWrapper
-    {
-        synchronized(this)
-        {
-            if(!initialized())
-            {
-                _requests.add(new Request(out));
-                return AsyncStatus.Queued;
-            }
-        }
-        return _connection.sendAsyncRequest(out, _compress, _response);
-    }
-
     public boolean
-    flushBatchRequests(BatchOutgoing out)
+    sendRequest(OutgoingMessageCallback out)
+        throws LocalExceptionWrapper
     {
-        return getConnection(true).flushBatchRequests(out);
+        synchronized(this)
+        {
+            if(!initialized())
+            {
+                _requests.add(new Request(out));
+                return false; // Not sent
+            }
+        }
+        return out.send(_connection, _compress, _response) && !_response; // Finished if sent and no response.
     }
 
     public int
-    flushAsyncBatchRequests(BatchOutgoingAsync out)
+    sendAsyncRequest(OutgoingAsyncMessageCallback out)
+        throws LocalExceptionWrapper
     {
         synchronized(this)
         {
@@ -180,9 +161,57 @@ public class ConnectRequestHandler
                 return AsyncStatus.Queued;
             }
         }
-        return _connection.flushAsyncBatchRequests(out);
+        return out.__send(_connection, _compress, _response);
     }
 
+    public void 
+    requestTimedOut(OutgoingMessageCallback out)
+    {
+        synchronized(this)
+        {
+            if(!initialized())
+            {
+                java.util.Iterator<Request> it = _requests.iterator();
+                while(it.hasNext())
+                {
+                    Request request = it.next();
+                    if(request.out == out)
+                    {
+                        out.finished(new Ice.InvocationTimeoutException(), false);
+                        it.remove();
+                        return;
+                    }
+                }
+                assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+            }
+        }
+        _connection.requestTimedOut(out);
+    }
+
+    public void 
+    asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
+    {
+        synchronized(this)
+        {
+            if(!initialized())
+            {
+                java.util.Iterator<Request> it = _requests.iterator();
+                while(it.hasNext())
+                {
+                    Request request = it.next();
+                    if(request.outAsync == outAsync)
+                    {
+                        outAsync.__finished(new Ice.InvocationTimeoutException(), false);
+                        it.remove();
+                        return;
+                    }
+                }
+                assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+            }
+        }
+        _connection.asyncRequestTimedOut(outAsync);
+    }
+    
     public Outgoing
     getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context, 
                 InvocationObserver observer)
@@ -412,18 +441,14 @@ public class ConnectRequestHandler
                 Request request = p.next();
                 if(request.out != null)
                 {
-                    if((_connection.sendAsyncRequest(request.out, _compress, _response) & 
-                        AsyncStatus.InvokeSentCallback) > 0)
-                    {
-                        sentCallbacks.add(request.out);
-                    }
+                    request.out.send(_connection, _compress, _response);
                 }
-                else if(request.batchOut != null)
+                else if(request.outAsync != null)
                 {
-                    if((_connection.flushAsyncBatchRequests(request.batchOut) & 
+                    if((request.outAsync.__send(_connection, _compress, _response) & 
                         AsyncStatus.InvokeSentCallback) > 0)
                     {
-                        sentCallbacks.add(request.batchOut);
+                        sentCallbacks.add(request.outAsync);
                     }
                 }
                 else
@@ -488,7 +513,7 @@ public class ConnectRequestHandler
                                                     {
                                                         for(OutgoingAsyncMessageCallback callback : sentCallbacks)
                                                         {
-                                                            callback.__sent();
+                                                            callback.__invokeSent();
                                                         }
                                                     };
                                                 });
@@ -528,12 +553,12 @@ public class ConnectRequestHandler
         for(Request request : _requests)
         {
             if(request.out != null)
-            {
-                request.out.__finished(ex, false);
+            {            
+                request.out.finished(ex, false);
             }
-            else if(request.batchOut != null)
+            else if(request.outAsync != null)
             {
-                request.batchOut.__finished(ex, false);
+                request.outAsync.__finished(ex, false);
             }
         }
         _requests.clear();
@@ -545,12 +570,26 @@ public class ConnectRequestHandler
         for(Request request : _requests)
         {
             if(request.out != null)
-            {
-                request.out.__finished(ex);
+            {            
+                if(request.out instanceof Outgoing)
+                {
+                    ((Outgoing)request.out).finished(ex);
+                }
+                else
+                {
+                    request.out.finished(ex.get(), false);
+                }
             }
-            else if(request.batchOut != null)
+            else if(request.outAsync != null)
             {
-                request.batchOut.__finished(ex.get(), false);
+                if(request.outAsync instanceof OutgoingAsync)
+                {
+                    ((OutgoingAsync)request.outAsync).__finished(ex);
+                }
+                else
+                {
+                    request.outAsync.__finished(ex.get(), false);
+                }
             }
         }
         _requests.clear();

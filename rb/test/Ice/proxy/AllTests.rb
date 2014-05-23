@@ -257,6 +257,13 @@ def allTests(communicator)
     test(!b1.ice_isConnectionCached())
     prop.setProperty(property, "")
 
+    property = propertyPrefix + ".InvocationTimeout";
+    test(b1.ice_getInvocationTimeout() == -1);
+    prop.setProperty(property, "1000");
+    b1 = communicator.propertyToProxy(propertyPrefix);
+    test(b1.ice_getInvocationTimeout() == 1000);
+    prop.setProperty(property, "");
+
     property = propertyPrefix + ".EndpointSelection"
     test(b1.ice_getEndpointSelection() == Ice::EndpointSelectionType::Random)
     prop.setProperty(property, "Random")
@@ -289,6 +296,7 @@ def allTests(communicator)
     b1 = b1.ice_preferSecure(false)
     b1 = b1.ice_endpointSelection(Ice::EndpointSelectionType::Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
+    b1 = b1.ice_invocationTimeout(1234);
     b1 = b1.ice_encodingVersion(Ice::EncodingVersion.new(1, 0))
 
     router = communicator.stringToProxy("router")
@@ -297,6 +305,7 @@ def allTests(communicator)
     router = router.ice_preferSecure(true)
     router = router.ice_endpointSelection(Ice::EndpointSelectionType::Random)
     router = router.ice_locatorCacheTimeout(200)
+    router = router.ice_invocationTimeout(1500);
 
     locator = communicator.stringToProxy("locator")
     #locator = locator.ice_collocationOptimized(true)
@@ -304,12 +313,13 @@ def allTests(communicator)
     locator = locator.ice_preferSecure(true)
     locator = locator.ice_endpointSelection(Ice::EndpointSelectionType::Random)
     locator = locator.ice_locatorCacheTimeout(300)
+    locator = locator.ice_invocationTimeout(1500);
 
     locator = locator.ice_router(Ice::RouterPrx::uncheckedCast(router))
     b1 = b1.ice_locator(Ice::LocatorPrx::uncheckedCast(locator))
 
     proxyProps = communicator.proxyToProperty(b1, "Test")
-    test(proxyProps.length() == 18)
+    test(proxyProps.length() == 21)
 
     test(proxyProps["Test"] == "test -t -e 1.0")
     #test(proxyProps["Test.CollocationOptimized"] == "1")
@@ -317,6 +327,7 @@ def allTests(communicator)
     test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
     test(proxyProps["Test.LocatorCacheTimeout"] == "100")
+    test(proxyProps["Test.InvocationTimeout"] == "1234");
 
     test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding()))
     #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
@@ -324,6 +335,7 @@ def allTests(communicator)
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
+    test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
     test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice::encodingVersionToString(Ice::currentEncoding()));
     #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
@@ -331,6 +343,7 @@ def allTests(communicator)
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
+    test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
     puts "ok"
 
@@ -476,6 +489,11 @@ def allTests(communicator)
     test(compObj1.ice_locatorCacheTimeout(10) != compObj1.ice_locatorCacheTimeout(20))
     #test(compObj1.ice_locatorCacheTimeout(10) < compObj1.ice_locatorCacheTimeout(20))
     #test(!(compObj1.ice_locatorCacheTimeout(20) < compObj1.ice_locatorCacheTimeout(10)))
+
+    test(compObj1.ice_invocationTimeout(20) == compObj1.ice_invocationTimeout(20));
+    test(compObj1.ice_invocationTimeout(10) != compObj1.ice_invocationTimeout(20));
+    #test(compObj1.ice_invocationTimeout(10) < compObj1.ice_invocationTimeout(20));
+    #test(not (compObj1.ice_invocationTimeout(20) < compObj1.ice_invocationTimeout(10)));
 
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000")
     compObj2 = communicator.stringToProxy("foo@MyAdapter1")

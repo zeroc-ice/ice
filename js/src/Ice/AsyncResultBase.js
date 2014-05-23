@@ -35,7 +35,7 @@
                 this._adapter = adapter;
             }
         },
-        __exception: function(ex)
+        __invokeException: function(ex)
         {
             this.fail(ex);
         }

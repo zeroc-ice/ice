@@ -27,7 +27,7 @@
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
-#include <Ice/ConnectionMonitorF.h>
+#include <Ice/ACM.h>
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
@@ -69,7 +69,6 @@ public:
     ReferenceFactoryPtr referenceFactory() const;
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
-    ConnectionMonitorPtr connectionMonitor() const;
     ObjectFactoryManagerPtr servantFactoryManager() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
@@ -84,8 +83,8 @@ public:
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
-    Ice::Int clientACM() const;
-    Ice::Int serverACM() const;
+    const ACMConfig& clientACM() const;
+    const ACMConfig& serverACM() const;
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
 
@@ -139,14 +138,13 @@ private:
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
-    const Ice::Int _clientACM; // Immutable, not reset by destroy().
-    const Ice::Int _serverACM; // Immutable, not reset by destroy().
+    ACMConfig _clientACM;
+    ACMConfig _serverACM;
     RouterManagerPtr _routerManager;
     LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
-    ConnectionMonitorPtr _connectionMonitor;
     ObjectFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ProtocolSupport _protocolSupport;

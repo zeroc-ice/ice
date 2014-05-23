@@ -56,6 +56,7 @@
         "PreferSecure",
         "EncodingVersion",
         "LocatorCacheTimeout",
+        "InvocationTimeout",
         "Locator",
         "Router",
         "CollocationOptimized"
@@ -707,8 +708,7 @@
                 this._instance.initializationData().logger.warning(message.join(""));
             }
         },
-        createImpl: function(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId,
-                                                        propertyPrefix)
+        createImpl: function(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, propertyPrefix)
         {
             var defaultsAndOverrides = this._instance.defaultsAndOverrides();
 
@@ -720,7 +720,8 @@
             {
                 if(!this._defaultLocator.__reference().getEncoding().equals(encoding))
                 {
-                    locatorInfo = this._instance.locatorManager().find(this._defaultLocator.ice_encodingVersion(encoding));
+                    locatorInfo = this._instance.locatorManager().find(
+                        this._defaultLocator.ice_encodingVersion(encoding));
                 }
                 else
                 {
@@ -732,6 +733,7 @@
             var preferSecure = defaultsAndOverrides.defaultPreferSecure;
             var endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
             var locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+            var invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
 
             //
             // Override the defaults with the proxy properties if a property prefix is defined.
@@ -808,34 +810,38 @@
 
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+
+                property = propertyPrefix + ".InvocationTimeout";
+                invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
             }
 
             //
             // Create new reference
             //
             return new RoutableReference(this._instance,
-                                        this._communicator,
-                                        ident,
-                                        facet,
-                                        mode,
-                                        secure,
-                                        protocol,
-                                        encoding,
-                                        endpoints,
-                                        adapterId,
-                                        locatorInfo,
-                                        routerInfo,
-                                        cacheConnection,
-                                        preferSecure,
-                                        endpointSelection,
-                                        locatorCacheTimeout);
+                                         this._communicator,
+                                         ident,
+                                         facet,
+                                         mode,
+                                         secure,
+                                         protocol,
+                                         encoding,
+                                         endpoints,
+                                         adapterId,
+                                         locatorInfo,
+                                         routerInfo,
+                                         cacheConnection,
+                                         preferSecure,
+                                         endpointSelection,
+                                         locatorCacheTimeout,
+                                         invocationTimeout);
         }
     });
     
     Ice.ReferenceFactory = ReferenceFactory;
     
     var Reference = Class({
-        __init__: function(instance, communicator, identity, facet, mode, secure, protocol, encoding)
+        __init__: function(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
         {
             //
             // Validate string arguments.
@@ -853,6 +859,7 @@
             this._facet = facet;
             this._protocol = protocol;
             this._encoding = encoding;
+            this._invocationTimeout = invocationTimeout;
             this._hashInitialized = false;
             this._overrideCompress = false;
             this._compress = false; // Only used if _overrideCompress == true
@@ -888,6 +895,10 @@
         getContext: function()
         {
             return this._context; // HashMap
+        },
+        getInvocationTimeout: function()
+        {
+            return this._invocationTimeout;
         },
         getCommunicator: function()
         {
@@ -1009,6 +1020,16 @@
             r._facet = newFacet;
             return r;
         },
+        changeInvocationTimeout: function(newInvocationTimeout)
+        {
+            if(newInvocationTimeout === this._invocationTimeout)
+            {
+                return this;
+            }
+            var r = this._instance.referenceFactory().copy(this);
+            r._invocationTimeout = newInvocationTimeout;
+            return r;
+        },
         changeEncoding: function(newEncoding)
         {
             if(newEncoding.equals(this._encoding))
@@ -1117,6 +1138,7 @@
             }
             h = HashUtil.addHashable(h, this._protocol);
             h = HashUtil.addHashable(h, this._encoding);
+            h = HashUtil.addNumber(h, this._invocationTimeout);
 
             this._hashValue = h;
             this._hashInitialized = true;
@@ -1351,6 +1373,11 @@
                 return false;
             }
 
+            if(this._invocationTimeout !== r._invocationTimeout)
+            {
+                return false;
+            }
+
             return true;
         },
         clone: function()
@@ -1480,7 +1507,7 @@
         clone: function()
         {
             var r = new FixedReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
-                                    this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
+                                       this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
             this.copyMembers(r);
             return r;
         },
@@ -1583,9 +1610,10 @@
     var RoutableReference = Class(Reference, {
         __init__: function(instance, communicator, identity, facet, mode, secure, protocol, encoding, endpoints,
                            adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
-                           locatorCacheTimeout)
+                           locatorCacheTimeout, invocationTimeout)
         {
-            Reference.call(this, instance, communicator, identity, facet, mode, secure, protocol, encoding);
+            Reference.call(this, instance, communicator, identity, facet, mode, secure, protocol, encoding, 
+                           invocationTimeout);
             this._endpoints = endpoints;
             this._adapterId = adapterId;
             this._locatorInfo = locatorInfo;
@@ -1880,6 +1908,7 @@
                         this._endpointSelection === EndpointSelectionType.Random ? "Random" : "Ordered");
 
             properties.set(prefix + ".LocatorCacheTimeout", "" + this._locatorCacheTimeout);
+            properties.set(prefix + ".InvocationTimeout", "" + this.getInvocationTimeout());
 
             if(this._routerInfo !== null)
             {
@@ -2095,11 +2124,23 @@
         },
         clone: function()
         {
-            var r = new RoutableReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
-                                        this.getMode(), this.getSecure(), this.getProtocol(), this.getEncoding(),
-                                        this._endpoints, this._adapterId, this._locatorInfo, this._routerInfo,
-                                        this._cacheConnection, this._preferSecure, this._endpointSelection,
-                                        this._locatorCacheTimeout);
+            var r = new RoutableReference(this.getInstance(), 
+                                          this.getCommunicator(), 
+                                          this.getIdentity(), 
+                                          this.getFacet(),
+                                          this.getMode(), 
+                                          this.getSecure(),
+                                          this.getProtocol(),
+                                          this.getEncoding(),
+                                          this._endpoints,
+                                          this._adapterId,
+                                          this._locatorInfo,
+                                          this._routerInfo,
+                                          this._cacheConnection,
+                                          this._preferSecure,
+                                          this._endpointSelection,
+                                          this._locatorCacheTimeout,
+                                          this._invocationTimeout);
             this.copyMembers(r);
             return r;
         },

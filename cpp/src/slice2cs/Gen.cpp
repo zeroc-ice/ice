@@ -5123,11 +5123,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "result__.writeEmptyParams__();";
         }
-        _out << nl << "result__.send__(true);";
+        _out << nl << "result__.invoke__(true);";
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
-        _out << nl << "result__.exceptionAsync__(ex__);";
+        _out << nl << "result__.invokeExceptionAsync__(ex__);";
         _out << eb;
         _out << nl << "return result__;";
         _out << eb;
@@ -5228,7 +5228,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << sb;
                 _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, "
                      << flatName << ", " << op->name() << "_completed__, null);";
-                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).exceptionAsync__(ex);";
+                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).invokeExceptionAsync__(ex);";
                 _out << eb;
             }
             else
@@ -5262,7 +5262,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << sb;
                 _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, "
                      << flatName << ", " << op->name() << "_completed__, null);";
-                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).exceptionAsync__(ex);";
+                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).invokeExceptionAsync__(ex);";
                 _out << eb;
             }
             else

@@ -214,6 +214,14 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
         ex.ice_throw();
     }
 
+    //
+    // Don't retry invocation timeouts.
+    //
+    if(dynamic_cast<const InvocationTimeoutException*>(&ex))
+    {
+        ex.ice_throw();
+    }
+
     ++cnt;
     assert(cnt > 0);
 

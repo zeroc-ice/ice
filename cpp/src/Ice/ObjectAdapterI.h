@@ -30,6 +30,7 @@
 #include <Ice/Exception.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Proxy.h>
+#include <Ice/ACM.h>
 #include <list>
 
 namespace Ice
@@ -96,7 +97,7 @@ public:
 
     IceInternal::ThreadPoolPtr getThreadPool() const;
     IceInternal::ServantManagerPtr getServantManager() const;
-    Ice::Int getACM() const;
+    IceInternal::ACMConfig getACM() const;
 
 private:
 
@@ -121,8 +122,7 @@ private:
     CommunicatorPtr _communicator;
     IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
     IceInternal::ThreadPoolPtr _threadPool;
-    bool _hasAcmTimeout;
-    Ice::Int _acmTimeout;
+    IceInternal::ACMConfig _acm;
     IceInternal::ServantManagerPtr _servantManager;
     bool _activateOneOffDone;
     const std::string _name;

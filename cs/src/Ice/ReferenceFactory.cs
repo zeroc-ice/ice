@@ -672,10 +672,10 @@ namespace IceInternal
         static private readonly string[] _suffixes =
         {
             "EndpointSelection",
-            "EncodingVersion",
             "ConnectionCached",
             "PreferSecure",
             "LocatorCacheTimeout",
+            "InvocationTimeout",
             "Locator",
             "Router",
             "CollocationOptimized",
@@ -766,6 +766,7 @@ namespace IceInternal
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
             Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
             int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+            int invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
             Dictionary<string, string> context = null;
  
             //
@@ -847,6 +848,9 @@ namespace IceInternal
                 property = propertyPrefix + ".LocatorCacheTimeout";
                 locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
 
+                property = propertyPrefix + ".InvocationTimeout";
+                invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+
                 property = propertyPrefix + ".Context.";
                 Dictionary<string, string> contexts = properties.getPropertiesForPrefix(property);
                 if(contexts.Count != 0)
@@ -879,6 +883,7 @@ namespace IceInternal
                                          preferSecure,
                                          endpointSelection,
                                          locatorCacheTimeout,
+                                         invocationTimeout,
                                          context);
         }
 

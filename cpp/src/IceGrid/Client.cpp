@@ -420,7 +420,8 @@ Client::run(StringSeq& originalArgs)
     int status = EXIT_SUCCESS;
     try
     {
-        int timeout;
+        int sessionTimeout;
+        int acmTimeout = 0;
         if(communicator()->getDefaultRouter())
         {
             try
@@ -488,7 +489,14 @@ Client::run(StringSeq& originalArgs)
                     return EXIT_FAILURE;
                 }
             }
-            timeout = static_cast<int>(router->getSessionTimeout());
+            sessionTimeout = static_cast<int>(router->getSessionTimeout());
+            try
+            {
+                acmTimeout = router->getACMTimeout();
+            }
+            catch(const Ice::OperationNotExistException&)
+            {
+            }
         }
         else if(communicator()->getDefaultLocator())
         {
@@ -630,7 +638,14 @@ Client::run(StringSeq& originalArgs)
                 }
             }
 
-            timeout = registry->getSessionTimeout();
+            sessionTimeout = registry->getSessionTimeout();
+            try
+            {
+                acmTimeout = registry->getACMTimeout();
+            }
+            catch(const Ice::OperationNotExistException&)
+            {
+            }
         }
         else // No default locator or router set.
         {
@@ -639,9 +654,13 @@ Client::run(StringSeq& originalArgs)
             return EXIT_FAILURE;            
         }
 
-        if(timeout > 0)
+        if(acmTimeout > 0)
         {
-            keepAlive = new SessionKeepAliveThread(session, timeout / 2);
+            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
+        }
+        else if(sessionTimeout > 0)
+        {
+            keepAlive = new SessionKeepAliveThread(session, sessionTimeout / 2);
             keepAlive->start();
         }
 

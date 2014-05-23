@@ -125,7 +125,7 @@ public final class OutgoingConnectionFactory
         synchronized(this)
         {
             // Ensure all the connections are finished and reapable at this point.
-            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            java.util.List<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
             if(cons != null)
             {
                 int size = 0;
@@ -142,6 +142,7 @@ public final class OutgoingConnectionFactory
                 assert(_connections.isEmpty());
                 assert(_connectionsByEndpoint.isEmpty());
             }
+            _monitor.destroy();
         }
     }
 
@@ -449,6 +450,7 @@ public final class OutgoingConnectionFactory
     {
         _communicator = communicator;
         _instance = instance;
+        _monitor = new FactoryACMMonitor(instance, instance.clientACM());
         _destroyed = false;
     }
 
@@ -617,7 +619,7 @@ public final class OutgoingConnectionFactory
             //
             // Reap closed connections
             //
-            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            java.util.List<Ice.ConnectionI> cons = _monitor.swapReapedConnections();
             if(cons != null)
             {
                 for(Ice.ConnectionI c : cons)
@@ -716,7 +718,7 @@ public final class OutgoingConnectionFactory
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            connection = new Ice.ConnectionI(_communicator, _instance, _reaper, transceiver, ci.connector,
+            connection = new Ice.ConnectionI(_communicator, _instance, _monitor, transceiver, ci.connector,
                                              ci.endpoint.compress(false), null);
         }
         catch(Ice.LocalException ex)
@@ -1247,7 +1249,7 @@ public final class OutgoingConnectionFactory
 
     private Ice.Communicator _communicator;
     private final Instance _instance;
-    private final ConnectionReaper _reaper = new ConnectionReaper();
+    private final FactoryACMMonitor _monitor;    
     private boolean _destroyed;
 
     private MultiHashMap<Connector, Ice.ConnectionI> _connections = new MultiHashMap<Connector, Ice.ConnectionI>();

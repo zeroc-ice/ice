@@ -714,6 +714,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         "ConnectionCached",
         "PreferSecure",
         "LocatorCacheTimeout",
+        "InvocationTimeout",
         "Locator",
         "Router",
         "CollocationOptimized",
@@ -797,6 +798,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
     Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
     int locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
+    int invocationTimeout = defaultsAndOverrides->defaultInvocationTimeout;
     Ice::Context ctx;
 
     //
@@ -874,6 +876,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         property = propertyPrefix + ".LocatorCacheTimeout";
         locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
 
+        property = propertyPrefix + ".InvocationTimeout";
+        invocationTimeout = properties->getPropertyAsIntWithDefault(property, invocationTimeout);
+
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);
         for(PropertyDict::const_iterator p = contexts.begin(); p != contexts.end(); ++p)
@@ -902,6 +907,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                  preferSecure,
                                  endpointSelection,
                                  locatorCacheTimeout,
+                                 invocationTimeout,
                                  ctx);
 }
 

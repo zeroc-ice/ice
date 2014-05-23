@@ -25,6 +25,11 @@ NestedI::nestedCall(Int level, const NestedPrx& proxy, const Ice::Current&)
     cout << level << endl;
     if(--level > 0)
     {
-        proxy->nestedCall(level, _self);
+        //
+        // Ensure the invocation times out if the nesting level is too
+        // high and there are no more threads in the thread pool to
+        // dispatch the call.
+        //
+        proxy->ice_invocationTimeout(5000)->nestedCall(level, _self);
     }
 }

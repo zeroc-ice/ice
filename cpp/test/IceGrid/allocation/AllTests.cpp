@@ -273,101 +273,14 @@ protected:
 };
 typedef IceUtil::Handle<StressClient> StressClientPtr;
 
-class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SessionKeepAliveThread(const Ice::LoggerPtr& logger, const IceUtil::Time& timeout) :
-        _logger(logger),
-        _timeout(timeout),
-        _terminated(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        Lock sync(*this);
-        while(!_terminated)
-        {
-            timedWait(_timeout);
-            if(!_terminated)
-            {
-                vector<SessionPrx>::iterator p = _sessions.begin();
-                while(p != _sessions.end())
-                {
-                    try
-                    {
-                        (*p)->keepAlive();
-                        ++p;
-                    }
-                    catch(const Ice::Exception&)
-                    {
-                        p = _sessions.erase(p);
-                    }
-                }
-
-                vector<AdminSessionPrx>::iterator q = _adminSessions.begin();
-                while(q != _adminSessions.end())
-                {
-                    try
-                    {
-                        (*q)->keepAlive();
-                        ++q;
-                    }
-                    catch(const Ice::Exception&)
-                    {
-                        q = _adminSessions.erase(q);
-                    }
-                }
-            }
-        }
-    }
-
-    void 
-    add(const SessionPrx& session)
-    {
-        Lock sync(*this);
-        _sessions.push_back(session);
-    }
-
-    void 
-    add(const AdminSessionPrx& session)
-    {
-        Lock sync(*this);
-        _adminSessions.push_back(session);
-    }
-
-    void
-    terminate()
-    {
-        Lock sync(*this);
-        _terminated = true;
-        notify();
-    }
-
-private:
-
-    const Ice::LoggerPtr _logger;
-    vector<SessionPrx> _sessions;
-    vector<AdminSessionPrx> _adminSessions;
-    const IceUtil::Time _timeout;
-    bool _terminated;
-};
-typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
-
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(
-        communicator->getLogger(), IceUtil::Time::seconds(5));
-    keepAlive->start();
-
     RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    keepAlive->add(session);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -395,9 +308,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         SessionPrx session1 = registry->createSession("Client1", "");
         SessionPrx session2 = registry->createSession("Client2", "");
         
-        keepAlive->add(session1);
-        keepAlive->add(session2);
-    
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
+        session2->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
+
         cout << "ok" << endl;
 
         cout << "testing allocate object by identity... " << flush;
@@ -1138,7 +1051,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "stress test... " << flush;
 
         SessionPrx stressSession = registry->createSession("StressSession", "");        
-        keepAlive->add(stressSession);
+        stressSession->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
 
         const int nClients = 10;
         int i;
@@ -1197,10 +1110,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "shutting down router... " << flush;
     admin->stopServer("Glacier2");
     cout << "ok" << endl;
-
-    keepAlive->terminate();
-    keepAlive->getThreadControl().join();
-    keepAlive = 0;
 
     session->destroy();
 }

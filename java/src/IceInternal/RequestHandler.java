@@ -18,14 +18,14 @@ public interface RequestHandler
     void finishBatchRequest(BasicStream out);
     void abortBatchRequest();
 
-    Ice.ConnectionI sendRequest(Outgoing out)
+    boolean sendRequest(OutgoingMessageCallback out)
         throws LocalExceptionWrapper;
 
-    int sendAsyncRequest(OutgoingAsync out)
+    int sendAsyncRequest(OutgoingAsyncMessageCallback out)
         throws LocalExceptionWrapper;
 
-    boolean flushBatchRequests(BatchOutgoing out);
-    int flushAsyncBatchRequests(BatchOutgoingAsync out);
+    void requestTimedOut(OutgoingMessageCallback out);
+    void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync);
 
     Reference getReference();
 

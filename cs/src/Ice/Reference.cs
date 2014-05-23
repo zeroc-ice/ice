@@ -73,6 +73,12 @@ namespace IceInternal
             return context_;
         }
 
+        public int
+        getInvocationTimeout()
+        {
+            return invocationTimeout_;
+        }
+
         public Ice.Communicator getCommunicator()
         {
             return communicator_;
@@ -156,6 +162,17 @@ namespace IceInternal
             return r;
         }
 
+        public Reference changeInvocationTimeout(int newTimeout)
+        {
+            if(newTimeout == invocationTimeout_)
+            {
+                return this;
+            }
+            Reference r = instance_.referenceFactory().copy(this);
+            r.invocationTimeout_ = newTimeout;
+            return r;
+        }
+
         public virtual Reference changeEncoding(Ice.EncodingVersion newEncoding)
         {
             if(newEncoding.Equals(encoding_))
@@ -214,6 +231,7 @@ namespace IceInternal
                 }
                 IceInternal.HashUtil.hashAdd(ref h, protocol_);
                 IceInternal.HashUtil.hashAdd(ref h, encoding_);
+                IceInternal.HashUtil.hashAdd(ref h, invocationTimeout_);
                 hashValue_ = h;
                 hashInitialized_ = true;
                 return hashValue_;
@@ -431,6 +449,11 @@ namespace IceInternal
                 return false;
             }
 
+            if(invocationTimeout_ != r.invocationTimeout_)
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -456,6 +479,8 @@ namespace IceInternal
         protected bool secure_;
         private Ice.ProtocolVersion protocol_;
         private Ice.EncodingVersion encoding_;
+        private int invocationTimeout_;
+
         protected bool overrideCompress_;
         protected bool compress_; // Only used if _overrideCompress == true
 
@@ -467,6 +492,7 @@ namespace IceInternal
                             bool secure,
                             Ice.ProtocolVersion protocol,
                             Ice.EncodingVersion encoding,
+                            int invocationTimeout,
                             Dictionary<string, string> context)
         {
             //
@@ -484,6 +510,7 @@ namespace IceInternal
             facet_ = facet;
             protocol_ = protocol;
             encoding_ = encoding;
+            invocationTimeout_ = invocationTimeout;
             secure_ = secure;
             hashInitialized_ = false;
             overrideCompress_ = false;
@@ -503,7 +530,7 @@ namespace IceInternal
                               bool secure,
                               Ice.EncodingVersion encoding,
                               Ice.ConnectionI connection)
-            : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null)
+        : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, -1, null)
         {
             _fixedConnection = connection;
         }
@@ -1060,6 +1087,7 @@ namespace IceInternal
             properties[prefix + ".EndpointSelection"] =
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
             properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString(CultureInfo.InvariantCulture);
+            properties[prefix + ".InvocationTimeout"] = getInvocationTimeout().ToString(CultureInfo.InvariantCulture);
 
             if(_routerInfo != null)
             {
@@ -1393,8 +1421,9 @@ namespace IceInternal
                                  bool preferSecure,
                                  Ice.EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout,
+                                 int invocationTimeout,
                                  Dictionary<string, string> context)
-            : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, context)
+        : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _endpoints = endpoints;
             _adapterId = adapterId;

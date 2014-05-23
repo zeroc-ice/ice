@@ -243,7 +243,7 @@ public class AsyncResult
         }
     }
 
-    public final void __exceptionAsync(final LocalException ex)
+    public final void __invokeExceptionAsync(final LocalException ex)
     {
         //
         // This is called when it's not safe to call the exception callback synchronously
@@ -257,7 +257,7 @@ public class AsyncResult
                     public void
                     run()
                     {
-                        __exception(ex);
+                        __invokeException(ex);
                     }
                 });
         }
@@ -267,7 +267,7 @@ public class AsyncResult
         }
     }
 
-    public final void __exception(LocalException ex)
+    public final void __invokeException(LocalException ex)
     {
         synchronized(_monitor)
         {
@@ -276,47 +276,11 @@ public class AsyncResult
             _exception = ex;
             _monitor.notifyAll();
         }
-
-        if(_callback != null)
-        {
-            if(_instance.useApplicationClassLoader())
-            {
-                Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
-            }
-
-            try
-            {
-                _callback.__completed(this);
-            }
-            catch(RuntimeException exc)
-            {
-                __warning(exc);
-            }
-            catch(AssertionError exc)
-            {
-                __error(exc);
-            }
-            catch(OutOfMemoryError exc)
-            {
-                __error(exc);
-            }
-            finally
-            {
-                if(_instance.useApplicationClassLoader())
-                {
-                    Thread.currentThread().setContextClassLoader(null);
-                }
-            }
-        }
-
-        if(_observer != null)
-        {
-            _observer.detach();
-            _observer = null;
-        }
+        
+        __invokeCompleted();
     }
 
-    protected final void __sentInternal()
+    protected final void __invokeSentInternal()
     {
         //
         // Note: no need to change the _state here, specializations are responsible for
@@ -383,7 +347,7 @@ public class AsyncResult
         return _observer;
     }
     
-    public final void __sentAsync()
+    public final void __invokeSentAsync()
     {
         //
         // This is called when it's not safe to call the sent callback synchronously
@@ -397,7 +361,7 @@ public class AsyncResult
                     public void
                     run()
                     {
-                        __sentInternal();
+                        __invokeSentInternal();
                     }
                 });
         }
@@ -452,7 +416,7 @@ public class AsyncResult
         }
     }
 
-    protected final void __response()
+    protected final void __invokeCompleted()
     {
         //
         // Note: no need to change the _state here, specializations are responsible for
@@ -498,6 +462,31 @@ public class AsyncResult
         }
     }
 
+    protected void 
+    __runTimerTask()
+    {
+        IceInternal.RequestHandler handler;
+        synchronized(_monitor)
+        {
+            handler = _timeoutRequestHandler; 
+            _timeoutRequestHandler = null;
+        }
+        
+        if(handler != null)
+        {
+            final IceInternal.RequestHandler h = handler;
+            _instance.clientThreadPool().execute(
+                new IceInternal.DispatchWorkItem(_instance)
+                {
+                    public void
+                    run()
+                    {
+                        h.asyncRequestTimedOut((IceInternal.OutgoingAsyncMessageCallback)AsyncResult.this);
+                    }
+                });
+        }
+    }
+
     protected final void __warning(RuntimeException ex)
     {
         if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
@@ -520,6 +509,8 @@ public class AsyncResult
     protected java.lang.Object _monitor = new java.lang.Object();
     protected IceInternal.BasicStream _is;
     protected IceInternal.BasicStream _os;
+
+    protected IceInternal.RequestHandler _timeoutRequestHandler;
 
     protected static final byte OK = 0x1;
     protected static final byte Done = 0x2;

@@ -17,7 +17,8 @@ namespace IceInternal
 
     public interface OutgoingMessageCallback
     {
-        void sent(bool notify);
+        bool send(Ice.ConnectionI connection, bool compress, bool response);
+        void sent();
         void finished(Ice.LocalException ex, bool sent);
     }
 
@@ -27,6 +28,8 @@ namespace IceInternal
                         Dictionary<string, string> context, InvocationObserver observer)
         {
             _state = StateUnsent;
+            _exceptionWrapper = false;
+            _exceptionWrapperRetry = false;
             _sent = false;
             _handler = handler;
             _observer = observer;
@@ -45,6 +48,8 @@ namespace IceInternal
                           Dictionary<string, string> context, InvocationObserver observer)
         {
             _state = StateUnsent;
+            _exceptionWrapper = false;
+            _exceptionWrapperRetry = false;
             _exception = null;
             _sent = false;
             _handler = handler;
@@ -73,42 +78,43 @@ namespace IceInternal
             switch(_handler.getReference().getMode())
             {
                 case Reference.Mode.ModeTwoway:
+                case Reference.Mode.ModeOneway:
+                case Reference.Mode.ModeDatagram:
                 {
                     _state = StateInProgress;
 
-                    Ice.ConnectionI connection = _handler.sendRequest(this);
+                    if(_handler.sendRequest(this)) // Request sent and no response expected, we're done.
+                    {
+                        return true;
+                    }
 
                     bool timedOut = false;
-
                     _m.Lock();
                     try
                     {
                         //
-                        // If the request is being sent in the background we first wait for the
-                        // sent notification.
+                        // If the handler says it's not finished, we wait until we're done.
                         //
-                        while(_state != StateFailed && !_sent)
-                        {
-                            _m.Wait();
-                        }
 
-                        //
-                        // Wait until the request has completed, or until the request
-                        // times out.
-                        //
-                        int timeout = connection.timeout();
-                        while(_state == StateInProgress && !timedOut)
+                        int invocationTimeout = _handler.getReference().getInvocationTimeout();
+                        if(invocationTimeout > 0)
                         {
-                            if(timeout >= 0)
+                            long now = Time.currentMonotonicTimeMillis();
+                            long deadline = now + invocationTimeout;
+                            while((_state == StateInProgress || !_sent) && _state != StateFailed && !timedOut)
                             {
-                                _m.TimedWait(timeout);
-
-                                if(_state == StateInProgress)
+                                _m.TimedWait((int)(deadline - now));
+                                
+                                if((_state == StateInProgress || !_sent) && _state != StateFailed)
                                 {
-                                    timedOut = true;
+                                    now = Time.currentMonotonicTimeMillis();
+                                    timedOut = now >= deadline;
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            while((_state == StateInProgress || !_sent) && _state != StateFailed)
                             {
                                 _m.Wait();
                             }
@@ -121,32 +127,17 @@ namespace IceInternal
 
                     if(timedOut)
                     {
-                        //
-                        // Must be called outside the synchronization of
-                        // this object
-                        //
-                        connection.exception(new Ice.TimeoutException());
-
-                        //
-                        // We must wait until the exception set above has
-                        // propagated to this Outgoing object.
-                        //
-                        _m.Lock();
-                        try
-                        {
-                            while(_state == StateInProgress)
-                            {
-                                _m.Wait();
-                            }
-                        }
-                        finally
-                        {
-                            _m.Unlock();
-                        }
+                        _handler.requestTimedOut(this);
+                        Debug.Assert(_exception != null);
                     }
 
                     if(_exception != null)
                     {
+                        if(_exceptionWrapper)
+                        {
+                            throw new LocalExceptionWrapper(_exception, _exceptionWrapperRetry);
+                        }
+
                         //
                         // A CloseConnectionException indicates graceful
                         // server shutdown, and is therefore always repeatable
@@ -176,46 +167,8 @@ namespace IceInternal
                         throw new LocalExceptionWrapper(_exception, false);
                     }
 
-                    if(_state == StateUserException)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        Debug.Assert(_state == StateOK);
-                        return true;
-                    }
-                }
-
-                case Reference.Mode.ModeOneway:
-                case Reference.Mode.ModeDatagram:
-                {
-                    _state = StateInProgress;
-                    if(_handler.sendRequest(this) != null)
-                    {
-                        //
-                        // If the handler returns the connection, we must wait for the sent callback.
-                        //
-                        _m.Lock();
-                        try
-                        {
-                            while(_state != StateFailed && !_sent)
-                            {
-                                _m.Wait();
-                            }
-
-                            if(_exception != null)
-                            {
-                                Debug.Assert(!_sent);
-                                throw _exception;
-                            }
-                        }
-                        finally
-                        {
-                            _m.Unlock();
-                        }
-                    }
-                    return true;
+                    Debug.Assert(_state != StateInProgress);
+                    return _state == StateOK;
                 }
 
                 case Reference.Mode.ModeBatchOneway:
@@ -254,34 +207,31 @@ namespace IceInternal
             throw ex;
         }
 
-        public void sent(bool notify)
+        public bool send(Ice.ConnectionI connection, bool compress, bool response)
         {
-            if(notify)
+            return connection.sendRequest(this, compress, response);
+        }
+        
+        public void sent()
+        {
+            _m.Lock();
+            try
             {
-                _m.Lock();
-                try
+                if(_handler.getReference().getMode() != Reference.Mode.ModeTwoway)
                 {
-                    _sent = true;
-                    _m.Notify();
+                    if(_remoteObserver != null)
+                    {
+                        _remoteObserver.detach();
+                        _remoteObserver = null;
+                    }
+                    _state = StateOK;
                 }
-                finally
-                {
-                    _m.Unlock();
-                }
-            }
-            else
-            {
-                //
-                // No synchronization is necessary if called from sendRequest() because the connection
-                // send mutex is locked and no other threads can call on Outgoing until it's released.
-                //
                 _sent = true;
+                _m.Notify();
             }
-
-            if(_remoteObserver != null && _handler.getReference().getMode() != Reference.Mode.ModeTwoway)
+            finally
             {
-                _remoteObserver.detach();
-                _remoteObserver = null;
+                _m.Unlock();
             }
         }
 
@@ -464,6 +414,31 @@ namespace IceInternal
             }
         }
 
+        public void finished(LocalExceptionWrapper ex)
+        {
+            _m.Lock();
+            try
+            {
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.failed(ex.get().ice_name());
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
+
+                _state = StateFailed;
+                _exceptionWrapper = true;
+                _exceptionWrapperRetry = ex.retry();
+                _exception = ex.get();
+                _sent = false;
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+        }
+        
         public BasicStream ostr()
         {
             return _os;
@@ -627,6 +602,8 @@ namespace IceInternal
         internal BasicStream _os;
         internal bool _sent;
 
+        private bool _exceptionWrapper;
+        private bool _exceptionWrapperRetry;
         private Ice.LocalException _exception;
         private Ice.EncodingVersion _encoding;
 
@@ -669,7 +646,7 @@ namespace IceInternal
         {
             Debug.Assert(_handler != null || _connection != null);
 
-            if(_handler != null && !_handler.flushBatchRequests(this) ||
+            if(_handler != null && !_handler.sendRequest(this) ||
                _connection != null && !_connection.flushBatchRequests(this))
             {
                 _m.Lock();
@@ -692,30 +669,27 @@ namespace IceInternal
             }
         }
 
-        public void sent(bool notify)
+        public bool send(Ice.ConnectionI connection, bool compress, bool response)
         {
-            if(notify)
-            {
-                _m.Lock();
-                try
-                {
-                    _sent = true;
-                    _m.Notify();
-                }
-                finally
-                {
-                    _m.Unlock();
-                }
-            }
-            else
-            {
-                _sent = true;
-            }
+            return connection.flushBatchRequests(this);
+        }
 
-            if(_remoteObserver != null)
+        public void sent()
+        {
+            _m.Lock();
+            try
             {
-                _remoteObserver.detach();
-                _remoteObserver = null;
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
+                _sent = true;
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 

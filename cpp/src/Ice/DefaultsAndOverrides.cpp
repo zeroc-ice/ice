@@ -91,6 +91,9 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ex;
     }
 
+    const_cast<int&>(defaultInvocationTimeout) = 
+        properties->getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+
     const_cast<int&>(defaultLocatorCacheTimeout) = 
         properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 

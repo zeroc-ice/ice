@@ -353,7 +353,6 @@ struct TestCase
 static const TestCase allTest[] =
 {
     TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", 0, "collocated.dll"),
-    TestCase("Ice", "adapterDeactivation", "client.dll", "server.dll", 0, "collocated.dll"),
     TestCase("Ice", "ami", "client.dll", "server.dll", 0, 0),
     TestCase("Ice", "binding", "client.dll", "server.dll", 0, 0),
     TestCase("Ice", "dispatcher", "client.dll", "server.dll", 0, 0),
@@ -370,6 +369,7 @@ static const TestCase allTest[] =
     TestCase("Ice", "retry", "client.dll", "server.dll", 0, 0),
     TestCase("Ice", "stream", "client.dll", 0, 0, 0),
     TestCase("Ice", "timeout", "client.dll", "server.dll", 0, 0),
+    TestCase("Ice", "acm", "client.dll", "server.dll", 0, 0),
     TestCase("Ice", "udp", "client.dll", "server.dll", 0, 0),
     TestCase("Ice", "hash", "client.dll", 0, 0, 0),
     TestCase("Ice", "metrics", "client.dll", "server.dll", "serveramd.dll", 0),
@@ -471,8 +471,8 @@ public:
             svrConfig.type = TestConfigTypeServer;
             serverRunable = new Runnable(_test.prefix + server, svrConfig);
             serverRunable->start();
-            serverRunable->waitForStart();
             serverRunable->getThreadControl().detach();
+            serverRunable->waitForStart();
         }
 
         TestConfig cltConfig = _config;

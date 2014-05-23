@@ -27,8 +27,16 @@ Module NestedC
                 Return 1
             End If
 
+            '
+            ' Ensure the invocation times out if the nesting level is too
+            ' high and there are no more threads in the thread pool to
+            ' dispatch the call.
+            ' 
+            nested = NestedPrxHelper.uncheckedCast(nested.ice_invocationTimeout(5000))
+
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Nested.Client")
-            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")))
+            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(
+                        communicator().stringToIdentity("nestedClient")))
             adapter.add(New NestedI(self), communicator().stringToIdentity("nestedClient"))
             adapter.activate()
 

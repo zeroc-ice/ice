@@ -26,18 +26,18 @@ namespace IceInternal
                 this.os.swap(os);
             }
 
-            internal Request(OutgoingAsync @out)
+            internal Request(OutgoingMessageCallback @out)
             {
                 this.@out = @out;
             }
 
-            internal Request(BatchOutgoingAsync @out)
+            internal Request(OutgoingAsyncMessageCallback outAsync)
             {
-                this.batchOut = @out;
+                this.outAsync = outAsync;
             }
 
-            internal OutgoingAsync @out = null;
-            internal BatchOutgoingAsync batchOut = null;
+            internal OutgoingMessageCallback @out = null;
+            internal OutgoingAsyncMessageCallback outAsync = null;
             internal BasicStream os = null;
             internal Ice.AsyncCallback sentCallback = null;
         }
@@ -147,21 +147,7 @@ namespace IceInternal
             _connection.abortBatchRequest();
         }
 
-        public Ice.ConnectionI sendRequest(Outgoing @out)
-        {
-            Ice.ConnectionI connection = getConnection(true);
-            Debug.Assert(connection != null);
-            if(!connection.sendRequest(@out, _compress, _response) || _response)
-            {
-                return _connection; // The request has been sent or we're expecting a response.
-            }
-            else
-            {
-                return null; // The request hasn't been sent yet.
-            }
-        }
-
-        public bool sendAsyncRequest(OutgoingAsync @out, out Ice.AsyncCallback sentCallback)
+        public bool sendRequest(OutgoingMessageCallback @out)
         {
             _m.Lock();
             try
@@ -169,6 +155,26 @@ namespace IceInternal
                 if(!initialized())
                 {
                     _requests.AddLast(new Request(@out));
+                    return false; // Not sent
+                }
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+
+            // Finished if sent and no response.
+            return @out.send(_connection, _compress, _response) && !_response;
+        }
+
+        public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
+        {
+            _m.Lock();
+            try
+            {
+                if(!initialized())
+                {
+                    _requests.AddLast(new Request(outAsync));
                     sentCallback = null;
                     return false;
                 }
@@ -177,31 +183,65 @@ namespace IceInternal
             {
                 _m.Unlock();
             }
-            return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
+            return outAsync.send__(_connection, _compress, _response, out sentCallback);
         }
 
-        public bool flushBatchRequests(BatchOutgoing @out)
-        {
-            return getConnection(true).flushBatchRequests(@out);
-        }
-
-        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out, out Ice.AsyncCallback sentCallback)
+        public void requestTimedOut(OutgoingMessageCallback @out)
         {
             _m.Lock();
             try
             {
                 if(!initialized())
                 {
-                    _requests.AddLast(new Request(@out));
-                    sentCallback = null;
-                    return false;
+                    LinkedListNode<Request> p = _requests.First;
+                    while(p != null)
+                    {
+                        Request request = p.Value;
+                        if(request.@out == @out)
+                        {
+                            @out.finished(new Ice.InvocationTimeoutException(), false);
+                            _requests.Remove(p);
+                            return;
+                        }
+                        p = p.Next;
+                    }
+                    Debug.Assert(false); // The request has to be queued if it timed out and we're not initialized yet.
                 }
             }
             finally
             {
                 _m.Unlock();
             }
-            return _connection.flushAsyncBatchRequests(@out, out sentCallback);
+            _connection.requestTimedOut(@out);
+        }
+
+        public void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
+        {
+            _m.Lock();
+            try
+            {
+                if(!initialized())
+                {
+                    LinkedListNode<Request> p = _requests.First;
+                    while(p != null)
+                    {
+                        Request request = p.Value;
+                        if(request.outAsync == outAsync)
+                        {
+                            outAsync.finished__(new Ice.InvocationTimeoutException(), false);
+                            _requests.Remove(p);
+                            return;
+                        }
+                        p = p.Next;
+                    }
+                    Debug.Assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+                }
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+            _connection.asyncRequestTimedOut(outAsync);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
@@ -433,17 +473,11 @@ namespace IceInternal
                     Request request = p.Value;
                     if(request.@out != null)
                     {
-                        if(_connection.sendAsyncRequest(request.@out, _compress, _response, out request.sentCallback))
-                        {
-                            if(request.sentCallback != null)
-                            {
-                                sentCallbacks.AddLast(request);
-                            }
-                        }
+                        request.@out.send(_connection, _compress, _response);
                     }
-                    else if(request.batchOut != null)
+                    else if(request.outAsync != null)
                     {
-                        if(_connection.flushAsyncBatchRequests(request.batchOut, out request.sentCallback))
+                        if(request.outAsync.send__(_connection, _compress, _response, out request.sentCallback))
                         {
                             if(request.sentCallback != null)
                             {
@@ -514,13 +548,9 @@ namespace IceInternal
                                                     {
                                                         foreach(Request r in sentCallbacks)
                                                         {
-                                                            if(r.@out != null)
+                                                            if(r.outAsync != null)
                                                             {
-                                                                r.@out.sent__(r.sentCallback);
-                                                            }
-                                                            else if(r.batchOut != null)
-                                                            {
-                                                                r.batchOut.sent__(r.sentCallback);
+                                                                r.outAsync.invokeSent__(r.sentCallback);
                                                             }
                                                         }
                                                     });
@@ -565,12 +595,12 @@ namespace IceInternal
             foreach(Request request in _requests)
             {
                 if(request.@out != null)
-                {
-                    request.@out.finished__(ex, false);
+                {            
+                    request.@out.finished(ex, false);
                 }
-                else if(request.batchOut != null)
+                else if(request.outAsync != null)
                 {
-                    request.batchOut.finished__(ex, false);
+                    request.outAsync.finished__(ex, false);
                 }
             }
             _requests.Clear();
@@ -582,12 +612,26 @@ namespace IceInternal
             foreach(Request request in _requests)
             {
                 if(request.@out != null)
-                {
-                    request.@out.finished__(ex);
+                {            
+                    if(request.@out is Outgoing)
+                    {
+                        ((Outgoing)request.@out).finished(ex);
+                    }
+                    else
+                    {
+                        request.@out.finished(ex.get(), false);
+                    }
                 }
-                else if(request.batchOut != null)
+                if(request.outAsync != null)
                 {
-                    request.batchOut.finished__(ex.get(), false);
+                    if(request.outAsync is OutgoingAsync)
+                    {
+                        ((OutgoingAsync)request.outAsync).finished__(ex);
+                    }
+                    else
+                    {
+                        request.outAsync.finished__(ex.get(), false);
+                    }
                 }
             }
             _requests.Clear();

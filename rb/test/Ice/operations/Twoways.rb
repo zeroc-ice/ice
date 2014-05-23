@@ -152,7 +152,6 @@ def twoways(communicator, p)
     test(bso == "\x22\x12\x11\x01")
     test(rso.length == 8)
     test(rso == "\x01\x11\x12\x22\xf1\xf2\xf3\xf4")
-
     #
     # opBoolS
     #

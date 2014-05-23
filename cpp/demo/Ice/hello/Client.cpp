@@ -52,7 +52,7 @@ HelloClient::run(int argc, char* argv[])
     }
 
     HelloPrx twoway = HelloPrx::checkedCast(
-        communicator()->propertyToProxy("Hello.Proxy")->ice_twoway()->ice_timeout(-1)->ice_secure(false));
+        communicator()->propertyToProxy("Hello.Proxy")->ice_twoway()->ice_secure(false));
     if(!twoway)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
@@ -125,9 +125,9 @@ HelloClient::run(int argc, char* argv[])
                     timeout = -1;
                 }
                 
-                twoway = twoway->ice_timeout(timeout);
-                oneway = oneway->ice_timeout(timeout);
-                batchOneway = batchOneway->ice_timeout(timeout);
+                twoway = twoway->ice_invocationTimeout(timeout);
+                oneway = oneway->ice_invocationTimeout(timeout);
+                batchOneway = batchOneway->ice_invocationTimeout(timeout);
                 
                 if(timeout == -1)
                 {

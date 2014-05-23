@@ -35,7 +35,14 @@ public class Client
                 Console.Error.WriteLine("invalid proxy");
                 return 1;
             }
-            
+
+            //
+            // Ensure the invocation times out if the nesting level is too
+            // high and there are no more threads in the thread pool to
+            // dispatch the call.
+            //
+            nested = (NestedPrx)nested.ice_invocationTimeout(5000);
+
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Client");
             NestedPrx self = 
                 NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")));

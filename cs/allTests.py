@@ -50,6 +50,7 @@ tests = [
     ("Ice/stream", ["core"]),
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
+    ("Ice/acm", ["core"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core", "nosilverlight"]),
     ("Ice/dictMapping", ["core"]),

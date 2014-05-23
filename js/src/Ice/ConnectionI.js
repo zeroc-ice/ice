@@ -12,7 +12,7 @@
     require("Ice/AsyncStatus");
     require("Ice/AsyncResultBase");
     require("Ice/BasicStream");
-    require("Ice/ConnectionBatchOutgoingAsync");
+    require("Ice/OutgoingAsync");
     require("Ice/Debug");
     require("Ice/ExUtil");
     require("Ice/HashMap");
@@ -45,6 +45,9 @@
     var TraceUtil = Ice.TraceUtil;
     var ProtocolVersion = Ice.ProtocolVersion;
     var EncodingVersion = Ice.EncodingVersion;
+    var ACM = Ice.ACM;
+    var ACMClose = Ice.ACMClose;
+    var ACMHeartbeat = Ice.ACMHeartbeat;
 
     var StateNotInitialized = 0;
     var StateNotValidated = 1;
@@ -64,16 +67,17 @@
         this.servantManager = null;
         this.adapter = null;
         this.outAsync = null;
+        this.heartbeatCallback = null;
     };
 
     var Class = Ice.Class;
     
     var ConnectionI = Class({
-        __init__: function(communicator, instance, reaper, transceiver, endpoint, incoming, adapter)
+        __init__: function(communicator, instance, monitor, transceiver, endpoint, incoming, adapter)
         {
             this._communicator = communicator;
             this._instance = instance;
-            this._reaper = reaper;
+            this._monitor = monitor;
             this._transceiver = transceiver;
             this._desc = transceiver.toString();
             this._type = transceiver.type();
@@ -93,10 +97,10 @@
 
             this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-            this._acmAbsoluteTimeoutMillis = 0;
-
+            this._acmLastActivity = this._monitor != null && this._monitor.getACM().timeout > 0 ? Date.now() : -1;
             this._nextRequestId = 1;
-            this._batchAutoFlush = initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0 ? true : false;
+            this._batchAutoFlush = 
+                initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0 ? true : false;
             this._batchStream = new BasicStream(instance, Protocol.currentProtocolEncoding, this._batchAutoFlush);
             this._batchStreamInUse = false;
             this._batchRequestNum = 0;
@@ -138,22 +142,6 @@
             {
                 this._servantManager = null;
             }
-
-            if(this._endpoint.datagram())
-            {
-                this._acmTimeout = 0;
-            }
-            else
-            {
-                if(this._adapter !== null)
-                {
-                    this._acmTimeout = this._adapter.getACM();
-                }
-                else
-                {
-                    this._acmTimeout = this._instance.clientACM();
-                }
-            }
         },
         start: function()
         {
@@ -194,12 +182,11 @@
             {
                 return;
             }
-
-            if(this._acmTimeout > 0)
+            
+            if(this._acmLastActivity > 0)
             {
-                this._acmAbsoluteTimeoutMillis = Date.now() + this._acmTimeout * 1000;
+                this._acmLastActivity = Date.now();
             }
-
             this.setState(StateActive);
         },
         hold: function()
@@ -217,13 +204,13 @@
             {
                 case ConnectionI.ObjectAdapterDeactivated:
                 {
-                    this.setStateEx(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+                    this.setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
                     break;
                 }
 
                 case ConnectionI.CommunicatorDestroyed:
                 {
-                    this.setStateEx(StateClosing, new Ice.CommunicatorDestroyedException());
+                    this.setState(StateClosing, new Ice.CommunicatorDestroyedException());
                     break;
                 }
             }
@@ -234,7 +221,7 @@
 
             if(force)
             {
-                this.setStateEx(StateClosed, new Ice.ForcedCloseConnectionException());
+                this.setState(StateClosed, new Ice.ForcedCloseConnectionException());
                 __r.succeed(__r);
             }
             else
@@ -261,7 +248,7 @@
             //
             if(this._asyncRequests.size === 0 && this._closePromises.length > 0)
             {
-                this.setStateEx(StateClosing, new Ice.CloseConnectionException());
+                this.setState(StateClosing, new Ice.CloseConnectionException());
                 for(var i = 0; i < this._closePromises.length; ++i)
                 {
                     this._closePromises[i].succeed(this._closePromises[i]);
@@ -305,27 +292,66 @@
             this.checkState();
             return promise;
         },
-        monitor: function(now)
+        monitor: function(now, acm)
         {
             if(this._state !== StateActive)
             {
                 return;
             }
 
-            //
-            // Active connection management for idle connections.
-            //
-            if(this._acmTimeout <= 0 ||
-                this._asyncRequests.size > 0 || this._dispatchCount > 0 ||
-                this._readStream.size > Protocol.headerSize || !this._writeStream.isEmpty() ||
-                !this._batchStream.isEmpty())
+            if(this._readStream.size > Protocol.headerSize || !this._writeStream.isEmpty())
             {
+                //
+                // If writing or reading, nothing to do, the connection
+                // timeout will kick-in if writes or reads don't progress. 
+                // This check is necessary because the actitivy timer is 
+                // only set when a message is fully read/written.
+                //
                 return;
             }
+            
+            //
+            // We send a heartbeat if there was no activity in the last 
+            // (timeout / 4) period. Sending a heartbeat sooner than 
+            // really needed is safer to ensure that the receiver will 
+            // receive in time the heartbeat. Sending the heartbeat if 
+            // there was no activity in the last (timeout / 2) period
+            // isn't enough since monitor() is called only every (timeout
+            // / 2) period. 
+            //
+            // Note that this doesn't imply that we are sending 4 heartbeats 
+            // per timeout period because the monitor() method is sill only
+            // called every (timeout / 2) period.
+            //
 
-            if(now >= this._acmAbsoluteTimeoutMillis)
+            if(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways ||
+               (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && now >= (this._acmLastActivity + acm.timeout / 4)))
             {
-                this.setStateEx(StateClosing, new Ice.ConnectionTimeoutException());
+                if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnInvocation || this._dispatchCount > 0)
+                {
+                    this.heartbeat(); // Send heartbeat if idle in the last timeout / 2 period.
+                }
+            }
+            
+            if(acm.close != Ice.ACMClose.CloseOff && now >= (this._acmLastActivity + acm.timeout))
+            {
+                if(acm.close == Ice.ACMClose.CloseOnIdleForceful || 
+                   (acm.close != Ice.ACMClose.CloseOnIdle && this._asyncRequests.size > 0))
+                {
+                    //
+                    // Close the connection if we didn't receive a heartbeat in
+                    // the last period.
+                    //
+                    this.setState(StateClosed, new Ice.ConnectionTimeoutException());
+                }
+                else if(acm.close != Ice.ACMClose.CloseOnInvocation && 
+                        this._dispatchCount == 0 && this._batchStream.isEmpty() && this._asyncRequests.size == 0)
+                {
+                    //
+                    // The connection is idle, close it.
+                    //
+                    this.setState(StateClosing, new Ice.ConnectionTimeoutException());
+                }
             }
         },
         sendAsyncRequest: function(out, compress, response)
@@ -380,7 +406,7 @@
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.setStateEx(StateClosed, ex);
+                    this.setState(StateClosed, ex);
                     Debug.assert(this._exception !== null);
                     throw this._exception;
                 }
@@ -432,7 +458,7 @@
                 {
                     if(ex instanceof Ice.LocalException)
                     {
-                        this.setStateEx(StateClosed, ex);
+                        this.setState(StateClosed, ex);
                     }
                     throw ex;
                 }
@@ -517,7 +543,7 @@
                     {
                         if(ex instanceof Ice.LocalException)
                         {
-                            this.setStateEx(StateClosed, ex);
+                            this.setState(StateClosed, ex);
                             Debug.assert(this._exception !== null);
                             throw this._exception;
                         }
@@ -597,11 +623,11 @@
             var result = new ConnectionBatchOutgoingAsync(this, this._communicator, "flushBatchRequests");
             try
             {
-                result.__send();
+                result.__invoke();
             }
             catch(ex)
             {
-                result.__exception(ex);
+                result.__invokeException(ex);
             }
             return result;
         },
@@ -615,7 +641,7 @@
             var status;
             if(this._batchRequestNum === 0)
             {
-                outAsync.__sent(this);
+                outAsync.__sent();
                 return AsyncStatus.Sent;
             }
 
@@ -636,7 +662,7 @@
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.setStateEx(StateClosed, ex);
+                    this.setState(StateClosed, ex);
                     Debug.assert(this._exception !== null);
                     throw this._exception;
                 }
@@ -655,6 +681,85 @@
             this._batchMarker = 0;
             return status;
         },
+        setCallback: function(callback)
+        {
+            if(this._state > StateClosing)
+            {
+                return;
+            }
+            this._callback = callback;
+        },
+        setACM: function(timeout, close, heartbeat)
+        {
+            if(this._monitor != null)
+            {
+                if(this._state == StateActive)
+                {
+                    this._monitor.remove(this);
+                }
+                this._monitor = this._monitor.acm(timeout, close, heartbeat);
+                if(this._state == StateActive)
+                {
+                    this._monitor.add(this);
+                }
+                if(this._monitor.getACM().timeout <= 0)
+                {
+                    this._acmLastActivity = -1; // Disable the recording of last activity.
+                }
+                else if(this._state == StateActive && this._acmLastActivity == -1)
+                {
+                    this._acmLastActivity = Date.now();
+                }
+            }
+        },
+        getACM: function()
+        {
+            return this._monitor !== null ? this._monitor.getACM() : 
+                new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
+        },
+        asyncRequestTimedOut: function(outAsync)
+        {
+            for(var i = 0; i < this._sendStreams.length; i++)
+            {
+                var o = this._sendStreams[i];
+                if(o.outAsync === outAsync)
+                {
+                    if(o.requestId > 0)
+                    {
+                        this._asyncRequests.delete(o.requestId);
+                    }
+                    
+                    //
+                    // If the request is being sent, don't remove it from the send streams, 
+                    // it will be removed once the sending is finished.
+                    //
+                    if(i === 0)
+                    {
+                        o.timedOut();
+                    }
+                    else
+                    {
+                        this._sendStreams.splice(i, 1);
+                    }
+                    o.finished(new Ice.InvocationTimeoutException());
+                    return; // We're done.
+                }
+            }
+
+            if(outAsync instanceof Ice.OutgoingAsync)
+            {
+                var o = outAsync;
+                for(var e = this._asyncRequests.entries; e !== null; e = e.next)
+                {
+                    if(e.value === o)
+                    {
+                        o.__finishedEx(new Ice.InvocationTimeoutException(), true);
+                        this._asyncRequests.delete(e.key);
+                        return; // We're done.
+                    }
+                }
+            }
+        },
         sendResponse: function(os, compressFlag)
         {
             Debug.assert(this._state > StateNotValidated);
@@ -665,7 +770,7 @@
                 {
                     if(this._state === StateFinished)
                     {
-                        this._reaper.add(this);
+                        this.reap();
                     }
                     this.checkState();
                 }
@@ -687,7 +792,7 @@
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.setStateEx(StateClosed, ex);
+                    this.setState(StateClosed, ex);
                 }
                 else
                 {
@@ -704,7 +809,7 @@
                 {
                     if(this._state === StateFinished)
                     {
-                        this._reaper.add(this);
+                        this.reap();
                     }
                     this.checkState();
                 }
@@ -724,7 +829,7 @@
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.setStateEx(StateClosed, ex);
+                    this.setState(StateClosed, ex);
                 }
                 else
                 {
@@ -784,206 +889,205 @@
             }
 
             this.unscheduleTimeout(operation);
+
             //
             // Keep reading until no more data is available.
             //
             this._hasMoreData.value = (operation & SocketOperation.Read) !== 0;
-            do
-            {
-                var info = null;
 
-                try
+            var info = null;
+            try
+            {
+                if((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0)
                 {
-                    if((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0)
+                    if(!this._transceiver.write(this._writeStream.buffer))
                     {
-                        if(!this._transceiver.write(this._writeStream.buffer))
+                        Debug.assert(!this._writeStream.isEmpty());
+                        this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+                        return;
+                    }
+                    Debug.assert(this._writeStream.buffer.remaining === 0);
+                }
+                if((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty())
+                {
+                    if(this._readHeader) // Read header if necessary.
+                    {
+                        if(!this._transceiver.read(this._readStream.buffer, this._hasMoreData))
                         {
-                            Debug.assert(!this._writeStream.isEmpty());
-                            this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+                            //
+                            // We didn't get enough data to complete the header.
+                            //
                             return;
                         }
-                        Debug.assert(this._writeStream.buffer.remaining === 0);
+                        
+                        Debug.assert(this._readStream.buffer.remaining === 0);
+                        this._readHeader = false;
+                        
+                        var pos = this._readStream.pos;
+                        if(pos < Protocol.headerSize)
+                        {
+                            //
+                            // This situation is possible for small UDP packets.
+                            //
+                            throw new Ice.IllegalMessageSizeException();
+                        }
+                        
+                        this._readStream.pos = 0;
+                        var magic0 = this._readStream.readByte();
+                        var magic1 = this._readStream.readByte();
+                        var magic2 = this._readStream.readByte();
+                        var magic3 = this._readStream.readByte();
+                        if(magic0 !== Protocol.magic[0] || magic1 !== Protocol.magic[1] ||
+                           magic2 !== Protocol.magic[2] || magic3 !== Protocol.magic[3])
+                        {
+                            var bme = new Ice.BadMagicException();
+                            bme.badMagic = Ice.Buffer.createNative([magic0, magic1, magic2, magic3]);
+                            throw bme;
+                        }
+                        
+                        this._readProtocol.__read(this._readStream);
+                        Protocol.checkSupportedProtocol(this._readProtocol);
+                        
+                        this._readProtocolEncoding.__read(this._readStream);
+                        Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
+                        
+                        this._readStream.readByte(); // messageType
+                        this._readStream.readByte(); // compress
+                        var size = this._readStream.readInt();
+                        if(size < Protocol.headerSize)
+                        {
+                            throw new Ice.IllegalMessageSizeException();
+                        }
+                        if(size > this._instance.messageSizeMax())
+                        {
+                            ExUtil.throwMemoryLimitException(size, this._instance.messageSizeMax());
+                        }
+                        if(size > this._readStream.size)
+                        {
+                            this._readStream.resize(size);
+                        }
+                        this._readStream.pos = pos;
                     }
-                    if((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty())
+                    
+                    if(this._readStream.pos != this._readStream.size)
                     {
-                        if(this._readHeader) // Read header if necessary.
+                        if(this._endpoint.datagram())
+                        {
+                            throw new Ice.DatagramLimitException(); // The message was truncated.
+                        }
+                        else
                         {
                             if(!this._transceiver.read(this._readStream.buffer, this._hasMoreData))
                             {
-                                //
-                                // We didn't get enough data to complete the header.
-                                //
+                                Debug.assert(!this._readStream.isEmpty());
+                                this.scheduleTimeout(SocketOperation.Read, this._endpoint.timeout());
                                 return;
                             }
-
                             Debug.assert(this._readStream.buffer.remaining === 0);
-                            this._readHeader = false;
-
-                            var pos = this._readStream.pos;
-                            if(pos < Protocol.headerSize)
-                            {
-                                //
-                                // This situation is possible for small UDP packets.
-                                //
-                                throw new Ice.IllegalMessageSizeException();
-                            }
-
-                            this._readStream.pos = 0;
-                            var magic0 = this._readStream.readByte();
-                            var magic1 = this._readStream.readByte();
-                            var magic2 = this._readStream.readByte();
-                            var magic3 = this._readStream.readByte();
-                            if(magic0 !== Protocol.magic[0] || magic1 !== Protocol.magic[1] ||
-                            magic2 !== Protocol.magic[2] || magic3 !== Protocol.magic[3])
-                            {
-                                var bme = new Ice.BadMagicException();
-                                bme.badMagic = Ice.Buffer.createNative([magic0, magic1, magic2, magic3]);
-                                throw bme;
-                            }
-
-                            this._readProtocol.__read(this._readStream);
-                            Protocol.checkSupportedProtocol(this._readProtocol);
-
-                            this._readProtocolEncoding.__read(this._readStream);
-                            Protocol.checkSupportedProtocolEncoding(this._readProtocolEncoding);
-
-                            this._readStream.readByte(); // messageType
-                            this._readStream.readByte(); // compress
-                            var size = this._readStream.readInt();
-                            if(size < Protocol.headerSize)
-                            {
-                                throw new Ice.IllegalMessageSizeException();
-                            }
-                            if(size > this._instance.messageSizeMax())
-                            {
-                                ExUtil.throwMemoryLimitException(size, this._instance.messageSizeMax());
-                            }
-                            if(size > this._readStream.size)
-                            {
-                                this._readStream.resize(size);
-                            }
-                            this._readStream.pos = pos;
-                        }
-
-                        if(this._readStream.pos != this._readStream.size)
-                        {
-                            if(this._endpoint.datagram())
-                            {
-                                throw new Ice.DatagramLimitException(); // The message was truncated.
-                            }
-                            else
-                            {
-                                if(!this._transceiver.read(this._readStream.buffer, this._hasMoreData))
-                                {
-                                    Debug.assert(!this._readStream.isEmpty());
-                                    this.scheduleTimeout(SocketOperation.Read, this._endpoint.timeout());
-                                    return;
-                                }
-                                Debug.assert(this._readStream.buffer.remaining === 0);
-                            }
-                        }
-                    }
-
-                    if(this._state <= StateNotValidated)
-                    {
-                        if(this._state === StateNotInitialized && !this.initialize())
-                        {
-                            return;
-                        }
-
-                        if(this._state <= StateNotValidated && !this.validate())
-                        {
-                            return;
-                        }
-
-                        this._transceiver.unregister();
-
-                        //
-                        // We start out in holding state.
-                        //
-                        this.setState(StateHolding);
-                    }
-                    else
-                    {
-                        Debug.assert(this._state <= StateClosing);
-
-                        //
-                        // We parse messages first, if we receive a close
-                        // connection message we won't send more messages.
-                        //
-                        if((operation & SocketOperation.Read) !== 0)
-                        {
-                            info = this.parseMessage();
-                        }
-
-                        if((operation & SocketOperation.Write) !== 0)
-                        {
-                            this.sendNextMessage();
-                        }
-
-                        //
-                        // We increment the dispatch count to prevent the
-                        // communicator destruction during the callback.
-                        //
-                        if(info !== null && info.outAsync !== null)
-                        {
-                            ++this._dispatchCount;
                         }
                     }
                 }
-                catch(ex)
+
+                if(this._state <= StateNotValidated)
                 {
-                    if(ex instanceof Ice.DatagramLimitException) // Expected.
+                    if(this._state === StateNotInitialized && !this.initialize())
                     {
-                        if(this._warnUdp)
+                        return;
+                    }
+
+                    if(this._state <= StateNotValidated && !this.validate())
+                    {
+                        return;
+                    }
+
+                    this._transceiver.unregister();
+
+                    //
+                    // We start out in holding state.
+                    //
+                    this.setState(StateHolding);
+                    if(this._startPromise !== null)
+                    {
+                        ++this._dispatchCount;
+                    }
+                }
+                else
+                {
+                    Debug.assert(this._state <= StateClosing);
+
+                    //
+                    // We parse messages first, if we receive a close
+                    // connection message we won't send more messages.
+                    //
+                    if((operation & SocketOperation.Read) !== 0)
+                    {
+                        info = this.parseMessage();
+                    }
+
+                    if((operation & SocketOperation.Write) !== 0)
+                    {
+                        this.sendNextMessage();
+                    }
+                }
+            }
+            catch(ex)
+            {
+                if(ex instanceof Ice.DatagramLimitException) // Expected.
+                {
+                    if(this._warnUdp)
+                    {
+                        this._logger.warning("maximum datagram size of " + this._readStream.pos + " exceeded");
+                    }
+                    this._readStream.resize(Protocol.headerSize);
+                    this._readStream.pos = 0;
+                    this._readHeader = true;
+                    return;
+                }
+                else if(ex instanceof Ice.SocketException)
+                {
+                    this.setState(StateClosed, ex);
+                    return;
+                }
+                else if(ex instanceof Ice.LocalException)
+                {
+                    if(this._endpoint.datagram())
+                    {
+                        if(this._warn)
                         {
-                            this._logger.warning("maximum datagram size of " + this._readStream.pos + " exceeded");
+                            this._logger.warning("datagram connection exception:\n" + ex + '\n' + this._desc);
                         }
                         this._readStream.resize(Protocol.headerSize);
                         this._readStream.pos = 0;
                         this._readHeader = true;
-                        return;
-                    }
-                    else if(ex instanceof Ice.SocketException)
-                    {
-                        this.setStateEx(StateClosed, ex);
-                        return;
-                    }
-                    else if(ex instanceof Ice.LocalException)
-                    {
-                        if(this._endpoint.datagram())
-                        {
-                            if(this._warn)
-                            {
-                                this._logger.warning("datagram connection exception:\n" + ex + '\n' + this._desc);
-                            }
-                            this._readStream.resize(Protocol.headerSize);
-                            this._readStream.pos = 0;
-                            this._readHeader = true;
-                        }
-                        else
-                        {
-                            this.setStateEx(StateClosed, ex);
-                        }
-                        return;
                     }
                     else
                     {
-                        throw ex;
+                        this.setState(StateClosed, ex);
                     }
+                    return;
                 }
-
-                if(this._acmTimeout > 0)
+                else
                 {
-                    this._acmAbsoluteTimeoutMillis = Date.now() + this._acmTimeout * 1000;
+                    throw ex;
                 }
-
-                this.dispatch(info);
             }
-            while(this._hasMoreData.value);
+
+            if(this._acmLastActivity > 0)
+            {
+                this._acmLastActivity = Date.now();
+            }
+
+            this.dispatch(info);
+
+            if(this._hasMoreData.value)
+            {
+                var self = this;
+                setTimeout(function() { self.message(SocketOperation.Read); }, 0); // Don't tie up the thread.
+            }
         },
         dispatch: function(info)
         {
+            var count = 0;
             //
             // Notify the factory that the connection establishment and
             // validation has completed.
@@ -992,6 +1096,7 @@
             {
                 this._startPromise.succeed();
                 this._startPromise = null;
+                ++count;
             }
 
             if(info !== null)
@@ -999,21 +1104,42 @@
                 if(info.outAsync !== null)
                 {
                     info.outAsync.__finished(info.stream);
+                    ++count;
                 }
 
                 if(info.invokeNum > 0)
                 {
                     this.invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
                                 info.adapter);
+                    
+                    //
+                    // Don't increase count, the dispatch count is
+                    // decreased when the incoming reply is sent.
+                    //
+                }
+
+                if(info.heartbeatCallback !== null)
+                {
+                    try
+                    {
+                        info.heartbeatCallback.heartbeat(this);
+                    }
+                    catch(ex)
+                    {
+                        this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+                    }
+                    info.heartbeatCallback = null;
+                    ++count;
                 }
             }
 
             //
             // Decrease dispatch count.
             //
-            if(info !== null && info.outAsync !== null)
+            if(count > 0)
             {
-                if(--this._dispatchCount === 0)
+                this._dispatchCount -= count;
+                if(this._dispatchCount === 0)
                 {
                     if(this._state === StateClosing && !this._shutdownInitiated)
                     {
@@ -1025,7 +1151,7 @@
                         {
                             if(ex instanceof Ice.LocalException)
                             {
-                                this.setStateEx(StateClosed, ex);
+                                this.setState(StateClosed, ex);
                             }
                             else
                             {
@@ -1035,7 +1161,7 @@
                     }
                     else if(this._state === StateFinished)
                     {
-                        this._reaper.add(this);
+                        this.reap();
                     }
                     this.checkState();
                 }
@@ -1088,13 +1214,26 @@
             }
             this._asyncRequests.clear();
 
+            if(this._callback != null)
+            {
+                try
+                {
+                    this._callback.closed(this);
+                }
+                catch(ex)
+                {
+                    this._logger.error("connection callback exception:\n" + ex + '\n' + this._desc);
+                }
+                this._callback = null;
+            }
+
             //
             // This must be done last as this will cause waitUntilFinished() to return (and communicator
             // objects such as the timer might be destroyed too).
             //
             if(this._dispatchCount === 0)
             {
-                this._reaper.add(this);
+                this.reap();
             }
             this.setState(StateFinished);
         },
@@ -1106,15 +1245,15 @@
         {
             if(this._state <= StateNotValidated)
             {
-                this.setStateEx(StateClosed, new Ice.ConnectTimeoutException());
+                this.setState(StateClosed, new Ice.ConnectTimeoutException());
             }
             else if(this._state < StateClosing)
             {
-                this.setStateEx(StateClosed, new Ice.TimeoutException());
+                this.setState(StateClosed, new Ice.TimeoutException());
             }
             else if(this._state === StateClosing)
             {
-                this.setStateEx(StateClosed, new Ice.CloseTimeoutException());
+                this.setState(StateClosed, new Ice.CloseTimeoutException());
             }
         },
         type: function()
@@ -1138,7 +1277,7 @@
         },
         exception: function(ex)
         {
-            this.setStateEx(StateClosed, ex);
+            this.setState(StateClosed, ex);
         },
         invokeException: function(ex, invokeNum)
         {
@@ -1147,7 +1286,7 @@
             // called in case of a fatal exception we decrement this._dispatchCount here.
             //
 
-            this.setStateEx(StateClosed, ex);
+            this.setState(StateClosed, ex);
 
             if(invokeNum > 0)
             {
@@ -1158,60 +1297,60 @@
                 {
                     if(this._state === StateFinished)
                     {
-                        this._reaper.add(this);
+                        this.reap();
                     }
                     this.checkState();
                 }
             }
         },
-        setStateEx: function(state, ex)
+        setState: function(state, ex)
         {
-            Debug.assert(ex instanceof Ice.LocalException);
-
-            //
-            // If setState() is called with an exception, then only closed
-            // and closing states are permissible.
-            //
-            Debug.assert(state >= StateClosing);
-
-            if(this._state === state) // Don't switch twice.
+            if(ex !== undefined)
             {
-                return;
-            }
-
-            if(this._exception === null)
-            {
-                this._exception = ex;
-
+                Debug.assert(ex instanceof Ice.LocalException);
+                
                 //
-                // We don't warn if we are not validated.
+                // If setState() is called with an exception, then only closed
+                // and closing states are permissible.
                 //
-                if(this._warn && this._validated)
+                Debug.assert(state >= StateClosing);
+                
+                if(this._state === state) // Don't switch twice.
                 {
+                    return;
+                }
+
+                if(this._exception === null)
+                {
+                    this._exception = ex;
+
                     //
-                    // Don't warn about certain expected exceptions.
+                    // We don't warn if we are not validated.
                     //
-                    if(!(this._exception instanceof Ice.CloseConnectionException ||
-                        this._exception instanceof Ice.ForcedCloseConnectionException ||
-                        this._exception instanceof Ice.ConnectionTimeoutException ||
-                        this._exception instanceof Ice.CommunicatorDestroyedException ||
-                        this._exception instanceof Ice.ObjectAdapterDeactivatedException ||
-                        (this._exception instanceof Ice.ConnectionLostException && this._state === StateClosing)))
+                    if(this._warn && this._validated)
                     {
-                        this.warning("connection exception", this._exception);
+                        //
+                        // Don't warn about certain expected exceptions.
+                        //
+                        if(!(this._exception instanceof Ice.CloseConnectionException ||
+                             this._exception instanceof Ice.ForcedCloseConnectionException ||
+                             this._exception instanceof Ice.ConnectionTimeoutException ||
+                             this._exception instanceof Ice.CommunicatorDestroyedException ||
+                             this._exception instanceof Ice.ObjectAdapterDeactivatedException ||
+                             (this._exception instanceof Ice.ConnectionLostException && this._state === StateClosing)))
+                        {
+                            this.warning("connection exception", this._exception);
+                        }
                     }
                 }
+
+                //
+                // We must set the new state before we notify requests of any
+                // exceptions. Otherwise new requests may retry on a
+                // connection that is not yet marked as closed or closing.
+                //
             }
 
-            //
-            // We must set the new state before we notify requests of any
-            // exceptions. Otherwise new requests may retry on a
-            // connection that is not yet marked as closed or closing.
-            //
-            this.setState(state);
-        },
-        setState: function(state)
-        {
             //
             // We don't want to send close connection messages if the endpoint
             // only supports oneway transmission from client to server.
@@ -1352,15 +1491,19 @@
             // monitor, but only if we were registered before, i.e., if our
             // old state was StateActive.
             //
-            if(this._acmTimeout > 0)
+            if(this._monitor !== null)
             {
                 if(state === StateActive)
                 {
-                    this._instance.connectionMonitor().add(this);
+                    this._monitor.add(this);
+                    if(this._acmLastActivity > 0)
+                    {
+                        this._acmLastActivity = Date.now();
+                    }
                 }
                 else if(this._state === StateActive)
                 {
-                    this._instance.connectionMonitor().remove(this);
+                    this._monitor.remove(this);
                 }
             }
 
@@ -1376,7 +1519,7 @@
                 {
                     if(ex instanceof Ice.LocalException)
                     {
-                        this.setStateEx(StateClosed, ex);
+                        this.setState(StateClosed, ex);
                     }
                     else
                     {
@@ -1429,6 +1572,30 @@
                 // message after the socket is shutdown.
                 //
                 //this._transceiver.shutdownWrite();
+            }
+        },
+        heartbeat: function()
+        {
+            Debug.assert(this._state === StateActive);
+            
+            if(!this._endpoint.datagram())
+            {
+                var os = new BasicStream(this._instance, Protocol.currentProtocolEncoding);
+                os.writeBlob(Protocol.magic);
+                Protocol.currentProtocol.__write(os);
+                Protocol.currentProtocolEncoding.__write(os);
+                os.writeByte(Protocol.validateConnectionMsg);
+                os.writeByte(0);
+                os.writeInt(Protocol.headerSize); // Message size.
+                try
+                {
+                    this.sendMessage(OutgoingMessage.createForStream(os, false, false));
+                }
+                catch(ex)
+                {
+                    this.setState(StateClosed, ex);
+                    Debug.assert(this._exception != null);
+                }
             }
         },
         initialize: function()
@@ -1652,9 +1819,10 @@
                 // Entire buffer was written immediately.
                 //
                 message.sent(this);
-                if(this._acmTimeout > 0)
+
+                if(this._acmLastActivity > 0)
                 {
-                    this._acmAbsoluteTimeoutMillis = Date.now() + this._acmTimeout * 1000;
+                    this._acmLastActivity = Date.now();
                 }
                 return AsyncStatus.Sent;
             }
@@ -1719,7 +1887,7 @@
                         }
                         else
                         {
-                            this.setStateEx(StateClosed, new Ice.CloseConnectionException());
+                            this.setState(StateClosed, new Ice.CloseConnectionException());
                         }
                         break;
                     }
@@ -1773,10 +1941,14 @@
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
                         info.requestId = info.stream.readInt();
                         info.outAsync = this._asyncRequests.get(info.requestId);
-                        this._asyncRequests.delete(info.requestId);
-                        if(info.outAsync === undefined)
+                        if(info.outAsync)
                         {
-                            throw new Ice.UnknownRequestIdException();
+                            this._asyncRequests.delete(info.requestId);
+                            ++this._dispatchCount;
+                        }
+                        else
+                        {
+                            info = null;
                         }
                         this.checkClose();
                         break;
@@ -1785,9 +1957,10 @@
                     case Protocol.validateConnectionMsg:
                     {
                         TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
-                        if(this._warn)
+                        if(this._callback !== null)
                         {
-                            this._logger.warning("ignoring unexpected validate connection message:\n" + this._desc);
+                            info.heartbeatCallback = this._callback;
+                            ++this._dispatchCount;
                         }
                         break;
                     }
@@ -1813,7 +1986,7 @@
                     }
                     else
                     {
-                        this.setStateEx(StateClosed, ex);
+                        this.setState(StateClosed, ex);
                     }
                 }
                 else
@@ -1956,9 +2129,16 @@
                 }
                 this._finishedPromises = [];
             }
+        },
+        reap: function()
+        {
+            if(this._monitor !== null)
+            {
+                this._monitor.reap(this);
+            }
         }
     });
-
+    
     // DestructionReason.
     ConnectionI.ObjectAdapterDeactivated = 0;
     ConnectionI.CommunicatorDestroyed = 1;
@@ -1976,6 +2156,11 @@
             this.prepared = false;
             this.isSent = false;
         },
+        timedOut: function()
+        {
+            Debug.assert(this.outAsync !== null);
+            this.outAsync = null;
+        },
         doAdopt: function()
         {
             if(this.adopt)
@@ -1992,7 +2177,7 @@
 
             if(this.outAsync !== null)
             {
-                this.outAsync.__sent(connection);
+                this.outAsync.__sent();
             }
         },
         finished: function(ex)

@@ -11,6 +11,9 @@ package IceInternal;
 
 public interface OutgoingMessageCallback
 {
-    void sent(boolean notify);
+    boolean send(Ice.ConnectionI conection, boolean compress, boolean response)
+        throws LocalExceptionWrapper;
+
+    void sent();
     void finished(Ice.LocalException ex, boolean sent);
 }

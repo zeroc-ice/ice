@@ -1268,8 +1268,7 @@ public class Coordinator
     login(final SessionKeeper sessionKeeper,
           final SessionKeeper.ConnectionInfo info, 
           final JDialog parent, 
-          final Cursor oldCursor,
-          Ice.LongHolder keepAlivePeriodHolder)
+          final Cursor oldCursor)
     {
 
         //
@@ -1709,14 +1708,14 @@ public class Coordinator
                 return _session;
             }
 
-            synchronized public void setKeepAlivePeriod(long keepAlivePeriod)
+            synchronized public void setSessionTimeout(long sessionTimeout)
             {
-                _keepAlivePeriod = keepAlivePeriod;
+                _sessionTimeout = sessionTimeout;
             }
 
-            synchronized public long getKeepAlivePeriod()
+            synchronized public void setACMTimeout(int acmTimeout)
             {
-                return _keepAlivePeriod;
+                _acmTimeout = acmTimeout;
             }
 
             synchronized public void loginSuccess()
@@ -1731,7 +1730,7 @@ public class Coordinator
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, oldCursor, _keepAlivePeriod, _session, info);
+                _sessionKeeper.loginSuccess(parent, oldCursor, _sessionTimeout, _acmTimeout, _session, info);
             }
 
             synchronized public void loginFailed()
@@ -1753,7 +1752,8 @@ public class Coordinator
             }
 
             private AdminSessionPrx _session;
-            private long _keepAlivePeriod;
+            private long _sessionTimeout = 0;
+            private int _acmTimeout = 0;
             private boolean _failed = false;
         }
 
@@ -1859,7 +1859,14 @@ public class Coordinator
                                 }
                             }
                             cb.setSession(AdminSessionPrxHelper.uncheckedCast(s));
-                            cb.setKeepAlivePeriod(router.getSessionTimeout() * 1000 / 2);
+                            cb.setSessionTimeout(router.getSessionTimeout());
+                            try
+                            {
+                                cb.setACMTimeout(router.getACMTimeout());
+                            }
+                            catch(Ice.OperationNotExistException ex)
+                            {
+                            }
                             SwingUtilities.invokeLater(new Runnable()
                                 {
                                     public void run()
@@ -2113,7 +2120,14 @@ public class Coordinator
                                                     info.getPassword() != null ? new String(info.getPassword()) : ""));
                                         assert cb.getSession() != null;
                                     }
-                                    cb.setKeepAlivePeriod(cb.getRegistry().getSessionTimeout() * 1000 / 2);
+                                    cb.setSessionTimeout(cb.getRegistry().getSessionTimeout());
+                                    try
+                                    {
+                                        cb.setACMTimeout(cb.getRegistry().getACMTimeout());
+                                    }
+                                    catch(Ice.OperationNotExistException ex)
+                                    {
+                                    }
                                 }
                                 catch(final IceGrid.PermissionDeniedException e)
                                 {
@@ -2191,7 +2205,7 @@ public class Coordinator
                                         }
                                     }
                                 }
-                            }while(cb.getSession() == null);
+                            } while(cb.getSession() == null);
 
                             SwingUtilities.invokeLater(new Runnable()
                                 {
@@ -2206,20 +2220,19 @@ public class Coordinator
         }
     }
 
-    void destroySession(AdminSessionPrx session)
+    void destroySession(AdminSessionPrx session, boolean routed)
     {
         _liveDeploymentRoot.closeAllShowLogDialogs();
 
-        Ice.RouterPrx router = _communicator.getDefaultRouter();
-
         try
         {
-            if(router == null)
+            if(!routed)
             {
                 session.destroy();
             }
             else
             {
+                Ice.RouterPrx router = _communicator.getDefaultRouter();
                 Glacier2.RouterPrx gr = Glacier2.RouterPrxHelper.uncheckedCast(router);
 
                 Glacier2.Callback_Router_destroySession cb = new Glacier2.Callback_Router_destroySession()
@@ -2242,7 +2255,6 @@ public class Coordinator
         }
         catch(Ice.LocalException e)
         {
-            // Ignored
         }
     }
 
@@ -2517,11 +2529,6 @@ public class Coordinator
         // Set various default values
         //
         properties.setProperty("Ice.Override.ConnectTimeout", "5000");
-
-        //
-        // For Glacier
-        //
-        properties.setProperty("Ice.ACM.Client", "0");
 
         //
         // Disable retries
@@ -3360,8 +3367,7 @@ public class Coordinator
             }
             catch(Ice.LocalException e)
             {
-                System.err.println("_communicator.destroy() raised "
-                                   + e.toString());
+                System.err.println("_communicator.destroy() raised " + e.toString());
                 e.printStackTrace();
             }
             _communicator = null;

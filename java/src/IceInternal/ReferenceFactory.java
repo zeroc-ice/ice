@@ -671,8 +671,8 @@ public final class ReferenceFactory
         "EndpointSelection",
         "ConnectionCached",
         "PreferSecure",
-        "EncodingVersion",
         "LocatorCacheTimeout",
+        "InvocationTimeout",
         "Locator",
         "Router",
         "CollocationOptimized",
@@ -759,6 +759,7 @@ public final class ReferenceFactory
         boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
+        int invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
         java.util.Map<String, String> context = null;
 
         //
@@ -839,6 +840,9 @@ public final class ReferenceFactory
             property = propertyPrefix + ".LocatorCacheTimeout";
             locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
 
+            property = propertyPrefix + ".InvocationTimeout";
+            invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+
             property = propertyPrefix + ".Context.";
             java.util.Map<String, String> contexts = properties.getPropertiesForPrefix(property);
             if(!contexts.isEmpty())
@@ -871,6 +875,7 @@ public final class ReferenceFactory
                                      preferSecure,
                                      endpointSelection,
                                      locatorCacheTimeout,
+                                     invocationTimeout,
                                      context);
     }
 

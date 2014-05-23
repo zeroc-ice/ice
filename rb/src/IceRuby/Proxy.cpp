@@ -430,6 +430,20 @@ IceRuby_ObjectPrx_ice_getLocatorCacheTimeout(VALUE self)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getInvocationTimeout(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::Int t = p->ice_getInvocationTimeout();
+        return INT2FIX(t);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_getConnectionId(VALUE self)
 {
     ICE_RUBY_TRY
@@ -451,6 +465,20 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
         Ice::ObjectPrx p = getProxy(self);
         long t = getInteger(timeout);
         return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_ice_invocationTimeout(VALUE self, VALUE timeout)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        long t = getInteger(timeout);
+        return createProxy(p->ice_invocationTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1225,8 +1253,11 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_endpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_endpoints), 1);
     rb_define_method(_proxyClass, "ice_getLocatorCacheTimeout",
                      CAST_METHOD(IceRuby_ObjectPrx_ice_getLocatorCacheTimeout), 0);
+    rb_define_method(_proxyClass, "ice_getInvocationTimeout",
+                     CAST_METHOD(IceRuby_ObjectPrx_ice_getInvocationTimeout), 0);
     rb_define_method(_proxyClass, "ice_getConnectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnectionId), 0);
     rb_define_method(_proxyClass, "ice_locatorCacheTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_locatorCacheTimeout), 1);
+    rb_define_method(_proxyClass, "ice_invocationTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_invocationTimeout), 1);
     rb_define_method(_proxyClass, "ice_isConnectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_isConnectionCached), 0);
     rb_define_method(_proxyClass, "ice_connectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionCached), 1);
     rb_define_method(_proxyClass, "ice_getEndpointSelection",

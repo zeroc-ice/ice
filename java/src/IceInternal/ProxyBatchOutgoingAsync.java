@@ -19,7 +19,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         _observer = ObserverHelper.get(prx, operation);
     }
 
-    public void __send()
+    public void __invoke()
     {
         Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
 
@@ -32,13 +32,37 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         try
         {
             delegate = _proxy.__getDelegate(false);
-            int status = delegate.__getRequestHandler().flushAsyncBatchRequests(this);
+            RequestHandler handler = delegate.__getRequestHandler();
+            int status;
+            try
+            {
+                status = handler.sendAsyncRequest(this);
+            }
+            catch(IceInternal.LocalExceptionWrapper ex)
+            {
+                throw ex.get();
+            }
             if((status & AsyncStatus.Sent) > 0)
             {
                 _sentSynchronously = true;
                 if((status & AsyncStatus.InvokeSentCallback) > 0)
                 {
-                    __sent();
+                    __invokeSent();
+                }
+            }
+            else
+            {
+                synchronized(_monitor)
+                {
+                    if((_state & Done) == 0)
+                    {
+                        int invocationTimeout = handler.getReference().getInvocationTimeout();
+                        if(invocationTimeout > 0)
+                        {
+                            _instance.timer().schedule(this, invocationTimeout);
+                            _timeoutRequestHandler = handler;
+                        }
+                    }
                 }
             }
         }

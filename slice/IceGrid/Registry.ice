@@ -118,6 +118,19 @@ interface Registry
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getSessionTimeout();
+
+    /**
+     *
+     * Get the value of the ACM timeout. Clients supporting ACM
+     * connection heartbeats can enable them instead of explicitly
+     * sending keep alives requests.
+     *
+     * NOTE: This method is only available since Ice 3.6.
+     *
+     * @return The timeout (in seconds).
+     *
+     **/
+    ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
 };
 
 };

@@ -54,6 +54,7 @@ tests = [
     ("Ice/hold", ["core"]),
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
+    ("Ice/acm", ["core"]),
     ("Ice/background", ["core"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core"]),

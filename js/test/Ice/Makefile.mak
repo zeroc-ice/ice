@@ -30,7 +30,8 @@ SUBDIRS         = binding \
                 proxy \
                 retry \
                 slicing \
-                timeout
+                timeout \
+		acm
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

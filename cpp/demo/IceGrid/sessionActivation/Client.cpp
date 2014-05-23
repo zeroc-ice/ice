@@ -15,56 +15,6 @@
 using namespace std;
 using namespace Demo;
 
-class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SessionKeepAliveThread(const IceGrid::SessionPrx& session, long timeout) :
-        _session(session),
-        _timeout(IceUtil::Time::seconds(timeout)),
-        _destroy(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        Lock sync(*this);
-        while(!_destroy)
-        {
-            timedWait(_timeout);
-            if(_destroy)
-            {
-                break;
-            }
-            try
-            {
-                _session->keepAlive();
-            }
-            catch(const Ice::Exception&)
-            {
-                break;
-            }
-        }
-    }
-
-    void
-    destroy()
-    {
-        Lock sync(*this);
-        _destroy = true;
-        notify();
-    }
-
-private:
-
-    IceGrid::SessionPrx _session;
-    const IceUtil::Time _timeout;
-    bool _destroy;
-};
-
-typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
-
 class HelloClient : public Ice::Application
 {
 public:
@@ -140,8 +90,11 @@ HelloClient::run(int argc, char* argv[])
         }
     }
 
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout() / 2);
-    keepAlive->start();
+    //
+    // Enable heartbeats on the session connection to maintain the
+    // connection alive even if idle.
+    //
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
 
     try
     {
@@ -201,14 +154,6 @@ HelloClient::run(int argc, char* argv[])
         cerr << "unexpected exception" << endl;
         status = EXIT_FAILURE;
     }
-
-    //
-    // Destroy the keepAlive thread and the sesion object otherwise
-    // the session will be kept allocated until the timeout occurs.
-    // Destroying the session will release all allocated objects.
-    //
-    keepAlive->destroy();
-    keepAlive->getThreadControl().join();
 
     session->destroy();
 

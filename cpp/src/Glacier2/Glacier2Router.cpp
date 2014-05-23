@@ -126,16 +126,18 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
         error("property `" + clientEndpointsProperty + "' is not set");
         return false;
     }
-    const string clientACMProperty = "Glacier2.Client.ACM";
-    if(properties->getProperty(clientACMProperty).empty())
+
+    if(properties->getPropertyAsInt("Glacier2.SessionTimeout") > 0 &&
+       properties->getProperty("Glacier2.Client.ACM.Timeout").empty())
     {
-        //
-        // Set the client object adapter ACM timeout to the session timeout * 2. If no
-        // session timeout is set, ACM is disabled for the client object adapter.
-        //
         ostringstream os;
-        os << properties->getPropertyAsInt("Glacier2.SessionTimeout") * 2;
-        properties->setProperty(clientACMProperty, os.str());
+        os << properties->getPropertyAsInt("Glacier2.SessionTimeout");
+        properties->setProperty("Glacier2.Client.ACM.Timeout", os.str());
+    }
+
+    if(properties->getProperty("Glacier2.Client.ACM.Close").empty())
+    {
+        properties->setProperty("Glacier2.Client.ACM.Close", "4"); // Forcefull close on invocation and idle.
     }
 
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");

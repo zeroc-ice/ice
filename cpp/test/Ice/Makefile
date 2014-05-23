@@ -34,6 +34,7 @@ SUBDIRS		= proxy \
 		  binding \
 		  retry \
 		  timeout \
+		  acm \
 		  servantLocator \
 		  interceptor \
 		  stringConverter \

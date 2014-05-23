@@ -602,6 +602,17 @@ local exception ConnectionTimeoutException extends TimeoutException
 
 /**
  *
+ * This exception indicates that an invocation failed because it timed
+ * out.
+ *
+ **/
+["cpp:ice_print"]
+local exception InvocationTimeoutException extends TimeoutException
+{
+};
+
+/**
+ *
  * A generic exception base for all kinds of protocol error
  * conditions.
  *

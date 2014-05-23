@@ -108,6 +108,26 @@ public class SessionHelper
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
+    private class ConnectionCallbackI : Ice.ConnectionCallback
+    {
+        internal ConnectionCallbackI(SessionHelper sessionHelper)
+        {
+            _sessionHelper = sessionHelper;
+        }
+
+        public void heartbeat(Ice.Connection con)
+        {
+                
+        }
+
+        public void closed(Ice.Connection con)
+        {
+            _sessionHelper.destroy();
+        }
+
+        private readonly SessionHelper _sessionHelper;
+    }
+
     /// <summary>
     /// Creates a Glacier2 session.
     /// </summary>
@@ -324,8 +344,17 @@ public class SessionHelper
     connected(RouterPrx router, SessionPrx session)
     {
         string category = router.getCategoryForClient();
-        long timeout = router.getSessionTimeout();
+        long sessionTimeout = router.getSessionTimeout();
+        int acmTimeout = 0;
+        try
+        {
+            acmTimeout = router.getACMTimeout();
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
         Ice.Connection conn = router.ice_getCachedConnection();
+
         lock(this)
         {
             _router = router;
@@ -353,9 +382,16 @@ public class SessionHelper
             _connected = true;
 
             Debug.Assert(_sessionRefresh == null);
-            if(timeout > 0)
+            if(acmTimeout > 0)
             {
-                _sessionRefresh = new SessionRefreshThread(this, _router, (int)(timeout * 1000)/2);
+                Ice.Connection connection = _router.ice_getCachedConnection();
+                Debug.Assert(connection != null);
+                connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                connection.setCallback(new ConnectionCallbackI(this));
+            }
+            else if(sessionTimeout > 0)
+            {
+                _sessionRefresh = new SessionRefreshThread(this, _router, (int)(sessionTimeout * 1000)/2);
                 _refreshThread = new Thread(new ThreadStart(_sessionRefresh.run));
                 _refreshThread.Start();
             }

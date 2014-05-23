@@ -15,54 +15,6 @@ import test.IceGrid.simple.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
-    static private class SessionKeepAliveThread extends Thread
-    {
-        SessionKeepAliveThread(IceGrid.AdminSessionPrx session, long timeout)
-        {
-            _session = session;
-            _timeout = timeout;
-            _terminated = false;
-        }
-
-        synchronized public void
-        run()
-        {
-            while(!_terminated)
-            {
-                try
-                {
-                    wait(_timeout);
-                }
-                catch(InterruptedException e)
-                {
-                }
-                if(_terminated)
-                {
-                    break;
-                }
-                try
-                {
-                    _session.keepAlive();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    break;
-                }
-            }
-        }
-
-        synchronized private void
-        terminate()
-        {
-            _terminated = true;
-            notify();
-        }
-
-        final private IceGrid.AdminSessionPrx _session;
-        final private long _timeout;
-        private boolean _terminated;
-    }
-
     private static void
     test(boolean b)
     {
@@ -201,8 +153,8 @@ public class AllTests
             test(false);
         }
 
-        SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout()/2);
-        keepAlive.start();
+        session.ice_getConnection().setACM(new Ice.IntOptional(registry.getACMTimeout()), null,
+                                           new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
 
         IceGrid.AdminPrx admin = session.getAdmin();
         test(admin != null);
@@ -304,14 +256,6 @@ public class AllTests
             test(false);
         }
 
-        keepAlive.terminate();
-        try
-        {
-            keepAlive.join();
-        }
-        catch(InterruptedException e)
-        {
-        }
         session.destroy();
     }
 }

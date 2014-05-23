@@ -72,6 +72,12 @@ public abstract class Reference implements Cloneable
         return _context;
     }
 
+    public int
+    getInvocationTimeout()
+    {
+        return _invocationTimeout;
+    }
+
     public final Ice.Communicator 
     getCommunicator()
     {
@@ -161,6 +167,18 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
+    public final Reference
+    changeInvocationTimeout(int newTimeout)
+    {
+        if(newTimeout == _invocationTimeout)
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        r._invocationTimeout = newTimeout;
+        return r;
+    }
+
     public Reference
     changeEncoding(Ice.EncodingVersion newEncoding)
     {
@@ -220,6 +238,7 @@ public abstract class Reference implements Cloneable
         }
         h = IceInternal.HashUtil.hashAdd(h, _protocol);
         h = IceInternal.HashUtil.hashAdd(h, _encoding);
+        h = IceInternal.HashUtil.hashAdd(h, _invocationTimeout);
 
         _hashValue = h;
         _hashInitialized = true;
@@ -447,6 +466,11 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
+        if(_invocationTimeout != r._invocationTimeout)
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -480,6 +504,7 @@ public abstract class Reference implements Cloneable
     private String _facet;
     private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
+    private int _invocationTimeout;
     protected boolean _overrideCompress;
     protected boolean _compress; // Only used if _overrideCompress == true
 
@@ -492,6 +517,7 @@ public abstract class Reference implements Cloneable
               boolean secure,
               Ice.ProtocolVersion protocol,
               Ice.EncodingVersion encoding,
+              int invocationTimeout,
               java.util.Map<String, String> context)
     {
         //
@@ -510,6 +536,7 @@ public abstract class Reference implements Cloneable
         _facet = facet;
         _protocol = protocol;
         _encoding = encoding;
+        _invocationTimeout = invocationTimeout;
         _hashInitialized = false;
         _overrideCompress = false;
         _compress = false;

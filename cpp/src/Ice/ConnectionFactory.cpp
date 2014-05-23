@@ -103,6 +103,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
 
     _destroyed = true;
     _communicator = 0;
+
     notifyAll();
 }
 
@@ -146,11 +147,12 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         // Ensure all the connections are finished and reapable at this point.
         vector<Ice::ConnectionIPtr> cons;
-        _reaper->swapConnections(cons);
+        _monitor->swapReapedConnections(cons);
         assert(cons.size() == _connections.size());
         cons.clear();
         _connections.clear();
         _connectionsByEndpoint.clear();
+        _monitor->destroy();
     }
 }
 
@@ -450,7 +452,7 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const Communic
                                                                   const InstancePtr& instance) :
     _communicator(communicator),
     _instance(instance),
-    _reaper(new ConnectionReaper()),
+    _monitor(new FactoryACMMonitor(instance, instance->clientACM())),
     _destroyed(false),
     _pendingConnectCount(0)
 {
@@ -591,7 +593,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
         // Reap closed connections
         //
         vector<Ice::ConnectionIPtr> cons;
-        _reaper->swapConnections(cons);
+        _monitor->swapReapedConnections(cons);
         for(vector<Ice::ConnectionIPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
         {
             remove(_connections, (*p)->connector(), *p);
@@ -686,7 +688,7 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-        connection = new ConnectionI(_communicator, _instance, _reaper, transceiver, ci.connector,
+        connection = new ConnectionI(_communicator, _instance, _monitor, transceiver, ci.connector,
                                      ci.endpoint->compress(false), 0);
     }
     catch(const Ice::LocalException&)
@@ -1286,12 +1288,20 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        // Ensure all the connections are finished and reapable at this point.
-        vector<Ice::ConnectionIPtr> cons;
-        _reaper->swapConnections(cons);
-        assert(cons.size() == _connections.size());
-        cons.clear();
+        if(_transceiver)
+        {
+            assert(_connections.size() <= 1); // The connection isn't monitored or reaped.
+        }
+        else
+        {
+            // Ensure all the connections are finished and reapable at this point.
+            vector<Ice::ConnectionIPtr> cons;
+            _monitor->swapReapedConnections(cons);
+            assert(cons.size() == _connections.size());
+            cons.clear();
+        }
         _connections.clear();
+        _monitor->destroy();
     }
 }
 
@@ -1408,7 +1418,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         // Reap closed connections
         //
         vector<Ice::ConnectionIPtr> cons;
-        _reaper->swapConnections(cons);
+        _monitor->swapReapedConnections(cons);
         for(vector<Ice::ConnectionIPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
         {
             _connections.erase(*p);
@@ -1451,7 +1461,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
         try
         {
-            connection = new ConnectionI(_adapter->getCommunicator(), _instance, _reaper, transceiver, 0, _endpoint,
+            connection = new ConnectionI(_adapter->getCommunicator(), _instance, _monitor, transceiver, 0, _endpoint,
                                          _adapter);
         }
         catch(const LocalException& ex)
@@ -1553,7 +1563,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
                                                                   const EndpointIPtr& endpoint,
                                                                   const ObjectAdapterPtr& adapter) :
     _instance(instance),
-    _reaper(new ConnectionReaper()),
+    _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
     _endpoint(endpoint),
     _adapter(adapter),
     _warn(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0),
@@ -1581,8 +1591,8 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
         const_cast<TransceiverPtr&>(_transceiver) = _endpoint->transceiver(const_cast<EndpointIPtr&>(_endpoint));
         if(_transceiver)
         {
-            ConnectionIPtr connection = new ConnectionI(_adapter->getCommunicator(), _instance, _reaper, _transceiver,
-                                                        0, _endpoint, _adapter);
+            ConnectionIPtr connection = new ConnectionI(_adapter->getCommunicator(), _instance, 0, _transceiver, 0,
+                                                        _endpoint, _adapter);
             connection->start(0);            
             _connections.insert(connection);
         }
@@ -1622,6 +1632,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
         }
         
         _state = StateFinished;
+        _monitor->destroy();
         _connections.clear();
         throw;
     }

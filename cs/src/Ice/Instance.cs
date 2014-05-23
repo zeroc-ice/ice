@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -143,20 +142,6 @@ namespace IceInternal
 
                 Debug.Assert(_outgoingConnectionFactory != null);
                 return _outgoingConnectionFactory;
-            }
-        }
-
-        public ConnectionMonitor connectionMonitor()
-        {
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-
-                Debug.Assert(_connectionMonitor != null);
-                return _connectionMonitor;
             }
         }
 
@@ -334,13 +319,13 @@ namespace IceInternal
             return _messageSizeMax;
         }
 
-        public int clientACM()
+        public ACMConfig clientACM()
         {
             // No mutex lock, immutable.
             return _clientACM;
         }
 
-        public int serverACM()
+        public ACMConfig serverACM()
         {
             // No mutex lock, immutable.
             return _serverACM;
@@ -766,6 +751,18 @@ namespace IceInternal
 
                 _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
+                _clientACM = new ACMConfig(_initData.properties,
+                                           _initData.logger,
+                                           "Ice.ACM.Client",
+                                           new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM", 
+                                                         new ACMConfig(false)));
+
+                _serverACM = new ACMConfig(_initData.properties,
+                                           _initData.logger,
+                                           "Ice.ACM.Server",
+                                           new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
+                                                         new ACMConfig(true)));
+
 #if COMPACT || SILVERLIGHT
                 char[] separators = { ' ', '\t', '\n', '\r' };
                 _factoryAssemblies = _initData.properties.getProperty("Ice.FactoryAssemblies").Split(separators);
@@ -787,12 +784,6 @@ namespace IceInternal
                         _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
                     }
                 }
-
-                //
-                // Client ACM enabled by default. Server ACM disabled by default.
-                //
-                _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-                _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
                 _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
                 _routerManager = new RouterManager();
@@ -991,15 +982,6 @@ namespace IceInternal
                 }
             }
 #endif
-            //
-            // Create the connection monitor and ensure the interval for
-            // monitoring connections is appropriate for client & server
-            // ACM.
-            //
-            int interval = _initData.properties.getPropertyAsInt("Ice.MonitorConnections");
-            _connectionMonitor = new ConnectionMonitor(this, interval);
-            _connectionMonitor.checkIntervalForACM(_clientACM);
-            _connectionMonitor.checkIntervalForACM(_serverACM);
 
             //
             // Server thread pool initialization is lazy in serverThreadPool().
@@ -1089,12 +1071,6 @@ namespace IceInternal
                 _objectAdapterFactory = null;
                 _outgoingConnectionFactory = null;
                 _retryQueue = null;
-
-                if(_connectionMonitor != null)
-                {
-                    _connectionMonitor.destroy();
-                    _connectionMonitor = null;
-                }
 
                 if(_serverThreadPool != null)
                 {
@@ -1270,8 +1246,8 @@ namespace IceInternal
         private string[] _factoryAssemblies; // Immutable, not reset by destroy().
 #endif
         private int _messageSizeMax; // Immutable, not reset by destroy().
-        private int _clientACM; // Immutable, not reset by destroy().
-        private int _serverACM; // Immutable, not reset by destroy().
+        private ACMConfig _clientACM; // Immutable, not reset by destroy().
+        private ACMConfig _serverACM; // Immutable, not reset by destroy().
         private Ice.ImplicitContextI _implicitContext; // Immutable
         private Ice.Instrumentation.CommunicatorObserver _observer; // Immutable
         private RouterManager _routerManager;
@@ -1279,7 +1255,6 @@ namespace IceInternal
         private ReferenceFactory _referenceFactory;
         private ProxyFactory _proxyFactory;
         private OutgoingConnectionFactory _outgoingConnectionFactory;
-        private ConnectionMonitor _connectionMonitor;
         private ObjectFactoryManager _servantFactoryManager;
         private ObjectAdapterFactory _objectAdapterFactory;
         private int _protocolSupport;

@@ -491,6 +491,7 @@
                 <include name="test/Ice/slicing/objects/ServerPrivateAMD.ice" />
                 <include name="test/Ice/slicing/objects/ClientPrivate.ice" />
                 <include name="test/Ice/timeout/Test.ice" />
+                <include name="test/Ice/acm/Test.ice" />
                 <include name="test/Ice/throughput/Throughput.ice" />
 		<include name="test/Ice/threadPoolPriority/Test.ice" />
                 <include name="test/Ice/udp/Test.ice" />

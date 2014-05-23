@@ -38,10 +38,55 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     {
         assert(_handler != null || _connection != null);
 
-        if(_handler != null && !_handler.flushBatchRequests(this) || 
-           _connection != null && !_connection.flushBatchRequests(this))
+        int timeout;
+        if(_connection != null)
         {
-            synchronized(this)
+            if(_connection.flushBatchRequests(this))
+            {
+                return;
+            }
+            timeout = -1;
+        }
+        else
+        {
+            try
+            {
+                if(_handler.sendRequest(this))
+                {
+                    return;
+                }
+            }
+            catch(IceInternal.LocalExceptionWrapper ex)
+            {
+                throw ex.get();
+            }
+            timeout = _handler.getReference().getInvocationTimeout();
+        }
+
+        boolean timedOut = false;
+        synchronized(this)
+        {
+            if(timeout > 0)
+            {
+                long now = Time.currentMonotonicTimeMillis();
+                long deadline = now + timeout;
+                while(_exception == null && !_sent && !timedOut)
+                {
+                    try
+                    {
+                        wait(deadline - now);
+                        if(_exception == null && !_sent)
+                        {
+                            now = Time.currentMonotonicTimeMillis();
+                            timedOut = now >= deadline;
+                        }
+                    }
+                    catch(InterruptedException ex)
+                    {
+                    }
+                }
+            }
+            else
             {
                 while(_exception == null && !_sent)
                 {
@@ -49,39 +94,42 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                     {
                         wait();
                     }
-                    catch(java.lang.InterruptedException ex)
+                    catch(InterruptedException ex)
                     {
                     }
                 }
-                
-                if(_exception != null)
-                {
-                    throw _exception;
-                }
             }
+        }
+        
+        if(timedOut)
+        {
+            _handler.requestTimedOut(this);
+            assert(_exception != null);
+        }
+
+        if(_exception != null)
+        {
+            _exception.fillInStackTrace();
+            throw _exception;
         }
     }
 
-    public void
-    sent(boolean async)
+    public boolean
+    send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
-        if(async)
-        {
-            synchronized(this)
-            {
-                _sent = true;
-                notify();
-            }
-        }
-        else
-        {
-            _sent = true;
-        }
+        return connection.flushBatchRequests(this);
+    }
+
+    synchronized public void
+    sent()
+    {
         if(_remoteObserver != null)
         {
             _remoteObserver.detach();
             _remoteObserver = null;
         }
+        _sent = true;
+        notify();
     }
     
     public synchronized void

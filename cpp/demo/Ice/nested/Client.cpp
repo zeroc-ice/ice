@@ -53,6 +53,13 @@ NestedClient::run(int argc, char*[])
         cerr << appName() << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
+    
+    //
+    // Ensure the invocation times out if the nesting level is too
+    // high and there are no more threads in the thread pool to
+    // dispatch the call.
+    //
+    nested = nested->ice_invocationTimeout(5000);
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Client");
     NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(communicator()->stringToIdentity("nestedClient")));

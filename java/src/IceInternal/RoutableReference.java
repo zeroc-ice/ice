@@ -351,9 +351,16 @@ public class RoutableReference extends Reference
         properties.put(prefix + ".EndpointSelection", 
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered");
 
-        StringBuffer s = new StringBuffer();
-        s.append(_locatorCacheTimeout);
-        properties.put(prefix + ".LocatorCacheTimeout", s.toString());
+        {
+            StringBuffer s = new StringBuffer();
+            s.append(getInvocationTimeout());
+            properties.put(prefix + ".InvocationTimeout", s.toString());
+        }
+        {
+            StringBuffer s = new StringBuffer();
+            s.append(_locatorCacheTimeout);
+            properties.put(prefix + ".LocatorCacheTimeout", s.toString());
+        }
 
         if(_routerInfo != null)
         {
@@ -656,9 +663,10 @@ public class RoutableReference extends Reference
                       boolean prefereSecure,
                       Ice.EndpointSelectionType endpointSelection,
                       int locatorCacheTimeout,
+                      int invocationTimeout,
                       java.util.Map<String, String> context)
     {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, context);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         _endpoints = endpoints;
         _adapterId = adapterId;
         _locatorInfo = locatorInfo;

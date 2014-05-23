@@ -197,6 +197,13 @@ Glacier2::RouterI::getSessionTimeout(const Current&) const
     return 0;
 }
 
+Ice::Int
+Glacier2::RouterI::getACMTimeout(const Current&) const
+{
+    assert(false); // Must not be called in this router implementation.
+    return 0;
+}
+
 ClientBlobjectPtr
 Glacier2::RouterI::getClientBlobject() const
 {

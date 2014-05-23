@@ -1023,21 +1023,12 @@ namespace Ice
             return _servantManager;
         }
 
-        public int getACM()
+        public IceInternal.ACMConfig getACM()
         {
             // Not check for deactivation here!
             
             Debug.Assert(instance_ != null); // Must not be called after destroy().
-            
-            if(_hasAcmTimeout)
-            {
-                return _acmTimeout;
-            }
-            else
-            {
-                return instance_.serverACM();
-            }
-            
+            return _acm;
         }
 
         //
@@ -1051,8 +1042,6 @@ namespace Ice
             instance_ = instance;
             _communicator = communicator;
             _objectAdapterFactory = objectAdapterFactory;
-            _hasAcmTimeout = false;
-            _acmTimeout = 0;
             _servantManager = new IceInternal.ServantManager(instance, name);
             _activateOneOffDone = false;
             _name = name;
@@ -1072,6 +1061,7 @@ namespace Ice
                 _id = "";
                 _replicaGroupId = "";
                 _reference = instance_.referenceFactory().create("dummy -t", "");
+                _acm = instance_.serverACM();
                 return;
             }
 
@@ -1114,7 +1104,7 @@ namespace Ice
 
             _id = properties.getProperty(_name + ".AdapterId");
             _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
-
+            
             //
             // Setup a reference to be used to get the default proxy options
             // when creating new proxies. By default, create twoway proxies.
@@ -1131,6 +1121,9 @@ namespace Ice
                 throw ex;
             }
 
+            _acm = new IceInternal.ACMConfig(properties, communicator.getLogger(), _name + ".ACM",
+                                             instance_.serverACM());
+
             try
             {
                 int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
@@ -1138,13 +1131,6 @@ namespace Ice
                 if(threadPoolSize > 0 || threadPoolSizeMax > 0)
                 {
                     _threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
-                }
-
-                _hasAcmTimeout = properties.getProperty(_name + ".ACM").Length > 0;
-                if(_hasAcmTimeout)
-                {
-                    _acmTimeout = properties.getPropertyAsInt(_name + ".ACM");
-                    instance_.connectionMonitor().checkIntervalForACM(_acmTimeout);
                 }
 
                 if(router == null)
@@ -1697,6 +1683,9 @@ namespace Ice
         static private readonly string[] _suffixes = 
         {
             "ACM",
+            "ACM.Timeout",
+            "ACM.Heartbeat",
+            "ACM.Close",
             "AdapterId",
             "Endpoints",
             "Locator",
@@ -1721,7 +1710,9 @@ namespace Ice
             "Router.Locator.PreferSecure",
             "Router.Locator.CollocationOptimized",
             "Router.Locator.LocatorCacheTimeout",
+            "Router.Locator.InvocationTimeout",
             "Router.LocatorCacheTimeout",
+            "Router.InvocationTimeout",
             "ProxyOptions",
             "ThreadPool.Size",
             "ThreadPool.SizeMax",
@@ -1776,8 +1767,7 @@ namespace Ice
         private Communicator _communicator;
         private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
         private IceInternal.ThreadPool _threadPool;
-        private bool _hasAcmTimeout;
-        private int _acmTimeout;
+        private IceInternal.ACMConfig _acm;
         private IceInternal.ServantManager _servantManager;
         private bool _activateOneOffDone;
         private readonly string _name;

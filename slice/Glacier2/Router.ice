@@ -158,6 +158,19 @@ interface Router extends Ice::Router
      *
      **/
     ["nonmutating", "cpp:const"] idempotent long getSessionTimeout();
+
+    /**
+     *
+     * Get the value of the ACM timeout. Clients supporting connection
+     * heartbeats can enable them instead of explicitly sending keep
+     * alives requests.
+     *
+     * NOTE: This method is only available since Ice 3.6.
+     *
+     * @return The timeout (in seconds).
+     *
+     **/
+    ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
 };
 
 };

@@ -20,7 +20,12 @@ Public Class NestedI
         System.Console.Out.WriteLine("" & level)
         level -= 1
         If level > 0 Then
-            proxy.nestedCall(level, _self, current.ctx)
+            '
+            ' Ensure the invocation times out if the nesting level is too
+            ' high and there are no more threads in the thread pool to
+            ' dispatch the call.
+            ' 
+      	    NestedPrxHelper.uncheckedCast(proxy.ice_invocationTimeout(5000)).nestedCall(level, _self, current.ctx)
         End If
     End Sub
 

@@ -90,6 +90,26 @@ public class SessionHelper
         private boolean _done = false;
     }
 
+    private class ConnectionCallbackI implements Ice.ConnectionCallback
+    {
+        public ConnectionCallbackI(SessionHelper sessionHelper)
+        {
+            _sessionHelper = sessionHelper;
+        }
+
+        public void heartbeat(Ice.Connection con)
+        {
+                
+        }
+
+        public void closed(Ice.Connection con)
+        {
+            _sessionHelper.destroy();
+        }
+
+        private final SessionHelper _sessionHelper;
+    }
+
     /**
      * Creates a Glacier2 session.
      *
@@ -318,9 +338,17 @@ public class SessionHelper
     private void
     connected(RouterPrx router, SessionPrx session)
     {
-        Ice.Connection conn = router.ice_getCachedConnection();
-        long timeout = router.getSessionTimeout();
         String category = router.getCategoryForClient();
+        long sessionTimeout = router.getSessionTimeout();
+        int acmTimeout = 0;
+        try
+        {
+            acmTimeout = router.getACMTimeout();
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
+        Ice.Connection conn = router.ice_getCachedConnection();
 
         synchronized(this)
         {
@@ -354,9 +382,18 @@ public class SessionHelper
             _connected = true;
 
             assert _refreshThread == null;
-            if(timeout > 0)
+            if(acmTimeout > 0)
             {
-                _refreshThread = new SessionRefreshThread(_router, (timeout * 1000)/2);
+                Ice.Connection connection = _router.ice_getCachedConnection();
+                assert(connection != null);
+                connection.setACM(new Ice.IntOptional(acmTimeout), 
+                                  null, 
+                                  new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
+                connection.setCallback(new ConnectionCallbackI(this));
+            }
+            else if(sessionTimeout > 0)
+            {
+                _refreshThread = new SessionRefreshThread(_router, (sessionTimeout * 1000)/2);
                 _refreshThread.start();
             }
 

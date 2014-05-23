@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, sys, threading
+import Ice, Test, sys, threading, time
 
 def test(b):
     if not b:
@@ -58,8 +58,8 @@ def allTests(communicator, collocated):
     #
     # Expect ConnectTimeoutException.
     #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
-    to.holdAdapter(750)
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
+    to.holdAdapter(500)
     to.ice_getConnection().close(True) # Force a reconnect.
     try:
         to.op()
@@ -79,42 +79,20 @@ def allTests(communicator, collocated):
         test(False)
     print("ok")
 
-    sys.stdout.write("testing read timeout... ")
+    sys.stdout.write("testing connection timeout... ")
     sys.stdout.flush()
     #
     # Expect TimeoutException.
     #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
-    try:
-        to.sleep(750)
-        test(False)
-    except Ice.TimeoutException:
-       pass # Expected.
-    #
-    # Expect success.
-    #
-    timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    try:
-        to.sleep(500)
-    except Ice.TimeoutException:
-        test(False)
-    print("ok")
-
-    sys.stdout.write("testing write timeout... ")
-    sys.stdout.flush()
-    #
-    # Expect TimeoutException.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
-    to.holdAdapter(2000)
     if sys.version_info[0] == 2:
         seq = []
-        seq[0:100000] = range(0, 100000) # add 100,000 entries.
+        seq[0:100000] = range(0, 1000000) # add 100,000 entries.
         seq = ['\x00' for x in seq] # set them all to \x00
         seq = ''.join(seq) # make into a byte array
     else:
-        seq = bytes([0 for x in range(0, 100000)])
+        seq = bytes([0 for x in range(0, 1000000)])
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
+    to.holdAdapter(500)
     try:
         to.sendData(seq)
         test(False)
@@ -132,59 +110,77 @@ def allTests(communicator, collocated):
         test(False)
     print("ok")
 
-    sys.stdout.write("testing AMI read timeout... ")
+    sys.stdout.write("testing invocation timeout... ")
     sys.stdout.flush()
-    #
-    # Expect TimeoutException.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
-    cb = Callback()
-    to.begin_sleep(2000, cb.responseEx, cb.exceptionEx)
-    cb.check()
-    #
-    # Expect success.
-    #
-    timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    cb = Callback()
-    to.begin_sleep(500, cb.response, cb.exception)
-    cb.check()
+    connection = obj.ice_getConnection();
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250));
+    test(connection == to.ice_getConnection());
+    try:
+        to.sleep(500);
+        test(False);
+    except Ice.InvocationTimeoutException:
+        pass
+
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
+    test(connection == to.ice_getConnection());
+    try:
+        to.sleep(250);
+    except Ice.InvocationTimeoutException:
+        test(False);
+    test(connection == to.ice_getConnection());
+
+    # #
+    # # Expect InvocationTimeoutException.
+    # #
+    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250));
+    # cb = new Callback();
+    # to.begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx));
+    # cb.check();
+
+    # #
+    # # Expect success.
+    # #
+    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
+    # cb = new Callback();
+    # to.begin_sleep(250, newCallback_Timeout_sleep(cb, &Callback.response, &Callback.exception));
+    # cb.check();
     print("ok")
 
-    sys.stdout.write("testing AMI write timeout... ")
+    sys.stdout.write("testing close timeout... ")
     sys.stdout.flush()
-    #
-    # Expect TimeoutException.
-    #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
-    to.holdAdapter(2000)
-    cb = Callback()
-    to.begin_sendData(seq, cb.responseEx, cb.exceptionEx)
-    cb.check()
-    #
-    # Expect success.
-    #
-    timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    to.holdAdapter(500)
-    cb = Callback()
-    to.begin_sendData(seq, cb.response, cb.exception)
-    cb.check()
+    to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(250));
+    connection = to.ice_getConnection();
+    timeout.holdAdapter(750);
+    connection.close(False);
+    try:
+        connection.getInfo(); # getInfo() doesn't throw in the closing state.
+    except Ice.LocalException:
+        test(False);
+    time.sleep(0.5);
+    try:
+        connection.getInfo();
+        test(False);
+    except Ice.CloseConnectionException:
+        # Expected.
+        pass
+    timeout.op(); # Ensure adapter is active.
     print("ok")
 
     sys.stdout.write("testing timeout overrides... ")
     sys.stdout.flush()
+
     #
     # Test Ice.Override.Timeout. This property overrides all
     # endpoint timeouts.
     #
     initData = Ice.InitializationData()
     initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.Timeout", "500")
+    initData.properties.setProperty("Ice.Override.Timeout", "250")
     comm = Ice.initialize(initData)
     to = Test.TimeoutPrx.checkedCast(comm.stringToProxy(sref))
+    to.holdAdapter(500)
     try:
-        to.sleep(750)
+        to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
@@ -193,8 +189,9 @@ def allTests(communicator, collocated):
     #
     timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.checkedCast(to.ice_timeout(1000))
+    to.holdAdapter(500);
     try:
-        to.sleep(750)
+        to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
@@ -204,9 +201,9 @@ def allTests(communicator, collocated):
     #
     initData = Ice.InitializationData()
     initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.ConnectTimeout", "750")
+    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
     comm = Ice.initialize(initData)
-    timeout.holdAdapter(1000)
+    timeout.holdAdapter(500)
     to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(sref))
     try:
         to.op()
@@ -217,8 +214,8 @@ def allTests(communicator, collocated):
     # Calling ice_timeout() should have no effect on the connect timeout.
     #
     timeout.op() # Ensure adapter is active.
-    timeout.holdAdapter(1000)
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1250))
+    timeout.holdAdapter(500)
+    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(750))
     try:
         to.op()
         test(False)
@@ -228,12 +225,29 @@ def allTests(communicator, collocated):
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
     to.op() # Force connection.
+    timeout.holdAdapter(500);
+    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250));
     try:
-        to.sleep(2000)
+        to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
     comm.destroy()
+
+    #
+    # Test Ice.Override.CloseTimeout.
+    #
+    initData = Ice.InitializationData()
+    initData.properties = communicator.getProperties().clone()
+    initData.properties.setProperty("Ice.Override.CloseTimeout", "200")
+    comm = Ice.initialize(initData)
+    connection = comm.stringToProxy(sref).ice_getConnection();
+    timeout.holdAdapter(750);
+    now = time.clock();
+    comm.destroy();
+    test((time.clock() - now) < 0.5);
+
     print("ok")
+
 
     return timeout

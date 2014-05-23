@@ -244,7 +244,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing locator... " << flush;
     {
         Ice::LocatorPrx locator;
-        obj = communicator->stringToProxy("locator:default -p 12010 -t 500");
+        obj = communicator->stringToProxy("locator:default -p 12010")->ice_invocationTimeout(250);
         locator = Ice::LocatorPrx::uncheckedCast(obj);
         obj = communicator->stringToProxy("background@Test")->ice_locator(locator)->ice_oneway();
 
@@ -284,7 +284,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Ice::RouterPrx router;
 
-        obj = communicator->stringToProxy("router:default -p 12010 -t 500");
+        obj = communicator->stringToProxy("router:default -p 12010")->ice_invocationTimeout(250);
         router = Ice::RouterPrx::uncheckedCast(obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router)->ice_oneway();
 

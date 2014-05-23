@@ -1054,7 +1054,7 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, const Ice::
         }
 
         int timeout = adapter.activationTimeout + adapter.deactivationTimeout;
-        AdapterPrx::uncheckedCast(adapter.proxy->ice_timeout(timeout * 1000))->begin_activate(
+        AdapterPrx::uncheckedCast(adapter.proxy->ice_invocationTimeout(timeout * 1000))->begin_activate(
             newCallback_Adapter_activate(new AdapterActivateCallback(this, adapter),
                                          &AdapterActivateCallback::response, 
                                          &AdapterActivateCallback::exception));

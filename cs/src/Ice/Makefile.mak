@@ -15,6 +15,7 @@ TARGETS		= $(assembliesdir)\$(LIBNAME)
 POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= Acceptor.cs \
+		  ACM.cs \
 		  Application.cs \
 		  AMDCallback.cs \
 		  Arrays.cs \
@@ -32,8 +33,6 @@ SRCS		= Acceptor.cs \
 		  ConnectRequestHandler.cs \
 		  ConnectionI.cs \
 		  ConnectionFactory.cs \
-		  ConnectionMonitor.cs \
-		  ConnectionReaper.cs \
 		  ConnectionRequestHandler.cs \
 		  Connector.cs \
 		  DefaultsAndOverrides.cs \

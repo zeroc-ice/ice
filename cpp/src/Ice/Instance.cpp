@@ -19,7 +19,6 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionFactory.h>
-#include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapterFactory.h>
@@ -244,20 +243,6 @@ IceInternal::Instance::outgoingConnectionFactory() const
     return _outgoingConnectionFactory;
 }
 
-ConnectionMonitorPtr
-IceInternal::Instance::connectionMonitor() const
-{
-    IceUtil::RecMutex::Lock sync(*this);
-
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_connectionMonitor);
-    return _connectionMonitor;
-}
-
 ObjectFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager() const
 {
@@ -420,14 +405,14 @@ IceInternal::Instance::pluginManager() const
     return _pluginManager;
 }
 
-int
+const ACMConfig&
 IceInternal::Instance::clientACM() const
 {
     // No mutex lock, immutable.
     return _clientACM;
 }
 
-int
+const ACMConfig&
 IceInternal::Instance::serverACM() const
 {
     // No mutex lock, immutable.
@@ -851,8 +836,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _state(StateActive),
     _initData(initData),
     _messageSizeMax(0),
-    _clientACM(0),
-    _serverACM(0),
     _implicitContext(0),
     _stringConverter(IceUtil::getProcessStringConverter()),
     _wstringConverter(IceUtil::getProcessWstringConverter())
@@ -1034,6 +1017,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_initData.properties);
 
+        const ACMConfig defaultClientACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(false));
+        const ACMConfig defaultServerACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(true));
+        
+        const_cast<ACMConfig&>(_clientACM) = ACMConfig(_initData.properties,
+                                                       _initData.logger,
+                                                       "Ice.ACM.Client",
+                                                       defaultClientACM);
+        
+        const_cast<ACMConfig&>(_serverACM) = ACMConfig(_initData.properties,
+                                                       _initData.logger,
+                                                       "Ice.ACM.Server",
+                                                       defaultServerACM);
+
         {
             static const int defaultMessageSizeMax = 1024;
             Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
@@ -1055,8 +1051,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         //
         // Client ACM enabled by default. Server ACM disabled by default.
         //
-        const_cast<Int&>(_clientACM) = _initData.properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-        const_cast<Int&>(_serverACM) = _initData.properties->getPropertyAsInt("Ice.ACM.Server");
 #ifndef ICE_OS_WINRT
         const_cast<ImplicitContextIPtr&>(_implicitContext) = 
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
@@ -1203,7 +1197,6 @@ IceInternal::Instance::~Instance()
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
 
-    assert(!_connectionMonitor);
     assert(!_servantFactoryManager);
     assert(!_objectAdapterFactory);
     assert(!_clientThreadPool);
@@ -1337,15 +1330,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 
     //
-    // Create the connection monitor and ensure the interval for
-    // monitoring connections is appropriate for client & server
-    // ACM.
-    //
-    _connectionMonitor = new ConnectionMonitor(this, _initData.properties->getPropertyAsInt("Ice.MonitorConnections"));
-    _connectionMonitor->checkIntervalForACM(_clientACM);
-    _connectionMonitor->checkIntervalForACM(_serverACM);
-
-    //
     // Server thread pool initialization is lazy in serverThreadPool().
     //
 
@@ -1445,12 +1429,6 @@ IceInternal::Instance::destroy()
         _objectAdapterFactory = 0;
         _outgoingConnectionFactory = 0;
         _retryQueue = 0;
-
-        if(_connectionMonitor)
-        {
-            _connectionMonitor->destroy();
-            _connectionMonitor = 0;
-        }
 
         if(_serverThreadPool)
         {

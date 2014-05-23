@@ -496,6 +496,18 @@ namespace Ice
         ObjectPrx ice_locatorCacheTimeout(int timeout);
 
         /// <summary>
+        /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+        /// </summary>
+        /// <param name="timeout">The new invocation timeout (in seconds).</param>
+        ObjectPrx ice_invocationTimeout(int timeout);
+
+        /// <summary>
+        /// Returns the invocation timeout of this proxy.
+        /// </summary>
+        /// <returns>The invocation timeout value (in seconds).</returns>
+        int ice_getInvocationTimeout();
+
+        /// <summary>
         /// Returns whether this proxy caches connections.
         /// </summary>
         /// <returns>True if this proxy caches connections; false, otherwise.</returns>
@@ -901,11 +913,11 @@ namespace Ice
                 IceInternal.BasicStream os__ = result__.startWriteParams__(FormatType.DefaultFormat);
                 os__.writeString(id);
                 result__.endWriteParams__();
-                result__.send__(true);
+                result__.invoke__(true);
             }
             catch(Ice.LocalException ex__)
             {
-                result__.exceptionAsync__(ex__);
+                result__.invokeExceptionAsync__(ex__);
             }
             return result__;
         }
@@ -1031,11 +1043,11 @@ namespace Ice
             {
                 result__.prepare__(__ice_ping_name, OperationMode.Nonmutating, context__, explicitContext__);
                 result__.writeEmptyParams__();
-                result__.send__(true);
+                result__.invoke__(true);
             }
             catch(Ice.LocalException ex__)
             {
-                result__.exceptionAsync__(ex__);
+                result__.invokeExceptionAsync__(ex__);
             }
             return result__;
         }
@@ -1183,11 +1195,11 @@ namespace Ice
             {
                 result__.prepare__(__ice_ids_name, OperationMode.Nonmutating, context__, explicitContext__);
                 result__.writeEmptyParams__();
-                result__.send__(true);
+                result__.invoke__(true);
             }
             catch(Ice.LocalException ex__)
             {
-                result__.exceptionAsync__(ex__);
+                result__.invokeExceptionAsync__(ex__);
             }
             return result__;
         }
@@ -1346,11 +1358,11 @@ namespace Ice
             {
                 result__.prepare__(__ice_id_name, OperationMode.Nonmutating, context__, explicitContext__);
                 result__.writeEmptyParams__();
-                result__.send__(true);
+                result__.invoke__(true);
             }
             catch(Ice.LocalException ex__)
             {
-                result__.exceptionAsync__(ex__);
+                result__.invokeExceptionAsync__(ex__);
             }
             return result__;
         }
@@ -1581,11 +1593,11 @@ namespace Ice
             {
                 result__.prepare__(operation, mode, context__, explicitContext__);
                 result__.writeParamEncaps__(inEncaps);
-                result__.send__(true);
+                result__.invoke__(true);
             }
             catch(Ice.LocalException ex__)
             {
-                result__.exceptionAsync__(ex__);
+                result__.invokeExceptionAsync__(ex__);
             }
             return result__;
         }
@@ -1785,6 +1797,31 @@ namespace Ice
             else
             {
                 return newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
+            }
+        }
+
+        /// <summary>
+        /// Returns the invocation timeout of this proxy.
+        /// </summary>
+        /// <returns>The invocation timeout value (in seconds).</returns>
+        public int ice_getInvocationTimeout()
+        {
+            return _reference.getInvocationTimeout();
+        }
+
+        /// <summary>
+        /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+        /// </summary>
+        /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
+        public ObjectPrx ice_invocationTimeout(int newTimeout)
+        {
+            if(newTimeout == _reference.getInvocationTimeout())
+            {
+                return this;
+            }
+            else
+            {
+                return newInstance(_reference.changeInvocationTimeout(newTimeout));
             }
         }
 
@@ -2326,11 +2363,11 @@ namespace Ice
             }
             try
             {
-                result__.send__();
+                result__.invoke__();
             }
             catch(Ice.LocalException ex__)
             {
-                result__.exceptionAsync__(ex__);
+                result__.invokeExceptionAsync__(ex__);
             }
             return result__;
         }

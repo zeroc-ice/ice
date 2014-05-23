@@ -30,11 +30,11 @@ IceInternal::RetryTask::runTimerTask()
     {
         try
         {
-            _outAsync->__send(false);
+            _outAsync->__invoke(false);
         }
         catch(const Ice::LocalException& ex)
         {
-            _outAsync->__exceptionAsync(ex);
+            _outAsync->__invokeExceptionAsync(ex);
         }
     }
 }
@@ -42,7 +42,7 @@ IceInternal::RetryTask::runTimerTask()
 void
 IceInternal::RetryTask::destroy()
 {
-    _outAsync->__exceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
+    _outAsync->__invokeExceptionAsync(CommunicatorDestroyedException(__FILE__, __LINE__));
 }
 
 bool

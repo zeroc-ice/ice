@@ -1613,6 +1613,11 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_collocationOptimized(__co).get());";
     H << eb;
 
+    H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_invocationTimeout(int __timeout) const";
+    H << sb;
+    H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_invocationTimeout(__timeout).get());";
+    H << eb;
+
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_twoway() const";
     H << sb;
     H << nl << "return dynamic_cast<" << name << "*>(::IceProxy::Ice::Object::ice_twoway().get());";
@@ -2260,11 +2265,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         C << nl << "__result->__endWriteParams();";
     }
-    C << nl << "__result->__send(true);";
+    C << nl << "__result->__invoke(true);";
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "__result->__exceptionAsync(__ex);";
+    C << nl << "__result->__invokeExceptionAsync(__ex);";
     C << eb;
     C << nl << "return __result;";
     C << eb;
@@ -2459,7 +2464,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << nl << "catch(const ::Ice::TwowayOnlyException& ex)";
             C << sb;
             C << nl << "__ar = new ::IceInternal::OutgoingAsync(this, " << flatName << ", __del, 0);";
-            C << nl << "__ar->__exceptionAsync(ex);";
+            C << nl << "__ar->__invokeExceptionAsync(ex);";
             C << eb;
         }
         else
@@ -2513,7 +2518,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << nl << "catch(const ::Ice::TwowayOnlyException& ex)";
             C << sb;
             C << nl << "__ar = new ::IceInternal::OutgoingAsync(this, " << flatName << ", __del, 0);";
-            C << nl << "__ar->__exceptionAsync(ex);";
+            C << nl << "__ar->__invokeExceptionAsync(ex);";
             C << eb;
         }
         else

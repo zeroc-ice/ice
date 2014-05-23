@@ -12,7 +12,6 @@
 #endif
 
 #include <Ice/Initialize.h>
-#include <Ice/Instance.h>
 #include <Ice/ProtocolPluginFacade.h>
 #include <Ice/EndpointFactoryManager.h>
 

@@ -89,7 +89,7 @@ public:
     {
         for(vector<OutgoingAsyncMessageCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
-            (*p)->__sent();
+            (*p)->__invokeSent();
         }
     }
 
@@ -212,24 +212,8 @@ ConnectRequestHandler::abortBatchRequest()
     _connection->abortBatchRequest();
 }
 
-Ice::ConnectionI*
-ConnectRequestHandler::sendRequest(Outgoing* out)
-{
-    // Must be called first, _compress might not be initialized before this returns.
-    Ice::ConnectionIPtr connection = getConnection(true);
-    assert(connection);
-    if(!connection->sendRequest(out, _compress, _response) || _response)
-    {
-        return _connection.get(); // The request hasn't been sent or we're expecting a response.
-    }
-    else
-    {
-        return 0; // The request has been sent.
-    }
-}
-
-AsyncStatus
-ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
+bool
+ConnectRequestHandler::sendRequest(OutgoingMessageCallback* out)
 {
     {
         Lock sync(*this);
@@ -238,32 +222,72 @@ ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
             Request req;
             req.out = out;
             _requests.push_back(req);
-            return AsyncStatusQueued;
+            return false; // Not sent
         }
     }
-    return _connection->sendAsyncRequest(out, _compress, _response);
-}
-
-bool
-ConnectRequestHandler::flushBatchRequests(BatchOutgoing* out)
-{
-    return getConnection(true)->flushBatchRequests(out);
+    return out->send(_connection, _compress, _response) && !_response; // Finished if sent and no response.
 }
 
 AsyncStatus
-ConnectRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
+ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr& out)
 {
     {
         Lock sync(*this);
         if(!initialized())
         {
             Request req;
-            req.batchOut = out;
+            req.outAsync = out;
             _requests.push_back(req);
             return AsyncStatusQueued;
         }
     }
-    return _connection->flushAsyncBatchRequests(out);
+    return out->__send(_connection, _compress, _response);
+}
+
+void
+ConnectRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
+{
+    {
+        Lock sync(*this);
+        if(!initialized())
+        {
+            for(deque<Request>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+            {
+                if(p->out == out)
+                {
+                    Ice::InvocationTimeoutException ex(__FILE__, __LINE__);
+                    out->finished(ex, false);
+                    _requests.erase(p);
+                    return;
+                }
+            }
+            assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+        }
+    }
+    _connection->requestTimedOut(out);
+}
+
+void 
+ConnectRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr& outAsync)
+{
+    {
+        Lock sync(*this);
+        if(!initialized())
+        {
+            for(deque<Request>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+            {
+                if(p->outAsync.get() == outAsync.get())
+                {
+                    Ice::InvocationTimeoutException ex(__FILE__, __LINE__);
+                    outAsync->__finished(ex, false);
+                    _requests.erase(p);
+                    return;
+                }
+            }
+            assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+        }
+    }
+    _connection->asyncRequestTimedOut(outAsync);
 }
     
 Ice::ConnectionIPtr
@@ -413,16 +437,13 @@ ConnectRequestHandler::flushRequests()
             Request& req = _requests.front();
             if(req.out)
             {
-                if(_connection->sendAsyncRequest(req.out, _compress, _response) & AsyncStatusInvokeSentCallback)
-                {
-                    sentCallbacks.push_back(req.out);
-                }
+                req.out->send(_connection, _compress, _response);
             }
-            else if(req.batchOut)
+            else if(req.outAsync)
             {
-                if(_connection->flushAsyncBatchRequests(req.batchOut) & AsyncStatusInvokeSentCallback)
+                if(req.outAsync->__send(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
                 {
-                    sentCallbacks.push_back(req.batchOut);
+                    sentCallbacks.push_back(req.outAsync);
                 }
             }
             else
@@ -503,11 +524,11 @@ ConnectRequestHandler::flushRequestsWithException(const Ice::LocalException& ex)
     {
         if(p->out)
         {            
-            p->out->__finished(ex, false);
+            p->out->finished(ex, false);
         }
-        else if(p->batchOut)
-        {
-            p->batchOut->__finished(ex, false);
+        else if(p->outAsync)
+        {            
+            p->outAsync->__finished(ex, false);
         }
         else
         {
@@ -525,11 +546,27 @@ ConnectRequestHandler::flushRequestsWithException(const LocalExceptionWrapper& e
     {
         if(p->out)
         {            
-            p->out->__finished(ex);
+            Outgoing* out = dynamic_cast<Outgoing*>(p->out);
+            if(out)
+            {
+                out->finished(ex);
+            }
+            else
+            {
+                p->out->finished(*ex.get(), false);
+            }
         }
-        else if(p->batchOut)
-        {
-            p->batchOut->__finished(*ex.get(), false);
+        else if(p->outAsync)
+        {            
+            OutgoingAsync* outAsync = dynamic_cast<OutgoingAsync*>(p->outAsync.get());
+            if(outAsync)
+            {
+                outAsync->__finished(ex);
+            }
+            else
+            {
+                p->outAsync->__finished(*ex.get(), false);
+            }
         }
         else
         {

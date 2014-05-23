@@ -48,9 +48,6 @@
 
                 this._batchStarted = false;
 
-                this._timerToken = -1;
-                this._timerConnection = null;
-
                 this._handler = null;
                 this._encoding = Protocol.getCompatibleEncoding(this._proxy.__reference().getEncoding());
                 this._cnt = 0;
@@ -158,43 +155,42 @@
                 }
             }
         },
-        __sent: function(connection)
+        __send: function(connection, compress, response)
+        {
+            return connection.sendAsyncRequest(this, compress, response);
+        },
+        __sent: function()
         {
             this._state |= AsyncResult.Sent;
 
-            if((this._state & AsyncResult.Done) === 0)
+            Debug.assert((this._state & AsyncResult.Done) === 0);
+
+            if(!this._proxy.ice_isTwoway())
             {
-                if(!this._proxy.ice_isTwoway())
+                if(this._timeoutRequestHandler)
                 {
-                    this._state |= AsyncResult.Done | AsyncResult.OK;
-                    this._os.resize(0);
-                    if(this._sent)
-                    {
-                        this._sent.call(null, this);
-                    }
-                    else
-                    {
-                        this.succeed(this);
-                    }
+                    this._instance.timer().cancel(this._timeoutToken);
+                    this._timeoutRequestHandler = null;
                 }
-                else if(connection.timeout() > 0)
+                this._state |= AsyncResult.Done | AsyncResult.OK;
+                this._os.resize(0);
+                if(this._sent)
                 {
-                    Debug.assert(this._timerToken === -1);
-                    this._timerConnection = connection;
-                    var self = this;
-                    this._timerToken = this._instance.timer().schedule(
-                        function() { self.__runTimerTask(); }, connection.timeout());
+                    this._sent.call(null, this);
+                }
+                else
+                {
+                    this.succeed(this);
                 }
             }
         },
         __finishedEx: function(exc, sent)
         {
             Debug.assert((this._state & AsyncResult.Done) === 0);
-            if(this._timerConnection !== null)
+            if(this._timeoutRequestHandler)
             {
-                this._instance.timer().cancel(this._timerToken);
-                this._timerConnection = null;
-                this._timerToken = -1;
+                this._instance.timer().cancel(this._timeoutToken);
+                this._timeoutRequestHandler = null;
             }
 
             try
@@ -206,14 +202,14 @@
                 }
                 else
                 {
-                    this.__send();
+                    this.__invoke();
                 }
             }
             catch(ex)
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.__exception(ex);
+                    this.__invokeException(ex);
                 }
                 else
                 {
@@ -221,11 +217,13 @@
                 }
             }
         },
-        __finishedWrapper: function(exc)
+        __finishedExWrapper: function(exc)
         {
             //
             // The LocalExceptionWrapper exception is only called before the invocation is sent.
             //
+
+            Debug.assert(this._timeoutRequestHandler == null);
 
             try
             {
@@ -236,14 +234,14 @@
                 }
                 else
                 {
-                    this.__send();
+                    this.__invoke();
                 }
             }
             catch(ex)
             {
                 if(ex instanceof Ice.LocalException)
                 {
-                    this.__exception(ex);
+                    this.__invokeException(ex);
                 }
                 else
                 {
@@ -260,12 +258,10 @@
             {
                 Debug.assert(this._exception === null && (this._state & AsyncResult.Done) === 0);
 
-                if(this._timerConnection !== null)
+                if(this._timeoutRequestHandler)
                 {
-                    Debug.assert(this._timerToken !== -1);
-                    this._instance.timer().cancel(this._timerToken);
-                    this._timerConnection = null;
-                    this._timerToken = -1;
+                    this._instance.timer().cancel(this._timeoutToken);
+                    this._timeoutRequestHandler = null;
                 }
 
                 if(this._is === null) // _is can already be initialized if the invocation is retried
@@ -409,9 +405,9 @@
             }
 
             Debug.assert(replyStatus === Protocol.replyOK || replyStatus === Protocol.replyUserException);
-            this.__response();
+            this.__invokeCompleted();
         },
-        __send: function()
+        __invoke: function()
         {
             if(this._batch)
             {
@@ -427,7 +423,23 @@
                     try
                     {
                         this._handler = this._proxy.__getRequestHandler();
-                        this._handler.sendAsyncRequest(this);
+                        var status = this._handler.sendAsyncRequest(this);
+                        if(this._proxy.ice_isTwoway() || (status & AsyncStatus.Sent) === 0)
+                        {
+                            Debug.assert((this._state & AsyncResult.Done) === 0);
+
+                            var invocationTimeout = this._handler.getReference().getInvocationTimeout();
+                            if(invocationTimeout > 0)
+                            {
+                                var self = this;
+                                this._timeoutToken = this._instance.timer().schedule(function() 
+                                                                                     { 
+                                                                                         self.__runTimerTask(); 
+                                                                                     }, 
+                                                                                     invocationTimeout);
+                                this._timeoutRequestHandler = this._handler;
+                            }
+                        }
                         break;
                     }
                     catch(ex)
@@ -478,9 +490,9 @@
                 this._os.writeEncaps(encaps);
             }
         },
-        __exception: function(ex)
+        __invokeException: function(ex)
         {
-            AsyncResult.prototype.__exception.call(this, ex);
+            AsyncResult.prototype.__invokeException.call(this, ex);
 
             if(this._batchStarted)
             {
@@ -552,21 +564,119 @@
             }
             return interval.value;
         },
-        __runTimerTask: function()
+    });    
+    OutgoingAsync._emptyContext = new HashMap();
+    
+    var BatchOutgoingAsync = Ice.Class(AsyncResult, {
+        __init__: function(communicator, operation)
         {
-            var connection = this._timerConnection;
-            this._timerConnection = null;
-            this._timerToken = -1;
-
-            if(connection !== null)
+            AsyncResult.call(this, communicator, operation, null, null, null, null);
+        },
+        __send: function(connection, compress, response)
+        {
+            return connection.flushAsyncBatchRequests(this);
+        },
+        __sent: function()
+        {
+            this._state |= AsyncResult.Done | AsyncResult.OK | AsyncResult.Sent;
+            this._os.resize(0);
+            if(this._timeoutRequestHandler)
             {
-                connection.exception(new Ice.TimeoutException());
+                this._instance.timer().cancel(this._timeoutToken);
+                this._timeoutRequestHandler = null;
+            }
+            this.succeed(this);
+        },
+        __finishedEx: function(exc, sent)
+        {
+            if(this._timeoutRequestHandler)
+            {
+                this._instance.timer().cancel(this._timeoutToken);
+                this._timeoutRequestHandler = null;
+            }
+            this.__invokeException(exc);
+        }
+    });
+
+    var ProxyBatchOutgoingAsync = Ice.Class(BatchOutgoingAsync, {
+        __init__: function(prx, operation)
+        {
+            BatchOutgoingAsync.call(this, prx.ice_getCommunicator(), operation);
+            this._proxy = prx;
+        },
+        __invoke: function()
+        {
+            Protocol.checkSupportedProtocol(this._proxy.__reference().getProtocol());
+
+            //
+            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+            // requests were queued with the connection, they would be lost without being noticed.
+            //
+            var handler = null;
+            var cnt = -1; // Don't retry.
+            try
+            {
+                handler = this._proxy.__getRequestHandler();
+                var status = handler.sendAsyncRequest(this);
+                if((status & AsyncStatus.Sent) === 0)
+                {
+                    var invocationTimeout = handler.getReference().getInvocationTimeout();
+                    if(invocationTimeout > 0)
+                    {
+                        var self = this;
+                        this._timeoutToken = this._instance.timer().schedule(function() 
+                                                                             { 
+                                                                                 self.__runTimerTask(); 
+                                                                             }, 
+                                                                             invocationTimeout);
+                        this._timeoutRequestHandler = handler;
+                    }
+                }
+            }
+            catch(__ex)
+            {
+                cnt = this._proxy.__handleException(handler, __ex, 0, cnt);
             }
         }
     });
     
-    OutgoingAsync._emptyContext = new HashMap();
-    
+    var GetConnectionOutgoingAsync = Ice.Class(AsyncResult, {
+        __init__: function(proxy)
+        {
+            AsyncResult.call(this, proxy.ice_getCommunicator(), "ice_getConnection", null, proxy, null, null, null);
+        },
+        __send: function(connection, compress, response)
+        {
+            this.succeed(connection, this);
+            return true;
+        },
+        __sent: function()
+        {
+            Debug.assert(false);
+        },
+        __finishedEx: function(exc, sent)
+        {
+            this.__invokeException(exc);
+        }
+    });
+
+    var ConnectionBatchOutgoingAsync = Ice.Class(BatchOutgoingAsync, {
+        __init__: function(con, communicator, operation)
+        {
+            BatchOutgoingAsync.call(this, communicator, operation);
+            this._connection = con;
+        },
+        __invoke: function()
+        {
+            this._connection.flushAsyncBatchRequests(this);
+        }
+    });
+
     Ice.OutgoingAsync = OutgoingAsync;
+    Ice.BatchOutgoingAsync = BatchOutgoingAsync;
+    Ice.ProxyBatchOutgoingAsync = ProxyBatchOutgoingAsync;
+    Ice.ConnectionBatchOutgoingAsync = ConnectionBatchOutgoingAsync;
+    Ice.GetConnectionOutgoingAsync = GetConnectionOutgoingAsync;
+
     global.Ice = Ice;
 }(typeof (global) === "undefined" ? window : global));

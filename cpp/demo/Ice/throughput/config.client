@@ -19,7 +19,7 @@ Ice.Default.Host=localhost
 #
 # Disable client-side ACM.
 #
-Ice.ACM.Client=0
+Ice.ACM.Client.Timeout=0
 
 #
 # SSL Configuration

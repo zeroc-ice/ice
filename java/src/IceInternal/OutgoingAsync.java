@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback
+public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, TimerTask
 {
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb)
     {
@@ -93,57 +93,57 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
     }
 
-    @Override
-    public Ice.ObjectPrx getProxy()
+    @Override public Ice.ObjectPrx 
+    getProxy()
     {
         return _proxy;
     }
 
-    public boolean __sent(final Ice.ConnectionI connection)
+    public int
+    __send(Ice.ConnectionI connection, boolean compress, boolean response)
+        throws LocalExceptionWrapper
+    {
+        return connection.sendAsyncRequest(this, compress, response);
+    }
+
+    public boolean 
+    __sent()
     {
         synchronized(_monitor)
         {
             boolean alreadySent = (_state & Sent) != 0;
             _state |= Sent;
+            
+            assert((_state & Done) == 0);
 
-            if((_state & Done) == 0)
+            if(!_proxy.ice_isTwoway())
             {
-                if(!_proxy.ice_isTwoway())
+                if(_remoteObserver != null)
                 {
-                    if(_remoteObserver != null)
-                    {
-                        _remoteObserver.detach();
-                        _remoteObserver = null;
-                    }
-                    _state |= Done | OK;
-                    _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
                 }
-                else if(connection.timeout() > 0)
+                if(_timeoutRequestHandler != null)
                 {
-                    assert(_timerTaskConnection == null && _timerTask == null);
-                    _timerTaskConnection = connection;
-                    _timerTask = new TimerTask()
-                        {
-                            public void
-                            runTimerTask()
-                            {
-                                __runTimerTask();
-                            }
-                        };
-                    _instance.timer().schedule(_timerTask, connection.timeout());
+                    _instance.timer().cancel(this);
+                    _timeoutRequestHandler = null;
                 }
+                _state |= Done | OK;
+                _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
             }
             _monitor.notifyAll();
             return !alreadySent; // Don't call the sent call is already sent.
         }
     }
 
-    public void __sent()
+    public void 
+    __invokeSent()
     {
-        __sentInternal();
+        __invokeSentInternal();
     }
 
-    public void __finished(Ice.LocalException exc, boolean sent)
+    public void 
+    __finished(Ice.LocalException exc, boolean sent)
     {
         synchronized(_monitor)
         {
@@ -154,11 +154,10 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 _remoteObserver.detach();
                 _remoteObserver = null;
             }
-            if(_timerTaskConnection != null)
+            if(_timeoutRequestHandler != null)
             {
-                _instance.timer().cancel(_timerTask);
-                _timerTaskConnection = null;
-                _timerTask = null;
+                _instance.timer().cancel(this);
+                _timeoutRequestHandler = null;
             }
         }
 
@@ -176,16 +175,17 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             }
             else
             {
-                __send(false);
+                __invoke(false);
             }
         }
         catch(Ice.LocalException ex)
         {
-            __exception(ex);
+            __invokeException(ex);
         }
     }
 
-    public final void __finished(LocalExceptionWrapper exc)
+    public final void 
+    __finished(LocalExceptionWrapper exc)
     {
         //
         // NOTE: at this point, synchronization isn't needed, no other threads should be
@@ -199,7 +199,9 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             _remoteObserver.detach();
             _remoteObserver = null;
         }
-        
+
+        assert(_timeoutRequestHandler == null);
+
         try
         {
             int interval = handleException(exc); // This will throw if the invocation can't be retried.
@@ -209,16 +211,17 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             }
             else
             {
-                __send(false);
+                __invoke(false);
             }
         }
         catch(Ice.LocalException ex)
         {
-            __exception(ex);
+            __invokeException(ex);
         }
     }
 
-    public final void __finished(BasicStream is)
+    public final void
+    __finished(BasicStream is)
     {
         assert(_proxy.ice_isTwoway()); // Can only be called for twoways.
 
@@ -235,11 +238,10 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                     _remoteObserver = null;
                 }
 
-                if(_timerTaskConnection != null)
+                if(_timeoutRequestHandler != null)
                 {
-                    _instance.timer().cancel(_timerTask);
-                    _timerTaskConnection = null;
-                    _timerTask = null;
+                    _instance.timer().cancel(this);
+                    _timeoutRequestHandler = null;
                 }
 
                 if(_is == null) // _is can already be initialized if the invocation is retried
@@ -386,10 +388,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
 
         assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
-        __response();
+        __invokeCompleted();
     }
 
-    public final boolean __send(boolean synchronous)
+    public final boolean 
+    __invoke(boolean synchronous)
     {
         while(true)
         {
@@ -397,7 +400,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             try
             {
                 _delegate = _proxy.__getDelegate(true);
-                int status = _delegate.__getRequestHandler().sendAsyncRequest(this);
+                RequestHandler handler = _delegate.__getRequestHandler();
+                int status = handler.sendAsyncRequest(this);
                 if((status & AsyncStatus.Sent) > 0)
                 {
                     if(synchronous)
@@ -405,14 +409,30 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                         _sentSynchronously = true;
                         if((status & AsyncStatus.InvokeSentCallback) > 0)
                         {
-                            __sent(); // Call from the user thread.
+                            __invokeSent(); // Call from the user thread.
                         }
                     }
                     else
                     {
                         if((status & AsyncStatus.InvokeSentCallback) > 0)
                         {
-                            __sentAsync(); // Call from a client thread pool thread.
+                            __invokeSentAsync(); // Call from a client thread pool thread.
+                        }
+                    }
+                }
+
+                if(_proxy.ice_isTwoway() || (status & AsyncStatus.Sent) == 0)
+                {
+                    synchronized(_monitor)
+                    {
+                        if((_state & Done) == 0)
+                        {
+                            int invocationTimeout = handler.getReference().getInvocationTimeout();
+                            if(invocationTimeout > 0)
+                            {
+                                _instance.timer().schedule(this, invocationTimeout);
+                                _timeoutRequestHandler = handler;
+                            }
                         }
                     }
                 }
@@ -468,7 +488,14 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
     }
 
-    private int handleException(Ice.LocalException exc, boolean sent)
+    public void 
+    runTimerTask()
+    {
+        __runTimerTask();
+    }
+
+    private int 
+    handleException(Ice.LocalException exc, boolean sent)
     {
         Ice.IntHolder interval = new Ice.IntHolder(0);
         try
@@ -515,7 +542,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         return interval.value;
     }
 
-    private int handleException(LocalExceptionWrapper ex)
+    private int 
+    handleException(LocalExceptionWrapper ex)
     {
         Ice.IntHolder interval = new Ice.IntHolder(0);
         if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
@@ -529,26 +557,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         return interval.value;
     }
 
-    private final void __runTimerTask()
-    {
-        Ice.ConnectionI connection;
-        synchronized(_monitor)
-        {
-            connection = _timerTaskConnection;
-            _timerTaskConnection = null;
-            _timerTask = null;
-        }
-
-        if(connection != null)
-        {
-            connection.exception(new Ice.TimeoutException());
-        }
-    }
-
     protected Ice.ObjectPrxHelperBase _proxy;
-
-    private Ice.ConnectionI _timerTaskConnection;
-    private TimerTask _timerTask;
 
     private Ice._ObjectDel _delegate;
     private Ice.EncodingVersion _encoding;

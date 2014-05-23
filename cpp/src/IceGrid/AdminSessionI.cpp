@@ -77,7 +77,7 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
 
     string category;
 
-    if(con != 0)
+    if(con)
     {
         category = _database->getInstanceName() + "-" + IceUtil::generateUUID();
      
@@ -86,9 +86,11 @@ AdminSessionI::_register(const SessionServantManagerPtr& servantManager, const I
         templateId.category = category;
         
         _adminCallbackTemplate = _registry->createAdminCallbackProxy(templateId);
+
+        setConnectionCallback(con);
     }
 
-    Ice::ObjectPrx session =  _servantManager->addSession(this, con, category);
+    Ice::ObjectPrx session = _servantManager->addSession(this, con, category);
 
     _admin = AdminPrx::uncheckedCast(_servantManager->add(new AdminI(_database, _registry, this), this));
 

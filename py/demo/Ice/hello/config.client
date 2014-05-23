@@ -2,7 +2,17 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:ws -h localhost -p 10002:udp -h localhost -p 10000:wss -h localhost -p 10003
+Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
+
+#
+# Uncomment to use the WebSocket transports instead.
+#
+#Hello.Proxy=hello:ws -p 10002:udp -p 10000:wss -p 10003
+
+#
+# Only connect to the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Warn about connection exceptions
@@ -39,7 +49,7 @@ Ice.Warn.Connections=1
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
-IceSSL.DefaultDir=../../../../certs/wss
+IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=c_rsa1024_pub.pem
 IceSSL.KeyFile=c_rsa1024_priv.pem

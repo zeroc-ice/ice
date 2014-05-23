@@ -113,6 +113,7 @@ public:
     virtual void refreshSession(const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
+    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
 
     virtual void updateSessionObservers();
 
@@ -123,6 +124,7 @@ public:
 
     void expireSessions();
 
+    void refreshSession(const ::Ice::ConnectionPtr&);
     void destroySession(const ::Ice::ConnectionPtr&);
 
     int sessionTraceLevel() const { return _sessionTraceLevel; }
@@ -147,7 +149,9 @@ private:
     const SessionManagerPrx _sessionManager;
     const SSLPermissionsVerifierPrx _sslVerifier;
     const SSLSessionManagerPrx _sslSessionManager;
-    const IceUtil::Time _sessionTimeout;
+
+    IceUtil::Time _sessionTimeout;
+    Ice::ConnectionCallbackPtr _connectionCallback;
 
     class SessionThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
     {

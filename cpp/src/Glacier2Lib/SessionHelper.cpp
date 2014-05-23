@@ -674,6 +674,30 @@ private:
     const Glacier2::SessionHelperPtr _session;
 };
 
+class ConnectionCallbackI : public Ice::ConnectionCallback
+{
+public:
+
+    ConnectionCallbackI(const SessionHelperIPtr& sessionHelper) : _sessionHelper(sessionHelper)
+    {
+    }
+
+    virtual void
+    heartbeat(const Ice::ConnectionPtr&)
+    {
+    }
+
+    virtual void 
+    closed(const Ice::ConnectionPtr&)
+    {
+        _sessionHelper->destroy();
+    }
+    
+private:
+
+    SessionHelperIPtr _sessionHelper;
+};
+
 }
 
 void
@@ -685,8 +709,16 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
     assert(router);
     Ice::ConnectionPtr conn = router->ice_getCachedConnection();
     string category = router->getCategoryForClient();
-    Ice::Long timeout = router->getSessionTimeout();
-    
+    Ice::Long sessionTimeout = router->getSessionTimeout();
+    int acmTimeout = 0;
+    try
+    {
+        acmTimeout = router->getACMTimeout();
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+
     {
         IceUtil::Mutex::Lock sync(_mutex);
         _router = router;
@@ -715,9 +747,16 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
 
         assert(!_refreshThread);
         
-        if(timeout > 0)
+        if(acmTimeout > 0)
         {
-            _refreshThread = new SessionRefreshThread(this, _router, (timeout)/2);
+            Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
+            assert(connection);
+            connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
+            connection->setCallback(new ConnectionCallbackI(this));
+        }
+        else if(sessionTimeout > 0)
+        {
+            _refreshThread = new SessionRefreshThread(this, _router, (sessionTimeout)/2);
             _refreshThread->start();
         }
     }
@@ -1013,6 +1052,5 @@ void
 Glacier2::SessionFactoryHelper::setDefaultProperties()
 {
     assert(_initData.properties);
-    _initData.properties->setProperty("Ice.ACM.Client", "0");
     _initData.properties->setProperty("Ice.RetryIntervals", "-1");
 }

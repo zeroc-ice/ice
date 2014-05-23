@@ -18,7 +18,7 @@ public class ConnectionBatchOutgoingAsync extends BatchOutgoingAsync
         _connection = con;
     }
 
-    public void __send()
+    public void __invoke()
     {
         int status = _connection.flushAsyncBatchRequests(this);
         if((status & AsyncStatus.Sent) > 0)
@@ -26,7 +26,7 @@ public class ConnectionBatchOutgoingAsync extends BatchOutgoingAsync
             _sentSynchronously = true;
             if((status & AsyncStatus.InvokeSentCallback) > 0)
             {
-                __sent();
+                __invokeSent();
             }
         }
     }

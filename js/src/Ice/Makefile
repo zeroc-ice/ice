@@ -39,18 +39,15 @@ GEN_SRCS = $(patsubst $(SDIR)/%.ice, %.js, $(SLICES))
 COMMON_SRCS = \
 	Address.js \
 	ArrayUtil.js \
+	ACM.js \
 	AsyncResultBase.js \
 	AsyncResult.js \
 	AsyncStatus.js \
 	Base64.js \
 	BasicStream.js \
-	BatchOutgoingAsync.js \
 	Class.js \
 	Communicator.js \
-	ConnectionBatchOutgoingAsync.js \
 	ConnectionI.js \
-	ConnectionMonitor.js \
-	ConnectionReaper.js \
 	ConnectionRequestHandler.js \
 	ConnectRequestHandler.js \
 	DefaultsAndOverrides.js \
@@ -90,7 +87,6 @@ COMMON_SRCS = \
 	Property.js \
 	PropertyNames.js \
 	Protocol.js \
-	ProxyBatchOutgoingAsync.js \
 	ProxyFactory.js \
 	Reference.js \
 	ReferenceMode.js \

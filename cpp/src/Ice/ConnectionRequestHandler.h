@@ -28,11 +28,11 @@ public:
     virtual void finishBatchRequest(BasicStream*);
     virtual void abortBatchRequest();
 
-    virtual Ice::ConnectionI* sendRequest(Outgoing*);
-    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncPtr&);
+    virtual bool sendRequest(OutgoingMessageCallback*);
+    virtual AsyncStatus sendAsyncRequest(const OutgoingAsyncMessageCallbackPtr&);
 
-    virtual bool flushBatchRequests(BatchOutgoing*);
-    virtual AsyncStatus flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&);
+    virtual void requestTimedOut(OutgoingMessageCallback*);
+    virtual void asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr&);
 
     virtual Ice::ConnectionIPtr getConnection(bool);
 

@@ -479,6 +479,13 @@ Ice::ConnectionTimeoutException::ice_print(ostream& out) const
 }
 
 void
+Ice::InvocationTimeoutException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\ninvocation has timed out";
+}
+
+void
 Ice::ProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

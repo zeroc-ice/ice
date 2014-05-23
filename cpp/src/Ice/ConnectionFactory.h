@@ -26,6 +26,7 @@
 #include <Ice/EventHandler.h>
 #include <Ice/EndpointI.h>
 #include <Ice/InstrumentationF.h>
+#include <Ice/ACMF.h>
 
 #include <list>
 #include <set>
@@ -148,7 +149,7 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     const InstancePtr _instance;
-    const ConnectionReaperPtr _reaper;
+    const FactoryACMMonitorPtr _monitor;
     bool _destroyed;
 
     std::multimap<ConnectorPtr, Ice::ConnectionIPtr> _connections;
@@ -213,7 +214,7 @@ private:
     void setState(State);
 
     const InstancePtr _instance;
-    const ConnectionReaperPtr _reaper;
+    const FactoryACMMonitorPtr _monitor;
 
     const AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;

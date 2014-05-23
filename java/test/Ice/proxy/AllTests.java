@@ -350,6 +350,13 @@ public class AllTests
         test(!b1.ice_isConnectionCached());
         prop.setProperty(property, "");
 
+        property = propertyPrefix + ".InvocationTimeout";
+        test(b1.ice_getInvocationTimeout() == -1);
+        prop.setProperty(property, "1000");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getInvocationTimeout() == 1000);
+        prop.setProperty(property, "");
+
         property = propertyPrefix + ".EndpointSelection";
         test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
         prop.setProperty(property, "Random");
@@ -393,6 +400,7 @@ public class AllTests
         b1 = b1.ice_preferSecure(false);
         b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         b1 = b1.ice_locatorCacheTimeout(100);
+        b1 = b1.ice_invocationTimeout(1234);
         b1 = b1.ice_encodingVersion(new Ice.EncodingVersion((byte)1, (byte)0));
 
         Ice.ObjectPrx router = communicator.stringToProxy("router");
@@ -401,6 +409,7 @@ public class AllTests
         router = router.ice_preferSecure(true);
         router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
         router = router.ice_locatorCacheTimeout(200);
+        router = router.ice_invocationTimeout(1500);
 
         Ice.ObjectPrx locator = communicator.stringToProxy("locator");
         locator = locator.ice_collocationOptimized(true);
@@ -408,12 +417,13 @@ public class AllTests
         locator = locator.ice_preferSecure(true);
         locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
         locator = locator.ice_locatorCacheTimeout(300);
+        locator = locator.ice_invocationTimeout(1500);
 
         locator = locator.ice_router(Ice.RouterPrxHelper.uncheckedCast(router));
         b1 = b1.ice_locator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 
         java.util.Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
-        test(proxyProps.size() == 18);
+        test(proxyProps.size() == 21);
 
         test(proxyProps.get("Test").equals("test -t -e 1.0"));
         test(proxyProps.get("Test.CollocationOptimized").equals("1"));
@@ -421,6 +431,7 @@ public class AllTests
         test(proxyProps.get("Test.PreferSecure").equals("0"));
         test(proxyProps.get("Test.EndpointSelection").equals("Ordered"));
         test(proxyProps.get("Test.LocatorCacheTimeout").equals("100"));
+        test(proxyProps.get("Test.InvocationTimeout").equals("1234"));
 
         test(proxyProps.get("Test.Locator").equals(
                  "locator -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding())));
@@ -430,6 +441,7 @@ public class AllTests
         test(proxyProps.get("Test.Locator.PreferSecure").equals("1"));
         test(proxyProps.get("Test.Locator.EndpointSelection").equals("Random"));
         test(proxyProps.get("Test.Locator.LocatorCacheTimeout").equals("300"));
+        test(proxyProps.get("Test.Locator.InvocationTimeout").equals("1500"));
 
         test(proxyProps.get("Test.Locator.Router").equals(
                  "router -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding())));
@@ -438,6 +450,7 @@ public class AllTests
         test(proxyProps.get("Test.Locator.Router.PreferSecure").equals("1"));
         test(proxyProps.get("Test.Locator.Router.EndpointSelection").equals("Random"));
         test(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout").equals("200"));
+        test(proxyProps.get("Test.Locator.Router.InvocationTimeout").equals("1500"));
 
         out.println("ok");
 
@@ -502,7 +515,6 @@ public class AllTests
         test(compObj.ice_connectionId("id1").ice_getConnectionId().equals("id1"));
         test(compObj.ice_connectionId("id2").ice_getConnectionId().equals("id2"));
 
-
         test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
 
@@ -548,6 +560,9 @@ public class AllTests
 
         test(compObj1.ice_locatorCacheTimeout(20).equals(compObj1.ice_locatorCacheTimeout(20)));
         test(!compObj1.ice_locatorCacheTimeout(10).equals(compObj1.ice_locatorCacheTimeout(20)));
+
+        test(compObj1.ice_invocationTimeout(20).equals(compObj1.ice_invocationTimeout(20)));
+        test(!compObj1.ice_invocationTimeout(10).equals(compObj1.ice_invocationTimeout(20)));
 
         compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
         compObj2 = communicator.stringToProxy("foo@MyAdapter1");

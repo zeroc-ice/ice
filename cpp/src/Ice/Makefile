@@ -15,6 +15,7 @@ LIBNAME		= $(call mklibname,Ice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= Acceptor.o \
+		  ACM.o \
 		  Application.o \
                   Base64.o \
 		  Buffer.o \
@@ -25,7 +26,6 @@ OBJS		= Acceptor.o \
 		  ConnectRequestHandler.o \
 		  ConnectionFactory.o \
 		  ConnectionI.o \
-		  ConnectionMonitor.o \
 		  Connection.o \
 		  ConnectionRequestHandler.o \
 		  Connector.o \

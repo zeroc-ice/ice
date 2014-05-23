@@ -48,7 +48,7 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             }
 
             public boolean 
-            __sent(Ice.ConnectionI con)
+            __sent()
             {
                 if(_remoteObserver != null)
                 {
@@ -130,11 +130,11 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
         //
         if(!_sentSynchronously || !userThread)
         {
-            __sentAsync();
+            __invokeSentAsync();
         }
         else
         {
-            __sentInternal();
+            __invokeSentInternal();
         }
     }
 

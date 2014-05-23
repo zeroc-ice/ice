@@ -33,8 +33,8 @@ var communicator;
 Ice.Promise.try(
     function() 
     {
-        communicator = Ice.initialize();
-        var proxy = communicator.stringToProxy("hello:default -p 10000").ice_twoway().ice_timeout(-1).ice_secure(false);
+        communicator = Ice.initialize(process.argv);
+        var proxy = communicator.stringToProxy("hello:default -p 10000").ice_twoway().ice_secure(false);
         var secure = false;
         var timeout = -1;
         var delay = 0;
@@ -83,9 +83,9 @@ Ice.Promise.try(
                             timeout = -1;
                         }
 
-                        twoway = twoway.ice_timeout(timeout);
-                        oneway = oneway.ice_timeout(timeout);
-                        batchOneway = batchOneway.ice_timeout(timeout);
+                        twoway = twoway.ice_invocationTimeout(timeout);
+                        oneway = oneway.ice_invocationTimeout(timeout);
+                        batchOneway = batchOneway.ice_invocationTimeout(timeout);
 
                         if(timeout == -1)
                         {

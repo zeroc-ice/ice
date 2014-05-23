@@ -30,67 +30,6 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
     communicator->propertySet.properties.push_back(prop);
 }
 
-class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SessionKeepAliveThread(const Ice::LoggerPtr& logger, const IceUtil::Time& timeout) :
-        _logger(logger),
-        _timeout(timeout),
-        _terminated(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        Lock sync(*this);
-        while(!_terminated)
-        {
-            timedWait(_timeout);
-            if(!_terminated)
-            {
-                vector<AdminSessionPrx>::iterator p = _sessions.begin();
-                while(p != _sessions.end())
-                {
-                    try
-                    {
-                        (*p)->keepAlive();
-                        ++p;
-                    }
-                    catch(const Ice::Exception&)
-                    {
-                        p = _sessions.erase(p);
-                    }
-                }
-            }
-        }
-    }
-
-    void 
-    add(const AdminSessionPrx& session)
-    {
-        Lock sync(*this);
-        _sessions.push_back(session);
-    }
-
-    void
-    terminate()
-    {
-        Lock sync(*this);
-        _terminated = true;
-        notify();
-    }
-
-private:
-
-    const Ice::LoggerPtr _logger;
-    vector<AdminSessionPrx> _sessions;
-    const IceUtil::Time _timeout;
-    bool _terminated;
-};
-typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
-
 class ObserverBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -552,17 +491,13 @@ testFailedAndPrintObservers(const char* expr, const char* file, unsigned int lin
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(
-        communicator->getLogger(), IceUtil::Time::seconds(5));
-    keepAlive->start();
-
     bool encoding10 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
 
     RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
     test(registry);
 
     AdminSessionPrx session = registry->createAdminSession("admin3", "test3");
-    keepAlive->add(session);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -1234,8 +1169,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
         AdminSessionPrx session2 = registry->createAdminSession("admin2", "test2");
         
-        keepAlive->add(session1);
-        keepAlive->add(session2);       
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
+        session2->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
 
         AdminPrx admin1 = session1->getAdmin();
         AdminPrx admin2 = session2->getAdmin();
@@ -1460,7 +1395,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
         AdminPrx admin1 = session1->getAdmin();
 
-        keepAlive->add(session1);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
         
         Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
         ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.2");
@@ -1556,7 +1491,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
         AdminPrx admin1 = session1->getAdmin();
 
-        keepAlive->add(session1);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
         
         Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
         AdapterObserverIPtr adptObs1 = new AdapterObserverI("adptObs1");
@@ -1640,7 +1575,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         AdminSessionPrx session1 = AdminSessionPrx::uncheckedCast(registry->createAdminSession("admin1", "test1"));
         AdminPrx admin1 = session1->getAdmin();
 
-        keepAlive->add(session1);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
         
         Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
         ObjectObserverIPtr objectObs1 = new ObjectObserverI("objectObs1");
@@ -1798,7 +1733,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "testing node observer... " << flush;
         AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
         
-        keepAlive->add(session1);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
         
         Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
         ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.3");
@@ -1947,7 +1882,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "testing registry observer... " << flush;
         AdminSessionPrx session1 = registry->createAdminSession("admin1", "test1");
         
-        keepAlive->add(session1);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatOnIdle);
         
         Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("");
         ApplicationObserverIPtr appObs1 = new ApplicationObserverI("appObs1.4");
@@ -1993,10 +1928,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "shutting down router... " << flush;
     admin->stopServer("Glacier2");
     cout << "ok" << endl;
-
-    keepAlive->terminate();
-    keepAlive->getThreadControl().join();
-    keepAlive = 0;
 
     session->destroy();
 }

@@ -16,6 +16,7 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/UniquePtr.h>
 #include <Ice/OutgoingAsyncF.h>
+#include <Ice/RequestHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/CommunicatorF.h>
@@ -39,7 +40,7 @@ typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
 namespace Ice
 {
 
-class ICE_API AsyncResult : virtual public IceUtil::Shared, private IceUtil::noncopyable
+class ICE_API AsyncResult : virtual public IceUtil::Shared, protected IceUtil::TimerTask, private IceUtil::noncopyable
 {
 public:
 
@@ -112,14 +113,14 @@ public:
 
     bool __wait();
     void __throwUserException();
-    void __exceptionAsync(const Exception&);
+    void __invokeExceptionAsync(const Exception&);
 
     static void __check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
-    virtual void __exception(const Exception&); // Required to be public for AsynchronousException
-    void __sent(); // Required to be public for AsynchronousSent
+    virtual void __invokeException(const Exception&); // Required to be public for AsynchronousException
+    void __invokeSent(); // Required to be public for AsynchronousSent
 
     virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, 
                                         Ice::Int requestId, Ice::Int sz)
@@ -139,8 +140,10 @@ protected:
     AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
                 const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
-    void __sentAsync();
-    void __response();
+    void __invokeSentAsync();
+    void __invokeCompleted();
+
+    void runTimerTask(); // Implementation of TimerTask::runTimerTask()
 
     void __warning(const std::exception&) const;
     void __warning() const;
@@ -156,6 +159,8 @@ protected:
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     IceInternal::BasicStream _is;
     IceInternal::BasicStream _os;
+
+    IceInternal::RequestHandlerPtr _timeoutRequestHandler;
 
     static const unsigned char OK;
     static const unsigned char Done;
@@ -194,18 +199,23 @@ public:
     }
 
     //
+    // Called by the request handler to send the request over the connection.
+    //
+    virtual IceInternal::AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool) = 0;
+
+    //
     // Called by the connection when the message is confirmed sent. The connection is locked
     // when this is called so this method can call the sent callback. Instead, this method
     // returns true if there's a sent callback and false otherwise. If true is returned, the
-    // connection will call the __sent() method bellow (which in turn should call the sent
-    // callback).
+    // connection will call the __invokeSentCallback() method bellow (which in turn should 
+    // call the sent callback).
     //
-    virtual bool __sent(Ice::ConnectionI*) = 0;
+    virtual bool __sent() = 0;
 
     //
     // Called by the connection to call the user sent callback.
     //
-    virtual void __sent() = 0;
+    virtual void __invokeSent() = 0;
 
     //
     // Called by the connection when the request failed. The boolean indicates whether or
@@ -215,7 +225,7 @@ public:
     virtual void __finished(const Ice::LocalException&, bool) = 0;
 };
 
-class ICE_API OutgoingAsync : public OutgoingAsyncMessageCallback, public Ice::AsyncResult, private IceUtil::TimerTask
+class ICE_API OutgoingAsync : public OutgoingAsyncMessageCallback, public Ice::AsyncResult
 {
 public:
 
@@ -229,14 +239,14 @@ public:
         return _proxy;
     }
 
-    virtual bool __sent(Ice::ConnectionI*);
-    virtual void __sent();
+    virtual IceInternal::AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual bool __sent();
+    virtual void __invokeSent();
     virtual void __finished(const Ice::LocalException&, bool);
 
     void __finished(const LocalExceptionWrapper&);
     void __finished();
-
-    bool __send(bool);
+    bool __invoke(bool);
 
     BasicStream* __startWriteParams(Ice::FormatType format)
     {
@@ -278,9 +288,6 @@ private:
     int handleException(const Ice::LocalException&, bool);
     int handleException(const LocalExceptionWrapper&);
 
-    void runTimerTask(); // Implementation of TimerTask::runTimerTask()
-    Ice::ConnectionIPtr _timerTaskConnection;
-
     Handle< IceDelegate::Ice::Object> _delegate;
     Ice::EncodingVersion _encoding;
     int _cnt;
@@ -294,8 +301,9 @@ public:
     BatchOutgoingAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&, const CallbackBasePtr&,
                        const Ice::LocalObjectPtr&);
 
-    virtual bool __sent(Ice::ConnectionI*);
-    virtual void __sent();
+    virtual IceInternal::AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual bool __sent();
+    virtual void __invokeSent();
     virtual void __finished(const Ice::LocalException&, bool);
 };
 
@@ -306,7 +314,7 @@ public:
     ProxyBatchOutgoingAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&,
                             const Ice::LocalObjectPtr&);
 
-    void __send();
+    void __invoke();
 
     virtual Ice::ObjectPrx
     getProxy() const
@@ -326,7 +334,7 @@ public:
     ConnectionBatchOutgoingAsync(const Ice::ConnectionIPtr&, const Ice::CommunicatorPtr&, const InstancePtr&,
                                  const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
-    void __send();
+    void __invoke();
 
     virtual Ice::ConnectionPtr getConnection() const;
 

@@ -103,6 +103,30 @@ private:
 };
 typedef IceUtil::Handle<SessionPingThreadI> SessionPingThreadIPtr;
 
+class ConnectionCallbackI : public Ice::ConnectionCallback
+{
+public:
+
+    ConnectionCallbackI(Glacier2::Application* app) : _app(app)
+    {
+    }
+
+    virtual void
+    heartbeat(const Ice::ConnectionPtr&)
+    {
+    }
+
+    virtual void 
+    closed(const Ice::ConnectionPtr&)
+    {
+        _app->sessionDestroyed();
+    }
+    
+private:
+
+    Glacier2::Application* _app;
+};
+    
 }
 
 string
@@ -171,7 +195,6 @@ int
 Glacier2::Application::doMain(int argc, char* argv[], const Ice::InitializationData& initData)
 {
     // Set the default properties for all Glacier2 applications.
-    initData.properties->setProperty("Ice.ACM.Client", "0");
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
 
     bool restart;
@@ -244,12 +267,31 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
 
             if(_createdSession)
             {
-                IceUtil::Int64 timeout = _router->getSessionTimeout();
-                if(timeout > 0)
-                {
-                    ping = new SessionPingThreadI(this, _router, (timeout * 1000) / 2);
-                    ping->start();
+                int acmTimeout = 0;
+                try
+                { 
+                    acmTimeout = _router->getACMTimeout();
                 }
+                catch(const Ice::OperationNotExistException&)
+                {
+                }
+                if(acmTimeout > 0)
+                {
+                    Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
+                    assert(connection);
+                    connection->setACM(acmTimeout, IceUtil::None, Ice::HeartbeatAlways);
+                    connection->setCallback(new ConnectionCallbackI(this));
+                }
+                else
+                {
+                    IceUtil::Int64 sessionTimeout = _router->getSessionTimeout();
+                    if(sessionTimeout > 0)
+                    {
+                        ping = new SessionPingThreadI(this, _router, (sessionTimeout * 1000) / 2);
+                        ping->start();
+                    }
+                }
+
                 _category = _router->getCategoryForClient();
                 IceUtilInternal::ArgVector a(args);
                 status = runWithSession(a.argc, a.argv);

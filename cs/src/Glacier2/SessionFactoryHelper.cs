@@ -338,7 +338,6 @@ public class SessionFactoryHelper
     private void
     setDefaultProperties()
     {
-        _initData.properties.setProperty("Ice.ACM.Client", "0");
         _initData.properties.setProperty("Ice.RetryIntervals", "-1");
     }
 

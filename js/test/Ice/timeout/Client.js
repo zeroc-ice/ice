@@ -59,8 +59,8 @@
                 timeout = obj;
                 test(timeout !== null);
                 out.write("testing connect timeout... ");
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500 * mult));
-                return to.holdAdapter(2000 * mult);
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
+                return to.holdAdapter(750 * mult);
             }
         ).then(
             function()
@@ -90,7 +90,7 @@
         ).then(
             function()
             {
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(2000 * mult));
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000 * mult));
                 return to.holdAdapter(500 * mult);
             }
         ).then(
@@ -115,38 +115,14 @@
             function()
             {
                 out.writeLine("ok");
-                out.write("testing read timeout... ");
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500 * mult));
-                //
-                // Expect TimeoutException.
-                //
-                return to.sleep(750 * mult);
-            }
-        ).then(
-            failCB,
-            function(ex)
-            {
-                test(ex instanceof Ice.TimeoutException);
-                return timeout.op(); // Ensure adapter is active.
+                out.write("testing connection timeout... ");
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
+                return to.holdAdapter(750 * mult);
             }
         ).then(
             function()
             {
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1500 * mult));
-                return to.sleep(500 * mult);
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing write timeout... ");
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500 * mult));
-                return to.holdAdapter(2000 * mult);
-            }
-        ).then(
-            function()
-            {
-                var seq = Ice.Buffer.createNative(new Array(100000));
+                var seq = Ice.Buffer.createNative(new Array(1000000));
                 for(var i = 0; i < seq.length; ++i)
                 {
                     seq[i] = 0;
@@ -190,6 +166,40 @@
                 // Expect success.
                 //
                 return to.sendData(seq);
+            }
+        ).then(
+            function()
+            {
+                out.writeLine("ok");
+
+                out.write("testing invocation timeout... ");
+                return obj.ice_getConnection();
+            }
+        ).then(
+            function(con)
+            {
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250));
+                return to.ice_getConnection();
+            }
+        ).then(
+            function(con)
+            {
+                test(to.ice_getCachedConnection() === obj.ice_getCachedConnection());
+                return to.sleep(500);
+            }
+        ).then(
+            failCB,
+            function(ex)
+            {
+                test(ex instanceof Ice.InvocationTimeoutException);
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500));
+                return to.ice_getConnection();
+            }
+        ).then(
+            function(con)
+            {
+                test(to.ice_getCachedConnection() === obj.ice_getCachedConnection());
+                return to.sleep(250);
             }
         ).then(
             function()
@@ -249,7 +259,7 @@
                 initData.properties = communicator.getProperties().clone();
                 if(mult === 1)
                 {
-                    initData.properties.setProperty("Ice.Override.Timeout", "500");
+                    initData.properties.setProperty("Ice.Override.Timeout", "250");
                 }
                 else
                 {
@@ -262,7 +272,20 @@
             function(obj)
             {
                 to = obj;
-                return to.sleep(750 * mult);
+                return to.holdAdapter(750 * mult);
+            }
+        ).then(
+            function()
+            {
+                var seq = Ice.Buffer.createNative(new Array(1000000));
+                for(var i = 0; i < seq.length; ++i)
+                {
+                    seq[i] = 0;
+                }
+                //
+                // Expect TimeoutException.
+                //
+                return to.sendData(seq);
             }
         ).then(
             failCB,
@@ -283,7 +306,20 @@
             function(obj)
             {
                 to = obj;
-                return to.sleep(750 * mult);
+                return to.holdAdapter(750 * mult);
+            }
+        ).then(
+            function()
+            {
+                var seq = Ice.Buffer.createNative(new Array(1000000));
+                for(var i = 0; i < seq.length; ++i)
+                {
+                    seq[i] = 0;
+                }
+                //
+                // Expect TimeoutException.
+                //
+                return to.sendData(seq);
             }
         ).then(
             failCB,
@@ -302,7 +338,7 @@
                 initData.properties = communicator.getProperties().clone();
                 if(mult === 1)
                 {
-                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
+                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
                 }
                 else
                 {
@@ -310,7 +346,7 @@
                 }
                 comm = Ice.initialize(initData);
                 to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
-                return timeout.holdAdapter(3000 * mult);
+                return timeout.holdAdapter(750 * mult);
             }
         ).then(
             function()
@@ -327,7 +363,7 @@
         ).then(
             function()
             {
-                return timeout.holdAdapter(3000 * mult);
+                return timeout.holdAdapter(750 * mult);
             }
         ).then(
             function()
@@ -335,7 +371,7 @@
                 //
                 // Calling ice_timeout() should have no effect on the connect timeout.
                 //
-                to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(3500 * mult));
+                to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
                 return to.op();
             }
         ).then(
@@ -351,9 +387,23 @@
                 return to.op(); // Force connection.
             }
         ).then(
+            function(obj)
+            {
+                return timeout.holdAdapter(750 * mult);
+            }
+        ).then(
             function()
             {
-                return to.sleep(4000 * mult);
+                to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250 * mult));
+                var seq = Ice.Buffer.createNative(new Array(1000000));
+                for(var i = 0; i < seq.length; ++i)
+                {
+                    seq[i] = 0;
+                }
+                //
+                // Expect TimeoutException.
+                //
+                return to.sendData(seq);
             }
         ).then(
             failCB,

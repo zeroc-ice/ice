@@ -13,6 +13,7 @@ TARGETS		= $(LIBNAME)
 SOURCE_DIR	= ..
 
 OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
+		  $(ARCH)\$(CONFIG)\ACM.obj \
                   $(ARCH)\$(CONFIG)\Base64.obj \
 		  $(ARCH)\$(CONFIG)\Buffer.obj \
 		  $(ARCH)\$(CONFIG)\BasicStream.obj \
@@ -22,7 +23,6 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ConnectRequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionFactory.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionI.obj \
-		  $(ARCH)\$(CONFIG)\ConnectionMonitor.obj \
 		  $(ARCH)\$(CONFIG)\Connection.obj \
 		  $(ARCH)\$(CONFIG)\Connector.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj \

@@ -2,18 +2,30 @@
 # The client reads this property to create the reference to the
 # "Throughput" object in the server.
 #
-Throughput.Proxy=throughput:ws -p 10002 -h localhost:wss -p 10003 -h localhost
+Throughput.Proxy=throughput:tcp -p 10000
+#Throughput.Proxy=throughput:ssl -p 10001
+
+#
+# Uncomment to use the WebSocket transports instead.
+#
+#Throughput.Proxy=throughput:ws -p 10002
+#Throughput.Proxy=throughput:wss -p 10003
+
+#
+# Only connect to the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Disable client-side ACM.
 #
-Ice.ACM.Client=0
+Ice.ACM.Client.Timeout=0
 
 #
 # SSL Configuration
 #
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
-IceSSL.DefaultDir=../../../../certs/wss
+IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=c_rsa1024_pub.pem
 IceSSL.KeyFile=c_rsa1024_priv.pem

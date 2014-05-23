@@ -242,6 +242,14 @@
                 throw ex;
             }
 
+            //
+            // Don't retry invocation timeouts.
+            //
+            if(ex instanceof Ice.InvocationTimeoutException)
+            {
+                throw ex;
+            }
+
             ++cnt;
             Debug.assert(cnt > 0);
 

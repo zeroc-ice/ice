@@ -99,18 +99,23 @@ namespace IceInternal
     public interface OutgoingAsyncMessageCallback
     {
         //
+        // Called by the request handler to send the request over the connection.
+        //
+        bool send__(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback sentCallback);
+
+        //
         // Called by the connection when the message is confirmed sent. The connection is locked
         // when this is called so this method can call the sent callback. Instead, this method
         // returns true if there's a sent callback and false otherwise. If true is returned, the
         // connection will call the __sent() method bellow (which in turn should call the sent
         // callback).
         //
-        Ice.AsyncCallback sent__(Ice.ConnectionI connection);
+        Ice.AsyncCallback sent__();
 
         //
         // Called by the connection to call the user sent callback.
         //
-        void sent__(Ice.AsyncCallback cb);
+        void invokeSent__(Ice.AsyncCallback cb);
 
         //
         // Called by the connection when the request failed. The boolean indicates whether or
@@ -213,7 +218,7 @@ namespace IceInternal
 
         public bool sentSynchronously()
         {
-            return sentSynchronously_; // No lock needed, immutable once send__() is called
+            return sentSynchronously_; // No lock needed, immutable once invoke__() is called
         }
 
         //
@@ -509,7 +514,7 @@ namespace IceInternal
             }
         }
 
-        public void exceptionAsync__(Ice.Exception ex)
+        public void invokeExceptionAsync__(Ice.Exception ex)
         {
             //
             // This is called when it's not safe to call the exception callback synchronously
@@ -520,7 +525,7 @@ namespace IceInternal
             {
                 instance_.clientThreadPool().dispatch(delegate()
                                                       {
-                                                          exception__(ex);
+                                                          invokeException__(ex);
                                                       });
             }
             catch(Ice.CommunicatorDestroyedException)
@@ -546,7 +551,7 @@ namespace IceInternal
             return observer_;
         }
 
-        public void sentAsync__(Ice.AsyncCallback callback)
+        public void invokeSentAsync__(Ice.AsyncCallback callback)
         {
             //
             // This is called when it's not safe to call the exception callback synchronously
@@ -559,7 +564,7 @@ namespace IceInternal
                 {
                     instance_.clientThreadPool().dispatch(delegate()
                                                           {
-                                                              sent__(callback);
+                                                              invokeSent__(callback);
                                                           });
                 }
                 catch(Ice.CommunicatorDestroyedException)
@@ -641,7 +646,7 @@ namespace IceInternal
             completedCallback_ = cb;
         }
 
-        protected void sent__(Ice.AsyncCallback cb)
+        protected void invokeSent__(Ice.AsyncCallback cb)
         {
             //
             // Note: no need to change the state_ here, specializations are responsible for
@@ -671,7 +676,7 @@ namespace IceInternal
             }
         }
 
-        protected void response__(Ice.AsyncCallback cb)
+        protected void invokeCompleted__(Ice.AsyncCallback cb)
         {
             //
             // Note: no need to change the state_ here, specializations are responsible for
@@ -697,7 +702,7 @@ namespace IceInternal
             }
         }
 
-        protected void exception__(Ice.Exception ex)
+        protected void invokeException__(Ice.Exception ex)
         {
             Ice.AsyncCallback cb;
             monitor_.Lock();
@@ -756,6 +761,32 @@ namespace IceInternal
             }
         }
 
+        protected void runTimerTask__()
+        {
+            IceInternal.RequestHandler handler;
+            monitor_.Lock();
+            try
+            {
+
+                handler = timeoutRequestHandler_; 
+                timeoutRequestHandler_ = null;
+            }
+            finally
+            {
+                monitor_.Unlock();
+            }
+            
+            if(handler != null)
+            {
+                IceInternal.OutgoingAsyncMessageCallback outAsync = (IceInternal.OutgoingAsyncMessageCallback)this;
+                instance_.clientThreadPool().execute(
+                    delegate()
+                    {
+                        handler.asyncRequestTimedOut(outAsync);
+                    });
+            }
+        }
+
         protected void warning__(System.Exception ex)
         {
             if(instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
@@ -771,6 +802,8 @@ namespace IceInternal
         protected readonly IceUtilInternal.Monitor monitor_ = new IceUtilInternal.Monitor();
         protected IceInternal.BasicStream is_;
         protected IceInternal.BasicStream os_;
+
+        protected IceInternal.RequestHandler timeoutRequestHandler_;
 
         protected const int OK = 0x1;
         protected const int Done = 0x2;
@@ -792,7 +825,7 @@ namespace IceInternal
         private object _cookie;
     }
 
-    abstract public class OutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
+    abstract public class OutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback, TimerTask
     {
         public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
             base(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).reference__().getInstance(), operation,
@@ -882,7 +915,12 @@ namespace IceInternal
             return proxy_;
         }
 
-        public Ice.AsyncCallback sent__(Ice.ConnectionI connection)
+        public bool send__(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback sentCB)
+        {
+            return connection.sendAsyncRequest(this, compress, response, out sentCB);
+        }
+
+        public Ice.AsyncCallback sent__()
         {
             monitor_.Lock();
             try
@@ -898,19 +936,17 @@ namespace IceInternal
                         remoteObserver_.detach();
                         remoteObserver_ = null;
                     }
+                    if(timeoutRequestHandler_ != null)
+                    {
+                        instance_.timer().cancel(this);
+                        timeoutRequestHandler_ = null;
+                    }
                     state_ |= Done | OK;
                     os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
                     if(waitHandle_ != null)
                     {
                         waitHandle_.Set();
                     }
-                }
-                else if(connection.timeout() > 0)
-                {
-                    Debug.Assert(_timerTaskConnection == null && _timerTask == null);
-                    _timerTaskConnection = connection;
-                    _timerTask = new TaskI(this);
-                    proxy_.reference__().getInstance().timer().schedule(_timerTask, connection.timeout());
                 }
                 monitor_.NotifyAll();
                 return alreadySent ? null : sentCallback_; // Don't call the sent call is already sent.
@@ -921,9 +957,9 @@ namespace IceInternal
             }
     }
 
-        public new void sent__(Ice.AsyncCallback cb)
+        public new void invokeSent__(Ice.AsyncCallback cb)
         {
-            base.sent__(cb);
+            base.invokeSent__(cb);
         }
 
         public void finished__(Ice.LocalException exc, bool sent)
@@ -938,12 +974,10 @@ namespace IceInternal
                     remoteObserver_.detach();
                     remoteObserver_ = null;
                 }
-                if(_timerTaskConnection != null)
+                if(timeoutRequestHandler_ != null)
                 {
-                    Debug.Assert(_timerTask != null);
-                    instance_.timer().cancel(_timerTask);
-                    _timerTaskConnection = null; // Timer cancelled.
-                    _timerTask = null;
+                    instance_.timer().cancel(this);
+                    timeoutRequestHandler_ = null;
                 }
             }
             finally
@@ -965,12 +999,12 @@ namespace IceInternal
                 }
                 else
                 {
-                    send__(false);
+                    invoke__(false);
                 }
             }
             catch(Ice.LocalException ex)
             {
-                exception__(ex);
+                invokeException__(ex);
             }
         }
 
@@ -989,6 +1023,8 @@ namespace IceInternal
                 remoteObserver_ = null;
             }
 
+            Debug.Assert(timeoutRequestHandler_ == null);
+
             try
             {
                 int interval = handleException(exc); // This will throw if the invocation can't be retried.
@@ -998,12 +1034,12 @@ namespace IceInternal
                 }
                 else
                 {
-                    send__(false);
+                    invoke__(false);
                 }
             }
             catch(Ice.LocalException ex)
             {
-                exception__(ex);
+                invokeException__(ex);
             }
         }
 
@@ -1028,14 +1064,12 @@ namespace IceInternal
                         remoteObserver_ = null;
                     }
 
-                    if(_timerTaskConnection != null)
+                    if(timeoutRequestHandler_ != null)
                     {
-                        Debug.Assert(_timerTask != null);
-                        proxy_.reference__().getInstance().timer().cancel(_timerTask);
-                        _timerTaskConnection = null; // Timer cancelled.
-                        _timerTask = null;
+                        instance_.timer().cancel(this);
+                        timeoutRequestHandler_ = null;
                     }
-
+                    
                     replyStatus = is_.readByte();
 
                     switch(replyStatus)
@@ -1180,10 +1214,10 @@ namespace IceInternal
             }
 
             Debug.Assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
-            response__(cb);
+            invokeCompleted__(cb);
         }
 
-        public bool send__(bool synchronous)
+        public bool invoke__(bool synchronous)
         {
             while(true)
             {
@@ -1191,17 +1225,40 @@ namespace IceInternal
                 try
                 {
                     _delegate = proxy_.getDelegate__(true);
+                    RequestHandler handler = _delegate.getRequestHandler__();
                     Ice.AsyncCallback sentCallback;
-                    if(_delegate.getRequestHandler__().sendAsyncRequest(this, out sentCallback))
+                    bool sent = handler.sendAsyncRequest(this, out sentCallback);
+                    if(sent)
                     {
                         if(synchronous) // Only set sentSynchronously_ If called synchronously by the user thread.
                         {
                             sentSynchronously_ = true;
-                            sent__(sentCallback);
+                            invokeSent__(sentCallback);
                         }
                         else
                         {
-                            sentAsync__(sentCallback);
+                            invokeSentAsync__(sentCallback);
+                        }
+                    }
+
+                    if(proxy_.ice_isTwoway() || !sent)
+                    {
+                        monitor_.Lock();
+                        try
+                        {
+                            if((state_ & Done) == 0)
+                            {
+                                int invocationTimeout = handler.getReference().getInvocationTimeout();
+                                if(invocationTimeout > 0)
+                                {
+                                    instance_.timer().schedule(this, invocationTimeout);
+                                    timeoutRequestHandler_ = handler;
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            monitor_.Unlock();
                         }
                     }
                     break;
@@ -1285,6 +1342,12 @@ namespace IceInternal
             }
         }
 
+        public void 
+        runTimerTask()
+        {
+            runTimerTask__();
+        }
+        
         private int handleException(LocalExceptionWrapper ex)
         {
             if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
@@ -1355,31 +1418,7 @@ namespace IceInternal
             private OutgoingAsync _out;
         }
 
-        private void runTimerTask__()
-        {
-            Ice.ConnectionI connection = null;
-            monitor_.Lock();
-            try
-            {
-                connection = _timerTaskConnection;
-                _timerTaskConnection = null;
-                _timerTask = null;
-            }
-            finally
-            {
-                monitor_.Unlock();
-            }
-
-            if(connection != null)
-            {
-                connection.exception(new Ice.TimeoutException());
-            }
-        }
-
         protected Ice.ObjectPrxHelperBase proxy_;
-
-        private TimerTask _timerTask;
-        private Ice.ConnectionI _timerTaskConnection;
 
         private Ice.ObjectDel_ _delegate;
         private Ice.EncodingVersion _encoding;
@@ -1541,14 +1580,19 @@ namespace IceInternal
         private ProxyOnewayCallback<T> _completed;
     }
 
-    public class BatchOutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
+    public class BatchOutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback, TimerTask
     {
         public BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, string operation, object cookie) :
             base(communicator, instance, operation, cookie)
         {
         }
 
-        virtual public Ice.AsyncCallback sent__(Ice.ConnectionI connection)
+        public bool send__(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback sentCallback)
+        {
+            return connection.flushAsyncBatchRequests(this, out sentCallback);
+        }
+        
+        virtual public Ice.AsyncCallback sent__()
         {
             monitor_.Lock();
             try
@@ -1560,6 +1604,11 @@ namespace IceInternal
                 {
                     remoteObserver_.detach();
                     remoteObserver_ = null;
+                }
+                if(timeoutRequestHandler_ != null)
+                {
+                    instance_.timer().cancel(this);
+                    timeoutRequestHandler_ = null;
                 }
                 monitor_.NotifyAll();
                 if(waitHandle_ != null)
@@ -1574,9 +1623,9 @@ namespace IceInternal
             }
         }
 
-        public new void sent__(Ice.AsyncCallback cb)
+        public new void invokeSent__(Ice.AsyncCallback cb)
         {
-            base.sent__(cb);
+            base.invokeSent__(cb);
         }
 
         virtual public void finished__(Ice.LocalException exc, bool sent)
@@ -1587,7 +1636,18 @@ namespace IceInternal
                 remoteObserver_.detach();
                 remoteObserver_ = null;
             }
-            exception__(exc);
+            if(timeoutRequestHandler_ != null)
+            {
+                instance_.timer().cancel(this);
+                timeoutRequestHandler_ = null;
+            }
+            invokeException__(exc);
+        }
+
+        public void 
+        runTimerTask()
+        {
+            runTimerTask__();
         }
     }
 
@@ -1601,7 +1661,7 @@ namespace IceInternal
             observer_ = ObserverHelper.get(proxy, operation);
         }
 
-        public void send__()
+        public void invoke__()
         {
             Protocol.checkSupportedProtocol(_proxy.reference__().getProtocol());
 
@@ -1615,12 +1675,12 @@ namespace IceInternal
             {
                 @delegate = _proxy.getDelegate__(false);
                 Ice.AsyncCallback sentCallback;
-                if(@delegate.getRequestHandler__().flushAsyncBatchRequests(this, out sentCallback))
+                if(@delegate.getRequestHandler__().sendAsyncRequest(this, out sentCallback))
                 {
                     sentSynchronously_ = true;
                     if(sentCallback != null)
                     {
-                        sent__(sentCallback);
+                        invokeSent__(sentCallback);
                     }
                 }
             }
@@ -1647,13 +1707,13 @@ namespace IceInternal
             _connection = con;
         }
 
-        public void send__()
+        public void invoke__()
         {
             Ice.AsyncCallback sentCallback;
             if(_connection.flushAsyncBatchRequests(this, out sentCallback))
             {
                 sentSynchronously_ = true;
-                sent__(sentCallback);
+                invokeSent__(sentCallback);
             }
         }
 
@@ -1754,11 +1814,11 @@ namespace IceInternal
             //
             if(!sentSynchronously_ || !userThread)
             {
-                sentAsync__(sentCallback);
+                invokeSentAsync__(sentCallback);
             }
             else
             {
-                sent__(sentCallback);
+                invokeSent__(sentCallback);
             }
         }
 
@@ -1770,7 +1830,7 @@ namespace IceInternal
                 _outAsync = outAsync;
             }
 
-            override public Ice.AsyncCallback sent__(Ice.ConnectionI con)
+            override public Ice.AsyncCallback sent__()
             {
                 if(remoteObserver_ != null)
                 {

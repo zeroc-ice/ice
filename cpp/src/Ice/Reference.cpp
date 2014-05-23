@@ -133,6 +133,18 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
 }
 
 ReferencePtr
+IceInternal::Reference::changeInvocationTimeout(int invocationTimeout) const
+{
+    if(_invocationTimeout == invocationTimeout)
+    {
+        return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_invocationTimeout = invocationTimeout;
+    return r;
+}
+ 
+ReferencePtr
 IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
     if(_encoding == encoding)
@@ -358,6 +370,11 @@ IceInternal::Reference::operator==(const Reference& r) const
         return false;
     }
 
+    if(_invocationTimeout != r._invocationTimeout)
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -457,6 +474,15 @@ IceInternal::Reference::operator<(const Reference& r) const
         return false;
     }
 
+    if(_invocationTimeout < r._invocationTimeout) 
+    {
+        return true;
+    }
+    else if(r._invocationTimeout < _invocationTimeout) 
+    {
+        return false;
+    }
+
     return false;
 }
 
@@ -490,6 +516,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
                                   bool secure,
                                   const ProtocolVersion& protocol,
                                   const EncodingVersion& encoding,
+                                  int invocationTimeout,
                                   const Ice::Context& ctx) :
     _hashInitialized(false),
     _instance(instance),
@@ -501,6 +528,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _facet(facet),
     _protocol(protocol),
     _encoding(encoding),
+    _invocationTimeout(invocationTimeout),
     _overrideCompress(false),
     _compress(false)
 {
@@ -517,6 +545,7 @@ IceInternal::Reference::Reference(const Reference& r) :
     _facet(r._facet),
     _protocol(r._protocol),
     _encoding(r._encoding),
+    _invocationTimeout(r._invocationTimeout),
     _overrideCompress(r._overrideCompress),
     _compress(r._compress)
 {
@@ -541,6 +570,7 @@ IceInternal::Reference::hashInit() const
     hashAdd(h, _protocol.minor);
     hashAdd(h, _encoding.major);
     hashAdd(h, _encoding.minor);
+    hashAdd(h, _invocationTimeout);
     return h;
 }
 
@@ -554,7 +584,7 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             bool secure,
                                             const EncodingVersion& encoding,
                                             const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding, Ice::Context()),
+    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding, -1, Ice::Context()),
     _fixedConnection(fixedConnection)
 {
 }
@@ -875,8 +905,9 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   bool preferSecure, 
                                                   EndpointSelectionType endpointSelection,
                                                   int locatorCacheTimeout,
+                                                  int invocationTimeout,
                                                   const Ice::Context& ctx) :
-    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, ctx),
+    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, ctx),
     _endpoints(endpoints),
     _adapterId(adapterId),
     _locatorInfo(locatorInfo),
@@ -1237,11 +1268,16 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] = _endpointSelection == Random ? "Random" : "Ordered";
-
-    ostringstream s;
-    s << _locatorCacheTimeout;
-    properties[prefix + ".LocatorCacheTimeout"] = s.str();
-
+    {
+        ostringstream s;
+        s << _locatorCacheTimeout;
+        properties[prefix + ".LocatorCacheTimeout"] = s.str();
+    }
+    {
+        ostringstream s;
+        s << getInvocationTimeout();
+        properties[prefix + ".InvocationTimeout"] = s.str();
+    }
     if(_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->__reference()->toProperty(prefix + ".Router");

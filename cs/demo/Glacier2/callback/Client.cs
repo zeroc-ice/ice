@@ -111,7 +111,7 @@ public class Client
             objectAdapter().add(new CallbackReceiverI(), callbackReceiverFakeIdent);
 
             CallbackReceiverPrx twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-                                                    objectAdapter().add(new CallbackReceiverI(), callbackReceiverIdent));
+                objectAdapter().add(new CallbackReceiverI(), callbackReceiverIdent));
 
             CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
 

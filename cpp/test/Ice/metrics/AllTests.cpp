@@ -554,7 +554,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     controller->hold();
     try
     {
-        metrics->ice_timeout(500)->ice_ping();
+        Ice::ByteSeq seq;
+        seq.resize(1000000);
+        metrics->ice_timeout(500)->opByteS(seq);
         test(false);
     }
     catch(const Ice::TimeoutException&)
@@ -567,14 +569,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     {
         sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(
             serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-        if(sm1-> failures >= 2)
+        if(sm1->failures >= 2)
         {
             break;
         }
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
     }
-
-    test(cm1->failures == 2 && sm1->failures >= 1);
+    test(cm1->failures == 2 && sm1->failures >= 2);
 
     checkFailure(clientMetrics, "Connection", cm1->id, "Ice::TimeoutException", 1);
     checkFailure(clientMetrics, "Connection", cm1->id, "Ice::ConnectTimeoutException", 1);

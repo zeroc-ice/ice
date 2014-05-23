@@ -260,7 +260,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::Identity id2 = communicator->stringToIdentity(communicator->identityToString(id));
     test(id == id2);
 
-    id = { "test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\" };
+    id.name = "test";
+    id.category = ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\";
     id2 = communicator->stringToIdentity(communicator->identityToString(id));
     test(id == id2);
 
@@ -336,6 +337,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!b1->ice_isConnectionCached());
     prop->setProperty(property, "");
 
+    property = propertyPrefix + ".InvocationTimeout";
+    test(b1->ice_getInvocationTimeout() == -1);
+    prop->setProperty(property, "1000");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getInvocationTimeout() == 1000);
+    prop->setProperty(property, "");
+
     property = propertyPrefix + ".EndpointSelection";
     test(b1->ice_getEndpointSelection() == Ice::Random);
     prop->setProperty(property, "Random");
@@ -378,6 +386,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     b1 = b1->ice_preferSecure(false);
     b1 = b1->ice_endpointSelection(Ice::Ordered);
     b1 = b1->ice_locatorCacheTimeout(100);
+    b1 = b1->ice_invocationTimeout(1234);
     Ice::EncodingVersion v = { 1, 0 };
     b1 = b1->ice_encodingVersion(v);
     Ice::ObjectPrx router = communicator->stringToProxy("router");
@@ -386,6 +395,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     router = router->ice_preferSecure(true);
     router = router->ice_endpointSelection(Ice::Random);
     router = router->ice_locatorCacheTimeout(200);
+    router = router->ice_invocationTimeout(1500);
 
     Ice::ObjectPrx locator = communicator->stringToProxy("locator");
     locator = locator->ice_collocationOptimized(true);
@@ -393,12 +403,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     locator = locator->ice_preferSecure(true);
     locator = locator->ice_endpointSelection(Ice::Random);
     locator = locator->ice_locatorCacheTimeout(300);
+    locator = locator->ice_invocationTimeout(1500);
 
     locator = locator->ice_router(Ice::RouterPrx::uncheckedCast(router));
     b1 = b1->ice_locator(Ice::LocatorPrx::uncheckedCast(locator));
 
     Ice::PropertyDict proxyProps = communicator->proxyToProperty(b1, "Test");
-    test(proxyProps.size() == 18);
+    test(proxyProps.size() == 21);
 
     test(proxyProps["Test"] == "test -t -e 1.0");
     test(proxyProps["Test.CollocationOptimized"] == "1");
@@ -406,6 +417,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.PreferSecure"] == "0");
     test(proxyProps["Test.EndpointSelection"] == "Ordered");
     test(proxyProps["Test.LocatorCacheTimeout"] == "100");
+    test(proxyProps["Test.InvocationTimeout"] == "1234");
 
     test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding));
     // Locator collocation optimization is always disabled.
@@ -414,6 +426,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.Locator.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
+    test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
     test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice::encodingVersionToString(Ice::currentEncoding));
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
@@ -421,6 +434,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
+    test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
     cout << "ok" << endl;
 
@@ -563,6 +577,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj1->ice_locatorCacheTimeout(10) != compObj1->ice_locatorCacheTimeout(20));
     test(compObj1->ice_locatorCacheTimeout(10) < compObj1->ice_locatorCacheTimeout(20));
     test(!(compObj1->ice_locatorCacheTimeout(20) < compObj1->ice_locatorCacheTimeout(10)));
+
+    test(compObj1->ice_invocationTimeout(20) == compObj1->ice_invocationTimeout(20));
+    test(compObj1->ice_invocationTimeout(10) != compObj1->ice_invocationTimeout(20));
+    test(compObj1->ice_invocationTimeout(10) < compObj1->ice_invocationTimeout(20));
+    test(!(compObj1->ice_invocationTimeout(20) < compObj1->ice_invocationTimeout(10)));
 
     compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
     compObj2 = communicator->stringToProxy("foo@MyAdapter1");

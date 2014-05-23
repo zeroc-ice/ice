@@ -65,6 +65,7 @@ public:
     virtual AdminSessionPrx createAdminSessionFromSecureConnection(const Ice::Current&);
 
     virtual int getSessionTimeout(const Ice::Current& = Ice::Current()) const;
+    virtual int getACMTimeout(const Ice::Current& = Ice::Current()) const;
     
     std::string getName() const;
     RegistryInfo getInfo() const;
@@ -118,7 +119,7 @@ private:
     int _sessionTimeout;
     ReplicaSessionManager _session;
     mutable PlatformInfo _platform;
-
+        
     Glacier2::PermissionsVerifierPrx _nullPermissionsVerifier;
     Glacier2::SSLPermissionsVerifierPrx _nullSSLPermissionsVerifier;
 

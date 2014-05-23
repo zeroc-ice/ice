@@ -203,6 +203,14 @@ public final class ProxyFactory
             throw ex;
         }
 
+        //
+        // Don't retry invocation timeouts.
+        //
+        if(ex instanceof Ice.InvocationTimeoutException)
+        {
+            throw ex;
+        }
+
         ++cnt;
         assert(cnt > 0);
 

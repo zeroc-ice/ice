@@ -297,11 +297,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             IceInternal.BasicStream __os = __result.__startWriteParams(Ice.FormatType.DefaultFormat);
             __os.writeString(__id);
             __result.__endWriteParams();
-            __result.__send(true);
+            __result.__invoke(true);
         }
         catch(LocalException __ex)
         {
-            __result.__exceptionAsync(__ex);
+            __result.__invokeExceptionAsync(__ex);
         }
         return __result;
     }
@@ -573,11 +573,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.__prepare(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx);
             __result.__writeEmptyParams();
-            __result.__send(true);
+            __result.__invoke(true);
         }
         catch(LocalException __ex)
         {
-            __result.__exceptionAsync(__ex);
+            __result.__invokeExceptionAsync(__ex);
         }
         return __result;
     }
@@ -841,11 +841,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.__prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
             __result.__writeEmptyParams();
-            __result.__send(true);
+            __result.__invoke(true);
         }
         catch(LocalException __ex)
         {
-            __result.__exceptionAsync(__ex);
+            __result.__invokeExceptionAsync(__ex);
         }
         return __result;
     }
@@ -1134,11 +1134,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.__prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
             __result.__writeEmptyParams();
-            __result.__send(true);
+            __result.__invoke(true);
         }
         catch(LocalException __ex)
         {
-            __result.__exceptionAsync(__ex);
+            __result.__invokeExceptionAsync(__ex);
         }
         return __result;
     }
@@ -1545,11 +1545,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.__prepare(operation, mode, __context, __explicitCtx);
             __result.__writeParamEncaps(inParams);
-            __result.__send(true);
+            __result.__invoke(true);
         }
         catch(LocalException __ex)
         {
-            __result.__exceptionAsync(__ex);
+            __result.__invokeExceptionAsync(__ex);
         }
         return __result;
     }
@@ -1832,6 +1832,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Returns the invocation timeout of this proxy.
+     *
+     * @return The invocation timeout value (in seconds).
+     **/
+    public final int
+    ice_getInvocationTimeout()
+    {
+        return _reference.getInvocationTimeout();
+    }
+
+    /**
      * Returns the connection id of this proxy.
      *
      * @return The connection id.
@@ -1860,6 +1871,24 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             return newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
+        }
+    }
+
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the invocation timeout.
+     *
+     * @param newTimeout The new invocation timeout (in seconds).
+     **/
+    public final ObjectPrx
+    ice_invocationTimeout(int newTimeout)
+    {
+        if(newTimeout == _reference.getInvocationTimeout())
+        {
+            return this;
+        }
+        else
+        {
+            return newInstance(_reference.changeInvocationTimeout(newTimeout));
         }
     }
 
@@ -2498,11 +2527,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, __cb);
         try
         {
-            __result.__send();
+            __result.__invoke();
         }
         catch(LocalException __ex)
         {
-            __result.__exceptionAsync(__ex);
+            __result.__invokeExceptionAsync(__ex);
         }
         return __result;
     }

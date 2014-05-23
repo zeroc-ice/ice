@@ -13,63 +13,6 @@ using Test;
 
 public class AllTests
 {
-    class SessionKeepAliveThread 
-    {
-        public SessionKeepAliveThread(IceGrid.AdminSessionPrx session, int timeout)
-        {
-            _session = session;
-            _timeout = timeout;
-            _terminated = false;
-        }
-
-        public void run()
-        {
-            _m.Lock();
-            try
-            {
-                while(!_terminated)
-                {
-                    _m.TimedWait(_timeout);
-                    if(_terminated)
-                    {
-                        break;
-                    }
-                    try
-                    {
-                        _session.keepAlive();
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-        }
-
-        public void terminate()
-        {
-            _m.Lock();
-            try
-            {
-                _terminated = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-        }
-
-        private IceGrid.AdminSessionPrx _session;
-        private int _timeout;
-        private bool _terminated;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
-    }
-
     private static void
     test(bool b)
     {
@@ -207,9 +150,9 @@ public class AllTests
             test(false);
         }
 
-        SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout()/2);
-        Thread keepAliveThread = new Thread(new ThreadStart(keepAlive.run));
-        keepAliveThread.Start();
+        session.ice_getConnection().setACM(registry.getACMTimeout(), 
+                                           Ice.Util.None, 
+                                           Ice.ACMHeartbeat.HeartbeatAlways);
 
         IceGrid.AdminPrx admin = session.getAdmin();
         test(admin != null);
@@ -299,8 +242,6 @@ public class AllTests
             test(false);
         }
 
-        keepAlive.terminate();
-        keepAliveThread.Join();
         session.destroy();
     }
 }

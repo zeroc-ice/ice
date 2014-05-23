@@ -12,7 +12,6 @@
     require("Ice/AsyncResult");
     require("Ice/AsyncStatus");
     require("Ice/BasicStream");
-    require("Ice/BatchOutgoingAsync");
     require("Ice/ConnectionRequestHandler");
     require("Ice/Debug");
     require("Ice/ExUtil");
@@ -28,7 +27,6 @@
     var AsyncResult = Ice.AsyncResult;
     var AsyncStatus = Ice.AsyncStatus;
     var BasicStream = Ice.BasicStream;
-    var BatchOutgoingAsync = Ice.BatchOutgoingAsync;
     var ConnectionRequestHandler = Ice.ConnectionRequestHandler;
     var Debug = Ice.Debug;
     var ExUtil = Ice.ExUtil;
@@ -60,7 +58,6 @@
             this._exception = null;
             this._requests = [];
             this._updateRequestHandler = false;
-            this._pendingPromises = [];
         },
         connect: function()
         {
@@ -142,16 +139,24 @@
                 this._requests.push(new Request(out));
                 return AsyncStatus.Queued;
             }
-            return this._connection.sendAsyncRequest(out, this._compress, this._response);
+            return out.__send(this._connection, this._compress, this._response);
         },
-        flushAsyncBatchRequests: function(out)
+        asyncRequestTimedOut: function(out)
         {
             if(!this.initialized())
             {
-                this._requests.push(new Request(out));
-                return AsyncStatus.Queued;
+                for(var i = 0; i < this._requests.length; i++)
+                {
+                    if(this._requests[i].out === out)
+                    {
+                        out.__finishedEx(new Ice.InvocationTimeoutException(), false);
+                        this._requests.splice(i, 1);
+                        return;
+                    }
+                }
+                Debug.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
             }
-            return this._connection.flushAsyncBatchRequests(out);
+            this._connection.asyncRequestTimedOut(out);
         },
         getReference: function()
         {
@@ -166,26 +171,6 @@
             else
             {
                 return this._connection;
-            }
-        },
-        onConnection: function(r)
-        {
-            //
-            // Called by ObjectPrx.ice_getConnection
-            //
-
-            if(this._exception !== null)
-            {
-                r.__exception(this._exception);
-            }
-            else if(this._connection !== null)
-            {
-                Debug.assert(this._initialized);
-                r.succeed(this._connection, r);
-            }
-            else
-            {
-                this._pendingPromises.push(r);
             }
         },
         //
@@ -249,11 +234,6 @@
                 this.flushRequestsWithException(ex);
             }
 
-            for(var i = 0; i < this._pendingPromises.length; ++i)
-            {
-                this._pendingPromises[i].fail(ex);
-            }
-            this._pendingPromises = [];
         },
         initialized: function()
         {
@@ -292,11 +272,7 @@
                     var request = this._requests[0];
                     if(request.out !== null)
                     {
-                        this._connection.sendAsyncRequest(request.out, this._compress, this._response);
-                    }
-                    else if(request.batchOut !== null)
-                    {
-                        this._connection.flushAsyncBatchRequests(request.batchOut);
+                        request.out.__send(this._connection, this._compress, this._response);
                     }
                     else
                     {
@@ -359,14 +335,6 @@
                 this._flushing = false;
             }
             this._proxy = null; // Break cyclic reference count.
-
-            var p;
-            for(var i = 0; i < this._pendingPromises.length; ++i)
-            {
-                p = this._pendingPromises[i];
-                p.succeed(this._connection, p);
-            }
-            this._pendingPromises = [];
         },
         flushRequestsWithException: function(ex)
         {
@@ -376,10 +344,6 @@
                 if(request.out !== null)
                 {
                     request.out.__finishedEx(ex, false);
-                }
-                else if(request.batchOut !== null)
-                {
-                    request.batchOut.__finishedEx(ex, false);
                 }
             }
             this._requests = [];
@@ -391,11 +355,14 @@
                 var request = this._requests[i];
                 if(request.out !== null)
                 {
-                    request.out.__finishedWrapper(ex);
-                }
-                else if(request.batchOut !== null)
-                {
-                    request.batchOut.__finishedEx(ex.inner, false);
+                    if(request.out instanceof OutgoingAsync)
+                    {
+                        request.out.__finishedExWrapper(ex);
+                    }
+                    else
+                    {
+                        request.out.__finishedEx(ex.inner, false);
+                    }
                 }
             }
             this._requests = [];
@@ -409,21 +376,15 @@
     {
         this.os = null;
         this.out = null;
-        this.batchOut = null;
 
         if(arg instanceof BasicStream)
         {
             this.os = new BasicStream(arg.instance, Protocol.currentProtocolEncoding);
             this.os.swap(arg);
         }
-        else if(arg instanceof OutgoingAsync)
-        {
-            this.out = arg;
-        }
         else
         {
-            Debug.assert(arg instanceof BatchOutgoingAsync);
-            this.batchOut = arg;
+            this.out = arg;
         }
     };
 }(typeof (global) === "undefined" ? window : global));

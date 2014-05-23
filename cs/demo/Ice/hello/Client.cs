@@ -61,7 +61,7 @@ public class Client
             }
 
             HelloPrx twoway = HelloPrxHelper.checkedCast(
-                communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
+                communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_secure(false));
             if(twoway == null)
             {
                 Console.Error.WriteLine("invalid proxy");
@@ -139,9 +139,9 @@ public class Client
                             timeout = -1;
                         }
                         
-                        twoway = (HelloPrx)twoway.ice_timeout(timeout);
-                        oneway = (HelloPrx)oneway.ice_timeout(timeout);
-                        batchOneway = (HelloPrx)batchOneway.ice_timeout(timeout);
+                        twoway = (HelloPrx)twoway.ice_invocationTimeout(timeout);
+                        oneway = (HelloPrx)oneway.ice_invocationTimeout(timeout);
+                        batchOneway = (HelloPrx)batchOneway.ice_invocationTimeout(timeout);
                         
                         if(timeout == -1)
                         {

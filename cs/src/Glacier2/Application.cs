@@ -281,13 +281,32 @@ public abstract class Application : Ice.Application
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
+    private class ConnectionCallbackI : Ice.ConnectionCallback
+    {
+        internal ConnectionCallbackI(Application application)
+        {
+            _application = application;
+        }
+
+        public void heartbeat(Ice.Connection con)
+        {
+                
+        }
+
+        public void closed(Ice.Connection con)
+        {
+            _application.sessionDestroyed();
+        }
+
+        private readonly Application _application;
+    }
+
     protected override int
     doMain(string[] originArgs, Ice.InitializationData initData)
     {
         //
         // Set the default properties for all Glacier2 applications.
         //
-        initData.properties.setProperty("Ice.ACM.Client", "0");
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
         bool restart;
@@ -361,12 +380,30 @@ public abstract class Application : Ice.Application
 
                 if(_createdSession)
                 {
-                    long timeout = _router.getSessionTimeout();
-                    if(timeout > 0)
+                    int acmTimeout = 0;
+                    try
                     {
-                        ping = new SessionPingThread(this, _router, (timeout * 1000) / 2);
-                        pingThread = new Thread(new ThreadStart(ping.run));
-                        pingThread.Start();
+                        acmTimeout = _router.getACMTimeout();
+                    }
+                    catch(Ice.OperationNotExistException)
+                    {
+                    }
+                    if(acmTimeout > 0)
+                    {
+                        Ice.Connection connection = _router.ice_getCachedConnection();
+                        Debug.Assert(connection != null);
+                        connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                        connection.setCallback(new ConnectionCallbackI(this));
+                    }
+                    else
+                    {
+                        long timeout = _router.getSessionTimeout();
+                        if(timeout > 0)
+                        {
+                            ping = new SessionPingThread(this, _router, (timeout * 1000) / 2);
+                            pingThread = new Thread(new ThreadStart(ping.run));
+                            pingThread.Start();
+                        }
                     }
                     _category = _router.getCategoryForClient();
                     status = runWithSession(args);

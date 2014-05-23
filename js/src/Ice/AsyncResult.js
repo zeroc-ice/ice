@@ -42,6 +42,8 @@
                     new BasicStream(this._instance, Protocol.currentProtocolEncoding, false) : null;
                 this._state = 0;
                 this._exception = null;
+                this._timeoutRequestHandler = null;
+                this._timeoutToken = null;
             }
         },
         __os: function()
@@ -89,14 +91,14 @@
                 }
             }
         },
-        __exception: function(ex)
+        __invokeException: function(ex)
         {
             this._state |= AsyncResult.Done;
             this._exception = ex;
             this._os.resize(0);
             this.fail(ex, this);
         },
-        __response: function()
+        __invokeCompleted: function()
         {
             //
             // Note: no need to change the state here, specializations are responsible for
@@ -107,6 +109,14 @@
             {
                 Debug.assert(this._completed !== null);
                 this._completed(this);
+            }
+        },
+        __runTimerTask: function()
+        {
+            if(this._timeoutRequestHandler)
+            {
+                this._timeoutRequestHandler.asyncRequestTimedOut(this);
+                this._timeoutRequestHnalder = null;
             }
         }
     });

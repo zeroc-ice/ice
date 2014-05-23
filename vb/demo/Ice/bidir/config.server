@@ -22,7 +22,3 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
-
-# Active connection management must be disabled when using
-# bidirectional connections.
-Ice.ACM.Client=0

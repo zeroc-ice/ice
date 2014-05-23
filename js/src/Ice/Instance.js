@@ -10,7 +10,6 @@
 (function(global){
     require("Ice/Class");
     require("Ice/AsyncResultBase");
-    require("Ice/ConnectionMonitor");
     require("Ice/Debug");
     require("Ice/DefaultsAndOverrides");
     require("Ice/EndpointFactoryManager");
@@ -33,6 +32,7 @@
     require("Ice/LocalException");
     require("Ice/Exception");
     require("Ice/ProcessLogger");
+    require("Ice/ACM");
 
     //
     // We don't load the endpoint factories here, instead the Ice.js
@@ -45,7 +45,6 @@
     var Ice = global.Ice || {};
 
     var AsyncResultBase = Ice.AsyncResultBase;
-    var ConnectionMonitor = Ice.ConnectionMonitor;
     var Debug = Ice.Debug;
     var DefaultsAndOverrides = Ice.DefaultsAndOverrides;
     var EndpointFactoryManager = Ice.EndpointFactoryManager;
@@ -64,6 +63,7 @@
     var Timer = Ice.Timer;
     var TraceLevels = Ice.TraceLevels;
     var ReferenceFactory = Ice.ReferenceFactory;
+    var ACMConfig = Ice.ACMConfig;
 
     var StateActive = 0;
     var StateDestroyInProgress = 1;
@@ -82,14 +82,12 @@
             this._defaultsAndOverrides = null;
             this._messageSizeMax = null;
             this._clientACM = null;
-            this._serverACM = null;
             this._implicitContext = null;
             this._routerManager = null;
             this._locatorManager = null;
             this._referenceFactory = null;
             this._proxyFactory = null;
             this._outgoingConnectionFactory = null;
-            this._connectionMonitor = null;
             this._servantFactoryManager = null;
             this._objectAdapterFactory = null;
             this._protocolSupport = null;
@@ -173,16 +171,6 @@
         {
             return this._preferIPv6;
         },
-        connectionMonitor: function()
-        {
-            if(this._state === StateDestroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            Debug.assert(this._connectionMonitor !== null);
-            return this._connectionMonitor;
-        },
         servantFactoryManager: function()
         {
             if(this._state === StateDestroyed)
@@ -251,11 +239,6 @@
         {
             // This value is immutable.
             return this._clientACM;
-        },
-        serverACM: function()
-        {
-            // This value is immutable.
-            return this._serverACM;
         },
         getImplicitContext: function()
         {
@@ -332,13 +315,12 @@
                     this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
                 }
 
-                //
-                // Client ACM enabled by default. Server ACM disabled by default.
-                //
-                this._clientACM = this._initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-                this._serverACM = this._initData.properties.getPropertyAsInt("Ice.ACM.Server");
-
-                this._implicitContext = ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
+                this._clientACM = new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM.Client",
+                                                new ACMConfig(this._initData.properties, this._initData.logger,
+                                                              "Ice.ACM", new ACMConfig()));
+                
+                this._implicitContext = 
+                    ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
 
                 this._routerManager = new RouterManager();
 
@@ -384,16 +366,6 @@
                 {
                     this._referenceFactory = this._referenceFactory.setDefaultLocator(loc);
                 }
-
-                //
-                // Create the connection monitor and ensure the interval for
-                // monitoring connections is appropriate for client & server
-                // ACM.
-                //
-                var interval = this._initData.properties.getPropertyAsInt("Ice.MonitorConnections");
-                this._connectionMonitor = new ConnectionMonitor(this, interval);
-                this._connectionMonitor.checkIntervalForACM(this._clientACM);
-                this._connectionMonitor.checkIntervalForACM(this._serverACM);
 
                 if(promise !== null)
                 {
@@ -492,12 +464,6 @@
                     self._objectAdapterFactory = null;
                     self._outgoingConnectionFactory = null;
                     self._retryQueue = null;
-
-                    if(self._connectionMonitor)
-                    {
-                        self._connectionMonitor.destroy();
-                        self._connectionMonitor = null;
-                    }
 
                     if(self._timer)
                     {

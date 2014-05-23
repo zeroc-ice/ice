@@ -1,4 +1,5 @@
 SDK_HEADERS = \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ACMF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Application.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BasicStream.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Buffer.h \
@@ -12,8 +13,8 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionFactoryF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionIF.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionMonitorF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Current.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DeprecatedStringConverter.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Direct.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Dispatcher.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DispatchInterceptor.h \

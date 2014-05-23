@@ -575,7 +575,7 @@ public class AllTests
         controller.hold();
         try
         {
-            metrics.ice_timeout(500).ice_ping();
+            ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[1000000]);
             test(false);
         }
         catch(Ice.TimeoutException ex)
@@ -587,7 +587,7 @@ public class AllTests
         while(true)
         {
             sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-            if(sm1. failures >= 2)
+            if(sm1.failures >= 2)
             {
                 break;
             }
@@ -599,8 +599,7 @@ public class AllTests
             {
             }
         }
-
-        test(cm1.failures == 2 && sm1.failures >= 1);
+        test(cm1.failures == 2 && sm1.failures >= 2);
 
         checkFailure(clientMetrics, "Connection", cm1.id, "Ice::TimeoutException", 1, out);
         checkFailure(clientMetrics, "Connection", cm1.id, "Ice::ConnectTimeoutException", 1, out);

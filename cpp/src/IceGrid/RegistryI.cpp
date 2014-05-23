@@ -260,43 +260,35 @@ RegistryI::startImpl()
         return false; 
     }
 
-    if(properties->getProperty("IceGrid.Registry.Client.ACM").empty())
+    if(_sessionTimeout > 0 && properties->getProperty("IceGrid.Registry.Client.ACM.Timemout").empty())
     {
-        //
-        // Set the client object adapter ACM timeout to the session
-        // timeout * 2. If no session timeout is set, ACM is disabled.
-        //
         ostringstream os;
-        os << _sessionTimeout * 2;
-        properties->setProperty("IceGrid.Registry.Client.ACM", os.str());
+        os << _sessionTimeout;
+        properties->setProperty("IceGrid.Registry.Client.ACM.Timeout", os.str());
     }
-    if(properties->getProperty("IceGrid.Registry.Server.ACM").empty())
+
+    if(properties->getProperty("IceGrid.Registry.Server.ACM.Timeout").empty())
     {
-        properties->setProperty("IceGrid.Registry.Server.ACM", "30");
+        properties->setProperty("IceGrid.Registry.Server.ACM.Timeout", "30");
     }
-    if(properties->getProperty("IceGrid.Registry.Internal.ACM").empty())
+
+    if(properties->getProperty("IceGrid.Registry.Internal.ACM.Timeout").empty())
     {
         int nt = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
         int rt = properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
-
-        //
-        // Set the internal object adapter ACM timeout to the replica
-        // or node session timeout * 2. If no session timeout is set,
-        // ACM is disabled.
-        //
         ostringstream os;
-        os << std::max(nt, rt) * 2;
-        properties->setProperty("IceGrid.Registry.Internal.ACM", os.str());
+        os << std::max(nt, rt);
+        properties->setProperty("IceGrid.Registry.Internal.ACM.Timeout", os.str());
     }
+
+    properties->setProperty("Ice.ACM.Server.Close", "3"); // Close on invocation and idle.
     
-    if(!_master && properties->getProperty("Ice.Default.Locator").empty())
+    if(!_master && properties->getProperty("Ice.Default.Locator").empty() && 
+       properties->getProperty("Ice.Default.Locator").empty())
     {
-        if(properties->getProperty("Ice.Default.Locator").empty())
-        {
-            Error out(_communicator->getLogger());
-            out << "property `Ice.Default.Locator' is not set";
-            return false;
-        }
+        Error out(_communicator->getLogger());
+        out << "property `Ice.Default.Locator' is not set";
+        return false;
     }
 
     //
@@ -394,7 +386,8 @@ RegistryI::startImpl()
                                                   envName);
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
-    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), connection, "Registry", _readonly);
+    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), connection, 
+                             "Registry", _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     if(!_initFromReplica.empty())
@@ -1095,6 +1088,12 @@ int
 RegistryI::getSessionTimeout(const Ice::Current& /*current*/) const
 {
     return _sessionTimeout;
+}
+
+int
+RegistryI::getACMTimeout(const Ice::Current& current) const
+{
+    return current.con->getACM().timeout;
 }
 
 string
