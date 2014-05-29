@@ -575,7 +575,7 @@ public class AllTests
         controller.hold();
         try
         {
-            ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[1000000]);
+            ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[10000000]);
             test(false);
         }
         catch(Ice.TimeoutException ex)
