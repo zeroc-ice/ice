@@ -9,12 +9,14 @@
 
 package IceInternal;
 
-public interface Acceptor
+class EventHandlerOpPair
 {
-    java.nio.channels.ServerSocketChannel fd();
-    void close();
-    void listen();
-    Transceiver accept();
-    String protocol();
-    String toString();
+    EventHandlerOpPair(EventHandler handler, int op)
+    {
+        this.handler = handler;
+        this.op = op;
+    }
+
+    EventHandler handler;
+    int op;
 }

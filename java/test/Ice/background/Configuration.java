@@ -143,6 +143,18 @@ public final class Configuration
         }
     }
 
+    public synchronized void
+    buffered(boolean b)
+    {
+        _buffered = b;
+    }
+
+    public synchronized boolean
+    buffered()
+    {
+        return _buffered;
+    }
+
     private Ice.LocalException _connectorsException;
     private Ice.LocalException _connectException;
     private int _initializeSocketStatus;
@@ -152,4 +164,5 @@ public final class Configuration
     private Ice.LocalException _readException;
     private int _writeReadyCount;
     private Ice.LocalException _writeException;
+    private boolean _buffered;
 }

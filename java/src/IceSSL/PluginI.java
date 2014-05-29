@@ -11,76 +11,74 @@ package IceSSL;
 
 class PluginI implements Plugin
 {
-    public
-    PluginI(Ice.Communicator communicator)
+    public PluginI(Ice.Communicator communicator)
     {
-        _instance = new Instance(communicator);
+        IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
+
+        _sharedInstance = new SharedInstance(facade);
+
+        //
+        // Register the endpoint factory. We have to do this now, rather than
+        // in initialize, because the communicator may need to interpret
+        // proxies before the plug-in is fully initialized.
+        //
+        facade.addEndpointFactory(
+            new EndpointFactoryI(new Instance(_sharedInstance, IceSSL.EndpointType.value, "ssl")));
     }
 
-    public void
-    initialize()
+    public void initialize()
     {
-        _instance.initialize();
+        _sharedInstance.initialize();
     }
 
-    public void
-    destroy()
+    public void destroy()
     {
     }
 
-    public void
-    setContext(javax.net.ssl.SSLContext context)
+    public void setContext(javax.net.ssl.SSLContext context)
     {
-        _instance.context(context);
+        _sharedInstance.context(context);
     }
 
-    public javax.net.ssl.SSLContext
-    getContext()
+    public javax.net.ssl.SSLContext getContext()
     {
-        return _instance.context();
+        return _sharedInstance.context();
     }
 
-    public void
-    setCertificateVerifier(CertificateVerifier verifier)
+    public void setCertificateVerifier(CertificateVerifier verifier)
     {
-        _instance.setCertificateVerifier(verifier);
+        _sharedInstance.setCertificateVerifier(verifier);
     }
 
-    public CertificateVerifier
-    getCertificateVerifier()
+    public CertificateVerifier getCertificateVerifier()
     {
-        return _instance.getCertificateVerifier();
+        return _sharedInstance.getCertificateVerifier();
     }
 
-    public void
-    setPasswordCallback(PasswordCallback callback)
+    public void setPasswordCallback(PasswordCallback callback)
     {
-        _instance.setPasswordCallback(callback);
+        _sharedInstance.setPasswordCallback(callback);
     }
 
-    public PasswordCallback
-    getPasswordCallback()
+    public PasswordCallback getPasswordCallback()
     {
-        return _instance.getPasswordCallback();
+        return _sharedInstance.getPasswordCallback();
     }
 
-    public void
-    setKeystoreStream(java.io.InputStream stream)
+    public void setKeystoreStream(java.io.InputStream stream)
     {
-        _instance.setKeystoreStream(stream);
+        _sharedInstance.setKeystoreStream(stream);
     }
 
-    public void
-    setTruststoreStream(java.io.InputStream stream)
+    public void setTruststoreStream(java.io.InputStream stream)
     {
-        _instance.setTruststoreStream(stream);
+        _sharedInstance.setTruststoreStream(stream);
     }
 
-    public void
-    addSeedStream(java.io.InputStream stream)
+    public void addSeedStream(java.io.InputStream stream)
     {
-        _instance.addSeedStream(stream);
+        _sharedInstance.addSeedStream(stream);
     }
 
-    private Instance _instance;
+    private SharedInstance _sharedInstance;
 }

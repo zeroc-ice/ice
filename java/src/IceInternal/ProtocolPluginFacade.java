@@ -18,42 +18,6 @@ public interface ProtocolPluginFacade
     Ice.Communicator getCommunicator();
 
     //
-    // Get the endpoint host resolver.
-    //
-    IceInternal.EndpointHostResolver getEndpointHostResolver();
-
-    //
-    // Get the protocol support.
-    //
-    int getProtocolSupport();
-
-    //
-    // Get the protocol support.
-    //
-    boolean getPreferIPv6();
-
-    //
-    // Get the network proxy.
-    //
-    NetworkProxy getNetworkProxy();
-
-    //
-    // Get the default encoding to be used in endpoints.
-    //
-    Ice.EncodingVersion getDefaultEncoding();
-
-    //
-    // Get the default hostname to be used in endpoints.
-    //
-    String getDefaultHost();
-
-    //
-    // Get the network trace level and category name.
-    //
-    int getNetworkTraceLevel();
-    String getNetworkTraceCategory();
-
-    //
     // Register an EndpointFactory.
     //
     void addEndpointFactory(EndpointFactory factory);

@@ -11,33 +11,28 @@ package IceInternal;
 
 final class UdpConnector implements Connector
 {
-    public Transceiver
-    connect()
+    public Transceiver connect()
     {
         return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
     }
 
-    public java.nio.channels.SelectableChannel
-    fd()
+    public java.nio.channels.SelectableChannel fd()
     {
         assert(false); // Shouldn't be called, startConnect always completes immediately.
         return null;
     }
 
-    public short
-    type()
+    public short type()
     {
-        return Ice.UDPEndpointType.value;
+        return _instance.type();
     }
 
-    public String
-    toString()
+    public String toString()
     {
         return Network.addrToString(_addr);
     }
 
-    public int
-    hashCode()
+    public int hashCode()
     {
         return _hashCode;
     }
@@ -45,7 +40,7 @@ final class UdpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    UdpConnector(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl, 
+    UdpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl,
                  String connectionId)
     {
         _instance = instance;
@@ -62,8 +57,7 @@ final class UdpConnector implements Connector
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
-    public boolean
-    equals(java.lang.Object obj)
+    public boolean equals(java.lang.Object obj)
     {
         if(!(obj instanceof UdpConnector))
         {
@@ -92,9 +86,9 @@ final class UdpConnector implements Connector
         }
 
         return Network.compareAddress(_addr, p._addr) == 0;
-    } 
+    }
 
-    private Instance _instance;
+    private ProtocolInstance _instance;
     private java.net.InetSocketAddress _addr;
     private String _mcastInterface;
     private int _mcastTtl;

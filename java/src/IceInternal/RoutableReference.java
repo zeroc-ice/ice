@@ -283,6 +283,7 @@ public class RoutableReference extends Reference
             assert(_adapterId.length() == 0);
             for(EndpointI endpoint : _endpoints)
             {
+                s.writeShort(endpoint.type());
                 endpoint.streamWrite(s);
             }
         }

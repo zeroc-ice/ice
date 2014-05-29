@@ -13,35 +13,14 @@ public interface Transceiver
 {
     java.nio.channels.SelectableChannel fd();
 
-    //
-    // Initialize the transceiver.
-    //
-    // Returns the status if the initialize operation.
-    //
-    int initialize(Buffer readBuffer, Buffer writeBuffer);
-
+    int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData);
+    int closing(boolean initiator, Ice.LocalException ex);
     void close();
 
-    //
-    // Write data.
-    //
-    // Returns true if all the data was written, false otherwise.
-    //
-    boolean write(Buffer buf);
+    int write(Buffer buf);
+    int read(Buffer buf, Ice.BooleanHolder moreData);
 
-    //
-    // Read data.
-    //
-    // Returns true if all the requested data was read, false otherwise.
-    //
-    // NOTE: In Java, read() returns a boolean in moreData to indicate
-    //       whether the transceiver has read more data than requested.
-    //       If moreData is true, read should be called again without
-    //       calling select on the FD.
-    //
-    boolean read(Buffer buf, Ice.BooleanHolder moreData);
-
-    String type();
+    String protocol();
     String toString();
     Ice.ConnectionInfo getInfo();
     void checkSendSize(Buffer buf, int messageSizeMax);

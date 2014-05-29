@@ -308,13 +308,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         return _acceptor.fd();
     }
 
-    public boolean
-    hasMoreData()
-    {
-        assert(_acceptor != null);
-        return false;
-    }
-
     //
     // Operations from ConnectionI.StartCallback
     //

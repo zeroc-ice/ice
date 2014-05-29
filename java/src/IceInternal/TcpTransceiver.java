@@ -11,15 +11,13 @@ package IceInternal;
 
 final class TcpTransceiver implements Transceiver
 {
-    public java.nio.channels.SelectableChannel
-    fd()
+    public java.nio.channels.SelectableChannel fd()
     {
         assert(_fd != null);
         return _fd;
     }
 
-    public int
-    initialize(Buffer readBuffer, Buffer writeBuffer)
+    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData)
     {
         try
         {
@@ -28,7 +26,7 @@ final class TcpTransceiver implements Transceiver
                 _state = StateConnectPending;
                 return SocketOperation.Connect;
             }
-            else if(_state == StateConnectPending)
+            else if(_state <= StateConnectPending)
             {
                 Network.doFinishConnect(_fd);
                 _desc = Network.fdToString(_fd, _proxy, _addr);
@@ -44,7 +42,7 @@ final class TcpTransceiver implements Transceiver
                     //
                     // Write the proxy connection message.
                     //
-                    if(write(writeBuffer))
+                    if(write(writeBuffer) == SocketOperation.None)
                     {
                         //
                         // Write completed without blocking.
@@ -54,8 +52,7 @@ final class TcpTransceiver implements Transceiver
                         //
                         // Try to read the response.
                         //
-                        Ice.BooleanHolder dummy = new Ice.BooleanHolder();
-                        if(read(readBuffer, dummy))
+                        if(read(readBuffer, moreData) == SocketOperation.None)
                         {
                             //
                             // Read completed without blocking - fall through.
@@ -103,32 +100,38 @@ final class TcpTransceiver implements Transceiver
         }
         catch(Ice.LocalException ex)
         {
-            if(_traceLevels.network >= 2)
+            if(_instance.traceLevel() >= 2)
             {
                 StringBuilder s = new StringBuilder(128);
-                s.append("failed to establish tcp connection\n");
+                s.append("failed to establish " + _instance.protocol() + " connection\n");
                 s.append(Network.fdToString(_fd, _proxy, _addr));
-                _logger.trace(_traceLevels.networkCat, s.toString());
+                _instance.logger().trace(_instance.traceCategory(), s.toString());
             }
             throw ex;
         }
 
         assert(_state == StateConnected);
-        if(_traceLevels.network >= 1)
+        if(_instance.traceLevel() >= 1)
         {
-            String s = "tcp connection established\n" + _desc;
-            _logger.trace(_traceLevels.networkCat, s);
+            String s = _instance.protocol() + " connection established\n" + _desc;
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
         return SocketOperation.None;
     }
 
-    public void
-    close()
+    public int closing(boolean initiator, Ice.LocalException ex)
     {
-        if(_state == StateConnected && _traceLevels.network >= 1)
+        // If we are initiating the connection closure, wait for the peer
+        // to close the TCP/IP connection. Otherwise, close immediately.
+        return initiator ? SocketOperation.Read : SocketOperation.None;
+    }
+
+    public void close()
+    {
+        if(_state == StateConnected && _instance.traceLevel() >= 1)
         {
-            String s = "closing tcp connection\n" + toString();
-            _logger.trace(_traceLevels.networkCat, s);
+            String s = "closing " + _instance.protocol() + " connection\n" + toString();
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         assert(_fd != null);
@@ -147,21 +150,25 @@ final class TcpTransceiver implements Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    public boolean
-    write(Buffer buf)
+    public int write(Buffer buf)
     {
+        final int size = buf.b.limit();
+        int packetSize = size - buf.b.position();
+
+        if(packetSize == 0)
+        {
+            return SocketOperation.None;
+        }
+
         //
-        // We don't want write to be called on android main thread as this will cause
-        // NetworkOnMainThreadException to be thrown. If that is the android main thread
-        // we return false and this method will be later called from the thread pool.
+        // We don't want write to be called on Android's main thread as this will cause
+        // NetworkOnMainThreadException to be thrown. If this is the Android main thread
+        // we return false and this method will be called later from the thread pool.
         //
         if(Util.isAndroidMainThread(Thread.currentThread()))
         {
-            return false;
+            return SocketOperation.Write;
         }
-
-        final int size = buf.b.limit();
-        int packetSize = size - buf.b.position();
 
         //
         // Limit packet size to avoid performance problems on WIN32
@@ -177,8 +184,8 @@ final class TcpTransceiver implements Transceiver
             try
             {
                 assert(_fd != null);
-                int ret = _fd.write(buf.b);
 
+                int ret = _fd.write(buf.b);
                 if(ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
@@ -186,20 +193,21 @@ final class TcpTransceiver implements Transceiver
                 else if(ret == 0)
                 {
                     //
-                    // Writing would block, so we reset the limit (if necessary) and return false to indicate
+                    // Writing would block, so we reset the limit (if necessary) and indicate
                     // that more data must be sent.
                     //
                     if(packetSize == _maxSendPacketSize)
                     {
                         buf.b.limit(size);
                     }
-                    return false;
+                    return SocketOperation.Write;
                 }
 
-                if(_traceLevels.network >= 3)
+                if(_instance.traceLevel() >= 3)
                 {
-                    String s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    String s = "sent " + ret + " of " + packetSize + " bytes via " + _instance.protocol() + "\n" +
+                        toString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
 
                 if(packetSize == _maxSendPacketSize)
@@ -222,15 +230,18 @@ final class TcpTransceiver implements Transceiver
                 throw new Ice.SocketException(ex);
             }
         }
-        return true;
+
+        return SocketOperation.None;
     }
 
     @SuppressWarnings("deprecation")
-    public boolean
-    read(Buffer buf, Ice.BooleanHolder moreData)
+    public int read(Buffer buf, Ice.BooleanHolder moreData)
     {
         int packetSize = buf.b.remaining();
-        moreData.value = false;
+        if(packetSize == 0)
+        {
+            return SocketOperation.None;
+        }
 
         while(buf.b.hasRemaining())
         {
@@ -246,15 +257,16 @@ final class TcpTransceiver implements Transceiver
 
                 if(ret == 0)
                 {
-                    return false;
+                    return SocketOperation.Read;
                 }
 
                 if(ret > 0)
                 {
-                    if(_traceLevels.network >= 3)
+                    if(_instance.traceLevel() >= 3)
                     {
-                        String s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
-                        _logger.trace(_traceLevels.networkCat, s);
+                        String s = "received " + ret + " of " + packetSize + " bytes via " + _instance.protocol() +
+                            "\n" + toString();
+                        _instance.logger().trace(_instance.traceCategory(), s);
                     }
                 }
 
@@ -270,23 +282,20 @@ final class TcpTransceiver implements Transceiver
             }
         }
 
-        return true;
+        return SocketOperation.None;
     }
 
-    public String
-    type()
+    public String protocol()
     {
-        return "tcp";
+        return _instance.protocol();
     }
 
-    public String
-    toString()
+    public String toString()
     {
         return _desc;
     }
 
-    public Ice.ConnectionInfo
-    getInfo()
+    public Ice.ConnectionInfo getInfo()
     {
         Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
         if(_fd != null)
@@ -303,8 +312,7 @@ final class TcpTransceiver implements Transceiver
         return info;
     }
 
-    public void
-    checkSendSize(Buffer buf, int messageSizeMax)
+    public void checkSendSize(Buffer buf, int messageSizeMax)
     {
         if(buf.size() > messageSizeMax)
         {
@@ -313,14 +321,13 @@ final class TcpTransceiver implements Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd, NetworkProxy proxy,
+    TcpTransceiver(ProtocolInstance instance, java.nio.channels.SocketChannel fd, NetworkProxy proxy,
                    java.net.InetSocketAddress addr)
     {
+        _instance = instance;
         _fd = fd;
         _proxy = proxy;
         _addr = addr;
-        _traceLevels = instance.traceLevels();
-        _logger = instance.initializationData().logger;
         _state = StateNeedConnect;
         _desc = "";
 
@@ -341,11 +348,10 @@ final class TcpTransceiver implements Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd)
+    TcpTransceiver(ProtocolInstance instance, java.nio.channels.SocketChannel fd)
     {
+        _instance = instance;
         _fd = fd;
-        _traceLevels = instance.traceLevels();
-        _logger = instance.initializationData().logger;
         _state = StateConnected;
         _desc = Network.fdToString(_fd);
 
@@ -382,14 +388,13 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
+    private ProtocolInstance _instance;
     private java.nio.channels.SocketChannel _fd;
     private NetworkProxy _proxy;
     private java.net.InetSocketAddress _addr;
-    private TraceLevels _traceLevels;
-    private Ice.Logger _logger;
 
-    private String _desc;
     private int _state;
+    private String _desc;
     private int _maxSendPacketSize;
 
     private static final int StateNeedConnect = 0;

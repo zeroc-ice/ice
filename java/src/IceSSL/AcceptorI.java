@@ -11,19 +11,17 @@ package IceSSL;
 
 final class AcceptorI implements IceInternal.Acceptor
 {
-    public java.nio.channels.ServerSocketChannel
-    fd()
+    public java.nio.channels.ServerSocketChannel fd()
     {
         return _fd;
     }
 
-    public void
-    close()
+    public void close()
     {
-        if(_instance.networkTraceLevel() >= 1)
+        if(_instance.traceLevel() >= 1)
         {
-            String s = "stopping to accept ssl connections at " + toString();
-            _logger.trace(_instance.networkTraceCategory(), s);
+            String s = "stopping to accept " + _instance.protocol() + " connections at " + toString();
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         assert(_fd != null);
@@ -31,14 +29,13 @@ final class AcceptorI implements IceInternal.Acceptor
         _fd = null;
     }
 
-    public void
-    listen()
+    public void listen()
     {
         // Nothing to do.
 
-        if(_instance.networkTraceLevel() >= 1)
+        if(_instance.traceLevel() >= 1)
         {
-            StringBuffer s = new StringBuffer("listening for ssl connections at ");
+            StringBuffer s = new StringBuffer("listening for " + _instance.protocol() + " connections at ");
             s.append(toString());
 
             java.util.List<String> interfaces = 
@@ -49,12 +46,11 @@ final class AcceptorI implements IceInternal.Acceptor
                 s.append("\nlocal interfaces: ");
                 s.append(IceUtilInternal.StringUtil.joinString(interfaces, ", "));
             }
-            _logger.trace(_instance.networkTraceCategory(), s.toString());
+            _instance.logger().trace(_instance.traceCategory(), s.toString());
         }
     }
 
-    public IceInternal.Transceiver
-    accept()
+    public IceInternal.Transceiver accept()
     {
         //
         // The plug-in may not be fully initialized.
@@ -72,7 +68,7 @@ final class AcceptorI implements IceInternal.Acceptor
         try
         {
             IceInternal.Network.setBlock(fd, false);
-            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
+            IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
 
             java.net.InetSocketAddress peerAddr = (java.net.InetSocketAddress)fd.socket().getRemoteSocketAddress();
             engine = _instance.createSSLEngine(true, peerAddr);
@@ -83,23 +79,26 @@ final class AcceptorI implements IceInternal.Acceptor
             throw ex;
         }
 
-        if(_instance.networkTraceLevel() >= 1)
+        if(_instance.traceLevel() >= 1)
         {
-            _logger.trace(_instance.networkTraceCategory(), "accepting ssl connection\n" +
-                          IceInternal.Network.fdToString(fd));
+            _instance.logger().trace(_instance.traceCategory(), "accepting " + _instance.protocol() + " connection\n" +
+                                     IceInternal.Network.fdToString(fd));
         }
 
         return new TransceiverI(_instance, engine, fd, _adapterName);
     }
 
-    public String
-    toString()
+    public String protocol()
+    {
+        return _instance.protocol();
+    }
+
+    public String toString()
     {
         return IceInternal.Network.addrToString(_addr);
     }
 
-    int
-    effectivePort()
+    int effectivePort()
     {
         return _addr.getPort();
     }
@@ -108,14 +107,13 @@ final class AcceptorI implements IceInternal.Acceptor
     {
         _instance = instance;
         _adapterName = adapterName;
-        _logger = instance.communicator().getLogger();
-        _backlog = instance.communicator().getProperties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+        _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
         try
         {
             _fd = IceInternal.Network.createTcpServerSocket();
             IceInternal.Network.setBlock(_fd, false);
-            IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);
+            IceInternal.Network.setTcpBufSize(_fd, _instance.properties(), _instance.logger());
             if(!System.getProperty("os.name").startsWith("Windows"))
             {
                 //
@@ -135,10 +133,10 @@ final class AcceptorI implements IceInternal.Acceptor
             }
             _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport(), 
                                                             _instance.preferIPv6());
-            if(_instance.networkTraceLevel() >= 2)
+            if(_instance.traceLevel() >= 2)
             {
-                String s = "attempting to bind to ssl socket " + toString();
-                _logger.trace(_instance.networkTraceCategory(), s);
+                String s = "attempting to bind to " + _instance.protocol() + " socket " + toString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
             _addr = IceInternal.Network.doBind(_fd, _addr, _backlog);
         }
@@ -149,8 +147,7 @@ final class AcceptorI implements IceInternal.Acceptor
         }
     }
 
-    protected synchronized void
-    finalize()
+    protected synchronized void finalize()
         throws Throwable
     {
         try
@@ -168,7 +165,6 @@ final class AcceptorI implements IceInternal.Acceptor
 
     private Instance _instance;
     private String _adapterName;
-    private Ice.Logger _logger;
     private java.nio.channels.ServerSocketChannel _fd;
     private int _backlog;
     private java.net.InetSocketAddress _addr;

@@ -34,8 +34,8 @@ public class EndpointHostResolver
         }
     }
 
-    public java.util.List<Connector>
-    resolve(String host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint)
+    public java.util.List<Connector> resolve(String host, int port, Ice.EndpointSelectionType selType,
+                                             IPEndpointI endpoint)
     {
         //
         // Try to get the addresses without DNS lookup. If this doesn't
@@ -92,8 +92,8 @@ public class EndpointHostResolver
         return connectors;
     }
 
-    synchronized public void
-    resolve(String host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint, EndpointI_connectors callback)
+    synchronized public void resolve(String host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
+                                     EndpointI_connectors callback)
     {
         //
         // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6
@@ -124,16 +124,14 @@ public class EndpointHostResolver
         notify();
     }
 
-    synchronized public void
-    destroy()
+    synchronized public void destroy()
     {
         assert(!_destroyed);
         _destroyed = true;
         notify();
     }
 
-    public void
-    joinWithThread()
+    public void joinWithThread()
     {
         if(_thread != null)
         {
@@ -151,8 +149,7 @@ public class EndpointHostResolver
         }
     }
 
-    public void
-    run()
+    public void run()
     {
         while(true)
         {
@@ -236,8 +233,7 @@ public class EndpointHostResolver
         _queue.clear();
     }
 
-    synchronized public void
-    updateObserver()
+    synchronized public void updateObserver()
     {
         Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
         if(obsv != null)
@@ -258,7 +254,7 @@ public class EndpointHostResolver
         String host;
         int port;
         Ice.EndpointSelectionType selType;
-        EndpointI endpoint;
+        IPEndpointI endpoint;
         EndpointI_connectors callback;
         Ice.Instrumentation.Observer observer;
     }
@@ -282,8 +278,7 @@ public class EndpointHostResolver
             setName(threadName + "Ice.HostResolver");
         }
 
-        public void
-        run()
+        public void run()
         {
             try
             {

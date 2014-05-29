@@ -11,8 +11,7 @@ package IceSSL;
 
 final class ConnectorI implements IceInternal.Connector
 {
-    public IceInternal.Transceiver
-    connect()
+    public IceInternal.Transceiver connect()
     {
         //
         // The plug-in may not be fully initialized.
@@ -24,17 +23,17 @@ final class ConnectorI implements IceInternal.Connector
             throw ex;
         }
 
-        if(_instance.networkTraceLevel() >= 2)
+        if(_instance.traceLevel() >= 2)
         {
-            String s = "trying to establish ssl connection to " + toString();
-            _logger.trace(_instance.networkTraceCategory(), s);
+            String s = "trying to establish " + _instance.protocol() + " connection to " + toString();
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         try
         {
             java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
             IceInternal.Network.setBlock(fd, false);
-            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
+            IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
             final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
             IceInternal.Network.doConnect(fd, addr);
             try
@@ -50,29 +49,26 @@ final class ConnectorI implements IceInternal.Connector
         }
         catch(Ice.LocalException ex)
         {
-            if(_instance.networkTraceLevel() >= 2)
+            if(_instance.traceLevel() >= 2)
             {
-                String s = "failed to establish ssl connection to " + toString() + "\n" + ex;
-                _logger.trace(_instance.networkTraceCategory(), s);
+                String s = "failed to establish " + _instance.protocol() + " connection to " + toString() + "\n" + ex;
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
             throw ex;
         }
     }
 
-    public short
-    type()
+    public short type()
     {
-        return EndpointType.value;
+        return _instance.type();
     }
 
-    public String
-    toString()
+    public String toString()
     {
         return IceInternal.Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
     }
 
-    public int
-    hashCode()
+    public int hashCode()
     {
         return _hashCode;
     }
@@ -84,7 +80,6 @@ final class ConnectorI implements IceInternal.Connector
                int timeout, String connectionId)
     {
         _instance = instance;
-        _logger = instance.communicator().getLogger();
         _host = host;
         _addr = addr;
         _proxy = proxy;
@@ -98,8 +93,7 @@ final class ConnectorI implements IceInternal.Connector
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
-    public boolean
-    equals(java.lang.Object obj)
+    public boolean equals(java.lang.Object obj)
     {
         if(!(obj instanceof ConnectorI))
         {
@@ -126,7 +120,6 @@ final class ConnectorI implements IceInternal.Connector
     }
 
     private Instance _instance;
-    private Ice.Logger _logger;
     private String _host;
     private java.net.InetSocketAddress _addr;
     private IceInternal.NetworkProxy _proxy;

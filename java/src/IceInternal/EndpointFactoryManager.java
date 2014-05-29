@@ -16,8 +16,7 @@ public final class EndpointFactoryManager
         _instance = instance;
     }
 
-    public synchronized void
-    add(EndpointFactory factory)
+    public synchronized void add(EndpointFactory factory)
     {
         for(int i = 0; i < _factories.size(); i++)
         {
@@ -30,8 +29,7 @@ public final class EndpointFactoryManager
         _factories.add(factory);
     }
 
-    public synchronized EndpointFactory
-    get(short type)
+    public synchronized EndpointFactory get(short type)
     {
         for(int i = 0; i < _factories.size(); i++)
         {
@@ -44,51 +42,68 @@ public final class EndpointFactoryManager
         return null;
     }
 
-    public synchronized EndpointI
-    create(String str, boolean oaEndpoint)
+    public synchronized EndpointI create(String str, boolean oaEndpoint)
     {
-        String s = str.trim();
-        if(s.length() == 0)
+        String[] arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+        if(arr == null)
+        {
+            Ice.EndpointParseException e = new Ice.EndpointParseException();
+            e.str = "mismatched quote";
+            throw e;
+        }
+
+        if(arr.length == 0)
         {
             Ice.EndpointParseException e = new Ice.EndpointParseException();
             e.str = "value has no non-whitespace characters";
             throw e;
         }
 
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile("([ \t\n\r]+)|$");
-        java.util.regex.Matcher m = p.matcher(s);
-        boolean b = m.find();
-        assert(b);
-
-        String protocol = s.substring(0, m.start());
+        java.util.ArrayList<String> v = new java.util.ArrayList<String>(java.util.Arrays.asList(arr));
+        String protocol = v.get(0);
+        v.remove(0);
 
         if(protocol.equals("default"))
         {
             protocol = _instance.defaultsAndOverrides().defaultProtocol;
         }
 
+        EndpointFactory factory = null;
+
         for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = _factories.get(i);
             if(f.protocol().equals(protocol))
             {
-                return f.create(s.substring(m.end()), oaEndpoint);
-
-                // Code below left in place for debugging.
-
-                /*
-                EndpointI e = f.create(s.substring(m.end()), oaEndpoint);
-                BasicStream bs = new BasicStream(_instance, true, false);
-                e.streamWrite(bs);
-                java.nio.ByteBuffer buf = bs.getBuffer();
-                buf.position(0);
-                short type = bs.readShort();
-                EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
-                System.err.println("Normal: " + e);
-                System.err.println("Opaque: " + ue);
-                return e;
-                */
+                factory = f;
             }
+        }
+
+        if(factory != null)
+        {
+            EndpointI e = factory.create(v, oaEndpoint);
+            if(!v.isEmpty())
+            {
+                Ice.EndpointParseException ex = new Ice.EndpointParseException();
+                ex.str = "unrecognized argument `" + v.get(0) + "' in endpoint `" + str + "'";
+                throw ex;
+            }
+            return e;
+
+            // Code below left in place for debugging.
+
+            /*
+            EndpointI e = f.create(s.substring(m.end()), oaEndpoint);
+            BasicStream bs = new BasicStream(_instance, true, false);
+            e.streamWrite(bs);
+            java.nio.ByteBuffer buf = bs.getBuffer();
+            buf.position(0);
+            short type = bs.readShort();
+            EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
+            System.err.println("Normal: " + e);
+            System.err.println("Opaque: " + ue);
+            return e;
+            */
         }
 
         //
@@ -97,24 +112,31 @@ public final class EndpointFactoryManager
         //
         if(protocol.equals("opaque"))
         {
-            EndpointI ue = new OpaqueEndpointI(s.substring(m.end()));
-            for(int i = 0; i < _factories.size(); i++)
+            EndpointI ue = new OpaqueEndpointI(v);
+            if(!v.isEmpty())
             {
-                EndpointFactory f = _factories.get(i);
-                if(f.type() == ue.type())
-                {
-                    //
-                    // Make a temporary stream, write the opaque endpoint data into the stream,
-                    // and ask the factory to read the endpoint data from that stream to create
-                    // the actual endpoint.
-                    //
-                    BasicStream bs = new BasicStream(_instance, Protocol.currentProtocolEncoding, true, false);
-                    ue.streamWrite(bs);
-                    Buffer buf = bs.getBuffer();
-                    buf.b.position(0);
-                    bs.readShort(); // type
-                    return f.read(bs);
-                }
+                Ice.EndpointParseException ex = new Ice.EndpointParseException();
+                ex.str = "unrecognized argument `" + v.get(0) + "' in endpoint `" + str + "'";
+                throw ex;
+            }
+            factory = get(ue.type());
+            if(factory != null)
+            {
+                //
+                // Make a temporary stream, write the opaque endpoint data into the stream,
+                // and ask the factory to read the endpoint data from that stream to create
+                // the actual endpoint.
+                //
+                BasicStream bs = new BasicStream(_instance, Protocol.currentProtocolEncoding, true, false);
+                bs.writeShort(ue.type());
+                ue.streamWrite(bs);
+                Buffer buf = bs.getBuffer();
+                buf.b.position(0);
+                bs.readShort(); // type
+                bs.startReadEncaps();
+                EndpointI e = factory.read(bs);
+                bs.endReadEncaps();
+                return e;
             }
             return ue; // Endpoint is opaque, but we don't have a factory for its type.
         }
@@ -122,23 +144,30 @@ public final class EndpointFactoryManager
         return null;
     }
 
-    public synchronized EndpointI
-    read(BasicStream s)
+    public synchronized EndpointI read(BasicStream s)
     {
         short type = s.readShort();
-        for(int i = 0; i < _factories.size(); i++)
+
+        EndpointFactory factory = get(type);
+        EndpointI e = null;
+
+        s.startReadEncaps();
+
+        if(factory != null)
         {
-            EndpointFactory f = _factories.get(i);
-            if(f.type() == type)
-            {
-                return f.read(s);
-            }
+            e = factory.read(s);
         }
-        return new OpaqueEndpointI(type, s);
+        else
+        {
+            e = new OpaqueEndpointI(type, s);
+        }
+
+        s.endReadEncaps();
+
+        return e;
     }
 
-    void
-    destroy()
+    void destroy()
     {
         for(int i = 0; i < _factories.size(); i++)
         {

@@ -20,10 +20,10 @@ class TcpAcceptor implements Acceptor
     public void
     close()
     {
-        if(_traceLevels.network >= 1)
+        if(_instance.traceLevel() >= 1)
         {
             String s = "stopping to accept tcp connections at " + toString();
-            _logger.trace(_traceLevels.networkCat, s);
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         assert(_fd != null);
@@ -36,7 +36,7 @@ class TcpAcceptor implements Acceptor
     {
         // Nothing to do.
 
-        if(_traceLevels.network >= 1)
+        if(_instance.traceLevel() >= 1)
         {
             StringBuffer s = new StringBuffer("listening for tcp connections at ");
             s.append(toString());
@@ -49,7 +49,7 @@ class TcpAcceptor implements Acceptor
                 s.append("\nlocal interfaces: ");
                 s.append(IceUtilInternal.StringUtil.joinString(interfaces, ", "));
             }
-            _logger.trace(_traceLevels.networkCat, s.toString());
+            _instance.logger().trace(_instance.traceCategory(), s.toString());
         }
     }
 
@@ -58,15 +58,21 @@ class TcpAcceptor implements Acceptor
     {
         java.nio.channels.SocketChannel fd = Network.doAccept(_fd);
         Network.setBlock(fd, false);
-        Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
+        Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
 
-        if(_traceLevels.network >= 1)
+        if(_instance.traceLevel() >= 1)
         {
             String s = "accepted tcp connection\n" + Network.fdToString(fd);
-            _logger.trace(_traceLevels.networkCat, s);
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         return new TcpTransceiver(_instance, fd);
+    }
+
+    public String
+    protocol()
+    {
+        return _instance.protocol();
     }
 
     public String
@@ -81,18 +87,16 @@ class TcpAcceptor implements Acceptor
         return _addr.getPort();
     }
 
-    TcpAcceptor(Instance instance, String host, int port)
+    TcpAcceptor(ProtocolInstance instance, String host, int port)
     {
         _instance = instance;
-        _traceLevels = instance.traceLevels();
-        _logger = instance.initializationData().logger;
-        _backlog = instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+        _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
         try
         {
             _fd = Network.createTcpServerSocket();
             Network.setBlock(_fd, false);
-            Network.setTcpBufSize(_fd, _instance.initializationData().properties, _logger);
+            Network.setTcpBufSize(_fd, instance.properties(), _instance.logger());
             if(!System.getProperty("os.name").startsWith("Windows"))
             {
                 //
@@ -110,11 +114,11 @@ class TcpAcceptor implements Acceptor
                 //
                 Network.setReuseAddress(_fd, true);
             }
-            _addr = Network.getAddressForServer(host, port, _instance.protocolSupport(), _instance.preferIPv6());
-            if(_traceLevels.network >= 2)
+            _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
+            if(instance.traceLevel() >= 2)
             {
                 String s = "attempting to bind to tcp socket " + toString();
-                _logger.trace(_traceLevels.networkCat, s);
+                instance.logger().trace(instance.traceCategory(), s);
             }
             _addr = Network.doBind(_fd, _addr, _backlog);
         }
@@ -142,9 +146,7 @@ class TcpAcceptor implements Acceptor
         }
     }
 
-    private Instance _instance;
-    private TraceLevels _traceLevels;
-    private Ice.Logger _logger;
+    private ProtocolInstance _instance;
     private java.nio.channels.ServerSocketChannel _fd;
     private int _backlog;
     private java.net.InetSocketAddress _addr;

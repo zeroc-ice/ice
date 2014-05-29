@@ -11,19 +11,21 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<EndpointI>
 {
-    public EndpointI(String connectionId)
-    {
-        _connectionId = connectionId;
-    }
-
-    public EndpointI()
-    {
-    }
-
-    public String
-    toString()
+    public String toString()
     {
         return _toString();
+    }
+
+    public String _toString()
+    {
+        //
+        // WARNING: Certain features, such as proxy validation in Glacier2,
+        // depend on the format of proxy strings. Changes to toString() and
+        // methods called to generate parts of the reference string could break
+        // these features. Please review for all features that depend on the
+        // format of proxyToString() before changing this and related code.
+        //
+        return protocol() + options();
     }
 
     //
@@ -35,12 +37,12 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     // Return the endpoint type.
     //
     public abstract short type();
-    
+
     //
     // Return the protocol name.
     //
     public abstract String protocol();
-    
+
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
@@ -55,6 +57,11 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     public abstract EndpointI timeout(int t);
 
     //
+    // Return the connection ID
+    //
+    public abstract String connectionId();
+
+    //
     // Return a new endpoint with a different connection id.
     //
     public abstract EndpointI connectionId(String connectionId);
@@ -64,7 +71,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     // otherwise.
     //
     public abstract boolean compress();
-    
+
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
@@ -81,14 +88,6 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     // Return true if the endpoint is secure.
     //
     public abstract boolean secure();
-
-    //
-    // Return the connection ID 
-    //
-    public String connectionId()
-    {
-        return _connectionId;
-    }
 
     //
     // Return a server side transceiver for this endpoint, or null if a
@@ -126,15 +125,53 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     public abstract boolean equivalent(EndpointI endpoint);
 
-    public java.util.List<Connector>
-    connectors(java.util.List<java.net.InetSocketAddress> addresses, NetworkProxy proxy)
+    public abstract String options();
+
+    public void initWithOptions(java.util.ArrayList<String> args)
     {
-        //
-        // This method must be extended by endpoints which use the EndpointHostResolver to create
-        // connectors from IP addresses.
-        //
-        assert(false);
-        return null;
+        java.util.ArrayList<String> unknown = new java.util.ArrayList<String>();
+
+        String str = "`" + protocol() + " ";
+        for(String p : args)
+        {
+            if(IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+            {
+                str += " \"" + p + "\"";
+            }
+            else
+            {
+                str += " " + p;
+            }
+        }
+        str += "'";
+
+        for(int n = 0; n < args.size(); ++n)
+        {
+            String option = args.get(n);
+            if(option.length() < 2 || option.charAt(0) != '-')
+            {
+                unknown.add(option);
+                continue;
+            }
+
+            String argument = null;
+            if(n + 1 < args.size() && args.get(n + 1).charAt(0) != '-')
+            {
+                argument = args.get(++n);
+            }
+
+            if(!checkOption(option, argument, str))
+            {
+                unknown.add(option);
+                if(argument != null)
+                {
+                    unknown.add(argument);
+                }
+            }
+        }
+
+        args.clear();
+        args.addAll(unknown);
     }
 
     //
@@ -149,15 +186,9 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
         return compareTo((EndpointI)obj) == 0;
     }
 
-    public int compareTo(EndpointI p) // From java.lang.Comparable. 
+    protected boolean checkOption(String option, String argument, String endpoint)
     {
-        if(!_connectionId.equals(p._connectionId))
-        {
-            return _connectionId.compareTo(p._connectionId);
-        }
-
-        return 0;
+        // Must be overridden to check for options.
+        return false;
     }
-
-    protected String _connectionId = "";
 }

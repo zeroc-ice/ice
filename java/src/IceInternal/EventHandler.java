@@ -31,17 +31,8 @@ public abstract class EventHandler
     //
     abstract public java.nio.channels.SelectableChannel fd();
 
-    //
-    // In Java, it's possible that the transceiver reads more data than what was 
-    // really asked. If this is the case, hasMoreData() returns true and the handler
-    // read() method should be called again (without doing a select()). This is 
-    // handled by the Selector class (it adds the handler to a separate list of 
-    // handlers if this method returns true.)
-    //
-    abstract public boolean hasMoreData();
-
-    int _disabled = 0;
-    int _registered = 0;
-    int _ready = 0;
-    java.nio.channels.SelectionKey _key = null;
+    public int _disabled = 0;
+    public Ice.BooleanHolder _hasMoreData = new Ice.BooleanHolder(false);
+    public int _registered = 0;
+    public java.nio.channels.SelectionKey _key = null;
 }

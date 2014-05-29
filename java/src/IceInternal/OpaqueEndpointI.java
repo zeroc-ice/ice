@@ -11,179 +11,50 @@ package IceInternal;
 
 final class OpaqueEndpointI extends EndpointI
 {
-    public
-    OpaqueEndpointI(String str)
+    public OpaqueEndpointI(java.util.ArrayList<String> args)
     {
-        super("");
-
+        _type = -1;
         _rawEncoding = Ice.Util.Encoding_1_0;
+        _rawBytes = new byte[0];
 
-        int topt = 0;
-        int vopt = 0;
+        initWithOptions(args);
 
-        String[] arr = str.split("[ \t\n\r]+");
-        int i = 0;
-        while(i < arr.length)
+        if(_type < 0)
         {
-            if(arr[i].length() == 0)
-            {
-                i++;
-                continue;
-            }
-
-            String option = arr[i++];
-            if(option.length() != 2 || option.charAt(0) != '-')
-            {
-                throw new Ice.EndpointParseException("expected an endpoint option but found `" + option +
-                                                     "' in endpoint `opaque " + str + "'");
-            }
-
-            String argument = null;
-            if(i < arr.length && arr[i].charAt(0) != '-')
-            {
-                argument = arr[i++];
-            }
-
-            switch(option.charAt(1))
-            {
-                case 't':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("no argument provided for -t option in endpoint `opaque "
-                                                             + str + "'");
-                    }
-
-                    int t;
-                    try
-                    {
-                        t = Integer.parseInt(argument);
-                    }
-                    catch(NumberFormatException ex)
-                    {
-                        throw new Ice.EndpointParseException("invalid type value `" + argument + 
-                                                             "' in endpoint `opaque " + str + "'");
-                    }
-
-                    if(t < 0 || t > 65535)
-                    {
-                        throw new Ice.EndpointParseException("type value `" + argument +
-                                                             "' out of range in endpoint `opaque " + str + "'");
-                    }
-
-                    _type = (short)t;
-                    ++topt;
-                    if(topt > 1)
-                    {
-                        throw new Ice.EndpointParseException("multiple -t options in endpoint `opaque " + str + "'");
-                    }
-                    break;
-                }
-
-                case 'e':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `opaque "
-                                                             + str + "'");
-                    }
-
-                    try
-                    {
-                        _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
-                    }
-                    catch(Ice.VersionParseException e)
-                    {
-                        throw new Ice.EndpointParseException("invalid encoding version `" + argument + 
-                                                             "' in endpoint `opaque " + str + "':\n" + e.str);
-                    }
-                    break;
-                }
-
-                case 'v':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `opaque "
-                                                             + str + "'");
-                    }
-
-                    for(int j = 0; j < argument.length(); ++j)
-                    {
-                        if(!IceUtilInternal.Base64.isBase64(argument.charAt(j)))
-                        {
-                            throw new Ice.EndpointParseException("invalid base64 character `" + argument.charAt(j) +
-                                                                 "' (ordinal " + ((int)argument.charAt(j)) +
-                                                                 ") in endpoint `opaque " + str + "'");
-                        }
-                    }
-                    _rawBytes = IceUtilInternal.Base64.decode(argument);
-                    ++vopt;
-                    if(vopt > 1)
-                    {
-                        throw new Ice.EndpointParseException("multiple -v options in endpoint `opaque " + str + "'");
-                    }
-                    break;
-                }
-
-                default:
-                {
-                    throw new Ice.EndpointParseException("invalid option `" + option + "' in endpoint `opaque " +
-                                                         str + "'");
-                }
-            }
+            throw new Ice.EndpointParseException("no -t option in endpoint " + toString());
+        }
+        if(_rawBytes.length == 0)
+        {
+            throw new Ice.EndpointParseException("no -v option in endpoint " + toString());
         }
 
-        if(topt != 1)
-        {
-            throw new Ice.EndpointParseException("no -t option in endpoint `opaque " + str + "'");
-        }
-        if(vopt != 1)
-        {
-            throw new Ice.EndpointParseException("no -v option in endpoint `opaque " + str + "'");
-        }
         calcHashValue();
     }
 
-    public
-    OpaqueEndpointI(short type, BasicStream s)
+    public OpaqueEndpointI(short type, BasicStream s)
     {
-        super("");
         _type = type;
-        _rawEncoding = s.startReadEncaps();
+        _rawEncoding = s.getReadEncoding();
         int sz = s.getReadEncapsSize();
         _rawBytes = s.readBlob(sz);
-        s.endReadEncaps();
+
         calcHashValue();
     }
 
     //
     // Marshal the endpoint
     //
-    public void
-    streamWrite(BasicStream s)
+    public void streamWrite(BasicStream s)
     {
-        s.writeShort(_type);
         s.startWriteEncaps(_rawEncoding, Ice.FormatType.DefaultFormat);
         s.writeBlob(_rawBytes);
         s.endWriteEncaps();
     }
 
     //
-    // Convert the endpoint to its string form
-    //
-    public String
-    _toString()
-    {
-        String val = IceUtilInternal.Base64.encode(_rawBytes);
-        return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
-    }
-
-    //
     // Return the endpoint information.
     //
-    public Ice.EndpointInfo
-    getInfo()
+    public Ice.EndpointInfo getInfo()
     {
         return new Ice.OpaqueEndpointInfo(-1, false, _rawEncoding, _rawBytes)
             {
@@ -191,12 +62,12 @@ final class OpaqueEndpointI extends EndpointI
                 {
                     return _type;
                 }
-                
+
                 public boolean datagram()
                 {
                     return false;
                 }
-                
+
                 public boolean secure()
                 {
                     return false;
@@ -207,8 +78,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return the endpoint type
     //
-    public short
-    type()
+    public short type()
     {
         return _type;
     }
@@ -216,8 +86,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return the protocol name
     //
-    public String
-    protocol()
+    public String protocol()
     {
         return "opaque";
     }
@@ -226,38 +95,39 @@ final class OpaqueEndpointI extends EndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    public int
-    timeout()
+    public int timeout()
     {
         return -1;
     }
-    
+
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public EndpointI
-    timeout(int t)
+    public EndpointI timeout(int t)
     {
         return this;
+    }
+
+    public String connectionId()
+    {
+        return "";
     }
 
     //
     // Return a new endpoint with a different connection id.
     //
-    public EndpointI
-    connectionId(String connectionId)
+    public EndpointI connectionId(String connectionId)
     {
         return this;
     }
-    
+
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    public boolean
-    compress()
+    public boolean compress()
     {
         return false;
     }
@@ -267,8 +137,7 @@ final class OpaqueEndpointI extends EndpointI
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    public EndpointI
-    compress(boolean compress)
+    public EndpointI compress(boolean compress)
     {
         return this;
     }
@@ -276,17 +145,15 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return true if the endpoint is datagram-based.
     //
-    public boolean
-    datagram()
+    public boolean datagram()
     {
         return false;
     }
-    
+
     //
     // Return true if the endpoint is secure.
     //
-    public boolean
-    secure()
+    public boolean secure()
     {
         return false;
     }
@@ -294,8 +161,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Get the encoded endpoint.
     //
-    public byte[]
-    rawBytes()
+    public byte[] rawBytes()
     {
         return _rawBytes;
     }
@@ -307,8 +173,7 @@ final class OpaqueEndpointI extends EndpointI
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    public Transceiver
-    transceiver(EndpointIHolder endpoint)
+    public Transceiver transceiver(EndpointIHolder endpoint)
     {
         endpoint.value = null;
         return null;
@@ -318,14 +183,12 @@ final class OpaqueEndpointI extends EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public java.util.List<Connector>
-    connectors(Ice.EndpointSelectionType selType)
+    public java.util.List<Connector> connectors(Ice.EndpointSelectionType selType)
     {
         return new java.util.ArrayList<Connector>();
     }
 
-    public void
-    connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+    public void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
     {
         callback.connectors(new java.util.ArrayList<Connector>());
     }
@@ -337,8 +200,7 @@ final class OpaqueEndpointI extends EndpointI
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    public Acceptor
-    acceptor(EndpointIHolder endpoint, String adapterName)
+    public Acceptor acceptor(EndpointIHolder endpoint, String adapterName)
     {
         endpoint.value = null;
         return null;
@@ -349,8 +211,7 @@ final class OpaqueEndpointI extends EndpointI
     // host if listening on INADDR_ANY on server side or if no host
     // was specified on client side.
     //
-    public java.util.List<EndpointI>
-    expand()
+    public java.util.List<EndpointI> expand()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
         endps.add(this);
@@ -360,23 +221,35 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Check whether the endpoint is equivalent to another one.
     //
-    public boolean
-    equivalent(EndpointI endpoint)
+    public boolean equivalent(EndpointI endpoint)
     {
         return false;
     }
 
-    public int
-    hashCode()
+    public int hashCode()
     {
         return _hashCode;
     }
-    
+
+    public String options()
+    {
+        String s = "";
+        if(_type > -1)
+        {
+            s += " -t " + _type;
+        }
+        s += " -e " + Ice.Util.encodingVersionToString(_rawEncoding);
+        if(_rawBytes.length > 0)
+        {
+            s += " -v " + IceUtilInternal.Base64.encode(_rawBytes);
+        }
+        return s;
+    }
+
     //
     // Compare endpoints for sorting purposes
     //
-    public int
-    compareTo(EndpointI obj) // From java.lang.Comparable
+    public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
         if(!(obj instanceof OpaqueEndpointI))
         {
@@ -439,8 +312,92 @@ final class OpaqueEndpointI extends EndpointI
         return 0;
     }
 
-    private void
-    calcHashValue()
+    protected boolean checkOption(String option, String argument, String endpoint)
+    {
+        switch(option.charAt(1))
+        {
+        case 't':
+        {
+            if(_type > -1)
+            {
+                throw new Ice.EndpointParseException("multiple -t options in endpoint " + endpoint);
+            }
+            if(argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
+            }
+
+            int t;
+            try
+            {
+                t = Integer.parseInt(argument);
+            }
+            catch(NumberFormatException ex)
+            {
+                throw new Ice.EndpointParseException("invalid type value `" + argument + "' in endpoint " + endpoint);
+            }
+
+            if(t < 0 || t > 65535)
+            {
+                throw new Ice.EndpointParseException("type value `" + argument + "' out of range in endpoint " +
+                                                     endpoint);
+            }
+
+            _type = (short)t;
+            return true;
+        }
+
+        case 'v':
+        {
+            if(_rawBytes.length > 0)
+            {
+                throw new Ice.EndpointParseException("multiple -v options in endpoint " + endpoint);
+            }
+            if(argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
+            }
+
+            for(int j = 0; j < argument.length(); ++j)
+            {
+                if(!IceUtilInternal.Base64.isBase64(argument.charAt(j)))
+                {
+                    throw new Ice.EndpointParseException("invalid base64 character `" + argument.charAt(j) +
+                                                         "' (ordinal " + ((int)argument.charAt(j)) +
+                                                         ") in endpoint " + endpoint);
+                }
+            }
+            _rawBytes = IceUtilInternal.Base64.decode(argument);
+            return true;
+        }
+
+        case 'e':
+        {
+            if(argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
+            }
+
+            try
+            {
+                _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
+            }
+            catch(Ice.VersionParseException e)
+            {
+                throw new Ice.EndpointParseException("invalid encoding version `" + argument +
+                                                     "' in endpoint " + endpoint + ":\n" + e.str);
+            }
+            return true;
+        }
+
+        default:
+        {
+            return false;
+        }
+        }
+    }
+
+    private void calcHashValue()
     {
         int h = 5381;
         h = IceInternal.HashUtil.hashAdd(h, _type);

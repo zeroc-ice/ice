@@ -19,67 +19,45 @@ final class EndpointI extends IceInternal.EndpointI
         _configuration = configuration;
     }
 
-    //
-    // Marshal the endpoint
-    //
-    public void
-    streamWrite(IceInternal.BasicStream s)
-    {
-        s.writeShort(type());
-        _endpoint.streamWrite(s);
-    }
-
-    //
-    // Convert the endpoint to its string form
-    //
     public String
     _toString()
     {
         return "test-" + _endpoint.toString();
     }
 
-    //
-    // Return the endpoint information/
-    //
     public Ice.EndpointInfo
     getInfo()
     {
         return _endpoint.getInfo();
     }
 
-    //
-    // Return the endpoint type
-    //
+    public void
+    streamWrite(IceInternal.BasicStream s)
+    {
+        s.startWriteEncaps();
+        s.writeShort(_endpoint.type());
+        _endpoint.streamWrite(s);
+        s.endWriteEncaps();
+    }
+
     public short
     type()
     {
         return (short)(TYPE_BASE + _endpoint.type());
     }
 
-    //
-    // Return the protocol name
-    //
     public String
     protocol()
     {
         return _endpoint.protocol();
     }
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
     public int
     timeout()
     {
         return _endpoint.timeout();
     }
 
-    //
-    // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
     public IceInternal.EndpointI
     timeout(int timeout)
     {
@@ -94,9 +72,12 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
-    //
-    // Return a new endpoint with a different connection id.
-    //
+    public String
+    connectionId()
+    {
+        return _endpoint.connectionId();
+    }
+
     public IceInternal.EndpointI
     connectionId(String connectionId)
     {
@@ -111,21 +92,12 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
     public boolean
     compress()
     {
         return _endpoint.compress();
     }
 
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
     public IceInternal.EndpointI
     compress(boolean compress)
     {
@@ -140,31 +112,18 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
-    //
-    // Return true if the endpoint is datagram-based.
-    //
     public boolean
     datagram()
     {
         return _endpoint.datagram();
     }
 
-    //
-    // Return true if the endpoint is secure.
-    //
     public boolean
     secure()
     {
         return _endpoint.secure();
     }
 
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor. In case a
-    // transceiver is created, this operation also returns a new
-    // "effective" endpoint, which might differ from this endpoint,
-    // for example, if a dynamic port number is assigned.
-    //
     public IceInternal.Transceiver
     transceiver(IceInternal.EndpointIHolder endpoint)
     {
@@ -188,10 +147,6 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
-    //
-    // Return connectors for this endpoint, or empty list if no connector
-    // is available.
-    //
     public java.util.List<IceInternal.Connector>
     connectors(Ice.EndpointSelectionType selType)
     {
@@ -270,6 +225,12 @@ final class EndpointI extends IceInternal.EndpointI
             return false;
         }
         return testEndpoint._endpoint.equivalent(_endpoint);
+    }
+
+    public String
+    options()
+    {
+        return _endpoint.options();
     }
 
     public int

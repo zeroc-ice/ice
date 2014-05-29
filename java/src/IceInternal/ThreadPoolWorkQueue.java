@@ -149,12 +149,6 @@ final class ThreadPoolWorkQueue extends EventHandler
     {
         return (java.nio.channels.SelectableChannel)_fdIntrRead;
     }
-    
-    public boolean
-    hasMoreData()
-    {
-        return false;
-    }
 
     public void
     postMessage()

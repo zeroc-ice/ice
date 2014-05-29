@@ -29,21 +29,32 @@ final class EndpointFactory implements IceInternal.EndpointFactory
     }
 
     public IceInternal.EndpointI
-    create(String str, boolean server)
+    create(java.util.ArrayList<String> args, boolean server)
     {
-        return new EndpointI(_configuration, _factory.create(str, server));
+        return new EndpointI(_configuration, _factory.create(args, server));
     }
 
     public IceInternal.EndpointI
     read(IceInternal.BasicStream s)
     {
-        s.readShort();
-        return new EndpointI(_configuration, _factory.read(s));
+        short type = s.readShort();
+        assert(type == _factory.type());
+
+        s.startReadEncaps();
+        IceInternal.EndpointI endpoint = new EndpointI(_configuration, _factory.read(s));
+        s.endReadEncaps();
+        return endpoint;
     }
 
     public void
     destroy()
     {
+    }
+
+    public IceInternal.EndpointFactory
+    clone(IceInternal.ProtocolInstance instance)
+    {
+        return this;
     }
 
     private Configuration _configuration;

@@ -11,8 +11,7 @@ package IceInternal;
 
 public class ProtocolPluginFacadeI implements ProtocolPluginFacade
 {
-    public
-    ProtocolPluginFacadeI(Ice.Communicator communicator)
+    public ProtocolPluginFacadeI(Ice.Communicator communicator)
     {
         _communicator = communicator;
         _instance = Util.getInstance(communicator);
@@ -22,82 +21,15 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     // Get the Communicator instance with which this facade is
     // associated.
     //
-    public Ice.Communicator
-    getCommunicator()
+    public Ice.Communicator getCommunicator()
     {
         return _communicator;
     }
 
     //
-    // Get the endpoint host resolver.
-    //
-    public EndpointHostResolver
-    getEndpointHostResolver()
-    {
-        return _instance.endpointHostResolver();
-    }    
-
-    //
-    // Get the protocol support.
-    //
-    public int
-    getProtocolSupport()
-    {
-        return _instance.protocolSupport();
-    }    
-
-    public boolean
-    getPreferIPv6()
-    {
-        return _instance.preferIPv6();
-    }
-
-    //
-    // Get the network proxy.
-    //
-    public NetworkProxy getNetworkProxy()
-    {
-        return _instance.networkProxy();
-    }
-
-    //
-    // Get the default encoding to be used in endpoints.
-    //
-    public Ice.EncodingVersion
-    getDefaultEncoding()
-    {
-        return _instance.defaultsAndOverrides().defaultEncoding;
-    }
-
-    //
-    // Get the default hostname to be used in endpoints.
-    //
-    public String
-    getDefaultHost()
-    {
-        return _instance.defaultsAndOverrides().defaultHost;
-    }
-
-    //
-    // Get the network trace level and category name.
-    //
-    public int
-    getNetworkTraceLevel()
-    {
-        return _instance.traceLevels().network;
-    }
-
-    public String
-    getNetworkTraceCategory()
-    {
-        return _instance.traceLevels().networkCat;
-    }
-
-    //
     // Register an EndpointFactory.
     //
-    public void
-    addEndpointFactory(EndpointFactory factory)
+    public void addEndpointFactory(EndpointFactory factory)
     {
         _instance.endpointFactoryManager().add(factory);
     }
@@ -105,8 +37,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     //
     // Register an EndpointFactory.
     //
-    public EndpointFactory
-    getEndpointFactory(short type)
+    public EndpointFactory getEndpointFactory(short type)
     {
         return _instance.endpointFactoryManager().get(type);
     }
@@ -114,8 +45,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     //
     // Look up a Java class by name.
     //
-    public Class<?>
-    findClass(String className)
+    public Class<?> findClass(String className)
     {
         return _instance.findClass(className);
     }

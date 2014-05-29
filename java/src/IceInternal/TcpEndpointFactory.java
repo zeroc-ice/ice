@@ -11,40 +11,42 @@ package IceInternal;
 
 final class TcpEndpointFactory implements EndpointFactory
 {
-    TcpEndpointFactory(Instance instance)
+    TcpEndpointFactory(ProtocolInstance instance)
     {
         _instance = instance;
     }
 
-    public short
-    type()
+    public short type()
     {
-        return Ice.TCPEndpointType.value;
+        return _instance.type();
     }
 
-    public String
-    protocol()
+    public String protocol()
     {
-        return "tcp";
+        return _instance.protocol();
     }
 
-    public EndpointI
-    create(String str, boolean oaEndpoint)
+    public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
-        return new TcpEndpointI(_instance, str, oaEndpoint);
+        IPEndpointI endpt = new TcpEndpointI(_instance);
+        endpt.initWithOptions(args, oaEndpoint);
+        return endpt;
     }
 
-    public EndpointI
-    read(BasicStream s)
+    public EndpointI read(BasicStream s)
     {
-        return new TcpEndpointI(s);
+        return new TcpEndpointI(_instance, s);
     }
 
-    public void
-    destroy()
+    public void destroy()
     {
         _instance = null;
     }
 
-    private Instance _instance;
+    public EndpointFactory clone(ProtocolInstance instance)
+    {
+        return new TcpEndpointFactory(instance);
+    }
+
+    private ProtocolInstance _instance;
 }

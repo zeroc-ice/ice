@@ -3263,6 +3263,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
                     }
                     setState(StateClosed);
                 }
+                break;
             }
 
             case requestMsg:
@@ -3416,7 +3417,6 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
             {
                 trace("received unknown message\n(invalid, closing connection)", stream, _logger, _traceLevels);
                 throw UnknownMessageException(__FILE__, __LINE__);
-                break;
             }
         }
     }

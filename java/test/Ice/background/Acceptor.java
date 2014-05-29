@@ -36,6 +36,12 @@ class Acceptor implements IceInternal.Acceptor
     }
 
     public String
+    protocol()
+    {
+        return _acceptor.protocol();
+    }
+
+    public String
     toString()
     {
         return _acceptor.toString();

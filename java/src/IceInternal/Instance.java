@@ -782,9 +782,11 @@ public final class Instance
             }
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
-            EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
+            ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
+            EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
             _endpointFactoryManager.add(tcpEndpointFactory);
-            EndpointFactory udpEndpointFactory = new UdpEndpointFactory(this);
+            ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
+            EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
             _endpointFactoryManager.add(udpEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator, this);

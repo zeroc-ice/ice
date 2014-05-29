@@ -15,15 +15,13 @@ import javax.net.ssl.SSLEngineResult.*;
 
 final class TransceiverI implements IceInternal.Transceiver
 {
-    public java.nio.channels.SelectableChannel
-    fd()
+    public java.nio.channels.SelectableChannel fd()
     {
         assert(_fd != null);
         return _fd;
     }
 
-    public int
-    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer)
+    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.BooleanHolder moreData)
     {
         try
         {
@@ -32,7 +30,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 _state = StateConnectPending;
                 return IceInternal.SocketOperation.Connect;
             }
-            else if(_state == StateConnectPending)
+            else if(_state <= StateConnectPending)
             {
                 IceInternal.Network.doFinishConnect(_fd);
                 _desc = IceInternal.Network.fdToString(_fd, _proxy, _addr);
@@ -104,33 +102,36 @@ final class TransceiverI implements IceInternal.Transceiver
                 _state = StateConnected;
             }
 
-            if(_state == StateConnected)
-            {
-                return handshakeNonBlocking();
-            }
+            assert(_state == StateConnected);
+
+            return handshakeNonBlocking();
         }
         catch(Ice.LocalException ex)
         {
-            if(_instance.networkTraceLevel() >= 2)
+            if(_instance.traceLevel() >= 2)
             {
                 StringBuilder s = new StringBuilder(128);
-                s.append("failed to establish ssl connection\n");
+                s.append("failed to establish " + protocol() + " connection\n");
                 s.append(IceInternal.Network.fdToString(_fd, _proxy, _addr));
-                _logger.trace(_instance.networkTraceCategory(), s.toString());
+                _instance.logger().trace(_instance.traceCategory(), s.toString());
             }
             throw ex;
         }
-
-        return IceInternal.SocketOperation.None;
     }
 
-    public void
-    close()
+    public int closing(boolean initiator, Ice.LocalException ex)
     {
-        if(_state == StateHandshakeComplete && _instance.networkTraceLevel() >= 1)
+        // If we are initiating the connection closure, wait for the peer
+        // to close the TCP/IP connection. Otherwise, close immediately.
+        return initiator ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
+    }
+
+    public void close()
+    {
+        if(_state == StateHandshakeComplete && _instance.traceLevel() >= 1)
         {
-            String s = "closing ssl connection\n" + toString();
-            _logger.trace(_instance.networkTraceCategory(), s);
+            String s = "closing " + protocol() + " connection\n" + toString();
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         assert(_fd != null);
@@ -151,7 +152,7 @@ final class TransceiverI implements IceInternal.Transceiver
                     {
                         //
                         // Note: we can't block to send the close_notify message. In some cases, the
-                        // close_notify message might therefore not be receieved by the peer. This is
+                        // close_notify message might therefore not be received by the peer. This is
                         // not a big issue since the Ice protocol isn't subject to truncation attacks.
                         //
                         flushNonBlocking();
@@ -186,7 +187,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 // We would probably need to wait for a response in shutdown() to avoid this.
                 // For now, we'll ignore this exception.
                 //
-                //_logger.error("IceSSL: error during close\n" + ex.getMessage());
+                //_instance.logger().error("IceSSL: error during close\n" + ex.getMessage());
             }
         }
 
@@ -200,47 +201,33 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    public boolean
-    write(IceInternal.Buffer buf)
+    public int write(IceInternal.Buffer buf)
     {
         if(_state == StateProxyConnectRequest)
         {
             //
             // We need to write the proxy message, but we have to use TCP and not SSL.
             //
-            return writeRaw(buf);
+            return writeRaw(buf) ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Write;
         }
 
         //
-        // If the handshake isn't completed yet, we shouldn't be writing.
-        //
-        if(_state < StateHandshakeComplete)
-        {
-            throw new Ice.ConnectionLostException();
-        }
-
-        //
-        // We don't want write to be called on android main thread as this will cause
-        // NetworkOnMainThreadException to be thrown. If that is the android main thread
-        // we return false and this method will be later called from the thread pool.
+        // We don't want write to be called on Android's main thread as this will cause
+        // NetworkOnMainThreadException to be thrown. If this is the Android main thread
+        // we return false and this method will be called later from the thread pool.
         //
         if(IceInternal.Util.isAndroidMainThread(Thread.currentThread()))
         {
-            return false;
+            return IceInternal.SocketOperation.Write;
         }
 
         int status = writeNonBlocking(buf.b);
-        if(status != IceInternal.SocketOperation.None)
-        {
-            assert(status == IceInternal.SocketOperation.Write);
-            return false;
-        }
-        return true;
+        assert(status == IceInternal.SocketOperation.None || status == IceInternal.SocketOperation.Write);
+        return status;
     }
 
     @SuppressWarnings("deprecation")
-    public boolean
-    read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
+    public int read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
         moreData.value = false;
 
@@ -249,21 +236,11 @@ final class TransceiverI implements IceInternal.Transceiver
             //
             // We need to read the proxy reply, but we have to use TCP and not SSL.
             //
-            return readRaw(buf);
-        }
-
-        //
-        // If the handshake isn't completed yet, we shouldn't be reading (read can be
-        // called by the thread pool when the connection is registered/unregistered
-        // with the pool to be closed).
-        //
-        if(_state < StateHandshakeComplete)
-        {
-            throw new Ice.ConnectionLostException();
+            return readRaw(buf) ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
         }
 
         int rem = 0;
-        if(_instance.networkTraceLevel() >= 3)
+        if(_instance.traceLevel() >= 3)
         {
             rem = buf.b.remaining();
         }
@@ -274,10 +251,11 @@ final class TransceiverI implements IceInternal.Transceiver
         int pos = buf.b.position();
         fill(buf.b);
 
-        if(_instance.networkTraceLevel() >= 3 && buf.b.position() > pos)
+        if(_instance.traceLevel() >= 3 && buf.b.position() > pos)
         {
-            String s = "received " + (buf.b.position() - pos) + " of " + rem + " bytes via ssl\n" + toString();
-            _logger.trace(_instance.networkTraceCategory(), s);
+            String s = "received " + (buf.b.position() - pos) + " of " + rem + " bytes via " + protocol() +
+                "\n" + toString();
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         //
@@ -305,7 +283,7 @@ final class TransceiverI implements IceInternal.Transceiver
                     if(status != IceInternal.SocketOperation.None)
                     {
                         assert(status == IceInternal.SocketOperation.Read);
-                        return false;
+                        return status;
                     }
                     continue;
                 }
@@ -322,10 +300,11 @@ final class TransceiverI implements IceInternal.Transceiver
                 pos = buf.b.position();
                 fill(buf.b);
 
-                if(_instance.networkTraceLevel() >= 3 && buf.b.position() > pos)
+                if(_instance.traceLevel() >= 3 && buf.b.position() > pos)
                 {
-                    String s = "received " + (buf.b.position() - pos) + " of " + rem + " bytes via ssl\n" + toString();
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    String s = "received " + (buf.b.position() - pos) + " of " + rem + " bytes via " + protocol() +
+                        "\n" + toString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
             }
         }
@@ -338,29 +317,25 @@ final class TransceiverI implements IceInternal.Transceiver
         // Return a boolean to indicate whether more data is available.
         //
         moreData.value = _netInput.position() > 0;
-        return true;
+        return IceInternal.SocketOperation.None;
     }
 
-    public String
-    type()
+    public String protocol()
     {
-        return "ssl";
+        return _instance.protocol();
     }
 
-    public String
-    toString()
+    public String toString()
     {
         return _desc;
     }
 
-    public Ice.ConnectionInfo
-    getInfo()
+    public Ice.ConnectionInfo getInfo()
     {
         return getNativeConnectionInfo();
     }
 
-    public void
-    checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
+    public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {
         if(buf.size() > messageSizeMax)
         {
@@ -397,7 +372,6 @@ final class TransceiverI implements IceInternal.Transceiver
         _instance = instance;
         _engine = engine;
         _fd = fd;
-        _logger = instance.communicator().getLogger();
         _maxPacketSize = 0;
         if(System.getProperty("os.name").startsWith("Windows"))
         {
@@ -418,8 +392,7 @@ final class TransceiverI implements IceInternal.Transceiver
         _netOutput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
     }
 
-    protected void
-    finalize()
+    protected void finalize()
         throws Throwable
     {
         try
@@ -435,8 +408,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    private NativeConnectionInfo
-    getNativeConnectionInfo()
+    private NativeConnectionInfo getNativeConnectionInfo()
     {
         //
         // This can only be called on an open transceiver.
@@ -454,7 +426,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 info.localAddress = socket.getLocalAddress().getHostAddress();
                 info.localPort = socket.getLocalPort();
             }
-            
+
             if(socket.getInetAddress() != null)
             {
                 info.remoteAddress = socket.getInetAddress().getHostAddress();
@@ -489,8 +461,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return info;
     }
 
-    private int
-    handshakeNonBlocking()
+    private int handshakeNonBlocking()
     {
         try
         {
@@ -599,8 +570,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
-    private void
-    handshakeCompleted()
+    private void handshakeCompleted()
     {
         _state = StateHandshakeComplete;
 
@@ -610,8 +580,7 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         if(!_incoming)
         {
-            int verifyPeer =
-                _instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+            int verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
             if(verifyPeer > 0)
             {
                 try
@@ -630,18 +599,18 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         _instance.verifyPeer(getNativeConnectionInfo(), _fd, _host);
 
-        if(_instance.networkTraceLevel() >= 1)
+        if(_instance.traceLevel() >= 1)
         {
             String s;
             if(_incoming)
             {
-                s = "accepted ssl connection\n" + _desc;
+                s = "accepted " + protocol() + " connection\n" + _desc;
             }
             else
             {
-                s = "ssl connection established\n" + _desc;
+                s = protocol() + " connection established\n" + _desc;
             }
-            _logger.trace(_instance.networkTraceCategory(), s);
+            _instance.logger().trace(_instance.traceCategory(), s);
         }
 
         if(_instance.securityTraceLevel() >= 1)
@@ -651,8 +620,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    private int
-    writeNonBlocking(ByteBuffer buf)
+    private int writeNonBlocking(ByteBuffer buf)
     {
         //
         // This method has two purposes: encrypt the application's message buffer into our
@@ -693,11 +661,11 @@ final class TransceiverI implements IceInternal.Transceiver
                     //
                     if(result.bytesConsumed() > 0)
                     {
-                        if(_instance.networkTraceLevel() >= 3)
+                        if(_instance.traceLevel() >= 3)
                         {
-                            String s = "sent " + result.bytesConsumed() + " of " + rem + " bytes via ssl\n" +
-                                toString();
-                            _logger.trace(_instance.networkTraceCategory(), s);
+                            String s = "sent " + result.bytesConsumed() + " of " + rem + " bytes via " +
+                                protocol() + "\n" + toString();
+                            _instance.logger().trace(_instance.traceCategory(), s);
                         }
                     }
                 }
@@ -705,7 +673,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 //
                 // Write the encrypted data to the socket. We continue writing until we've written
                 // all of _netOutput, or until flushNonBlocking indicates that it cannot write
-                // (i.e., by returning NeedWrite).
+                // (i.e., by returning SocketOperation.Write).
                 //
                 if(_netOutput.position() > 0)
                 {
@@ -727,8 +695,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
-    private int
-    flushNonBlocking()
+    private int flushNonBlocking()
     {
         _netOutput.flip();
 
@@ -792,8 +759,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return status;
     }
 
-    private int
-    readNonBlocking()
+    private int readNonBlocking()
     {
         while(true)
         {
@@ -826,8 +792,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
-    private void
-    fill(ByteBuffer buf)
+    private void fill(ByteBuffer buf)
     {
         _appInput.flip();
         if(_appInput.hasRemaining())
@@ -872,8 +837,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    private boolean
-    writeRaw(IceInternal.Buffer buf)
+    private boolean writeRaw(IceInternal.Buffer buf)
     {
         //
         // We don't want write to be called on android main thread as this will cause
@@ -904,10 +868,10 @@ final class TransceiverI implements IceInternal.Transceiver
                     return false;
                 }
 
-                if(_instance.networkTraceLevel() >= 3)
+                if(_instance.traceLevel() >= 3)
                 {
-                    String s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    String s = "sent " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + toString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
             }
             catch(java.io.InterruptedIOException ex)
@@ -923,8 +887,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    private boolean
-    readRaw(IceInternal.Buffer buf)
+    private boolean readRaw(IceInternal.Buffer buf)
     {
         int packetSize = buf.b.remaining();
 
@@ -947,10 +910,11 @@ final class TransceiverI implements IceInternal.Transceiver
 
                 if(ret > 0)
                 {
-                    if(_instance.networkTraceLevel() >= 3)
+                    if(_instance.traceLevel() >= 3)
                     {
-                        String s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + toString();
-                        _logger.trace(_instance.networkTraceCategory(), s);
+                        String s = "received " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" +
+                            toString();
+                        _instance.logger().trace(_instance.traceCategory(), s);
                     }
                 }
 
@@ -978,7 +942,6 @@ final class TransceiverI implements IceInternal.Transceiver
     private String _adapterName;
     private java.net.InetSocketAddress _addr;
     private int _state;
-    private Ice.Logger _logger;
 
     private String _desc;
     private int _maxPacketSize;

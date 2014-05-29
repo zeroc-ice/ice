@@ -16,34 +16,36 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
         _instance = instance;
     }
 
-    public short
-    type()
+    public short type()
     {
-        return EndpointType.value;
+        return _instance.type();
     }
 
-    public String
-    protocol()
+    public String protocol()
     {
-        return "ssl";
+        return _instance.protocol();
     }
 
-    public IceInternal.EndpointI
-    create(String str, boolean oaEndpoint)
+    public IceInternal.EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
-        return new EndpointI(_instance, str, oaEndpoint);
+        IceInternal.IPEndpointI endpt = new EndpointI(_instance);
+        endpt.initWithOptions(args, oaEndpoint);
+        return endpt;
     }
 
-    public IceInternal.EndpointI
-    read(IceInternal.BasicStream s)
+    public IceInternal.EndpointI read(IceInternal.BasicStream s)
     {
         return new EndpointI(_instance, s);
     }
 
-    public void
-    destroy()
+    public void destroy()
     {
         _instance = null;
+    }
+
+    public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
+    {
+        return new EndpointFactoryI(new Instance(_instance.sharedInstance(), instance.type(), instance.protocol()));
     }
 
     private Instance _instance;
