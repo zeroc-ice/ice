@@ -43,6 +43,31 @@ string toTemplateArg(const string& arg)
 }
 
 string
+stringTypeToString(const TypePtr& type, const StringList& metaData, int typeCtx)
+{
+    string strType = findMetaData(metaData, typeCtx);
+    if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
+    {
+        if(featureProfile == IceE)
+        {
+            return "::Ice::Wstring";
+        }
+        else
+        {
+            return "::std::wstring";
+        }
+    }
+    else if(strType != "" && strType != "string")
+    {
+        return strType;
+    }
+    else
+    {
+        return "::std::string";
+    }
+} 
+
+string
 sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typeCtx)
 {
     string seqType = findMetaData(metaData, typeCtx);
@@ -420,6 +445,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
     }
 }
 
+
 string
 Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx)
 {
@@ -443,20 +469,12 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            string strType = findMetaData(metaData);
-            if(strType != "string" && (typeCtx & TypeContextUseWstring || strType == "wstring"))
-            {
-                if(featureProfile == IceE)
-                {
-                    return "::Ice::Wstring";
-                }
-                else
-                {
-                    return "::std::wstring";
-                }
-            }
+            return stringTypeToString(type, metaData, typeCtx);
         }
-        return builtinTable[builtin->kind()];
+        else
+        {
+            return builtinTable[builtin->kind()];
+        }
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -567,20 +585,12 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            string strType = findMetaData(metaData);
-            if(strType != "string" && (typeCtx & TypeContextUseWstring || strType == "wstring"))
-            {
-                if(featureProfile == IceE)
-                {
-                    return "const ::Ice::Wstring&";
-                }
-                else
-                {
-                    return "const ::std::wstring&";
-                }
-            }
+            return string("const ") + stringTypeToString(type, metaData, typeCtx) + "&";
         }
-        return inputBuiltinTable[builtin->kind()];
+        else
+        {
+            return inputBuiltinTable[builtin->kind()];
+        }
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -660,20 +670,12 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            string strType = findMetaData(metaData);
-            if(strType != "string" && (typeCtx & TypeContextUseWstring || strType == "wstring"))
-            {
-                if(featureProfile == IceE)
-                {
-                    return "::Ice::Wstring&";
-                }
-                else
-                {
-                    return "::std::wstring&";
-                }
-            }
+            return stringTypeToString(type, metaData, typeCtx) + "&";
         }
-        return outputBuiltinTable[builtin->kind()];
+        else
+        {
+            return outputBuiltinTable[builtin->kind()];
+        }
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -1015,6 +1017,7 @@ string
 Slice::findMetaData(const StringList& metaData, int typeCtx)
 {
     static const string prefix = "cpp:";
+
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
         string str = *q;
@@ -1025,34 +1028,50 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             //
             // If the form is cpp:type:<...> the data after cpp:type:
             // is returned.
+            // If the form is cpp:view-type:<...> the data after the
+            // cpp:view-type: is returned
             // If the form is cpp:range[:<...>], cpp:array or cpp:class,
             // the return value is % followed by the string after cpp:.
             //
+            // The priority of the metadata is as follows:
+            // 1: protobuf
+            // 2: array, range, range:array, view-type for "view" parameters
+            // 3: class
+            
             if(pos != string::npos)
             {
                 string ss = str.substr(prefix.size());
-                if(ss.find("type:") == 0 || ss.find("protobuf:") == 0)
+                
+                if(ss.find("protobuf:") == 0)
+                {
+                    return str.substr(pos + 1);
+                }    
+
+                if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
+                {
+                    if(ss.find("range:") == 0)
+                    {
+                        return string("%") + str.substr(prefix.size());
+                    }
+                    else if(ss.find("view-type:") == 0)
+                    {
+                        return str.substr(pos + 1);
+                    }
+                }
+                 
+                if(ss.find("type:") == 0)
                 {
                     return str.substr(pos + 1);
                 }
-                else if((typeCtx & (TypeContextInParam  | TypeContextAMIPrivateEnd)) && 
-                        !(typeCtx & TypeContextAMIEnd) && ss.find("range:") == 0)
-                {
-                    return string("%") + str.substr(prefix.size());
-                }
-                else if((typeCtx & TypeContextAMIPrivateEnd) && ss == "range:array")
-                {
-                    return "%range:array";
-                }
             }
-            else if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd) && !(typeCtx & TypeContextAMIEnd))
+            else if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
             {
                 string ss = str.substr(prefix.size());
                 if(ss == "array")
                 {
                     return "%array";
                 }
-                else if((typeCtx & TypeContextInParam) && ss == "range")
+                else if(ss == "range")
                 {
                     return "%range";
                 }

@@ -9,6 +9,8 @@
 
 #pragma once
 
+[["cpp:include:StringView.h"]]
+
 module Demo
 {
 
@@ -45,9 +47,10 @@ interface Throughput
     ["amd", "cpp:array"] ByteSeq recvByteSeq();
     ["amd", "cpp:array"] ByteSeq echoByteSeq(["cpp:array"] ByteSeq seq);
 
-    void sendStringSeq(StringSeq seq);
-    StringSeq recvStringSeq();
-    StringSeq echoStringSeq(StringSeq seq);
+    void sendStringSeq(["cpp:view-type:std::vector<Util::string_view>"] StringSeq seq);
+    ["amd", "cpp:view-type:std::vector<Util::string_view>"] StringSeq recvStringSeq();
+    ["amd", "cpp:view-type:std::vector<Util::string_view>"] StringSeq echoStringSeq(
+        ["cpp:view-type:std::vector<Util::string_view>"] StringSeq seq);
 
     void sendStructSeq(StringDoubleSeq seq);
     StringDoubleSeq recvStructSeq();

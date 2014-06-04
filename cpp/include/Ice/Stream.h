@@ -196,6 +196,8 @@ public:
     virtual void read(Float&) = 0;
     virtual void read(Double&) = 0;
     virtual void read(::std::string&, bool = true) = 0;
+    virtual void read(const char*&, size_t&) = 0;
+    virtual void read(const char*&, size_t&, std::string&) = 0;
     virtual void read(::std::vector< ::std::string>&, bool) = 0; // Overload required for additional bool argument.
     virtual void read(::std::wstring&) = 0;
     
@@ -326,6 +328,7 @@ public:
     virtual void write(Float) = 0;
     virtual void write(Double) = 0;
     virtual void write(const ::std::string&, bool = true) = 0;
+    virtual void write(const char*, size_t, bool = true) = 0;
     virtual void write(const ::std::vector< ::std::string>&, bool) = 0; // Overload required for bool argument.
     virtual void write(const char*, bool = true) = 0;
     virtual void write(const ::std::wstring&) = 0;

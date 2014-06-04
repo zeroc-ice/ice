@@ -40,8 +40,8 @@ main(int argc, char** argv)
 
     try
     {
-        IceUtil::setProcessStringConverter(new Test::StringConverterI());
-        IceUtil::setProcessWstringConverter(new Test::WstringConverterI());
+        IceUtil::setProcessStringConverter(new Test::StringConverterI);
+        IceUtil::setProcessWstringConverter(new Test::WstringConverterI);
         
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);

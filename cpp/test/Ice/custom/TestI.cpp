@@ -187,6 +187,17 @@ TestIntfI::opMyByteSeq(const MyByteSeq& inSeq,
     return inSeq;
 }
 
+std::string
+TestIntfI::opString(const Util::string_view& inString,
+                    std::string& outString,
+                    const Ice::Current&)
+{
+    outString = inString.to_string();
+    return outString;
+}
+
+
+
 std::deque< ::std::string>
 TestIntfI::opStringSeq(const std::deque< ::std::string>& inSeq,
                        std::deque< ::std::string>& outSeq,
@@ -357,6 +368,25 @@ TestIntfI::opVarDict(const Test::CustomMap<std::string, Ice::Int>& data,
     }
     return result;
 }
+
+Test::CustomMap<Ice::Int, std::string> 
+TestIntfI::opCustomIntStringDict(
+    const std::map<Ice::Int, Util::string_view>& data, 
+    Test::CustomMap<Ice::Int, std::string>& copy, 
+    const Ice::Current&)
+{
+    copy.clear();
+
+    for(std::map<Ice::Int, Util::string_view>::const_iterator p = data.begin();
+        p != data.end(); ++p)
+    {
+        copy[p->first] = p->second.to_string();
+    }
+
+    return copy;
+}
+
+
 
 Test::ShortBuffer 
 TestIntfI::opShortBuffer(const Test::ShortBuffer& inS, Test::ShortBuffer& outS, const Ice::Current&)

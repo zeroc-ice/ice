@@ -26,9 +26,12 @@ public:
     virtual void recvByteSeq_async(const Demo::AMD_Throughput_recvByteSeqPtr&, const Ice::Current&);
     virtual void echoByteSeq_async(const Demo::AMD_Throughput_echoByteSeqPtr&,
                                    const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
-    virtual void sendStringSeq(const Demo::StringSeq&, const Ice::Current&);
-    virtual Demo::StringSeq recvStringSeq(const Ice::Current&);
-    virtual Demo::StringSeq echoStringSeq(const Demo::StringSeq&, const Ice::Current&);
+   
+    virtual void sendStringSeq(const std::vector<Util::string_view>&, const Ice::Current&);
+    virtual void recvStringSeq_async(const Demo::AMD_Throughput_recvStringSeqPtr&, const Ice::Current&);
+    virtual void echoStringSeq_async(const Demo::AMD_Throughput_echoStringSeqPtr&, 
+                                     const std::vector<Util::string_view>&, const Ice::Current&);
+    
     virtual void sendStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&);
     virtual Demo::StringDoubleSeq recvStructSeq(const Ice::Current&);
     virtual Demo::StringDoubleSeq echoStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&);
@@ -41,6 +44,7 @@ private:
 
     Demo::ByteSeq _byteSeq;
     Demo::StringSeq _stringSeq;
+    std::vector<Util::string_view> _stringViewSeq;
     Demo::StringDoubleSeq _structSeq;
     Demo::FixedSeq _fixedSeq;
 

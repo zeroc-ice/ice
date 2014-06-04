@@ -68,6 +68,10 @@ public:
                                                        IceUtil::Optional< ::std::string>&,
                                                        const ::Ice::Current&);
 
+    virtual IceUtil::Optional< ::std::string> opCustomString(const IceUtil::Optional< Util::string_view>&,
+                                                               IceUtil::Optional< ::std::string>&,
+                                                               const ::Ice::Current&);
+
     virtual IceUtil::Optional< Test::MyEnum> opMyEnum(const IceUtil::Optional<Test::MyEnum>&,
                                                       IceUtil::Optional<Test::MyEnum>&,
                                                       const ::Ice::Current&);
@@ -168,6 +172,11 @@ public:
     virtual IceUtil::Optional< ::Test::StringIntDict> opStringIntDict(
         const IceUtil::Optional< ::Test::StringIntDict>&,
         IceUtil::Optional< ::Test::StringIntDict>&,
+        const ::Ice::Current& = ::Ice::Current());
+
+    virtual IceUtil::Optional< ::Test::IntStringDict> opCustomIntStringDict(
+        const IceUtil::Optional<std::map<int, Util::string_view> >&,
+        IceUtil::Optional< ::Test::IntStringDict>&,
         const ::Ice::Current& = ::Ice::Current());
 
     virtual void opClassAndUnknownOptional(const Test::APtr&, const Ice::Current&);

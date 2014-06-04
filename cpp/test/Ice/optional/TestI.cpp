@@ -136,6 +136,17 @@ InitialI::opString(const Optional<string>& p1, Optional<string>& p3, const Curre
     return p1;
 }
 
+Optional<string>
+InitialI::opCustomString(const Optional<Util::string_view>& p1, Optional<string>& p3, const Current&)
+{
+    if(p1)
+    {
+        p3 = p1->to_string();
+    }
+    return p3;
+}
+
+
 Optional<MyEnum>
 InitialI::opMyEnum(const Optional<MyEnum>& p1, Optional<MyEnum>& p3, const Current&)
 {
@@ -338,6 +349,23 @@ InitialI::opStringIntDict(const Optional<StringIntDict>& p1, Optional<StringIntD
     p3 = p1;
     return p3;
 }
+
+Optional<IntStringDict>
+InitialI::opCustomIntStringDict(const Optional<std::map<int, Util::string_view> >& p1,
+                                Optional<IntStringDict>& p3, const Current&)
+{
+    if(p1)
+    {
+        p3 = IntStringDict();
+        for(std::map<int, Util::string_view>::const_iterator p = p1->begin();
+            p != p1->end(); ++p)
+        {
+            (*p3)[p->first] = p->second.to_string();
+        }
+    }
+    return p3;
+}
+
 
 void
 InitialI::opClassAndUnknownOptional(const APtr&, const Ice::Current&)

@@ -55,7 +55,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm300 -bigobj
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DSTRING_VIEW_IGNORE_STRING_CONVERTER -DWIN32_LEAN_AND_MEAN -Zm300 -bigobj
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

@@ -1350,7 +1350,7 @@ IceInternal::BasicStream::write(const char*)
 */
 
 void
-IceInternal::BasicStream::writeConverted(const string& v)
+IceInternal::BasicStream::writeConverted(const char* vdata, size_t vsize)
 {
     //
     // What is the size of the resulting UTF-8 encoded string?
@@ -1359,13 +1359,13 @@ IceInternal::BasicStream::writeConverted(const string& v)
     //
     try
     {
-        Int guessedSize = static_cast<Int>(v.size());
+        Int guessedSize = static_cast<Int>(vsize);
         writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
             
         size_t firstIndex = b.size();
         StreamUTF8BufferI buffer(*this);
                 
-        Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+        Byte* lastByte = _stringConverter->toUTF8(vdata, vdata + vsize, buffer);
         if(lastByte != b.end())
         {
             b.resize(lastByte - b.begin());

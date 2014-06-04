@@ -154,6 +154,14 @@ TestIntfI::opMyByteSeq_async(const Test::AMD_TestIntf_opMyByteSeqPtr& opMyByteSe
     opMyByteSeqCB->ice_response(outSeq, outSeq);
 }
 
+void 
+TestIntfI::opString_async(const Test::AMD_TestIntf_opStringPtr& opStringCB,
+                         const Util::string_view& inString,
+                         const Ice::Current&)
+{
+    opStringCB->ice_response(inString, inString);
+}
+
 void
 TestIntfI::opStringSeq_async(const Test::AMD_TestIntf_opStringSeqPtr& opStringSeqCB,
                              const std::deque<std::string>& inSeq,
@@ -327,6 +335,14 @@ TestIntfI::opVarDict_async(const ::Test::AMD_TestIntf_opVarDictPtr& cb,
         result[i] = i*i;
     }
     cb->ice_response(result, inDict);
+}
+
+void
+TestIntfI::opCustomIntStringDict_async(const ::Test::AMD_TestIntf_opCustomIntStringDictPtr& cb,
+                                       const std::map<Ice::Int, Util::string_view>& data,
+                                       const Ice::Current&)
+{
+    cb->ice_response(data, data);
 }
 
 void

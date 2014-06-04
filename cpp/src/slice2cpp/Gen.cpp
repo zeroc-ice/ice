@@ -6413,7 +6413,8 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         {
             for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
             {
-                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
+                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:view-type:", 0) == 0 
+                   || (*q) == "cpp:array" || q->find("cpp:range", 0) == 0)
                 {
                     emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + *q +
                                 "' for operation with void return type");
@@ -6477,7 +6478,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             if(s.find(prefix) == 0)
             {
                 string ss = s.substr(prefix.size());
-                if(ss.find("type:wstring") == 0 || ss.find("type:string") == 0)
+                if(ss == "type:wstring" || ss == "type:string")
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(cont);
                     ModulePtr module = ModulePtr::dynamicCast(cont);
@@ -6489,22 +6490,29 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                         continue;
                     }
                 }
-                if(SequencePtr::dynamicCast(cont))
+                if(BuiltinPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
                 {
-                    if(ss.find("type:") == 0 || ss == "array" || ss.find("range") == 0)
+                    if(BuiltinPtr::dynamicCast(cont)->kind() == Builtin::KindString)
                     {
                         continue;
                     }
                 }
-                if(DictionaryPtr::dynamicCast(cont) && ss.find("type:") == 0) 
+                if(SequencePtr::dynamicCast(cont))
+                {
+                    if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array" || ss.find("range") == 0)
+                    {
+                        continue;
+                    }
+                }
+                if(DictionaryPtr::dynamicCast(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0)) 
                 {
                     continue;
                 }
-                if(StructPtr::dynamicCast(cont) && (ss.find("class") == 0 || ss.find("comparable") == 0))
+                if(StructPtr::dynamicCast(cont) && (ss == "class" || ss == "comparable"))
                 {
                     continue;
                 }
-                if(ClassDefPtr::dynamicCast(cont) && ss.find("virtual") == 0)
+                if(ClassDefPtr::dynamicCast(cont) && ss == "virtual")
                 {
                     continue;
                 }

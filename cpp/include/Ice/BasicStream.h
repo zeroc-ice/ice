@@ -664,13 +664,12 @@ public:
     void write(const char*);
 
     // String
-    void writeConverted(const std::string& v);
     void write(const std::string& v, bool convert = true)
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
         if(convert && sz > 0 && _stringConverter != 0)
         {
-            writeConverted(v);
+            writeConverted(v.data(), static_cast<size_t>(sz));
         }
         else
         {
@@ -683,9 +682,28 @@ public:
             }
         }
     }
+    // for custom strings
+    void write(const char* vdata, size_t vsize, bool convert = true)
+    {
+        Ice::Int sz = static_cast<Ice::Int>(vsize);
+        if(convert && sz > 0 && _stringConverter != 0)
+        {
+            writeConverted(vdata, vsize);
+        }
+        else
+        {
+            writeSize(sz);
+            if(sz > 0)
+            {
+                Container::size_type pos = b.size();
+                resize(pos + sz);
+                memcpy(&b[pos], vdata, vsize);
+            }
+        }
+    }
+
     void write(const std::string*, const std::string*, bool = true);
 
-    void readConverted(std::string&, Ice::Int);
     void read(std::string& v, bool convert = true)
     {
         Ice::Int sz = readSize();
@@ -710,6 +728,60 @@ public:
             v.clear();
         }
     }
+    
+    // For custom strings, convert = false
+    void read(const char*& vdata, size_t& vsize)
+    {
+        Ice::Int sz = readSize();
+        if(sz > 0)
+        {
+            if(b.end() - i < sz)
+            {
+                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            
+            vdata = reinterpret_cast<const char*>(&*i);
+            vsize = static_cast<size_t>(sz);
+            i += sz;
+        }
+        else
+        {
+            vdata = 0;
+            vsize = 0;
+        }
+    }
+
+    // For custom strings, convert = true
+    void read(const char*& vdata, size_t& vsize, std::string& holder)
+    {
+        if(_stringConverter == 0)
+        {
+            holder.clear();
+            read(vdata, vsize);
+        }
+        else
+        {
+            Ice::Int sz = readSize();
+            if(sz > 0)
+            {
+                if(b.end() - i < sz)
+                {
+                    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+                }
+                
+                readConverted(holder, sz);
+                vdata = holder.data();
+                vsize = holder.size();
+            }
+            else
+            {
+                holder.clear();
+                vdata = 0;
+                vsize = 0;
+            }
+        }
+    }
+
     void read(std::vector<std::string>&, bool = true);
 
     void write(const std::wstring& v);
@@ -794,6 +866,12 @@ public:
     }
 
 private:
+
+    //
+    // String
+    //
+    void writeConverted(const char*, size_t);
+    void readConverted(std::string&, Ice::Int);
 
     //
     // I can't throw these exception from inline functions from within

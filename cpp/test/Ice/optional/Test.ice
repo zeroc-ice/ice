@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:include:list"]]
+[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h"]]
 
 module Test
 {
@@ -70,6 +70,8 @@ dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
 dictionary<int, OneOptional*> IntOneOptionalPrxDict;
+
+["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
 
 class MultiOptional
 {
@@ -211,6 +213,10 @@ class Initial
 
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 
+    ["cpp:view-type:Util::string_view"] optional(1) string
+     opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1, 
+              out ["cpp:view-type:Util::string_view"] optional(3) string p3);
+
     optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
     optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
@@ -268,6 +274,11 @@ class Initial
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
+
+    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(1) IntStringDict
+    opCustomIntStringDict(
+        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(2) IntStringDict p1,
+        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(3) IntStringDict p3);
 
     void opClassAndUnknownOptional(A p);
 

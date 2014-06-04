@@ -67,6 +67,7 @@ ThroughputClient::run(int argc, char* argv[])
     byteArr.second = byteArr.first + byteSeq.size();
 
     StringSeq stringSeq(StringSeqSize, "hello");
+    vector<Util::string_view> stringViewSeq(StringSeqSize, "hello");
 
     StringDoubleSeq structSeq(StringDoubleSeqSize);
     int i;
@@ -104,6 +105,9 @@ ThroughputClient::run(int argc, char* argv[])
         StringSeq emptyStrings(1);
         emptyStrings.resize(1);
 
+        vector<Util::string_view> emptyStringViews(1);
+        emptyStringViews.resize(1);
+
         StringDoubleSeq emptyStructs(1);
         emptyStructs.resize(1);
 
@@ -114,7 +118,7 @@ ThroughputClient::run(int argc, char* argv[])
         for(int i = 0; i < 10000; i++)
         {
             throughput->sendByteSeq(emptyBytes);
-            throughput->sendStringSeq(emptyStrings);
+            throughput->sendStringSeq(emptyStringViews);
             throughput->sendStructSeq(emptyStructs);
             throughput->sendFixedSeq(emptyFixed);
 
@@ -124,7 +128,7 @@ ThroughputClient::run(int argc, char* argv[])
             throughput->recvFixedSeq();
 
             throughput->echoByteSeq(emptyBytes);
-            throughput->echoStringSeq(emptyStrings);
+            throughput->echoStringSeq(emptyStringViews);
             throughput->echoStructSeq(emptyStructs);
             throughput->echoFixedSeq(emptyFixed);
         }
@@ -292,13 +296,13 @@ ThroughputClient::run(int argc, char* argv[])
                             {
                                 case 't':
                                 {
-                                    throughput->sendStringSeq(stringSeq);
+                                    throughput->sendStringSeq(stringViewSeq);
                                     break;
                                 }
                         
                                 case 'o':
                                 {
-                                    throughputOneway->sendStringSeq(stringSeq);
+                                    throughputOneway->sendStringSeq(stringViewSeq);
                                     break;
                                 }
                         
@@ -310,7 +314,7 @@ ThroughputClient::run(int argc, char* argv[])
                         
                                 case 'e':
                                 {
-                                    throughput->echoStringSeq(stringSeq);
+                                    throughput->echoStringSeq(stringViewSeq);
                                     break;
                                 }
                             }

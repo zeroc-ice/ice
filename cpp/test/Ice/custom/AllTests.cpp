@@ -1114,6 +1114,16 @@ class Callback : public CallbackBase, public IceUtil::Shared
 {
 public:
 
+    void opString(const Util::string_view& ret,
+                  const Util::string_view& out,
+                  const InParamPtr& cookie)
+    {
+        const Util::string_view& in = getIn<Util::string_view>(cookie);
+        test(out == ret);
+        test(in.size() == out.size());
+        called();
+    }
+
     void opDoubleArray(const ::std::pair<const double*, const double*>& ret,
                        const ::std::pair<const double*, const double*>& out,
                        const InParamPtr& cookie)
@@ -1476,6 +1486,22 @@ public:
         called();
     }
 
+    void opCustomIntStringDict(const map<int, Util::string_view>& ret, const map<int, Util::string_view>& out, const InParamPtr& cookie)
+    {
+        const map<int, Util::string_view>& in = getIn<map<int, Util::string_view> >(cookie);
+        
+        test(out.size() == in.size());
+        test(ret == out);
+        
+        for(map<int, Util::string_view>::const_iterator p = in.begin(); p != in.end(); ++p)
+        {
+            map<int, Util::string_view>::const_iterator q = out.find(p->first);
+            test(q != out.end());
+            test(q->second.size() == p->second.size());
+        } 
+
+        called();
+    }
 
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
@@ -1572,6 +1598,26 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     Test::TestIntfPrx t = Test::TestIntfPrx::checkedCast(base);
     test(t);
     test(t == base);
+    cout << "ok" << endl;
+
+    cout << "testing alternate strings... " << flush;
+    {
+        Util::string_view in = "Hello World!";
+        string out;
+        string ret = t->opString(in, out);
+
+        //
+        // TODO: improve test
+        // When a parameter is mapped as a string_view on both sides,
+        // no conversion occurs, and all is good
+        // However, when a parameter is mapped as a string on one side and
+        // as a string_view on the other (e.g. sync invocation implemented with AMD)
+        // the string converter converts the string but not the string_view,
+        // and we have a mismatch
+        //
+        test(ret == out);
+        test(ret.size() == in.size());
+    }
     cout << "ok" << endl;
 
     cout << "testing alternate sequences... " << flush;
@@ -2115,6 +2161,28 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
     }
 
+    {
+        std::map<int, Util::string_view> idict;
+
+        idict[1] = "one";
+        idict[2] = "two";
+        idict[3] = "three";
+        idict[-1] = "minus one";
+        
+        Test::IntStringDict out;
+        out[5] = "five";
+        
+        Test::IntStringDict ret = t->opCustomIntStringDict(idict, out);
+        test(out.size() == idict.size());
+        test(out == ret);
+        for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
+            p != idict.end(); ++p)
+        {
+            test(out[p->first].size() == p->second.size());
+            //  test(out[p->first] == p->second.to_string()); does not always work due to string converter
+        }
+    }
+
     cout << "ok" << endl;
 
     cout << "testing alternate custom sequences... " << flush;
@@ -2603,6 +2671,20 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             cb->check();
         }
 
+        cout << "ok" << endl;
+
+
+        cout << "testing alternate strings with new AMI... " << flush;
+        {
+            Util::string_view in = "Hello World!";
+            
+            Ice::AsyncResultPtr r = t->begin_opString(in);
+            string out;
+            string ret = t->end_opString(out, r);
+            
+            test(ret == out);
+            test(ret.size() == in.size());
+        }
         cout << "ok" << endl;
 
         cout << "testing alternate sequences with new AMI... " << flush;
@@ -3168,6 +3250,18 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         cout << "ok" << endl;
 
+        cout << "testing alternate strings with new AMI callbacks... " << flush;
+        {
+            Util::string_view in = "Hello World!";
+            
+            CallbackPtr cb = new Callback();
+            Test::Callback_TestIntf_opStringPtr callback = 
+                Test::newCallback_TestIntf_opString(cb, &Callback::opString, &Callback::noEx);
+            t->begin_opString(in, callback, newInParam(in));
+            cb->check();
+        }
+        cout << "ok" << endl;
+
         cout << "testing alternate sequences with new AMI callbacks... " << flush;
 
         {
@@ -3699,6 +3793,26 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         cout << "ok" << endl;
 #ifdef ICE_CPP11
+
+        cout << "testing alternate strings with new C++11 AMI callbacks... " << flush;
+        {
+            Util::string_view in = "Hello World!";
+            
+            CallbackPtr cb = new Callback();
+            
+            t->begin_opString(in,
+                              [=](const Util::string_view& p1, const Util::string_view& p2)
+                              {
+                                  cb->opString(p1, p2, newInParam(in));
+                              },
+                              [=](const Ice::Exception& ex)
+                              {
+                                  cb->noEx(ex, newInParam(in));
+                              });
+        }
+        cout << "ok" << endl;
+
+
         cout << "testing alternate sequences with C++11 AMI callbacks... " << flush;
 
         {
@@ -4468,6 +4582,30 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                     test(i->second == i->first * i->first);
                 }
             }
+
+            {
+                std::map<int, Util::string_view> idict;
+
+                idict[1] = "one";
+                idict[2] = "two";
+                idict[3] = "three";
+                idict[-1] = "minus one";
+                
+                Test::IntStringDict out;
+                out[5] = "five";
+        
+                Ice::AsyncResultPtr r = t->begin_opCustomIntStringDict(idict);
+                Test::IntStringDict ret = t->end_opCustomIntStringDict(out, r);
+               
+                test(out.size() == idict.size());
+                test(out == ret);
+                for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
+                    p != idict.end(); ++p)
+                {
+                    test(out[p->first].size() == p->second.size());
+                    //  test(out[p->first] == p->second.to_string()); does not always work due to string converter
+                }
+            }
         }
         cout << "ok" << endl;
         
@@ -4480,10 +4618,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 idict[2] = "two";
                 idict[3] = "three";
                 idict[-1] = "minus one";
-                
-                Test::IntStringDict out;
-                out[5] = "five";
-                
+                   
                 CallbackPtr cb = new Callback();
                 Test::Callback_TestIntf_opIntStringDictPtr callback = 
                     Test::newCallback_TestIntf_opIntStringDict(cb, &Callback::opIntStringDict, &Callback::noEx);
@@ -4499,15 +4634,28 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 idict["three"] = 3;
                 idict["minus one"] = -1;
                 
-                Test::CustomMap<std::string, Ice::Int> out;
-                out["five"] = 5;
-                
                 CallbackPtr cb = new Callback();
                 Test::Callback_TestIntf_opVarDictPtr callback = 
                     Test::newCallback_TestIntf_opVarDict(cb, &Callback::opVarDict, &Callback::noEx);
                 t->begin_opVarDict(idict, callback, newInParam(idict));
                 cb->check();
             }
+
+            {
+                std::map<int, Util::string_view> idict;
+
+                idict[1] = "one";
+                idict[2] = "two";
+                idict[3] = "three";
+                idict[-1] = "minus one";
+                
+                CallbackPtr cb = new Callback();
+                Test::Callback_TestIntf_opCustomIntStringDictPtr callback = 
+                    Test::newCallback_TestIntf_opCustomIntStringDict(cb, &Callback::opCustomIntStringDict, &Callback::noEx);
+                t->begin_opCustomIntStringDict(idict, callback, newInParam(idict));
+                cb->check();
+            }
+
         }
         cout << "ok" << endl;
 
@@ -4562,6 +4710,29 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                                    {
                                        cb->noEx(ex, newInParam(idict));
                                    });               
+                cb->check();
+            }
+
+            {
+                std::map<int, Util::string_view> idict;
+
+                idict[1] = "one";
+                idict[2] = "two";
+                idict[3] = "three";
+                idict[-1] = "minus one";
+                
+                CallbackPtr cb = new Callback();
+
+                t->begin_opCustomIntStringDict(idict,
+                                               [=](const std::map<int, Util::string_view>& ret,
+                                                   const std::map<int, Util::string_view>& out)
+                                               {
+                                                   cb->opCustomIntStringDict(ret, out, newInParam(idict));
+                                               },
+                                               [=](const Ice::Exception& ex)
+                                               {
+                                                   cb->noEx(ex, newInParam(idict));
+                                               });               
                 cb->check();
             }
         }

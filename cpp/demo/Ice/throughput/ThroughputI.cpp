@@ -13,6 +13,7 @@
 ThroughputI::ThroughputI() :
     _byteSeq(Demo::ByteSeqSize),
     _stringSeq(Demo::StringSeqSize, "hello"),
+    _stringViewSeq(Demo::StringSeqSize, "hello"),
     _structSeq(Demo::StringDoubleSeqSize),
     _fixedSeq(Demo::FixedSeqSize),
     _warmup(false)
@@ -81,27 +82,29 @@ ThroughputI::echoByteSeq_async(const Demo::AMD_Throughput_echoByteSeqPtr& cb,
 }
 
 void
-ThroughputI::sendStringSeq(const Demo::StringSeq&, const Ice::Current&)
+ThroughputI::sendStringSeq(const std::vector<Util::string_view>&, const Ice::Current&)
 {
 }
 
-Demo::StringSeq
-ThroughputI::recvStringSeq(const Ice::Current&)
+void
+ThroughputI::recvStringSeq_async(const Demo::AMD_Throughput_recvStringSeqPtr& cb, 
+                                 const Ice::Current&)
 {
     if(_warmup)
     {
-        return Demo::StringSeq();
+        cb->ice_response(std::vector<Util::string_view>(0));
     }
     else
     {
-        return _stringSeq;
+        cb->ice_response(_stringViewSeq);
     }
 }
 
-Demo::StringSeq
-ThroughputI::echoStringSeq(const Demo::StringSeq& seq, const Ice::Current&)
+void
+ThroughputI::echoStringSeq_async(const Demo::AMD_Throughput_echoStringSeqPtr& cb, 
+                                 const std::vector<Util::string_view>& seq, const Ice::Current&)
 {
-    return seq;
+    cb->ice_response(seq);
 }
 
 void

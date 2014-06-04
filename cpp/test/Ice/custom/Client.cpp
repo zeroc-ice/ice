@@ -34,11 +34,10 @@ main(int argc, char** argv)
 
     try
     {
-        IceUtil::setProcessStringConverter(new Test::StringConverterI());
-        IceUtil::setProcessWstringConverter(new Test::WstringConverterI());
+        IceUtil::setProcessStringConverter(new Test::StringConverterI);
+        IceUtil::setProcessWstringConverter(new Test::WstringConverterI);
         
-        Ice::InitializationData initData;
-        communicator = Ice::initialize(argc, argv, initData);
+        communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

@@ -1025,6 +1025,34 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     }
 
     {
+        IceUtil::Optional<Util::string_view> p1;
+        IceUtil::Optional<string> p3;
+        IceUtil::Optional<string> p2 = initial->opCustomString(p1, p3);
+        test(!p2 && !p3);
+        
+        p1 = "test";
+        p2 = initial->opString("test", p3);
+        test(p2 == "test" && p3 == "test");
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opCustomString", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 == "test" && p3 == "test");
+
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+
+    {
         IceUtil::Optional<Test::MyEnum> p1;
         IceUtil::Optional<Test::MyEnum> p3;
         IceUtil::Optional<Test::MyEnum> p2 = initial->opMyEnum(p1, p3);
@@ -1650,6 +1678,42 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         in->endEncapsulation();
         test(p2 == ss && p3 == ss);
 
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->endEncapsulation();
+    }
+    
+     {
+        IceUtil::Optional<std::map<int, Util::string_view> > p1;
+        IceUtil::Optional<IntStringDict> p3;
+        IceUtil::Optional<IntStringDict> p2 = initial->opCustomIntStringDict(p1, p3);
+        test(!p2 && !p3);
+
+        map<int, Util::string_view> ss;
+        ss.insert(make_pair<int, Util::string_view>(5, "testing"));
+        p1 = ss;
+        p2 = initial->opCustomIntStringDict(p1, p3);
+        test(p2 && p3);
+        test(p2 == p3);
+        test(p2->size() == p1->size());
+        test((*p2)[5] == ss[5].to_string());
+
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(2, p1);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+        initial->ice_invoke("opCustomIntStringDict", Ice::Normal, inEncaps, outEncaps);
+        in = Ice::createInputStream(communicator, outEncaps);
+        in->startEncapsulation();
+        in->read(1, p2);
+        in->read(3, p3);
+        in->endEncapsulation();
+        test(p2 && p3);
+        test(p2 == p3);
+        test(p2->size() == p1->size());
+        test((*p2)[5] == ss[5].to_string());
+        
         in = Ice::createInputStream(communicator, outEncaps);
         in->startEncapsulation();
         in->endEncapsulation();

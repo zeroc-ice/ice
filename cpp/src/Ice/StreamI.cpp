@@ -206,6 +206,18 @@ InputStreamI::read(string& v, bool convert)
 }
 
 void
+InputStreamI::read(const char*& vdata, size_t& vsize)
+{
+    _is->read(vdata, vsize);
+}
+
+void
+InputStreamI::read(const char*& vdata, size_t& vsize, string& holder)
+{
+    _is->read(vdata, vsize, holder);
+}
+
+void
 InputStreamI::read(vector<string>& v, bool convert)
 {
     _is->read(v, convert);
@@ -521,9 +533,15 @@ OutputStreamI::write(const string& v, bool convert)
 }
 
 void
+OutputStreamI::write(const char* vdata, size_t vsize, bool convert)
+{
+    _os->write(vdata, vsize, convert);
+}
+
+void
 OutputStreamI::write(const char* v, bool convert)
 {
-    _os->write(v, convert);
+    _os->write(v, strlen(v), convert);
 }
 
 void

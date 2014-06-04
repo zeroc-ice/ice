@@ -78,6 +78,8 @@ public:
     virtual void read(Float&);
     virtual void read(Double&);
     virtual void read(std::string&, bool = true);
+    virtual void read(const char*&, size_t&);
+    virtual void read(const char*&, size_t&, std::string&);
     virtual void read(std::vector<std::string>&, bool);
     virtual void read(std::wstring&);
     virtual void read(std::vector<bool>&);
@@ -136,6 +138,7 @@ public:
     virtual void write(Float);
     virtual void write(Double);
     virtual void write(const std::string&, bool = true);
+    virtual void write(const char*, size_t, bool = true);
     virtual void write(const std::vector<std::string>&, bool);
     virtual void write(const char*, bool = true);
     virtual void write(const std::wstring&);
