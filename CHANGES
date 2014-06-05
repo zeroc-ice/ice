@@ -79,6 +79,11 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a bug where the selector wouldn't check for EPOLLERR on
+  Linux. This could cause the selector thread to loop indefinetely if
+  this condition occured (which is the case with UDP connected
+  sockets).
+
 - Added per process string converters for narrow and wide strings,
   setProcessStringConverter and getProcessStringConverter in IceUtil
   namespace can be used to establish and access the process narrow

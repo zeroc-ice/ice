@@ -488,7 +488,7 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
 #if defined(ICE_USE_EPOLL)
         struct epoll_event& ev = _events[i];
         p.first = reinterpret_cast<EventHandler*>(ev.data.ptr);
-        p.second = static_cast<SocketOperation>(((ev.events & EPOLLIN) ? 
+        p.second = static_cast<SocketOperation>(((ev.events & (EPOLLIN | EPOLLERR)) ? 
                                                  SocketOperationRead : SocketOperationNone) | 
                                                 ((ev.events & (EPOLLOUT | EPOLLERR)) ? 
                                                  SocketOperationWrite : SocketOperationNone));
