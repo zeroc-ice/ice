@@ -135,7 +135,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->holdAdapter(500);
         try
         {
-            ByteSeq seq(1000000);
+            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }
@@ -250,7 +250,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->holdAdapter(500);
         try
         {
-            ByteSeq seq(1000000);
+            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }
@@ -266,7 +266,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->holdAdapter(500);
         try
         {
-            ByteSeq seq(1000000);
+            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }
@@ -318,7 +318,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to = TimeoutPrx::uncheckedCast(to->ice_timeout(250));
         try
         {
-            ByteSeq seq(1000000);
+            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }

@@ -86,11 +86,11 @@ def allTests(communicator, collocated):
     #
     if sys.version_info[0] == 2:
         seq = []
-        seq[0:100000] = range(0, 1000000) # add 100,000 entries.
+        seq[0:100000] = range(0, 10000000) # add 10,000,000 entries.
         seq = ['\x00' for x in seq] # set them all to \x00
         seq = ''.join(seq) # make into a byte array
     else:
-        seq = bytes([0 for x in range(0, 1000000)])
+        seq = bytes([0 for x in range(0, 10000000)])
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
     to.holdAdapter(500)
     try:
@@ -105,6 +105,13 @@ def allTests(communicator, collocated):
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
     to.holdAdapter(500)
     try:
+        if sys.version_info[0] == 2:
+            seq = []
+            seq[0:100000] = range(0, 1000000) # add 1,000,000 entries.
+            seq = ['\x00' for x in seq] # set them all to \x00
+            seq = ''.join(seq) # make into a byte array
+        else:
+            seq = bytes([0 for x in range(0, 1000000)])
         to.sendData(seq)
     except Ice.TimeoutException:
         test(False)

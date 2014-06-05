@@ -555,7 +555,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     try
     {
         Ice::ByteSeq seq;
-        seq.resize(1000000);
+        seq.resize(10000000);
         metrics->ice_timeout(500)->opByteS(seq);
         test(false);
     }

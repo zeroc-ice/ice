@@ -170,7 +170,7 @@ public class AllTests : TestCommon.TestApp
             to.holdAdapter(500);
             try
             {
-                to.sendData(new byte[1000000]);
+                to.sendData(new byte[10000000]);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -288,7 +288,7 @@ public class AllTests : TestCommon.TestApp
             to.holdAdapter(500);
             try
             {
-                to.sendData(new byte[1000000]);
+                to.sendData(new byte[10000000]);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -303,7 +303,7 @@ public class AllTests : TestCommon.TestApp
             to.holdAdapter(500);
             try
             {
-                to.sendData(new byte[1000000]);
+                to.sendData(new byte[10000000]);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -355,7 +355,7 @@ public class AllTests : TestCommon.TestApp
             to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
             try
             {
-                to.sendData(new byte[1000000]);
+                to.sendData(new byte[10000000]);
                 test(false);
             }
             catch(Ice.TimeoutException)
