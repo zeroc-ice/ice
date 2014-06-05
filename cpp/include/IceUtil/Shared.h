@@ -87,7 +87,6 @@ public:
         {
             if(!_noDelete)
             {
-                _noDelete = true;
                 delete this;
             }
         }
@@ -113,6 +112,12 @@ class ICE_UTIL_API Shared
 {
 public:
 
+    //
+    // Flag constant used by the Shared class. Derived classes
+    // such as GCObject define more flag constants.
+    //
+    static const unsigned char NoDelete;
+
     Shared();
     Shared(const Shared&);
 
@@ -130,6 +135,21 @@ public:
     virtual int __getRef() const;
     virtual void __setNoDelete(bool);
 
+    void __setFlag(unsigned char flag)
+    {
+        _flags |= flag;
+    }
+
+    void __clearFlag(unsigned char flag)
+    {
+        _flags &= ~flag;
+    }
+
+    bool __hasFlag(unsigned char flag)
+    {
+        return (_flags & flag) > 0;
+    }
+    
 protected:
 
 #if defined(_WIN32)
@@ -140,7 +160,7 @@ protected:
     int _ref;
     Mutex _mutex;
 #endif
-    bool _noDelete;
+    unsigned char _flags;
 };
 
 }

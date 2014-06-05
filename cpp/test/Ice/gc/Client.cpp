@@ -10,6 +10,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/Random.h>
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -125,150 +126,25 @@ struct NL : public Leaf
 
 typedef ::IceInternal::Handle<NL> NLPtr;
 
-class GarbageProducer : public ::IceUtil::Thread, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class TestHaveCycles : public IceInternal::GCVisitor
 {
 public:
 
-    GarbageProducer()
+    virtual bool visit(IceInternal::GCObject* obj)
     {
-        _stop = false;
-    }
-
-    virtual void run()
-    {
-        ::IceUtil::ThreadControl t = getThreadControl();
-
-        while(true)
+        if(obj->__hasFlag(IceInternal::GCObject::Visiting))
         {
-            {
-                ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-                if(_stop)
-                {
-                    return;
-                }
-            }
-
-            t.yield();
-
-            {
-                NPtr n = new N;
-                n->left = n;
-            }
-
-            {
-                NPtr n = new N;
-                n->left = n;
-                n->right = n;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                n1->left = n2;
-                n2->left = n1;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                n1->left = n2;
-                n2->left = n1;
-                n1->right = n2;
-                n2->right = n1;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                n1->left = n2;
-                n2->left = n1;
-                n1->right = n1;
-                n2->right = n2;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                NPtr n3 = new N;
-                n1->left = n2;
-                n2->left = n3;
-                n3->left = n1;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                NPtr n3 = new N;
-                n1->left = n2;
-                n2->left = n3;
-                n3->left = n1;
-                n1->right = n2;
-                n2->right = n3;
-                n3->right = n1;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                NPtr n3 = new N;
-                n1->left = n2;
-                n2->left = n3;
-                n3->left = n1;
-                n1->right = n3;
-                n2->right = n1;
-                n3->right = n2;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                NPtr n3 = new N;
-                NPtr n4 = new N;
-                n1->left = n2;
-                n2->left = n1;
-                n2->right = n3;
-                n3->left = n4;
-            }
-
-            {
-                NPtr n1 = new N;
-                NPtr n2 = new N;
-                NPtr n3 = new N;
-                NPtr n4 = new N;
-                NPtr n5 = new N;
-                NPtr n6 = new N;
-                n1->left = n2;
-                n2->left = n1;
-                n2->right = n3;
-                n3->left = n4;
-                n4->right = n5;
-                n5->right = n6;
-                n6->right = n5;
-            }
+            return false;
         }
+        test(obj->__hasFlag(IceInternal::GCObject::CycleMember) && obj->__hasFlag(IceInternal::GCObject::Collectable));
+        
+        obj->__setFlag(IceInternal::GCObject::Visiting);
+        obj->__gcVisitMembers(*this);
+        obj->__clearFlag(IceInternal::GCObject::Visiting);
+        return false;
     }
-
-    void stop()
-    {
-        {
-            ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-            _stop = true;
-            notify();
-        }
-        getThreadControl().join();
-    }
-
-    void randomWait()
-    {
-        ::IceUtil::Time waitTime = ::IceUtil::Time::milliSeconds(10 + rand() % 50);
-        ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-        timedWait(waitTime);
-    }
-
-private:
-
-    bool _stop;
 };
+
 
 class MyApplication : public Ice::Application
 {
@@ -286,21 +162,11 @@ MyApplication::MyApplication()
 int
 MyApplication::run(int argc, char* argv[])
 {
-    if(argc < 2 || argc > 3)
-    {
-        cerr << "usage: " << argv[0] << " [testoptions] seedfile [seed]" << endl;
-        return EXIT_FAILURE;
-    }
-
     cout << "testing single instance... " << flush;
     {
         NPtr n = new N;
         test(getNum() == 1);
-        Ice::collectGarbage();
-        test(getNum() == 1);
     }
-    test(getNum() == 0);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -309,11 +175,9 @@ MyApplication::run(int argc, char* argv[])
         NPtr n = new N;
         n->left = n;
         test(getNum() == 1);
-        Ice::collectGarbage();
-        test(getNum() == 1);
+        n->ice_collectable(true);
+        TestHaveCycles().visit(n.get());
     }
-    test(getNum() == 1);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -322,12 +186,10 @@ MyApplication::run(int argc, char* argv[])
         NPtr n = new N;
         n->left = n;
         n->right = n;
-        test(getNum() == 1);
-        Ice::collectGarbage();
+        n->ice_collectable(true);
+        TestHaveCycles().visit(n.get());
         test(getNum() == 1);
     }
-    test(getNum() == 1);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -337,12 +199,12 @@ MyApplication::run(int argc, char* argv[])
         NPtr n2 = new N;
         n1->left = n2;
         n2->left = n1;
-        test(getNum() == 2);
-        Ice::collectGarbage();
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
+        n1 = 0;
+        test(n2->left->left == n2);
         test(getNum() == 2);
     }
-    test(getNum() == 2);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -354,12 +216,12 @@ MyApplication::run(int argc, char* argv[])
         n2->left = n1;
         n1->right = n2;
         n2->right = n1;
-        test(getNum() == 2);
-        Ice::collectGarbage();
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
+        n1 = 0;
+        test(n2->left->left == n2);
         test(getNum() == 2);
     }
-    test(getNum() == 2);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -371,12 +233,12 @@ MyApplication::run(int argc, char* argv[])
         n2->left = n1;
         n1->right = n1;
         n2->right = n2;
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
         test(getNum() == 2);
-        Ice::collectGarbage();
-        test(getNum() == 2);
+        n1 = 0;
+        test(n2->left->left == n2);
     }
-    test(getNum() == 2);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -388,12 +250,12 @@ MyApplication::run(int argc, char* argv[])
         n1->left = n2;
         n2->left = n3;
         n3->left = n1;
-        test(getNum() == 3);
-        Ice::collectGarbage();
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
+        n1 = 0;
+        test(n2->left->left->left == n2);
         test(getNum() == 3);
     }
-    test(getNum() == 3);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -409,11 +271,9 @@ MyApplication::run(int argc, char* argv[])
         n2->right = n3;
         n3->right = n1;
         test(getNum() == 3);
-        Ice::collectGarbage();
-        test(getNum() == 3);
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
     }
-    test(getNum() == 3);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -428,12 +288,10 @@ MyApplication::run(int argc, char* argv[])
         n1->right = n3;
         n2->right = n1;
         n3->right = n2;
-        test(getNum() == 3);
-        Ice::collectGarbage();
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
         test(getNum() == 3);
     }
-    test(getNum() == 3);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -449,16 +307,12 @@ MyApplication::run(int argc, char* argv[])
         n2->right = n3;
         n3->left = n4;
         n = n3;
-        test(getNum() == 4);
-        Ice::collectGarbage();
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
         test(getNum() == 4);
     }
-    test(getNum() == 4);
-    Ice::collectGarbage();
     test(getNum() == 2);
     n = 0;
-    test(getNum() == 0);
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -477,18 +331,78 @@ MyApplication::run(int argc, char* argv[])
         n4->right = n5;
         n5->right = n6;
         n6->right = n5;
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
         n = n4;
         test(getNum() == 6);
-        Ice::collectGarbage();
-        test(getNum() == 6);
     }
-    test(getNum() == 6);
-    Ice::collectGarbage();
     test(getNum() == 3);
     n = 0;
-    test(getNum() == 2);
-    Ice::collectGarbage();
     test(getNum() == 0);
+    cout << "ok" << endl;
+
+    cout << "testing complex cycles... " << flush;
+    {
+        NPtr n1 = new N;
+        NPtr n2 = new N;
+        NPtr n3 = new N;
+        NPtr n4 = new N;
+        NPtr n5 = new N;
+        NPtr n6 = new N;
+        NPtr n7 = new N;
+        NPtr n8 = new N;
+        
+        n1->left = n2;
+        n2->left = n3;
+        n2->right = n4;
+        n3->left = n8;
+        n3->right = n5;
+        n4->left = n5;
+        n5->left = n6;
+        n6->left = n5;
+        n6->right = n7;
+        n7->left = n3;
+        n8->left = n1;
+        n1->ice_collectable(true);
+        TestHaveCycles().visit(n1.get());
+
+        n4->ice_collectable(false);
+
+        n4->ice_collectable(true);
+        TestHaveCycles().visit(n4.get());
+
+        n = n4;
+        test(getNum() == 8);
+    }
+    test(getNum() == 8);
+    n = 0;
+    test(getNum() == 0);
+    cout << "ok" << endl;
+
+    cout << "testing random graphs... " << flush;
+    {
+        for(int i = 10; i <= 150; i += 10) // random graphs with 10 to 150 nodes
+        {
+            {
+                vector<NPtr> nodes;
+                for(int j = 0; j < i; ++j)
+                {
+                    nodes.push_back(new N());
+                }
+                for(int j = 0; j < i; ++j)
+                {
+                    nodes[j]->left = nodes[IceUtilInternal::random(i)];
+                    nodes[j]->right = nodes[IceUtilInternal::random(i)];
+                }
+                for(int j = 0; j < i; ++j)
+                {
+                    nodes[j]->ice_collectable(true);
+                }
+                test(getNum() == i);
+            }
+            test(getNum() == 0);
+        }
+    }
     cout << "ok" << endl;
 
     cout << "testing sequence element cycle... " << flush;
@@ -498,11 +412,10 @@ MyApplication::run(int argc, char* argv[])
         cs.push_back(new N);
         cs[0]->left = cs[1];
         cs[1]->left = cs[0];
-        test(getNum() == 2);
-        Ice::collectGarbage();
+        cs[0]->ice_collectable(true);
+        cs[1]->ice_collectable(true);
         test(getNum() == 2);
     }
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -515,11 +428,10 @@ MyApplication::run(int argc, char* argv[])
         n2->left = n1;
         cd[0] = n1;
         cd[1] = n2;
-        test(getNum() == 2);
-        Ice::collectGarbage();
+        cd[0]->ice_collectable(true);
+        cd[1]->ice_collectable(true);
         test(getNum() == 2);
     }
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -534,11 +446,10 @@ MyApplication::run(int argc, char* argv[])
         ss[1].theC = new N;
         ss[0].theC->left = ss[1].theC;
         ss[1].theC->left = ss[0].theC;
-        test(getNum() == 2);
-        Ice::collectGarbage();
+        ss[0].theC->ice_collectable(true);
+        ss[1].theC->ice_collectable(true);
         test(getNum() == 2);
     }
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -546,18 +457,15 @@ MyApplication::run(int argc, char* argv[])
     {
         N2Ptr n2 = new N2;
         S2 s2;
-
         n2->theS2Seq.push_back(s2);
         n2->theS2Seq.push_back(s2);
         n2->theS2Seq[0].theC2Dict[0] = n2;
         n2->theS2Seq[0].theC2Dict[1] = n2;
         n2->theS2Seq[1].theC2Dict[0] = n2;
         n2->theS2Seq[1].theC2Dict[1] = n2;
-        test(getNum() == 1);
-        Ice::collectGarbage();
+        n2->ice_collectable(true);
         test(getNum() == 1);
     }
-    Ice::collectGarbage();
     test(getNum() == 0);
     cout << "ok" << endl;
 
@@ -567,10 +475,7 @@ MyApplication::run(int argc, char* argv[])
         NNPtr nn = new NN;
         nn->l = new NL;
         test(getNum() == 2);
-        Ice::collectGarbage();
-        test(getNum() == 2);
     }
-    Ice::collectGarbage();
     test(getNum() == 0);
 
     {
@@ -580,10 +485,7 @@ MyApplication::run(int argc, char* argv[])
             p = new NL;
             nn->l = p;
             test(getNum() == 2);
-            Ice::collectGarbage();
-            test(getNum() == 2);
         }
-        Ice::collectGarbage();
         test(getNum() == 1);
     }
     test(getNum() == 0);
@@ -593,12 +495,10 @@ MyApplication::run(int argc, char* argv[])
         NLPtr nl = new NL;
         nn->l = nl;
         nn->n = nn;
-        test(getNum() == 2);
-        Ice::collectGarbage();
+        nn->ice_collectable(true);
+        TestHaveCycles().visit(nn.get());
         test(getNum() == 2);
     }
-    test(getNum() == 2);
-    Ice::collectGarbage();
     test(getNum() == 0);
 
     {
@@ -609,12 +509,10 @@ MyApplication::run(int argc, char* argv[])
         nn1->n = nn2;
         nn2->l = nl;
         nn2->n = nn1;
-        test(getNum() == 3);
-        Ice::collectGarbage();
+        nn1->ice_collectable(true);
+        TestHaveCycles().visit(nn1.get());
         test(getNum() == 3);
     }
-    test(getNum() == 3);
-    Ice::collectGarbage();
     test(getNum() == 0);
 
     {
@@ -622,63 +520,16 @@ MyApplication::run(int argc, char* argv[])
         test(getNum() == 1);
     }
     test(getNum() == 0);
-    Ice::collectGarbage();
-    test(getNum() == 0);
 
     {
         NNPtr nn1 = new NN;
         nn1->n = new NN;
         test(getNum() == 2);
-        Ice::collectGarbage();
-        test(getNum() == 2);
     }
-    test(getNum() == 0);
-    Ice::collectGarbage();
     test(getNum() == 0);
 
     cout << "ok" << endl;
-    
-    cout << "testing for race conditions... " << flush;
-    string seedfile = argv[1];
-    ofstream file(seedfile.c_str());
-    if(!file)
-    {
-        cerr << argv[0] << ": cannot open `" << seedfile << "' for writing" << endl;
-        return EXIT_FAILURE;
-    }
-    ::IceUtil::Time t = ::IceUtil::Time::now();
-    int seed = argc > 2 ? atoi(argv[2]) : static_cast<int>(t.toMilliSeconds());
-    file << seed << "\n";
-    file.close();
-    srand(seed);
-
-    typedef ::IceUtil::Handle<GarbageProducer> GarbageThreadPtr;
-    GarbageThreadPtr garbageThread = new GarbageProducer();
-    garbageThread->start();
-
-    for(int i = 0; i < 50; ++i)
-    {
-        if(interrupted())
-        {
-            break;
-        }
-        garbageThread->randomWait();
-        Ice::collectGarbage();
-    }
-
-    garbageThread->stop();
-    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-    Ice::collectGarbage();
-    if(!interrupted())
-    {
-        test(getNum() == 0);
-        cout << "ok" << endl;
-        return EXIT_SUCCESS;
-    }
-    else
-    {
-        return 130; // SIGINT + 128
-    }
+    return 0;
 }
 
 int

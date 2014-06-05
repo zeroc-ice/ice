@@ -83,6 +83,7 @@ public:
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
+    bool collectObjects() const { return _collectObjects; }
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
     Ice::Identity stringToIdentity(const std::string&) const;
@@ -120,7 +121,7 @@ private:
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
-    bool destroy();
+    void destroy();
     friend class Ice::CommunicatorI;
 
     void updateConnectionObservers();
@@ -138,6 +139,7 @@ private:
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
+    const bool _collectObjects; // Immutable, not reset by destroy().
     ACMConfig _clientACM;
     ACMConfig _serverACM;
     RouterManagerPtr _routerManager;

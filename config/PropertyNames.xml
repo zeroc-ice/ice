@@ -341,7 +341,7 @@ generated from the section label.
         <property name="IPv6" />
         <property name="EventLog.Source" />
         <property name="FactoryAssemblies" />
-        <property name="GC.Interval" />
+        <property name="CollectObjects"/>
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
         <property name="LogFile" />
@@ -374,7 +374,6 @@ generated from the section label.
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
         <property name="Trace.Admin.Properties" />
-        <property name="Trace.GC" />
         <property name="Trace.Locator" />
         <property name="Trace.Network" />
         <property name="Trace.Protocol" />

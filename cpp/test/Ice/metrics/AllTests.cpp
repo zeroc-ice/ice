@@ -397,9 +397,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     updateProps(clientProps, serverProps, update, props);
     
 #ifndef ICE_OS_WINRT
-    int threadCount = 4;
+    int threadCount = 3;
 #else
-    int threadCount = 3; // No endpoint host resolver thread with WinRT.
+    int threadCount = 2; // No endpoint host resolver thread with WinRT.
 #endif
 
     Ice::Long timestamp;
@@ -433,7 +433,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     test(invoke->remotes[1]->total = 3);
 
     view = serverMetrics->getMetricsView("View", timestamp);
-    test(view["Thread"].size() > 4);
+    test(static_cast<int>(view["Thread"].size()) > threadCount);
     test(view["Connection"].size() == 2);
     test(view["Dispatch"].size() == 1);
     test(view["Dispatch"][0]->current <= 1 && view["Dispatch"][0]->total == 5);

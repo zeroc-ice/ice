@@ -36,7 +36,6 @@
 #include <IceUtil/StringUtil.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Communicator.h>
-#include <Ice/GC.h>
 #include <Ice/MetricsAdminI.h>
 #include <Ice/InstrumentationI.h>
 #include <Ice/ProtocolInstance.h>
@@ -80,13 +79,6 @@ extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
 extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 };
-
-namespace IceInternal
-{
-
-extern IceUtil::Handle<IceInternal::GC> theCollector;
-
-}
 
 namespace
 {
@@ -836,6 +828,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _state(StateActive),
     _initData(initData),
     _messageSizeMax(0),
+    _collectObjects(false),
     _implicitContext(0),
     _stringConverter(IceUtil::getProcessStringConverter()),
     _wstringConverter(IceUtil::getProcessWstringConverter())
@@ -1048,6 +1041,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             }
         }
 
+        const_cast<bool&>(_collectObjects) = _initData.properties->getPropertyAsInt("Ice.CollectObjects") > 0;
+
         //
         // Client ACM enabled by default. Server ACM disabled by default.
         //
@@ -1245,7 +1240,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     if(_observer)
     {
-        theCollector->updateObserver(_observer);
         _observer->setObserverUpdater(new ObserverUpdaterI(this));
     }
 
@@ -1354,7 +1348,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 }
 
-bool
+void
 IceInternal::Instance::destroy()
 {
     {
@@ -1366,7 +1360,7 @@ IceInternal::Instance::destroy()
         //
         if(_state != StateActive)
         {
-            return false;
+            return;
         }
 
         //
@@ -1401,11 +1395,6 @@ IceInternal::Instance::destroy()
     if(_retryQueue)
     {
         _retryQueue->destroy();
-    }
-
-    if(_observer && theCollector)
-    {
-        theCollector->clearObserver(_observer);
     }
 
     if(_metricsAdmin)
@@ -1530,7 +1519,6 @@ IceInternal::Instance::destroy()
             }
         }
     }
-    return true;
 }
 
 void
@@ -1567,8 +1555,6 @@ IceInternal::Instance::updateThreadObservers()
         {
             _endpointHostResolver->updateObserver();
         }
-        assert(theCollector);
-        theCollector->updateObserver(_observer);
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {

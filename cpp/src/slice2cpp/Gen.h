@@ -255,7 +255,7 @@ private:
 
         void emitDataMember(const DataMemberPtr&);
         void emitGCFunctions(const ClassDefPtr&);
-        void emitGCInsertCode(const TypePtr&, const std::string&, const std::string&, int);
+        void emitGCVisitCode(const TypePtr&, const std::string&, const std::string&, int);
         void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
         bool emitVirtualBaseInitializers(const ClassDefPtr&, bool virtualInheritance, bool direct);
         void emitOneShotConstructor(const ClassDefPtr&);

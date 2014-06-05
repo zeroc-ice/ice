@@ -83,6 +83,11 @@ static inline int atomicExchangeAdd(volatile int* counter, int i)
 
 #endif
 
+//
+// Flag constant used by the Shared class. Derived classes
+// such as GCObject define more flag constants.
+//
+const unsigned char IceUtil::Shared::NoDelete = 1;
 
 IceUtil::SimpleShared::SimpleShared() :
     _ref(0),
@@ -98,13 +103,13 @@ IceUtil::SimpleShared::SimpleShared(const SimpleShared&) :
 
 IceUtil::Shared::Shared() :
     _ref(0),
-    _noDelete(false)
+    _flags(0)
 {
 }
 
 IceUtil::Shared::Shared(const Shared&) :
     _ref(0),
-    _noDelete(false)
+    _flags(0)
 {
 }
 
@@ -137,24 +142,21 @@ IceUtil::Shared::__decRef()
 {
 #if defined(_WIN32)
     assert(InterlockedExchangeAdd(&_ref, 0) > 0);
-    if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
+    if(InterlockedDecrement(&_ref) == 0 && !(_flags & NoDelete))
     {
-        _noDelete = true;
         delete this;
     }
 #elif defined(ICE_HAS_GCC_BUILTINS)
     int c = __sync_fetch_and_sub(&_ref, 1);
     assert(c > 0);
-    if(c == 1 && !_noDelete)
+    if(c == 1 && !(_flags & NoDelete))
     {
-        _noDelete = true;
         delete this;
     }
 #elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
     assert(IceUtilInternal::atomicExchangeAdd(&_ref, 0) > 0);
-    if(IceUtilInternal::atomicDecAndTest(&_ref) && !_noDelete)
+    if(IceUtilInternal::atomicDecAndTest(&_ref) && !(_flags & NoDelete))
     {
-        _noDelete = true;
         delete this;
     }
 #else
@@ -163,8 +165,8 @@ IceUtil::Shared::__decRef()
     assert(_ref > 0);
     if(--_ref == 0)
     {
-        doDelete = !_noDelete;
-        _noDelete = true;
+        doDelete = !(_flags & NoDelete);
+        _flags |= NoDelete;
     }
     _mutex.unlock();
     if(doDelete)
@@ -194,5 +196,5 @@ IceUtil::Shared::__getRef() const
 void
 IceUtil::Shared::__setNoDelete(bool b)
 {
-    _noDelete = b;
+    _flags = b ? (_flags | NoDelete) : (_flags & ~NoDelete);
 }

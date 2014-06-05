@@ -17,7 +17,6 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/ArgVector.h>
-#include <Ice/GC.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
@@ -32,13 +31,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-
-namespace IceInternal
-{
-
-extern IceUtil::Handle<IceInternal::GC> theCollector;
-
-}
 
 namespace
 {
@@ -56,15 +48,6 @@ makePair(const vector<Byte>& v)
     }
 }
 
-}
-
-void
-Ice::collectGarbage()
-{
-    if(theCollector)
-    {
-        theCollector->collectGarbage();
-    }
 }
 
 StringSeq

@@ -13,14 +13,12 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Cond.h>
 #include <IceUtil/ArgVector.h>
-#include <Ice/GC.h>
 #include <IceUtil/UniquePtr.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
-
 
 //
 // static initializations.

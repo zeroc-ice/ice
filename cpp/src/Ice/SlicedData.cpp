@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/SlicedData.h>
-#include <Ice/Object.h>
 #include <Ice/BasicStream.h>
 
 using namespace std;
@@ -24,22 +23,7 @@ Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
 }
 
 void
-Ice::SlicedData::__gcReachable(IceInternal::GCCountMap& m) const
-{
-    //
-    // Iterate over the object references in each preserved slice.
-    //
-    for(SliceInfoSeq::const_iterator p = slices.begin(); p != slices.end(); ++p)
-    {
-        for(vector<ObjectPtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
-        {
-            (*q)->__addObject(m);
-        }
-    }
-}
-
-void
-Ice::SlicedData::__gcClear()
+Ice::SlicedData::__gcVisitMembers(IceInternal::GCVisitor& visitor)
 {
     //
     // Iterate over the object references in each preserved slice.
@@ -48,27 +32,11 @@ Ice::SlicedData::__gcClear()
     {
         for(vector<ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
         {
-            if((*q)->__usesGC())
+            if(q->get()->__gcVisit(visitor))
             {
-                (*q)->__decRefUnsafe();
-                (*q).__clearHandleUnsafe();
+                *q = 0;
             }
         }
-        (*p)->objects.clear();
-    }
-}
-
-void
-Ice::SlicedData::__addObject(IceInternal::GCCountMap& m)
-{
-    IceInternal::GCCountMap::iterator pos = m.find(this);
-    if(pos == m.end())
-    {
-        m[this] = 1;
-    }
-    else
-    {
-        ++pos->second;
     }
 }
 
@@ -89,41 +57,11 @@ Ice::UnknownSlicedObject::getSlicedData() const
 }
 
 void
-Ice::UnknownSlicedObject::__addObject(IceInternal::GCCountMap& _c)
-{
-    IceInternal::GCCountMap::iterator pos = _c.find(this);
-    if(pos == _c.end())
-    {
-        _c[this] = 1;
-    }
-    else
-    {
-        ++pos->second;
-    }
-}
-
-bool
-Ice::UnknownSlicedObject::__usesGC()
-{
-    return true;
-}
-
-void
-Ice::UnknownSlicedObject::__gcReachable(IceInternal::GCCountMap& _c) const
+Ice::UnknownSlicedObject::__gcVisitMembers(IceInternal::GCVisitor& _v)
 {
     if(_slicedData)
     {
-        _slicedData->__addObject(_c);
-    }
-}
-
-void
-Ice::UnknownSlicedObject::__gcClear()
-{
-    if(_slicedData)
-    {
-        _slicedData->__decRefUnsafe();
-        _slicedData.__clearHandleUnsafe();
+        _slicedData->__gcVisitMembers(_v);
     }
 }
 

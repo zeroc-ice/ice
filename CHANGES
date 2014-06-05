@@ -27,6 +27,21 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- New garbage collection support for object graphs with cycles. 
+
+  There's no more background thread to collect objects. Instead,
+  Ice::Object now has a new ice_collectable method to indicate whether
+  or not the object graph can be collected or not. When a graph is
+  marked as collectable with this method, you shouldn't update the
+  structure of the object graph.
+
+  Ice tries to collect the graph each time a reference count for an
+  object part of the cycle is dropped.
+
+  By default, object collection is turned off. When it's turned on
+  with Ice.CollectObjects=1, the Ice runtime calls
+  ice_collectable(true) on all the objects it un-marshals.
+
 - Added support for connection closure and heartbeat callback. The
   callback is invoked when the connection is closed or when a
   heartbeat is received.

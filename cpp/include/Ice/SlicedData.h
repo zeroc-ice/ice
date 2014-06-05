@@ -11,7 +11,7 @@
 #define ICE_SLICED_DATA_H
 
 #include <Ice/SlicedDataF.h>
-#include <Ice/Object.h>
+#include <Ice/GCObject.h>
 
 namespace Ice
 {
@@ -55,7 +55,7 @@ struct ICE_API SliceInfo : public ::IceUtil::Shared
 //
 // SlicedData holds the slices of unknown types.
 //
-class ICE_API SlicedData : public ::IceInternal::GCShared
+class ICE_API SlicedData : public ::IceUtil::Shared
 {
 public:
 
@@ -63,26 +63,18 @@ public:
 
     const SliceInfoSeq slices;
 
-    //
-    // The internal methods below are necessary to support garbage collection
-    // of Ice objects.
-    //
-
-    virtual void __gcReachable(IceInternal::GCCountMap&) const;
-    virtual void __gcClear();
+    void __gcVisitMembers(IceInternal::GCVisitor&);
 
     void __decRefUnsafe()
     {
         --_ref;
     }
-
-    void __addObject(IceInternal::GCCountMap&);
 };
 
 //
 // Unknown sliced object holds instance of unknown type.
 //
-class ICE_API UnknownSlicedObject : public Object, private IceInternal::GCShared 
+class ICE_API UnknownSlicedObject : virtual public Object, private IceInternal::GCObject
 {
 public:
 
@@ -92,10 +84,7 @@ public:
 
     SlicedDataPtr getSlicedData() const;
 
-    virtual void __addObject(::IceInternal::GCCountMap&);
-    virtual bool __usesGC();
-    virtual void __gcReachable(::IceInternal::GCCountMap&) const;
-    virtual void __gcClear();
+    virtual void __gcVisitMembers(IceInternal::GCVisitor&);
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);

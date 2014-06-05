@@ -20,7 +20,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/GC.h>
 #include <Ice/Router.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -34,111 +33,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceInternal
-{
-
-IceUtil::Handle<IceInternal::GC> theCollector = 0;
-
-}
-
-namespace
-{
-
-struct GarbageCollectorStats
-{
-    GarbageCollectorStats() :
-        runs(0), examined(0), collected(0)
-    {
-    }
-    int runs;
-    int examined;
-    int collected;
-    IceUtil::Time time;
-};
-
-int communicatorCount = 0;
-IceUtil::Mutex* gcMutex = 0;
-GarbageCollectorStats gcStats;
-int gcTraceLevel;
-string gcTraceCat;
-int gcInterval;
-bool gcHasPriority;
-int gcThreadPriority;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        gcMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete gcMutex;
-        gcMutex = 0;
-    }
-};
-
-Init init;
-
-void
-printGCStats(const IceInternal::GCStats& stats)
-{
-    if(gcTraceLevel)
-    {
-        if(gcTraceLevel > 1)
-        {
-            Trace out(getProcessLogger(), gcTraceCat);
-            out << stats.collected << "/" << stats.examined << ", " << stats.time * 1000 << "ms";
-        }
-        ++gcStats.runs;
-        gcStats.examined += stats.examined;
-        gcStats.collected += stats.collected;
-        gcStats.time += stats.time;
-    }
-}
-
-}
-
 void
 Ice::CommunicatorI::destroy()
 {
-    if(_instance && _instance->destroy())
-    {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(gcMutex);
-
-        //
-        // Wait for the collector thread to stop if this is the last communicator
-        // to be destroyed.
-        //
-        bool last = (--communicatorCount == 0);
-        if(last && gcInterval > 0 && theCollector)
-        {
-            theCollector->stop();
-        }
-
-        if(theCollector)
-        {
-            theCollector->collectGarbage(); // Collect whenever a communicator is destroyed.
-        }
-
-        if(last)
-        {
-            if(gcTraceLevel)
-            {
-                Trace out(getProcessLogger(), gcTraceCat);
-                out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
-                    << gcStats.time * 1000 << "ms" << ", " << gcStats.runs << " run";
-                if(gcStats.runs != 1)
-                {
-                    out << "s";
-                }
-            }
-            theCollector = 0; // Force destruction of the collector.
-        }
-    }
+    _instance->destroy();
 }
 
 void
@@ -401,45 +299,6 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
         // destructor is invoked.
         //
         const_cast<DynamicLibraryListPtr&>(_dynamicLibraryList) = _instance->dynamicLibraryList();
-
-        //
-        // If this is the first communicator that is created, use that communicator's
-        // property settings to determine whether to start the garbage collector.
-        // We remember that communicator's trace and logger settings so the garbage
-        // collector can continue to log messages even if the first communicator that
-        // is created isn't the last communicator to be destroyed.
-        //
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(gcMutex);
-        static bool gcOnce = true;
-        if(gcOnce)
-        {
-            gcTraceLevel = _instance->traceLevels()->gc;
-            gcTraceCat = _instance->traceLevels()->gcCat;
-            gcInterval = _instance->initializationData().properties->getPropertyAsInt("Ice.GC.Interval");
-            gcHasPriority = _instance->initializationData().properties->getProperty("Ice.ThreadPriority") != "";
-            gcThreadPriority = _instance->initializationData().properties->getPropertyAsInt("Ice.ThreadPriority");
-            gcOnce = false;
-        }
-        if(++communicatorCount == 1)
-        {
-            IceUtil::Handle<IceInternal::GC> collector  = new IceInternal::GC(gcInterval, printGCStats);
-            if(gcInterval > 0)
-            {
-                if(gcHasPriority)
-                {
-                    collector->start(0, gcThreadPriority);
-                }
-                else
-                {
-                    collector->start();
-                }
-            }
-
-            //
-            // Assign only if start() succeeds, if it fails this makes sure stop isn't called in destroy().
-            //
-            theCollector = collector; 
-        }
     }
     catch(...)
     {

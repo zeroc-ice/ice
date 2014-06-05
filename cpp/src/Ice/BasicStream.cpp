@@ -2038,6 +2038,10 @@ IceInternal::BasicStream::EncapsDecoder::unmarshal(Int index, const Ice::ObjectP
     {
         try
         {
+            if(_stream->instance()->collectObjects())
+            {
+                v->ice_collectable(true);
+            }
             v->ice_postUnmarshal();
         }
         catch(const std::exception& ex)
@@ -2067,6 +2071,10 @@ IceInternal::BasicStream::EncapsDecoder::unmarshal(Int index, const Ice::ObjectP
             {
                 try
                 {
+                    if(_stream->instance()->collectObjects())
+                    {
+                        (*p)->ice_collectable(true);
+                    }
                     (*p)->ice_postUnmarshal();
                 }
                 catch(const std::exception& ex)

@@ -2280,14 +2280,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             test(PNodeI::counter == 0);
             PNodePtr n = test->exchangePNode(c);
-
             c->next->next->next = 0; // Break the cycle.
 
             test(PNodeI::counter == 3);
-            Ice::collectGarbage();          // No effect.
-            test(PNodeI::counter == 3);
             n = 0;                          // Release reference.
-            Ice::collectGarbage();
             test(PNodeI::counter == 0);
         }
 
@@ -2302,21 +2298,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test->checkPBSUnknownWithGraph(p);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
-                //
-                // Although the unknown slice is ignored, the PNode instances are still
-                // unmarshaled and their graph is not destroyed until we collect garbage.
-                //
-                test(PNodeI::counter == 3);
-                Ice::collectGarbage();
                 test(PNodeI::counter == 0);
             }
             else
             {
                 test(PNodeI::counter == 3);
-                Ice::collectGarbage();          // No effect.
-                test(PNodeI::counter == 3);
                 p = 0;                          // Release reference.
-                Ice::collectGarbage();
                 test(PNodeI::counter == 0);
             }
         }
@@ -2339,10 +2326,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             PreservedPtr p = test->PBSUnknown2AsPreservedWithGraph();
             test->checkPBSUnknown2WithGraph(p);
             test(PreservedI::counter == 1);
-            Ice::collectGarbage();          // No effect.
-            test(PreservedI::counter == 1);
             p = 0;                          // Release reference.
-            Ice::collectGarbage();
             test(PreservedI::counter == 0);
         }
 
@@ -2373,15 +2357,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
                 {
                     test(PreservedI::counter == 1);
-                    Ice::collectGarbage();          // No effect.
-                    test(PreservedI::counter == 1);
                 }
             }
 
             //
             // Exception has gone out of scope.
             //
-            Ice::collectGarbage();
             test(PreservedI::counter == 0);
         }
         catch(const Ice::Exception&)

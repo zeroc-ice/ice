@@ -25,8 +25,6 @@
 namespace Ice
 {
 
-ICE_API void collectGarbage();
-
 ICE_API StringSeq argsToStringSeq(int, char*[]);
 
 #ifdef _WIN32

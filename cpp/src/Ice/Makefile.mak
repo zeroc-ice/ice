@@ -46,7 +46,7 @@ OBJS		= Acceptor.obj \
 		  FacetMap.obj \
 		  FactoryTable.obj \
 		  FactoryTableInit.obj \
-		  GC.obj \
+		  GCObject.obj \
 		  Identity.obj \
 		  ImplicitContextI.obj \
 		  ImplicitContext.obj \

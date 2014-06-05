@@ -41,7 +41,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\FacetMap.obj \
 		  $(ARCH)\$(CONFIG)\FactoryTable.obj \
 		  $(ARCH)\$(CONFIG)\FactoryTableInit.obj \
-		  $(ARCH)\$(CONFIG)\GC.obj \
+		  $(ARCH)\$(CONFIG)\GCObject.obj \
 		  $(ARCH)\$(CONFIG)\Identity.obj \
 		  $(ARCH)\$(CONFIG)\ImplicitContextI.obj \
 		  $(ARCH)\$(CONFIG)\ImplicitContext.obj \

@@ -12,7 +12,6 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
-#include <Ice/GCShared.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>
@@ -26,6 +25,7 @@ namespace IceInternal
 class Incoming;
 class BasicStream;
 class Direct;
+class GCVisitor;
 
 }
 
@@ -100,17 +100,9 @@ public:
 
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&);
-   
-    //
-    // Virtual methods to support garbage collection of Slice class instances. These
-    // methods are overriden by Slice classes which can have cycles.
-    //
-    virtual void __addObject(IceInternal::GCCountMap&) {}
-    virtual bool __usesGC() { return false; }
-    void __decRefUnsafe()
-    {
-        --_ref;
-    }
+
+    virtual bool __gcVisit(IceInternal::GCVisitor&) { return false; };
+    virtual void ice_collectable(bool) { };
 
 protected:
 
