@@ -473,7 +473,6 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     Exception(file, line)
 {
-    assert(false);
     if(IceUtilInternal::nullHandleAbort)
     {
         abort();
