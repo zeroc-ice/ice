@@ -21,6 +21,8 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=c_rsa1024_pub.pem
 IceSSL.KeyFile=c_rsa1024_priv.pem
+IceSSL.Keychain=client.keychain
+IceSSL.KeychainPassword=password
 
 #
 # IceMX configuration.

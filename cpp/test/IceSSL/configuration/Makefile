@@ -33,12 +33,16 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) 
 
+ifeq ($(UNAME),Darwin)
+LINK_WITH = -framework Security -framework CoreFoundation
+endif
+
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(call mktest,$@,$(COBJS),$(ICESSL_LIBS) $(LIBS))
+	$(call mktest,$@,$(COBJS),$(ICESSL_LIBS) $(LINK_WITH) $(LIBS))
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(call mktest,$@,$(SOBJS),$(ICESSL_LIBS) $(LIBS))
+	$(call mktest,$@,$(SOBJS),$(ICESSL_LIBS) $(LINK_WITH) $(LIBS))
 
 include .depend

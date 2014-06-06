@@ -7,20 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_INSTANCE_F_H
-#define ICE_SSL_INSTANCE_F_H
+#include <Ice/Config.h>
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
-
-namespace IceSSL
-{
-
-class Instance;
-IceUtil::Shared* upCast(IceSSL::Instance*);
-typedef IceInternal::Handle<Instance> InstancePtr;
-
-}
-
+#ifdef __APPLE__
+#  define ICE_USE_SECURE_TRANSPORT 1
+#else
+#  define ICE_USE_OPENSSL 1
 #endif

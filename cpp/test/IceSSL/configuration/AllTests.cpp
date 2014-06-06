@@ -8,9 +8,11 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/FileUtil.h>
 #include <IceSSL/Plugin.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <Util.h>
 
 using namespace std;
 using namespace Ice;
@@ -151,6 +153,13 @@ createClientProps(const Ice::PropertiesPtr& defaultProperties, const string& def
     {
         result->setProperty("Ice.Default.Host", defaultHost);
     }
+#ifdef ICE_USE_SECURE_TRANSPORT
+    const string keychainName = "client.keychain";
+    const string keychainPassword = "password";
+    removeKeychain(keychainName, keychainPassword);
+    result->setProperty("IceSSL.Keychain", keychainName);
+    result->setProperty("IceSSL.KeychainPassword", keychainPassword);
+#endif
     return result;
 }
 
@@ -168,6 +177,10 @@ createServerProps(const Ice::PropertiesPtr& defaultProperties, const string& def
     {
         result["Ice.Default.Host"] = defaultHost;
     }
+#ifdef ICE_USE_SECURE_TRANSPORT
+    result["IceSSL.Keychain"] = "server.keychain";
+    result["IceSSL.KeychainPassword"] = "password";
+#endif
     return result;
 }
 
@@ -214,7 +227,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
         initData.properties->setProperty("Ice.InitPlugins", "0");
+#ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#else
+        initData.properties->setProperty("IceSSL.Ciphers", "DH_anon_WITH_AES_256_CBC_SHA");
+#endif
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
         PluginManagerPtr pm = comm->getPluginManager();
@@ -223,7 +240,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         test(obj);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(obj);
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+#ifdef ICE_USE_OPENSSL
         d["IceSSL.Ciphers"] = "ADH";
+#else
+        d["IceSSL.Ciphers"] = "DH_anon_WITH_AES_256_CBC_SHA";
+#endif
         d["IceSSL.VerifyPeer"] = "0";
         Test::ServerPrx server = fact->createServer(d);
         try
@@ -256,6 +277,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
+        
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
         d["IceSSL.CertAuthFile"] = "cacert1.pem";
         d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
@@ -323,7 +345,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             // Expected.
         }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
         catch(const ConnectionLostException&)
         {
             // Expected.
@@ -378,9 +400,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
             test(caCert->checkValidity());
             test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
 
-            test(!serverCert->verify(serverCert->getPublicKey()));
-            test(serverCert->verify(caCert->getPublicKey()));
-            test(caCert->verify(caCert->getPublicKey()));
+            test(!serverCert->verify(serverCert));
+            test(serverCert->verify(caCert));
+            test(caCert->verify(caCert));
 
             IceSSL::NativeConnectionInfoPtr info = 
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
@@ -396,7 +418,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
             test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
             test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
                  !info->nativeCerts[1]->checkValidity(IceUtil::Time::seconds(0)));
-            test(info->nativeCerts[0]->verify(info->nativeCerts[1]->getPublicKey()));
+            test(info->nativeCerts[0]->verify(info->nativeCerts[1]));
             test(info->nativeCerts.size() == 2 &&
                  info->nativeCerts[0]->getSubjectDN() == serverCert->getSubjectDN() &&
                  info->nativeCerts[0]->getIssuerDN() == serverCert->getIssuerDN());
@@ -456,7 +478,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             // Expected.
         }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
         catch(const ConnectionLostException&)
         {
             // Expected.
@@ -501,7 +523,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             // Expected.
         }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
         catch(const ConnectionLostException&)
         {
             // Expected.
@@ -509,7 +531,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
 #endif
         catch(const LocalException&)
         {
-            test(false);
+           test(false);
         }
         fact->destroyServer(server);
 
@@ -650,7 +672,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+#ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#else
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+#endif
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         CommunicatorPtr comm = initialize(initData);
         IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
@@ -661,12 +687,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+#ifdef ICE_USE_OPENSSL
+        string cipherSub = "ADH-";
         d["IceSSL.Ciphers"] = "ADH";
+#else
+        string cipherSub = "DH_anon";
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+#endif
         d["IceSSL.VerifyPeer"] = "0";
         Test::ServerPrx server = fact->createServer(d);
         try
         {
-            string cipherSub = "ADH-";
             server->checkCipher(cipherSub);
             IceSSL::NativeConnectionInfoPtr info = 
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
@@ -744,8 +775,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     }
     cout << "ok" << endl;
 
+
     cout << "testing protocols... " << flush;
     {
+#ifndef ICE_USE_SECURE_TRANSPORT
         //
         // This should fail because the client and server have no protocol
         // in common.
@@ -804,9 +837,72 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         }
         fact->destroyServer(server);
         comm->destroy();
+#else
+        //
+        // This should fail because the client and server have no protocol
+        // in common.
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+        initData.properties->setProperty("IceSSL.ProtocolVersionMax", "ssl3");
+        initData.properties->setProperty("IceSSL.ProtocolVersionMin", "ssl3");
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+        d["IceSSL.VerifyPeer"] = "0";
+        d["IceSSL.ProtocolVersionMax"] = "tls1_2";
+        d["IceSSL.ProtocolVersionMin"] = "tls1_2";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const ProtocolException&)
+        {
+            // Expected on some platforms.
+        }
+        catch(const ConnectionLostException&)
+        {
+            // Expected on some platforms.
+        }
+        catch(const LocalException&)
+        {
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+        
+        //
+        // This should succeed.
+        //
+        comm = initialize(initData);
+        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+        d["IceSSL.VerifyPeer"] = "0";
+        d["IceSSL.ProtocolVersionMax"] = "tls1";
+        d["IceSSL.ProtocolVersionMin"] = "ssl3";
+        server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+        }
+        catch(const LocalException&)
+        {
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+#endif
     }
     cout << "ok" << endl;
-
+    
     cout << "testing expired certificates... " << flush;
     {
         //
@@ -840,7 +936,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             // Expected.
         }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
         catch(const ConnectionLostException&)
         {
             // Expected.
@@ -862,6 +958,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
                 IceSSL::Certificate::load(defaultDir + "/c_rsa_nopass_ca1_exp_pub.pem");
             test(!cert->checkValidity());
         }
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
         initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
         initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_exp_pub.pem");
         initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_exp_priv.pem");
@@ -882,7 +979,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             // Expected.
         }
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
         catch(const ConnectionLostException&)
         {
             // Expected.
@@ -985,6 +1082,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         try
         {
             pm->initializePlugins();
+            test(false);
         }
         catch(const PluginInitializationException&)
         {
@@ -1008,7 +1106,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+#ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#else
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+#endif
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -1016,12 +1118,17 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         d["IceSSL.CertAuthFile"] = "cacert1.pem";
         d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
         d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+#ifdef ICE_USE_OPENSSL
+        string cipherSub = "ADH-";
         d["IceSSL.Ciphers"] = "RSA:ADH";
+#else
+        string cipherSub = "DH_";
+        d["IceSSL.Ciphers"] = "(RSA_*) (DH_anon*)";
+#endif
         d["IceSSL.VerifyPeer"] = "1";
         Test::ServerPrx server = fact->createServer(d);
         try
         {
-            string cipherSub = "ADH-";
             server->checkCipher(cipherSub);
             IceSSL::NativeConnectionInfoPtr info = 
                 IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
@@ -1035,6 +1142,68 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         comm->destroy();
     }
     
+#ifdef ICE_USE_SECURE_TRANSPORT
+    {
+        //
+        // Test IceSSL.DHParams
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+        d["IceSSL.DHParams"] = "dh_params512.der";
+        d["IceSSL.VerifyPeer"] = "0";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->checkCipher("DH_anon");
+        }
+        catch(const LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
+    
+    {
+        //
+        // Test IceSSL.DHParams
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+        d["IceSSL.DHParams"] = "dh_params1024.der";
+        d["IceSSL.VerifyPeer"] = "0";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->checkCipher("DH_anon");
+        }
+        catch(const LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
+#endif
+    
+//
+// No DSA support in Secure Transport.
+//
+#ifndef ICE_USE_SECURE_TRANSPORT
     {
         //
         // Configure a server with RSA and DSA certificates.
@@ -1154,12 +1323,12 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             // Expected.
         }
-#ifdef _WIN32
+#   ifdef _WIN32
         catch(const ConnectionLostException&)
         {
             // Expected.
         }
-#endif
+#   endif
         catch(const LocalException& ex)
         {
             cerr << ex << endl;
@@ -1168,6 +1337,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         fact->destroyServer(server);
         comm->destroy();
     }
+#endif
     cout << "ok" << endl;
 
     cout << "testing IceSSL.TrustOnly... " << flush;
@@ -1643,14 +1813,22 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
         CommunicatorPtr comm = initialize(initData);
+#ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#else
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+#endif
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
         d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+#ifdef ICE_USE_OPENSSL
         d["IceSSL.Ciphers"] = "ADH";
+#else
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+#endif
         d["IceSSL.VerifyPeer"] = "0";
         Test::ServerPrx server = fact->createServer(d);
         try
@@ -1671,14 +1849,22 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
         CommunicatorPtr comm = initialize(initData);
+#ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#else
+        initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
+#endif
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
 
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
         d["IceSSL.TrustOnly"] = "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+#ifdef ICE_USE_OPENSSL
         d["IceSSL.Ciphers"] = "ADH";
+#else
+        d["IceSSL.Ciphers"] = "(DH_anon*)";
+#endif
         d["IceSSL.VerifyPeer"] = "0";
         Test::ServerPrx server = fact->createServer(d);
         try

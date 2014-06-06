@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_TRANSCEIVER_I_H
-#define ICE_SSL_TRANSCEIVER_I_H
+#ifndef ICE_SSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
+#define ICE_SSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>
-#include <IceSSL/Plugin.h>
 #include <IceSSL/SSLEngineF.h>
+#include <IceSSL/Plugin.h>
 
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 
-#ifdef ICE_USE_OPENSSL
+#ifdef ICE_USE_SECURE_TRANSPORT
 
-typedef struct ssl_st SSL;
-typedef struct bio_st BIO;
+#include <Security/Security.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 namespace IceSSL
 {
@@ -44,26 +44,23 @@ class TransceiverI : public IceInternal::Transceiver, public IceInternal::Native
 public:
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
-#ifdef ICE_USE_IOCP
-    virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
-#endif
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&, bool&);
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
     virtual IceInternal::SocketOperation read(IceInternal::Buffer&, bool&);
-#ifdef ICE_USE_IOCP
-    virtual bool startWrite(IceInternal::Buffer&);
-    virtual void finishWrite(IceInternal::Buffer&);
-    virtual void startRead(IceInternal::Buffer&);
-    virtual void finishRead(IceInternal::Buffer&);
-#endif
+
     virtual std::string protocol() const;
     virtual std::string toString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
+    ContextRef context() const;
+    SecTrustRef trust() const;
+    OSStatus writeRaw(const char*, size_t*) const;
+    OSStatus readRaw(char*, size_t*) const;
+    
 private:
 
     TransceiverI(const InstancePtr&, SOCKET, const IceInternal::NetworkProxyPtr&, const std::string&,
@@ -72,15 +69,9 @@ private:
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
-
-#ifdef ICE_USE_IOCP
-    bool receive();
-    bool send();
-    int writeAsync(char*, int);
-    int readAsync(char*, int);
-#endif
-
+    
     void traceConnection();
+    
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
 
@@ -88,8 +79,8 @@ private:
     friend class AcceptorI;
 
     const InstancePtr _instance;
-    const OpenSSLEnginePtr _engine;
-    
+    const SecureTransportEnginePtr _engine;
+
     const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
     const IceInternal::Address _addr;
@@ -97,23 +88,22 @@ private:
     const std::string _adapterName;
     const bool _incoming;
 
-    SSL* _ssl;
+    ContextRef _ssl;
+    SecTrustRef _trust;
+    
+    size_t _buffered;
+    enum SSLWantFlags
+    {
+        SSLWantRead = 0x1,
+        SSLWantWrite = 0x2
+    };
+    
+    mutable Ice::Byte _flags;
 
     State _state;
     std::string _desc;
-#ifdef ICE_USE_IOCP
-    int _maxSendPacketSize;
-    int _maxReceivePacketSize;
-    BIO* _iocpBio;
-    IceInternal::AsyncInfo _read;
-    IceInternal::AsyncInfo _write;
-    std::vector<char> _writeBuffer;
-    std::vector<char>::iterator _writeI;
-    std::vector<char> _readBuffer;
-    std::vector<char>::iterator _readI;
-    int _sentBytes;
-    int _sentPacketSize;
-#endif
+    size_t _maxSendPacketSize;
+    size_t _maxReceivePacketSize;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

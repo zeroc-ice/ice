@@ -30,8 +30,7 @@ extern "C"
 ICE_DECLSPEC_EXPORT Ice::Plugin*
 createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
 {
-    PluginI* plugin = new PluginI(communicator);
-    return plugin;
+    return new PluginI(communicator);
 }
 
 }
@@ -41,8 +40,12 @@ createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const 
 //
 IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
 {
-    _sharedInstance = new SharedInstance(communicator);
-
+#ifdef ICE_USE_OPENSSL
+    _engine = new OpenSSLEngine(communicator);
+#else
+    _engine = new SecureTransportEngine(communicator);
+#endif
+    
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(communicator);
     
     //
@@ -50,42 +53,44 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
     // in initialize, because the communicator may need to interpret
     // proxies before the plug-in is fully initialized.
     //
-    facade->addEndpointFactory(new EndpointFactoryI(new Instance(_sharedInstance, EndpointType, "ssl")));
+    facade->addEndpointFactory(new EndpointFactoryI(new Instance(_engine, EndpointType, "ssl")));
 }
 
 void
 IceSSL::PluginI::initialize()
 {
-    _sharedInstance->initialize();
+    _engine->initialize();
 }
 
 void
 IceSSL::PluginI::destroy()
 {
-    _sharedInstance->destroy();
-    _sharedInstance = 0;
-}
-
-void
-IceSSL::PluginI::setContext(SSL_CTX* context)
-{
-    _sharedInstance->context(context);
-}
-
-SSL_CTX*
-IceSSL::PluginI::getContext()
-{
-    return _sharedInstance->context();
+    _engine->destroy();
+    _engine = 0;
 }
 
 void
 IceSSL::PluginI::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 {
-    _sharedInstance->setCertificateVerifier(verifier);
+    _engine->setCertificateVerifier(verifier);
 }
 
 void
 IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 {
-    _sharedInstance->setPasswordPrompt(prompt);
+    _engine->setPasswordPrompt(prompt);
 }
+
+#ifdef ICE_USE_OPENSSL
+void
+IceSSL::PluginI::setContext(ContextRef context)
+{
+    _engine->context(context);
+}
+
+ContextRef
+IceSSL::PluginI::getContext()
+{
+    return _engine->context();
+}
+#endif

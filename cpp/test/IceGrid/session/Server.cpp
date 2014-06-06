@@ -44,10 +44,10 @@ public:
 
         IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-            "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
-            "ST=Florida,C=US"));
+             "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
+             "ST=Florida,C=US"));
         test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-            "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
+             "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
         test(cert->checkValidity());
 
         return true;

@@ -394,13 +394,13 @@ default_ca = ice\n\
 \n\
 [ ice ]\n\
 default_days     = 1825    # How long certs are valid.\n\
-default_md       = md5     # The Message Digest type.\n\
+default_md       = sha256     # The Message Digest type.\n\
 preserve         = no      # Keep passed DN ordering?\n\
 \n\
 [ req ]\n\
 default_bits        = 2048\n\
 default_keyfile     = $ENV::ICE_CA_HOME/ca/db/ca_key.pem\n\
-default_md          = md5\n\
+default_md          = sha256\n\
 prompt              = no\n\
 distinguished_name  = dn\n\
 x509_extensions     = extensions\n\
@@ -440,7 +440,7 @@ serial           = $dir/serial              # The current serial number.\n\
 certs            = $dir                     # Where issued certs are kept.\n\
 RANDFILE         = $dir/.rand               # Private random number file.\n\
 default_days     = 1825                     # How long certs are valid.\n\
-default_md       = md5                      # The Message Digest type.\n\
+default_md       = sha256                      # The Message Digest type.\n\
 preserve         = yes                      # Keep passed DN ordering?\n\
 \n\
 policy           = ca_policy\n\
@@ -471,7 +471,7 @@ authorityKeyIdentifier = keyid:always,issuer:always\n\
 \n\
 [ req ]\n\
 default_bits        = 1024\n\
-default_md          = md5\n\
+default_md          = sha256\n\
 prompt              = no\n\
 distinguished_name  = dn\n\
 x509_extensions     = extensions\n\

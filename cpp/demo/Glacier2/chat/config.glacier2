@@ -57,6 +57,8 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
+IceSSL.Keychain=glacier2.keychain
+IceSSL.KeychainPassword=password
 
 #
 # Uncomment the properties below if you want run the demo with the

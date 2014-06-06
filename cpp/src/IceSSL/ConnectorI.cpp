@@ -9,6 +9,7 @@
 
 #include <IceSSL/ConnectorI.h>
 #include <IceSSL/Instance.h>
+#include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/TransceiverI.h>
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
@@ -26,7 +27,7 @@ IceSSL::ConnectorI::connect()
     //
     // The plug-in may not be initialized.
     //
-    if(!_instance->context())
+    if(!_instance->initialized())
     {
         PluginInitializationException ex(__FILE__, __LINE__);
         ex.reason = "IceSSL: plug-in is not initialized";

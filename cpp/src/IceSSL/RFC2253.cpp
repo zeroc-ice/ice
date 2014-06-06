@@ -231,6 +231,7 @@ parseAttributeTypeAndValue(const string& data, size_t& pos)
     pair<string, string> p;
     p.first = parseAttributeType(data, pos);
     eatWhite(data, pos);
+
     if(pos >= data.size())
     {
         throw ParseException(__FILE__, __LINE__, "invalid attribute type/value pair (unexpected end of data)");

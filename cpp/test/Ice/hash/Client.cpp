@@ -44,6 +44,8 @@ int main(int argc, char** argv)
     // In Ice for WinRT IceSSL is part of Ice core.
     //
     id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
+    id.properties->setProperty("IceSSL.Keychain", "client.keychain");
+    id.properties->setProperty("IceSSL.KeychainPassword", "password");
 #endif
     Ice::CommunicatorPtr communicator = Ice::initialize(id);
     for(i = 0; proxyCollisions < maxCollisions && 

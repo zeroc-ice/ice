@@ -10,20 +10,29 @@
 #ifndef ICE_SSL_UTIL_H
 #define ICE_SSL_UTIL_H
 
+#include <IceSSL/Config.h>
 #include <IceSSL/UtilF.h>
 #include <Ice/Network.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
+#include <IceUtil/ScopedArray.h>
 
 #include <IceSSL/Plugin.h>
 
 #include <list>
-#include <openssl/ssl.h>
 
+#ifdef ICE_USE_OPENSSL
+#  include <openssl/ssl.h>
+#else
+#  include <Security/Security.h>
+#  include <CoreFoundation/CoreFoundation.h>
+#endif
+
+#ifdef ICE_USE_OPENSSL
 namespace IceSSL
 {
 
-#ifndef OPENSSL_NO_DH
+#  ifndef OPENSSL_NO_DH
 class DHParams : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
@@ -45,17 +54,72 @@ private:
     DH* _dh2048;
     DH* _dh4096;
 };
-#endif
-
-//
-// Determine if a file or directory exists, with an optional default directory.
-//
-bool checkPath(std::string&, const std::string&, bool);
+#  endif
 
 //
 // Accumulate the OpenSSL error stack into a string.
 //
 std::string getSslErrors(bool);
+
+}
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+
+namespace IceSSL
+{
+
+//
+// Helper functions to use by Secure Transport.
+//
+
+std::string fromCFString(CFStringRef);
+
+inline CFStringRef
+toCFString(const std::string& s)
+{
+    return CFStringCreateWithCString(NULL, s.c_str(), kCFStringEncodingUTF8);
+}
+
+std::string errorToString(CFErrorRef);
+
+std::string errorToString(OSStatus);
+
+//
+// Read a while file into memory buffer and return the number of bytes read.
+//
+int readFile(const std::string&, IceUtil::ScopedArray<char>&);
+
+
+std::string keyLabel(SecCertificateRef);
+
+//
+// Read a private key from an file and optionaly import into a keychain.
+//
+void loadPrivateKey(SecKeyRef*, const std::string&, CFDataRef, SecKeychainRef,
+                    const std::string&, const std::string&, const PasswordPromptPtr&, 
+                    int);
+
+//
+// Read a certificate and key from an file and optionaly import then into a 
+// keychain.
+//
+void loadCertificate(SecCertificateRef*, CFDataRef*, SecKeyRef*, SecKeychainRef, 
+                     const std::string&, const std::string& = "",
+                     const PasswordPromptPtr& = 0, int = 0);
+
+CFArrayRef loadCACertificates(const std::string&, const std::string& = "", const PasswordPromptPtr& = 0, 
+                              int = 0);
+
+}
+
+#endif
+
+namespace IceSSL
+{
+
+//
+// Determine if a file or directory exists, with an optional default directory.
+//
+bool checkPath(std::string&, const std::string&, bool);
 
 }
 

@@ -707,6 +707,12 @@ sslConfigTree = {
             "--IceSSL.CheckCertName=0"
             },
         }
+        
+if isDarwin():
+    sslConfigTree["cpp"]["client"] += " --IceSSL.Keychain=client.keychain --IceSSL.KeychainPassword=password"
+    sslConfigTree["cpp"]["server"] += " --IceSSL.Keychain=server.keychain --IceSSL.KeychainPassword=password"
+    sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
+    
 sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"]

@@ -224,3 +224,14 @@ if ! [ -f dsaparam1024.pem ]; then
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_dsa_nopass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
 fi
+
+#
+# Generate DH parameters to use with OS X Secure Transport.
+#
+if ! [ -f dh_params512.der ]; then
+    openssl dhparam -outform DER -out dh_params512.der 512
+fi
+
+if ! [ -f dh_params1024.der ]; then
+    openssl dhparam -outform DER -out dh_params1024.der 1024
+fi

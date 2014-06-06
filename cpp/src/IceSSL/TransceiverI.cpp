@@ -7,10 +7,11 @@
 //
 // **********************************************************************
 
+#include <IceSSL/TransceiverI.h>
+
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
-#include <IceSSL/TransceiverI.h>
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/Util.h>
@@ -21,13 +22,10 @@
 
 #include <IceUtil/DisableWarnings.h>
 
+#ifdef ICE_USE_OPENSSL
+
 #include <openssl/err.h>
 #include <openssl/bio.h>
-
-// Ignore OS X OpenSSL deprecation warnings
-#ifdef __APPLE__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -231,7 +229,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 throw ex;
             }
 
-            _ssl = SSL_new(_instance->context());
+            _ssl = SSL_new(_engine->context());
             if(!_ssl)
             {
                 BIO_free(bio);
@@ -364,7 +362,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                     }
                     ostringstream ostr;
                     ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                         << " connection:\nremote address = " << desc << "\n" << _instance->sslErrors();
+                         << " connection:\nremote address = " << desc << "\n" << _engine->sslErrors();
                     ProtocolException ex(__FILE__, __LINE__);
                     ex.reason = ostr.str();
                     throw ex;
@@ -373,7 +371,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
             }
         }
 
-        _instance->verifyPeer(_ssl, _fd, _host, getNativeConnectionInfo());
+        _engine->verifyPeer(_ssl, _fd, _host, getNativeConnectionInfo());
         _state = StateHandshakeComplete;
     }
     catch(const Ice::LocalException& ex)
@@ -409,7 +407,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
     if(_instance->securityTraceLevel() >= 1)
     {
-        _instance->traceConnection(_ssl, _incoming);
+        traceConnection();
     }
 
     return IceInternal::SocketOperationNone;
@@ -597,7 +595,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
             case SSL_ERROR_SSL:
             {
                 ProtocolException ex(__FILE__, __LINE__);
-                ex.reason = "SSL protocol error during write:\n" + _instance->sslErrors();
+                ex.reason = "SSL protocol error during write:\n" + _engine->sslErrors();
                 throw ex;
             }
             }
@@ -770,7 +768,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
                 else
                 {
                     ProtocolException ex(__FILE__, __LINE__);
-                    ex.reason = "SSL protocol error during read:\n" + _instance->sslErrors();
+                    ex.reason = "SSL protocol error during read:\n" + _engine->sslErrors();
                     throw ex;
                 }
             }
@@ -1041,6 +1039,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
                                    const string& host, const IceInternal::Address& addr) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
+    _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
     _proxy(proxy),
     _host(host),
     _addr(addr),
@@ -1078,6 +1077,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& adapterName) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
+    _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
     _addr(IceInternal::Address()),
     _adapterName(adapterName),
     _incoming(true),
@@ -1366,6 +1366,30 @@ IceSSL::TransceiverI::readAsync(char* buf, int packetSize)
 
 #endif
 
+void
+IceSSL::TransceiverI::traceConnection()
+{
+    Trace out(_instance->logger(), _instance->traceCategory());
+    out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
+
+    //
+    // The const_cast is necesary because Solaris still uses OpenSSL 0.9.7.
+    //
+    //const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
+    SSL_CIPHER *cipher = const_cast<SSL_CIPHER*>(SSL_get_current_cipher(_ssl));
+    if(!cipher)
+    {
+        out << "unknown cipher\n";
+    }
+    else
+    {
+        out << "cipher = " << SSL_CIPHER_get_name(cipher) << "\n";
+        out << "bits = " << SSL_CIPHER_get_bits(cipher, 0) << "\n";
+        out << "protocol = " << SSL_get_version(_ssl) << "\n";
+    }
+    out << IceInternal::fdToString(SSL_get_fd(_ssl));
+}
+
 bool
 IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
 {
@@ -1507,3 +1531,4 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
 
     return true;
 }
+#endif

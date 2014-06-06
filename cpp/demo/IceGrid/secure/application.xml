@@ -18,6 +18,8 @@
       <property name="IceSSL.CertFile" value="server_cert.pem"/>
       <property name="IceSSL.KeyFile" value="server_key.pem"/>
       <property name="IceSSL.DefaultDir" value="certs"/>
+      <property name="IceSSL.Keychain" value="server.keychain"/>
+      <property name="IceSSL.KeychainPassword" value="password"/>
 
       <property name="Ice.Admin.Endpoints" value="ssl -h localhost"/>
       <property name="IceSSL.TrustOnly.Client" value="CN=Master;CN=Slave"/>

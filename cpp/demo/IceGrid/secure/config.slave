@@ -45,6 +45,8 @@ IceSSL.DefaultDir=certs
 IceSSL.CertAuthFile=ca_cert.pem
 IceSSL.CertFile=slave_cert.pem
 IceSSL.KeyFile=slave_key.pem
+IceSSL.Keychain=slave.keychain
+IceSSL.KeychainPassword=password
 
 #
 # Don't require certificates. This is useful for admin clients that don't

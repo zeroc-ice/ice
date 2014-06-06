@@ -12,6 +12,7 @@
 #include <TestI.h>
 #include <TestCommon.h>
 #include <IceSSL/Plugin.h>
+#include <Util.h>
 
 using namespace std;
 using namespace Ice;
@@ -68,7 +69,11 @@ ServerI::checkCipher(const string& cipher, const Ice::Current& c)
 void
 ServerI::destroy()
 {
+    string defaultDir = _communicator->getProperties()->getProperty("IceSSL.DefaultDir");
     _communicator->destroy();
+#ifdef ICE_USE_SECURE_TRANSPORT
+    removeKeychain("server.keychain", "password");
+#endif
 }
 
 Test::ServerPrx

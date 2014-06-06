@@ -168,7 +168,7 @@ public:
     {
     }
 
-    SOCKET fd()
+    SOCKET fd() const
     {
         return _fd;
     }

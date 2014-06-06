@@ -29,6 +29,15 @@ Util.cleanDbDir("db/node")
 Util.cleanDbDir("certs")
 print("ok")
 
+if sys.platform == "darwin":
+    sys.stdout.write("cleaning keychains... ")
+    for f in ["master", "slave", "node", "glacier2", "admin", "server"]:
+        try:
+            os.remove(f + ".keychain")
+        except:
+            pass
+    print("ok")
+
 if Util.defaultHost:
     args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
 else:

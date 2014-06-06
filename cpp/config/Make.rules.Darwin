@@ -15,8 +15,8 @@ OSX_TARGET_MIN_SDK_VERSION      = 10.8
 
 CXX			= xcrun clang++
 
-CPPFLAGS 	        += -pthread 
-CXXFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden -Wall -Werror -mmacosx-version-min=$(OSX_TARGET_MIN_SDK_VERSION)
+CPPFLAGS		+= -pthread 
+CXXFLAGS		+= -Wall -Werror -mmacosx-version-min=$(OSX_TARGET_MIN_SDK_VERSION)
 
 ifeq ($(OPTIMIZE),yes)
      #
@@ -75,5 +75,7 @@ ICONV_LIB               = -liconv
 
 ICEUTIL_OS_LIBS         =
 ICE_OS_LIBS             = -ldl
+
+SSL_OS_LIBS             = -framework Security -framework CoreFoundation
 
 PLATFORM_HAS_READLINE   := yes

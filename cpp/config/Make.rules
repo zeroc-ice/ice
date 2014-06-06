@@ -204,6 +204,10 @@ ifeq ($(OPENSSL_LIBS),)
 endif
 OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
 
+ifeq ($(SSL_OS_LIBS),)
+    SSL_OS_LIBS = $(OPENSSL_LIBS)
+endif
+
 BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
 ifeq ($(BZIP2_LIBS),)
     BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2

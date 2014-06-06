@@ -25,7 +25,9 @@ OBJS		= AcceptorI.obj \
                   TransceiverI.obj \
                   Util.obj \
 		  RFC2253.obj \
-		  TrustManager.obj
+		  TrustManager.obj \
+		  SSLEngine.obj \
+		  OpenSSLEngine.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

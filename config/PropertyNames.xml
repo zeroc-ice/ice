@@ -535,12 +535,15 @@ generated from the section label.
         <property name="Ciphers" />
         <property name="DefaultDir" />
         <property name="DH.[any]" />
+        <property name="DHParams" />
         <property name="EntropyDaemon" />
         <property name="FindCert.[any]" />
         <property name="ImportCert.[any]" />
         <property name="InitOpenSSL" />
         <property name="KeyFile" />
         <property name="KeySet"/>
+        <property name="Keychain"/>
+        <property name="KeychainPassword"/>
         <property name="Keystore" />
         <property name="KeystorePassword" />
         <property name="KeystoreType" />
@@ -549,6 +552,8 @@ generated from the section label.
         <property name="PasswordRetryMax" />
         <property name="PersistKeySet"/>
         <property name="Protocols" />
+        <property name="ProtocolVersionMax" />
+        <property name="ProtocolVersionMin" />
         <property name="Random" />
         <property name="Trace.Security" />
         <property name="TrustOnly" />

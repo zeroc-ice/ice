@@ -22,6 +22,9 @@
 namespace IceUtilInternal
 {
 
+extern const ICE_UTIL_API std::string pathsep;
+extern const ICE_UTIL_API std::string separator;
+
 //
 // Detemine if path is an absolute path.
 //

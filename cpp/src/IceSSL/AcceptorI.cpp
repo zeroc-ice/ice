@@ -9,7 +9,9 @@
 
 #include <IceSSL/AcceptorI.h>
 #include <IceSSL/Instance.h>
+#include <IceSSL/SecureTransportTransceiverI.h>
 #include <IceSSL/TransceiverI.h>
+
 #include <IceSSL/Util.h>
 
 #include <Ice/Communicator.h>
@@ -144,7 +146,7 @@ IceSSL::AcceptorI::accept()
     //
     // The plug-in may not be initialized.
     //
-    if(!_instance->context())
+    if(!_instance->initialized())
     {
         PluginInitializationException ex(__FILE__, __LINE__);
         ex.reason = "IceSSL: plug-in is not initialized";

@@ -11,13 +11,18 @@
 #define ICE_SSL_PLUGIN_I_H
 
 #include <IceSSL/Plugin.h>
-#include <IceSSL/InstanceF.h>
+#include <IceSSL/SSLEngineF.h>
 #include <Ice/CommunicatorF.h>
 
 namespace IceSSL
 {
 
-class PluginI : public IceSSL::Plugin
+class PluginI : 
+#ifdef ICE_USE_OPENSSL
+    public OpenSSLPlugin
+#else
+    public IceSSL::Plugin
+#endif
 {
 public:
 
@@ -32,14 +37,21 @@ public:
     //
     // From IceSSL::Plugin.
     //
-    virtual void setContext(SSL_CTX*);
-    virtual SSL_CTX* getContext();
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
 
+#ifdef ICE_USE_OPENSSL
+    virtual void setContext(ContextRef);
+    virtual ContextRef getContext();
+#endif
+
 private:
 
-    SharedInstancePtr _sharedInstance;
+#ifdef ICE_USE_OPENSSL
+    OpenSSLEnginePtr _engine;
+#else
+    SecureTransportEnginePtr _engine;
+#endif
 };
 
 }

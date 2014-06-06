@@ -12,6 +12,7 @@
 
 #include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
+#include <IceSSL/Config.h>
 #include <IceSSL/ConnectionInfo.h>
 
 #include <vector>
@@ -32,22 +33,48 @@
 #   endif
 #endif
 
+#ifdef ICE_USE_OPENSSL
 //
-// SSL_CTX is the OpenSSL type that holds configuration settings for
-// all SSL connections.
+// Pointer to an opaque SSL session context object. ssl_ctx_st is the 
+// OpenSSL type that holds configuration settings for all SSL
+// connections.
 //
-typedef struct ssl_ctx_st SSL_CTX;
+typedef struct ssl_ctx_st* ContextRef;
 
 //
-// X509 is the OpenSSL type that represents a certificate.
+// Pointer to an opaque certificate object. X509_st is the OpenSSL 
+// type that represents a certificate.
 //
-typedef struct x509_st X509;
-typedef struct X509_name_st X509NAME;
+typedef struct x509_st* X509CertificateRef;
 
 //
 // EVP_PKEY is the OpenSSL type that represents a public key.
 //
-typedef struct evp_pkey_st EVP_PKEY;
+typedef struct evp_pkey_st* KeyRef;
+
+
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+
+//
+// Pointer to an opaque SSL session context object. The SSL session context 
+// object references the state associated with a session.
+//
+struct SSLContext;
+typedef struct SSLContext* ContextRef;
+
+//
+// Pointer to an opanque certificate object.
+//
+struct OpaqueSecCertificateRef;
+typedef struct OpaqueSecCertificateRef* X509CertificateRef;
+
+//
+// Pointer to an opaque connection objecct.
+//
+struct OpaqueSecKeyRef;
+typedef struct OpaqueSecKeyRef* KeyRef;
+
+#endif
 
 namespace IceSSL
 {
@@ -127,14 +154,14 @@ public:
 
     ~PublicKey();
 
-    EVP_PKEY* key() const;
+    KeyRef key() const;
 
 private:
 
-    PublicKey(EVP_PKEY*);
+    PublicKey(KeyRef);
     friend class Certificate;
 
-    EVP_PKEY* _key;
+    KeyRef _key;
 };
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 
@@ -153,11 +180,6 @@ typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 class ICE_SSL_API DistinguishedName
 {
 public:
-
-    //
-    // Create a DistinguishedName using an OpenSSL value.
-    //
-    DistinguishedName(X509NAME*);
 
     //
     // Create a DistinguishedName from a string encoded using
@@ -215,7 +237,7 @@ public:
     // Construct a certificate using a X509*. The Certificate assumes
     // ownership of the X509* struct.
     //
-    Certificate(X509*);
+    Certificate(X509CertificateRef);
     ~Certificate();
 
     //
@@ -240,10 +262,16 @@ public:
     PublicKeyPtr getPublicKey() const;
 
     //
+    // Verify that this certificate was signed by the given certificate
+    // public key. Returns true if signed, false otherwise.
+    //
+    bool verify(const CertificatePtr&) const;
+    
+    //
     // Verify that this certificate was signed by the given public
     // key. Returns true if signed, false otherwise.
     //
-    bool verify(const PublicKeyPtr&) const;
+    ICE_DEPRECATED_API bool verify(const PublicKeyPtr&) const;
 
     //
     // Return a string encoding of the certificate in PEM format.
@@ -347,18 +375,18 @@ public:
     // for the lifetime of this object unless the caller increments its
     // reference count explicitly using X509_dup.
     //
-    X509* getCert() const;
+    X509CertificateRef getCert() const;
 
 private:
 
-    X509* _cert;
+    X509CertificateRef _cert;
 };
 
 //
 // NativeConnectionInfo is an extension of IceSSL::ConnectionInfo that
 // provides access to native certificates.
 //
-class NativeConnectionInfo : public ConnectionInfo
+class ICE_SSL_API NativeConnectionInfo : public ConnectionInfo
 {
 public:
 
@@ -375,7 +403,7 @@ typedef IceUtil::Handle<NativeConnectionInfo> NativeConnectionInfoPtr;
 // An application can customize the certificate verification process
 // by implementing the CertificateVerifier interface.
 //
-class CertificateVerifier : public IceUtil::Shared
+class ICE_SSL_API CertificateVerifier : public IceUtil::Shared
 {
 public:
 
@@ -402,7 +430,7 @@ typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 // IceSSL.DelayInit=1), configure the PasswordPrompt, then manually
 // initialize the plug-in.
 //
-class PasswordPrompt : public IceUtil::Shared
+class ICE_SSL_API PasswordPrompt : public IceUtil::Shared
 {
 public:
 
@@ -415,29 +443,9 @@ public:
 };
 typedef IceUtil::Handle<PasswordPrompt> PasswordPromptPtr;
 
-class Plugin : public Ice::Plugin
+class ICE_SSL_API Plugin : public Ice::Plugin
 {
 public:
-
-    //
-    // Establish the OpenSSL context. This must be done before the
-    // plug-in is initialized, therefore the application must define
-    // the property Ice.InitPlugins=0, set the context, and finally
-    // invoke initializePlugins on the PluginManager.
-    //
-    // When the application supplies its own OpenSSL context, the
-    // plug-in ignores configuration properties related to certificates,
-    // keys, and passwords.
-    // 
-    // Note that the plugin assumes ownership of the given context.
-    //
-    virtual void setContext(SSL_CTX*) = 0;
-
-    //
-    // Obtain the SSL context. Use caution when modifying this value.
-    // Changes made to this value have no effect on existing connections.
-    //
-    virtual SSL_CTX* getContext() = 0;
 
     //
     // Establish the certificate verifier object. This should be done
@@ -452,6 +460,33 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
 };
 typedef IceUtil::Handle<Plugin> PluginPtr;
+
+#ifdef ICE_USE_OPENSSL
+class ICE_SSL_API OpenSSLPlugin : public Plugin
+{
+public:
+    
+    //
+    // Establish the OpenSSL context. This must be done before the
+    // plug-in is initialized, therefore the application must define
+    // the property Ice.InitPlugins=0, set the context, and finally
+    // invoke initializePlugins on the PluginManager.
+    //
+    // When the application supplies its own OpenSSL context, the
+    // plug-in ignores configuration properties related to certificates,
+    // keys, and passwords.
+    // 
+    // Note that the plugin assumes ownership of the given context.
+    //
+    virtual void setContext(ContextRef) = 0;
+
+    //
+    // Obtain the SSL context. Use caution when modifying this value.
+    // Changes made to this value have no effect on existing connections.
+    //
+    virtual ContextRef getContext() = 0;
+};
+#endif
 
 }
 

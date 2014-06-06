@@ -43,6 +43,12 @@ main(int argc, char* argv[])
         // This test kills connections, so we don't want warnings.
         //
         initData.properties->setProperty("Ice.Warn.Connections", "0");
+        
+        //
+        // We need to send messages large enough to cause the transport
+        // buffers to fill up.
+        //
+        initData.properties->setProperty("Ice.MessageSizeMax", "10000000");
 
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);

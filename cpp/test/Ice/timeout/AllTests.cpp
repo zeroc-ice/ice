@@ -247,7 +247,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         initData.properties->setProperty("Ice.Override.Timeout", "250");
         Ice::CommunicatorPtr comm = Ice::initialize(initData);
         TimeoutPrx to = TimeoutPrx::checkedCast(comm->stringToProxy(sref));
-        to->holdAdapter(500);
+        to->holdAdapter(1000);
         try
         {
             ByteSeq seq(10000000);

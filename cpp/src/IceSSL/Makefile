@@ -21,13 +21,17 @@ OBJS		= AcceptorI.o \
                   ConnectorI.o \
 		  EndpointInfo.o \
 		  ConnectionInfo.o \
-                  EndpointI.o \
-                  Instance.o \
-                  PluginI.o \
-                  TransceiverI.o \
-                  Util.o \
+		  EndpointI.o \
+		  Instance.o \
+		  PluginI.o \
+		  TransceiverI.o \
+		  SecureTransportTransceiverI.o \
+		  Util.o \
 		  RFC2253.o \
-		  TrustManager.o
+		  TrustManager.o \
+		  SSLEngine.o \
+		  OpenSSLEngine.o \
+		  SecureTransportEngine.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -42,7 +46,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
+LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(SSL_OS_LIBS) $(CXXLIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)

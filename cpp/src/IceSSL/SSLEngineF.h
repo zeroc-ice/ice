@@ -1,0 +1,37 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICE_SSL_ENGINE_F_H
+#define ICE_SSL_ENGINE_F_H
+
+#include <IceUtil/Shared.h>
+#include <Ice/Handle.h>
+
+#include <IceSSL/Plugin.h>
+
+namespace IceSSL
+{
+
+class SSLEngine;
+ICE_SSL_API IceUtil::Shared* upCast(IceSSL::SSLEngine*);
+typedef IceInternal::Handle<SSLEngine> SSLEnginePtr;
+
+#   ifdef ICE_USE_SECURE_TRANSPORT
+class SecureTransportEngine;
+ICE_SSL_API IceUtil::Shared* upCast(IceSSL::SecureTransportEngine*);
+typedef IceInternal::Handle<SecureTransportEngine> SecureTransportEnginePtr;
+#   else
+class OpenSSLEngine;
+ICE_SSL_API IceUtil::Shared* upCast(IceSSL::OpenSSLEngine*);
+typedef IceInternal::Handle<OpenSSLEngine> OpenSSLEnginePtr;
+#   endif
+
+}
+
+#endif
