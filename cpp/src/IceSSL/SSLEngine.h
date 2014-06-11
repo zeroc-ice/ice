@@ -143,7 +143,6 @@ public:
     virtual bool initialized() const;
     virtual void destroy();
     virtual void verifyPeer(SSL*, SOCKET, const std::string&, const NativeConnectionInfoPtr&);
-    virtual void traceConnection();
     
     int verifyCallback(int , SSL*, X509_STORE_CTX*);
 #  ifndef OPENSSL_NO_DH
