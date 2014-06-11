@@ -12,6 +12,7 @@
 #   include <winsock2.h>
 #endif
 #include <IceSSL/Instance.h>
+#include <IceSSL/SSLEngine.h>
 #include <Ice/Properties.h>
 
 using namespace std;
@@ -24,8 +25,6 @@ IceSSL::Instance::Instance(const SSLEnginePtr& engine, Short type, const string&
     ProtocolInstance(engine->communicator(), type, protocol),
     _engine(engine)
 {
-    _securityTraceLevel = properties()->getPropertyAsInt("IceSSL.Trace.Security");
-    _securityTraceCategory = "Security";
 }
 
 IceSSL::Instance::~Instance()
@@ -36,16 +35,4 @@ bool
 IceSSL::Instance::initialized() const
 {
     return _engine->initialized();
-}
-
-int
-IceSSL::Instance::securityTraceLevel() const
-{
-    return _securityTraceLevel;
-}
-
-string
-IceSSL::Instance::securityTraceCategory() const
-{
-    return _securityTraceCategory;
 }

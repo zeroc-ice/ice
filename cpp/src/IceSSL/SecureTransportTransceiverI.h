@@ -56,8 +56,6 @@ public:
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
-    ContextRef context() const;
-    SecTrustRef trust() const;
     OSStatus writeRaw(const char*, size_t*) const;
     OSStatus readRaw(char*, size_t*) const;
     
@@ -88,7 +86,7 @@ private:
     const std::string _adapterName;
     const bool _incoming;
 
-    ContextRef _ssl;
+    SSLContextRef _ssl;
     SecTrustRef _trust;
     
     size_t _buffered;

@@ -45,7 +45,7 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
 
     public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
     {
-        return new EndpointFactoryI(new Instance(_instance.sharedInstance(), instance.type(), instance.protocol()));
+        return new EndpointFactoryI(new Instance(_instance.engine(), instance.type(), instance.protocol()));
     }
 
     private Instance _instance;

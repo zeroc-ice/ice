@@ -10,6 +10,7 @@
 #include <IceSSL/PluginI.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/TransceiverI.h>
+#include <IceSSL/SSLEngine.h>
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/EndpointInfo.h>
 
@@ -83,12 +84,12 @@ IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 
 #ifdef ICE_USE_OPENSSL
 void
-IceSSL::PluginI::setContext(ContextRef context)
+IceSSL::PluginI::setContext(SSL_CTX* context)
 {
     _engine->context(context);
 }
 
-ContextRef
+SSL_CTX*
 IceSSL::PluginI::getContext()
 {
     return _engine->context();

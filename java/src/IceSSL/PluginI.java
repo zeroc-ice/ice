@@ -15,7 +15,7 @@ class PluginI implements Plugin
     {
         IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
 
-        _sharedInstance = new SharedInstance(facade);
+        _engine = new SSLEngine(facade);
 
         //
         // Register the endpoint factory. We have to do this now, rather than
@@ -23,12 +23,12 @@ class PluginI implements Plugin
         // proxies before the plug-in is fully initialized.
         //
         facade.addEndpointFactory(
-            new EndpointFactoryI(new Instance(_sharedInstance, IceSSL.EndpointType.value, "ssl")));
+            new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl")));
     }
 
     public void initialize()
     {
-        _sharedInstance.initialize();
+        _engine.initialize();
     }
 
     public void destroy()
@@ -37,48 +37,48 @@ class PluginI implements Plugin
 
     public void setContext(javax.net.ssl.SSLContext context)
     {
-        _sharedInstance.context(context);
+        _engine.context(context);
     }
 
     public javax.net.ssl.SSLContext getContext()
     {
-        return _sharedInstance.context();
+        return _engine.context();
     }
 
     public void setCertificateVerifier(CertificateVerifier verifier)
     {
-        _sharedInstance.setCertificateVerifier(verifier);
+        _engine.setCertificateVerifier(verifier);
     }
 
     public CertificateVerifier getCertificateVerifier()
     {
-        return _sharedInstance.getCertificateVerifier();
+        return _engine.getCertificateVerifier();
     }
 
     public void setPasswordCallback(PasswordCallback callback)
     {
-        _sharedInstance.setPasswordCallback(callback);
+        _engine.setPasswordCallback(callback);
     }
 
     public PasswordCallback getPasswordCallback()
     {
-        return _sharedInstance.getPasswordCallback();
+        return _engine.getPasswordCallback();
     }
 
     public void setKeystoreStream(java.io.InputStream stream)
     {
-        _sharedInstance.setKeystoreStream(stream);
+        _engine.setKeystoreStream(stream);
     }
 
     public void setTruststoreStream(java.io.InputStream stream)
     {
-        _sharedInstance.setTruststoreStream(stream);
+        _engine.setTruststoreStream(stream);
     }
 
     public void addSeedStream(java.io.InputStream stream)
     {
-        _sharedInstance.addSeedStream(stream);
+        _engine.addSeedStream(stream);
     }
 
-    private SharedInstance _sharedInstance;
+    private SSLEngine _engine;
 }

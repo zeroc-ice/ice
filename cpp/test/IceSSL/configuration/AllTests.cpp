@@ -1142,7 +1142,84 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         comm->destroy();
     }
     
+    {
+        //
+        // This should fail because we disabled all anonymous ciphers and the server doesn't
+        // provide a certificate.
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+#ifdef ICE_USE_OPENSSL
+        initData.properties->setProperty("IceSSL.Ciphers", "!ADH");
+#else
+        initData.properties->setProperty("IceSSL.Ciphers", "!(DH_anon*)");
+#endif
+        CommunicatorPtr comm = initialize(initData);
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        d["IceSSL.VerifyPeer"] = "0";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const ProtocolException&)
+        {
+            
+        }
+#if defined(_WIN32) || defined(ICE_USE_SECURE_TRANSPORT)
+        catch(const ConnectionLostException&)
+        {
+            
+        }
+#endif
+        catch(const LocalException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
+    
 #ifdef ICE_USE_SECURE_TRANSPORT
+    {
+        //
+        // This should fail because the client disabled all ciphers.
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+        initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+        initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+        initData.properties->setProperty("IceSSL.Ciphers", "NONE");
+        CommunicatorPtr comm = initialize(initData);
+
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        d["IceSSL.CertAuthFile"] = "cacert1.pem";
+        d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+        d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+        d["IceSSL.Ciphers"] = "ALL";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const ConnectionLostException&)
+        {
+        }
+        catch(const LocalException&)
+        {
+            test(false);
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
     {
         //
         // Test IceSSL.DHParams

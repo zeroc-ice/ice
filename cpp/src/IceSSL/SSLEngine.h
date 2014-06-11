@@ -99,7 +99,7 @@ public:
     virtual bool initialized() const;
     virtual void destroy();
     
-    ContextRef newContext(bool);
+    SSLContextRef newContext(bool);
     CFArrayRef getCertificateAuthorities() const;
     std::string getCipherName(SSLCipherSuite) const;
     SecCertificateRef getCertificate() const;
@@ -110,7 +110,7 @@ private:
     void parseCiphers(const std::string& ciphers);
     
     bool _initialized;
-    ContextRef _ctx;
+    SSLContextRef _ctx;
     CFArrayRef _certificateAuthorities;
     SecCertificateRef _cert;
     SecKeyRef _key;
@@ -126,9 +126,8 @@ private:
     IceUtil::UniquePtr< IceUtil::ScopedArray<char> > _dhParams;
     size_t _dhParamsLength;
     
-    IceUtil::UniquePtr< IceUtil::ScopedArray<SSLCipherSuite> > _ciphers;
+    std::vector<SSLCipherSuite> _ciphers;
     bool _allCiphers;
-    size_t _numCiphers;
     IceUtil::Mutex _mutex;
 };
 
@@ -150,8 +149,8 @@ public:
 #  ifndef OPENSSL_NO_DH
     DH* dhParams(int);
 #  endif
-    ContextRef context() const;
-    void context(ContextRef);
+    SSL_CTX* context() const;
+    void context(SSL_CTX*);
     std::string sslErrors() const;
     
 private:
@@ -164,7 +163,7 @@ private:
 
     bool _initOpenSSL;
     bool _initialized;
-    ContextRef _ctx;
+    SSL_CTX* _ctx;
     std::string _defaultDir;
 
 #  ifndef OPENSSL_NO_DH

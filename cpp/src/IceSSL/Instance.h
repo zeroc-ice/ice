@@ -11,13 +11,8 @@
 #define ICE_SSL_INSTANCE_H
 
 #include <IceSSL/InstanceF.h>
-#include <IceSSL/UtilF.h>
 #include <Ice/ProtocolInstance.h>
-#include <Ice/ProtocolPluginFacadeF.h>
-#include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngine.h>
-#include <IceSSL/TrustManagerF.h>
-#include <Ice/BuiltinSequences.h>
+#include <IceSSL/SSLEngineF.h>
 
 namespace IceSSL
 {
@@ -37,14 +32,9 @@ public:
     
     bool initialized() const;
 
-    int securityTraceLevel() const;
-    std::string securityTraceCategory() const;
-
 private:
 
     const SSLEnginePtr _engine;
-    int _securityTraceLevel;
-    std::string _securityTraceCategory;
 };
 
 }

@@ -16,7 +16,7 @@
 #include <IceSSL/RFC2253.h>
 #include <Ice/Object.h>
 
-#ifdef ICE_USE_OPENSSL
+#if defined(ICE_USE_OPENSSL)
 #  include <openssl/x509v3.h>
 #  include <openssl/pem.h>
 #elif defined(ICE_USE_SECURE_TRANSPORT)
@@ -114,7 +114,7 @@ certificateAlternativeNameType(const string& alias)
 }
 
 string
-scapeX509Name(const string& name)
+escapeX509Name(const string& name)
 {
     ostringstream os;
     for(string::const_iterator i = name.begin(); i != name.end(); ++i)
@@ -144,61 +144,32 @@ scapeX509Name(const string& name)
 DistinguishedName
 getX509Name(SecCertificateRef cert, CFTypeRef key)
 {
-    CFErrorRef err = 0;
     assert(key == kSecOIDX509V1IssuerName || key == kSecOIDX509V1SubjectName);
-    CFArrayRef keys = CFArrayCreate(NULL, &key , 1, &kCFTypeArrayCallBacks);
-    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
-    CFRelease(keys);
-    
-    if(err)
-    {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(err);
-        CFRelease(err);
-        
-        CertificateEncodingException ex(__FILE__, __LINE__, os.str());
-        throw ex;
-    }
-    
-    assert(values);
-
-    CFArrayRef dn = (CFArrayRef)CFDictionaryGetValue((CFDictionaryRef)CFDictionaryGetValue(values, key), kSecPropertyKeyValue);
-    int size = CFArrayGetCount(dn);
     list<pair<string, string> > rdnPairs;
-    for(int i = 0; i < size; ++i)
+    CFDictionaryRef property = getCertificateProperty(cert, key);
+    if(property)
     {
-        CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(dn, i);
-        rdnPairs.push_front(make_pair(
-            certificateOIDAlias(fromCFString((CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel))),
-            scapeX509Name(fromCFString((CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyValue)))));
+        CFArrayRef dn = (CFArrayRef)CFDictionaryGetValue(property, kSecPropertyKeyValue);
+        int size = CFArrayGetCount(dn);
+        for(int i = 0; i < size; ++i)
+        {
+            CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(dn, i);
+            rdnPairs.push_front(make_pair(
+                certificateOIDAlias(fromCFString((CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel))),
+                escapeX509Name(fromCFString((CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyValue)))));
+        }
+        CFRelease(property);
     }
-    CFRelease(values);
     return DistinguishedName(rdnPairs);
 }
 
 vector<pair<int, string> >
 getX509AltName(SecCertificateRef cert, CFTypeRef key)
 {
-    CFErrorRef err = 0;
     assert(key == kSecOIDIssuerAltName || key == kSecOIDSubjectAltName);
-    CFArrayRef keys = CFArrayCreate(NULL, &key , 1, &kCFTypeArrayCallBacks);
-    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
-    CFRelease(keys);
-    
-    if(err)
-    {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(err);
-        CFRelease(err);
-        
-        CertificateEncodingException ex(__FILE__, __LINE__, os.str());
-        throw ex;
-    }
-
-    assert(values);
+    CFDictionaryRef property = getCertificateProperty(cert, key);
     
     vector<pair<int, string> > pairs;
-    CFDictionaryRef property = (CFDictionaryRef)CFDictionaryGetValue(values, key);
     if(property)
     {
         CFArrayRef names = (CFArrayRef)CFDictionaryGetValue(property, kSecPropertyKeyValue);
@@ -233,8 +204,7 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
                         CFStringRef sectionLabel = (CFStringRef)CFDictionaryGetValue(d, kSecPropertyKeyLabel);
                         CFStringRef sectionValue = (CFStringRef)CFDictionaryGetValue(d, kSecPropertyKeyValue);
                         
-                        os << certificateOIDAlias(fromCFString(sectionLabel))
-                           << "=" << fromCFString(sectionValue);
+                        os << certificateOIDAlias(fromCFString(sectionLabel)) << "=" << fromCFString(sectionValue);
                         if(++i < count)
                         {
                             os << ",";
@@ -244,8 +214,8 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
                 }
             }
         }
+        CFRelease(property);
     }
-    CFRelease(values);
     return pairs;
 }
 
@@ -253,30 +223,14 @@ IceUtil::Time
 getX509Date(SecCertificateRef cert, CFTypeRef key)
 {
     assert(key == kSecOIDX509V1ValidityNotAfter || key == kSecOIDX509V1ValidityNotBefore);
-    CFErrorRef err = 0;
-    const void* keyValues[] = { key };
-    CFArrayRef keys = CFArrayCreate(NULL, keyValues , 1, &kCFTypeArrayCallBacks);
-    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
-    CFRelease(keys);
-    
-    if(err)
+    CFDictionaryRef property = getCertificateProperty(cert, key);
+    CFAbsoluteTime seconds = 0;
+    if(property)
     {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(err);
-        CFRelease(err);
-        
-        CertificateEncodingException ex(__FILE__, __LINE__, os.str());
-        throw ex;
+        CFNumberRef date = (CFNumberRef)CFDictionaryGetValue(property, kSecPropertyKeyValue);
+        CFNumberGetValue(date, kCFNumberDoubleType, &seconds);
+        CFRelease(property);
     }
-    
-    assert(values);
-    
-    CFNumberRef date = (CFNumberRef)CFDictionaryGetValue(
-        (CFDictionaryRef)CFDictionaryGetValue(values, key), kSecPropertyKeyValue);
-    
-    CFAbsoluteTime seconds;
-    CFNumberGetValue(date, kCFNumberDoubleType, &seconds);
-    CFRelease(values);
     return IceUtil::Time::secondsDouble(kCFAbsoluteTimeIntervalSince1970 + seconds);
 }
 
@@ -284,27 +238,13 @@ string
 getX509String(SecCertificateRef cert, CFTypeRef key)
 {
     assert(key == kSecOIDX509V1SerialNumber || key == kSecOIDX509V1Version);
-    CFErrorRef err = 0;
-    const void* keyValues[] = { key };
-    CFArrayRef keys = CFArrayCreate(NULL, keyValues , 1, &kCFTypeArrayCallBacks);
-    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
-    CFRelease(keys);
-    
-    if(err)
+    CFDictionaryRef property = getCertificateProperty(cert, key);
+    string value;
+    if(property)
     {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(err);
-        CFRelease(err);
-        
-        CertificateEncodingException ex(__FILE__, __LINE__, os.str());
-        throw ex;
+        value = fromCFString((CFStringRef)CFDictionaryGetValue(property, kSecPropertyKeyValue));
+        CFRelease(property);
     }
-    
-    assert(values);
-    
-    string value = fromCFString((CFStringRef)CFDictionaryGetValue(
-        (CFDictionaryRef)CFDictionaryGetValue(values, key), kSecPropertyKeyValue));
-    CFRelease(values);
     return value;
 }
 #endif
@@ -338,6 +278,18 @@ CertificateReadException::ice_throw() const
 }
 
 const char* IceSSL::CertificateEncodingException::_name = "IceSSL::CertificateEncodingException";
+
+#ifdef ICE_USE_SECURE_TRANSPORT
+CertificateEncodingException::CertificateEncodingException(const char* file, int line, CFErrorRef err) :
+    Exception(file, line)
+{
+    assert(err);
+    ostringstream os;
+    os << "certificate error:\n" << errorToString(err);
+    CFRelease(err);
+    reason = os.str();
+}
+#endif
 
 CertificateEncodingException::CertificateEncodingException(const char* file, int line, const string& r) :
     Exception(file, line),
@@ -569,6 +521,14 @@ ParseException::ice_throw() const
     throw *this;
 }
 
+#ifdef ICE_USE_OPENSSL
+DistinguishedName::DistinguishedName(X509NAME* name) :
+    _rdns(RFC2253::parseStrict(convertX509NameToString(name)))
+{
+    unescape();
+}
+#endif
+
 DistinguishedName::DistinguishedName(const string& dn) :
     _rdns(RFC2253::parseStrict(dn))
 {
@@ -681,7 +641,10 @@ PublicKey::key() const
 Certificate::Certificate(X509CertificateRef cert) :
     _cert(cert)
 {
-    assert(_cert != 0);
+    if(!_cert)
+    {
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Invalid certificate reference");
+    }
 }
 
 Certificate::~Certificate()
@@ -810,7 +773,12 @@ bool
 Certificate::verify(const CertificatePtr& cert) const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT
-
+    //
+    // We first check if the given certificate subject match
+    // our certificate issuer. Otherwhise when use SecTrustEvaluate
+    // and check a certificate against itself will always return
+    // that is valid.
+    //
     bool valid = false;
     
     CFErrorRef error = 0;
@@ -820,20 +788,14 @@ Certificate::verify(const CertificatePtr& cert) const
     issuer = SecCertificateCopyNormalizedIssuerContent(_cert, &error);
     if(error)
     {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(error);
-        CFRelease(error);
-        CertificateEncodingException ex(__FILE__, __LINE__, os.str());
+        CertificateEncodingException ex(__FILE__, __LINE__, error);
         throw ex;
     }
     
     subject = SecCertificateCopyNormalizedSubjectContent(cert->getCert(), &error);
     if(error)
     {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(error);
-        CFRelease(error);
-        CertificateEncodingException ex(__FILE__, __LINE__, os.str());
+        CertificateEncodingException ex(__FILE__, __LINE__, error);
         throw ex;
     }
 

@@ -729,7 +729,7 @@ OpenSSLEngine::initialize()
 }
 
 void
-OpenSSLEngine::context(ContextRef context)
+OpenSSLEngine::context(SSL_CTX* context)
 {
     if(initialized())
     {
@@ -742,7 +742,7 @@ OpenSSLEngine::context(ContextRef context)
     _ctx = context;
 }
 
-ContextRef
+SSL_CTX*
 OpenSSLEngine::context() const
 {
     return _ctx;

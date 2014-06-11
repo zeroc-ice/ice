@@ -14,6 +14,7 @@
 
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
+#include <IceSSL/SSLEngine.h>
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
@@ -36,23 +37,20 @@ trustResultDescription(SecTrustResultType result)
     {
         case kSecTrustResultInvalid:
         {
-            return "Invalid setting or result.";
+            return "Invalid setting or result";
         }
         case kSecTrustResultDeny:
         {
-            return "The user specified that the certificate should not be trusted.";
+            return "The user specified that the certificate should not be trusted";
         }
         case kSecTrustResultRecoverableTrustFailure:
-        {
-            return "Trust denied; retry after changing settings.";
-        }
         case kSecTrustResultFatalTrustFailure:
         {
-            return "Trust denied; no simple fix is available.";
+            return "Trust denied; no simple fix is available";
         }
         case kSecTrustResultOtherError:
         {
-            return "A failure other than that of trust evaluation.";
+            return "Other error internal error";
         }
         default:
         {
@@ -393,9 +391,30 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
     }
 
-    if(_instance->securityTraceLevel() >= 1)
+    if(_instance->engine()->securityTraceLevel() >= 1)
     {
-        traceConnection();
+        assert(_ssl);
+        Trace out(_instance->logger(), _instance->traceCategory());
+        out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
+
+        SSLProtocol protocol;
+        SSLGetNegotiatedProtocolVersion(_ssl, &protocol);
+        const string sslProtocolName = protocolName(protocol);
+        
+        SSLCipherSuite cipher;
+        SSLGetNegotiatedCipher(_ssl, &cipher);
+        const string sslCipherName = _engine->getCipherName(cipher);
+        
+        if(sslCipherName.empty())
+        {
+            out << "unknown cipher\n";
+        }
+        else
+        {
+            out << "cipher = " << sslCipherName << "\n";
+            out << "protocol = " << sslProtocolName << "\n";
+        }
+        out << IceInternal::fdToString(_fd);
     }
 
     return IceInternal::SocketOperationNone;
@@ -479,7 +498,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
     //
     // It's impossible for packetSize to be more than an Int.
     //
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     packetSize = std::min(packetSize, _maxSendPacketSize);
     while(buf.i != buf.b.end())
     {
@@ -539,7 +558,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
 
@@ -564,7 +583,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
     //
     // It's impossible for packetSize to be more than an Int.
     //
-    size_t packetSize = static_cast<int>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     size_t processed = 0;
     
     packetSize = std::min(packetSize, _maxReceivePacketSize);
@@ -632,7 +651,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
     return IceInternal::SocketOperationNone;
@@ -663,18 +682,6 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
     {
         IceInternal::Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
     }
-}
-
-SecTrustRef
-IceSSL::TransceiverI::trust() const
-{
-    return _trust;
-}
-
-ContextRef
-IceSSL::TransceiverI::context() const
-{
-    return _ssl;
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const IceInternal::NetworkProxyPtr& proxy,
@@ -712,11 +719,11 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     }
     
     //
-    // Limit the size of packet pass to SSLWrite/SSLRead to avoid blocking and
+    // Limit the size of packet passed to SSLWrite/SSLRead to avoid blocking and
     // holding too much memory.
     //
-    _maxSendPacketSize = std::min(512, IceInternal::getSendBufferSize(fd));
-    _maxReceivePacketSize = std::min(512, IceInternal::getRecvBufferSize(fd));
+    _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
+    _maxReceivePacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& adapterName) :
@@ -737,11 +744,11 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
     
     //
-    // Limit the size of packet pass to SSLWrite/SSLRead to avoid blocking and
+    // Limit the size of packet passed to SSLWrite/SSLRead to avoid blocking and
     // holding too much memory.
     //
-    _maxSendPacketSize = std::min(512, IceInternal::getSendBufferSize(fd));
-    _maxReceivePacketSize = std::min(512, IceInternal::getRecvBufferSize(fd));
+    _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
+    _maxReceivePacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
 }
 
 IceSSL::TransceiverI::~TransceiverI()
@@ -780,10 +787,7 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
 bool
 IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
 {
-    //
-    // It's impossible for packetSize to be more than an Int.
-    //
-    int packetSize = static_cast<int>(buf.b.end() - buf.i);
+    int packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
         assert(_fd != INVALID_SOCKET);
@@ -838,7 +842,7 @@ IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
 
@@ -848,10 +852,7 @@ IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
 bool
 IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
 {
-    //
-    // It's impossible for packetSize to be more than an Int.
-    //
-    int packetSize = static_cast<int>(buf.b.end() - buf.i);
+    int packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
         assert(_fd != INVALID_SOCKET);
@@ -903,41 +904,10 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
         }
 
         buf.i += ret;
-
-        packetSize = static_cast<int>(buf.b.end() - buf.i);
+        packetSize = buf.b.end() - buf.i;
     }
 
     return true;
-}
-
-//
-// Trace connection
-//
-void
-IceSSL::TransceiverI::traceConnection()
-{
-    assert(_ssl);
-    Trace out(_instance->logger(), _instance->traceCategory());
-    out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
-
-    SSLProtocol protocol;
-    SSLGetNegotiatedProtocolVersion(_ssl, &protocol);
-    const string sslProtocolName = protocolName(protocol);
-    
-    SSLCipherSuite cipher;
-    SSLGetNegotiatedCipher(_ssl, &cipher);
-    const string sslCipherName = _engine->getCipherName(cipher);
-    
-    if(sslCipherName.empty())
-    {
-        out << "unknown cipher\n";
-    }
-    else
-    {
-        out << "cipher = " << sslCipherName << "\n";
-        out << "protocol = " << sslProtocolName << "\n";
-    }
-    out << IceInternal::fdToString(_fd);
 }
 
 OSStatus
@@ -974,7 +944,7 @@ IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
             
             if(IceInternal::wouldBlock())
             {
-                *length = static_cast<int>(i - data);
+                *length = i - data;
                 _flags |= SSLWantWrite;
                 return errSSLWouldBlock;
             }
@@ -982,18 +952,13 @@ IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
         }
         
         i += ret;
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
 
         if(packetSize > end - i)
         {
-            packetSize = static_cast<int>(end - i);
+            packetSize = end - i;
         }
     }
-    *length = static_cast<int>(i - data);
+    *length = i - data;
     return noErr;
 }
 
@@ -1030,7 +995,7 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
             
             if(IceInternal::wouldBlock())
             {
-                *length = static_cast<int>(i - data);
+                *length = i - data;
                 _flags |= SSLWantRead;
                 return errSSLWouldBlock;
             }
@@ -1038,17 +1003,10 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
         }
         
         i += ret;
-        
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << ret << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
-        }
-        
-        packetSize = static_cast<int>(end - i);
+        packetSize = end - i;
     }
     
-    *length = static_cast<int>(i - data);
+    *length = i - data;
     return noErr;
 }
 

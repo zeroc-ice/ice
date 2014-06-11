@@ -11,9 +11,9 @@ package IceSSL;
 
 final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
 {
-    X509TrustManagerI(SharedInstance instance, javax.net.ssl.X509TrustManager delegate)
+    X509TrustManagerI(SSLEngine engine, javax.net.ssl.X509TrustManager delegate)
     {
-        _instance = instance;
+        _engine = engine;
         _delegate = delegate;
     }
 
@@ -34,7 +34,7 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
             }
             catch(java.security.cert.CertificateException ex)
             {
-                _instance.trustManagerFailure(true, ex);
+                _engine.trustManagerFailure(true, ex);
             }
         }
     }
@@ -56,7 +56,7 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
             }
             catch(java.security.cert.CertificateException ex)
             {
-                _instance.trustManagerFailure(false, ex);
+                _engine.trustManagerFailure(false, ex);
             }
         }
     }
@@ -67,6 +67,6 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
         return _delegate.getAcceptedIssuers();
     }
 
-    private SharedInstance _instance;
+    private SSLEngine _engine;
     private javax.net.ssl.X509TrustManager _delegate;
 }

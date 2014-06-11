@@ -14,6 +14,7 @@
 
 #include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
+#include <IceSSL/SSLEngine.h>
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
@@ -405,7 +406,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         }
     }
 
-    if(_instance->securityTraceLevel() >= 1)
+    if(_instance->engine()->securityTraceLevel() >= 1)
     {
         traceConnection();
     }

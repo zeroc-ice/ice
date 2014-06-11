@@ -17,12 +17,7 @@
 namespace IceSSL
 {
 
-class PluginI : 
-#ifdef ICE_USE_OPENSSL
-    public OpenSSLPlugin
-#else
-    public IceSSL::Plugin
-#endif
+class PluginI : public IceSSL::Plugin
 {
 public:
 
@@ -41,8 +36,8 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
 
 #ifdef ICE_USE_OPENSSL
-    virtual void setContext(ContextRef);
-    virtual ContextRef getContext();
+    virtual void setContext(SSL_CTX*);
+    virtual SSL_CTX* getContext();
 #endif
 
 private:

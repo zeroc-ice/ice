@@ -13,9 +13,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class SharedInstance
+class SSLEngine
 {
-    SharedInstance(IceInternal.ProtocolPluginFacade facade)
+    SSLEngine(IceInternal.ProtocolPluginFacade facade)
     {
         _communicator = facade.getCommunicator();
         _logger = _communicator.getLogger();

@@ -25,6 +25,10 @@
 #   include <sys/socket.h>
 #endif
 
+#ifdef ICE_USE_SECURE_TRANSPORT
+#   include <CoreFoundation/CFError.h>
+#endif
+
 #ifndef ICE_SSL_API
 #   ifdef ICE_SSL_API_EXPORTS
 #       define ICE_SSL_API ICE_DECLSPEC_EXPORT
@@ -39,7 +43,7 @@
 // OpenSSL type that holds configuration settings for all SSL
 // connections.
 //
-typedef struct ssl_ctx_st* ContextRef;
+typedef struct ssl_ctx_st SSL_CTX;
 
 //
 // Pointer to an opaque certificate object. X509_st is the OpenSSL 
@@ -52,15 +56,12 @@ typedef struct x509_st* X509CertificateRef;
 //
 typedef struct evp_pkey_st* KeyRef;
 
+//
+// Type that represents an X509 distinguished name
+//
+typedef struct X509_name_st X509NAME;
 
 #elif defined(ICE_USE_SECURE_TRANSPORT)
-
-//
-// Pointer to an opaque SSL session context object. The SSL session context 
-// object references the state associated with a session.
-//
-struct SSLContext;
-typedef struct SSLContext* ContextRef;
 
 //
 // Pointer to an opanque certificate object.
@@ -107,6 +108,9 @@ class ICE_SSL_API CertificateEncodingException : public IceUtil::Exception
 public:
 
     CertificateEncodingException(const char*, int, const std::string&);
+#ifdef ICE_USE_SECURE_TRANSPORT
+    CertificateEncodingException(const char*, int, CFErrorRef);
+#endif
     virtual ~CertificateEncodingException() throw();
     virtual std::string ice_name() const;
     virtual CertificateEncodingException* ice_clone() const;
@@ -181,6 +185,12 @@ class ICE_SSL_API DistinguishedName
 {
 public:
 
+#ifdef ICE_USE_OPENSSL
+    //
+    // Create a DistinguishedName using an OpenSSL value.
+    //
+    DistinguishedName(X509NAME*);
+#endif
     //
     // Create a DistinguishedName from a string encoded using
     // the rules in RFC2253.
@@ -267,12 +277,18 @@ public:
     //
     bool verify(const CertificatePtr&) const;
     
+#ifdef ICE_USE_OPENSSL
     //
     // Verify that this certificate was signed by the given public
     // key. Returns true if signed, false otherwise.
     //
+    // This method was deprecated for consistency with some SSL engines
+    // that require a certificate and not just a public key to verify
+    // the certificate signature.
+    //
     ICE_DEPRECATED_API bool verify(const PublicKeyPtr&) const;
-
+#endif
+    
     //
     // Return a string encoding of the certificate in PEM format.
     // Raises CertificateEncodingException if an error occurs.
@@ -458,14 +474,8 @@ public:
     // the plug-in is initialized.
     //
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
-};
-typedef IceUtil::Handle<Plugin> PluginPtr;
-
-#ifdef ICE_USE_OPENSSL
-class ICE_SSL_API OpenSSLPlugin : public Plugin
-{
-public:
     
+#ifdef ICE_USE_OPENSSL
     //
     // Establish the OpenSSL context. This must be done before the
     // plug-in is initialized, therefore the application must define
@@ -478,15 +488,16 @@ public:
     // 
     // Note that the plugin assumes ownership of the given context.
     //
-    virtual void setContext(ContextRef) = 0;
+    virtual void setContext(SSL_CTX*) = 0;
 
     //
     // Obtain the SSL context. Use caution when modifying this value.
     // Changes made to this value have no effect on existing connections.
     //
-    virtual ContextRef getContext() = 0;
-};
+    virtual SSL_CTX* getContext() = 0;    
 #endif
+};
+typedef IceUtil::Handle<Plugin> PluginPtr;
 
 }
 

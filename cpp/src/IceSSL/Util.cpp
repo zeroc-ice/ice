@@ -401,6 +401,30 @@ IceSSL::readFile(const string& file, ScopedArray<char>& buffer)
     return length;
 }
 
+CFDictionaryRef
+IceSSL::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
+{
+    CFArrayRef keys = CFArrayCreate(NULL, &key , 1, &kCFTypeArrayCallBacks);
+    CFErrorRef err = 0;
+    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
+    CFRelease(keys);
+    
+    if(err)
+    {
+        CertificateEncodingException ex(__FILE__, __LINE__, err);
+        throw ex;
+    }
+    
+    assert(values);
+    CFDictionaryRef property = (CFDictionaryRef)CFDictionaryGetValue(values, key);
+    if(property)
+    {
+        CFRetain(property);
+    }
+    CFRelease(values);
+    return property;
+}
+
 namespace
 {
 
@@ -412,39 +436,22 @@ CFDataRef
 getSubjectKeyIdentifier(SecCertificateRef cert)
 {
     CFDataRef data = 0;
-    CFErrorRef err = 0;
-    CFArrayRef keys = CFArrayCreate(NULL, &kSecOIDSubjectKeyIdentifier , 1, &kCFTypeArrayCallBacks);
-    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
-    CFRelease(keys);
-    
-    if(err)
+    CFDictionaryRef property = getCertificateProperty(cert, kSecOIDSubjectKeyIdentifier);
+    if(property)
     {
-        ostringstream os;
-        os << "Failed to copy certificate subject key identifier\n" << errorToString(err);
-        CFRelease(err);
-        CertificateReadException ex(__FILE__, __LINE__, os.str());
-        throw ex;
-    }
-    
-    if(values)
-    {
-        CFDictionaryRef ski = (CFDictionaryRef)CFDictionaryGetValue(values, kSecOIDSubjectKeyIdentifier);
-        if(ski)
+        CFArrayRef propertyValues = (CFArrayRef)CFDictionaryGetValue(property, kSecPropertyKeyValue);
+        for(int i = 0, length = CFArrayGetCount(propertyValues); i < length; ++i)
         {
-            CFArrayRef propertyValues = (CFArrayRef)CFDictionaryGetValue(ski, kSecPropertyKeyValue);
-            for(int i = 0, length = CFArrayGetCount(propertyValues); i < length; ++i)
+            CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(propertyValues, i);
+            CFStringRef label = (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel);
+            if(CFEqual(label, CFSTR("Key Identifier")))
             {
-                CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(propertyValues, i);
-                CFStringRef label = (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel);
-                if(CFEqual(label, CFSTR("Key Identifier")))
-                {
-                    data = (CFDataRef)CFDictionaryGetValue(dict, kSecPropertyKeyValue);
-                    CFRetain(data);
-                    break;
-                }
+                data = (CFDataRef)CFDictionaryGetValue(dict, kSecPropertyKeyValue);
+                CFRetain(data);
+                break;
             }
         }
-        CFRelease(values);
+        CFRelease(property);
     }
     return data;
 }
@@ -456,43 +463,25 @@ bool
 isCA(SecCertificateRef cert)
 {
     bool ca = false;
-    CFErrorRef err = 0;
-    CFArrayRef keys = CFArrayCreate(NULL, &kSecOIDBasicConstraints, 1, &kCFTypeArrayCallBacks);
-    CFDictionaryRef values = SecCertificateCopyValues(cert, keys, &err);
-    CFRelease(keys);
-    
-    if(err)
+    CFDictionaryRef property = getCertificateProperty(cert, kSecOIDBasicConstraints);
+    if(property)
     {
-        ostringstream os;
-        os << "Failed to copy certificate basic constraints\n" << errorToString(err);
-        CFRelease(err);
-        CertificateReadException ex(__FILE__, __LINE__, os.str());
-        throw ex;
-    }
-    
-    if(values)
-    {
-        CFDictionaryRef basicConstraints = (CFDictionaryRef)CFDictionaryGetValue(values, kSecOIDBasicConstraints);
-        if(basicConstraints)
+        CFArrayRef propertyValues = (CFArrayRef)CFDictionaryGetValue(property, kSecPropertyKeyValue);
+        for(int i = 0, size = CFArrayGetCount(propertyValues); i < size; ++i)
         {
-            CFArrayRef propertyValues = (CFArrayRef)CFDictionaryGetValue(basicConstraints, kSecPropertyKeyValue);
-            int size = CFArrayGetCount(propertyValues);
-            for(int i = 0; i < size; ++i)
+            CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(propertyValues, i);
+            CFStringRef label = (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel);
+            if(CFEqual(label, CFSTR("Certificate Authority")))
             {
-                CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(propertyValues, i);
-                CFStringRef label = (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyLabel);
-                if(CFEqual(label, CFSTR("Certificate Authority")))
+                CFStringRef value = (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyValue);
+                if(CFEqual(value, CFSTR("Yes")))
                 {
-                    CFStringRef value = (CFStringRef)CFDictionaryGetValue(dict, kSecPropertyKeyValue);
-                    if(CFEqual(value, CFSTR("Yes")))
-                    {
-                        ca = true;
-                    }
-                    break;
+                    ca = true;
                 }
+                break;
             }
-            CFRelease(values);
         }
+        CFRelease(property);
     }
     return ca;
 }

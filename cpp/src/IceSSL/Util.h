@@ -89,6 +89,13 @@ std::string errorToString(OSStatus);
 int readFile(const std::string&, IceUtil::ScopedArray<char>&);
 
 
+//
+// Retrieve a certificate property
+//
+CFDictionaryRef
+getCertificateProperty(SecCertificateRef, CFTypeRef);
+
+
 std::string keyLabel(SecCertificateRef);
 
 //
