@@ -654,15 +654,6 @@ public:
     void read(std::vector<Ice::Double>&);
     void read(std::pair<const Ice::Double*, const Ice::Double*>&, ::IceUtil::ScopedArray<Ice::Double>&);
 
-    //
-    // NOTE: This function is not implemented. It is declared here to
-    // catch programming errors that assume a call such as write("")
-    // will invoke write(const std::string&), when in fact the compiler
-    // will silently select a different overloading. A link error is the
-    // intended result.
-    //
-    void write(const char*);
-
     // String
     void write(const std::string& v, bool convert = true)
     {
@@ -682,6 +673,7 @@ public:
             }
         }
     }
+
     // for custom strings
     void write(const char* vdata, size_t vsize, bool convert = true)
     {
@@ -700,6 +692,12 @@ public:
                 memcpy(&b[pos], vdata, vsize);
             }
         }
+    }
+
+    // Null-terminated C string
+    void write(const char* vdata, bool convert = true)
+    {
+        write(vdata, strlen(vdata), convert);
     }
 
     void write(const std::string*, const std::string*, bool = true);
