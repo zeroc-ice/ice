@@ -1150,7 +1150,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
 #ifdef ICE_USE_OPENSSL
-        initData.properties->setProperty("IceSSL.Ciphers", "!ADH");
+        initData.properties->setProperty("IceSSL.Ciphers", "ALL:!ADH");
 #else
         initData.properties->setProperty("IceSSL.Ciphers", "!(DH_anon*)");
 #endif
