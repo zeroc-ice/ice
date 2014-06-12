@@ -250,7 +250,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
 //
-// GetVerionEx deprecated in Windows 8.1
+// GetVersionEx deprecated in Windows 8.1
 //
 #  if defined(_MSC_VER) && _MSC_VER >= 1800
 #    pragma warning (disable : 4996)

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Thread.h>
@@ -788,17 +787,7 @@ Ice::Service::name() const
 bool
 Ice::Service::checkSystem() const
 {
-#ifdef _WIN32
-    //
-    // Check Windows version.
-    //
-    OSVERSIONINFO ver;
-    ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&ver);
-    return (ver.dwPlatformId == VER_PLATFORM_WIN32_NT);
-#else
     return true;
-#endif
 }
 
 #ifdef _WIN32

@@ -237,7 +237,7 @@ IceUtilInternal::unlink(const string& path)
 int
 IceUtilInternal::close(int fd)
 {
-#ifdef __MINGW32__
+#ifdef _WIN32
         return _close(fd);
 #else
         return ::close(fd);
