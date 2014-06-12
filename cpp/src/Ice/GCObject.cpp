@@ -171,8 +171,10 @@ class MarkCollectable : public GCVisitor
 
     public:
 
-        VisitNeighbors(MarkCollectable* visitor) : _visitor(visitor)
+        void
+        setVisitor(MarkCollectable* visitor)
         {
+            _visitor = visitor;
         }
 
         virtual bool 
@@ -186,8 +188,9 @@ class MarkCollectable : public GCVisitor
 
 public:
 
-    MarkCollectable() : _counter(0), _neighborsVisitor(this)
+    MarkCollectable() : _counter(0)
     {
+        _neighborsVisitor.setVisitor(this);
     }
 
     virtual bool 
