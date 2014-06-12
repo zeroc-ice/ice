@@ -55,7 +55,7 @@ interface Router
      * @param proxy The proxy to add.
      *
      **/
-    ["deprecate:addProxy() is deprecated, use addProxies() instead."]
+    ["deprecate:addProxy is deprecated, use addProxies instead."]
     idempotent void addProxy(Object* proxy);
 
     /**

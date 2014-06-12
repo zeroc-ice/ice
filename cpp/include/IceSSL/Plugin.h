@@ -286,7 +286,7 @@ public:
     // that require a certificate and not just a public key to verify
     // the certificate signature.
     //
-    ICE_DEPRECATED_API bool verify(const PublicKeyPtr&) const;
+    ICE_DEPRECATED_API("is deprecated, use verify(const CertificatePtr&) instead") bool verify(const PublicKeyPtr&) const;
 #endif
     
     //

@@ -36,7 +36,12 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
     if(p1->findMetaData("deprecate", deprecateMetadata) ||
        (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
     {
-        deprecateSymbol = "ICE_DEPRECATED_API ";
+        string msg = "is deprecated";
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            msg = deprecateMetadata.substr(10);
+        }
+        deprecateSymbol = "ICE_DEPRECATED_API(\"" + msg + "\") ";
     }
     return deprecateSymbol;
 }

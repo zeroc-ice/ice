@@ -838,7 +838,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-     ["deprecate:writeMessage is deprecated, use instead the Process facet of the server Admin object."]
+     ["deprecate:writeMessage is deprecated. Instead, use the Process facet of the server Admin object."]
      void writeMessage(string id, string message, int fd)
          throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 

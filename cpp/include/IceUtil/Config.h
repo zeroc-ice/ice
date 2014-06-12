@@ -131,11 +131,22 @@
 
 
 #if defined(_MSC_VER)
-#   define ICE_DEPRECATED_API __declspec(deprecated)
+#   define ICE_DEPRECATED_API(msg) __declspec(deprecated(msg))
+#elif defined(__clang__)
+#   if __has_extension(attribute_deprecated_with_message)
+#       define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#   else
+#       define ICE_DEPRECATED_API(msg) __attribute__((deprecated))
+#   endif
 #elif defined(__GNUC__)
-#   define ICE_DEPRECATED_API __attribute__((deprecated))
+#   if (__GNUC__ > 4 || (__GNUC__ == 4 &&  __GNUC_MINOR__ >= 5))
+// The message option was introduced in GCC 4.5
+#      define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))          
+#   else
+#      define ICE_DEPRECATED_API(msg) __attribute__((deprecated))
+#   endif
 #else
-#   define ICE_DEPRECATED_API /**/
+#   define ICE_DEPRECATED_API(msg) /**/
 #endif
 
 #ifdef _WIN32

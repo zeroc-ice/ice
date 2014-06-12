@@ -21,16 +21,16 @@ typedef IceUtil::StringConverterPtr StringConverterPtr;
 typedef IceUtil::WstringConverterPtr WstringConverterPtr;
 
 
-ICE_DEPRECATED_API std::string
+ICE_DEPRECATED_API("is deprecated, use IceUtil::nativeToUTF8(const std::string&, const StringConverterPtr&) instead") std::string
 nativeToUTF8(const StringConverterPtr&, const std::string&);
 
-ICE_DEPRECATED_API std::string
+ICE_DEPRECATED_API("is deprecated, use IceUtil::nativeToUTF8(const std::string&, const StringConverterPtr&) instead") std::string
 nativeToUTF8(const CommunicatorPtr&, const std::string&);
 
-ICE_DEPRECATED_API std::string
+ICE_DEPRECATED_API("is deprecated, use IceUtil::UTF8ToNative(const std::string&, const StringConverterPtr&) instead") std::string
 UTF8toNative(const StringConverterPtr&, const std::string&);
 
-ICE_DEPRECATED_API std::string
+ICE_DEPRECATED_API("is deprecated, use IceUtil::UTF8ToNative(const std::string&, const StringConverterPtr&) instead") std::string
 UTF8ToNative(const CommunicatorPtr&, const std::string&);
 
 }
