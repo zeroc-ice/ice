@@ -19,24 +19,18 @@ namespace IceSSL
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.Globalization;
-        
-    internal class Instance
+
+    internal class SharedInstance
     {
-        internal Instance(Ice.Communicator communicator)
+        internal SharedInstance(IceInternal.ProtocolPluginFacade facade)
         {
-            _logger = communicator.getLogger();
-            _facade = IceInternal.Util.getProtocolPluginFacade(communicator);
-            _securityTraceLevel = communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
+            _communicator = facade.getCommunicator();
+            _logger = _communicator.getLogger();
+            _facade = facade;
+            _securityTraceLevel = _communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
             _securityTraceCategory = "Security";
             _initialized = false;
             _trustManager = new TrustManager(communicator);
-
-            //
-            // Register the endpoint factory. We have to do this now, rather than
-            // in initialize, because the communicator may need to interpret
-            // proxies before the plug-in is fully initialized.
-            //
-            _facade.addEndpointFactory(new EndpointFactoryI(this));
         }
 
         internal void initialize()
@@ -208,7 +202,7 @@ namespace IceSSL
                 _certs = new X509Certificate2Collection();
                 string certFile = properties.getProperty(prefix + "CertFile");
                 string passwordStr = properties.getProperty(prefix + "Password");
-                
+
                 if(certFile.Length > 0)
                 {
                     if(!checkPath(ref certFile))
@@ -318,46 +312,6 @@ namespace IceSSL
             return _facade.getCommunicator();
         }
 
-        internal IceInternal.EndpointHostResolver endpointHostResolver()
-        {
-            return _facade.getEndpointHostResolver();
-        }
-
-        internal int protocolSupport()
-        {
-            return _facade.getProtocolSupport();
-        }
-
-        internal bool preferIPv6()
-        {
-            return _facade.getPreferIPv6();
-        }
-
-        internal IceInternal.NetworkProxy networkProxy()
-        {
-            return _facade.getNetworkProxy();
-        }
-
-        internal Ice.EncodingVersion defaultEncoding()
-        {
-            return _facade.getDefaultEncoding();
-        }
-
-        internal string defaultHost()
-        {
-            return _facade.getDefaultHost();
-        }
-
-        internal int networkTraceLevel()
-        {
-            return _facade.getNetworkTraceLevel();
-        }
-
-        internal string networkTraceCategory()
-        {
-            return _facade.getNetworkTraceCategory();
-        }
-
         internal int securityTraceLevel()
         {
             return _securityTraceLevel;
@@ -405,7 +359,7 @@ namespace IceSSL
             s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
             s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
             s.Append("\nprotocol = " + stream.SslProtocol);
-            communicator().getLogger().trace(_securityTraceCategory, s.ToString());
+            _logger.trace(_securityTraceCategory, s.ToString());
         }
 
         internal void verifyPeer(NativeConnectionInfo info, System.Net.Sockets.Socket fd, string address)
@@ -633,7 +587,7 @@ namespace IceSSL
 
             if(_verifier != null && !_verifier.verify(info))
             {
-                string msg = (info.incoming ? "incoming" : "outgoing") + 
+                string msg = (info.incoming ? "incoming" : "outgoing") +
                     " connection rejected by certificate verifier\n" + IceInternal.Network.fdToString(fd);
                 if(_securityTraceLevel >= 1)
                 {
@@ -649,7 +603,8 @@ namespace IceSSL
         //
         // Parse a string of the form "location.name" into two parts.
         //
-        internal void parseStore(string prop, string store, ref StoreLocation loc, ref StoreName name, ref string sname)
+        private static void parseStore(string prop, string store, ref StoreLocation loc, ref StoreName name,
+                                       ref string sname)
         {
             int pos = store.IndexOf('.');
             if(pos == -1)
@@ -823,7 +778,7 @@ namespace IceSSL
         // Split strings using a delimiter. Quotes are supported.
         // Returns null for an unmatched quote.
         //
-        private string[] splitString(string str, char delim)
+        private static string[] splitString(string str, char delim)
         {
             ArrayList l = new ArrayList();
             char[] arr = new char[str.Length];
@@ -889,7 +844,7 @@ namespace IceSSL
         private SslProtocols parseProtocols(string property)
         {
             SslProtocols result = SslProtocols.Default;
-            string[] arr = communicator().getProperties().getPropertyAsList(property);
+            string[] arr = _communicator.getProperties().getPropertyAsList(property);
             if(arr.Length > 0)
             {
                 result = 0;
@@ -912,13 +867,13 @@ namespace IceSSL
                             protocol = "Tls";
                             break;
                         }
-                        case "TLS1_1": 
+                        case "TLS1_1":
                         case "TLSV1_1":
                         {
                             protocol = "Tls11";
                             break;
                         }
-                        case "TLS1_2": 
+                        case "TLS1_2":
                         case "TLSV1_2":
                         {
                             protocol = "Tls12";
@@ -946,7 +901,7 @@ namespace IceSSL
             return result;
         }
 
-        private X509Certificate2Collection findCertificates(string prop, string storeSpec, string value)
+        private static X509Certificate2Collection findCertificates(string prop, string storeSpec, string value)
         {
             StoreLocation storeLoc = 0;
             StoreName storeName = 0;
@@ -1159,6 +1114,7 @@ namespace IceSSL
             return (next + len <= data.Length);
         }
 
+        private Ice.Communicator _communicator;
         private Ice.Logger _logger;
         private IceInternal.ProtocolPluginFacade _facade;
         private int _securityTraceLevel;
@@ -1173,5 +1129,61 @@ namespace IceSSL
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;
         private TrustManager _trustManager;
+    }
+
+    internal class Instance : IceInternal.ProtocolInstance
+    {
+        internal Instance(SharedInstance sharedInstance, short type, string protocol)
+        {
+            base(sharedInstance.communicator(), type, protocol);
+            _sharedInstance = sharedInstance;
+        }
+
+        internal SharedInstance sharedInstance()
+        {
+            return _sharedInstance;
+        }
+
+        internal int securityTraceLevel()
+        {
+            return _sharedInstance.securityTraceLevel();
+        }
+
+        internal string securityTraceCategory()
+        {
+            return _sharedInstance.securityTraceCategory();
+        }
+
+        internal bool initialized()
+        {
+            return _sharedInstance.initialized();
+        }
+
+        internal X509Certificate2Collection certs()
+        {
+            return _sharedInstance.certs();
+        }
+
+        internal SslProtocols protocols()
+        {
+            return _sharedInstance.protocols();
+        }
+
+        internal int checkCRL()
+        {
+            return _sharedInstance.checkCRL();
+        }
+
+        internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
+        {
+            _sharedInstance.traceStream(stream, connInfo);
+        }
+
+        internal void verifyPeer(NativeConnectionInfo info, System.Net.Sockets.Socket fd, string address)
+        {
+            _sharedInstance.verifyPeer(info, fd, address);
+        }
+
+        private SharedInstance _sharedInstance;
     }
 }

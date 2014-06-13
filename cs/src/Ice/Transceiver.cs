@@ -14,40 +14,23 @@ namespace IceInternal
 
     public interface Transceiver
     {
-        //
-        // Initialize the transceiver using asynchronous I/O. This method never blocks. Returns true
-        // if initialization is complete, or false if an I/O request is pending. In the latter case,
-        // the callback must invoke initialize again and repeat this process until it returns true.
-        //
-        int initialize();
-
+        int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
+        int closing(bool initiator, Ice.LocalException ex);
         void close();
 
-        //
-        // Write data.
-        //
-        // Returns true if all the data was written, false otherwise.
-        //
-        bool write(Buffer buf);
-
-        //
-        // Read data.
-        //
-        // Returns true if all the requested data was read, false otherwise.
-        //
-        bool read(Buffer buf);
+        int write(Buffer buf);
+        int read(Buffer buf, ref bool hasMoreData);
 
         //
         // Read data asynchronously.
         //
-        // The I/O request may complete synchronously, in which case endRead
-        // will be invoked in the same thread as beginRead. The return value
-        // from beginRead must be passed to endRead, along with the same buffer
-        // object. The caller must check the buffer after endRead completes to
-        // determine whether all of the requested data has been read.
+        // The I/O request may complete synchronously, in which case finishRead
+        // will be invoked in the same thread as startRead. The caller must check
+        // the buffer after finishRead completes to determine whether all of the
+        // requested data has been read.
         //
         // The read request is canceled upon the termination of the thread that
-        // calls beginRead, or when the socket is closed. In this case endRead
+        // calls startRead, or when the socket is closed. In this case finishRead
         // raises ReadAbortedException.
         //
         bool startRead(Buffer buf, AsyncCallback callback, object state);
@@ -56,14 +39,14 @@ namespace IceInternal
         //
         // Write data asynchronously.
         //
-        // The I/O request may complete synchronously, in which case endWrite
-        // will be invoked in the same thread as beginWrite. The request
-        // will be canceled upon the termination of the thread that calls beginWrite.
+        // The I/O request may complete synchronously, in which case finishWrite
+        // will be invoked in the same thread as startWrite. The request
+        // will be canceled upon the termination of the thread that calls startWrite.
         //
         bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
         void finishWrite(Buffer buf);
 
-        string type();
+        string protocol();
         Ice.ConnectionInfo getInfo();
         void checkSendSize(Buffer buf, int messageSizeMax);
     }

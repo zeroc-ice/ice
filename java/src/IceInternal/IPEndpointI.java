@@ -151,6 +151,7 @@ public abstract class IPEndpointI extends EndpointI
             _hashValue = 5381;
             _hashValue = HashUtil.hashAdd(_hashValue, type());
             _hashValue = hashInit(_hashValue);
+            _hashInitialized = true;
         }
         return _hashValue;
     }

@@ -2348,7 +2348,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             return IceInternal.SocketOperation.None;
         }
-        else if(_state == StateClosingPending && _writeStream.pos() == _writeStream.size())
+        else if(_state == StateClosingPending && _writeStream.pos() == 0)
         {
             // Message wasn't sent, empty the _writeStream, we're not going to send more data.
             OutgoingMessage message = _sendStreams.getFirst();

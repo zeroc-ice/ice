@@ -21,7 +21,7 @@ namespace IceInternal
             instance_ = instance;
             _factories = new List<EndpointFactory>();
         }
-        
+
         public void add(EndpointFactory factory)
         {
             lock(this)
@@ -37,7 +37,7 @@ namespace IceInternal
                 _factories.Add(factory);
             }
         }
-        
+
         public EndpointFactory get(short type)
         {
             lock(this)
@@ -53,104 +53,138 @@ namespace IceInternal
                 return null;
             }
         }
-        
+
         public EndpointI create(string str, bool oaEndpoint)
         {
+            string[] arr = IceUtilInternal.StringUtil.splitString(str, " \t\r\n");
+            if(arr == null)
+            {
+                Ice.EndpointParseException e = new Ice.EndpointParseException();
+                e.str = "mismatched quote";
+                throw e;
+            }
+
+            if(arr.Length == 0)
+            {
+                Ice.EndpointParseException e = new Ice.EndpointParseException();
+                e.str = "value has no non-whitespace characters";
+                throw e;
+            }
+
+            List<string> v = new List<string>(arr);
+            string protocol = v[0];
+            v.RemoveAt(0);
+
+            if(protocol.Equals("default"))
+            {
+                protocol = instance_.defaultsAndOverrides().defaultProtocol;
+            }
+
+            EndpointFactory factory = null;
+
             lock(this)
             {
-                string s = str.Trim();
-                if(s.Length == 0)
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "value has no non-whitespace characters";
-                    throw e;
-                }
-                
-                Regex p = new Regex("([ \t\n\r]+)|$");
-                Match m = p.Match(s);
-                Debug.Assert(m.Success);
-                
-                string protocol = s.Substring(0, m.Index);
-                
-                if(protocol.Equals("default"))
-                {
-                    protocol = instance_.defaultsAndOverrides().defaultProtocol;
-                }
-                
                 for(int i = 0; i < _factories.Count; i++)
                 {
-                    EndpointFactory f = (EndpointFactory)_factories[i];
+                    EndpointFactory f = _factories[i];
                     if(f.protocol().Equals(protocol))
                     {
-                        return f.create(s.Substring(m.Index + m.Length), oaEndpoint);
-
-                        // Code below left in place for debugging.
-
-                        /*
-                        EndpointI e = f.create(s.Substring(m.Index + m.Length), oaEndpoint);
-                        BasicStream bs = new BasicStream(instance_, true);
-                        e.streamWrite(bs);
-                        Buffer buf = bs.getBuffer();
-                        buf.b.position(0);
-                        short type = bs.readShort();
-                        EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
-                        System.Console.Error.WriteLine("Normal: " + e);
-                        System.Console.Error.WriteLine("Opaque: " + ue);
-                        return e;
-                        */
+                        factory = f;
                     }
                 }
-
-                //
-                // If the stringified endpoint is opaque, create an unknown endpoint,
-                // then see whether the type matches one of the known endpoints.
-                //
-                if(protocol.Equals("opaque"))
-                {
-                    EndpointI ue = new OpaqueEndpointI(s.Substring(m.Index + m.Length));
-                    for(int i = 0; i < _factories.Count; i++)
-                    {
-                        EndpointFactory f = (EndpointFactory)_factories[i];
-                        if(f.type() == ue.type())
-                        {
-                            //
-                            // Make a temporary stream, write the opaque endpoint data into the stream,
-                            // and ask the factory to read the endpoint data from that stream to create
-                            // the actual endpoint.
-                            //
-                            BasicStream bs = new BasicStream(instance_, Ice.Util.currentProtocolEncoding, true);
-                            ue.streamWrite(bs);
-                            Buffer buf = bs.getBuffer();
-                            buf.b.position(0);
-                            bs.readShort(); // type
-                            return f.read(bs);
-                        }
-                    }
-                    return ue; // Endpoint is opaque, but we don't have a factory for its type.
-                }
-                return null;
             }
+
+            if(factory != null)
+            {
+                EndpointI e = factory.create(v, oaEndpoint);
+                if(v.Count > 0)
+                {
+                    Ice.EndpointParseException ex = new Ice.EndpointParseException();
+                    ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
+                    throw ex;
+                }
+                return e;
+
+                // Code below left in place for debugging.
+
+                /*
+                EndpointI e = f.create(s.Substring(m.Index + m.Length), oaEndpoint);
+                BasicStream bs = new BasicStream(instance_, true);
+                e.streamWrite(bs);
+                Buffer buf = bs.getBuffer();
+                buf.b.position(0);
+                short type = bs.readShort();
+                EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
+                System.Console.Error.WriteLine("Normal: " + e);
+                System.Console.Error.WriteLine("Opaque: " + ue);
+                return e;
+                */
+            }
+
+            //
+            // If the stringified endpoint is opaque, create an unknown endpoint,
+            // then see whether the type matches one of the known endpoints.
+            //
+            if(protocol.Equals("opaque"))
+            {
+                EndpointI ue = new OpaqueEndpointI(v);
+                if(v.Count > 0)
+                {
+                    Ice.EndpointParseException ex = new Ice.EndpointParseException();
+                    ex.str = "unrecognized argument `" + v[0] + "' in endpoint `" + str + "'";
+                    throw ex;
+                }
+                factory = get(ue.type());
+                if(factory != null)
+                {
+                    //
+                    // Make a temporary stream, write the opaque endpoint data into the stream,
+                    // and ask the factory to read the endpoint data from that stream to create
+                    // the actual endpoint.
+                    //
+                    BasicStream bs = new BasicStream(instance_, Ice.Util.currentProtocolEncoding, true);
+                    bs.writeShort(ue.type());
+                    ue.streamWrite(bs);
+                    Buffer buf = bs.getBuffer();
+                    buf.b.position(0);
+                    bs.readShort(); // type
+                    bs.startReadEncaps();
+                    EndpointI e = factory.read(bs);
+                    bs.endReadEncaps();
+                    return e;
+                }
+                return ue; // Endpoint is opaque, but we don't have a factory for its type.
+            }
+
+            return null;
         }
-        
+
         public EndpointI read(BasicStream s)
         {
             lock(this)
             {
                 short type = s.readShort();
-                
-                for(int i = 0; i < _factories.Count; i++)
+
+                EndpointFactory factory = get(type);
+                EndpointI e = null;
+
+                s.startReadEncaps();
+
+                if(factory != null)
                 {
-                    EndpointFactory f = (EndpointFactory)_factories[i];
-                    if(f.type() == type)
-                    {
-                        return f.read(s);
-                    }
+                    e = factory.read(s);
                 }
-                
-                return new OpaqueEndpointI(type, s);
+                else
+                {
+                    e = new OpaqueEndpointI(type, s);
+                }
+
+                s.endReadEncaps();
+
+                return e;
             }
         }
-        
+
         internal void destroy()
         {
             for(int i = 0; i < _factories.Count; i++)
@@ -160,7 +194,7 @@ namespace IceInternal
             }
             _factories.Clear();
         }
-        
+
         private readonly Instance instance_;
         private readonly List<EndpointFactory> _factories;
     }

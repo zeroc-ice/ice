@@ -88,6 +88,12 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     {
         _configuration.writeException(enable ? new Ice.SocketException() : null);
     }
+
+    public void
+    buffered(boolean enable, Ice.Current current)
+    {
+        _configuration.buffered(enable);
+    }
     
     public
     BackgroundControllerI(Configuration configuration, Ice.ObjectAdapter adapter)

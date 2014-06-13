@@ -18,20 +18,21 @@ namespace IceInternal
     {
         public Transceiver connect()
         {
-            return new UdpTransceiver(instance_, _addr, _mcastInterface, _mcastTtl);
+            return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
         }
 
         public short type()
         {
-            return Ice.UDPEndpointType.value;
+            return _instance.type();
         }
 
         //
-        // Only for use by TcpEndpoint
+        // Only for use by UdpEndpointI
         //
-        internal UdpConnector(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl, string connectionId)
+        internal UdpConnector(ProtocolInstance instance, EndPoint addr, string mcastInterface, int mcastTtl,
+                              string connectionId)
         {
-            instance_ = instance;
+            _instance = instance;
             _addr = addr;
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
@@ -85,7 +86,7 @@ namespace IceInternal
             return _hashCode;
         }
 
-        private Instance instance_;
+        private ProtocolInstance _instance;
         private EndPoint _addr;
         private string _mcastInterface;
         private int _mcastTtl;

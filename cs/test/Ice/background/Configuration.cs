@@ -146,6 +146,16 @@ internal class Configuration
         }
     }
 
+    public void buffered(bool b)
+    {
+        _buffered = b;
+    }
+
+    public bool buffered()
+    {
+        return _buffered;
+    }
+
     static public Configuration getInstance()
     {
         return _instance;
@@ -158,6 +168,7 @@ internal class Configuration
     private Ice.LocalException _readException;
     private int _writeReadyCount;
     private Ice.LocalException _writeException;
+    private bool _buffered;
 
     private static Configuration _instance = new Configuration();
 }

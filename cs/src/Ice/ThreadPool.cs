@@ -33,21 +33,21 @@ namespace IceInternal
             _finishWithIO = current.startMessage();
             return _finishWithIO;
         }
-        
+
         public void finishIOScope(ref ThreadPoolCurrent current)
         {
             if(_finishWithIO)
             {
-                // This must be called with the handler locked. 
+                // This must be called with the handler locked.
                 current.finishMessage(true);
             }
         }
-        
+
         public void completed(ref ThreadPoolCurrent current)
         {
             //
             // Call finishMessage once IO is completed only if serialization is not enabled.
-            // Otherwise, finishMessage will be called when the event handler is done with 
+            // Otherwise, finishMessage will be called when the event handler is done with
             // the message (it will be called from destroy below).
             //
             Debug.Assert(_finishWithIO);
@@ -57,14 +57,14 @@ namespace IceInternal
                 _finish = true;
             }
         }
-        
+
         public void destroy(ref ThreadPoolCurrent current)
         {
             if(_finish)
             {
                 //
                 // A ThreadPoolMessage instance must be created outside the synchronization
-                // of the event handler. We need to lock the event handler here to call 
+                // of the event handler. We need to lock the event handler here to call
                 // finishMessage.
                 //
                 _mutex.Lock();
@@ -79,7 +79,7 @@ namespace IceInternal
                 }
             }
         }
-        
+
         private IceUtilInternal.Monitor _mutex;
         private bool _finish;
         private bool _finishWithIO;
@@ -121,16 +121,16 @@ namespace IceInternal
     {
         public ThreadPool(Instance instance, string prefix, int timeout)
         {
+            Ice.Properties properties = instance.initializationData().properties;
+
             _instance = instance;
             _dispatcher = instance.initializationData().dispatcher;
             _destroyed = false;
             _prefix = prefix;
             _threadIndex = 0;
             _inUse = 0;
-            _serialize = _instance.initializationData().properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
+            _serialize = properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
             _serverIdleTime = timeout;
-
-            Ice.Properties properties = _instance.initializationData().properties;
 
             string programName = properties.getProperty("Ice.ProgramName");
             if(programName.Length > 0)
@@ -209,16 +209,16 @@ namespace IceInternal
                 _priority = IceInternal.Util.stringToThreadPriority(properties.getProperty("Ice.ThreadPriority"));
             }
 #endif
-            
+
             if(_instance.traceLevels().threadPool >= 1)
             {
-                string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " + 
+                string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
                            _sizeWarn;
                 _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
             }
 
             _workItems = new Queue<ThreadPoolWorkItem>();
-            
+
             try
             {
                 _threads = new List<WorkerThread>();
@@ -251,6 +251,21 @@ namespace IceInternal
             }
         }
 
+        public void destroy()
+        {
+            _m.Lock();
+            try
+            {
+                Debug.Assert(!_destroyed);
+                _destroyed = true;
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+        }
+
         public void updateObservers()
         {
             _m.Lock();
@@ -260,21 +275,6 @@ namespace IceInternal
                 {
                     t.updateObserver();
                 }
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-        }
-
-        public void destroy()
-        {
-            _m.Lock();
-            try
-            {
-                Debug.Assert(!_destroyed);
-                _destroyed = true;
-                _m.NotifyAll();
             }
             finally
             {
@@ -298,8 +298,21 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_destroyed);
-                handler._registered = handler._registered & ~remove;
-                handler._registered = handler._registered | add;
+
+                // Don't remove what needs to be added
+                remove &= ~add;
+
+                // Don't remove/add if already un-registered or registered
+                remove &= handler._registered;
+                add &= ~handler._registered;
+                if(remove == add)
+                {
+                    return;
+                }
+
+                handler._registered &= ~remove;
+                handler._registered |= add;
+
                 if((add & SocketOperation.Read) != 0 && (handler._pending & SocketOperation.Read) == 0)
                 {
                     handler._pending |= SocketOperation.Read;
@@ -314,7 +327,7 @@ namespace IceInternal
                     executeNonBlocking(delegate()
                                        {
                                            messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Write));
-                                       }); 
+                                       });
                 }
             }
             finally
@@ -334,12 +347,16 @@ namespace IceInternal
             try
             {
                 Debug.Assert(!_destroyed);
+
+                //
+                // If there are no pending asynchronous operations, we can call finish on the handler now.
+                //
                 if(handler._pending == 0)
                 {
                     handler._registered = SocketOperation.None;
                     executeNonBlocking(delegate()
                                        {
-                                           ThreadPoolCurrent current = 
+                                           ThreadPoolCurrent current =
                                                new ThreadPoolCurrent(this, handler, SocketOperation.None);
                                            handler.finished(ref current);
                                        });
@@ -382,8 +399,7 @@ namespace IceInternal
             }
         }
 
-        public void
-        execute(ThreadPoolWorkItem workItem)
+        public void execute(ThreadPoolWorkItem workItem)
         {
             _m.Lock();
             try
@@ -397,10 +413,10 @@ namespace IceInternal
 
                 //
                 // If this is a dynamic thread pool which can still grow and if all threads are
-                // currently busy dispatching or about to dispatch, we spawn a new thread to 
+                // currently busy dispatching or about to dispatch, we spawn a new thread to
                 // execute this new work item right away.
                 //
-                if(_threads.Count < _sizeMax && 
+                if(_threads.Count < _sizeMax &&
                    (_inUse + _workItems.Count) > _threads.Count &&
                    !_destroyed)
                 {
@@ -409,7 +425,7 @@ namespace IceInternal
                         string s = "growing " + _prefix + ": Size = " + (_threads.Count + 1);
                         _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                     }
-                    
+
                     try
                     {
                         WorkerThread t = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
@@ -440,8 +456,7 @@ namespace IceInternal
             }
         }
 
-        public void
-        executeNonBlocking(ThreadPoolWorkItem workItem)
+        public void executeNonBlocking(ThreadPoolWorkItem workItem)
         {
             _m.Lock();
             try
@@ -519,9 +534,9 @@ namespace IceInternal
                                 {
                                     //
                                     // If not the last thread or if server idle time isn't configured,
-                                    // we can exit. Unlike C++/Java, there's no need to have a thread 
+                                    // we can exit. Unlike C++/Java, there's no need to have a thread
                                     // always spawned in the thread pool because all the IO is done
-                                    // by the .NET thread pool threads. Instead, we'll just spawn a 
+                                    // by the .NET thread pool threads. Instead, we'll just spawn a
                                     // new thread when needed (i.e.: when a new work item is queued).
                                     //
                                     if(_instance.traceLevels().threadPool >= 1)
@@ -530,7 +545,7 @@ namespace IceInternal
                                         _instance.initializationData().logger.trace(
                                             _instance.traceLevels().threadPoolCat, s);
                                     }
-                                    
+
                                     _threads.Remove(thread);
                                     _instance.asyncIOThread().queue(delegate()
                                                                     {
@@ -573,13 +588,13 @@ namespace IceInternal
                     ++_inUse;
 
                     thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
-                    
+
                     if(_sizeMax > 1 && _inUse == _sizeWarn)
                     {
                         string s = "thread pool `" + _prefix + "' is running low on threads\n"
                             + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
                         _instance.initializationData().logger.warning(s);
-                    }                    
+                    }
                 }
                 finally
                 {
@@ -597,11 +612,11 @@ namespace IceInternal
                 }
             }
         }
-    
+
         public bool startMessage(ref ThreadPoolCurrent current)
         {
             Debug.Assert((current._handler._pending & current.operation) != 0);
-                                     
+
             if((current._handler._started & current.operation) != 0)
             {
                 Debug.Assert((current._handler._ready & current.operation) == 0);
@@ -617,7 +632,7 @@ namespace IceInternal
                     return false;
                 }
             }
-            else if((current._handler._ready & current.operation) == 0 && 
+            else if((current._handler._ready & current.operation) == 0 &&
                     (current._handler._registered & current.operation) != 0)
             {
                 Debug.Assert((current._handler._started & current.operation) == 0);
@@ -638,7 +653,7 @@ namespace IceInternal
                     return false;
                 }
             }
-                                     
+
             if((current._handler._registered & current.operation) != 0)
             {
                 Debug.Assert((current._handler._ready & current.operation) != 0);
@@ -700,7 +715,7 @@ namespace IceInternal
         {
             messageCallback(new ThreadPoolCurrent(this, (EventHandler)state, SocketOperation.Read));
         }
-        
+
         public void asyncWriteCallback(object state)
         {
             messageCallback(new ThreadPoolCurrent(this, (EventHandler)state, SocketOperation.Write));
@@ -721,7 +736,7 @@ namespace IceInternal
             {
                 string s = "exception in `" + _prefix + "':\n" + ex + "\nevent handler: " + current._handler.ToString();
                 _instance.initializationData().logger.error(s);
-            }            
+            }
         }
 
         private AsyncCallback getCallback(int operation)
@@ -772,8 +787,7 @@ namespace IceInternal
                 }
             }
 
-            public void
-            setState(Ice.Instrumentation.ThreadState s)
+            public void setState(Ice.Instrumentation.ThreadState s)
             {
                 // Must be called with the thread pool mutex locked
                 if(_observer != null)
@@ -842,7 +856,7 @@ namespace IceInternal
                     string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
                     _threadPool._instance.initializationData().logger.error(s);
                 }
-                
+
                 if(_observer != null)
                 {
                     _observer.detach();

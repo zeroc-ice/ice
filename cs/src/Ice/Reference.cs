@@ -1017,9 +1017,10 @@ namespace IceInternal
             if(_endpoints.Length > 0)
             {
                 Debug.Assert(_adapterId.Length == 0);
-                for(int i = 0; i < _endpoints.Length; i++)
+                foreach(EndpointI endpoint in _endpoints)
                 {
-                    _endpoints[i].streamWrite(s);
+                    s.writeShort(endpoint.type());
+                    endpoint.streamWrite(s);
                 }
             }
             else

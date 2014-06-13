@@ -25,7 +25,7 @@ namespace IceInternal
 
     sealed class TcpTransceiver : Transceiver
     {
-        public int initialize()
+        public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
             try
             {
@@ -54,10 +54,11 @@ namespace IceInternal
                     _writeResult = null;
 #endif
                     _desc = Network.fdToString(_fd, _proxy, _addr);
+
                     if(_proxy != null)
                     {
                         _state = StateProxyConnectRequest; // Send proxy connect request
-                        return SocketOperation.Write; 
+                        return SocketOperation.Write;
                     }
 
                     _state = StateConnected;
@@ -74,25 +75,32 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                if(_traceLevels.network >= 2)
+                if(_instance.traceLevel() >= 2)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("failed to establish tcp connection\n");
+                    s.Append("failed to establish " + protocol() + " connection\n");
                     s.Append(Network.fdToString(_fd, _proxy, _addr));
                     s.Append("\n");
                     s.Append(ex.ToString());
-                    _logger.trace(_traceLevels.networkCat, s.ToString());
+                    _instance.logger().trace(_instance.traceCategory(), s.ToString());
                 }
                 throw;
             }
 
             Debug.Assert(_state == StateConnected);
-            if(_traceLevels.network >= 1)
+            if(_instance.traceLevel() >= 1)
             {
-                string s = "tcp connection established\n" + _desc;
-                _logger.trace(_traceLevels.networkCat, s);
+                string s = protocol() + " connection established\n" + _desc;
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
             return SocketOperation.None;
+        }
+
+        public int closing(bool initiator, Ice.LocalException ex)
+        {
+            // If we are initiating the connection closure, wait for the peer
+            // to close the TCP/IP connection. Otherwise, close immediately.
+            return initiator ? SocketOperation.Read : SocketOperation.None;
         }
 
         public void close()
@@ -101,10 +109,10 @@ namespace IceInternal
             // If the transceiver is not connected, its description is simply "not connected",
             // which isn't very helpful.
             //
-            if(_state == StateConnected && _traceLevels.network >= 1)
+            if(_state == StateConnected && _instance.traceLevel() >= 1)
             {
-                string s = "closing tcp connection\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                string s = "closing " + protocol() + " connection\n" + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             Debug.Assert(_fd != null);
@@ -122,17 +130,22 @@ namespace IceInternal
             }
         }
 
-        public bool write(Buffer buf)
+        public int write(Buffer buf)
         {
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Frameworks don't support the use of synchronous socket
-            // operations on a non-blocking socket. Returning false here forces the caller to schedule
-            // an asynchronous operation.
+            // operations on a non-blocking socket. Returning SocketOperation.Write here forces the caller
+            // to schedule an asynchronous operation.
             //
-            return false;
+            return SocketOperation.Write;
 #else
             int packetSize = buf.b.remaining();
+            if(packetSize == 0)
+            {
+                return SocketOperation.None;
+            }
+
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
             {
                 //
@@ -161,17 +174,17 @@ namespace IceInternal
                     {
                         if(Network.wouldBlock(e))
                         {
-                            return false;
+                            return SocketOperation.Write;
                         }
                         throw;
                     }
 
                     Debug.Assert(ret > 0);
 
-                    if(_traceLevels.network >= 3)
+                    if(_instance.traceLevel() >= 3)
                     {
-                        string s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
-                        _logger.trace(_traceLevels.networkCat, s);
+                        string s = "sent " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + ToString();
+                        _instance.logger().trace(_instance.traceCategory(), s);
                     }
                     buf.b.position(buf.b.position() + ret);
                     if(packetSize > buf.b.remaining())
@@ -190,21 +203,25 @@ namespace IceInternal
                 }
             }
 
-            return true; // No more data to send.
+            return SocketOperation.None; // No more data to send.
 #endif
         }
 
-        public bool read(Buffer buf)
+        public int read(Buffer buf, ref bool hasMoreData)
         {
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
             // operations on a non-blocking socket.
             //
-            return false;
+            return SocketOperation.Read;
 #else
             int remaining = buf.b.remaining();
             int position = buf.b.position();
+            if(remaining == 0)
+            {
+                return SocketOperation.None;
+            }
 
             while(buf.b.hasRemaining())
             {
@@ -229,19 +246,20 @@ namespace IceInternal
                     {
                         if(Network.wouldBlock(e))
                         {
-                            return false;
+                            return SocketOperation.Read;
                         }
                         throw;
                     }
 
                     Debug.Assert(ret > 0);
 
-                    if(_traceLevels.network >= 3)
+                    if(_instance.traceLevel() >= 3)
                     {
-                        string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
-                        _logger.trace(_traceLevels.networkCat, s);
+                        string s = "received " + ret + " of " + remaining + " bytes via " + protocol() + "\n" +
+                            ToString();
+                        _instance.logger().trace(_instance.traceCategory(), s);
                     }
-                    
+
                     remaining -= ret;
                     buf.b.position(position += ret);
                 }
@@ -271,7 +289,7 @@ namespace IceInternal
                 }
             }
 
-            return true;
+            return SocketOperation.None;
 #endif
         }
 
@@ -354,15 +372,15 @@ namespace IceInternal
 
                 Debug.Assert(ret > 0);
 
-                if(_traceLevels.network >= 3)
+                if(_instance.traceLevel() >= 3)
                 {
                     int packetSize = buf.b.remaining();
                     if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
                     {
                         packetSize = _maxReceivePacketSize;
                     }
-                    string s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    string s = "received " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + ToString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
 
                 buf.b.position(buf.b.position() + ret);
@@ -442,7 +460,7 @@ namespace IceInternal
                 _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
 #else
-                _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, 
+                _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
                                              writeCompleted, state);
                 bool completedSynchronously = _writeResult.CompletedSynchronously;
 #endif
@@ -489,8 +507,8 @@ namespace IceInternal
             if(_state < StateConnected && _state != StateProxyConnectRequest)
             {
                 return;
-            } 
-            
+            }
+
             try
             {
 #if ICE_SOCKET_ASYNC_API
@@ -509,15 +527,15 @@ namespace IceInternal
                 }
                 Debug.Assert(ret > 0);
 
-                if(_traceLevels.network >= 3)
+                if(_instance.traceLevel() >= 3)
                 {
                     int packetSize = buf.b.remaining();
                     if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
                     {
                         packetSize = _maxSendPacketSize;
                     }
-                    string s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    string s = "sent " + ret + " of " + packetSize + " bytes via " + protocol() + "\n" + ToString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
 
                 buf.b.position(buf.b.position() + ret);
@@ -542,13 +560,12 @@ namespace IceInternal
             }
         }
 
-        public string type()
+        public string protocol()
         {
-            return "tcp";
+            return _instance.protocol();
         }
 
-        public Ice.ConnectionInfo
-        getInfo()
+        public Ice.ConnectionInfo getInfo()
         {
             Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
             if(_fd != null)
@@ -579,17 +596,16 @@ namespace IceInternal
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(Instance instance, Socket fd, EndPoint addr, NetworkProxy proxy, bool connected)
+        internal TcpTransceiver(ProtocolInstance instance, Socket fd, EndPoint addr, NetworkProxy proxy, bool connected)
         {
+            _instance = instance;
             _fd = fd;
             _addr = addr;
             _proxy = proxy;
-            
-            _traceLevels = instance.traceLevels();
-            _logger = instance.initializationData().logger;
+
             _state = connected ? StateConnected : StateNeedConnect;
             _desc = connected ? Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
-            
+
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
@@ -597,7 +613,7 @@ namespace IceInternal
             _writeEventArgs = new SocketAsyncEventArgs();
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 #if SILVERLIGHT
-            String policy = instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol");
+            String policy = instance.properties().getProperty("Ice.ClientAccessPolicyProtocol");
             if(policy.Equals("Http"))
             {
                 _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
@@ -605,7 +621,7 @@ namespace IceInternal
             }
             else if(!String.IsNullOrEmpty(policy))
             {
-                _logger.warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
+                _instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
             }
 #endif
 #endif
@@ -657,11 +673,10 @@ namespace IceInternal
         }
 #endif
 
+        private ProtocolInstance _instance;
         private Socket _fd;
         private EndPoint _addr;
         private NetworkProxy _proxy;
-        private TraceLevels _traceLevels;
-        private Ice.Logger _logger;
         private string _desc;
         private int _state;
         private int _maxSendPacketSize;
@@ -681,7 +696,7 @@ namespace IceInternal
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;
         private const int StateProxyConnectRequest = 2;
-        private const int StateProxyConnectRequestPending = 3; 
+        private const int StateProxyConnectRequestPending = 3;
         private const int StateConnected = 4;
     }
 }

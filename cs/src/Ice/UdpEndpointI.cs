@@ -17,249 +17,28 @@ namespace IceInternal
     using System;
     using System.Globalization;
 
-    sealed class UdpEndpointI : EndpointI
+    sealed class UdpEndpointI : IPEndpointI
     {
-        public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, bool conn, string conId, 
-                            bool co) : base(conId)
+        public UdpEndpointI(ProtocolInstance instance, string ho, int po, string mif, int mttl, bool conn, string conId,
+                            bool co) :
+            base(instance, ho, po, conId)
         {
-            instance_ = instance;
-            _host = ho;
-            _port = po;
             _mcastInterface = mif;
             _mcastTtl = mttl;
             _connect = conn;
-            connectionId_ = conId;
             _compress = co;
-            calcHashValue();
         }
-        
-        public UdpEndpointI(Instance instance, string str, bool oaEndpoint) : base("")
+
+        public UdpEndpointI(ProtocolInstance instance) :
+            base(instance)
         {
-            instance_ = instance;
-            _host = null;
-            _port = 0;
             _connect = false;
             _compress = false;
-
-            string delim = " \t\n\r";
-
-            int beg;
-            int end = 0;
-
-            while(true)
-            {
-                beg = IceUtilInternal.StringUtil.findFirstNotOf(str, delim, end);
-                if(beg == -1)
-                {
-                    break;
-                }
-
-                end = IceUtilInternal.StringUtil.findFirstOf(str, delim, beg);
-                if(end == -1)
-                {
-                    end = str.Length;
-                }
-
-                string option = str.Substring(beg, end - beg);
-                if(option[0] != '-')
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "expected an endpoint option but found `" + option + "' in endpoint `udp " + str + "'";
-                    throw e;
-                }
-
-                string argument = null;
-                int argumentBeg = IceUtilInternal.StringUtil.findFirstNotOf(str, delim, end);
-                if(argumentBeg != -1 && str[argumentBeg] != '-')
-                {
-                    beg = argumentBeg;
-                    if(str[beg] == '\"')
-                    {
-                        end = IceUtilInternal.StringUtil.findFirstOf(str, "\"", beg + 1);
-                        if(end == -1)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "mismatched quotes around `" + argument + "' in endpoint `udp " + str + "'";
-                            throw e;
-                        }
-                        else
-                        {
-                            ++end;
-                        }
-                    }
-                    else
-                    {
-                        end = IceUtilInternal.StringUtil.findFirstOf(str, delim, beg);
-                        if(end == -1)
-                        {
-                            end = str.Length;
-                        }
-                    }
-                    argument = str.Substring(beg, end - beg);
-                    if(argument[0] == '\"' && argument[argument.Length - 1] == '\"')
-                    {
-                        argument = argument.Substring(1, argument.Length - 2);
-                    }
-                }
-                
-                if(option.Equals("-h"))
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "no argument provided for -h option in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-                    
-                    _host = argument;
-                }
-                else if(option.Equals("-p"))
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "no argument provided for -p option in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-                    
-                    try
-                    {
-                        _port = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                    }
-                    catch(System.FormatException ex)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                        e.str = "invalid port value `" + argument + "' in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-
-                    if(_port < 0 || _port > 65535)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "port value `" + argument + "' out of range in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-                }
-                else if(option.Equals("-c"))
-                {
-                    if(argument != null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -c option in `udp " + str + "'";
-                        throw e;
-                    }
-                    
-                    _connect = true;
-                }
-                else if(option.Equals("-z"))
-                {
-                    if(argument != null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "unexpected argument `" + argument + "' provided for -z option in `udp " + str + "'";
-                        throw e;
-                    }
-                    
-                    _compress = true;
-                }
-                else if(option.Equals("-v") || option.Equals("-e"))
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "no argument provided for " + option + " option in endpoint " + "`udp " + str + "'";
-                        throw e;
-                    }
-
-                    try
-                    {
-                        Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
-                        if(v.major != 1 || v.minor != 0)
-                        {
-                            instance_.initializationData().logger.warning("deprecated udp endpoint option: " + option);
-                        }
-                    }
-                    catch(Ice.VersionParseException ex)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "invalid version `" + argument + "' in endpoint `udp " + str + "':\n" + ex.str;
-                        throw e;
-                    }
-                }
-                else if(option.Equals("--interface"))
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "no argument provided for --interface option in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-                    
-                    _mcastInterface = argument;
-                }
-                else if(option.Equals("--ttl"))
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "no argument provided for --ttl option in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-                    
-                    try
-                    {
-                        _mcastTtl = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                    }
-                    catch(System.FormatException ex)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                        e.str = "invalid TTL value `" + argument + "' in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-
-                    if(_mcastTtl < 0)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "TTL value `" + argument + "' out of range in endpoint `udp " + str + "'";
-                        throw e;
-                    }
-                }
-                else
-                {
-                    throw new Ice.EndpointParseException("unknown option `" + option + "' in endpoint `udp " + str + "'");
-                }
-            }
-
-            if(_host == null)
-            {
-                _host = instance_.defaultsAndOverrides().defaultHost;
-            }
-            else if(_host.Equals("*"))
-            {
-                if(oaEndpoint)
-                {
-                    _host = null;
-                }
-                else
-                {
-                    throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `udp " + str + "'");
-                }        
-            }
-
-            if(_host == null)
-            {
-                _host = "";
-            }
-            
-            calcHashValue();
         }
-        
-        public UdpEndpointI(BasicStream s)
+
+        public UdpEndpointI(ProtocolInstance instance, BasicStream s) :
+            base(instance, s)
         {
-            instance_ = s.instance();
-            s.startReadEncaps();
-            _host = s.readString();
-            _port = s.readInt();
             if(s.getReadEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 s.readByte();
@@ -271,34 +50,133 @@ namespace IceInternal
             //_connect = s.readBool();
             _connect = false;
             _compress = s.readBool();
-            s.endReadEncaps();
-            calcHashValue();
         }
-        
-        //
-        // Marshal the endpoint
-        //
-        public override void streamWrite(BasicStream s)
+
+        private sealed class InfoI : Ice.UDPEndpointInfo
         {
-            s.writeShort(Ice.UDPEndpointType.value);
-            s.startWriteEncaps();
-            s.writeString(_host);
-            s.writeInt(_port);
-            if(s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
+            public InfoI(UdpEndpointI e)
             {
-                Ice.Util.Protocol_1_0.write__(s);
-                Ice.Util.Encoding_1_0.write__(s);
+                _endpoint = e;
             }
-            // Not transmitted.
-            //s.writeBool(_connect);
-            s.writeBool(_compress);
-            s.endWriteEncaps();
+
+            override public short type()
+            {
+                return _endpoint.type();
+            }
+
+            override public bool datagram()
+            {
+                return _endpoint.datagram();
+            }
+
+            override public bool secure()
+            {
+                return _endpoint.secure();
+            }
+
+            private UdpEndpointI _endpoint;
         }
-        
+
         //
-        // Convert the endpoint to its string form
+        // Return the endpoint information.
         //
-        public override string ice_toString_()
+        public override Ice.EndpointInfo getInfo()
+        {
+            InfoI info = new InfoI(this);
+            fillEndpointInfo(info);
+            return info;
+        }
+
+        //
+        // Return the timeout for the endpoint in milliseconds. 0 means
+        // non-blocking, -1 means no timeout.
+        //
+        public override int timeout()
+        {
+            return -1;
+        }
+
+        //
+        // Return a new endpoint with a different timeout value, provided
+        // that timeouts are supported by the endpoint. Otherwise the same
+        // endpoint is returned.
+        //
+        public override EndpointI timeout(int timeout)
+        {
+            return this;
+        }
+
+        //
+        // Return true if the endpoints support bzip2 compress, or false
+        // otherwise.
+        //
+        public override bool compress()
+        {
+            return _compress;
+        }
+
+        //
+        // Return a new endpoint with a different compression value,
+        // provided that compression is supported by the
+        // endpoint. Otherwise the same endpoint is returned.
+        //
+        public override EndpointI compress(bool compress)
+        {
+            if(compress == _compress)
+            {
+                return this;
+            }
+            else
+            {
+                return new UdpEndpointI(instance_, host_, port_, _mcastInterface, _mcastTtl, _connect, connectionId_,
+                                        compress);
+            }
+        }
+
+        //
+        // Return true if the endpoint is datagram-based.
+        //
+        public override bool datagram()
+        {
+            return true;
+        }
+
+        //
+        // Return true if the endpoint is secure.
+        //
+        public override bool secure()
+        {
+            return false;
+        }
+
+        //
+        // Return a server side transceiver for this endpoint, or null if a
+        // transceiver can only be created by an acceptor. In case a
+        // transceiver is created, this operation also returns a new
+        // "effective" endpoint, which might differ from this endpoint,
+        // for example, if a dynamic port number is assigned.
+        //
+        public override Transceiver transceiver(ref EndpointI endpoint)
+        {
+            UdpTransceiver p = new UdpTransceiver(instance_, host_, port_, _mcastInterface, _connect);
+            endpoint = createEndpoint(host_, p.effectivePort(), connectionId_);
+            return p;
+        }
+
+        //
+        // Return an acceptor for this endpoint, or null if no acceptors
+        // is available. In case an acceptor is created, this operation
+        // also returns a new "effective" endpoint, which might differ
+        // from this endpoint, for example, if a dynamic port number is
+        // assigned.
+        //
+        public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
+        {
+            endpoint = this;
+            return null;
+        }
+
+        public override string options()
         {
             //
             // WARNING: Certain features, such as proxy validation in Glacier2,
@@ -307,24 +185,7 @@ namespace IceInternal
             // these features. Please review for all features that depend on the
             // format of proxyToString() before changing this and related code.
             //
-            string s = "udp";
-
-            if(_host != null && _host.Length != 0)
-            {
-                s += " -h ";
-                bool addQuote = _host.IndexOf(':') != -1;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-                s += _host;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-            }
-
-            s += " -p " + _port;
+            string s = base.options();
 
             if(_mcastInterface.Length != 0)
             {
@@ -348,234 +209,7 @@ namespace IceInternal
 
             return s;
         }
-        
-        private sealed class InfoI : Ice.UDPEndpointInfo
-        {
-            public InfoI(bool comp, string host, int port, string mcastInterface, int mcastTtl) :
-                base(-1, comp, host, port, mcastInterface, mcastTtl)
-            {
-            }
 
-            override public short type()
-            {
-                return Ice.UDPEndpointType.value;
-            }
-                
-            override public bool datagram()
-            {
-                return true;
-            }
-                
-            override public bool secure()
-            {
-                return false;
-            }
-        };
-
-        //
-        // Return the endpoint information.
-        //
-        public override Ice.EndpointInfo getInfo()
-        {
-            return new InfoI(_compress, _host, _port, _mcastInterface, _mcastTtl);
-        }
-
-        //
-        // Return the endpoint type
-        //
-        public override short type()
-        {
-            return Ice.UDPEndpointType.value;
-        }
-        
-        //
-        // Return the protocol name;
-        //
-        public override string protocol()
-        {
-            return "udp";
-        }
-
-        //
-        // Return the timeout for the endpoint in milliseconds. 0 means
-        // non-blocking, -1 means no timeout.
-        //
-        public override int timeout()
-        {
-            return -1;
-        }
-        
-        //
-        // Return true if the endpoints support bzip2 compress, or false
-        // otherwise.
-        //
-        public override bool compress()
-        {
-            return _compress;
-        }
-        
-        //
-        // Return a new endpoint with a different compression value,
-        // provided that compression is supported by the
-        // endpoint. Otherwise the same endpoint is returned.
-        //
-        public override EndpointI compress(bool compress)
-        {
-            if(compress == _compress)
-            {
-                return this;
-            }
-            else
-            {
-                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId_, 
-                                        compress);
-            }
-        }
-
-        //
-        // Return a new endpoint with a different connection id.
-        //
-        public override EndpointI connectionId(string connectionId)
-        {
-            if(connectionId == connectionId_)
-            {
-                return this;
-            }
-            else
-            {
-                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId, 
-                                        _compress);
-            }
-        }
-        
-        //
-        // Return a new endpoint with a different timeout value, provided
-        // that timeouts are supported by the endpoint. Otherwise the same
-        // endpoint is returned.
-        //
-        public override EndpointI timeout(int timeout)
-        {
-            return this;
-        }
-        
-        //
-        // Return true if the endpoint is datagram-based.
-        //
-        public override bool datagram()
-        {
-            return true;
-        }
-        
-        //
-        // Return true if the endpoint is secure.
-        //
-        public override bool secure()
-        {
-            return false;
-        }
-
-        //
-        // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor. In case a
-        // transceiver is created, this operation also returns a new
-        // "effective" endpoint, which might differ from this endpoint,
-        // for example, if a dynamic port number is assigned.
-        //
-        public override Transceiver transceiver(ref EndpointI endpoint)
-        {
-            UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
-            endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
-                                        _connect, connectionId_, _compress);
-            return p;
-        }
-
-        //
-        // Return a connector for this endpoint, or empty list if no connector
-        // is available.
-        //
-        public override List<Connector> connectors(Ice.EndpointSelectionType selType)
-        {
-            return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport(), selType,
-                                                   instance_.preferIPv6(), true),
-                              instance_.networkProxy());
-        }
-
-
-        public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
-        {
-#if SILVERLIGHT
-            callback.connectors(connectors(selType));
-#else
-            instance_.endpointHostResolver().resolve(_host, _port, selType, this, callback);
-#endif
-        }
-        
-        //
-        // Return an acceptor for this endpoint, or null if no acceptors
-        // is available. In case an acceptor is created, this operation
-        // also returns a new "effective" endpoint, which might differ
-        // from this endpoint, for example, if a dynamic port number is
-        // assigned.
-        //
-        public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
-        {
-            endpoint = this;
-            return null;
-        }
-
-        //
-        // Expand endpoint out in to separate endpoints for each local
-        // host if listening on INADDR_ANY.
-        //
-        public override List<EndpointI>
-        expand()
-        {
-            List<EndpointI> endps = new List<EndpointI>();
-            List<string> hosts = Network.getHostsForEndpointExpand(_host, instance_.protocolSupport(), false);
-            if(hosts == null || hosts.Count == 0)
-            {
-                endps.Add(this);
-            }
-            else
-            {
-                foreach(string h in hosts)
-                {
-                    endps.Add(new UdpEndpointI(instance_, h, _port, _mcastInterface, _mcastTtl, _connect, 
-                                               connectionId_, _compress));
-                }
-            }
-            return endps;
-        }
-
-        //
-        // Check whether the endpoint is equivalent to another one.
-        //
-        public override bool equivalent(EndpointI endpoint)
-        {
-            if(!(endpoint is UdpEndpointI))
-            {
-                return false;
-            }
-
-            UdpEndpointI udpEndpointI = (UdpEndpointI)endpoint;
-            return udpEndpointI._host.Equals(_host) && udpEndpointI._port == _port;
-        }
-
-        public override List<Connector> connectors(List<EndPoint> addresses, NetworkProxy networkProxy)
-        {
-            List<Connector> connectors = new List<Connector>();
-            foreach(EndPoint addr in addresses)
-            {
-                connectors.Add(new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, connectionId_));
-            }
-            return connectors;
-        }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
-        
         //
         // Compare endpoints for sorting purposes
         //
@@ -591,24 +225,7 @@ namespace IceInternal
             {
                 return 0;
             }
-            else
-            {
-                int r = base.CompareTo(p);
-                if(r != 0)
-                {
-                    return r;
-                }
-            }
-            
-            if(_port < p._port)
-            {
-                return -1;
-            }
-            else if(p._port < _port)
-            {
-                return 1;
-            }
-            
+
             if(!_connect && p._connect)
             {
                 return -1;
@@ -616,11 +233,6 @@ namespace IceInternal
             else if(!p._connect && _connect)
             {
                 return 1;
-            }
-            
-            if(!connectionId_.Equals(p.connectionId_))
-            {
-                return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
             }
 
             if(!_compress && p._compress)
@@ -631,13 +243,13 @@ namespace IceInternal
             {
                 return 1;
             }
-            
+
             int rc = string.Compare(_mcastInterface, p._mcastInterface, StringComparison.Ordinal);
             if(rc != 0)
             {
                 return rc;
             }
-            
+
             if(_mcastTtl < p._mcastTtl)
             {
                 return -1;
@@ -647,66 +259,203 @@ namespace IceInternal
                 return 1;
             }
 
-            return string.Compare(_host, p._host, StringComparison.Ordinal);
+            return base.CompareTo(p);
         }
-        
-        private void calcHashValue()
+
+        //
+        // Marshal the endpoint
+        //
+        protected override void streamWriteImpl(BasicStream s)
         {
-            int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, Ice.UDPEndpointType.value);
-            IceInternal.HashUtil.hashAdd(ref h, _host);
-            IceInternal.HashUtil.hashAdd(ref h, _port);
+            base.streamWriteImpl(s);
+            if(s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
+            {
+                Ice.Util.Protocol_1_0.write__(s);
+                Ice.Util.Encoding_1_0.write__(s);
+            }
+            // Not transmitted.
+            //s.writeBool(_connect);
+            s.writeBool(_compress);
+        }
+
+        protected override void hashInit(ref int h)
+        {
+            base.hashInit(ref h);
             IceInternal.HashUtil.hashAdd(ref h, _mcastInterface);
             IceInternal.HashUtil.hashAdd(ref h, _mcastTtl);
             IceInternal.HashUtil.hashAdd(ref h, _connect);
-            IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             IceInternal.HashUtil.hashAdd(ref h, _compress);
-            _hashCode = h;
         }
-        
-        private Instance instance_;
-        private string _host;
-        private int _port;
+
+        protected override void fillEndpointInfo(Ice.IPEndpointInfo info)
+        {
+            base.fillEndpointInfo(info);
+            if(info is Ice.UDPEndpointInfo)
+            {
+                Ice.UDPEndpointInfo udpInfo = (Ice.UDPEndpointInfo)info;
+                udpInfo.timeout = -1;
+                udpInfo.compress = _compress;
+                udpInfo.mcastInterface = _mcastInterface;
+                udpInfo.mcastTtl = _mcastTtl;
+            }
+        }
+
+        protected override bool checkOption(string option, string argument, string endpoint)
+        {
+            if(base.checkOption(option, argument, endpoint))
+            {
+                return true;
+            }
+
+            if(option.Equals("-c"))
+            {
+                if(argument != null)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "unexpected argument `" + argument + "' provided for -c option in " + endpoint;
+                    throw e;
+                }
+
+                _connect = true;
+            }
+            else if(option.Equals("-z"))
+            {
+                if(argument != null)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
+                    throw e;
+                }
+
+                _compress = true;
+            }
+            else if(option.Equals("-v") || option.Equals("-e"))
+            {
+                if(argument == null)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "no argument provided for " + option + " option in endpoint " + endpoint;
+                    throw e;
+                }
+
+                try
+                {
+                    Ice.EncodingVersion v = Ice.Util.stringToEncodingVersion(argument);
+                    if(v.major != 1 || v.minor != 0)
+                    {
+                        instance_.logger().warning("deprecated udp endpoint option: " + option);
+                    }
+                }
+                catch(Ice.VersionParseException ex)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str;
+                    throw e;
+                }
+            }
+            else if(option.Equals("--interface"))
+            {
+                if(argument == null)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "no argument provided for --interface option in endpoint " + endpoint;
+                    throw e;
+                }
+
+                _mcastInterface = argument;
+            }
+            else if(option.Equals("--ttl"))
+            {
+                if(argument == null)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "no argument provided for --ttl option in endpoint " + endpoint;
+                    throw e;
+                }
+
+                try
+                {
+                    _mcastTtl = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                }
+                catch(System.FormatException ex)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                    e.str = "invalid TTL value `" + argument + "' in endpoint " + endpoint;
+                    throw e;
+                }
+
+                if(_mcastTtl < 0)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "TTL value `" + argument + "' out of range in endpoint " + endpoint;
+                    throw e;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
+        {
+            return new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, connectionId_);
+        }
+
+        protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
+        {
+            return new UdpEndpointI(instance_, host, port, _mcastInterface, _mcastTtl, _connect, connectionId,
+                                    _compress);
+        }
+
         private string _mcastInterface = "";
         private int _mcastTtl = -1;
         private bool _connect;
         private bool _compress;
-        private int _hashCode;
     }
 
     sealed class UdpEndpointFactory : EndpointFactory
     {
-        internal UdpEndpointFactory(Instance instance)
+        internal UdpEndpointFactory(ProtocolInstance instance)
         {
-            instance_ = instance;
+            _instance = instance;
         }
-        
+
         public short type()
         {
-            return Ice.UDPEndpointType.value;
+            return _instance.type();
         }
-        
+
         public string protocol()
         {
-            return "udp";
+            return _instance.protocol();
         }
-        
-        public EndpointI create(string str, bool oaEndpoint)
+
+        public EndpointI create(List<string> args, bool oaEndpoint)
         {
-            return new UdpEndpointI(instance_, str, oaEndpoint);
+            IPEndpointI endpt = new UdpEndpointI(_instance);
+            endpt.initWithOptions(args, oaEndpoint);
+            return endpt;
         }
-        
+
         public EndpointI read(BasicStream s)
         {
-            return new UdpEndpointI(s);
+            return new UdpEndpointI(_instance, s);
         }
-        
+
         public void destroy()
         {
-            instance_ = null;
+            _instance = null;
         }
-        
-        private Instance instance_;
+
+        public EndpointFactory clone(ProtocolInstance instance)
+        {
+            return new UdpEndpointFactory(instance);
+        }
+
+        private ProtocolInstance _instance;
     }
 
 }

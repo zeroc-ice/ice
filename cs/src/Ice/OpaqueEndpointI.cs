@@ -16,162 +16,47 @@ namespace IceInternal
 
     sealed class OpaqueEndpointI : EndpointI
     {
-        public OpaqueEndpointI(string str) : base("")
+        public OpaqueEndpointI(List<string> args)
         {
+            _type = -1;
             _rawEncoding = Ice.Util.Encoding_1_0;
+            _rawBytes = new byte[0];
 
-            int topt = 0;
-            int vopt = 0;
+            initWithOptions(args);
 
-            char[] separators = { ' ', '\t', '\n', '\r' };
-            string[] arr = str.Split(separators);
-
-            int i = 0;
-            while(i < arr.Length)
+            if(_type < 0)
             {
-                if(arr[i].Length == 0)
-                {
-                    i++;
-                    continue;
-                }
-
-                string option = arr[i++];
-                if(option.Length != 2 || option[0] != '-')
-                {
-                    throw new Ice.EndpointParseException("expected an endpoint option but found `" + option +
-                                                         "' in endpoint `opaque " + str + "'");
-                }
-
-                string argument = null;
-                if(i < arr.Length && arr[i][0] != '-')
-                {
-                    argument = arr[i++];
-                }
-
-                switch(option[1])
-                {
-                    case 't':
-                    {
-                        if(argument == null)
-                        {
-                            throw new Ice.EndpointParseException(
-                                "no argument provided for -t option in endpoint `opaque " + str + "'");
-                        }
-
-                        int t;
-                        try
-                        {
-                            t = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                        }
-                        catch(System.FormatException)
-                        {
-                            throw new Ice.EndpointParseException("invalid timeout value `" + argument +
-                                                                 "' in endpoint `opaque " + str + "'");
-                        }
-
-                        if(t < 0 || t > 65535)
-                        {
-                            throw new Ice.EndpointParseException("timeout value `" + argument +
-                                                                 "' out of range in endpoint `opaque " + str + "'");
-                        }
-
-                        _type = (short)t;
-                        ++topt;
-                        if(topt > 1)
-                        {
-                            throw new Ice.EndpointParseException("multiple -t options in endpoint `opaque " + str +
-                                                                 "'");
-                        }
-                        break;
-                    }
-
-                    case 'e':
-                    {
-                        if(argument == null)
-                        {
-                            throw new Ice.EndpointParseException(
-                                "no argument provided for -e option in endpoint `opaque " + str + "'");
-                        }
-                        
-                        try
-                        {
-                            _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
-                        }
-                        catch(Ice.VersionParseException e)
-                        {
-                            throw new Ice.EndpointParseException("invalid encoding version `" + argument + 
-                                                                 "' in endpoint `opaque " + str + "':\n" + e.str);
-                        }
-                        break;
-                    }
-                    
-                    case 'v':
-                    {
-                        if(argument == null)
-                        {
-                            throw new Ice.EndpointParseException(
-                                "no argument provided for -v option in endpoint `opaque " + str + "'");
-                        }
-                        for(int j = 0; j < argument.Length; ++j)
-                        {
-                            if(!IceUtilInternal.Base64.isBase64(argument[j]))
-                            {
-                                throw new Ice.EndpointParseException(
-                                    "invalid base64 character `" + argument[j] + "' (ordinal " +
-                                    ((int)argument[j]) + ") in endpoint `opaque " + str + "'");
-                            }
-                        }
-                        _rawBytes = IceUtilInternal.Base64.decode(argument);
-                        ++vopt;
-                        if(vopt > 1)
-                        {
-                            throw new Ice.EndpointParseException("multiple -v options in endpoint `opaque " + str +
-                                                                 "'");
-                        }
-                        break;
-                    }
-
-                    default:
-                    {
-                        throw new Ice.EndpointParseException("invalid option `" + option + "' in endpoint `opaque " +
-                                                              str + "'");
-                    }
-                }
+                throw new Ice.EndpointParseException("no -t option in endpoint " + ToString());
+            }
+            if(_rawBytes.Length == 0)
+            {
+                throw new Ice.EndpointParseException("no -v option in endpoint " + ToString());
             }
 
-            if(topt != 1)
-            {
-                throw new Ice.EndpointParseException("no -t option in endpoint `opaque " + str + "'");
-            }
-            if(vopt != 1)
-            {
-                throw new Ice.EndpointParseException("no -v option in endpoint `opaque " + str + "'");
-            }
             calcHashValue();
         }
 
         public OpaqueEndpointI(short type, BasicStream s)
         {
             _type = type;
-            _rawEncoding = s.startReadEncaps();
+            _rawEncoding = s.getReadEncoding();
             int sz = s.getReadEncapsSize();
             _rawBytes = new byte[sz];
             s.readBlob(_rawBytes);
-            s.endReadEncaps();
+
             calcHashValue();
         }
-        
+
         //
         // Marshal the endpoint
         //
         public override void streamWrite(BasicStream s)
         {
-            s.writeShort(_type);
             s.startWriteEncaps(_rawEncoding, Ice.FormatType.DefaultFormat);
             s.writeBlob(_rawBytes);
             s.endWriteEncaps();
         }
-        
+
         //
         // Convert the endpoint to its string form
         //
@@ -183,9 +68,9 @@ namespace IceInternal
 
         private sealed class InfoI : Ice.OpaqueEndpointInfo
         {
-            public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes) : 
+            public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes) :
                 base(-1, false, rawEncoding, rawBytes)
-            {                
+            {
                 _type = type;
             }
 
@@ -193,19 +78,19 @@ namespace IceInternal
             {
                 return _type;
             }
-                
+
             override public bool datagram()
             {
                 return false;
             }
-                
+
             override public bool secure()
             {
                 return false;
             }
 
             private readonly short _type;
-        };
+        }
 
         //
         // Return the endpoint information.
@@ -222,7 +107,7 @@ namespace IceInternal
         {
             return _type;
         }
-        
+
         //
         // Return the protocol name;
         //
@@ -239,7 +124,7 @@ namespace IceInternal
         {
             return -1;
         }
-        
+
         //
         // Return a new endpoint with a different timeout value, provided
         // that timeouts are supported by the endpoint. Otherwise the same
@@ -250,6 +135,11 @@ namespace IceInternal
             return this;
         }
 
+        public override string connectionId()
+        {
+            return "";
+        }
+
         //
         // Return a new endpoint with a different connection id.
         //
@@ -257,7 +147,7 @@ namespace IceInternal
         {
             return this;
         }
-        
+
         //
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
@@ -266,7 +156,7 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
         // Return a new endpoint with a different compression value,
         // provided that compression is supported by the
@@ -276,7 +166,7 @@ namespace IceInternal
         {
             return this;
         }
-        
+
         //
         // Return true if the endpoint is datagram-based.
         //
@@ -284,13 +174,21 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
         // Return true if the endpoint is secure.
         //
         public override bool secure()
         {
             return false;
+        }
+
+        //
+        // Get the encoded endpoint.
+        //
+        public byte[] rawBytes()
+        {
+            return _rawBytes;
         }
 
         //
@@ -338,14 +236,13 @@ namespace IceInternal
         // host if listening on INADDR_ANY on server side or if no host
         // was specified on client side.
         //
-        public override List<EndpointI>
-        expand()
+        public override List<EndpointI> expand()
         {
             List<EndpointI> endps = new List<EndpointI>();
             endps.Add(this);
             return endps;
         }
-        
+
         //
         // Check whether the endpoint is equivalent to another one.
         //
@@ -358,7 +255,22 @@ namespace IceInternal
         {
             return _hashCode;
         }
-        
+
+        public override string options()
+        {
+            string s = "";
+            if(_type > -1)
+            {
+                s += " -t " + _type;
+            }
+            s += " -e " + Ice.Util.encodingVersionToString(_rawEncoding);
+            if(_rawBytes.Length > 0)
+            {
+                s += " -v " + IceUtilInternal.Base64.encode(_rawBytes);
+            }
+            return s;
+        }
+
         //
         // Compare endpoints for sorting purposes
         //
@@ -383,7 +295,7 @@ namespace IceInternal
             {
                 return 1;
             }
-            
+
             if(_rawEncoding.major < p._rawEncoding.major)
             {
                 return -1;
@@ -421,10 +333,96 @@ namespace IceInternal
                     return 1;
                 }
             }
-            
+
             return 0;
         }
-        
+
+        protected override bool checkOption(string option, string argument, string endpoint)
+        {
+            switch(option[1])
+            {
+            case 't':
+            {
+                if(_type > -1)
+                {
+                    throw new Ice.EndpointParseException("multiple -t options in endpoint " + endpoint);
+                }
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
+                }
+
+                int t;
+                try
+                {
+                    t = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                }
+                catch(System.FormatException)
+                {
+                    throw new Ice.EndpointParseException("invalid type value `" + argument + "' in endpoint " +
+                                                         endpoint);
+                }
+
+                if(t < 0 || t > 65535)
+                {
+                    throw new Ice.EndpointParseException("type value `" + argument + "' out of range in endpoint " +
+                                                         endpoint);
+                }
+
+                _type = (short)t;
+                return true;
+            }
+
+            case 'v':
+            {
+                if(_rawBytes.Length > 0)
+                {
+                    throw new Ice.EndpointParseException("multiple -v options in endpoint " + endpoint);
+                }
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
+                }
+
+                for(int j = 0; j < argument.Length; ++j)
+                {
+                    if(!IceUtilInternal.Base64.isBase64(argument[j]))
+                    {
+                        throw new Ice.EndpointParseException("invalid base64 character `" + argument[j] +
+                                                             "' (ordinal " + ((int)argument[j]) +
+                                                             ") in endpoint " + endpoint);
+                    }
+                }
+                _rawBytes = IceUtilInternal.Base64.decode(argument);
+                return true;
+            }
+
+            case 'e':
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for -e option in endpoint " + endpoint);
+                }
+
+                try
+                {
+                    _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
+                }
+                catch(Ice.VersionParseException e)
+                {
+                    throw new Ice.EndpointParseException("invalid encoding version `" + argument +
+                                                         "' in endpoint " + endpoint + ":\n" + e.str);
+                }
+                return true;
+            }
+
+            default:
+            {
+                return false;
+            }
+            }
+        }
+
         private void calcHashValue()
         {
             int h = 5381;
@@ -433,7 +431,7 @@ namespace IceInternal
             IceInternal.HashUtil.hashAdd(ref h, _rawBytes);
             _hashCode = h;
         }
-        
+
         private short _type;
         private Ice.EncodingVersion _rawEncoding;
         private byte[] _rawBytes;

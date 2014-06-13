@@ -51,6 +51,7 @@ SRCS		= Acceptor.cs \
 		  Incoming.cs \
 		  Instance.cs \
 		  InstrumentationI.cs \
+		  IPEndpointI.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
@@ -77,6 +78,7 @@ SRCS		= Acceptor.cs \
 		  Property.cs \
 		  PropertyNames.cs \
 		  Protocol.cs \
+		  ProtocolInstance.cs \
 		  ProtocolPluginFacade.cs \
 		  Proxy.cs \
 		  ProxyFactory.cs \

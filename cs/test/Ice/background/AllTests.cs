@@ -86,6 +86,10 @@ public class AllTests
             _response.called();
         }
 
+        public void responseNoOp()
+        {
+        }
+
         public void noResponse()
         {
             test(false);
@@ -326,6 +330,40 @@ public class AllTests
             test(r2.IsCompleted);
         }
         Console.Out.WriteLine("ok");
+
+        bool ws = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("test-ws");
+        bool wss = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss");
+        if(!ws && !wss)
+        {
+            Console.Write("testing buffered transport... ");
+            Console.Out.Flush();
+
+            configuration.buffered(true);
+            backgroundController.buffered(true);
+            background.begin_op();
+            background.ice_getCachedConnection().close(true);
+            background.begin_op();
+
+            Ice.AsyncResult r;
+            OpAMICallback cb = new OpAMICallback();
+
+            for(int i = 0; i < 10000; ++i)
+            {
+                r = background.begin_op().whenCompleted(cb.responseNoOp, cb.noException);
+                if(i % 50 == 0)
+                {
+                    backgroundController.holdAdapter();
+                    backgroundController.resumeAdapter();
+                }
+                if(i % 100 == 0)
+                {
+                    r.waitForCompleted();
+                }
+            }
+            r.waitForCompleted();
+
+            Console.Out.WriteLine("ok");
+        }
 
         return background;
     }

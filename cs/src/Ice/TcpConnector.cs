@@ -16,27 +16,25 @@ namespace IceInternal
 
     sealed class TcpConnector : Connector
     {
-        internal const short TYPE = 1;
-
         public Transceiver connect()
         {
-            if(_traceLevels.network >= 2)
+            if(_instance.traceLevel() >= 2)
             {
-                string s = "trying to establish tcp connection to " + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                string s = "trying to establish " + _instance.protocol() + " connection to " + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             try
             {
 #if SILVERLIGHT
                 Socket fd = Network.createSocket(false, _addr.AddressFamily == AddressFamily.InterNetworkV6 ?
-                                                        AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+                                                 AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 #else
                 Socket fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(fd, false);
 #endif
 #if !COMPACT
-                Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
+                Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
 #endif
 
                 //
@@ -46,10 +44,11 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                if(_traceLevels.network >= 2)
+                if(_instance.traceLevel() >= 2)
                 {
-                    string s = "failed to establish tcp connection to " + ToString() + "\n" + ex;
-                    _logger.trace(_traceLevels.networkCat, s);
+                    string s = "failed to establish " + _instance.protocol() + " connection to " + ToString() + "\n" +
+                        ex;
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
                 throw;
             }
@@ -57,17 +56,16 @@ namespace IceInternal
 
         public short type()
         {
-            return Ice.UDPEndpointType.value;
+            return _instance.type();
         }
 
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(Instance instance, EndPoint addr, NetworkProxy proxy, int timeout, string connectionId)
+        internal TcpConnector(ProtocolInstance instance, EndPoint addr, NetworkProxy proxy, int timeout,
+                              string connectionId)
         {
             _instance = instance;
-            _traceLevels = instance.traceLevels();
-            _logger = instance.initializationData().logger;
             _addr = addr;
             _proxy = proxy;
             _timeout = timeout;
@@ -115,9 +113,7 @@ namespace IceInternal
             return _hashCode;
         }
 
-        private Instance _instance;
-        private TraceLevels _traceLevels;
-        private Ice.Logger _logger;
+        private ProtocolInstance _instance;
         private EndPoint _addr;
         private NetworkProxy _proxy;
         private int _timeout;

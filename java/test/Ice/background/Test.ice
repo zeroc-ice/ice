@@ -18,8 +18,8 @@ module Test
 
 interface Background
 {
-    ["ami"] void op();
-    ["ami"] void opWithPayload(Ice::ByteSeq seq);
+    void op();
+    void opWithPayload(Ice::ByteSeq seq);
 
     void shutdown();
 };
@@ -28,7 +28,7 @@ interface BackgroundController
 {
     void pauseCall(string call);
     void resumeCall(string call);
-    
+
     void holdAdapter();
     void resumeAdapter();
 
@@ -40,6 +40,8 @@ interface BackgroundController
 
     void writeReady(bool enable);
     void writeException(bool enable);
+
+    void buffered(bool enable);
 };
 
 };

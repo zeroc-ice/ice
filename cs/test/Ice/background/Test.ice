@@ -10,6 +10,7 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Endpoint.ice>
 
 module Test
 {
@@ -37,6 +38,9 @@ interface BackgroundController
 
     void writeReady(bool enable);
     void writeException(bool enable);
+
+    void buffered(bool enable);
 };
 
 };
+

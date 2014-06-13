@@ -38,7 +38,7 @@ namespace IceInternal
         }
 
         
-        public List<Connector> resolve(string host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint)
+        public List<Connector> resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint)
         {
             //
             // Try to get the addresses without DNS lookup. If this doesn't
@@ -95,7 +95,7 @@ namespace IceInternal
             return connectors;
         }
 
-        public void resolve(string host, int port, Ice.EndpointSelectionType selType, EndpointI endpoint, 
+        public void resolve(string host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint,
                             EndpointI_connectors callback)
         {
             //
@@ -296,7 +296,7 @@ namespace IceInternal
             internal string host;
             internal int port;
             internal Ice.EndpointSelectionType selType;
-            internal EndpointI endpoint;
+            internal IPEndpointI endpoint;
             internal EndpointI_connectors callback;
             internal Ice.Instrumentation.Observer observer;
         }

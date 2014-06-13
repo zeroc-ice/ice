@@ -105,9 +105,10 @@ final class Transceiver implements IceInternal.Transceiver
                         return IceInternal.SocketOperation.Read;
                     }
                 }
-                assert(_readBuffer.b.position() > _readBufferPos);
-                int requested = buf.b.remaining();
-                int available = _readBuffer.b.position() - _readBufferPos;
+                final int pos = _readBuffer.b.position();
+                assert(pos > _readBufferPos);
+                final int requested = buf.b.remaining();
+                int available = pos - _readBufferPos;
                 assert(available > 0);
                 if(available >= requested)
                 {
@@ -115,9 +116,11 @@ final class Transceiver implements IceInternal.Transceiver
                 }
 
                 byte[] arr = new byte[available];
+                _readBuffer.b.position(_readBufferPos);
                 _readBuffer.b.get(arr);
                 buf.b.put(arr);
                 _readBufferPos += available;
+                _readBuffer.b.position(pos);
             }
             moreData.value = _readBufferPos < _readBuffer.b.position();
             return IceInternal.SocketOperation.None;

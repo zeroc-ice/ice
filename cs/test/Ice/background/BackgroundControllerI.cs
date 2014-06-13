@@ -92,6 +92,11 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
         _configuration.writeException(enable ? new Ice.SocketException() : null);
     }
 
+    public override void buffered(bool enable, Ice.Current current)
+    {
+        _configuration.buffered(enable);
+    }
+
     internal BackgroundControllerI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;

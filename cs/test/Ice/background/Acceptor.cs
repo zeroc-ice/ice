@@ -37,6 +37,11 @@ internal class Acceptor : IceInternal.Acceptor
         return new Transceiver(_acceptor.accept());
     }
 
+    public string protocol()
+    {
+        return _acceptor.protocol();
+    }
+
     public override string ToString()
     {
         return _acceptor.ToString();

@@ -28,20 +28,6 @@ public final class OutgoingConnectionFactory
             list.add(value);
         }
 
-        /*
-        public void
-        removeElementWithValue(K key, V value)
-        {
-            java.util.List<V> list = this.get(key);
-            assert(list != null);
-            list.remove(value);
-            if(list.isEmpty())
-            {
-                this.remove(key);
-            }
-        }
-        */
-
         public boolean
         removeElementWithValue(K key, V value)
         {
@@ -54,7 +40,7 @@ public final class OutgoingConnectionFactory
             }
             return v;
         }
-    };
+    }
 
     interface CreateConnectionCallback
     {

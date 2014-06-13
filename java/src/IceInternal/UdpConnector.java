@@ -38,7 +38,7 @@ final class UdpConnector implements Connector
     }
 
     //
-    // Only for use by TcpEndpoint
+    // Only for use by UdpEndpointI
     //
     UdpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl,
                  String connectionId)

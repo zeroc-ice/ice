@@ -9,14 +9,17 @@
 
 namespace IceInternal
 {
+    using System.Collections.Generic;
 
     public interface EndpointFactory
     {
         short type();
         string protocol();
-        EndpointI create(string str, bool oaEndpoint);
+        EndpointI create(List<string> args, bool oaEndpoint);
         EndpointI read(BasicStream s);
         void destroy();
+
+        EndpointFactory clone(ProtocolInstance instance);
     }
 
 }

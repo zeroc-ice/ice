@@ -152,6 +152,26 @@ public class AllTests
         private Callback _sent = new Callback();
     }
 
+    private static class OpAMICallbackNoOp extends Callback_Background_op
+    {
+        @Override
+        public void response()
+        {
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void sent(boolean ss)
+        {
+        }
+    }
+
     private static class NoResponse extends Callback_Background_opWithPayload
     {
         @Override
@@ -370,6 +390,40 @@ public class AllTests
             test(r2.isCompleted());
         }
         out.println("ok");
+
+        final boolean ws = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("test-ws");
+        final boolean wss = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("test-wss");
+        if(!ws && !wss)
+        {
+            out.print("testing buffered transport... ");
+            out.flush();
+
+            configuration.buffered(true);
+            backgroundController.buffered(true);
+            background.begin_op();
+            background.ice_getCachedConnection().close(true);
+            background.begin_op();
+
+            Ice.AsyncResult r = null;
+            OpAMICallbackNoOp cb = new OpAMICallbackNoOp();
+
+            for(int i = 0; i < 10000; ++i)
+            {
+                r = background.begin_op(cb);
+                if(i % 50 == 0)
+                {
+                    backgroundController.holdAdapter();
+                    backgroundController.resumeAdapter();
+                }
+                if(i % 100 == 0)
+                {
+                    r.waitForCompleted();
+                }
+            }
+            r.waitForCompleted();
+
+            out.println("ok");
+        }
 
         return background;
     }

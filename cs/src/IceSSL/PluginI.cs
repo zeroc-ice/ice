@@ -26,8 +26,7 @@ namespace IceSSL
         /// <returns>The new plug-in. null can be returned to indicate
         /// that a general error occurred. Alternatively, create can throw
         /// PluginInitializationException to provide more detailed information.</returns>
-        public Ice.Plugin
-        create(Ice.Communicator communicator, string name, string[] args)
+        public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
         {
             return new PluginI(communicator);
         }
@@ -35,47 +34,55 @@ namespace IceSSL
 
     public sealed class PluginI : Plugin
     {
-        public
-        PluginI(Ice.Communicator communicator)
+        public PluginI(Ice.Communicator communicator)
         {
-            instance_ = new Instance(communicator);
+            IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
+
+            _sharedInstance = new SharedInstance(facade);
+
+            //
+            // Register the endpoint factory. We have to do this now, rather than
+            // in initialize, because the communicator may need to interpret
+            // proxies before the plug-in is fully initialized.
+            //
+            facade.addEndpointFactory(
+                new EndpointFactoryI(new Instance(_sharedInstance, IceSSL.EndpointType.value, "ssl")));
         }
 
         public override void initialize()
         {
-            instance_.initialize();
+            _sharedInstance.initialize();
         }
 
-        public override void
-        destroy()
+        public override void destroy()
         {
         }
 
         public override void setCertificates(X509Certificate2Collection certs)
         {
-            instance_.setCertificates(certs);
+            _sharedInstance.setCertificates(certs);
         }
 
         public override void setCertificateVerifier(CertificateVerifier verifier)
         {
-            instance_.setCertificateVerifier(verifier);
+            _sharedInstance.setCertificateVerifier(verifier);
         }
 
         public override CertificateVerifier getCertificateVerifier()
         {
-            return instance_.getCertificateVerifier();
+            return _sharedInstance.getCertificateVerifier();
         }
 
         public override void setPasswordCallback(PasswordCallback callback)
         {
-            instance_.setPasswordCallback(callback);
+            _sharedInstance.setPasswordCallback(callback);
         }
 
         public override PasswordCallback getPasswordCallback()
         {
-            return instance_.getPasswordCallback();
+            return _sharedInstance.getPasswordCallback();
         }
 
-        private Instance instance_;
+        private SharedInstance _sharedInstance;
     }
 }

@@ -20,18 +20,6 @@ internal class EndpointI : IceInternal.EndpointI
         _configuration = Configuration.getInstance();
     }
 
-    //
-    // Marshal the endpoint
-    //
-    public override void streamWrite(IceInternal.BasicStream s)
-    {
-        s.writeShort(type());
-        _endpoint.streamWrite(s);
-    }
-
-    //
-    // Convert the endpoint to its string form
-    //
     public override string ice_toString_()
     {
         return "test-" + _endpoint.ToString();
@@ -42,36 +30,29 @@ internal class EndpointI : IceInternal.EndpointI
         return _endpoint.getInfo();
     }
 
-    //
-    // Return the endpoint type
-    //
+    public override void streamWrite(IceInternal.BasicStream s)
+    {
+        s.startWriteEncaps();
+        s.writeShort(_endpoint.type());
+        _endpoint.streamWrite(s);
+        s.endWriteEncaps();
+    }
+
     public override short type()
     {
         return (short)(TYPE_BASE + _endpoint.type());
     }
 
-    //
-    // Return the protocol name;
-    //
     public override string protocol()
     {
         return _endpoint.protocol();
     }
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
     public override int timeout()
     {
         return _endpoint.timeout();
     }
 
-    //
-    // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
     public override IceInternal.EndpointI timeout(int timeout)
     {
         IceInternal.EndpointI endpoint = _endpoint.timeout(timeout);
@@ -85,9 +66,11 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    //
-    // Return a new endpoint with a different connection id.
-    //
+    public override string connectionId()
+    {
+        return _endpoint.connectionId();
+    }
+
     public override IceInternal.EndpointI connectionId(string connectionId)
     {
         IceInternal.EndpointI endpoint = _endpoint.connectionId(connectionId);
@@ -101,20 +84,11 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
     public override bool compress()
     {
         return _endpoint.compress();
     }
 
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
     public override IceInternal.EndpointI compress(bool compress)
     {
         IceInternal.EndpointI endpoint = _endpoint.compress(compress);
@@ -128,29 +102,16 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    //
-    // Return true if the endpoint is datagram-based.
-    //
     public override bool datagram()
     {
         return _endpoint.datagram();
     }
 
-    //
-    // Return true if the endpoint is secure.
-    //
     public override bool secure()
     {
         return _endpoint.secure();
     }
 
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor. In case a
-    // transceiver is created, this operation also returns a new
-    // "effective" endpoint, which might differ from this endpoint,
-    // for example, if a dynamic port number is assigned.
-    //
     public override IceInternal.Transceiver transceiver(ref IceInternal.EndpointI endpoint)
     {
         IceInternal.Transceiver transceiver = _endpoint.transceiver(ref endpoint);
@@ -173,10 +134,6 @@ internal class EndpointI : IceInternal.EndpointI
         }
     }
 
-    //
-    // Return connectors for this endpoint, or empty list if no connector
-    // is available.
-    //
     public override List<IceInternal.Connector> connectors(Ice.EndpointSelectionType selType)
     {
         _configuration.checkConnectorsException();
@@ -257,14 +214,16 @@ internal class EndpointI : IceInternal.EndpointI
         return testEndpoint._endpoint.equivalent(_endpoint);
     }
 
+    public override string options()
+    {
+        return _endpoint.options();
+    }
+
     public override int GetHashCode()
     {
         return _endpoint.GetHashCode();
     }
 
-    //
-    // Compare endpoints for sorting purposes
-    //
     public override int CompareTo(IceInternal.EndpointI obj)
     {
         EndpointI p = null;

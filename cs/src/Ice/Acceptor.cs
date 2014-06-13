@@ -20,6 +20,7 @@ namespace IceInternal
         bool startAccept(AsyncCallback callback, object state);
         void finishAccept();
         Transceiver accept();
+        string protocol();
         string ToString();
     }
 

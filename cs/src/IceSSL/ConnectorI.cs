@@ -17,8 +17,6 @@ namespace IceSSL
 
     sealed class ConnectorI : IceInternal.Connector
     {
-        internal const short TYPE = 2;
-
         public IceInternal.Transceiver connect()
         {
             //
@@ -31,10 +29,10 @@ namespace IceSSL
                 throw ex;
             }
 
-            if(_instance.networkTraceLevel() >= 2)
+            if(_instance.traceLevel() >= 2)
             {
-                string s = "trying to establish ssl connection to " + ToString();
-                _logger.trace(_instance.networkTraceCategory(), s);
+                string s = "trying to establish " + _instance.protocol() + " connection to " + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             try
@@ -49,7 +47,7 @@ namespace IceSSL
                 //
                 if(_addr.AddressFamily != AddressFamily.InterNetworkV6 || !IceInternal.AssemblyUtil.xp_)
                 {
-                    IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
+                    IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
                 }
 
                 //
@@ -59,10 +57,11 @@ namespace IceSSL
             }
             catch(Ice.LocalException ex)
             {
-                if(_instance.networkTraceLevel() >= 2)
+                if(_instance.traceLevel() >= 2)
                 {
-                    string s = "failed to establish ssl connection to " + ToString() + "\n" + ex;
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    string s = "failed to establish " + _instance.protocol() + " connection to " + ToString() + "\n" +
+                        ex;
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
                 throw;
             }
@@ -70,20 +69,20 @@ namespace IceSSL
 
         public short type()
         {
-            return TYPE;
+            return _instance.type();
         }
 
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, EndPoint addr, IceInternal.NetworkProxy proxy, int timeout, 
+        internal ConnectorI(Instance instance, string host, EndPoint addr, IceInternal.NetworkProxy proxy, int timeout,
                             string conId)
         {
             _instance = instance;
             _host = host;
-            _logger = instance.communicator().getLogger();
+            _instance.logger() = instance.communicator().getLogger();
             _addr = (IPEndPoint)addr;
-            _proxy = proxy; 
+            _proxy = proxy;
             _timeout = timeout;
             _connectionId = conId;
 
@@ -130,7 +129,6 @@ namespace IceSSL
         }
 
         private Instance _instance;
-        private Ice.Logger _logger;
         private string _host;
         private IPEndPoint _addr;
         private IceInternal.NetworkProxy _proxy;

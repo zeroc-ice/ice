@@ -27,7 +27,7 @@ namespace IceInternal
 
     sealed class UdpTransceiver : Transceiver
     {
-        public int initialize()
+        public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
             if(_state == StateNeedConnect)
             {
@@ -61,7 +61,7 @@ namespace IceInternal
                 {
                     //
                     // On Windows, we delay the join for the mcast group after the connection
-                    // establishment succeeds. This is necessary for older Windows versions 
+                    // establishment succeeds. This is necessary for older Windows versions
                     // where joining the group fails if the socket isn't bound. See ICE-5113.
                     //
                     if(Network.isMulticast((IPEndPoint)_addr))
@@ -73,16 +73,16 @@ namespace IceInternal
                         }
                     }
                 }
-#endif                    
+#endif
                 _state = StateConnected;
             }
 
             if(_state == StateConnected)
             {
-                if(_traceLevels.network >= 1)
+                if(_instance.traceLevel() >= 1)
                 {
-                    string s = "starting to send udp packets\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    string s = "starting to send " + protocol() + " packets\n" + ToString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
                 Debug.Assert(_state == StateConnected);
             }
@@ -90,14 +90,22 @@ namespace IceInternal
             return SocketOperation.None;
         }
 
+        public int closing(bool initiator, Ice.LocalException ex)
+        {
+            //
+            // Nothing to do.
+            //
+            return SocketOperation.None;
+        }
+
         public void close()
         {
-            if(_state >= StateConnected && _traceLevels.network >= 1)
+            if(_state >= StateConnected && _instance.traceLevel() >= 1)
             {
-                string s = "closing udp connection\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                string s = "closing " + protocol() + " connection\n" + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
-            
+
             if(_fd != null)
             {
                 try
@@ -111,16 +119,21 @@ namespace IceInternal
             }
         }
 
-        public bool write(Buffer buf)
+        public int write(Buffer buf)
         {
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
-            // operations on a non-blocking socket. Returning false here forces the
+            // operations on a non-blocking socket. Returning SocketOperation.Write here forces the
             // caller to schedule an asynchronous operation.
             //
-            return false;
+            return SocketOperation.Write;
 #else
+            if(!buf.b.hasRemaining())
+            {
+                return SocketOperation.None;
+            }
+
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null && _state >= StateConnected);
 
@@ -152,10 +165,10 @@ namespace IceInternal
                     {
                         continue;
                     }
-                    
+
                     if(Network.wouldBlock(ex))
                     {
-                        return false;
+                        return SocketOperation.Write;
                     }
 
                     if(Network.connectionLost(ex))
@@ -174,27 +187,33 @@ namespace IceInternal
             }
 
             Debug.Assert(ret > 0);
-            
-            if(_traceLevels.network >= 3)
+
+            if(_instance.traceLevel() >= 3)
             {
-                string s = "sent " + ret + " bytes via udp\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                string s = "sent " + ret + " bytes via " + protocol() + "\n" + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
+
             Debug.Assert(ret == buf.b.limit());
-            return true;
+            return SocketOperation.None;
 #endif
         }
 
-        public bool read(Buffer buf)
+        public int read(Buffer buf, ref bool hasMoreData)
         {
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
-            // operations on a non-blocking socket. Returning false here forces the
+            // operations on a non-blocking socket. Returning SocketOperation.Read here forces the
             // caller to schedule an asynchronous operation.
             //
-            return false;
+            return SocketOperation.Read;
 #else
+            if(!buf.b.hasRemaining())
+            {
+                return SocketOperation.None;
+            }
+
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null);
 
@@ -236,7 +255,7 @@ namespace IceInternal
                 {
                     if(Network.recvTruncated(e))
                     {
-                        // The message was truncated and the whole buffer is filled. We ignore 
+                        // The message was truncated and the whole buffer is filled. We ignore
                         // this error here, it will be detected at the connection level when
                         // the Ice message size is checked against the buffer size.
                         ret = buf.size();
@@ -247,12 +266,12 @@ namespace IceInternal
                     {
                         continue;
                     }
-                    
+
                     if(Network.wouldBlock(e))
                     {
-                        return false;
+                        return SocketOperation.Read;
                     }
-                    
+
                     if(Network.connectionLost(e))
                     {
                         throw new Ice.ConnectionLostException();
@@ -267,7 +286,7 @@ namespace IceInternal
                     throw new Ice.SyscallException(e);
                 }
             }
-                
+
             if(ret == 0)
             {
                 throw new Ice.ConnectionLostException();
@@ -284,23 +303,23 @@ namespace IceInternal
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if(_traceLevels.network >= 1)
+                if(_instance.traceLevel() >= 1)
                 {
-                    string s = "connected udp socket\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    string s = "connected " + protocol() + " socket\n" + ToString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
             }
 
-            if(_traceLevels.network >= 3)
+            if(_instance.traceLevel() >= 3)
             {
-                string s = "received " + ret + " bytes via udp\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                string s = "received " + ret + " bytes via " + protocol() + "\n" + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             buf.resize(ret, true);
             buf.b.position(ret);
 
-            return true;
+            return SocketOperation.None;
 #endif
         }
 
@@ -313,7 +332,7 @@ namespace IceInternal
             buf.b.position(0);
 
             try
-            {                
+            {
                 if(_state == StateConnected)
                 {
                     _readCallback = callback;
@@ -322,7 +341,7 @@ namespace IceInternal
                     _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                     return !_fd.ReceiveAsync(_readEventArgs);
 #else
-                    _readResult = _fd.BeginReceive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, 
+                    _readResult = _fd.BeginReceive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None,
                                                    readCompleted, state);
                     return _readResult.CompletedSynchronously;
 #endif
@@ -349,7 +368,7 @@ namespace IceInternal
                             peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
                         }
                     }
-                    _readResult = _fd.BeginReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, 
+                    _readResult = _fd.BeginReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None,
                                                        ref peerAddr, readCompleted, state);
                     return _readResult.CompletedSynchronously;
 #endif
@@ -424,7 +443,7 @@ namespace IceInternal
             {
                 if(Network.recvTruncated(ex))
                 {
-                    // The message was truncated and the whole buffer is filled. We ignore 
+                    // The message was truncated and the whole buffer is filled. We ignore
                     // this error here, it will be detected at the connection level when
                     // the Ice message size is checked against the buffer size.
                     ret = buf.size();
@@ -435,7 +454,7 @@ namespace IceInternal
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
-                    
+
                     if(Network.connectionRefused(ex))
                     {
                         throw new Ice.ConnectionRefusedException(ex);
@@ -470,17 +489,17 @@ namespace IceInternal
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if(_traceLevels.network >= 1)
+                if(_instance.traceLevel() >= 1)
                 {
                     string s = "connected udp socket\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
             }
 
-            if(_traceLevels.network >= 3)
+            if(_instance.traceLevel() >= 3)
             {
                 string s = "received " + ret + " bytes via udp\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             buf.resize(ret, true);
@@ -521,7 +540,7 @@ namespace IceInternal
                     _writeEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
                     completedSynchronously = !_fd.SendAsync(_writeEventArgs);
 #else
-                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, 
+                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None,
                                                  writeCompleted, state);
                     completedSynchronously = _writeResult.CompletedSynchronously;
 #endif
@@ -633,25 +652,24 @@ namespace IceInternal
             {
                 throw new Ice.ConnectionLostException();
             }
-            
+
             Debug.Assert(ret > 0);
-            
-            if(_traceLevels.network >= 3)
+
+            if(_instance.traceLevel() >= 3)
             {
                 string s = "sent " + ret + " bytes via udp\n" + ToString();
-                _logger.trace(_traceLevels.networkCat, s);
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
             Debug.Assert(ret == buf.b.limit());
             buf.b.position(buf.b.position() + ret);
         }
 
-        public string type()
+        public string protocol()
         {
-            return "udp";
+            return _instance.protocol();
         }
 
-        public Ice.ConnectionInfo
-        getInfo()
+        public Ice.ConnectionInfo getInfo()
         {
             Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
             if(_fd != null)
@@ -695,7 +713,7 @@ namespace IceInternal
             }
 
             //
-            // The maximum packetSize is either the maximum allowable UDP packet size, or 
+            // The maximum packetSize is either the maximum allowable UDP packet size, or
             // the UDP send buffer size (which ever is smaller).
             //
             int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
@@ -730,8 +748,8 @@ namespace IceInternal
             if(_mcastAddr != null)
             {
                 s += "\nmulticast address = " + Network.addrToString(_mcastAddr);
-            }   
-#endif         
+            }
+#endif
             return s;
         }
 
@@ -743,10 +761,9 @@ namespace IceInternal
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl)
+        internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, string mcastInterface, int mcastTtl)
         {
-            _traceLevels = instance.traceLevels();
-            _logger = instance.initializationData().logger;
+            _instance = instance;
             _addr = addr;
 
 #if ICE_SOCKET_ASYNC_API
@@ -758,7 +775,7 @@ namespace IceInternal
             _writeEventArgs.RemoteEndPoint = _addr;
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 #if SILVERLIGHT
-            String policy = instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol");
+            String policy = instance.properties().getProperty("Ice.ClientAccessPolicyProtocol");
             if(policy.Equals("Http"))
             {
                 _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
@@ -766,7 +783,7 @@ namespace IceInternal
             }
             else if(!String.IsNullOrEmpty(policy))
             {
-                _logger.warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
+                _instance.logger().warning("Ignoring invalid Ice.ClientAccessPolicyProtocol value `" + policy + "'");
             }
 #endif
 #endif
@@ -779,14 +796,14 @@ namespace IceInternal
             try
             {
                 _fd = Network.createSocket(true, _addr.AddressFamily);
-                setBufSize(instance);
+                setBufSize(instance.properties());
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
                 if(AssemblyUtil.osx_)
                 {
                     //
                     // On Windows, we delay the join for the mcast group after the connection
-                    // establishment succeeds. This is necessary for older Windows versions 
+                    // establishment succeeds. This is necessary for older Windows versions
                     // where joining the group fails if the socket isn't bound. See ICE-5113.
                     //
                     if(Network.isMulticast((IPEndPoint)_addr))
@@ -810,13 +827,12 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(Instance instance, string host, int port, string mcastInterface, bool connect)
+        internal UdpTransceiver(ProtocolInstance instance, string host, int port, string mcastInterface, bool connect)
         {
-            _traceLevels = instance.traceLevels();
-            _logger = instance.initializationData().logger;
+            _instance = instance;
             _state = connect ? StateNeedConnect : StateNotConnected;
             _incoming = true;
-            
+
             try
             {
                 _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
@@ -825,23 +841,24 @@ namespace IceInternal
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;
                 _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-                
+
                 _writeEventArgs = new SocketAsyncEventArgs();
                 _writeEventArgs.RemoteEndPoint = _addr;
                 _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 #endif
 
                 _fd = Network.createServerSocket(true, _addr.AddressFamily, instance.protocolSupport());
-                setBufSize(instance);
+                setBufSize(instance.properties());
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
 #endif
-                if(_traceLevels.network >= 2)
+                if(_instance.traceLevel() >= 2)
                 {
-                    string s = "attempting to bind to udp socket " + Network.addrToString(_addr);
-                    _logger.trace(_traceLevels.networkCat, s);
+                    string s = "attempting to bind to " + instance.protocol() + " socket " +
+                        Network.addrToString(_addr);
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
-                
+
 #if !SILVERLIGHT
                 if(Network.isMulticast((IPEndPoint)_addr))
                 {
@@ -852,7 +869,7 @@ namespace IceInternal
                         //
                         // Windows does not allow binding to the mcast address itself
                         // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-                        // bi-directional connection won't work because the source 
+                        // bi-directional connection won't work because the source
                         // address won't the multicast address and the client will
                         // therefore reject the datagram.
                         //
@@ -877,13 +894,12 @@ namespace IceInternal
                     if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
                     {
                         //
-                        // Enable SO_REUSEADDR on Unix platforms to allow
-                        // re-using the socket even if it's in the TIME_WAIT
-                        // state. On Windows, this doesn't appear to be
-                        // necessary and enabling SO_REUSEADDR would actually
-                        // not be a good thing since it allows a second
-                        // process to bind to an address even it's already
-                        // bound by another process.
+                        // Enable SO_REUSEADDR on Unix platforms to allow re-using
+                        // the socket even if it's in the TIME_WAIT state. On
+                        // Windows, this doesn't appear to be necessary and
+                        // enabling SO_REUSEADDR would actually not be a good
+                        // thing since it allows a second process to bind to an
+                        // address even it's already bound by another process.
                         //
                         // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
                         // probably be better but it's only supported by recent
@@ -894,18 +910,18 @@ namespace IceInternal
                     _addr = Network.doBind(_fd, _addr);
                 }
 #endif
-                if(_traceLevels.network >= 1)
+                if(_instance.traceLevel() >= 1)
                 {
-                    StringBuilder s = new StringBuilder("starting to receive udp packets\n");
+                    StringBuilder s = new StringBuilder("starting to receive " + instance.protocol() + " packets\n");
                     s.Append(ToString());
                     List<string> interfaces = Network.getHostsForEndpointExpand(
-                        Network.endpointAddressToString(_addr),  instance.protocolSupport(), true);
+                        Network.endpointAddressToString(_addr), instance.protocolSupport(), true);
                     if(interfaces.Count != 0)
                     {
                         s.Append("\nlocal interfaces: ");
                         s.Append(String.Join(", ", interfaces.ToArray()));
                     }
-                    _logger.trace(_traceLevels.networkCat, s.ToString());
+                    _instance.logger().trace(_instance.traceCategory(), s.ToString());
                 }
             }
             catch(Ice.LocalException)
@@ -915,7 +931,7 @@ namespace IceInternal
             }
         }
 
-        private void setBufSize(Instance instance)
+        private void setBufSize(Ice.Properties properties)
         {
             Debug.Assert(_fd != null);
 
@@ -942,11 +958,11 @@ namespace IceInternal
                 //
                 // Get property for buffer size and check for sanity.
                 //
-                int sizeRequested =
-                    instance.initializationData().properties.getPropertyAsIntWithDefault(prop, dfltSize);
+                int sizeRequested = properties.getPropertyAsIntWithDefault(prop, dfltSize);
                 if(sizeRequested < (_udpOverhead + IceInternal.Protocol.headerSize))
                 {
-                    _logger.warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " + dfltSize);
+                    _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +
+                                               dfltSize);
                     sizeRequested = dfltSize;
                 }
 
@@ -976,8 +992,8 @@ namespace IceInternal
                     //
                     if(sizeSet < sizeRequested)
                     {
-                        _logger.warning("UDP " + direction + " buffer size: requested size of " + sizeRequested +
-                                        " adjusted to " + sizeSet);
+                        _instance.logger().warning("UDP " + direction + " buffer size: requested size of " +
+                                                   sizeRequested + " adjusted to " + sizeSet);
                     }
                 }
             }
@@ -1020,8 +1036,7 @@ namespace IceInternal
         }
 #endif
 
-        private TraceLevels _traceLevels;
-        private Ice.Logger _logger;
+        private ProtocolInstance _instance;
         private int _state;
         private bool _incoming;
         private int _rcvSize;

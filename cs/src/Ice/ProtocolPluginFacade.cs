@@ -17,43 +17,6 @@ namespace IceInternal
         //
         Ice.Communicator getCommunicator();
 
-#if !SILVERLIGHT
-        //
-        // Get the endpoint host resolver.
-        //
-        IceInternal.EndpointHostResolver getEndpointHostResolver();
-#endif
-        //
-        // Get the protocol support.
-        //
-        int getProtocolSupport();
-
-        //
-        // Get the protocol support.
-        //
-        bool getPreferIPv6();
-
-        //
-        // Get the network proxy.
-        //
-        NetworkProxy getNetworkProxy();
-
-        //
-        // Get the default encoding to be used in endpoints.
-        //
-        Ice.EncodingVersion getDefaultEncoding();
-
-        //
-        // Get the default hostname to be used in endpoints.
-        //
-        string getDefaultHost();
-
-        //
-        // Get the network trace level and category name.
-        //
-        int getNetworkTraceLevel();
-        string getNetworkTraceCategory();
-
         //
         // Register an EndpointFactory.
         //
@@ -85,69 +48,6 @@ namespace IceInternal
         public Ice.Communicator getCommunicator()
         {
             return _communicator;
-        }
-
-#if !SILVERLIGHT
-        //
-        // Get the endpoint host resolver.
-        //
-        public IceInternal.EndpointHostResolver getEndpointHostResolver()
-        {
-            return _instance.endpointHostResolver();
-        }
-#endif
-
-        //
-        // Get the protocol support.
-        //
-        public int getProtocolSupport()
-        {
-            return _instance.protocolSupport();
-        }
-
-        //
-        // Get the protocol support.
-        //
-        public bool getPreferIPv6()
-        {
-            return _instance.preferIPv6();
-        }
-
-        //
-        // Get the network proxy.
-        //
-        public NetworkProxy getNetworkProxy()
-        {
-            return _instance.networkProxy();
-        }
-
-        //
-        // Get the default hostname to be used in endpoints.
-        //
-        public Ice.EncodingVersion getDefaultEncoding()
-        {
-            return _instance.defaultsAndOverrides().defaultEncoding;
-        }
-
-        //
-        // Get the default hostname to be used in endpoints.
-        //
-        public string getDefaultHost()
-        {
-            return _instance.defaultsAndOverrides().defaultHost;
-        }
-
-        //
-        // Get the network trace level and category name.
-        //
-        public int getNetworkTraceLevel()
-        {
-            return _instance.traceLevels().network;
-        }
-
-        public string getNetworkTraceCategory()
-        {
-            return _instance.traceLevels().networkCat;
         }
 
         //

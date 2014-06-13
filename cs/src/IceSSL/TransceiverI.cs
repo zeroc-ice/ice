@@ -24,7 +24,7 @@ namespace IceSSL
 
     sealed class TransceiverI : IceInternal.Transceiver
     {
-        public int initialize()
+        public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace IceSSL
                     _state = StateConnectPending;
                     return IceInternal.SocketOperation.Connect;
                 }
-                else if(_state == StateConnectPending)
+                else if(_state <= StateConnectPending)
                 {
                     IceInternal.Network.doFinishConnectAsync(_fd, _writeResult);
                     _writeResult = null;
@@ -43,7 +43,7 @@ namespace IceSSL
                     if(_proxy != null)
                     {
                         _state = StateProxyConnectRequest; // Send proxy connect request
-                        return IceInternal.SocketOperation.Write; 
+                        return IceInternal.SocketOperation.Write;
                     }
 
                     _state = StateAuthenticatePending;
@@ -74,25 +74,32 @@ namespace IceSSL
             }
             catch(Ice.LocalException e)
             {
-                if(_instance.networkTraceLevel() >= 2)
+                if(_instance.traceLevel() >= 2)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("failed to establish ssl connection\n");
+                    s.Append("failed to establish " + protocol() + " connection\n");
                     s.Append(IceInternal.Network.fdToString(_fd, _proxy, _addr));
                     s.Append("\n");
                     s.Append(e.ToString());
-                    _logger.trace(_instance.networkTraceCategory(), s.ToString());
+                    _instance.logger().trace(_instance.traceCategory(), s.ToString());
                 }
                 throw;
             }
         }
 
+        public int closing(bool initiator, Ice.LocalException ex)
+        {
+            // If we are initiating the connection closure, wait for the peer
+            // to close the TCP/IP connection. Otherwise, close immediately.
+            return initiator ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
+        }
+
         public void close()
         {
-            if(_state == StateConnected && _instance.networkTraceLevel() >= 1)
+            if(_state == StateConnected && _instance.traceLevel() >= 1)
             {
-                string s = "closing ssl connection\n" + ToString();
-                _logger.trace(_instance.networkTraceCategory(), s);
+                string s = "closing " + protocol() + " connection\n" + ToString();
+                _instance.logger().trace(_instance.traceCategory(), s);
             }
 
             Debug.Assert(_fd != null);
@@ -121,16 +128,22 @@ namespace IceSSL
             }
         }
 
-        public bool write(IceInternal.Buffer buf)
+        public int write(IceInternal.Buffer buf)
         {
             Debug.Assert(_fd != null);
-            return false; // Caller will use async write.
+            //
+            // Force caller to use async write.
+            //
+            return buf.b.hasRemaining() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
         }
 
-        public bool read(IceInternal.Buffer buf)
+        public int read(IceInternal.Buffer buf, ref bool hasMoreData)
         {
             Debug.Assert(_fd != null);
-            return false; // Caller will use async read.
+            //
+            // Force caller to use async read.
+            //
+            return buf.b.hasRemaining() ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
         }
 
         public bool startRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
@@ -210,7 +223,7 @@ namespace IceSSL
 
                 Debug.Assert(ret > 0);
 
-                if(_instance.networkTraceLevel() >= 3)
+                if(_instance.traceLevel() >= 3)
                 {
                     int packetSize = buf.b.remaining();
                     if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
@@ -218,7 +231,7 @@ namespace IceSSL
                         packetSize = _maxReceivePacketSize;
                     }
                     string s = "received " + ret + " of " + packetSize + " bytes via ssl\n" + ToString();
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
 
                 buf.b.position(buf.b.position() + ret);
@@ -254,11 +267,11 @@ namespace IceSSL
             }
         }
 
-        public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state, 
+        public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state,
                                out bool completed)
         {
             Debug.Assert(_fd != null);
-            
+
             if(_state < StateConnected)
             {
                 completed = false;
@@ -300,12 +313,12 @@ namespace IceSSL
                 _writeCallback = callback;
                 if(_stream != null)
                 {
-                    _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted, 
+                    _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted,
                                                       state);
                 }
                 else
                 {
-                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, 
+                    _writeResult = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
                                                  writeCompleted, state);
                 }
                 completed = packetSize == buf.b.remaining();
@@ -346,9 +359,9 @@ namespace IceSSL
                     buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
                 }
                 _writeResult = null;
-                return; 
+                return;
             }
-            
+
             if(_state < StateConnected && _state != StateProxyConnectRequest)
             {
                 return;
@@ -374,10 +387,11 @@ namespace IceSSL
                     packetSize = _maxSendPacketSize;
                 }
 
-                if(_instance.networkTraceLevel() >= 3)
+                if(_instance.traceLevel() >= 3)
                 {
-                    string s = "sent " + packetSize + " of " + packetSize + " bytes via ssl\n" + ToString();
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    string s = "sent " + packetSize + " of " + packetSize + " bytes via " + protocol() + "\n" +
+                        ToString();
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
 
                 buf.b.position(buf.b.position() + packetSize);
@@ -413,9 +427,9 @@ namespace IceSSL
             }
         }
 
-        public string type()
+        public string protocol()
         {
-            return "ssl";
+            return _instance.protocol();
         }
 
         public Ice.ConnectionInfo getInfo()
@@ -450,7 +464,6 @@ namespace IceSSL
             _addr = addr;
             _proxy = proxy;
             _stream = null;
-            _logger = instance.communicator().getLogger();
             _desc = connected ? IceInternal.Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
             _state = connected ? StateNeedAuthenticate : StateNeedConnect;
 
@@ -471,15 +484,13 @@ namespace IceSSL
                 //
                 // Determine whether a certificate is required from the peer.
                 //
-                _verifyPeer =
-                    _instance.communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+                _verifyPeer = _instance.properties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
             }
             else
             {
                 _verifyPeer = 0;
             }
         }
-
 
         private NativeConnectionInfo getNativeConnectionInfo()
         {
@@ -557,7 +568,7 @@ namespace IceSSL
                     }
 
                     _writeResult = _stream.BeginAuthenticateAsServer(cert, _verifyPeer > 1, _instance.protocols(),
-                                                                     _instance.checkCRL() > 0, 
+                                                                     _instance.checkCRL() > 0,
                                                                      delegate(IAsyncResult result)
                                                                      {
                                                                          if(!result.CompletedSynchronously)
@@ -611,18 +622,18 @@ namespace IceSSL
 
                 _instance.verifyPeer(getNativeConnectionInfo(), _fd, _host);
 
-                if(_instance.networkTraceLevel() >= 1)
+                if(_instance.traceLevel() >= 1)
                 {
                     string s;
                     if(_adapterName == null)
                     {
-                        s = "ssl connection established\n" + _desc;
+                        s = protocol() + " connection established\n" + _desc;
                     }
                     else
                     {
-                        s = "accepted ssl connection\n" + _desc;
+                        s = "accepted " + protocol() + " connection\n" + _desc;
                     }
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    _instance.logger().trace(_instance.traceCategory(), s);
                 }
 
                 if(_instance.securityTraceLevel() >= 1)
@@ -693,7 +704,7 @@ namespace IceSSL
                     {
                         if(_instance.securityTraceLevel() >= 1)
                         {
-                            _logger.trace(_instance.securityTraceCategory(),
+                            _instance.logger().trace(_instance.securityTraceCategory(),
                                           "SSL certificate validation failed - client certificate not provided");
                         }
                         return false;
@@ -784,19 +795,21 @@ namespace IceSSL
                 {
                     if(message.Length > 0)
                     {
-                        _logger.trace(_instance.securityTraceCategory(), "SSL certificate validation failed:" +
-                                      message);
+                        _instance.logger().trace(_instance.securityTraceCategory(),
+                                                 "SSL certificate validation failed:" + message);
                     }
                     else
                     {
-                        _logger.trace(_instance.securityTraceCategory(), "SSL certificate validation failed");
+                        _instance.logger().trace(_instance.securityTraceCategory(),
+                                                 "SSL certificate validation failed");
                     }
                 }
                 return false;
             }
             else if(message.Length > 0 && _instance.securityTraceLevel() >= 1)
             {
-                _logger.trace(_instance.securityTraceCategory(), "SSL certificate validation status:" + message);
+                _instance.logger().trace(_instance.securityTraceCategory(), "SSL certificate validation status:" +
+                                         message);
             }
 
             return true;
@@ -826,7 +839,6 @@ namespace IceSSL
         private IPEndPoint _addr;
         private IceInternal.NetworkProxy _proxy;
         private SslStream _stream;
-        private Ice.Logger _logger;
         private string _desc;
         private int _verifyPeer;
         private int _maxSendPacketSize;
@@ -841,7 +853,7 @@ namespace IceSSL
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;
         private const int StateProxyConnectRequest = 2;
-        private const int StateProxyConnectRequestPending = 3; 
+        private const int StateProxyConnectRequestPending = 3;
         private const int StateNeedAuthenticate = 4;
         private const int StateAuthenticatePending = 5;
         private const int StateConnected = 6;

@@ -66,6 +66,11 @@ final class UdpTransceiver implements Transceiver
             return SocketOperation.Write;
         }
 
+        if(!buf.b.hasRemaining())
+        {
+            return SocketOperation.None;
+        }
+
         assert(buf.b.position() == 0);
         assert(_fd != null && _state >= StateConnected);
 
@@ -127,6 +132,11 @@ final class UdpTransceiver implements Transceiver
     @SuppressWarnings("deprecation")
     public int read(Buffer buf, Ice.BooleanHolder moreData)
     {
+        if(!buf.b.hasRemaining())
+        {
+            return SocketOperation.None;
+        }
+
         assert(buf.b.position() == 0);
 
         final int packetSize = java.lang.Math.min(_maxPacketSize, _rcvSize - _udpOverhead);

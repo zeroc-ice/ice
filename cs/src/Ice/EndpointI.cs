@@ -22,22 +22,24 @@ namespace IceInternal
     }
 
     public abstract class EndpointI : Ice.Endpoint, System.IComparable<EndpointI>
-    {    
-        public EndpointI(string connectionId)
-        {
-            connectionId_ = connectionId;
-        }
-
-        public EndpointI()
-        {
-        }
-
+    {
         public override string ToString()
         {
             return ice_toString_();
         }
 
-        public abstract string ice_toString_();
+        public virtual string ice_toString_()
+        {
+            //
+            // WARNING: Certain features, such as proxy validation in Glacier2,
+            // depend on the format of proxy strings. Changes to toString() and
+            // methods called to generate parts of the reference string could break
+            // these features. Please review for all features that depend on the
+            // format of proxyToString() before changing this and related code.
+            //
+            return protocol() + options();
+        }
+
         public abstract Ice.EndpointInfo getInfo();
 
         public override bool Equals(object obj)
@@ -49,20 +51,9 @@ namespace IceInternal
             return CompareTo((EndpointI)obj) == 0;
         }
 
-        public override int GetHashCode()
+        public override int GetHashCode() // Avoids a compiler warning.
         {
-            int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, connectionId_);
-            return h;
-        }
-
-        public virtual int CompareTo(EndpointI p)
-        {
-            if(!connectionId_.Equals(p.connectionId_))
-            {
-                return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
-            }
-
+            Debug.Assert(false);
             return 0;
         }
 
@@ -95,6 +86,11 @@ namespace IceInternal
         public abstract EndpointI timeout(int t);
 
         //
+        // Return the connection ID.
+        //
+        public abstract string connectionId();
+
+        //
         // Return a new endpoint with a different connection id.
         //
         public abstract EndpointI connectionId(string connectionId);
@@ -116,19 +112,11 @@ namespace IceInternal
         // Return true if the endpoint is datagram-based.
         //
         public abstract bool datagram();
-        
+
         //
         // Return true if the endpoint is secure.
         //
         public abstract bool secure();
-
-        //
-        // Return the connection ID.
-        //
-        public string connectionId()
-        {
-            return connectionId_;
-        }
 
         //
         // Return a server side transceiver for this endpoint, or null if a
@@ -161,21 +149,68 @@ namespace IceInternal
         // was specified on client side.
         //
         public abstract List<EndpointI> expand();
- 
+
         //
         // Check whether the endpoint is equivalent to another one.
         //
         public abstract bool equivalent(EndpointI endpoint);
 
-        public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
+        public abstract int CompareTo(EndpointI obj);
+
+        public abstract string options();
+
+        public virtual void initWithOptions(List<string> args)
         {
-            Debug.Assert(false);
-            return null;
+            List<string> unknown = new List<string>();
+
+            string str = "`" + protocol() + " ";
+            foreach(string p in args)
+            {
+                if(IceUtilInternal.StringUtil.findFirstOf(p, " \t\n\r") != -1)
+                {
+                    str += " \"" + p + "\"";
+                }
+                else
+                {
+                    str += " " + p;
+                }
+            }
+            str += "'";
+
+            for(int n = 0; n < args.Count; ++n)
+            {
+                string option = args[n];
+                if(option.Length < 2 || option[0] != '-')
+                {
+                    unknown.Add(option);
+                    continue;
+                }
+
+                string argument = null;
+                if(n + 1 < args.Count && args[n + 1][0] != '-')
+                {
+                    argument = args[++n];
+                }
+
+                if(!checkOption(option, argument, str))
+                {
+                    unknown.Add(option);
+                    if(argument != null)
+                    {
+                        unknown.Add(argument);
+                    }
+                }
+            }
+
+            args.Clear();
+            args.AddRange(unknown);
         }
 
-        protected Ice.ProtocolVersion protocol_;
-        protected Ice.EncodingVersion encoding_;
-        protected string connectionId_ = "";
+        protected virtual bool checkOption(string option, string argument, string endpoint)
+        {
+            // Must be overridden to check for options.
+            return false;
+        }
     }
 
 }

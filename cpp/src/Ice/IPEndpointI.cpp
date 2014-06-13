@@ -185,6 +185,7 @@ IceInternal::IPEndpointI::hash() const
         _hashValue = 5381;
         hashAdd(_hashValue, type());
         hashInit(_hashValue);
+        _hashInitialized = true;
     }
     return _hashValue;
 }

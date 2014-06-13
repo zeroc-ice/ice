@@ -15,296 +15,66 @@ namespace IceInternal
     using System;
     using System.Globalization;
 
-    sealed class TcpEndpointI : EndpointI
+    sealed class TcpEndpointI : IPEndpointI
     {
-        public TcpEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co) : base(conId)
+        public TcpEndpointI(ProtocolInstance instance, string ho, int po, int ti, string conId, bool co) :
+            base(instance, ho, po, conId)
         {
-            _instance = instance;
-            _host = ho;
-            _port = po;
             _timeout = ti;
             _compress = co;
-            calcHashValue();
         }
 
-        public TcpEndpointI(Instance instance, string str, bool oaEndpoint) : base("")
+        public TcpEndpointI(ProtocolInstance instance) :
+            base(instance)
         {
-            _instance = instance;
-            _host = null;
-            _port = 0;
             _timeout = -1;
             _compress = false;
-
-            char[] separators = { ' ', '\t', '\n', '\r' };
-            string[] arr = str.Split(separators);
-
-            int i = 0;
-            while(i < arr.Length)
-            {
-                if(arr[i].Length == 0)
-                {
-                    i++;
-                    continue;
-                }
-
-                string option = arr[i++];
-                if(option.Length != 2 || option[0] != '-')
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "expected an endpoint option but found `" + option + "' in endpoint `tcp " + str + "'";
-                    throw e;
-                }
-
-                string argument = null;
-                if(i < arr.Length && arr[i].Length > 0 && arr[i][0] != '-')
-                {
-                    argument = arr[i++];
-                    if(argument[0] == '\"' && argument[argument.Length - 1] == '\"')
-                    {
-                        argument = argument.Substring(1, argument.Length - 2);
-                    }
-                }
-
-                switch(option[1])
-                {
-                    case 'h':
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "no argument provided for -h option in endpoint `tcp " + str + "'";
-                            throw e;
-                        }
-
-                        _host = argument;
-                        break;
-                    }
-
-                    case 'p':
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "no argument provided for -p option in endpoint `tcp " + str + "'";
-                            throw e;
-                        }
-
-                        try
-                        {
-                            _port = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                        }
-                        catch(System.FormatException ex)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "invalid port value `" + argument + "' in endpoint `tcp " + str + "'";
-                            throw e;
-                        }
-
-                        if(_port < 0 || _port > 65535)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "port value `" + argument + "' out of range in endpoint `tcp " + str + "'";
-                            throw e;
-                        }
-
-                        break;
-                    }
-
-                    case 't':
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "no argument provided for -t option in endpoint `tcp " + str + "'";
-                            throw e;
-                        }
-
-                        try
-                        {
-                            _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                        }
-                        catch(System.FormatException ex)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "invalid timeout value `" + argument + "' in endpoint `tcp " + str + "'";
-                            throw e;
-                        }
-
-                        break;
-                    }
-
-                    case 'z':
-                    {
-                        if(argument != null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "unexpected argument `" + argument + "' provided for -z option in `tcp " + str +
-                                    "'";
-                            throw e;
-                        }
-
-                        _compress = true;
-                        break;
-                    }
-
-                    default:
-                    {
-                        throw new Ice.EndpointParseException("unknown option `" + option + "' in endpoint `tcp " + str + "'");
-                    }
-                }
-            }
-
-            if(_host == null)
-            {
-                _host = _instance.defaultsAndOverrides().defaultHost;
-            }
-            else if(_host.Equals("*"))
-            {
-                if(oaEndpoint)
-                {
-                    _host = null;
-                }
-                else
-                {
-                    throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `tcp " + str + "'");
-                }
-            }
-
-            if(_host == null)
-            {
-                _host = "";
-            }
-
-            calcHashValue();
         }
 
-        public TcpEndpointI(BasicStream s)
+        public TcpEndpointI(ProtocolInstance instance, BasicStream s) :
+            base(instance, s)
         {
-            _instance = s.instance();
-            s.startReadEncaps();
-            _host = s.readString();
-            _port = s.readInt();
             _timeout = s.readInt();
             _compress = s.readBool();
-            s.endReadEncaps();
-            calcHashValue();
-        }
-
-        //
-        // Marshal the endpoint
-        //
-        public override void streamWrite(BasicStream s)
-        {
-            s.writeShort(Ice.TCPEndpointType.value);
-            s.startWriteEncaps();
-            s.writeString(_host);
-            s.writeInt(_port);
-            s.writeInt(_timeout);
-            s.writeBool(_compress);
-            s.endWriteEncaps();
-        }
-
-        //
-        // Convert the endpoint to its string form
-        //
-        public override string ice_toString_()
-        {
-            //
-            // WARNING: Certain features, such as proxy validation in Glacier2,
-            // depend on the format of proxy strings. Changes to toString() and
-            // methods called to generate parts of the reference string could break
-            // these features. Please review for all features that depend on the
-            // format of proxyToString() before changing this and related code.
-            //
-            string s = "tcp";
-
-            if(_host != null && _host.Length != 0)
-            {
-                s += " -h ";
-                bool addQuote = _host.IndexOf(':') != -1;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-                s += _host;
-                if(addQuote)
-                {
-                    s += "\"";
-                }
-            }
-
-            s += " -p " + _port;
-            if(_timeout != -1)
-            {
-                s += " -t " + _timeout;
-            }
-            if(_compress)
-            {
-                s += " -z";
-            }
-            return s;
         }
 
         private sealed class InfoI : Ice.TCPEndpointInfo
         {
-            public InfoI(int to, bool comp, string host, int port) : base(to, comp, host, port)
+            public InfoI(IPEndpointI e)
             {
+                _endpoint = e;
             }
 
-            override public short type()
+            public override short type()
             {
-                return Ice.TCPEndpointType.value;
+                return _endpoint.type();
             }
-            
-            override public bool datagram()
-            {
-                return false;
-            }
-                
-            override public bool secure()
-            {
-                return false;
-            }
-        };
 
-        //
-        // Return the endpoint information.
-        //
+            public override bool datagram()
+            {
+                return _endpoint.datagram();
+            }
+
+            public override bool secure()
+            {
+                return _endpoint.secure();
+            }
+
+            private IPEndpointI _endpoint;
+        }
+
         public override Ice.EndpointInfo getInfo()
         {
-            return new InfoI(_timeout, _compress, _host, _port);
+            InfoI info = new InfoI(this);
+            fillEndpointInfo(info);
+            return info;
         }
 
-        //
-        // Return the endpoint type
-        //
-        public override short type()
-        {
-            return Ice.TCPEndpointType.value;
-        }
-
-        //
-        // Return the protocol name;
-        //
-        public override string protocol()
-        {
-            return "tcp";
-        }
-
-        //
-        // Return the timeout for the endpoint in milliseconds. 0 means
-        // non-blocking, -1 means no timeout.
-        //
         public override int timeout()
         {
             return _timeout;
         }
 
-        //
-        // Return a new endpoint with a different timeout value, provided
-        // that timeouts are supported by the endpoint. Otherwise the same
-        // endpoint is returned.
-        //
         public override EndpointI timeout(int timeout)
         {
             if(timeout == _timeout)
@@ -313,39 +83,15 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(_instance, _host, _port, timeout, connectionId_, _compress);
+                return new TcpEndpointI(instance_, host_, port_, timeout, connectionId_, _compress);
             }
         }
 
-        //
-        // Return a new endpoint with a different connection id.
-        //
-        public override EndpointI connectionId(string connectionId)
-        {
-            if(connectionId == connectionId_)
-            {
-                return this;
-            }
-            else
-            {
-                return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
-            }
-        }
-
-        //
-        // Return true if the endpoints support bzip2 compress, or false
-        // otherwise.
-        //
         public override bool compress()
         {
             return _compress;
         }
 
-        //
-        // Return a new endpoint with a different compression value,
-        // provided that compression is supported by the
-        // endpoint. Otherwise the same endpoint is returned.
-        //
         public override EndpointI compress(bool compress)
         {
             if(compress == _compress)
@@ -354,141 +100,61 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId_, compress);
+                return new TcpEndpointI(instance_, host_, port_, _timeout, connectionId_, compress);
             }
         }
 
-        //
-        // Return true if the endpoint is datagram-based.
-        //
         public override bool datagram()
         {
             return false;
         }
 
-        //
-        // Return true if the endpoint is secure.
-        //
         public override bool secure()
         {
             return false;
         }
 
-        //
-        // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor. In case a
-        // transceiver is created, this operation also returns a new
-        // "effective" endpoint, which might differ from this endpoint,
-        // for example, if a dynamic port number is assigned.
-        //
         public override Transceiver transceiver(ref EndpointI endpoint)
         {
             endpoint = this;
             return null;
         }
 
-        //
-        // Return connectors for this endpoint, or empty list if no connector
-        // is available.
-        //
-        public override List<Connector> connectors(Ice.EndpointSelectionType selType)
-        {
-#if SILVERLIGHT
-            return connectors(Network.getAddresses(_host, 
-                                                   _port,
-                                                   _instance.protocolSupport(), 
-                                                   selType, 
-                                                   _instance.preferIPv6(), 
-                                                   false),
-                              _instance.networkProxy());
-#else
-            return _instance.endpointHostResolver().resolve(_host, _port, selType, this);
-#endif
-        }
-
-
-        public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
-        {
-#if SILVERLIGHT
-            callback.connectors(connectors(selType));
-#else
-            _instance.endpointHostResolver().resolve(_host, _port, selType, this, callback);
-#endif
-        }
-
-
-        //
-        // Return an acceptor for this endpoint, or null if no acceptors
-        // is available. In case an acceptor is created, this operation
-        // also returns a new "effective" endpoint, which might differ
-        // from this endpoint, for example, if a dynamic port number is
-        // assigned.
-        //
         public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
         {
 #if SILVERLIGHT
             throw new Ice.FeatureNotSupportedException("server endpoint not supported for `" + ToString() + "'");
 #else
-            TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-            endpoint = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, connectionId_, _compress);
+            TcpAcceptor p = new TcpAcceptor(instance_, host_, port_);
+            endpoint = createEndpoint(host_, p.effectivePort(), connectionId_);
             return p;
 #endif
         }
 
-        //
-        // Expand endpoint out in to separate endpoints for each local
-        // host if listening on INADDR_ANY.
-        //
-        public override List<EndpointI> expand()
+        public override string options()
         {
-            List<EndpointI> endps = new List<EndpointI>();
-            List<string> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
-            if(hosts == null || hosts.Count == 0)
-            {
-                endps.Add(this);
-            }
-            else
-            {
-                foreach(string h in hosts)
-                {
-                    endps.Add(new TcpEndpointI(_instance, h, _port, _timeout, connectionId_, _compress));
-                }
-            }
-            return endps;
-        }
+            //
+            // WARNING: Certain features, such as proxy validation in Glacier2,
+            // depend on the format of proxy strings. Changes to toString() and
+            // methods called to generate parts of the reference string could break
+            // these features. Please review for all features that depend on the
+            // format of proxyToString() before changing this and related code.
+            //
+            string s = base.options();
 
-        //
-        // Check whether the endpoint is equivalent to another one.
-        //
-        public override bool equivalent(EndpointI endpoint)
-        {
-            if(!(endpoint is TcpEndpointI))
+            if(_timeout != -1)
             {
-                return false;
+                s += " -t " + _timeout;
             }
 
-            TcpEndpointI tcpEndpointI = (TcpEndpointI)endpoint;
-            return tcpEndpointI._host.Equals(_host) && tcpEndpointI._port == _port;
-        }
-
-        public override List<Connector> connectors(List<EndPoint> addresses, NetworkProxy networkProxy)
-        {
-            List<Connector> connectors = new List<Connector>();
-            foreach(EndPoint addr in addresses)
+            if(_compress)
             {
-                connectors.Add(new TcpConnector(_instance, addr, networkProxy, _timeout, connectionId_));
+                s += " -z";
             }
-            return connectors;
+
+            return s;
         }
 
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
-
-        //
-        // Compare endpoints for sorting purposes
-        //
         public override int CompareTo(EndpointI obj)
         {
             if(!(obj is TcpEndpointI))
@@ -500,23 +166,6 @@ namespace IceInternal
             if(this == p)
             {
                 return 0;
-            }
-            else
-            {
-                int r = base.CompareTo(p);
-                if(r != 0)
-                {
-                    return r;
-                }
-            }
-
-            if(_port < p._port)
-            {
-                return -1;
-            }
-            else if(p._port < _port)
-            {
-                return 1;
             }
 
             if(_timeout < p._timeout)
@@ -537,54 +186,126 @@ namespace IceInternal
                 return 1;
             }
 
-            return string.Compare(_host, p._host, StringComparison.Ordinal);
+            return base.CompareTo(p);
         }
 
-        private void calcHashValue()
+        protected override void streamWriteImpl(BasicStream s)
         {
-            int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, Ice.TCPEndpointType.value);
-            IceInternal.HashUtil.hashAdd(ref h, _host);
-            IceInternal.HashUtil.hashAdd(ref h, _port);
-            IceInternal.HashUtil.hashAdd(ref h, _timeout);
-            IceInternal.HashUtil.hashAdd(ref h, connectionId_);
-            IceInternal.HashUtil.hashAdd(ref h, _compress);
-            _hashCode = h;
+            base.streamWriteImpl(s);
+            s.writeInt(_timeout);
+            s.writeBool(_compress);
         }
 
-        private Instance _instance;
-        private string _host;
-        private int _port;
+        protected override void hashInit(ref int h)
+        {
+            base.hashInit(ref h);
+            IceInternal.HashUtil.hashAdd(ref h, _timeout);
+            IceInternal.HashUtil.hashAdd(ref h, _compress);
+        }
+
+        protected override void fillEndpointInfo(Ice.IPEndpointInfo info)
+        {
+            base.fillEndpointInfo(info);
+            if(info is Ice.TCPEndpointInfo)
+            {
+                Ice.TCPEndpointInfo tcpInfo = (Ice.TCPEndpointInfo)info;
+                tcpInfo.timeout = _timeout;
+                tcpInfo.compress = _compress;
+            }
+        }
+
+        protected override bool checkOption(string option, string argument, string endpoint)
+        {
+            if(base.checkOption(option, argument, endpoint))
+            {
+                return true;
+            }
+
+            switch(option[1])
+            {
+                case 't':
+                {
+                    if(argument == null)
+                    {
+                        throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " +
+                                                             endpoint);
+                    }
+
+                    try
+                    {
+                        _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                    }
+                    catch(System.FormatException ex)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                        e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+                        throw e;
+                    }
+
+                    return true;
+                }
+
+                case 'z':
+                {
+                    if(argument != null)
+                    {
+                        throw new Ice.EndpointParseException("unexpected argument `" + argument +
+                                                             "' provided for -z option in " + endpoint);
+                    }
+
+                    _compress = true;
+
+                    return true;
+                }
+
+                default:
+                {
+                    return false;
+                }
+            }
+        }
+
+        protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
+        {
+            return new TcpConnector(instance_, addr, proxy, _timeout, connectionId_);
+        }
+
+        protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
+        {
+            return new TcpEndpointI(instance_, host, port, _timeout, connectionId, _compress);
+        }
+
         private int _timeout;
         private bool _compress;
-        private int _hashCode;
     }
 
     sealed class TcpEndpointFactory : EndpointFactory
     {
-        internal TcpEndpointFactory(Instance instance)
+        internal TcpEndpointFactory(ProtocolInstance instance)
         {
             _instance = instance;
         }
 
         public short type()
         {
-            return Ice.TCPEndpointType.value;
+            return _instance.type();
         }
 
         public string protocol()
         {
-            return "tcp";
+            return _instance.protocol();
         }
 
-        public EndpointI create(string str, bool oaEndpoint)
+        public EndpointI create(List<string> args, bool oaEndpoint)
         {
-            return new TcpEndpointI(_instance, str, oaEndpoint);
+            IPEndpointI endpt = new TcpEndpointI(_instance);
+            endpt.initWithOptions(args, oaEndpoint);
+            return endpt;
         }
 
         public EndpointI read(BasicStream s)
         {
-            return new TcpEndpointI(s);
+            return new TcpEndpointI(_instance, s);
         }
 
         public void destroy()
@@ -592,7 +313,12 @@ namespace IceInternal
             _instance = null;
         }
 
-        private Instance _instance;
+        public EndpointFactory clone(ProtocolInstance instance)
+        {
+            return new TcpEndpointFactory(instance);
+        }
+
+        private ProtocolInstance _instance;
     }
 
 }
