@@ -80,7 +80,6 @@ namespace IceSSL
         {
             _instance = instance;
             _host = host;
-            _instance.logger() = instance.communicator().getLogger();
             _addr = (IPEndPoint)addr;
             _proxy = proxy;
             _timeout = timeout;

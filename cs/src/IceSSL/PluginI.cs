@@ -38,20 +38,19 @@ namespace IceSSL
         {
             IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(communicator);
 
-            _sharedInstance = new SharedInstance(facade);
+            _engine = new SSLEngine(facade);
 
             //
             // Register the endpoint factory. We have to do this now, rather than
             // in initialize, because the communicator may need to interpret
             // proxies before the plug-in is fully initialized.
             //
-            facade.addEndpointFactory(
-                new EndpointFactoryI(new Instance(_sharedInstance, IceSSL.EndpointType.value, "ssl")));
+            facade.addEndpointFactory(new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl")));
         }
 
         public override void initialize()
         {
-            _sharedInstance.initialize();
+            _engine.initialize();
         }
 
         public override void destroy()
@@ -60,29 +59,29 @@ namespace IceSSL
 
         public override void setCertificates(X509Certificate2Collection certs)
         {
-            _sharedInstance.setCertificates(certs);
+            _engine.setCertificates(certs);
         }
 
         public override void setCertificateVerifier(CertificateVerifier verifier)
         {
-            _sharedInstance.setCertificateVerifier(verifier);
+            _engine.setCertificateVerifier(verifier);
         }
 
         public override CertificateVerifier getCertificateVerifier()
         {
-            return _sharedInstance.getCertificateVerifier();
+            return _engine.getCertificateVerifier();
         }
 
         public override void setPasswordCallback(PasswordCallback callback)
         {
-            _sharedInstance.setPasswordCallback(callback);
+            _engine.setPasswordCallback(callback);
         }
 
         public override PasswordCallback getPasswordCallback()
         {
-            return _sharedInstance.getPasswordCallback();
+            return _engine.getPasswordCallback();
         }
 
-        private SharedInstance _sharedInstance;
+        private SSLEngine _engine;
     }
 }

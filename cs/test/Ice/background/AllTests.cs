@@ -344,7 +344,7 @@ public class AllTests
             background.ice_getCachedConnection().close(true);
             background.begin_op();
 
-            Ice.AsyncResult r;
+            Ice.AsyncResult r = null;
             OpAMICallback cb = new OpAMICallback();
 
             for(int i = 0; i < 10000; ++i)

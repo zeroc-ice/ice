@@ -191,7 +191,7 @@ namespace IceSSL
                 }
                 if(_instance.traceLevel() >= 2)
                 {
-                    string s = "attempting to bind to " + protocol() + " socket " +
+                    string s = "attempting to bind to " + _instance.protocol() + " socket " +
                         IceInternal.Network.addrToString(_addr);
                     _instance.logger().trace(_instance.traceCategory(), s);
                 }

@@ -22,6 +22,7 @@ SRCS		= AcceptorI.cs \
 		  Plugin.cs \
 		  PluginI.cs \
 		  RFC2253.cs \
+		  SSLEngine.cs \
 		  TransceiverI.cs \
 		  TrustManager.cs \
 		  Util.cs

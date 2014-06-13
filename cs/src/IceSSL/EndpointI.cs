@@ -25,17 +25,17 @@ namespace IceSSL
             _compress = co;
         }
 
-        internal EndpointI(Instance instance)
+        internal EndpointI(Instance instance) :
+            base(instance)
         {
-            base(instance);
             _instance = instance;
             _timeout = -1;
             _compress = false;
         }
 
-        internal EndpointI(Instance instance, IceInternal.BasicStream s)
+        internal EndpointI(Instance instance, IceInternal.BasicStream s) :
+            base(instance, s)
         {
-            base(instance, s);
             _instance = instance;
             _timeout = s.readInt();
             _compress = s.readBool();
@@ -360,7 +360,7 @@ namespace IceSSL
 
         public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
         {
-            return new EndpointFactoryI(new Instance(_instance.sharedInstance(), instance.type(), instance.protocol()));
+            return new EndpointFactoryI(new Instance(_instance.engine(), instance.type(), instance.protocol()));
         }
 
         private Instance _instance;
