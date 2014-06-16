@@ -626,7 +626,6 @@ namespace Ice
                             break;
         
                         case '#':
-                            val += escapedspace;
                             finished = true;
                             break;
         

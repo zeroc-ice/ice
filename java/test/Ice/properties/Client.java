@@ -63,6 +63,42 @@ public class Client extends test.Util.Application
             test(properties.getProperty("Config3").equals("Config3"));
             System.out.println("ok");
         }
+       
+        {
+            System.out.print("testing configuration file escapes... ");
+            String[] args1 = new String[]{"--Ice.Config=config/escapes.cfg"};
+            Ice.Properties properties = Ice.Util.createProperties(args1);
+
+            String[] props = new String[]{"Foo\tBar", "3",
+                                          "Foo\\tBar", "4",
+                                          "Escape\\ Space", "2",
+                                          "Prop1", "1",
+                                          "Prop2", "2",
+                                          "Prop3", "3",
+                                          "My Prop1", "1",
+                                          "My Prop2", "2",
+                                          "My.Prop1", "a property",
+                                          "My.Prop2", "a     property",
+                                          "My.Prop3", "  a     property  ",
+                                          "My.Prop4", "  a     property  ",
+                                          "My.Prop5", "a \\ property",
+                                          "foo=bar", "1",
+                                          "foo#bar", "2",
+                                          "foo bar", "3",
+                                          "A", "1",
+                                          "B", "2 3 4",
+                                          "C", "5=#6",
+                                          "AServer", "\\\\server\\dir",
+                                          "BServer", "\\server\\dir",
+                                          ""};
+            
+            for(int i = 0; !props[i].isEmpty(); i += 2)
+            {
+                test(properties.getProperty(props[i]).equals(props[i + 1])); 
+            }
+            System.out.println("ok");
+        }
+
         return 0;
     }
 

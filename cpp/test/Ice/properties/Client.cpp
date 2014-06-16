@@ -126,10 +126,7 @@ main(int argc, char* argv[])
         } ;
 
         for(size_t i = 0; props[i] != ""; i += 2)
-        {
-            cerr << "\n" << props[i] << "=\"" << props[i+1] << "\"" << endl;
-            cerr << props[i] << "=\"" << properties->getProperty(props[i]) << "\"" << endl;
-            
+        { 
             test(properties->getProperty(props[i]) == props[i + 1]); 
         }
 

@@ -682,7 +682,6 @@ public final class PropertiesI implements Properties
                         break;
 
                     case '#':
-                        value += escapedspace;
                         finished = true;
                         break;
 

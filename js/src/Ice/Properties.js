@@ -442,7 +442,6 @@
                                 break;
 
                             case '#':
-                                value += escapedspace;
                                 finished = true;
                                 break;
 

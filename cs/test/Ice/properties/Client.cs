@@ -87,6 +87,49 @@ public class Client
             System.Console.Error.WriteLine(ex);
             status = 1;
         }
+
+        try
+        {
+            Console.Out.Write("testing configuration file escapes... ");
+            Console.Out.Flush();
+            string[] args1 = new string[]{"--Ice.Config=config/escapes.cfg"};
+            Ice.Properties properties = Ice.Util.createProperties(ref args1);
+
+            string[] props = new string[]{"Foo\tBar", "3",
+                                          "Foo\\tBar", "4",
+                                          "Escape\\ Space", "2",
+                                          "Prop1", "1",
+                                          "Prop2", "2",
+                                          "Prop3", "3",
+                                          "My Prop1", "1",
+                                          "My Prop2", "2",
+                                          "My.Prop1", "a property",
+                                          "My.Prop2", "a     property",
+                                          "My.Prop3", "  a     property  ",
+                                          "My.Prop4", "  a     property  ",
+                                          "My.Prop5", "a \\ property",
+                                          "foo=bar", "1",
+                                          "foo#bar", "2",
+                                          "foo bar", "3",
+                                          "A", "1",
+                                          "B", "2 3 4",
+                                          "C", "5=#6",
+                                          "AServer", "\\\\server\\dir",
+                                          "BServer", "\\server\\dir",
+                                          ""};
+            
+            for(int i = 0; props[i].Length > 0; i += 2)
+            {
+                test(properties.getProperty(props[i]).Equals(props[i + 1])); 
+            }
+            Console.Out.WriteLine("ok");
+        }
+        catch(System.Exception ex)
+        {
+            System.Console.Error.WriteLine(ex);
+            status = 1;
+        }
+
         return status;
     }
 }
