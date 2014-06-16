@@ -72,6 +72,8 @@ ifeq ($(RUBY18), yes)
 	else
 		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
 	endif
+
+	RUBY_LIBS		= -L$(LIB_DIR) $(RUBY_LIB)
 else
 	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MAJOR)")')
 	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MINOR)")')
@@ -86,18 +88,8 @@ else
 							-I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)/$$(arch)")')
 	endif
 
-	LIB_DIR			= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(libdir)")')
-
-	RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::MAKEFILE_CONFIG["ENABLE_SHARED"]')
-
-	ifeq ("$(RUBY_SHARED)","yes")
-		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("-l$$(RUBY_SO_NAME)")')
-	else
-		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("-l$$(RUBY_SO_NAME)-static")')
-	endif
+	RUBY_LIBS		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
 endif
-
-RUBY_LIBS		= -L$(LIB_DIR) $(RUBY_LIB)
 
 #
 # The build architectures for gcc based builds. The format of these

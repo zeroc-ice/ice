@@ -42,6 +42,10 @@ extern "C"
 #	pragma GCC diagnostic warning "-Wsign-compare"
 #endif
 
+#if defined(__GNUC__)
+#   pragma GCC diagnostic warning "-Wnarrowing"
+#endif
+
 #include "php.h"
 
 #ifdef _WIN32
