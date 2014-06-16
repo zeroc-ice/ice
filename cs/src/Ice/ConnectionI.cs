@@ -473,7 +473,10 @@ namespace Ice
                 bool sent = false;
                 try
                 {
-                    sent = sendMessage(new OutgoingMessage(og, os, compress, requestId));
+OutgoingMessage m = new OutgoingMessage(og, os, compress, requestId);
+m._shut = og._op.Equals("shutdown");
+                    sent = sendMessage(m);
+                    //sent = sendMessage(new OutgoingMessage(og, os, compress, requestId));
                 }
                 catch(LocalException ex)
                 {
@@ -1788,6 +1791,7 @@ namespace Ice
             {
                 Debug.Assert(_state == StateClosed);
                 unscheduleTimeout(IceInternal.SocketOperation.Read | IceInternal.SocketOperation.Write);
+if(_sendStreams.Count > 0) Console.WriteLine("\n@@ Connection finished:\n" + Environment.StackTrace);
             }
             finally
             {
@@ -1846,6 +1850,7 @@ namespace Ice
 
             if(_sendStreams.Count > 0)
             {
+Console.WriteLine("\n## stream count = " + _sendStreams.Count);
                 if(!_writeStream.isEmpty())
                 {
                     //
@@ -2284,6 +2289,7 @@ namespace Ice
                         return;
                     }
 
+if(_sendStreams.Count > 0) Console.WriteLine("\n++ Connection finishing itself\n" + Environment.StackTrace);
                     _threadPool.finish(this);
                     _transceiver.close();
                     break;
@@ -2603,6 +2609,7 @@ namespace Ice
                         callbacks.Enqueue(message);
                     }
                     _sendStreams.RemoveFirst();
+if(message._shut) Console.WriteLine("\n<<< Sent shutdown");
 
                     //
                     // If there's nothing left to send, we're done.
@@ -2696,6 +2703,7 @@ namespace Ice
             if(_sendStreams.Count > 0)
             {
                 message.adopt();
+if(message._shut) Console.WriteLine("\n>>> Queuing message 1");
                 _sendStreams.AddLast(message);
                 return false;
             }
@@ -2750,6 +2758,7 @@ namespace Ice
             message.adopt();
 
             _writeStream.swap(message.stream);
+if(message._shut) Console.WriteLine("\n>>> Queuing message 2, op = " + op + ", pending = " + _pending);
             _sendStreams.AddLast(message);
             scheduleTimeout(op);
             _threadPool.register(this, op);
@@ -2942,6 +2951,7 @@ namespace Ice
                         {
                             _requests.Remove(info.requestId);
                             og.finished(info.stream);
+if(og._op.Equals("shutdown")) Console.WriteLine("\n%% finished: sendStream count = " + _sendStreams.Count);
                             _m.NotifyAll(); // Notify threads blocked in close(false)
                         }
                         else if(_asyncRequests.TryGetValue(info.requestId, out info.outAsync))
@@ -3399,6 +3409,7 @@ namespace Ice
             internal bool prepared;
             internal bool isSent;
             internal Ice.AsyncCallback sentCallback = null;
+internal bool _shut;
         }
 
         private Communicator _communicator;
