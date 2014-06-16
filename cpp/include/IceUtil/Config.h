@@ -100,6 +100,15 @@
 #   define ICE_HAS_WIN32_CONDVAR 
 #endif
 
+
+//
+// Support for thread-safe function local static initialization 
+// (a.k.a. "magic statics")
+//
+#if defined(__GNUC__) || defined(__clang__)
+#   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
+#endif
+
 //
 // Compiler extensions to export and import symbols: see the documentation 
 // for Visual C++, Solaris Studio and HP aC++.
@@ -110,8 +119,8 @@
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #   define ICE_HAS_DECLSPEC_IMPORT_EXPORT
 #elif defined(__GNUC__)
-#   define ICE_DECLSPEC_EXPORT __attribute__ ((visibility ("default")))
-#   define ICE_DECLSPEC_IMPORT __attribute__ ((visibility ("default")))
+#   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
+#   define ICE_DECLSPEC_IMPORT __attribute__((visibility ("default")))
 #elif defined(__SUNPRO_CC)
 #   define ICE_DECLSPEC_EXPORT __global
 #   define ICE_DECLSPEC_IMPORT /**/

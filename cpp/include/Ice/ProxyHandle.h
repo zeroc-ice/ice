@@ -312,6 +312,11 @@ public:
         return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
 #endif
     }
+
+    static const std::string& ice_staticId()
+    {
+        return T::ice_staticId();
+    }
 };
 
 template<class Y>

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/FactoryTable.h>
-#include <Ice/UserExceptionFactory.h>
+#include <Ice/ObjectFactory.h>
 
 //
 // Add a factory to the exception factory table.

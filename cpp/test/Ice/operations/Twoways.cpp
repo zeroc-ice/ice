@@ -67,6 +67,10 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+        test(Test::MyClassPrx::ice_staticId() == Test::MyClass::ice_staticId());
+    }
+
+    {
         test(p->ice_isA(Test::MyClass::ice_staticId()));
     }
 

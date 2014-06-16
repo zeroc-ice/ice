@@ -79,3 +79,17 @@ IceInternal::FactoryTableInit::~FactoryTableInit()
         delete factoryTable;
     }
 }
+
+
+IceInternal::CompactIdInit::CompactIdInit(const char* typeId, int compactId) :
+    _compactId(compactId)
+{
+    assert(_compactId >= 0);
+    factoryTable->addTypeId(_compactId, typeId);
+}
+
+IceInternal::CompactIdInit::~CompactIdInit()
+{
+    factoryTable->removeTypeId(_compactId);  
+}
+

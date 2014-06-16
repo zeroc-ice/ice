@@ -27,6 +27,30 @@ public:
 
 typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
+template<class E>
+class DefaultUserExceptionFactory : public UserExceptionFactory
+{
+public:
+    
+    DefaultUserExceptionFactory(const ::std::string& typeId) :
+        _typeId(typeId)
+    {
+    }
+
+#ifndef NDEBUG
+    virtual void createAndThrow(const ::std::string& typeId)
+#else
+    virtual void createAndThrow(const ::std::string&)
+#endif
+    {
+        assert(typeId == _typeId);
+        throw E();
+    }
+
+private:
+    const ::std::string _typeId;
+};
+
 }
 
 #endif
