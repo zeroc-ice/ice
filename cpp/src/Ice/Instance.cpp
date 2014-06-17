@@ -45,6 +45,7 @@
 #include <IceUtil/MutexPtrLock.h>
 
 #include <stdio.h>
+#include <list>
 
 #ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
@@ -85,12 +86,28 @@ namespace
 
 IceUtil::Mutex* staticMutex = 0;
 bool oneOffDone = false;
-int instanceCount = 0;
+std::list<IceInternal::Instance*>* instanceList = 0;
+
 #ifndef _WIN32
 struct sigaction oldAction;
 #endif
 bool printProcessIdDone = false;
 string identForOpenlog;
+
+//
+// Should be called with staticMutex locked
+//
+size_t instanceCount()
+{
+    if(instanceList == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return instanceList->size();
+    }
+}
 
 class Init
 {
@@ -99,10 +116,47 @@ public:
     Init()
     {
         staticMutex = new IceUtil::Mutex;
+        
+        //
+        // Although probably not necessary here, we consistently lock
+        // staticMutex before accessing instanceList
+        //
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+        instanceList = new std::list<IceInternal::Instance*>;
     }
 
     ~Init()
     {
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+            int notDestroyedCount = 0;
+        
+            for(std::list<IceInternal::Instance*>::const_iterator p = instanceList->begin();
+                p != instanceList->end(); ++p)
+            {
+                if(!(*p)->destroyed())
+                {
+                    notDestroyedCount++;
+                }
+            }
+            
+            if(notDestroyedCount > 0)
+            {
+                cerr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
+                if(notDestroyedCount == 1)
+                {
+                    cerr << "communicator ";
+                }
+                else
+                {
+                    cerr << notDestroyedCount << " communicators ";
+                }
+                cerr << "not destroyed during global destruction.";
+            }
+
+            delete instanceList;
+            instanceList = 0;
+        }
         delete staticMutex;
         staticMutex = 0;
     }
@@ -838,8 +892,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         __setNoDelete(true);
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
-            instanceCount++;
-    
+            instanceList->push_back(this);
+
             if(!_initData.properties)
             {
                 _initData.properties = createProperties();
@@ -937,7 +991,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 oneOffDone = true;
             }   
             
-            if(instanceCount == 1)
+            if(instanceCount() == 1)
             {                   
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
                 WORD version = MAKEWORD(1, 1);
@@ -1177,7 +1231,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     {
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
-            --instanceCount;
+            instanceList->remove(this);
         }
         destroy();
         __setNoDelete(false);
@@ -1206,7 +1260,11 @@ IceInternal::Instance::~Instance()
     assert(!_pluginManager);
 
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
-    if(--instanceCount == 0)
+    if(instanceList != 0)
+    {
+        instanceList->remove(this);
+    }
+    if(instanceCount() == 0)
     {
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
         WSACleanup();
