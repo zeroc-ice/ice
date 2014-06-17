@@ -742,9 +742,9 @@ public final class PropertiesI implements Properties
             {
                 load(file.trim());
             }
+       
+            _properties.put("Ice.Config", new PropertyValue(value, true));
         }
-
-        _properties.put("Ice.Config", new PropertyValue(value, true));
     }
 
     private java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<String, PropertyValue>();

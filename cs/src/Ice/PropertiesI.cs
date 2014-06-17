@@ -682,9 +682,9 @@ namespace Ice
                 {
                     load(files[i].Trim());
                 }
-            }
             
-            _properties["Ice.Config"] = new PropertyValue(val, true);
+                _properties["Ice.Config"] = new PropertyValue(val, true);
+            }
         }        
 
         private Dictionary<string, PropertyValue> _properties;

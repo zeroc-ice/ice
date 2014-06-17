@@ -752,8 +752,8 @@ Ice::PropertiesI::loadConfig()
         {
             load(IceUtilInternal::trim(*i));
         }
-    }
 
-    PropertyValue pv(value, true);
-    _properties["Ice.Config"] = pv;
+        PropertyValue pv(value, true);
+        _properties["Ice.Config"] = pv;
+    }
 }
