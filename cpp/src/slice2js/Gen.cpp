@@ -835,7 +835,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     //
     // For an inner module we  write
     //
-    // Foo.Bar = global.Foo ? (global.Foo.Bar || {}) : {};
+    // Foo.Bar = Foo.Bar || {};
     //
 
     const string scoped = getLocalScope(p->scoped());
@@ -850,8 +850,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
         }
         else
         {
-            _out << nl << scoped << " = global." << getLocalScope(p->scope()) << " ? (global." << scoped
-                 << " ||  {}) : {};";
+            _out << nl << scoped << " = " << scoped << " || {};";
         }
     }
     return true;

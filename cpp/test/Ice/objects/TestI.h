@@ -115,6 +115,12 @@ public:
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);
     
+    virtual Test::Inner::APtr getInnerA(const Ice::Current&);
+    virtual Test::Inner::Sub::APtr getInnerSubA(const Ice::Current&);
+    
+    virtual void throwInnerEx(const Ice::Current&);
+    virtual void throwInnerSubEx(const Ice::Current&);
+    
 private:
 
     Ice::ObjectAdapterPtr _adapter;

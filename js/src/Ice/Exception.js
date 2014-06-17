@@ -62,7 +62,7 @@
         if(stack !== undefined)
         {
 
-            var name =  object.ice_name ? object.ice_name().replace("::", ".") : "";
+            var name =  object.ice_name ? object.ice_name().replace(/::/g, ".") : "";
             Object.defineProperty(object, "stack", {
                 get: function(){
                     return stack;

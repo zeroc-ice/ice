@@ -167,6 +167,10 @@
                 return new JI();
             case "::Test::H":
                 return new HI();
+            case "::Test::Inner::A":
+                return new Test.Inner.A();
+            case "::Test::Inner::Sub::A":
+                return new Test.Inner.Sub.A();
             default:
                 break;
         }
@@ -210,6 +214,8 @@
                 communicator.addObjectFactory(factory, "::Test::I");
                 communicator.addObjectFactory(factory, "::Test::J");
                 communicator.addObjectFactory(factory, "::Test::H");
+                communicator.addObjectFactory(factory, "::Test::Inner::A");
+                communicator.addObjectFactory(factory, "::Test::Inner::Sub::A");
 
                 out.write("testing stringToProxy... ");
                 ref = "initial:default -p 12010";
@@ -432,6 +438,46 @@
                 test(ex instanceof Ice.UnexpectedObjectException);
                 test(ex.type == "::Test::AlsoEmpty");
                 test(ex.expectedType == "::Test::Empty");
+            }
+        ).then(
+            function()
+            {
+                out.writeLine("ok");
+                out.write("testing inner modules... ");
+                return initial.getInnerA();
+            }
+        ).then(
+            function(innerA)
+            {
+                test(innerA instanceof Test.Inner.A);
+                test(innerA.theA instanceof Test.B);
+                return initial.getInnerSubA();
+            }
+        ).then(
+            function(innerA)
+            {
+                test(innerA instanceof Test.Inner.Sub.A);
+                test(innerA.theA instanceof Test.Inner.A);
+                return initial.throwInnerEx();
+            }
+        ).then(
+            function()
+            {
+                test(false);
+            },
+            function(ex)
+            {
+                test(ex.reason == "Inner::Ex");
+                return initial.throwInnerSubEx();
+            }
+        ).then(
+            function()
+            {
+                test(false);
+            },
+            function(ex)
+            {
+                test(ex.reason == "Inner::Sub::Ex");
                 out.writeLine("ok");
                 return initial.shutdown();
             }

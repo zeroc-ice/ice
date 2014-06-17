@@ -223,6 +223,34 @@ InitialI::getCompact(const Ice::Current&)
     return new CompactExt();
 }
 
+Test::Inner::APtr
+InitialI::getInnerA(const Ice::Current&)
+{
+    return new Inner::A(_b1);
+}
+
+Test::Inner::Sub::APtr
+InitialI::getInnerSubA(const Ice::Current&)
+{
+    return new Inner::Sub::A(new Inner::A(_b1));
+}
+
+void
+InitialI::throwInnerEx(const Ice::Current&)
+{
+    Inner::Ex ex;
+    ex.reason = "Inner::Ex";
+    throw ex;
+}
+
+void
+InitialI::throwInnerSubEx(const Ice::Current&)
+{
+    Inner::Sub::Ex ex;
+    ex.reason = "Inner::Sub::Ex";
+    throw ex;
+}
+
 IPtr
 InitialI::getJ(const Ice::Current&)
 {
