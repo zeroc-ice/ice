@@ -10,7 +10,6 @@
 namespace IceInternal
 {
 
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
@@ -40,7 +39,6 @@ namespace IceInternal
             Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_handler.getReference().getProtocol()));
 
             writeHeader(operation, mode, context);
-_op = operation;
         }
 
         //
@@ -61,7 +59,6 @@ _op = operation;
             Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_handler.getReference().getProtocol()));
 
             writeHeader(operation, mode, context);
-_op = operation;
         }
 
         public void reclaim()
@@ -246,11 +243,6 @@ _op = operation;
                 Debug.Assert(_handler.getReference().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
 
                 Debug.Assert(_state <= StateInProgress);
-if(_op.Equals("shutdown"))
-{
-    _successST = Environment.StackTrace;
-    Console.WriteLine("\n=== Got reply");
-}
 
                 if(_remoteObserver != null)
                 {
@@ -404,11 +396,6 @@ if(_op.Equals("shutdown"))
             _m.Lock();
             try
             {
-if(_state > StateInProgress)
-{
-    Console.WriteLine("\n\n*** _state = " + _state + ", op = " + _op + ", sent = " + sent + "\n" + ex);
-    Console.WriteLine("\nFinished:\n" + (_successST == null ? "None" : _successST));
-}
                 Debug.Assert(_state <= StateInProgress);
                 if(_remoteObserver != null)
                 {
@@ -627,8 +614,6 @@ if(_state > StateInProgress)
         private const int StateLocalException = 4;
         private const int StateFailed = 5;
         private int _state;
-public string _op;
-private string _successST;
 
         private InvocationObserver _observer;
         private RemoteObserver _remoteObserver;
