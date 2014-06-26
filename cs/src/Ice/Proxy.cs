@@ -2856,6 +2856,17 @@ namespace Ice
             }
             return d;
         }
+
+
+	/// <summary>
+        /// Returns the Slice type id of the interface or class associated
+        /// with this proxy class.
+        /// </summary>
+        /// <returns>The type id, "::Ice::Object".</returns>
+        public static string ice_staticId()
+        {
+            return Ice.ObjectImpl.ice_staticId();
+        }
     }
 
     public interface ObjectDel_

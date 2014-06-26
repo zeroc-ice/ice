@@ -142,4 +142,17 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
         }
         return d;
     }
+
+    /**
+     * Returns the Slice type id of the interface or class associated 
+     * with this proxy class.
+     *
+     * @return the type id, "::Ice::Object" 
+     **/ 
+    public static String
+    ice_staticId()
+    {
+	return Ice.ObjectImpl.ice_staticId();
+    }
+
 }

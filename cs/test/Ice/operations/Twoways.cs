@@ -56,6 +56,10 @@ class Twoways
     {
         p.ice_ping();
 
+	test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClass.ice_staticId()));
+	test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
+
+
         test(p.ice_isA(Test.MyClass.ice_staticId()));
 
         test(p.ice_id().Equals(Test.MyDerivedClass.ice_staticId()));

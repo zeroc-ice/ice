@@ -373,6 +373,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "return $proxy->ice_uncheckedCast('" << scoped << "', $facet);";
         _out << eb;
 
+	_out << sp << nl << "public static function ice_staticId()";
+	_out << sb;
+	_out << nl << "return '" << scoped << "';";
+	_out << eb;
+
         _out << eb;
     }
 

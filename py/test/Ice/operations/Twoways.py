@@ -37,6 +37,13 @@ def twoways(communicator, p):
     # ice_id
     #
     test(p.ice_id() == Test.MyDerivedClass.ice_staticId())
+    
+
+    #
+    # Prx ice_staticId 
+    # 
+    test(Test.MyDerivedClassPrx.ice_staticId() == Test.MyDerivedClass.ice_staticId())
+
 
     #
     # opVoid

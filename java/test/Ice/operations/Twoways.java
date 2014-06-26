@@ -27,6 +27,7 @@ import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
 import test.Ice.operations.Test.MyClassPrxHolder;
 import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyEnumHolder;
@@ -83,6 +84,9 @@ class Twoways
         test(p.ice_isA(MyClass.ice_staticId()));
 
         test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
+
+	test(MyDerivedClassPrxHelper.ice_staticId().equals(MyDerivedClass.ice_staticId()));
+	test(Ice.ObjectPrxHelper.ice_staticId().equals(Ice.ObjectImpl.ice_staticId()));
 
         {
             String[] ids = p.ice_ids();

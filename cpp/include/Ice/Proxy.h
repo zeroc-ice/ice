@@ -585,6 +585,13 @@ public:
 
     ::std::string end_ice_id(const ::Ice::AsyncResultPtr&);
 
+
+    static const ::std::string& ice_staticId()
+    {
+        return ::Ice::Object::ice_staticId();
+    } 
+
+
     // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string& operation, 
                     ::Ice::OperationMode mode, 

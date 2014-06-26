@@ -359,6 +359,8 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
+
+    /*
     void
     reset()
     {
@@ -390,6 +392,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             }
         }
     }
+    */
     
     protected Ice.Instrumentation.ObserverUpdater updater;
 

@@ -42,6 +42,11 @@ function twoways($communicator, $p)
     }
 
     {
+        test(Test_MyDerivedClassPrxHelper::ice_staticId() == Test_MyDerivedClass::ice_staticId());
+    }
+      
+
+    {
         test($p->ice_isA("::Test::MyClass"));
     }
 

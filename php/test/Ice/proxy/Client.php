@@ -402,7 +402,7 @@ function allTests($communicator)
     $b1 = $b1->ice_locator($locator->ice_uncheckedCast("::Ice::Locator"));
 
     $proxyProps = $communicator->proxyToProperty($b1, "Test");
-    test(count($proxyProps) == 18);
+    test(count($proxyProps) == 21);
 
     test($proxyProps["Test"] == "test -t -e 1.0");
     //test($proxyProps["Test.CollocationOptimized"] == "1");
