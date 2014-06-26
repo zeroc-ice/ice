@@ -30,22 +30,22 @@ sys.stdout.write("testing with conversion... ")
 sys.stdout.flush()
 client.sendline('u')
 if sys.version_info[0] == 2:
-    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\351e"')
-    client.expect('Received: "Bonne journ\\\\303\\\\251e"')
+    server.expect('Received by server \\(UTF-8\\): "Bonne journ\\\\351e"')
+    client.expect('Received by client: "Bonne journ\\\\303\\\\251e"')
 else:
-    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\o351e"')
-    client.expect('Received: "Bonne journ\\\\o303\\\\o251e"')
+    server.expect('Received by server \\(UTF-8\\): "Bonne journ\\\\o351e"')
+    client.expect('Received by client: "Bonne journ\\\\o303\\\\o251e"')
 print("ok")
 
 sys.stdout.write("testing without conversion... ")
 sys.stdout.flush()
 client.sendline('t')
 if sys.version_info[0] == 2:
-    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\303\\\\251e"')
-    client.expect('Received: "Bonne journ\\\\351e"')
+    server.expect('Received by server \\(UTF-8\\): "Bonne journ\\\\303\\\\251e"')
+    client.expect('Received by client: "Bonne journ\\\\351e"')
 else:
-    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\o303\\\\o251e"')
-    client.expect('Received: "Bonne journ\\\\o351e"')
+    server.expect('Received by server \\(UTF-8\\): "Bonne journ\\\\o303\\\\o251e"')
+    client.expect('Received by client: "Bonne journ\\\\o351e"')
 print("ok")
 
 client.sendline('s')

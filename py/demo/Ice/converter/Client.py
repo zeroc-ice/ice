@@ -63,13 +63,13 @@ class Client:
                 sys.stdout.flush()
                 c = sys.stdin.readline().strip()
                 if c == 't':
-                    ret = greet1.exchangeGreeting(greeting)
-                    print("Received: \"" + decodeString(ret) + "\"")
-                elif c == 'u':
                     ret = greet2.exchangeGreeting(greeting)
-                    print("Received: \"" + decodeString(ret) + "\"")
+                    print("Received by client: \"" + decodeString(ret) + "\"")
+                elif c == 'u':
+                    ret = greet1.exchangeGreeting(greeting)
+                    print("Received by client: \"" + decodeString(ret) + "\"")
                 elif c == 's':
-                    greet1.shutdown()
+                    greet2.shutdown()
                 elif c == 'x':
                     pass # Nothing to do
                 elif c == '?':
@@ -94,14 +94,14 @@ try:
     initData.properties = Ice.createProperties(None, initData.properties)
     initData.properties.load("config.client")
     #
-    # With converter
+    # Without converter
     #
     communicator1 = Ice.initialize(sys.argv, initData)
 
     #
-    # Clear plug-in, so no converter
+    # Add converter plugin (can't be removed later on)
     #
-    initData.properties.setProperty("Ice.Plugin.StringConverter", "")
+    initData.properties.setProperty("Ice.Plugin.StringConverter", "Ice:createStringConverter iconv=ISO8859-1 windows=1252")
     communicator2 = Ice.initialize(sys.argv, initData)
 
     app = Client()

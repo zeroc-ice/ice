@@ -26,7 +26,7 @@ def decodeString(str):
 class GreatI(Demo.Greet):
     def exchangeGreeting(self, msg, current=None):
        
-        print("Received (UTF-8): \"" + decodeString(msg) + "\"")
+        print("Received by server (UTF-8): \"" + decodeString(msg) + "\"")
         return "Bonne journ\303\251e"
 
     def shutdown(self, current=None):
