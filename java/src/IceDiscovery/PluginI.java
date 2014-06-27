@@ -85,7 +85,21 @@ public class PluginI implements Ice.Plugin
 
         Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
         lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
-
+        try
+        {
+            lookupPrx.ice_getConnection();
+        }
+        catch(Ice.LocalException ex)
+        {
+            StringBuilder b = new StringBuilder();
+            b.append("unable to establish multicast connection, IceDiscovery will be disabled:\n");
+            b.append("proxy = ");
+            b.append(lookupPrx.toString());
+            b.append('\n');
+            b.append(ex.toString());
+            throw new Ice.PluginInitializationException(b.toString());
+        }
+        
         //
         // Add lookup and lookup reply Ice objects
         //

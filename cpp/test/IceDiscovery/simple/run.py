@@ -29,7 +29,12 @@ args = " --Ice.Plugin.IceDiscovery=IceDiscovery:createIceDiscovery"
 args += " --IceDiscovery.Timeout=30"
 args += " --IceDiscovery.RetryCount=1"
 if TestUtil.ipv6:
-    args += " --IceDiscovery.Interface=\"::1\""
+    #
+    # Don't set the interface for the multicast datagrams, this doesn't
+    # work with some Linux distributions (CentOS 6.x)
+    #
+    #args += " --IceDiscovery.Address=\"ff15::1:1\" --IceDiscovery.Interface=\"::1\""
+    args += " --IceDiscovery.Address=\"ff15::1:1\""
 else:
     args += " --IceDiscovery.Interface=127.0.0.1"
 

@@ -215,7 +215,7 @@ namespace IceDiscovery
                 }
                 if(request.addCallback(cb))
                 {
-                    _lookup.findObjectById(_domainId, id, _lookupReply);
+                    _lookup.begin_findObjectById(_domainId, id, _lookupReply);
                     _timer.schedule(request, _timeout);
                 }
             }
@@ -233,7 +233,7 @@ namespace IceDiscovery
                 }
                 if(request.addCallback(cb))
                 {
-                    _lookup.findAdapterById(_domainId, adapterId, _lookupReply);
+                    _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
                     _timer.schedule(request, _timeout);
                 }
             }
@@ -284,7 +284,7 @@ namespace IceDiscovery
 
                 if(request.retry())
                 {
-                    _lookup.findObjectById(_domainId, request.getId(), _lookupReply);
+                    _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
                     _timer.schedule(request, _timeout);
                 }
                 else
@@ -308,7 +308,7 @@ namespace IceDiscovery
 
                 if(request.retry())
                 {
-                    _lookup.findAdapterById(_domainId, request.getId(), _lookupReply);
+                    _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
                     _timer.schedule(request, _timeout);
                 }
                 else

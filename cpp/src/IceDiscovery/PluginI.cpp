@@ -103,6 +103,19 @@ PluginI::initialize()
 
     Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
     lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
+    try
+    {
+        // Ensure we can establish a connection to the multicast proxy
+        lookupPrx->ice_getConnection();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        ostringstream os;
+        os << "unable to establish multicast connection, IceDiscovery will be disabled:\n";
+        os << "proxy = " << lookupPrx << '\n';
+        os << ex;
+        throw Ice::PluginInitializationException(__FILE__, __LINE__, os.str());
+    }
 
     //
     // Add lookup and lookup reply Ice objects

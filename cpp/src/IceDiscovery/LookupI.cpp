@@ -166,7 +166,7 @@ LookupI::findObject(const Ice::AMD_Locator_findObjectByIdPtr& cb, const Ice::Ide
 
     if(p->second->addCallback(cb))
     {
-        _lookup->findObjectById(_domainId, id, _lookupReply);
+        _lookup->begin_findObjectById(_domainId, id, _lookupReply);
         _timer->schedule(p->second, _timeout);
     }
 }
@@ -183,7 +183,7 @@ LookupI::findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr& cb, const std::s
 
     if(p->second->addCallback(cb))
     {
-        _lookup->findAdapterById(_domainId, adapterId, _lookupReply);
+        _lookup->begin_findAdapterById(_domainId, adapterId, _lookupReply);
         _timer->schedule(p->second, _timeout);
     }
 }
@@ -232,7 +232,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 
     if(request->retry())
     {
-        _lookup->findObjectById(_domainId, request->getId(), _lookupReply);
+        _lookup->begin_findObjectById(_domainId, request->getId(), _lookupReply);
         _timer->schedule(p->second, _timeout);
     }
     else
@@ -255,7 +255,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 
     if(request->retry())
     {
-        _lookup->findAdapterById(_domainId, request->getId(), _lookupReply);
+        _lookup->begin_findAdapterById(_domainId, request->getId(), _lookupReply);
         _timer->schedule(p->second, _timeout);
     }
     else

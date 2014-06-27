@@ -229,7 +229,7 @@ class LookupI extends _LookupDisp
         
         if(request.addCallback(cb))
         {
-            _lookup.findObjectById(_domainId, id, _lookupReply);
+            _lookup.begin_findObjectById(_domainId, id, _lookupReply);
             _timer.schedule(request, _timeout);
         }
     }
@@ -246,7 +246,7 @@ class LookupI extends _LookupDisp
         
         if(request.addCallback(cb))
         {
-            _lookup.findAdapterById(_domainId, adapterId, _lookupReply);
+            _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
             _timer.schedule(request, _timeout);
         }
     }
@@ -292,7 +292,7 @@ class LookupI extends _LookupDisp
         
         if(request.retry())
         {
-            _lookup.findObjectById(_domainId, request.getId(), _lookupReply);
+            _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
             _timer.schedule(request, _timeout);
         }
         else
@@ -313,7 +313,7 @@ class LookupI extends _LookupDisp
         
         if(request.retry())
         {
-            _lookup.findAdapterById(_domainId, request.getId(), _lookupReply);
+            _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
             _timer.schedule(request, _timeout);
         }
         else

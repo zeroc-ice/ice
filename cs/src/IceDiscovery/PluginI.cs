@@ -95,7 +95,21 @@ namespace IceDiscovery
 
             Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
             lookupPrx = lookupPrx.ice_collocationOptimized(false);
-    
+            try
+            {
+                lookupPrx.ice_getConnection();
+            }
+            catch(Ice.LocalException ex)
+            {
+                StringBuilder b = new StringBuilder();
+                b.Append("unable to establish multicast connection, IceDiscovery will be disabled:\n");
+                b.Append("proxy = ");
+                b.Append(lookupPrx.ToString());
+                b.Append('\n');
+                b.Append(ex.ToString());
+                throw new Ice.PluginInitializationException(b.ToString());
+            }
+
             //
             // Add lookup and lookup reply Ice objects
             //
