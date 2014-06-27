@@ -25,8 +25,7 @@ struct LoginData
     std::string password;
 };
     
-class Coordinator : virtual public Glacier2::SessionCallback,
-                    virtual public Demo::ChatCallback
+class Coordinator : public Glacier2::SessionCallback, public Demo::ChatCallback
 {
 public:
 
