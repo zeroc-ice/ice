@@ -47,7 +47,9 @@ batchOneways(const Test::MyClassPrx& p)
     }
     
     Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
-    
+    batch->ice_flushBatchRequests();
+    batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests());
+
     int i;
 
     for(i = 0 ; i < 30 ; ++i)
@@ -62,40 +64,43 @@ batchOneways(const Test::MyClassPrx& p)
         }
     }
     
-    batch->ice_getConnection()->flushBatchRequests();
-
-    Test::MyClassPrx batch2 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
-
-    batch->ice_ping();
-    batch2->ice_ping();
-    batch->ice_flushBatchRequests();
-    batch->ice_getConnection()->close(false);
-    batch->ice_ping();
-    batch2->ice_ping();
-
-    batch->ice_getConnection();
-    batch2->ice_getConnection();
-
-    batch->ice_ping();
-    batch->ice_getConnection()->close(false);
-    try
+    if(batch->ice_getConnection())
     {
+        batch->ice_getConnection()->flushBatchRequests();
+
+        Test::MyClassPrx batch2 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
+
         batch->ice_ping();
-        test(false);
-    }
-    catch(const Ice::CloseConnectionException&)
-    {
-    }
-    try
-    {
         batch2->ice_ping();
-        test(false);
+        batch->ice_flushBatchRequests();
+        batch->ice_getConnection()->close(false);
+        batch->ice_ping();
+        batch2->ice_ping();
+
+        batch->ice_getConnection();
+        batch2->ice_getConnection();
+
+        batch->ice_ping();
+        batch->ice_getConnection()->close(false);
+        try
+        {
+            batch->ice_ping();
+            test(false);
+        }
+        catch(const Ice::CloseConnectionException&)
+        {
+        }
+        try
+        {
+            batch2->ice_ping();
+            test(false);
+        }
+        catch(const Ice::CloseConnectionException&)
+        {
+        }
+        batch->ice_ping();
+        batch2->ice_ping();
     }
-    catch(const Ice::CloseConnectionException&)
-    {
-    }
-    batch->ice_ping();
-    batch2->ice_ping();
 
     Ice::Identity identity;
     identity.name = "invalid";

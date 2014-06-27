@@ -84,7 +84,7 @@ public class AllTests
                 initial.begin_opByte(p1.get(),
                     (Ice.ByteOptional ret, Ice.ByteOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -93,7 +93,7 @@ public class AllTests
                 initial.begin_opByte(p1,
                     (Ice.ByteOptional ret, Ice.ByteOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -105,7 +105,7 @@ public class AllTests
                 initial.begin_opBool(p1.get(),
                     (Ice.BooleanOptional ret, Ice.BooleanOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -114,7 +114,7 @@ public class AllTests
                 initial.begin_opBool(p1,
                     (Ice.BooleanOptional ret, Ice.BooleanOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -126,7 +126,7 @@ public class AllTests
                 initial.begin_opShort(p1.get(),
                     (Ice.ShortOptional ret, Ice.ShortOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             {
@@ -134,7 +134,7 @@ public class AllTests
                 initial.begin_opShort(p1,
                     (Ice.ShortOptional ret, Ice.ShortOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -146,7 +146,7 @@ public class AllTests
                 initial.begin_opInt(p1.get(),
                     (Ice.IntOptional ret, Ice.IntOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -155,7 +155,7 @@ public class AllTests
                 initial.begin_opInt(p1,
                     (Ice.IntOptional ret, Ice.IntOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -167,7 +167,7 @@ public class AllTests
                 initial.begin_opLong(p1.get(),
                     (Ice.LongOptional ret, Ice.LongOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -176,7 +176,7 @@ public class AllTests
                 initial.begin_opLong(p1,
                     (Ice.LongOptional ret, Ice.LongOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -188,7 +188,7 @@ public class AllTests
                 initial.begin_opFloat(p1.get(),
                     (Ice.FloatOptional ret, Ice.FloatOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -197,7 +197,7 @@ public class AllTests
                 initial.begin_opFloat(p1,
                     (Ice.FloatOptional ret, Ice.FloatOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -209,7 +209,7 @@ public class AllTests
                 initial.begin_opDouble(p1.get(),
                     (Ice.DoubleOptional ret, Ice.DoubleOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -218,7 +218,7 @@ public class AllTests
                 initial.begin_opDouble(p1,
                     (Ice.DoubleOptional ret, Ice.DoubleOptional p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -230,7 +230,7 @@ public class AllTests
                 initial.begin_opString(p1.get(),
                     (Ice.Optional<String> ret, Ice.Optional<String> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -239,7 +239,7 @@ public class AllTests
                 initial.begin_opString(p1,
                     (Ice.Optional<String> ret, Ice.Optional<String> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -251,7 +251,7 @@ public class AllTests
                 initial.begin_opMyEnum(p1.get(),
                     (Ice.Optional<MyEnum> ret, Ice.Optional<MyEnum> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -260,7 +260,7 @@ public class AllTests
                 initial.begin_opMyEnum(p1,
                     (Ice.Optional<MyEnum> ret, Ice.Optional<MyEnum> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get() == p2.get() && ret.get() == p1.get()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -272,7 +272,7 @@ public class AllTests
                 initial.begin_opSmallStruct(p1.get(),
                     (Ice.Optional<SmallStruct> ret, Ice.Optional<SmallStruct> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -281,7 +281,7 @@ public class AllTests
                 initial.begin_opSmallStruct(p1,
                     (Ice.Optional<SmallStruct> ret, Ice.Optional<SmallStruct> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -293,7 +293,7 @@ public class AllTests
                 initial.begin_opFixedStruct(p1.get(),
                     (Ice.Optional<FixedStruct> ret, Ice.Optional<FixedStruct> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -302,7 +302,7 @@ public class AllTests
                 initial.begin_opFixedStruct(p1,
                     (Ice.Optional<FixedStruct> ret, Ice.Optional<FixedStruct> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -314,7 +314,7 @@ public class AllTests
                 initial.begin_opVarStruct(p1.get(),
                     (Ice.Optional<VarStruct> ret, Ice.Optional<VarStruct> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -323,7 +323,7 @@ public class AllTests
                 initial.begin_opVarStruct(p1,
                     (Ice.Optional<VarStruct> ret, Ice.Optional<VarStruct> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -336,7 +336,7 @@ public class AllTests
                     (Ice.Optional<OneOptional> ret, Ice.Optional<OneOptional> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().getA() == p2.get().getA() && 
                                 ret.get().getA() == p1.get().getA()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -346,7 +346,7 @@ public class AllTests
                     (Ice.Optional<OneOptional> ret, Ice.Optional<OneOptional> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().getA() == p2.get().getA() && 
                                 ret.get().getA() == p1.get().getA()),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -359,7 +359,7 @@ public class AllTests
                 initial.begin_opOneOptionalProxy(p1.get(),
                     (Ice.Optional<OneOptionalPrx> ret, Ice.Optional<OneOptionalPrx> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -368,7 +368,7 @@ public class AllTests
                 initial.begin_opOneOptionalProxy(p1,
                     (Ice.Optional<OneOptionalPrx> ret, Ice.Optional<OneOptionalPrx> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -383,7 +383,7 @@ public class AllTests
                     (Ice.Optional<byte[]> ret, Ice.Optional<byte[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -393,7 +393,7 @@ public class AllTests
                     (Ice.Optional<byte[]> ret, Ice.Optional<byte[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -407,7 +407,7 @@ public class AllTests
                     (Ice.Optional<boolean[]> ret, Ice.Optional<boolean[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -417,7 +417,7 @@ public class AllTests
                     (Ice.Optional<boolean[]> ret, Ice.Optional<boolean[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -431,7 +431,7 @@ public class AllTests
                     (Ice.Optional<short[]> ret, Ice.Optional<short[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -441,7 +441,7 @@ public class AllTests
                     (Ice.Optional<short[]> ret, Ice.Optional<short[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -455,7 +455,7 @@ public class AllTests
                     (Ice.Optional<int[]> ret, Ice.Optional<int[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                                 java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -465,7 +465,7 @@ public class AllTests
                     (Ice.Optional<int[]> ret, Ice.Optional<int[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -479,7 +479,7 @@ public class AllTests
                     (Ice.Optional<long[]> ret, Ice.Optional<long[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -489,7 +489,7 @@ public class AllTests
                     (Ice.Optional<long[]> ret, Ice.Optional<long[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -503,7 +503,7 @@ public class AllTests
                     (Ice.Optional<float[]> ret, Ice.Optional<float[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -513,7 +513,7 @@ public class AllTests
                     (Ice.Optional<float[]> ret, Ice.Optional<float[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -527,7 +527,7 @@ public class AllTests
                     (Ice.Optional<double[]> ret, Ice.Optional<double[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -537,7 +537,7 @@ public class AllTests
                     (Ice.Optional<double[]> ret, Ice.Optional<double[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -551,7 +551,7 @@ public class AllTests
                     (Ice.Optional<String[]> ret, Ice.Optional<String[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -561,7 +561,7 @@ public class AllTests
                     (Ice.Optional<String[]> ret, Ice.Optional<String[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -580,7 +580,7 @@ public class AllTests
                     (Ice.Optional<SmallStruct[]> ret, Ice.Optional<SmallStruct[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -590,7 +590,7 @@ public class AllTests
                     (Ice.Optional<SmallStruct[]> ret, Ice.Optional<SmallStruct[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -608,7 +608,7 @@ public class AllTests
                 initial.begin_opSmallStructList(p1.get(),
                     (Ice.Optional<java.util.List<SmallStruct>> ret, Ice.Optional<java.util.List<SmallStruct>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -617,7 +617,7 @@ public class AllTests
                 initial.begin_opSmallStructList(p1,
                     (Ice.Optional<java.util.List<SmallStruct>> ret, Ice.Optional<java.util.List<SmallStruct>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -636,7 +636,7 @@ public class AllTests
                     (Ice.Optional<FixedStruct[]> ret, Ice.Optional<FixedStruct[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -646,7 +646,7 @@ public class AllTests
                     (Ice.Optional<FixedStruct[]> ret, Ice.Optional<FixedStruct[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -664,7 +664,7 @@ public class AllTests
                 initial.begin_opFixedStructList(p1.get(),
                     (Ice.Optional<java.util.List<FixedStruct>> ret, Ice.Optional<java.util.List<FixedStruct>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -673,7 +673,7 @@ public class AllTests
                 initial.begin_opFixedStructList(p1,
                     (Ice.Optional<java.util.List<FixedStruct>> ret, Ice.Optional<java.util.List<FixedStruct>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -692,7 +692,7 @@ public class AllTests
                     (Ice.Optional<VarStruct[]> ret, Ice.Optional<VarStruct[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) &&
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -702,7 +702,7 @@ public class AllTests
                     (Ice.Optional<VarStruct[]> ret, Ice.Optional<VarStruct[]> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && java.util.Arrays.equals(ret.get(), p2.get()) && 
                             java.util.Arrays.equals(ret.get(), p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -715,7 +715,7 @@ public class AllTests
                 initial.begin_opSerializable(p1.get(),
                     (Ice.Optional<SerializableClass> ret, Ice.Optional<SerializableClass> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -724,7 +724,7 @@ public class AllTests
                 initial.begin_opSerializable(p1,
                     (Ice.Optional<SerializableClass> ret, Ice.Optional<SerializableClass> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -741,7 +741,7 @@ public class AllTests
                     (Ice.Optional<java.util.Map<Integer, Integer>> ret, 
                     Ice.Optional<java.util.Map<Integer, Integer>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -751,7 +751,7 @@ public class AllTests
                     (Ice.Optional<java.util.Map<Integer, Integer>> ret, 
                     Ice.Optional<java.util.Map<Integer, Integer>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }
@@ -768,7 +768,7 @@ public class AllTests
                     (Ice.Optional<java.util.Map<String, Integer>> ret, 
                     Ice.Optional<java.util.Map<String, Integer>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
             
@@ -778,7 +778,7 @@ public class AllTests
                     (Ice.Optional<java.util.Map<String, Integer>> ret, 
                     Ice.Optional<java.util.Map<String, Integer>> p2) -> 
                         cb.called(ret.isSet() && p2.isSet() && ret.get().equals(p2.get()) && ret.get().equals(p1.get())),
-                    (Ice.LocalException ex) -> cb.called(false));
+                    (Ice.Exception ex) -> cb.called(false));
                 cb.check();
             }
         }

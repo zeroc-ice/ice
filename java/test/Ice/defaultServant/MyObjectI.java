@@ -17,11 +17,11 @@ public final class MyObjectI extends _MyObjectDisp
     {
         String name = current.id.name;
 
-        if(name == "ObjectNotExist")
+        if(name.equals("ObjectNotExist"))
         {
             throw new Ice.ObjectNotExistException();
         }
-        else if(name == "FacetNotExist")
+        else if(name.equals("FacetNotExist"))
         {
             throw new Ice.FacetNotExistException();
         }
@@ -32,11 +32,11 @@ public final class MyObjectI extends _MyObjectDisp
     {
         String name = current.id.name;
 
-        if(name == "ObjectNotExist")
+        if(name.equals("ObjectNotExist"))
         {
             throw new Ice.ObjectNotExistException();
         }
-        else if(name == "FacetNotExist")
+        else if(name.equals("FacetNotExist"))
         {
             throw new Ice.FacetNotExistException();
         }

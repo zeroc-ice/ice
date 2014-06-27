@@ -21,7 +21,7 @@ public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
+        Test.MyClassPrx myClass = AllTests.allTests(communicator);
 
         Console.Out.Write("testing server shutdown... ");
         Console.Out.Flush();

@@ -18,47 +18,57 @@ namespace IceInternal
     public interface OutgoingMessageCallback
     {
         bool send(Ice.ConnectionI connection, bool compress, bool response);
+        void invokeCollocated(CollocatedRequestHandler handler);
         void sent();
-        void finished(Ice.LocalException ex, bool sent);
+        void finished(Ice.Exception ex, bool sent);
     }
 
     public class Outgoing : OutgoingMessageCallback
     {
-        public Outgoing(RequestHandler handler, string operation, Ice.OperationMode mode,
-                        Dictionary<string, string> context, InvocationObserver observer)
+        public Outgoing(Ice.ObjectPrxHelperBase proxy, string operation, Ice.OperationMode mode, 
+                        Dictionary<string, string> context, bool explicitCtx)
         {
             _state = StateUnsent;
-            _exceptionWrapper = false;
-            _exceptionWrapperRetry = false;
             _sent = false;
-            _handler = handler;
-            _observer = observer;
-            _encoding = Protocol.getCompatibleEncoding(handler.getReference().getEncoding());
-            _os = new BasicStream(_handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
+            _proxy = proxy;
+            _mode = mode;
+            _handler = null;
+            _observer = IceInternal.ObserverHelper.get(proxy, operation, context);
+            _encoding = Protocol.getCompatibleEncoding(_proxy.reference__().getEncoding());
+            _os = new BasicStream(_proxy.reference__().getInstance(), Ice.Util.currentProtocolEncoding);
 
-            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_handler.getReference().getProtocol()));
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.reference__().getProtocol()));
 
-            writeHeader(operation, mode, context);
+            writeHeader(operation, mode, context, explicitCtx);
         }
 
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(RequestHandler handler, string operation, Ice.OperationMode mode,
-                          Dictionary<string, string> context, InvocationObserver observer)
+        public void reset(Ice.ObjectPrxHelperBase proxy, string operation, Ice.OperationMode mode,
+                          Dictionary<string, string> context, bool explicitCtx)
         {
             _state = StateUnsent;
-            _exceptionWrapper = false;
-            _exceptionWrapperRetry = false;
             _exception = null;
             _sent = false;
-            _handler = handler;
-            _observer = observer;
-            _encoding = Protocol.getCompatibleEncoding(handler.getReference().getEncoding());
+            _proxy = proxy;
+            _mode = mode;
+            _handler = null;
+            _observer = IceInternal.ObserverHelper.get(proxy, operation, context);
+            _encoding = Protocol.getCompatibleEncoding(_proxy.reference__().getEncoding());
 
-            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_handler.getReference().getProtocol()));
+            Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(_proxy.reference__().getProtocol()));
 
-            writeHeader(operation, mode, context);
+            writeHeader(operation, mode, context, explicitCtx);
+        }
+
+        public void detach()
+        {
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
+            }
         }
 
         public void reclaim()
@@ -75,13 +85,24 @@ namespace IceInternal
         {
             Debug.Assert(_state == StateUnsent);
 
-            switch(_handler.getReference().getMode())
+            Reference.Mode mode = _proxy.reference__().getMode();
+            if(mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
-                case Reference.Mode.ModeTwoway:
-                case Reference.Mode.ModeOneway:
-                case Reference.Mode.ModeDatagram:
+                _state = StateInProgress;
+                _handler.finishBatchRequest(_os);
+                return true;
+            }
+            
+            int cnt = 0;
+            while(true)
+            {
+                try
                 {
                     _state = StateInProgress;
+                    _exception = null;
+                    _sent = false;
+
+                    _handler = _proxy.getRequestHandler__(false);
 
                     if(_handler.sendRequest(this)) // Request sent and no response expected, we're done.
                     {
@@ -96,7 +117,7 @@ namespace IceInternal
                         // If the handler says it's not finished, we wait until we're done.
                         //
 
-                        int invocationTimeout = _handler.getReference().getInvocationTimeout();
+                        int invocationTimeout = _proxy.reference__().getInvocationTimeout();
                         if(invocationTimeout > 0)
                         {
                             long now = Time.currentMonotonicTimeMillis();
@@ -128,65 +149,64 @@ namespace IceInternal
                     if(timedOut)
                     {
                         _handler.requestTimedOut(this);
-                        Debug.Assert(_exception != null);
+
+                        //
+                        // Wait for the exception to propagate. It's possible the request handler ignores
+                        // the timeout if there was a failure shortly before requestTimedOut got called. 
+                        // In this case, the exception should be set on the Outgoing.
+                        //
+                        _m.Lock();
+                        try
+                        {
+                            while(_exception == null)
+                            {
+                                _m.Wait();
+                            }
+                        }
+                        finally
+                        {
+                            _m.Unlock();
+                        }
                     }
 
                     if(_exception != null)
                     {
-                        if(_exceptionWrapper)
-                        {
-                            throw new LocalExceptionWrapper(_exception, _exceptionWrapperRetry);
-                        }
-
-                        //
-                        // A CloseConnectionException indicates graceful
-                        // server shutdown, and is therefore always repeatable
-                        // without violating "at-most-once". That's because by
-                        // sending a close connection message, the server
-                        // guarantees that all outstanding requests can safely
-                        // be repeated.
-                        //
-                        // An ObjectNotExistException can always be retried as
-                        // well without violating "at-most-once" (see the
-                        // implementation of the checkRetryAfterException
-                        // method of the ProxyFactory class for the reasons
-                        // why it can be useful).
-                        //
-                        if(!_sent ||
-                           _exception is Ice.CloseConnectionException ||
-                           _exception is Ice.ObjectNotExistException)
-                        {
-                            throw _exception;
-                        }
-
-                        //
-                        // Throw the exception wrapped in a LocalExceptionWrapper,
-                        // to indicate that the request cannot be resent without
-                        // potentially violating the "at-most-once" principle.
-                        //
-                        throw new LocalExceptionWrapper(_exception, false);
+                        throw _exception;
                     }
-
-                    Debug.Assert(_state != StateInProgress);
-                    return _state == StateOK;
+                    else
+                    {
+                        Debug.Assert(_state != StateInProgress);
+                        return _state == StateOK;
+                    }
                 }
-
-                case Reference.Mode.ModeBatchOneway:
-                case Reference.Mode.ModeBatchDatagram:
+                catch(RetryException)
                 {
-                    //
-                    // For batch oneways and datagrams, the same rules
-                    // as for regular oneways and datagrams (see
-                    // comment above) apply.
-                    //
-                    _state = StateInProgress;
-                    _handler.finishBatchRequest(_os);
-                    return true;
+                    _proxy.setRequestHandler__(_handler, null); // Clear request handler and retry.
+                }
+                catch(Ice.Exception ex)
+                {
+                    try
+                    {
+                        int interval = _proxy.handleException__(ex, _handler, _mode, _sent, ref cnt);
+                        if(_observer != null)
+                        {
+                            _observer.retried(); // Invocation is being retried.
+                        }
+                        if(interval > 0)
+                        {
+                            System.Threading.Thread.Sleep(interval);
+                        }
+                    }
+                    catch(Ice.Exception exc)
+                    {
+                        if(_observer != null)
+                        {
+                            _observer.failed(exc.ice_name());
+                        }
+                        throw exc;
+                    }
                 }
             }
-
-            Debug.Assert(false);
-            return false;
         }
 
         public void abort(Ice.LocalException ex)
@@ -198,7 +218,7 @@ namespace IceInternal
             // we must notify the connection about that we give up
             // ownership of the batch stream.
             //
-            Reference.Mode mode = _handler.getReference().getMode();
+            Reference.Mode mode = _proxy.reference__().getMode();
             if(mode == Reference.Mode.ModeBatchOneway || mode == Reference.Mode.ModeBatchDatagram)
             {
                 _handler.abortBatchRequest();
@@ -212,12 +232,18 @@ namespace IceInternal
             return connection.sendRequest(this, compress, response);
         }
         
+        public void
+        invokeCollocated(CollocatedRequestHandler handler)
+        {
+            handler.invokeRequest(this);
+        }
+
         public void sent()
         {
             _m.Lock();
             try
             {
-                if(_handler.getReference().getMode() != Reference.Mode.ModeTwoway)
+                if(_proxy.reference__().getMode() != Reference.Mode.ModeTwoway)
                 {
                     if(_remoteObserver != null)
                     {
@@ -240,7 +266,7 @@ namespace IceInternal
             _m.Lock();
             try
             {
-                Debug.Assert(_handler.getReference().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
+                Debug.Assert(_proxy.reference__().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
 
                 Debug.Assert(_state <= StateInProgress);
 
@@ -253,7 +279,7 @@ namespace IceInternal
 
                 if(_is == null)
                 {
-                    _is = new IceInternal.BasicStream(_handler.getReference().getInstance(), 
+                    _is = new IceInternal.BasicStream(_proxy.reference__().getInstance(), 
                                                       Ice.Util.currentProtocolEncoding);
                 }
                 _is.swap(istr);
@@ -391,12 +417,26 @@ namespace IceInternal
             }
         }
 
-        public void finished(Ice.LocalException ex, bool sent)
+        public void finished(Ice.Exception ex, bool sent)
         {
             _m.Lock();
             try
             {
-                Debug.Assert(_state <= StateInProgress);
+                //Debug.Assert(_state <= StateInProgress);
+                if(_state > StateInProgress)
+                {
+                    //
+                    // Response was already received but message
+                    // didn't get removed first from the connection
+                    // send message queue so it's possible we can be
+                    // notified of failures. In this case, ignore the
+                    // failure and assume the outgoing has been sent.
+                    //
+                    Debug.Assert(_state != StateFailed);
+                    _sent = true;
+                    _m.Notify();
+                }
+                
                 if(_remoteObserver != null)
                 {
                     _remoteObserver.failed(ex.ice_name());
@@ -414,31 +454,6 @@ namespace IceInternal
             }
         }
 
-        public void finished(LocalExceptionWrapper ex)
-        {
-            _m.Lock();
-            try
-            {
-                if(_remoteObserver != null)
-                {
-                    _remoteObserver.failed(ex.get().ice_name());
-                    _remoteObserver.detach();
-                    _remoteObserver = null;
-                }
-
-                _state = StateFailed;
-                _exceptionWrapper = true;
-                _exceptionWrapperRetry = ex.retry();
-                _exception = ex.get();
-                _sent = false;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-        }
-        
         public BasicStream ostr()
         {
             return _os;
@@ -524,9 +539,27 @@ namespace IceInternal
             }
         }
 
-        private void writeHeader(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
+        public void attachCollocatedObserver(int requestId)
         {
-            switch(_handler.getReference().getMode())
+            if(_observer != null)
+            {
+                _remoteObserver = _observer.getCollocatedObserver(requestId, _os.size() - Protocol.headerSize - 4);
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.attach();
+                }
+            }
+        }
+
+        private void writeHeader(string operation, Ice.OperationMode mode, Dictionary<string, string> context, 
+                                 bool explicitCtx)
+        {
+            if(explicitCtx && context == null)
+            {
+                context = _emptyContext;
+            }
+
+            switch(_proxy.reference__().getMode())
             {
                 case Reference.Mode.ModeTwoway:
                 case Reference.Mode.ModeOneway:
@@ -539,19 +572,40 @@ namespace IceInternal
                 case Reference.Mode.ModeBatchOneway:
                 case Reference.Mode.ModeBatchDatagram:
                 {
-                    _handler.prepareBatchRequest(_os);
+                    while(true)
+                    {
+                        try
+                        {
+                            _handler = _proxy.getRequestHandler__(true);
+                            _handler.prepareBatchRequest(_os);
+                            break;
+                        }
+                        catch(RetryException)
+                        {
+                            _proxy.setRequestHandler__(_handler, null); // Clear request handler and retry.
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            if(_observer != null)
+                            {
+                                _observer.failed(ex.ice_name());
+                            }
+                            _proxy.setRequestHandler__(_handler, null); // Clear request handler
+                            throw ex;
+                        }
+                    }
                     break;
                 }
             }
 
             try
             {
-                _handler.getReference().getIdentity().write__(_os);
+                _proxy.reference__().getIdentity().write__(_os);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-                string facet = _handler.getReference().getFacet();
+                string facet = _proxy.reference__().getFacet();
                 if(facet == null || facet.Length == 0)
                 {
                     _os.writeStringSeq(null);
@@ -578,8 +632,8 @@ namespace IceInternal
                     //
                     // Implicit context
                     //
-                    Ice.ImplicitContextI implicitContext = _handler.getReference().getInstance().getImplicitContext();
-                    Dictionary<string, string> prxContext = _handler.getReference().getContext();
+                    Ice.ImplicitContextI implicitContext = _proxy.reference__().getInstance().getImplicitContext();
+                    Dictionary<string, string> prxContext = _proxy.reference__().getContext();
 
                     if(implicitContext == null)
                     {
@@ -597,14 +651,13 @@ namespace IceInternal
             }
         }
 
-        internal RequestHandler _handler;
-        internal BasicStream _is;
-        internal BasicStream _os;
-        internal bool _sent;
-
-        private bool _exceptionWrapper;
-        private bool _exceptionWrapperRetry;
-        private Ice.LocalException _exception;
+        private Ice.ObjectPrxHelperBase _proxy;
+        private Ice.OperationMode _mode;
+        private RequestHandler _handler;
+        private BasicStream _is;
+        private BasicStream _os;
+        private bool _sent;
+        private Ice.Exception _exception;
         private Ice.EncodingVersion _encoding;
 
         private const int StateUnsent = 0;
@@ -620,35 +673,40 @@ namespace IceInternal
 
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 
-        public Outgoing next; // For use by Ice.ObjectDelM_
+        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
+
+        public Outgoing next; // For use by Ice.ObjectPrxHelperBase
     }
 
     public class BatchOutgoing : OutgoingMessageCallback
     {
-        public BatchOutgoing(Ice.ConnectionI connection, Instance instance, InvocationObserver observer)
+        public BatchOutgoing(Ice.ConnectionI connection, Instance instance, string operation)
         {
             _connection = connection;
             _sent = false;
-            _observer = observer;
+            _observer = IceInternal.ObserverHelper.get(instance, operation);
             _os = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
         }
 
-        public BatchOutgoing(RequestHandler handler, InvocationObserver observer)
+        public BatchOutgoing(Ice.ObjectPrxHelperBase proxy, string operation)
         {
-            _handler = handler;
+            _proxy = proxy;
             _sent = false;
-            _observer = observer;
-            _os = new BasicStream(handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
-            Protocol.checkSupportedProtocol(handler.getReference().getProtocol());
+            _observer = IceInternal.ObserverHelper.get(proxy, operation);
+            _os = new BasicStream(_proxy.reference__().getInstance(), Ice.Util.currentProtocolEncoding);
+            Protocol.checkSupportedProtocol(_proxy.reference__().getProtocol());
         }
 
         public void invoke()
         {
-            Debug.Assert(_handler != null || _connection != null);
+            Debug.Assert(_proxy != null || _connection != null);
 
-            if(_handler != null && !_handler.sendRequest(this) ||
-               _connection != null && !_connection.flushBatchRequests(this))
+            if(_connection != null)
             {
+                if(_connection.flushBatchRequests(this))
+                {
+                    return;
+                }
                 _m.Lock();
                 try
                 {
@@ -656,7 +714,6 @@ namespace IceInternal
                     {
                         _m.Wait();
                     }
-
                     if(_exception != null)
                     {
                         throw _exception;
@@ -666,12 +723,102 @@ namespace IceInternal
                 {
                     _m.Unlock();
                 }
+                return;
+            }
+
+            RequestHandler handler = null;
+            try
+            {
+                handler = _proxy.getRequestHandler__(false);
+                if(handler.sendRequest(this))
+                {
+                    return;
+                }
+
+                bool timedOut = false;
+                _m.Lock();
+                try
+                {
+                    int timeout = _proxy.reference__().getInvocationTimeout();
+                    if(timeout > 0)
+                    {
+                        long now = Time.currentMonotonicTimeMillis();
+                        long deadline = now + timeout;
+                        while(_exception == null && !_sent && !timedOut)
+                        {
+                            _m.TimedWait((int)(deadline - now));
+                            if(_exception == null && !_sent)
+                            {
+                                now = Time.currentMonotonicTimeMillis();
+                                timedOut = now >= deadline;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        while(_exception == null && !_sent)
+                        {
+                            _m.Wait();
+                        }
+                    }
+                }
+                finally
+                {
+                    _m.Unlock();
+                }
+                
+                if(timedOut)
+                {
+                    handler.requestTimedOut(this);
+
+                    _m.Lock();
+                    try
+                    {
+                        while(_exception == null)
+                        {
+                            _m.Wait();
+                        }
+                    }
+                    finally
+                    {
+                        _m.Unlock();
+                    }
+                }
+                
+                if(_exception != null)
+                {
+                    throw _exception;
+                }
+            }
+            catch(RetryException)
+            {
+                //
+                // Clear request handler but don't retry or throw. Retrying
+                // isn't useful, there were no batch requests associated with
+                // the proxy's request handler.
+                //
+                _proxy.setRequestHandler__(handler, null); 
+            }
+            catch(Ice.Exception ex)
+            {
+                _proxy.setRequestHandler__(handler, null); // Clear request handler
+                if(_observer != null)
+                {
+                    _observer.failed(ex.ice_name());
+                }
+                throw ex; // Throw to notify the user that batch requests were potentially lost.
             }
         }
+
 
         public bool send(Ice.ConnectionI connection, bool compress, bool response)
         {
             return connection.flushBatchRequests(this);
+        }
+        
+        public void invokeCollocated(CollocatedRequestHandler handler)
+        {
+            handler.invokeBatchRequests(this);
         }
 
         public void sent()
@@ -693,7 +840,7 @@ namespace IceInternal
             }
         }
 
-        public void finished(Ice.LocalException ex, bool sent)
+        public void finished(Ice.Exception ex, bool sent)
         {
             _m.Lock();
             if(_remoteObserver != null)
@@ -729,11 +876,23 @@ namespace IceInternal
             }
         }
 
-        private RequestHandler _handler;
+        public void attachCollocatedObserver(int requestId)
+        {
+            if(_observer != null)
+            {
+                _remoteObserver = _observer.getCollocatedObserver(requestId, _os.size() - Protocol.headerSize - 4);
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.attach();
+                }
+            }
+        }
+
+        private Ice.ObjectPrxHelperBase _proxy;
         private Ice.ConnectionI _connection;
         private BasicStream _os;
         private bool _sent;
-        private Ice.LocalException _exception;
+        private Ice.Exception _exception;
 
         private InvocationObserver _observer;
         private Observer _remoteObserver;

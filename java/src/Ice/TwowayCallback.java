@@ -20,4 +20,11 @@ public interface TwowayCallback
      * @param ex The Ice run-time exception raised by the operation.
      **/
     public void exception(LocalException __ex);
+
+    /**
+     * Called when the invocation raises an Ice system exception.
+     *
+     * @param ex The Ice system exception raised by the operation.
+     **/
+    public void exception(SystemException __ex);
 }

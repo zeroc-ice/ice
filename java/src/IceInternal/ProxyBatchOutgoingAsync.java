@@ -11,11 +11,10 @@ package IceInternal;
 
 public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
 {
-    public ProxyBatchOutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase callback)
+    public ProxyBatchOutgoingAsync(Ice.ObjectPrxHelperBase prx, String operation, CallbackBase callback)
     {
-        super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation,
-              callback);
-        _proxy = (Ice.ObjectPrxHelperBase)prx;
+        super(prx.ice_getCommunicator(), prx.__reference().getInstance(), operation, callback);
+        _proxy = prx;
         _observer = ObserverHelper.get(prx, operation);
     }
 
@@ -23,25 +22,11 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
     {
         Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
 
-        //
-        // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-        // requests were queued with the connection, they would be lost without being noticed.
-        //
-        Ice._ObjectDel delegate = null;
-        int cnt = -1; // Don't retry.
+        RequestHandler handler = null;
         try
         {
-            delegate = _proxy.__getDelegate(false);
-            RequestHandler handler = delegate.__getRequestHandler();
-            int status;
-            try
-            {
-                status = handler.sendAsyncRequest(this);
-            }
-            catch(IceInternal.LocalExceptionWrapper ex)
-            {
-                throw ex.get();
-            }
+            handler = _proxy.__getRequestHandler(true);
+            int status = handler.sendAsyncRequest(this);
             if((status & AsyncStatus.Sent) > 0)
             {
                 _sentSynchronously = true;
@@ -66,9 +51,23 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
                 }
             }
         }
-        catch(Ice.LocalException __ex)
+        catch(RetryException ex)
         {
-            cnt = _proxy.__handleException(delegate, __ex, null, cnt, _observer);
+            //
+            // Clear request handler but don't retry or throw. Retrying
+            // isn't useful, there were no batch requests associated with
+            // the proxy's request handler.
+            //
+            _proxy.__setRequestHandler(handler, null);
+        }
+        catch(Ice.Exception ex)
+        {
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+            }
+            _proxy.__setRequestHandler(handler, null); // Clear request handler
+            throw ex; // Throw to notify the user lthat batch requests were potentially lost.
         }
     }
 

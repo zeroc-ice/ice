@@ -15,14 +15,6 @@ package Ice;
 public interface Request
 {   
     /**
-     * Returns whether this request is collocated.
-     *
-     * @return <code>true</code> if the invocation was made via proxy created by the same communicator
-     * that hosts the target's object adapter; <code>false</code>, otherwise.
-     **/
-    boolean isCollocated();
-
-    /**
      * Returns the {@link Current} object for this the request.
      *
      * @return The {@link Current} object for this request.

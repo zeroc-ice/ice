@@ -12,20 +12,20 @@ package IceInternal;
 public abstract class Functional_TwowayCallbackBool extends Functional_TwowayCallback implements Ice.TwowayCallbackBool
 {
     public Functional_TwowayCallbackBool(Functional_BoolCallback responseCb, 
-                                         Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                         Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                          Functional_BoolCallback sentCb)
     {
-        super(responseCb != null, localExceptionCb, sentCb);
+        super(responseCb != null, exceptionCb, sentCb);
         this.__responseCb = responseCb;
     }
     
     protected Functional_TwowayCallbackBool(boolean userExceptionCb,
                                             Functional_BoolCallback responseCb,
-                                            Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                            Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                             Functional_BoolCallback sentCb)
     {
-        super(localExceptionCb, sentCb);
-        CallbackBase.check(responseCb != null || (userExceptionCb && localExceptionCb != null));
+        super(exceptionCb, sentCb);
+        CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
         this.__responseCb = responseCb;
     }
     

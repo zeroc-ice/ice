@@ -126,7 +126,7 @@ public class AMI
             {
                 called();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 test(false);
             }
@@ -144,7 +144,7 @@ public class AMI
             {
                 called();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 test(false);
             }
@@ -162,7 +162,7 @@ public class AMI
             {
                 called();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 test(false);
             }
@@ -180,7 +180,7 @@ public class AMI
             {
                 called();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 test(false);
             }
@@ -198,7 +198,7 @@ public class AMI
             {
                 called();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 test(false);
             }
@@ -216,7 +216,7 @@ public class AMI
             {
                 called();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 test(false);
             }
@@ -324,14 +324,14 @@ public class AMI
         }
 
         public void
-        ex(Ice.LocalException ex)
+        ex(Ice.Exception ex)
         {
             test(ex instanceof Ice.NoEndpointException);
             called();
         }
 
         public void
-        noEx(Ice.LocalException ex)
+        noEx(Ice.Exception ex)
         {
             test(false);
         }
@@ -375,7 +375,7 @@ public class AMI
         }
 
         public void
-        ex(Ice.LocalException ex)
+        ex(Ice.Exception ex)
         {
         }
 
@@ -412,7 +412,7 @@ public class AMI
         }
 
         public void
-        exception(Ice.LocalException ex)
+        exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -457,14 +457,14 @@ public class AMI
                 }
                 test(false);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 called();
             }
         }
 
         public void
-        exception(Ice.LocalException ex)
+        exception(Ice.Exception ex)
         {
             called();
         }
@@ -511,7 +511,7 @@ public class AMI
         }
 
         public void
-        ex(Ice.LocalException ex)
+        ex(Ice.Exception ex)
         {
             called();
             throwEx();
@@ -562,74 +562,74 @@ public class AMI
 
             p.begin_ice_isA("::Test::TestIntf", 
                 (boolean r) -> cb.isA(r),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_ice_isA("::Test::TestIntf", 
                 (boolean r) -> cb.isA(r),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
 
             p.begin_ice_ping(
                 () -> cb.ping(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_ice_ping(ctx, 
                 () -> cb.ping(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
 
             p.begin_ice_id(
                 (String id) -> cb.id(id),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_ice_id(ctx, 
                 (String id) -> cb.id(id),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
 
             p.begin_ice_ids(
                 (String[] ids) -> cb.ids(ids),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_ice_ids(ctx,
                 (String[] ids) -> cb.ids(ids),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
 
             p.begin_op(
                 () -> cb.op(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_op(ctx, 
                 () -> cb.op(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
 
             p.begin_opWithResult(
                 (int r) -> cb.opWithResult(r),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_opWithResult(ctx, 
                 (int r) -> cb.opWithResult(r),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
 
             p.begin_opWithUE(
                 () -> test(false),
                 (Ice.UserException ex) -> cb.opWithUE(ex),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
             
             p.begin_opWithUE(ctx, 
                 () -> test(false),
                 (Ice.UserException ex) -> cb.opWithUE(ex),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
         out.println("ok");
@@ -642,27 +642,27 @@ public class AMI
 
             i.begin_ice_isA("::Test::TestIntf", 
                 (boolean r) -> test(false),
-                (Ice.LocalException ex) -> cb.ex(ex));
+                (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
 
             i.begin_ice_ping(
                 () -> test(false),
-                (Ice.LocalException ex) -> cb.ex(ex));
+                (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
 
             i.begin_ice_id(
                 (String id) -> test(false),
-                (Ice.LocalException ex) -> cb.ex(ex));
+                (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
 
             i.begin_ice_ids(
                 (String[] ids) -> test(false),
-                (Ice.LocalException ex) -> cb.ex(ex));
+                (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
 
             i.begin_op(
                 () -> test(false),
-                (Ice.LocalException ex) -> cb.ex(ex));
+                (Ice.Exception ex) -> cb.ex(ex));
             cb.check();
         }
         out.println("ok");
@@ -674,31 +674,31 @@ public class AMI
 
             p.begin_ice_isA("", 
                 (boolean r) -> cb.isA(r),
-                (Ice.LocalException ex) -> cb.ex(ex),
+                (Ice.Exception ex) -> cb.ex(ex),
                 (boolean ss) -> cb.sent(ss));
             cb.check();
 
             p.begin_ice_ping(
                 () -> cb.ping(),
-                (Ice.LocalException ex) -> cb.ex(ex),
+                (Ice.Exception ex) -> cb.ex(ex),
                 (boolean ss) -> cb.sent(ss));
             cb.check();
 
             p.begin_ice_id(
                 (String id) -> cb.id(id),
-                (Ice.LocalException ex) -> cb.ex(ex),
+                (Ice.Exception ex) -> cb.ex(ex),
                 (boolean ss) -> cb.sent(ss));
             cb.check();
 
             p.begin_ice_ids(
                 (String[] ids) -> cb.ids(ids),
-                (Ice.LocalException ex) -> cb.ex(ex),
+                (Ice.Exception ex) -> cb.ex(ex),
                 (boolean ss) -> cb.sent(ss));
             cb.check();
 
             p.begin_op(
                 () -> cb.op(),
-                (Ice.LocalException ex) -> cb.ex(ex),
+                (Ice.Exception ex) -> cb.ex(ex),
                 (boolean ss) -> cb.sent(ss));
             cb.check();
 
@@ -714,7 +714,7 @@ public class AMI
                     final SentCallback cb2 = new SentCallback();
                     r = p.begin_opWithPayload(seq,
                         () -> {},
-                        (Ice.LocalException ex) -> cb2.ex(ex),
+                        (Ice.Exception ex) -> cb2.ex(ex),
                         (boolean ss) -> cb2.sent(ss));
                     cbs.add(cb2);
                 }
@@ -748,12 +748,12 @@ public class AMI
 
                 q.begin_op(
                     () -> cb.op(),
-                    (Ice.LocalException ex) -> cb.ex(ex));
+                    (Ice.Exception ex) -> cb.ex(ex));
                 cb.check();
 
                 p.begin_op(
                     () -> {},
-                    (Ice.LocalException ex) -> {},
+                    (Ice.Exception ex) -> {},
                     (boolean ss) -> cb.sent(ss));
                 cb.check();
             }
@@ -774,7 +774,7 @@ public class AMI
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
+                    (Ice.Exception ex) -> cb.exception(ex),
                     (boolean sentSynchronously) -> cb.sent(sentSynchronously));
                 cb.check();
                 test(r.isSent());
@@ -782,6 +782,7 @@ public class AMI
                 test(p.waitForBatch(2));
             }
 
+            if(p.ice_getConnection() != null)
             {
                 //
                 // Type-safe exception.
@@ -793,7 +794,7 @@ public class AMI
                 final FlushExCallback cb = new FlushExCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
+                    (Ice.Exception ex) -> cb.exception(ex),
                     (boolean sentSynchronously) -> cb.sent(sentSynchronously));
                 cb.check();
                 test(!r.isSent());
@@ -803,170 +804,173 @@ public class AMI
         }
         out.println("ok");
 
-        out.print("testing batch requests with connection... ");
-        out.flush();
+        if(p.ice_getConnection() != null)
         {
+            out.print("testing batch requests with connection... ");
+            out.flush();
             {
-                //
-                // Type-safe.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
-                test(p.waitForBatch(2));
-            }
+                {
+                    //
+                    // Type-safe.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.opBatch();
+                    final FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(r.isSent());
+                    test(r.isCompleted());
+                    test(p.waitForBatch(2));
+                }
 
-            {
-                //
-                // Type-safe exception.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                final FlushExCallback cb = new FlushExCallback();
-                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(!r.isSent());
-                test(r.isCompleted());
-                test(p.opBatchCount() == 0);
+                {
+                    //
+                    // Type-safe exception.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.ice_getConnection().close(false);
+                    final FlushExCallback cb = new FlushExCallback();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(!r.isSent());
+                    test(r.isCompleted());
+                    test(p.opBatchCount() == 0);
+                }
             }
+            out.println("ok");
+
+            out.print("testing batch requests with communicator... ");
+            out.flush();
+            {
+                {
+                    //
+                    // Type-safe - 1 connection.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.opBatch();
+                    final FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(r.isSent());
+                    test(r.isCompleted());
+                    test(p.waitForBatch(2));
+                }
+
+                {
+                    //
+                    // Type-safe exception - 1 connection.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.ice_getConnection().close(false);
+                    final FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.isCompleted());
+                    test(p.opBatchCount() == 0);
+                }
+
+                {
+                    //
+                    // 2 connections.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b1.opBatch();
+                    b2.opBatch();
+                    b2.opBatch();
+                    final FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(r.isSent());
+                    test(r.isCompleted());
+                    test(p.waitForBatch(4));
+                }
+
+                {
+                    //
+                    // Exception - 2 connections - 1 failure.
+                    //
+                    // All connections should be flushed even if there are failures on some connections.
+                    // Exceptions should not be reported.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b2.opBatch();
+                    b1.ice_getConnection().close(false);
+                    final FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.isCompleted());
+                    test(p.waitForBatch(1));
+                }
+
+                {
+                    //
+                    // Exception - 2 connections - 2 failures.
+                    //
+                    // The sent callback should be invoked even if all connections fail.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b2.opBatch();
+                    b1.ice_getConnection().close(false);
+                    b2.ice_getConnection().close(false);
+                    final FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        null,
+                        (Ice.Exception ex) -> cb.exception(ex),
+                        (boolean sentSynchronously) -> cb.sent(sentSynchronously));
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.isCompleted());
+                    test(p.opBatchCount() == 0);
+                }
+            }
+            out.println("ok");
         }
-        out.println("ok");
-
-        out.print("testing batch requests with communicator... ");
-        out.flush();
-        {
-            {
-                //
-                // Type-safe - 1 connection.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
-                test(p.waitForBatch(2));
-            }
-
-            {
-                //
-                // Type-safe exception - 1 connection.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.isCompleted());
-                test(p.opBatchCount() == 0);
-            }
-
-            {
-                //
-                // 2 connections.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b1.opBatch();
-                b2.opBatch();
-                b2.opBatch();
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(r.isSent());
-                test(r.isCompleted());
-                test(p.waitForBatch(4));
-            }
-
-            {
-                //
-                // Exception - 2 connections - 1 failure.
-                //
-                // All connections should be flushed even if there are failures on some connections.
-                // Exceptions should not be reported.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b2.opBatch();
-                b1.ice_getConnection().close(false);
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.isCompleted());
-                test(p.waitForBatch(1));
-            }
-
-            {
-                //
-                // Exception - 2 connections - 2 failures.
-                //
-                // The sent callback should be invoked even if all connections fail.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b2.opBatch();
-                b1.ice_getConnection().close(false);
-                b2.ice_getConnection().close(false);
-                final FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    null,
-                    (Ice.LocalException ex) -> cb.exception(ex),
-                    (boolean sentSynchronously) -> cb.sent(sentSynchronously));
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.isCompleted());
-                test(p.opBatchCount() == 0);
-            }
-        }
-        out.println("ok");
         
         out.print("testing null callbacks...");
         try
         {
             IceInternal.Functional_VoidCallback response = null;
-            IceInternal.Functional_GenericCallback1<Ice.LocalException> exception = null;
+            IceInternal.Functional_GenericCallback1<Ice.Exception> exception = null;
             p.begin_ice_ping(response, exception);
             test(false);
         }
@@ -987,7 +991,7 @@ public class AMI
         
         try
         {
-            p.begin_ice_ping(null, (Ice.LocalException ex) -> {});
+            p.begin_ice_ping(null, (Ice.Exception ex) -> {});
     
         }
         catch(IllegalArgumentException ex)
@@ -998,7 +1002,7 @@ public class AMI
         try
         {
             IceInternal.Functional_BoolCallback response = null;
-            IceInternal.Functional_GenericCallback1<Ice.LocalException> exception = null;
+            IceInternal.Functional_GenericCallback1<Ice.Exception> exception = null;
             p.begin_ice_isA("::Test::TestIntf", response, exception);
             test(false);
         }
@@ -1019,7 +1023,7 @@ public class AMI
         
         try
         {
-            p.begin_ice_isA("::Test::TestIntf", null, (Ice.LocalException ex) -> {});
+            p.begin_ice_isA("::Test::TestIntf", null, (Ice.Exception ex) -> {});
     
         }
         catch(IllegalArgumentException ex)
@@ -1030,7 +1034,7 @@ public class AMI
         try
         {
             IceInternal.Functional_VoidCallback response = null;
-            p.begin_opWithUE(response, null, (Ice.LocalException ex) -> {});
+            p.begin_opWithUE(response, null, (Ice.Exception ex) -> {});
             test(false);
         }
         catch(IllegalArgumentException ex)
@@ -1057,8 +1061,8 @@ public class AMI
         {
             IceInternal.Functional_VoidCallback response = null;
             IceInternal.Functional_GenericCallback1<Ice.UserException> userException = null;
-            IceInternal.Functional_GenericCallback1<Ice.LocalException> localException = null;
-            p.begin_opWithUE(response, userException, localException);
+            IceInternal.Functional_GenericCallback1<Ice.Exception> exception = null;
+            p.begin_opWithUE(response, userException, exception);
             test(false);
         }
         catch(IllegalArgumentException ex)

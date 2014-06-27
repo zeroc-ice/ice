@@ -63,7 +63,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
             }
         }
 
-        if(_connection != null)
+        if(_responseHandler != null)
         {
             __exception(ex);
         }
@@ -110,7 +110,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 return;
             }
 
-            assert(_connection != null);
+            assert(_responseHandler != null);
 
             if(_response)
             {
@@ -118,11 +118,11 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
 
             if(_observer != null)
@@ -130,11 +130,11 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 _observer.detach();
                 _observer = null;
             }
-            _connection = null;
+            _responseHandler = null;
         }
         catch(Ice.LocalException ex)
         {
-            _connection.invokeException(ex, 1);
+            _responseHandler.invokeException(_current.requestId, ex, 1);
         }
     }
 
@@ -152,7 +152,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
         }
         catch(Ice.LocalException ex)
         {
-            _connection.invokeException(ex, 1);
+            _responseHandler.invokeException(_current.requestId, ex, 1);
         }
     }
 

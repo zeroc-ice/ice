@@ -9,9 +9,6 @@
     <file name="classes/test/Slice/generation/Test/Interface1PrxHolder.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1PrxHelper.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1Prx.java"/>
-    <file name="classes/test/Slice/generation/Test/_Interface1Del.java"/>
-    <file name="classes/test/Slice/generation/Test/_Interface1DelM.java"/>
-    <file name="classes/test/Slice/generation/Test/_Interface1DelD.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1Disp.java"/>
     <file name="classes/test/Slice/generation/Test/Callback_Interface1_method.java"/>
     <output></output>
@@ -25,9 +22,6 @@
     <file name="classes/test/Slice/generation/Test/Interface2PrxHolder.java"/>
     <file name="classes/test/Slice/generation/Test/Interface2PrxHelper.java"/>
     <file name="classes/test/Slice/generation/Test/Interface2Prx.java"/>
-    <file name="classes/test/Slice/generation/Test/_Interface2Del.java"/>
-    <file name="classes/test/Slice/generation/Test/_Interface2DelM.java"/>
-    <file name="classes/test/Slice/generation/Test/_Interface2DelD.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface2Disp.java"/>
     <file name="classes/test/Slice/generation/Test/Callback_Interface2_method.java"/>
     <output></output>

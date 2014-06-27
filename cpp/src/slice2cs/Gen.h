@@ -209,42 +209,6 @@ private:
         bool _stream;
     };
 
-    class DelegateVisitor : public CsVisitor
-    {
-    public:
-
-        DelegateVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-    };
-
-    class DelegateMVisitor : public CsVisitor
-    {
-    public:
-
-        DelegateMVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-    };
-
-    class DelegateDVisitor : public CsVisitor
-    {
-    public:
-
-        DelegateDVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-    };
-
     class DispatcherVisitor : public CsVisitor
     {
     public:

@@ -1461,9 +1461,10 @@ IceInternal::Instance::destroy()
         _metricsAdmin = 0;
 
         // Break cyclic reference counts. Don't clear _observer, it's immutable.
-        if(_observer)
+        CommunicatorObserverIPtr observer = CommunicatorObserverIPtr::dynamicCast(_observer);
+        if(observer)
         {
-            CommunicatorObserverIPtr::dynamicCast(_observer)->destroy(); 
+            observer->destroy(); 
         }
     }
 

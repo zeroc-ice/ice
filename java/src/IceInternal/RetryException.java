@@ -7,15 +7,21 @@
 //
 // **********************************************************************
 
-#pragma once
+package IceInternal;
 
-module Test
+public class RetryException extends Exception
 {
+    public
+    RetryException(Ice.LocalException ex)
+    {
+        _ex = ex;
+    }
 
-interface Retry
-{
-    void op(bool kill);
-    void shutdown();
-};
+    public Ice.LocalException
+    get()
+    {
+        return _ex;
+    }
 
-};
+    private Ice.LocalException _ex;
+}

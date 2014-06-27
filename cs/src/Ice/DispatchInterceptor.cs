@@ -64,14 +64,5 @@ namespace Ice
                 }
             }
         }
-        
-        public override DispatchStatus
-        collocDispatch__(IceInternal.Direct request) 
-        {
-            //
-            // Should only return DispatchOK or DispatchUserException
-            //
-            return dispatch(request);
-        }
     }
 }

@@ -46,6 +46,17 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
         return remoteObserver;
     }
 
+    public synchronized Ice.Instrumentation.RemoteObserver 
+    getCollocatedObserver(int a, int b)
+    {
+        if(remoteObserver == null)
+        {
+            remoteObserver = new RemoteObserverI();
+            remoteObserver.reset();
+        }
+        return remoteObserver;
+    }
+
     int userExceptionCount;
     int retriedCount;
 

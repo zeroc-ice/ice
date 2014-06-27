@@ -11,6 +11,7 @@
 #define ICE_REQUEST_HANDLER_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/UniquePtr.h>
 
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
@@ -18,14 +19,38 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ConnectionIF.h>
 
+namespace Ice
+{
+
+class LocalException;
+
+};
+
 namespace IceInternal
 {
 
 class BasicStream;
-class Outgoing;
-class BatchOutgoing;
 
 class OutgoingMessageCallback;
+
+//
+// An exception wrapper, which is used to notify that the request
+// handler should be cleared and the invocation retried.
+//
+class RetryException
+{
+public:
+
+    RetryException(const Ice::LocalException&);
+    RetryException(const RetryException&);
+
+    const Ice::LocalException* get() const;
+
+private:
+
+
+    IceUtil::UniquePtr<Ice::LocalException> _ex;
+};
 
 class RequestHandler : virtual public ::IceUtil::Shared
 {

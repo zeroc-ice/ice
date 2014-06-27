@@ -15,10 +15,10 @@ public abstract class Functional_TwowayCallbackShortUE
     public Functional_TwowayCallbackShortUE(
         Functional_ShortCallback responseCb, 
         Functional_GenericCallback1<Ice.UserException> userExceptionCb, 
-        Functional_GenericCallback1<Ice.LocalException> localExceptionCb, 
+        Functional_GenericCallback1<Ice.Exception> exceptionCb, 
         Functional_BoolCallback sentCb)
     {
-        super(responseCb, localExceptionCb, sentCb);
+        super(responseCb, exceptionCb, sentCb);
         __userExceptionCb = userExceptionCb;
     }
 

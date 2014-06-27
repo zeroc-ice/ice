@@ -23,6 +23,7 @@ OBJS		= Acceptor.obj \
 		  BuiltinSequences.obj \
 		  CommunicatorI.obj \
 		  Communicator.obj \
+		  CollocatedRequestHandler.obj \
 		  ConnectRequestHandler.obj \
 		  ConnectionFactory.obj \
 		  ConnectionI.obj \
@@ -32,7 +33,6 @@ OBJS		= Acceptor.obj \
 		  Current.obj \
 		  DefaultsAndOverrides.obj \
                   DeprecatedStringConverter.obj \
-		  Direct.obj \
                   DispatchInterceptor.obj \
 		  DLLMain.obj \
 		  DynamicLibrary.obj \
@@ -95,6 +95,7 @@ OBJS		= Acceptor.obj \
 		  Reference.obj \
 		  RetryQueue.obj \
 		  RequestHandler.obj \
+		  ResponseHandler.obj \
 		  RouterInfo.obj \
 		  Router.obj \
 		  Selector.obj \

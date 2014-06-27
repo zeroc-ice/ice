@@ -1079,6 +1079,8 @@ public class AllTests : TestCommon.TestApp
         Write("testing batch requests with proxy... ");
         Flush();
         {
+            test(p.ice_batchOneway().begin_ice_flushBatchRequests().sentSynchronously());
+
             Cookie cookie = new Cookie(5);
 
             {
@@ -1098,6 +1100,7 @@ public class AllTests : TestCommon.TestApp
                 test(p.waitForBatch(2));
             }
 
+            if(p.ice_getConnection() != null)
             {
                 //
                 // AsyncResult exception.
@@ -1133,6 +1136,7 @@ public class AllTests : TestCommon.TestApp
                 test(p.waitForBatch(2));
             }
 
+            if(p.ice_getConnection() != null)
             {
                 //
                 // Type-safe exception.
@@ -1153,296 +1157,299 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-        Write("testing batch requests with connection... ");
-        Flush();
+        if(p.ice_getConnection() != null)
         {
-            Cookie cookie = new Cookie(5);
-
+            Write("testing batch requests with connection... ");
+            Flush();
             {
-                //
-                // AsyncResult.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(r.isSent());
-                test(r.IsCompleted);
-                test(p.waitForBatch(2));
-            }
+                Cookie cookie = new Cookie(5);
 
-            {
-                //
-                // AsyncResult exception.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                FlushExCallback cb = new FlushExCallback(cookie);
-                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(!r.isSent());
-                test(r.IsCompleted);
-                test(p.opBatchCount() == 0);
-            }
+                {
+                    //
+                    // AsyncResult.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.opBatch();
+                    FlushCallback cb = new FlushCallback(cookie);
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(r.isSent());
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(2));
+                }
 
-            {
-                //
-                // Type-safe.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(r.isSent());
-                test(r.IsCompleted);
-                test(p.waitForBatch(2));
-            }
+                {
+                    //
+                    // AsyncResult exception.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.ice_getConnection().close(false);
+                    FlushExCallback cb = new FlushExCallback(cookie);
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(!r.isSent());
+                    test(r.IsCompleted);
+                    test(p.opBatchCount() == 0);
+                }
 
-            {
-                //
-                // Type-safe exception.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                FlushExCallback cb = new FlushExCallback();
-                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(!r.isSent());
-                test(r.IsCompleted);
-                test(p.opBatchCount() == 0);
+                {
+                    //
+                    // Type-safe.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.opBatch();
+                    FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(r.isSent());
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(2));
+                }
+
+                {
+                    //
+                    // Type-safe exception.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.ice_getConnection().close(false);
+                    FlushExCallback cb = new FlushExCallback();
+                    Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(!r.isSent());
+                    test(r.IsCompleted);
+                    test(p.opBatchCount() == 0);
+                }
             }
+            WriteLine("ok");
+
+            Write("testing batch requests with communicator... ");
+            Flush();
+            {
+                Cookie cookie = new Cookie(5);
+
+                {
+                    //
+                    // AsyncResult - 1 connection.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.opBatch();
+                    FlushCallback cb = new FlushCallback(cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(r.isSent());
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(2));
+                }
+
+                {
+                    //
+                    // AsyncResult exception - 1 connection.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.ice_getConnection().close(false);
+                    FlushCallback cb = new FlushCallback(cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.IsCompleted);
+                    test(p.opBatchCount() == 0);
+                }
+
+                {
+                    //
+                    // AsyncResult - 2 connections.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b1.opBatch();
+                    b2.opBatch();
+                    b2.opBatch();
+                    FlushCallback cb = new FlushCallback(cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(r.isSent());
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(4));
+                }
+
+                {
+                    //
+                    // AsyncResult exception - 2 connections - 1 failure.
+                    //
+                    // All connections should be flushed even if there are failures on some connections.
+                    // Exceptions should not be reported.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b2.opBatch();
+                    b1.ice_getConnection().close(false);
+                    FlushCallback cb = new FlushCallback(cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(1));
+                }
+
+                {
+                    //
+                    // AsyncResult exception - 2 connections - 2 failures.
+                    //
+                    // The sent callback should be invoked even if all connections fail.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b2.opBatch();
+                    b1.ice_getConnection().close(false);
+                    b2.ice_getConnection().close(false);
+                    FlushCallback cb = new FlushCallback(cookie);
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
+                    r.whenSent((Ice.AsyncCallback)cb.sentAsync);
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.IsCompleted);
+                    test(p.opBatchCount() == 0);
+                }
+
+                {
+                    //
+                    // Type-safe - 1 connection.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.opBatch();
+                    FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(r.isSent());
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(2));
+                }
+
+                {
+                    //
+                    // Type-safe exception - 1 connection.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    b1.opBatch();
+                    b1.ice_getConnection().close(false);
+                    FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.IsCompleted);
+                    test(p.opBatchCount() == 0);
+                }
+
+                {
+                    //
+                    // 2 connections.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b1.opBatch();
+                    b2.opBatch();
+                    b2.opBatch();
+                    FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(r.isSent());
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(4));
+                }
+
+                {
+                    //
+                    // Exception - 2 connections - 1 failure.
+                    //
+                    // All connections should be flushed even if there are failures on some connections.
+                    // Exceptions should not be reported.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b2.opBatch();
+                    b1.ice_getConnection().close(false);
+                    FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.IsCompleted);
+                    test(p.waitForBatch(1));
+                }
+
+                {
+                    //
+                    // Exception - 2 connections - 2 failures.
+                    //
+                    // The sent callback should be invoked even if all connections fail.
+                    //
+                    test(p.opBatchCount() == 0);
+                    TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                    TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                    b2.ice_getConnection(); // Ensure connection is established.
+                    b1.opBatch();
+                    b2.opBatch();
+                    b1.ice_getConnection().close(false);
+                    b2.ice_getConnection().close(false);
+                    FlushCallback cb = new FlushCallback();
+                    Ice.AsyncResult r = communicator.begin_flushBatchRequests();
+                    r.whenCompleted(cb.exception);
+                    r.whenSent((Ice.SentCallback)cb.sent);
+                    cb.check();
+                    test(r.isSent()); // Exceptions are ignored!
+                    test(r.IsCompleted);
+                    test(p.opBatchCount() == 0);
+                }
+            }
+            WriteLine("ok");
         }
-        WriteLine("ok");
-
-        Write("testing batch requests with communicator... ");
-        Flush();
-        {
-            Cookie cookie = new Cookie(5);
-
-            {
-                //
-                // AsyncResult - 1 connection.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(r.isSent());
-                test(r.IsCompleted);
-                test(p.waitForBatch(2));
-            }
-
-            {
-                //
-                // AsyncResult exception - 1 connection.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.IsCompleted);
-                test(p.opBatchCount() == 0);
-            }
-
-            {
-                //
-                // AsyncResult - 2 connections.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b1.opBatch();
-                b2.opBatch();
-                b2.opBatch();
-                FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(r.isSent());
-                test(r.IsCompleted);
-                test(p.waitForBatch(4));
-            }
-
-            {
-                //
-                // AsyncResult exception - 2 connections - 1 failure.
-                //
-                // All connections should be flushed even if there are failures on some connections.
-                // Exceptions should not be reported.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b2.opBatch();
-                b1.ice_getConnection().close(false);
-                FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.IsCompleted);
-                test(p.waitForBatch(1));
-            }
-
-            {
-                //
-                // AsyncResult exception - 2 connections - 2 failures.
-                //
-                // The sent callback should be invoked even if all connections fail.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b2.opBatch();
-                b1.ice_getConnection().close(false);
-                b2.ice_getConnection().close(false);
-                FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests(cb.completedAsync, cookie);
-                r.whenSent((Ice.AsyncCallback)cb.sentAsync);
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.IsCompleted);
-                test(p.opBatchCount() == 0);
-            }
-
-            {
-                //
-                // Type-safe - 1 connection.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.opBatch();
-                FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(r.isSent());
-                test(r.IsCompleted);
-                test(p.waitForBatch(2));
-            }
-
-            {
-                //
-                // Type-safe exception - 1 connection.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
-                b1.ice_getConnection().close(false);
-                FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.IsCompleted);
-                test(p.opBatchCount() == 0);
-            }
-
-            {
-                //
-                // 2 connections.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b1.opBatch();
-                b2.opBatch();
-                b2.opBatch();
-                FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(r.isSent());
-                test(r.IsCompleted);
-                test(p.waitForBatch(4));
-            }
-
-            {
-                //
-                // Exception - 2 connections - 1 failure.
-                //
-                // All connections should be flushed even if there are failures on some connections.
-                // Exceptions should not be reported.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b2.opBatch();
-                b1.ice_getConnection().close(false);
-                FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.IsCompleted);
-                test(p.waitForBatch(1));
-            }
-
-            {
-                //
-                // Exception - 2 connections - 2 failures.
-                //
-                // The sent callback should be invoked even if all connections fail.
-                //
-                test(p.opBatchCount() == 0);
-                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
-                b2.ice_getConnection(); // Ensure connection is established.
-                b1.opBatch();
-                b2.opBatch();
-                b1.ice_getConnection().close(false);
-                b2.ice_getConnection().close(false);
-                FlushCallback cb = new FlushCallback();
-                Ice.AsyncResult r = communicator.begin_flushBatchRequests();
-                r.whenCompleted(cb.exception);
-                r.whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-                test(r.isSent()); // Exceptions are ignored!
-                test(r.IsCompleted);
-                test(p.opBatchCount() == 0);
-            }
-        }
-        WriteLine("ok");
 
         Write("testing AsyncResult operations... ");
         Flush();
@@ -1458,13 +1465,16 @@ public class AllTests : TestCommon.TestApp
                     (new System.Random()).NextBytes(seq);
                     while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
 
-                    test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
-                         !r1.sentSynchronously() && !r1.isCompleted_());
+                    if(p.ice_getConnection() != null)
+                    {
+                        test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
+                             !r1.sentSynchronously() && !r1.isCompleted_());
+                        
+                        test(!r2.sentSynchronously() && !r2.isCompleted_());
 
-                    test(!r2.sentSynchronously() && !r2.isCompleted_());
-
-                    test(!r1.IsCompleted && !r1.CompletedSynchronously);
-                    test(!r2.IsCompleted && !r2.CompletedSynchronously);
+                        test(!r1.IsCompleted && !r1.CompletedSynchronously);
+                        test(!r2.IsCompleted && !r2.CompletedSynchronously);
+                    }
                 }
                 finally
                 {
@@ -1528,88 +1538,94 @@ public class AllTests : TestCommon.TestApp
                 test(r.getProxy() == p2);
                 p2.end_ice_flushBatchRequests(r);
 
-                //
-                // Batch request via connection
-                //
-                Ice.Connection con = p.ice_getConnection();
-                p2 = p.ice_batchOneway() as Test.TestIntfPrx;
-                p2.ice_ping();
-                r = con.begin_flushBatchRequests();
-                test(r.getConnection() == con);
-                test(r.getCommunicator() == communicator);
-                test(r.getProxy() == null); // Expected
-                con.end_flushBatchRequests(r);
+                if(p.ice_getConnection() != null)
+                {
+                    //
+                    // Batch request via connection
+                    //
+                    Ice.Connection con = p.ice_getConnection();
+                    p2 = p.ice_batchOneway() as Test.TestIntfPrx;
+                    p2.ice_ping();
+                    r = con.begin_flushBatchRequests();
+                    test(r.getConnection() == con);
+                    test(r.getCommunicator() == communicator);
+                    test(r.getProxy() == null); // Expected
+                    con.end_flushBatchRequests(r);
 
-                //
-                // Batch request via communicator
-                //
-                p2 = p.ice_batchOneway() as Test.TestIntfPrx;
-                p2.ice_ping();
-                r = communicator.begin_flushBatchRequests();
-                test(r.getConnection() == null); // Expected
-                test(r.getCommunicator() == communicator);
-                test(r.getProxy() == null); // Expected
-                communicator.end_flushBatchRequests(r);
+                    //
+                    // Batch request via communicator
+                    //
+                    p2 = p.ice_batchOneway() as Test.TestIntfPrx;
+                    p2.ice_ping();
+                    r = communicator.begin_flushBatchRequests();
+                    test(r.getConnection() == null); // Expected
+                    test(r.getCommunicator() == communicator);
+                    test(r.getProxy() == null); // Expected
+                    communicator.end_flushBatchRequests(r);
+                }
             }
         }
         WriteLine("ok");
 
-        Write("testing close connection with sending queue... ");
-        Flush();
+        if(p.ice_getConnection() != null)
         {
-            byte[] seq = new byte[1024 * 10];
-            (new System.Random()).NextBytes(seq); // Make sure the request doesn't compress too well.
+            Write("testing close connection with sending queue... ");
+            Flush();
+            {
+                byte[] seq = new byte[1024 * 10];
+                (new System.Random()).NextBytes(seq); // Make sure the request doesn't compress too well.
 
-            //
-            // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-            // The goal is to make sure that none of the opWithPayload fail even if the server closes 
-            // the connection gracefully in between.
-            // 
-            int maxQueue = 2;
-            bool done = false;
-            while(!done && maxQueue < 50)
-            { 
-                done = true;
-                p.ice_ping();
-                List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();
-                for(int i = 0; i < maxQueue; ++i)
-                {
-                    results.Add(p.begin_opWithPayload(seq));
-                }
-                if(!p.begin_close(false).isSent())
-                {
-                    for(int i = 0; i < maxQueue; i++)
+                //
+                // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+                // The goal is to make sure that none of the opWithPayload fail even if the server closes 
+                // the connection gracefully in between.
+                // 
+                int maxQueue = 2;
+                bool done = false;
+                while(!done && maxQueue < 50)
+                { 
+                    done = true;
+                    p.ice_ping();
+                    List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();
+                    for(int i = 0; i < maxQueue; ++i)
                     {
-                        Ice.AsyncResult r = p.begin_opWithPayload(seq);
-                        results.Add(r);
-                        if(r.isSent())
+                        results.Add(p.begin_opWithPayload(seq));
+                    }
+                    if(!p.begin_close(false).isSent())
+                    {
+                        for(int i = 0; i < maxQueue; i++)
                         {
-                            done = false;
-                            maxQueue *= 2;
-                            break;
+                            Ice.AsyncResult r = p.begin_opWithPayload(seq);
+                            results.Add(r);
+                            if(r.isSent())
+                            {
+                                done = false;
+                                maxQueue *= 2;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        maxQueue *= 2;
+                        done = false;
+                    }
+                    foreach(Ice.AsyncResult q in results)
+                    {
+                        q.waitForCompleted();
+                        try
+                        {
+                            q.throwLocalException();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
                         }
                     }
                 }
-                else
-                {
-                    maxQueue *= 2;
-                    done = false;
-                }
-                foreach(Ice.AsyncResult q in results)
-                {
-                    q.waitForCompleted();
-                    try
-                    {
-                        q.throwLocalException();
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        test(false);
-                    }
-                }
             }
+            WriteLine("ok");
         }
-        WriteLine("ok");
 
         p.shutdown();
     }

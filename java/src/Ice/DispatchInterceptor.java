@@ -67,13 +67,4 @@ public abstract class DispatchInterceptor extends ObjectImpl
             }
         }
     }
-
-    public DispatchStatus
-    __collocDispatch(IceInternal.Direct request) 
-    {
-        //
-        // Should only return DispatchOK or DispatchUserException
-        //
-        return dispatch(request);
-    }
 }

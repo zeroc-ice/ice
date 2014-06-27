@@ -700,13 +700,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     string ref13 = "test -e 1.3:default -p 12010";
     Test::MyClassPrx cl13 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref13));
     cl13->ice_ping();
-    try
-    {
-        cl13->end_ice_ping(cl13->begin_ice_ping());
-    }
-    catch(const Ice::CollocationOptimizationException&)
-    {
-    }
+    cl13->end_ice_ping(cl13->begin_ice_ping());
     
     try
     {
@@ -775,13 +769,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     ref13 = "test -p 1.3:default -p 12010";
     cl13 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref13));
     cl13->ice_ping();
-    try
-    {
-        cl13->end_ice_ping(cl13->begin_ice_ping());
-    }
-    catch(const Ice::CollocationOptimizationException&)
-    {
-    }
+    cl13->end_ice_ping(cl13->begin_ice_ping());
 
     cout << "ok" <<endl;
 

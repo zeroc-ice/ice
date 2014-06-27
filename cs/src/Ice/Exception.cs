@@ -208,70 +208,18 @@ namespace Ice
 
 namespace IceInternal
 {
-
-    public class LocalExceptionWrapper : Ice.Exception
+    public class RetryException : System.Exception
     {
-        public LocalExceptionWrapper(Ice.LocalException ex, bool retry)
+        public RetryException(Ice.LocalException ex)
         {
             _ex = ex;
-            _retry = retry;
-        }
-
-        public LocalExceptionWrapper(LocalExceptionWrapper ex)
-        {
-            _ex = ex.get();
-            _retry = ex._retry;
-        }
-
-        public override string ice_name()
-        {
-            return _ex.ice_name();
         }
 
         public Ice.LocalException get()
         {
             return _ex;
         }
-
-        //
-        // If true, always repeat the request. Don't take retry settings
-        // or "at-most-once" guarantees into account.
-        //
-        // If false, only repeat the request if the retry settings allow
-        // to do so, and if "at-most-once" does not need to be guaranteed.
-        //
-        public bool retry()
-        {
-            return _retry;
-        }
-
-        public static void throwWrapper(System.Exception ex)
-        {
-            Ice.UserException userException = ex as Ice.UserException;
-            if(userException != null)
-            {
-                throw new LocalExceptionWrapper(new Ice.UnknownUserException(userException.ice_name()), 
-                                                false);
-            }
-
-            Ice.LocalException localException = ex as Ice.LocalException;
-            if(localException != null)
-            {
-                if(ex is Ice.UnknownException ||
-                   ex is Ice.ObjectNotExistException ||
-                   ex is Ice.OperationNotExistException ||
-                   ex is Ice.FacetNotExistException)
-                {
-                    throw new LocalExceptionWrapper(localException, false);
-                }
-                throw new LocalExceptionWrapper(new Ice.UnknownLocalException(localException.ice_name()), 
-                                                false);
-            }
-            throw new LocalExceptionWrapper(new Ice.UnknownException(ex.GetType().FullName), false);
-        }
         
         private Ice.LocalException _ex;
-        private bool _retry;
     }
-
 }

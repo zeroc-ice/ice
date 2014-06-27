@@ -797,42 +797,41 @@ namespace Ice
             return ice_isA(id__, context__, true);
         }
 
-        private bool ice_isA(string id__, Dictionary<string, string> context__, bool explicitContext__)
+        private bool ice_isA(string id__, Dictionary<string, string> context__, bool explicitCtx__)
         {
-            if(explicitContext__ && context__ == null)
-            {
-                context__ = emptyContext_;
-            }
-
-            InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_isA_name, context__);
-            int cnt__ = 0;
+            checkTwowayOnly__(__ice_isA_name);
+            IceInternal.Outgoing og__ = getOutgoing(__ice_isA_name, OperationMode.Nonmutating, context__, explicitCtx__);
             try
             {
-                while(true)
+                try
                 {
-                    ObjectDel_ del__ = null;
+                    IceInternal.BasicStream os__ = og__.startWriteParams(FormatType.DefaultFormat);
+                    os__.writeString(id__);
+                    og__.endWriteParams();
+                }
+                catch(LocalException ex__)
+                {
+                    og__.abort(ex__);
+                }
+                if(!og__.invoke())
+                {
                     try
                     {
-                        checkTwowayOnly__(__ice_isA_name);
-                        del__ = getDelegate__(false);
-                        return del__.ice_isA(id__, context__, observer__);
+                        og__.throwUserException();
                     }
-                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    catch(UserException ex)
                     {
-                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                    }
-                    catch(LocalException ex__)
-                    {
-                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                        throw new UnknownUserException(ex.ice_name(), ex);
                     }
                 }
+                IceInternal.BasicStream is__ = og__.startReadParams();
+                bool ret__ = is__.readBool();
+                og__.endReadParams();
+                return ret__;
             }
             finally
             {
-                if(observer__ != null)
-                {
-                    observer__.detach();
-                }
+                reclaimOutgoing(og__);
             }
         }
 
@@ -863,41 +862,30 @@ namespace Ice
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_isA_name);
-            bool ok = outAsync__.wait__();
-            try
+            if(!outAsync__.wait__())
             {
-                if(!ok)
+                try
                 {
-                    try
-                    {
-                        outAsync__.throwUserException__();
-                    }
-                    catch(Ice.UserException ex__)
-                    {
-                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
-                    }
+                    outAsync__.throwUserException__();
                 }
-                bool ret__;
-                IceInternal.BasicStream is__ = outAsync__.startReadParams__();
-                ret__ = is__.readBool();
-                outAsync__.endReadParams__();
-                return ret__;
-            }
-            catch(Ice.LocalException ex)
-            {
-                InvocationObserver obsv__ = outAsync__.getObserver__();
-                if(obsv__ != null)
+                catch(Ice.UserException ex__)
                 {
-                    obsv__.failed(ex.ice_name());
+                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
                 }
-                throw ex;
             }
+            bool ret__;
+            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
+            ret__ = is__.readBool();
+            outAsync__.endReadParams__();
+            return ret__;
         }
 
         private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__,
-                                                                   bool explicitContext__, Ice.AsyncCallback cb__,
+                                                                   bool explicitCtx__, Ice.AsyncCallback cb__,
                                                                    object cookie__)
         {
+            checkAsyncTwowayOnly__(__ice_isA_name);
+
             IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA> result__ =
                 new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA>(this, __ice_isA_name, ice_isA_completed__,
                                                                              cookie__);
@@ -905,17 +893,16 @@ namespace Ice
             {
                 result__.whenCompletedWithAsyncCallback(cb__);
             }
-            checkAsyncTwowayOnly__(__ice_isA_name);
 
             try
             {
-                result__.prepare__(__ice_isA_name, OperationMode.Nonmutating, context__, explicitContext__);
+                result__.prepare__(__ice_isA_name, OperationMode.Nonmutating, context__, explicitCtx__);
                 IceInternal.BasicStream os__ = result__.startWriteParams__(FormatType.DefaultFormat);
                 os__.writeString(id);
                 result__.endWriteParams__();
                 result__.invoke__(true);
             }
-            catch(Ice.LocalException ex__)
+            catch(Ice.Exception ex__)
             {
                 result__.invokeExceptionAsync__(ex__);
             }
@@ -960,42 +947,17 @@ namespace Ice
             ice_ping(context__, true);
         }
 
-        private void ice_ping(Dictionary<string, string> context__, bool explicitContext__)
+        private void ice_ping(Dictionary<string, string> context__, bool explicitCtx__)
         {
-            if(explicitContext__ && context__ == null)
-            {
-                context__ = emptyContext_;
-            }
-
-            InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_ping_name, context__);
-            int cnt__ = 0;
+            IceInternal.Outgoing og__ = getOutgoing(__ice_ping_name, OperationMode.Nonmutating, context__, explicitCtx__);
             try
             {
-                while(true)
-                {
-                    ObjectDel_ del__ = null;
-                    try
-                    {
-                        del__ = getDelegate__(false);
-                        del__.ice_ping(context__, observer__);
-                        return;
-                    }
-                    catch(IceInternal.LocalExceptionWrapper ex__)
-                    {
-                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                    }
-                    catch(LocalException ex__)
-                    {
-                        handleException__(del__, ex__, true, ref cnt__, observer__);
-                    }
-                }
+                og__.writeEmptyParams();
+                invoke__(og__);
             }
             finally
             {
-                if(observer__ != null)
-                {
-                    observer__.detach();
-                }
+                reclaimOutgoing(og__);
             }
         }
 
@@ -1027,7 +989,7 @@ namespace Ice
         }
 
         private AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__,
-                                                                 bool explicitContext__,
+                                                                 bool explicitCtx__,
                                                                  Ice.AsyncCallback cb__,
                                                                  object cookie__)
         {
@@ -1041,11 +1003,11 @@ namespace Ice
 
             try
             {
-                result__.prepare__(__ice_ping_name, OperationMode.Nonmutating, context__, explicitContext__);
+                result__.prepare__(__ice_ping_name, OperationMode.Nonmutating, context__, explicitCtx__);
                 result__.writeEmptyParams__();
                 result__.invoke__(true);
             }
-            catch(Ice.LocalException ex__)
+            catch(Ice.Exception ex__)
             {
                 result__.invokeExceptionAsync__(ex__);
             }
@@ -1081,42 +1043,32 @@ namespace Ice
             return ice_ids(context__, true);
         }
 
-        private string[] ice_ids(Dictionary<string, string> context__, bool explicitContext__)
+        private string[] ice_ids(Dictionary<string, string> context__, bool explicitCtx__)
         {
-            if(explicitContext__ && context__ == null)
-            {
-                context__ = emptyContext_;
-            }
-
-            InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_ids_name, context__);
-            int cnt__ = 0;
+            checkTwowayOnly__(__ice_ids_name);
+            IceInternal.Outgoing og__ = getOutgoing(__ice_ids_name, OperationMode.Nonmutating, context__, explicitCtx__);
             try
             {
-                while(true)
+                og__.writeEmptyParams();
+                if(!og__.invoke())
                 {
-                    ObjectDel_ del__ = null;
                     try
                     {
-                        checkTwowayOnly__(__ice_ids_name);
-                        del__ = getDelegate__(false);
-                        return del__.ice_ids(context__, observer__);
+                        og__.throwUserException();
                     }
-                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    catch(UserException ex)
                     {
-                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                    }
-                    catch(LocalException ex__)
-                    {
-                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                        throw new UnknownUserException(ex.ice_name(), ex);
                     }
                 }
+                IceInternal.BasicStream is__ = og__.startReadParams();
+                string[] ret__ = is__.readStringSeq();
+                og__.endReadParams();
+                return ret__;
             }
             finally
             {
-                if(observer__ != null)
-                {
-                    observer__.detach();
-                }
+                reclaimOutgoing(og__);
             }
         }
 
@@ -1146,42 +1098,31 @@ namespace Ice
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_ids_name);
-            bool ok = outAsync__.wait__();
-            try
+            if(!outAsync__.wait__())
             {
-                if(!ok)
+                try
                 {
-                    try
-                    {
-                        outAsync__.throwUserException__();
-                    }
-                    catch(Ice.UserException ex__)
-                    {
-                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
-                    }
+                    outAsync__.throwUserException__();
                 }
-                string[] ret__;
-                IceInternal.BasicStream is__ = outAsync__.startReadParams__();
-                ret__ = is__.readStringSeq();
-                outAsync__.endReadParams__();
-                return ret__;
-            }
-            catch(Ice.LocalException ex)
-            {
-                InvocationObserver obsv__ = outAsync__.getObserver__();
-                if(obsv__ != null)
+                catch(Ice.UserException ex__)
                 {
-                    obsv__.failed(ex.ice_name());
+                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
                 }
-                throw ex;
             }
+            string[] ret__;
+            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
+            ret__ = is__.readStringSeq();
+            outAsync__.endReadParams__();
+            return ret__;
         }
 
         private AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__,
-                                                                      bool explicitContext__,
+                                                                      bool explicitCtx__,
                                                                       Ice.AsyncCallback cb__,
                                                                       object cookie__)
         {
+            checkAsyncTwowayOnly__(__ice_ids_name);
+
             IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids> result__ =
                 new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids>(this, __ice_ids_name, ice_ids_completed__,
                                                                              cookie__);
@@ -1189,15 +1130,14 @@ namespace Ice
             {
                 result__.whenCompletedWithAsyncCallback(cb__);
             }
-            checkAsyncTwowayOnly__(__ice_ids_name);
 
             try
             {
-                result__.prepare__(__ice_ids_name, OperationMode.Nonmutating, context__, explicitContext__);
+                result__.prepare__(__ice_ids_name, OperationMode.Nonmutating, context__, explicitCtx__);
                 result__.writeEmptyParams__();
                 result__.invoke__(true);
             }
-            catch(Ice.LocalException ex__)
+            catch(Ice.Exception ex__)
             {
                 result__.invokeExceptionAsync__(ex__);
             }
@@ -1244,42 +1184,32 @@ namespace Ice
              return ice_id(context__, true);
         }
 
-        private string ice_id(Dictionary<string, string> context__, bool explicitContext__)
+        private string ice_id(Dictionary<string, string> context__, bool explicitCtx__)
         {
-            if(explicitContext__ && context__ == null)
-            {
-                context__ = emptyContext_;
-            }
-
-            InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_id_name, context__);
-            int cnt__ = 0;
+            checkTwowayOnly__(__ice_id_name);
+            IceInternal.Outgoing og__ = getOutgoing(__ice_id_name, OperationMode.Nonmutating, context__, explicitCtx__);
             try
             {
-                while(true)
+                og__.writeEmptyParams();
+                if(!og__.invoke())
                 {
-                    ObjectDel_ del__ = null;
                     try
                     {
-                        checkTwowayOnly__(__ice_id_name);
-                        del__ = getDelegate__(false);
-                        return del__.ice_id(context__, observer__);
+                        og__.throwUserException();
                     }
-                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    catch(UserException ex)
                     {
-                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                    }
-                    catch(LocalException ex__)
-                    {
-                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                        throw new UnknownUserException(ex.ice_name(), ex);
                     }
                 }
+                IceInternal.BasicStream is__ = og__.startReadParams();
+                string ret__ = is__.readString();
+                og__.endReadParams();
+                return ret__;
             }
             finally
             {
-                if(observer__ != null)
-                {
-                    observer__.detach();
-                }
+                reclaimOutgoing(og__);
             }
         }
 
@@ -1309,42 +1239,31 @@ namespace Ice
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_id_name);
-            bool ok = outAsync__.wait__();
-            try
+            if(!outAsync__.wait__())
             {
-                if(!ok)
+                try
                 {
-                    try
-                    {
-                        outAsync__.throwUserException__();
-                    }
-                    catch(Ice.UserException ex__)
-                    {
-                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
-                    }
+                    outAsync__.throwUserException__();
                 }
-                string ret__;
-                IceInternal.BasicStream is__ = outAsync__.startReadParams__();
-                ret__ = is__.readString();
-                outAsync__.endReadParams__();
-                return ret__;
-            }
-            catch(Ice.LocalException ex)
-            {
-                InvocationObserver obsv__ = outAsync__.getObserver__();
-                if(obsv__ != null)
+                catch(Ice.UserException ex__)
                 {
-                    obsv__.failed(ex.ice_name());
+                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
                 }
-                throw ex;
             }
+            string ret__;
+            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
+            ret__ = is__.readString();
+            outAsync__.endReadParams__();
+            return ret__;
         }
 
         private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__,
-                                                                    bool explicitContext__,
+                                                                    bool explicitCtx__,
                                                                     Ice.AsyncCallback cb__,
                                                                     object cookie__)
         {
+            checkAsyncTwowayOnly__(__ice_id_name);
+
             IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id> result__ =
                 new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id>(this, __ice_id_name, ice_id_completed__,
                                                                             cookie__);
@@ -1352,15 +1271,14 @@ namespace Ice
             {
                 result__.whenCompletedWithAsyncCallback(cb__);
             }
-            checkAsyncTwowayOnly__(__ice_id_name);
 
             try
             {
-                result__.prepare__(__ice_id_name, OperationMode.Nonmutating, context__, explicitContext__);
+                result__.prepare__(__ice_id_name, OperationMode.Nonmutating, context__, explicitCtx__);
                 result__.writeEmptyParams__();
                 result__.invoke__(true);
             }
-            catch(Ice.LocalException ex__)
+            catch(Ice.Exception ex__)
             {
                 result__.invokeExceptionAsync__(ex__);
             }
@@ -1427,48 +1345,30 @@ namespace Ice
         }
 
         private bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
-                                Dictionary<string, string> context,  bool explicitContext)
+                                Dictionary<string, string> context,  bool explicitCtx)
         {
-            if(explicitContext && context == null)
-            {
-                context = emptyContext_;
-            }
-
-            InvocationObserver observer = IceInternal.ObserverHelper.get(this, operation, context);
-            int cnt__ = 0;
+            IceInternal.Outgoing og__ = getOutgoing(operation, mode, context, explicitCtx);
             try
             {
-                while(true)
+                try
                 {
-                    ObjectDel_ del__ = null;
-                    try
-                    {
-                        del__ = getDelegate__(false);
-                        return del__.ice_invoke(operation, mode, inEncaps, out outEncaps, context, observer);
-                    }
-                    catch(IceInternal.LocalExceptionWrapper ex__)
-                    {
-                        if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
-                        {
-                            handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer);
-                        }
-                        else
-                        {
-                            handleExceptionWrapper__(del__, ex__, observer);
-                        }
-                    }
-                    catch(LocalException ex__)
-                    {
-                        handleException__(del__, ex__, true, ref cnt__, observer);
-                    }
+                    og__.writeParamEncaps(inEncaps);
                 }
+                catch(LocalException ex__)
+                {
+                    og__.abort(ex__);
+                }
+                bool ok = og__.invoke();
+                outEncaps = null;
+                if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+                {
+                    outEncaps = og__.readParamEncaps();
+                }
+                return ok;
             }
             finally
             {
-                if(observer != null)
-                {
-                    observer.detach();
-                }
+                reclaimOutgoing(og__);
             }
         }
 
@@ -1550,34 +1450,22 @@ namespace Ice
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_invoke_name);
             bool ok = outAsync__.wait__();
-            try
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
             {
-                if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
-                {
-                    outEncaps = outAsync__.readParamEncaps__();
-                }
-                else
-                {
-                    outEncaps = null; // Satisfy compiler
-                }
-                return ok;
+                outEncaps = outAsync__.readParamEncaps__();
             }
-            catch(Ice.LocalException ex)
+            else
             {
-                InvocationObserver obsv__ = outAsync__.getObserver__();
-                if(obsv__ != null)
-                {
-                    obsv__.failed(ex.ice_name());
-                }
-                throw ex;
+                outEncaps = null; // Satisfy compiler
             }
+            return ok;
         }
 
         private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
                                                                          OperationMode mode,
                                                                          byte[] inEncaps,
                                                                          Dictionary<string, string> context__,
-                                                                         bool explicitContext__,
+                                                                         bool explicitCtx__,
                                                                          Ice.AsyncCallback cb__,
                                                                          object cookie__)
         {
@@ -1591,11 +1479,11 @@ namespace Ice
 
             try
             {
-                result__.prepare__(operation, mode, context__, explicitContext__);
+                result__.prepare__(operation, mode, context__, explicitCtx__);
                 result__.writeParamEncaps__(inEncaps);
                 result__.invoke__(true);
             }
-            catch(Ice.LocalException ex__)
+            catch(Ice.Exception ex__)
             {
                 result__.invokeExceptionAsync__(ex__);
             }
@@ -2241,21 +2129,43 @@ namespace Ice
         public Connection ice_getConnection()
         {
             InvocationObserver observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
-            int cnt__ = 0;
+            int cnt = 0;
             try
             {
                 while(true)
                 {
-                    ObjectDel_ del__ = null;
+                    IceInternal.RequestHandler handler = null;
                     try
                     {
-                        del__ = getDelegate__(false);
-                        // Wait for the connection to be established.
-                        return del__.getRequestHandler__().getConnection(true);
+                        handler = getRequestHandler__(false);
+                        return handler.getConnection(true);
                     }
-                    catch(LocalException ex__)
+                    catch(IceInternal.RetryException)
                     {
-                        handleException__(del__, ex__, true, ref cnt__, observer);
+                        setRequestHandler__(handler, null); // Clear request handler and retry.
+                    }
+                    catch(Ice.Exception ex)
+                    {
+                        try
+                        {
+                            int interval = handleException__(ex, handler, OperationMode.Idempotent, false, ref cnt);
+                            if(observer != null)
+                            {
+                                observer.retried();
+                            }
+                            if(interval > 0)
+                            {
+                                System.Threading.Thread.Sleep(interval);
+                            }
+                        }
+                        catch(Ice.Exception exc)
+                        {
+                            if(observer != null)
+                            {
+                                observer.failed(exc.ice_name());
+                            }
+                            throw exc;
+                        }
                     }
                 }
             }
@@ -2278,18 +2188,17 @@ namespace Ice
         /// collocated object.</exception>
         public Connection ice_getCachedConnection()
         {
-            ObjectDel_ del__ = null;
+            IceInternal.RequestHandler handler;
             lock(this)
             {
-                del__ = _delegate;
+                handler = _requestHandler;
             }
 
-            if(del__ != null)
+            if(handler != null)
             {
                 try
                 {
-                    // Wait for the connection to be established.
-                    return del__.getRequestHandler__().getConnection(false);
+                    return handler.getConnection(false);
                 }
                 catch(LocalException)
                 {
@@ -2303,31 +2212,8 @@ namespace Ice
         /// </summary>
         public void ice_flushBatchRequests()
         {
-            //
-            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-            // requests were queued with the connection, they would be lost without being noticed.
-            //
-            ObjectDel_ del__ = null;
-            InvocationObserver observer = 
-                IceInternal.ObserverHelper.get(this, ObjectPrxHelperBase.__ice_flushBatchRequests_name);
-            int cnt__ = -1; // Don't retry.
-            try
-            {
-                del__ = getDelegate__(false);
-                del__.ice_flushBatchRequests(observer);
-                return;
-            }
-            catch(LocalException ex__)
-            {
-                handleException__(del__, ex__, true, ref cnt__, observer);
-            }
-            finally
-            {
-                if(observer != null)
-                {
-                    observer.detach();
-                }
-            }
+            IceInternal.BatchOutgoing og__ = new IceInternal.BatchOutgoing(this, __ice_flushBatchRequests_name);
+            og__.invoke();
         }
 
         /// <summary>
@@ -2365,7 +2251,7 @@ namespace Ice
             {
                 result__.invoke__();
             }
-            catch(Ice.LocalException ex__)
+            catch(Ice.Exception ex__)
             {
                 result__.invokeExceptionAsync__(ex__);
             }
@@ -2434,142 +2320,55 @@ namespace Ice
 
         public void copyFrom__(ObjectPrx from)
         {
-            ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
-            IceInternal.Reference @ref = null;
-            ObjectDelM_ delegateM = null;
-            ObjectDelD_ delegateD = null;
-
             lock(from)
             {
-                @ref = h._reference;
-                delegateM = h._delegate as ObjectDelM_;
-                delegateD = h._delegate as ObjectDelD_;
-            }
-
-            //
-            // No need to synchronize "*this", as this operation is only
-            // called upon initialization.
-            //
-
-            Debug.Assert(_reference == null);
-            Debug.Assert(_delegate == null);
-
-            _reference = @ref;
-
-            if(_reference.getCacheConnection())
-            {
-                //
-                // The _delegate attribute is only used if "cache connection"
-                // is enabled. If it's not enabled, we don't keep track of the
-                // delegate -- a new delegate is created for each invocations.
-                //
-
-                if(delegateD != null)
-                {
-                    ObjectDelD_ @delegate = createDelegateD__();
-                    @delegate.copyFrom__(delegateD);
-                    _delegate = @delegate;
-                }
-                else if(delegateM != null)
-                {
-                    ObjectDelM_ @delegate = createDelegateM__();
-                    @delegate.copyFrom__(delegateM);
-                    _delegate = @delegate;
-                }
+                ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
+                _reference = h._reference;
+                _requestHandler = h._requestHandler;
             }
         }
 
-        public int handleException__(ObjectDel_ @delegate, LocalException ex, bool sleep, ref int cnt, 
-                                     InvocationObserver obsv)
+        public int handleException__(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, bool sent, ref int cnt)
         {
-            //
-            // Only _delegate needs to be mutex protected here.
-            //
-            lock(this)
-            {
-                if(@delegate == _delegate)
-                {
-                    _delegate = null;
-                }
-            }
+            setRequestHandler__(handler, null); // Clear the request handler
 
-            try
+            //
+            // We only retry local exception, system exceptions aren't retried.
+            //
+            // A CloseConnectionException indicates graceful server shutdown, and is therefore
+            // always repeatable without violating "at-most-once". That's because by sending a
+            // close connection message, the server guarantees that all outstanding requests
+            // can safely be repeated.
+            //
+            // An ObjectNotExistException can always be retried as well without violating
+            // "at-most-once" (see the implementation of the checkRetryAfterException method
+            //  of the ProxyFactory class for the reasons why it can be useful).
+            //
+            // If the request didn't get sent or if it's non-mutating or idempotent it can 
+            // also always be retried if the retry count isn't reached.
+            //
+            if(ex is LocalException && (!sent ||
+                                        mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
+                                        ex is CloseConnectionException ||
+                                        ex is ObjectNotExistException))
             {
-                if(cnt == -1) // Don't retry if the retry count is -1.
-                {
-                    throw ex;
-                }
-                
-                int interval;
                 try
                 {
-                    interval = _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, sleep,
-                                                                                                ref cnt);
+                    return _reference.getInstance().proxyFactory().checkRetryAfterException((LocalException)ex,
+                                                                                            _reference,
+                                                                                            ref cnt);
                 }
                 catch(CommunicatorDestroyedException)
                 {
                     //
-                    // The communicator is already destroyed, so we cannot
-                    // retry.
+                    // The communicator is already destroyed, so we cannot retry.
                     //
                     throw ex;
                 }
-                if(obsv != null)
-                {
-                    obsv.retried();
-                }
-                return interval;
-            }
-            catch(Ice.LocalException e)
-            {
-                if(obsv != null)
-                {
-                    obsv.failed(e.ice_name());
-                }
-                throw;
-            }
-        }
-
-        public int handleExceptionWrapper__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex,
-                                            InvocationObserver obsv)
-        {
-            lock(this)
-            {
-                if(@delegate == _delegate)
-                {
-                    _delegate = null;
-                }
-            }
-
-            if(!ex.retry())
-            {
-                if(obsv != null)
-                {
-                    obsv.failed(ex.get().ice_name());
-                }
-                throw ex.get();
-            }
-
-            return 0;
-        }
-
-        public int handleExceptionWrapperRelaxed__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex,
-                                                   bool sleep, ref int cnt, InvocationObserver obsv)
-        {
-            if(!ex.retry())
-            {
-                return handleException__(@delegate, ex.get(), sleep, ref cnt, obsv);
             }
             else
             {
-                lock(this)
-                {
-                    if(@delegate == _delegate)
-                    {
-                        _delegate = null;
-                    }
-                }
-                return 0;
+                throw ex; // Retry could break at-most-once semantics, don't retry.
             }
         }
 
@@ -2601,6 +2400,30 @@ namespace Ice
             }
         }
 
+        public void invoke__(IceInternal.Outgoing og__)
+        {
+            //
+            // Helper for operations without out/return parameters and user
+            // exceptions.
+            //
+            bool ok__ = og__.invoke();
+            if(og__.hasResponse())
+            {
+                if(!ok__)
+                {
+                    try
+                    {
+                        og__.throwUserException();
+                    }
+                    catch(UserException ex__)
+                    {
+                        throw new UnknownUserException(ex__.ice_name(), ex__);
+                    }
+                }
+                og__.readEmptyParams();
+            }
+        }
+        
         public void end__(AsyncResult result, string operation)
         {
             IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
@@ -2608,103 +2431,95 @@ namespace Ice
             bool ok = outAsync.wait__();
             if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
             {
-                try
+                if(!ok)
                 {
-                    if(!ok)
+                    try
                     {
-                        try
-                        {
-                            outAsync.throwUserException__();
-                        }
-                        catch(Ice.UserException ex)
-                        {
-                            throw new Ice.UnknownUserException(ex.ice_name(), ex);
-                        }
+                        outAsync.throwUserException__();
                     }
-                    outAsync.readEmptyParams__();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    InvocationObserver obsv__ = outAsync.getObserver__();
-                    if(obsv__ != null)
+                    catch(Ice.UserException ex)
                     {
-                        obsv__.failed(ex.ice_name());
+                        throw new Ice.UnknownUserException(ex.ice_name(), ex);
                     }
-                    throw ex;
                 }
+                outAsync.readEmptyParams__();
             }
         }
 
-        public ObjectDel_ getDelegate__(bool ami)
+        public IceInternal.RequestHandler getRequestHandler__(bool async)
         {
             if(_reference.getCacheConnection())
             {
                 lock(this)
                 {
-                    if(_delegate != null)
+                    if(_requestHandler != null)
                     {
-                        return _delegate;
+                        return _requestHandler;
                     }
                     // Connect asynchrously to avoid blocking with the proxy mutex locked.
-                    _delegate = createDelegate(true);
-                    return _delegate;
+                    _requestHandler = createRequestHandler(true);
+                    return _requestHandler;
                 }
             }
-            else
-            {
-                IceInternal.Reference.Mode mode = _reference.getMode();
-                return createDelegate(ami ||
-                                      mode == IceInternal.Reference.Mode.ModeBatchOneway ||
-                                      mode == IceInternal.Reference.Mode.ModeBatchDatagram);
-            }
+
+            IceInternal.Reference.Mode mode = _reference.getMode();
+            return createRequestHandler(async ||
+                                        mode == IceInternal.Reference.Mode.ModeBatchOneway ||
+                                        mode == IceInternal.Reference.Mode.ModeBatchDatagram);
         }
 
-        public void setRequestHandler__(ObjectDel_ @delegate, IceInternal.RequestHandler handler)
+        public void setRequestHandler__(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
         {
-            lock(this)
+            if(_reference.getCacheConnection())
             {
-                if(@delegate == _delegate)
+                lock(this)
                 {
-                    if(_delegate is ObjectDelM_)
+                    if(previous == _requestHandler)
                     {
-                        _delegate = createDelegateM__();
-                        _delegate.setRequestHandler__(handler);
+                        _requestHandler = handler;
                     }
-                    else if(_delegate is ObjectDelD_)
+                    else if(previous != null && _requestHandler != null)
                     {
-                        _delegate = createDelegateD__();
-                        _delegate.setRequestHandler__(handler);
+                        try
+                        {
+                            //
+                            // If both request handlers point to the same connection, we also
+                            // update the request handler. See bug ICE-5489 for reasons why
+                            // this can be useful.
+                            //
+                            if(previous.getConnection(false) == _requestHandler.getConnection(false))
+                            {
+                                _requestHandler = handler;
+                            }
+                        }
+                        catch(Exception)
+                        {
+                            // Ignore
+                        }
                     }
                 }
             }
         }
 
-        protected virtual ObjectDelM_ createDelegateM__()
-        {
-            return new ObjectDelM_();
-        }
-
-        protected virtual ObjectDelD_ createDelegateD__()
-        {
-            return new ObjectDelD_();
-        }
-
-        private ObjectDel_ createDelegate(bool async)
+        private IceInternal.RequestHandler createRequestHandler(bool async)
         {
             if(_reference.getCollocationOptimized())
             {
                 ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
                 if(adapter != null)
                 {
-                    ObjectDelD_ d = createDelegateD__();
-                    d.setup(_reference, adapter);
-                    return d;
+                    return new IceInternal.CollocatedRequestHandler(_reference, adapter);
                 }
             }
 
-            ObjectDelM_ d2 = createDelegateM__();
-            d2.setup(_reference, this, async);
-            return d2;
+            if(async)
+            {
+                return (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
+            }
+            else
+            {
+                return new IceInternal.ConnectionRequestHandler(_reference, this);
+            }
         }
 
         //
@@ -2718,7 +2533,7 @@ namespace Ice
             //
 
             Debug.Assert(_reference == null);
-            Debug.Assert(_delegate == null);
+            Debug.Assert(_requestHandler == null);
 
             _reference = @ref;
         }
@@ -2730,9 +2545,55 @@ namespace Ice
             return proxy;
         }
 
-        protected static Dictionary<string, string> emptyContext_ = new Dictionary<string, string>();
+        protected IceInternal.Outgoing getOutgoing(String operation, OperationMode mode, 
+                                                   Dictionary<string, string> context, bool explicitCtx)
+        {
+            IceInternal.Outgoing @out = null;
+            if(_reference.getInstance().cacheMessageBuffers() > 0)
+            {
+                lock(this)
+                {
+                    if(_outgoingCache != null)
+                    {
+                        @out = _outgoingCache;
+                        _outgoingCache = _outgoingCache.next;
+                        @out.next = null;
+                    }
+                }
+            }
+            if(@out == null)
+            {
+                @out = new IceInternal.Outgoing(this, operation, mode, context, explicitCtx);
+            }
+            else
+            {
+                @out.reset(this, operation, mode, context, explicitCtx);
+            }
+            return @out;
+        }
+        
+        protected void reclaimOutgoing(IceInternal.Outgoing @out)
+        {
+            @out.detach();
+
+            if(_reference.getInstance().cacheMessageBuffers() > 0)
+            {
+                //
+                // Clear references to Ice objects as soon as possible.
+                //
+                @out.reclaim();
+                
+                lock(this)
+                {
+                    @out.next = _outgoingCache;
+                    _outgoingCache = @out;
+                }
+            }
+        }
+        
         private IceInternal.Reference _reference;
-        private ObjectDel_ _delegate;
+        private IceInternal.RequestHandler _requestHandler;
+        private IceInternal.Outgoing _outgoingCache;
     }
 
     /// <summary>
@@ -2866,536 +2727,6 @@ namespace Ice
         public static string ice_staticId()
         {
             return Ice.ObjectImpl.ice_staticId();
-        }
-    }
-
-    public interface ObjectDel_
-    {
-        bool ice_isA(string id, Dictionary<string, string> context, InvocationObserver obsv);
-        void ice_ping(Dictionary<string, string> context, InvocationObserver obsv);
-        string[] ice_ids(Dictionary<string, string> context, InvocationObserver obsv);
-        string ice_id(Dictionary<string, string> context, InvocationObserver obsv);
-        bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
-                        Dictionary<string, string> context, InvocationObserver obsv);
-
-        void ice_flushBatchRequests(InvocationObserver obsv);
-
-        IceInternal.RequestHandler getRequestHandler__();
-        void setRequestHandler__(IceInternal.RequestHandler handler);
-    }
-
-    public class ObjectDelD_ : ObjectDel_
-    {
-        public virtual bool ice_isA(string id__, Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            Current current__ = new Current();
-            initCurrent__(ref current__, ObjectPrxHelperBase.__ice_isA_name, OperationMode.Nonmutating, context__);
-
-            bool result__ = false;
-            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
-            {
-                result__ = servant__.ice_isA(id__, current__);
-                return Ice.DispatchStatus.DispatchOK;
-            };
-
-            IceInternal.Direct direct__ = null;
-            try
-            {
-                direct__ = new IceInternal.Direct(current__, run__);
-            }
-            catch(System.Exception ex__)
-            {
-                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-            }
-
-            try
-            {
-                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
-                Debug.Assert(status__ == DispatchStatus.DispatchOK);
-                return result__;
-            }
-            finally
-            {
-                try
-                {
-                    direct__.destroy();
-                }
-                catch(System.Exception ex__)
-                {
-                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-                }
-            }
-        }
-
-        public virtual void ice_ping(Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            Current current__ = new Current();
-            initCurrent__(ref current__, ObjectPrxHelperBase.__ice_ping_name, OperationMode.Nonmutating, context__);
-
-            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
-            {
-                servant__.ice_ping(current__);
-                return Ice.DispatchStatus.DispatchOK;
-            };
-
-            IceInternal.Direct direct__ = null;
-            try
-            {
-                direct__ = new IceInternal.Direct(current__, run__);
-            }
-            catch(System.Exception ex__)
-            {
-                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-            }
-
-            try
-            {
-                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
-                Debug.Assert(status__ == DispatchStatus.DispatchOK);
-            }
-            finally
-            {
-                try
-                {
-                    direct__.destroy();
-                }
-                catch(System.Exception ex__)
-                {
-                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-                }
-            }
-        }
-
-        public virtual string[] ice_ids(Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            Current current__ = new Current();
-            initCurrent__(ref current__, ObjectPrxHelperBase.__ice_ids_name, OperationMode.Nonmutating, context__);
-
-            string[] result__ = null;
-            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
-            {
-                result__ = servant__.ice_ids(current__);
-                return Ice.DispatchStatus.DispatchOK;
-            };
-
-            IceInternal.Direct direct__ = null;
-            try
-            {
-                direct__ = new IceInternal.Direct(current__, run__);
-            }
-            catch(System.Exception ex__)
-            {
-                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-            }
-
-            try
-            {
-                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
-                Debug.Assert(status__ == DispatchStatus.DispatchOK);
-                return result__;
-            }
-            finally
-            {
-                try
-                {
-                    direct__.destroy();
-                }
-                catch(System.Exception ex__)
-                {
-                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-                }
-            }
-        }
-
-        public virtual string ice_id(Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            Current current__ = new Current();
-            initCurrent__(ref current__, ObjectPrxHelperBase.__ice_id_name, OperationMode.Nonmutating, context__);
-
-            string result__ = null;
-            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
-            {
-                result__ = servant__.ice_id(current__);
-                return Ice.DispatchStatus.DispatchOK;
-            };
-
-            IceInternal.Direct direct__ = null;
-            try
-            {
-                direct__ = new IceInternal.Direct(current__, run__);
-            }
-            catch(System.Exception ex__)
-            {
-                IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-            }
-
-            try
-            {
-                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
-                Debug.Assert(status__ == DispatchStatus.DispatchOK);
-                return result__;
-            }
-            finally
-            {
-                try
-                {
-                    direct__.destroy();
-                }
-                catch(System.Exception ex__)
-                {
-                    IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
-                }
-            }
-        }
-
-        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps,
-                                       out byte[] outEncaps, Dictionary<string, string> context,
-                                       InvocationObserver obsv)
-        {
-            throw new CollocationOptimizationException();
-        }
-
-        public virtual void ice_flushBatchRequests(InvocationObserver obsv)
-        {
-            throw new CollocationOptimizationException();
-        }
-
-        public virtual IceInternal.RequestHandler getRequestHandler__()
-        {
-            throw new CollocationOptimizationException();
-        }
-
-        public virtual void setRequestHandler__(IceInternal.RequestHandler handler)
-        {
-            throw new CollocationOptimizationException();
-        }
-
-        //
-        // Only for use by ObjectPrx.
-        //
-        internal void copyFrom__(ObjectDelD_ from)
-        {
-            //
-            // No need to synchronize "from", as the delegate is immutable
-            // after creation.
-            //
-
-            //
-            // No need to synchronize, as this operation is only called
-            // upon initialization.
-            //
-
-            Debug.Assert(reference__ == null);
-            Debug.Assert(adapter__ == null);
-
-            reference__ = from.reference__;
-            adapter__ = from.adapter__;
-        }
-
-        protected internal IceInternal.Reference reference__;
-        protected internal ObjectAdapter adapter__;
-
-        protected internal void initCurrent__(ref Current current, string op, OperationMode mode,
-                                              Dictionary<string, string> context)
-        {
-            current.adapter = adapter__;
-            current.id = reference__.getIdentity();
-            current.facet = reference__.getFacet();
-            current.operation = op;
-            current.mode = mode;
-
-            if(context != null)
-            {
-                current.ctx = context;
-            }
-            else
-            {
-                //
-                // Implicit context
-                //
-                ImplicitContextI implicitContext =
-                    reference__.getInstance().getImplicitContext();
-
-                Dictionary<string, string> prxContext = reference__.getContext();
-
-                if(implicitContext == null)
-                {
-                    current.ctx = new Dictionary<string, string>(prxContext);
-                }
-                else
-                {
-                    current.ctx = implicitContext.combine(prxContext);
-                }
-            }
-
-            current.requestId = -1;
-        }
-
-        public virtual void setup(IceInternal.Reference rf, ObjectAdapter adapter)
-        {
-            //
-            // No need to synchronize, as this operation is only called
-            // upon initialization.
-            //
-
-            Debug.Assert(reference__ == null);
-            Debug.Assert(adapter__ == null);
-
-            reference__ = rf;
-            adapter__ = adapter;
-        }
-    }
-
-    public class ObjectDelM_ : ObjectDel_
-    {
-        public virtual bool ice_isA(string id__, Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            IceInternal.Outgoing og__ = handler__.getOutgoing(ObjectPrxHelperBase.__ice_isA_name, 
-                                                              OperationMode.Nonmutating, context__, obsv__);
-            try
-            {
-                try
-                {
-                    IceInternal.BasicStream os__ = og__.startWriteParams(FormatType.DefaultFormat);
-                    os__.writeString(id__);
-                    og__.endWriteParams();
-                }
-                catch(LocalException ex__)
-                {
-                    og__.abort(ex__);
-                }
-                bool ok__ = og__.invoke();
-                try
-                {
-                    if(!ok__)
-                    {
-                        try
-                        {
-                            og__.throwUserException();
-                        }
-                        catch(UserException ex)
-                        {
-                            throw new UnknownUserException(ex.ice_name(), ex);
-                        }
-                    }
-                    IceInternal.BasicStream is__ = og__.startReadParams();
-                    bool ret__ = is__.readBool();
-                    og__.endReadParams();
-                    return ret__;
-                }
-                catch(LocalException ex__)
-                {
-                    throw new IceInternal.LocalExceptionWrapper(ex__, false);
-                }
-            }
-            finally
-            {
-                handler__.reclaimOutgoing(og__);
-            }
-        }
-
-        public virtual void ice_ping(Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            IceInternal.Outgoing og__ = handler__.getOutgoing(ObjectPrxHelperBase.__ice_ping_name, 
-                                                              OperationMode.Nonmutating, context__, obsv__);
-            try
-            {
-                og__.writeEmptyParams();
-                bool ok__ = og__.invoke();
-                if(og__.hasResponse())
-                {
-                    try
-                    {
-                        if(!ok__)
-                        {
-                            try
-                            {
-                                og__.throwUserException();
-                            }
-                            catch(UserException ex)
-                            {
-                                throw new UnknownUserException(ex.ice_name(), ex);
-                            }
-                        }
-                        og__.readEmptyParams();
-                    }
-                    catch(LocalException ex__)
-                    {
-                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
-                    }
-                }
-            }
-            finally
-            {
-                handler__.reclaimOutgoing(og__);
-            }
-        }
-
-        public virtual string[] ice_ids(Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            IceInternal.Outgoing og__ = handler__.getOutgoing(ObjectPrxHelperBase.__ice_ids_name, 
-                                                              OperationMode.Nonmutating, context__, obsv__);
-            try
-            {
-                og__.writeEmptyParams();
-                bool ok__ = og__.invoke();
-                try
-                {
-                    if(!ok__)
-                    {
-                        try
-                        {
-                            og__.throwUserException();
-                        }
-                        catch(UserException ex)
-                        {
-                            throw new UnknownUserException(ex.ice_name(), ex);
-                        }
-                    }
-                    IceInternal.BasicStream is__ = og__.startReadParams();
-                    string[] ret__ = is__.readStringSeq();
-                    og__.endReadParams();
-                    return ret__;
-                }
-                catch(LocalException ex__)
-                {
-                    throw new IceInternal.LocalExceptionWrapper(ex__, false);
-                }
-            }
-            finally
-            {
-                handler__.reclaimOutgoing(og__);
-            }
-        }
-
-        public virtual string ice_id(Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            IceInternal.Outgoing og__ = handler__.getOutgoing(ObjectPrxHelperBase.__ice_id_name,
-                                                              OperationMode.Nonmutating, context__, obsv__);
-            try
-            {
-                og__.writeEmptyParams();
-                bool ok__ = og__.invoke();
-                try
-                {
-                    if(!ok__)
-                    {
-                        try
-                        {
-                            og__.throwUserException();
-                        }
-                        catch(UserException ex)
-                        {
-                            throw new UnknownUserException(ex.ice_name(), ex);
-                        }
-                    }
-                    IceInternal.BasicStream is__ = og__.startReadParams();
-                    string ret__ = is__.readString();
-                    og__.endReadParams();
-                    return ret__;
-                }
-                catch(LocalException ex__)
-                {
-                    throw new IceInternal.LocalExceptionWrapper(ex__, false);
-                }
-            }
-            finally
-            {
-                handler__.reclaimOutgoing(og__);
-            }
-        }
-
-        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
-                                       Dictionary<string, string> context__, InvocationObserver obsv__)
-        {
-            IceInternal.Outgoing og__ = handler__.getOutgoing(operation, mode, context__, obsv__);
-            try
-            {
-                try
-                {
-                    og__.writeParamEncaps(inEncaps);
-                }
-                catch(LocalException ex__)
-                {
-                    og__.abort(ex__);
-                }
-                bool ok = og__.invoke();
-                outEncaps = null;
-                if(handler__.getReference().getMode() == IceInternal.Reference.Mode.ModeTwoway)
-                {
-                    try
-                    {
-                        outEncaps = og__.readParamEncaps();
-                    }
-                    catch(LocalException ex__)
-                    {
-                        throw new IceInternal.LocalExceptionWrapper(ex__, false);
-                    }
-                }
-                return ok;
-            }
-            finally
-            {
-                handler__.reclaimOutgoing(og__);
-            }
-        }
-
-        public virtual void ice_flushBatchRequests(InvocationObserver obsv)
-        {
-            IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(handler__, obsv);
-            @out.invoke();
-        }
-
-        public virtual IceInternal.RequestHandler getRequestHandler__()
-        {
-            return handler__;
-        }
-
-        public virtual void setRequestHandler__(IceInternal.RequestHandler handler)
-        {
-            handler__ = handler;
-        }
-
-        //
-        // Only for use by ObjectPrx
-        //
-        internal void copyFrom__(ObjectDelM_ from)
-        {
-            //
-            // No need to synchronize "from", as the delegate is immutable
-            // after creation.
-            //
-
-            //
-            // No need to synchronize, as this operation is only called
-            // upon initialization.
-            //
-
-            Debug.Assert(handler__ == null);
-
-            handler__ = from.handler__;
-        }
-
-        protected IceInternal.RequestHandler handler__;
-
-        public virtual void setup(IceInternal.Reference rf, ObjectPrx proxy, bool async)
-        {
-            //
-            // No need to synchronize, as this operation is only called
-            // upon initialization.
-            //
-
-            Debug.Assert(handler__ == null);
-
-            if(async)
-            {
-                IceInternal.ConnectRequestHandler handler = new IceInternal.ConnectRequestHandler(rf, proxy, this);
-                handler__ = handler.connect();
-            }
-            else
-            {
-                handler__ = new IceInternal.ConnectionRequestHandler(rf, proxy);
-            }
         }
     }
 }

@@ -49,7 +49,7 @@ ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Router*);
 namespace IceInternal
 {
 
-class LocalExceptionWrapper;
+class Outgoing;
 
 }
 
@@ -898,35 +898,31 @@ public:
 
     void end_ice_flushBatchRequests(const ::Ice::AsyncResultPtr&);
 
-    ::IceInternal::ReferencePtr __reference() const { return _reference; }
+    const ::IceInternal::ReferencePtr& __reference() const { return _reference; }
 
     ::Ice::Int __hash() const;
 
     void __copyFrom(const ::Ice::ObjectPrx&);
-    int __handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, const ::Ice::LocalException&, 
-                          bool, int&, ::IceInternal::InvocationObserver&);
-    int __handleExceptionWrapper(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-                                 const ::IceInternal::LocalExceptionWrapper&, ::IceInternal::InvocationObserver&);
-    int __handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&,
-                                        const ::IceInternal::LocalExceptionWrapper&, bool, int&, 
-                                        ::IceInternal::InvocationObserver&);
+
+    int __handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode, 
+                          bool, int&);
 
     void __checkTwowayOnly(const ::std::string&) const;
     void __checkAsyncTwowayOnly(const ::std::string&) const;
+
+    void __invoke(::IceInternal::Outgoing&) const;
     void __end(const ::Ice::AsyncResultPtr&, const std::string&) const;
 
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate(bool);
-    void __setRequestHandler(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-                             const ::IceInternal::RequestHandlerPtr&);
+    ::IceInternal::RequestHandlerPtr __getRequestHandler(bool);
+    void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
 
 protected:
 
-    virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
-    virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
-
     virtual Object* __newInstance() const;
-
+    
 private:
+
+    ::IceInternal::RequestHandlerPtr createRequestHandler(bool);
     
 #ifdef ICE_CPP11
     ::Ice::AsyncResultPtr __begin_ice_isA(
@@ -1232,112 +1228,17 @@ private:
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr&,
                                                                const ::Ice::LocalObjectPtr&);
 
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> createDelegate(bool);
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
 
     ::IceInternal::ReferencePtr _reference;
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
+    ::IceInternal::RequestHandlerPtr _requestHandler;
     IceUtil::Mutex _mutex;
 };
 
 } }
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Object&);
-
-namespace IceDelegate { namespace Ice
-{
-
-class ICE_API Object : public ::IceUtil::Shared
-{
-public:
-
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
-    virtual void ice_ping(const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
-    virtual ::std::string ice_id(const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
-    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
-                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*, 
-                            ::IceInternal::InvocationObserver&) = 0;
-    virtual void ice_flushBatchRequests(::IceInternal::InvocationObserver&) = 0;
-
-    virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const = 0;
-    virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&) = 0;
-};
-
-} }
-
-namespace IceDelegateM { namespace Ice
-{
-
-class ICE_API Object : virtual public ::IceDelegate::Ice::Object
-{
-public:
-
-    virtual ~Object();
-
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual void ice_ping(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual ::std::string ice_id(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
-                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual void ice_flushBatchRequests(::IceInternal::InvocationObserver&);
-
-    virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const;
-    virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
-
-    void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
-
-protected:
-
-    ::IceInternal::RequestHandlerPtr __handler;
-
-private:
-
-    void setup(const ::IceInternal::ReferencePtr&, const ::Ice::ObjectPrx&, bool);
-    friend class ::IceProxy::Ice::Object;
-};
-
-} }
-
-namespace IceDelegateD { namespace Ice
-{
-
-class ICE_API Object : virtual public ::IceDelegate::Ice::Object
-{
-public:
-
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual void ice_ping(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual ::std::string ice_id(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
-                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
-    virtual void ice_flushBatchRequests(::IceInternal::InvocationObserver&);
-
-    virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const;
-    virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
-
-    void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
-
-protected:
-
-    ::IceInternal::ReferencePtr __reference;
-    ::Ice::ObjectAdapterPtr __adapter;
-
-    void __initCurrent(::Ice::Current&, const ::std::string&, ::Ice::OperationMode, const ::Ice::Context*);
-
-private:
-
-    void setup(const ::IceInternal::ReferencePtr&, const ::Ice::ObjectAdapterPtr&);
-    friend class ::IceProxy::Ice::Object;
-};
-
-} }
 
 namespace Ice
 {

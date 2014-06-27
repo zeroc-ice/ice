@@ -73,7 +73,7 @@ public class Client extends test.Util.Application
         communicator.addObjectFactory(factory, "::Test::J");
         communicator.addObjectFactory(factory, "::Test::H");
 
-        InitialPrx initial = AllTests.allTests(communicator, false, getWriter());
+        InitialPrx initial = AllTests.allTests(communicator, getWriter());
         initial.shutdown();
         return 0;
     }

@@ -546,6 +546,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();
+        hello.ice_getConnection().close(false);
         hello.sayHello();
         obj.migrateHello();
         hello.sayHello();
@@ -616,16 +617,10 @@ public class AllTests : TestCommon.TestApp
         registry.addObject(adapter.add(new HelloI(), id));
         adapter.activate();
 
-        try
-        {
-            HelloPrx helloPrx = HelloPrxHelper.checkedCast(
-                communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
-            helloPrx.ice_getConnection();
-            test(false);
-        }
-        catch(Ice.CollocationOptimizationException)
-        {
-        }
+        HelloPrx helloPrx = HelloPrxHelper.checkedCast(
+            communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
+        test(helloPrx.ice_getConnection() == null);
+
         adapter.deactivate();
         WriteLine("ok");
 

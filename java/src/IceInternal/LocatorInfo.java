@@ -314,7 +314,7 @@ public final class LocatorInfo
 
     LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, boolean background)
     {
-        _locator = (Ice.LocatorPrx)locator.ice_collocationOptimized(false);
+        _locator = locator;
         _table = table;
         _background = background;
     }
@@ -371,8 +371,7 @@ public final class LocatorInfo
         //
         // Do not make locator calls from within sync.
         //
-        Ice.LocatorRegistryPrx locatorRegistry = 
-            (Ice.LocatorRegistryPrx)_locator.getRegistry().ice_collocationOptimized(false);
+        Ice.LocatorRegistryPrx locatorRegistry = (Ice.LocatorRegistryPrx)_locator.getRegistry();
 
         synchronized(this)
         {

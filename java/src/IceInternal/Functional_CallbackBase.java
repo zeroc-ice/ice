@@ -12,18 +12,18 @@ package IceInternal;
 public abstract class Functional_CallbackBase extends IceInternal.CallbackBase
 {
     public Functional_CallbackBase(boolean responseCb,
-                                   Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                   Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                    Functional_BoolCallback sentCb)
     {
-        CallbackBase.check(responseCb || localExceptionCb != null);
-        __localExceptionCb = localExceptionCb;
+        CallbackBase.check(responseCb || exceptionCb != null);
+        __exceptionCb = exceptionCb;
         __sentCb = sentCb;
     }
     
-    protected Functional_CallbackBase(Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+    protected Functional_CallbackBase(Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                       Functional_BoolCallback sentCb)
     {
-        __localExceptionCb = localExceptionCb;
+        __exceptionCb = exceptionCb;
         __sentCb = sentCb;
     }
     
@@ -37,6 +37,6 @@ public abstract class Functional_CallbackBase extends IceInternal.CallbackBase
 
     public abstract void __completed(Ice.AsyncResult __result);
     
-    protected final Functional_GenericCallback1<Ice.LocalException> __localExceptionCb;
+    protected final Functional_GenericCallback1<Ice.Exception> __exceptionCb;
     protected final Functional_BoolCallback __sentCb;
 }

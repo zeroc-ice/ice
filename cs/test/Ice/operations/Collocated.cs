@@ -21,12 +21,13 @@ public class Collocated
 {
     private static int run(String[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.AdapterId", "test");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
         adapter.activate();
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator);
 
         return 0;
     }
@@ -42,6 +43,20 @@ public class Collocated
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
             initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+
+            //
+            // We must set MessageSizeMax to an explicit values,
+            // because we run tests to check whether
+            // Ice.MemoryLimitException is raised as expected.
+            //
+            initData.properties.setProperty("Ice.MessageSizeMax", "100");
+
+            //
+            // Its possible to have batch oneway requests dispatched
+            // after the adapter is deactivated due to thread
+            // scheduling so we supress this warning.
+            //
+            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);

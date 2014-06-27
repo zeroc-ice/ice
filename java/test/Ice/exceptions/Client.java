@@ -16,7 +16,7 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        ThrowerPrx thrower = AllTests.allTests(communicator, false, getWriter());
+        ThrowerPrx thrower = AllTests.allTests(communicator, getWriter());
         thrower.shutdown();
         return 0;
     }

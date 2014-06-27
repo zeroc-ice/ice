@@ -27,10 +27,5 @@ namespace IceInternal
         Reference getReference();
 
         Ice.ConnectionI getConnection(bool wait);
-
-        Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context, 
-                             InvocationObserver observer);
-
-        void reclaimOutgoing(Outgoing @out);
     }
 }

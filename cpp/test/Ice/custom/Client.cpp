@@ -19,8 +19,8 @@ DEFINE_TEST("client")
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);
-    Test::TestIntfPrx test = allTests(communicator, false);
+    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);
+    Test::TestIntfPrx test = allTests(communicator);
     test->shutdown();
 
     return EXIT_SUCCESS;

@@ -35,11 +35,9 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
+            initData.observer = Instrumentation.getObserver();
 
-            //
-            // For this test, we want to disable retries.
-            //
-            initData.properties.setProperty("Ice.RetryIntervals", "-1");
+            initData.properties.setProperty("Ice.RetryIntervals", "0 10 20 30");
 
             //
             // This test kills connections, so we don't want warnings.

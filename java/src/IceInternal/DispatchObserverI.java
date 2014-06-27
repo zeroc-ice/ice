@@ -41,11 +41,11 @@ public class DispatchObserverI
     }
 
     final MetricsUpdate<IceMX.DispatchMetrics> _userException = new MetricsUpdate<IceMX.DispatchMetrics>()
+    {
+        public void
+        update(IceMX.DispatchMetrics v)
         {
-            public void
-            update(IceMX.DispatchMetrics v)
-            {
-                ++v.userException;
-            }
-        };
+            ++v.userException;
+        }
+    };
 }

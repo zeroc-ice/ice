@@ -10,6 +10,8 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <InstrumentationI.h>
+#include <SystemFailure.h>
 
 using namespace std;
 using namespace Test;
@@ -79,7 +81,8 @@ public:
 
     void exception(const ::Ice::Exception& ex)
     {
-        test(dynamic_cast<const Ice::ConnectionLostException*>(&ex));
+        test(dynamic_cast<const Ice::ConnectionLostException*>(&ex) ||
+             dynamic_cast<const Ice::UnknownLocalException*>(&ex));
         called();
     }
 };
@@ -109,19 +112,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
     retry1->op(false);
     cout << "ok" << endl;
 
+    int invocationCount = 3;
+
     cout << "calling operation to kill connection with second proxy... " << flush;
     try
     {
         retry2->op(true);
         test(false);
     }
-    catch(Ice::ConnectionLostException)
+    catch(const Ice::UnknownLocalException&)
     {
-        cout << "ok" << endl;
+        // Expected with collocation
     }
+    catch(const Ice::ConnectionLostException&)
+    {
+    }
+    testInvocationCount(invocationCount + 1);
+    testFailureCount(1);
+    testRetryCount(0);
+    cout << "ok" << endl;
 
     cout << "calling regular operation with first proxy again... " << flush;
     retry1->op(false);
+    testInvocationCount(invocationCount + 2);
+    testFailureCount(1);
+    testRetryCount(0);
     cout << "ok" << endl;
 
     CallbackSuccessPtr cb1 = new CallbackSuccess();
@@ -130,17 +145,91 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "calling regular AMI operation with first proxy... " << flush;
     retry1->begin_op(false, newCallback_Retry_op(cb1, &CallbackSuccess::response, &CallbackSuccess::exception));
     cb1->check();
+    testInvocationCount(invocationCount + 3);
+    testFailureCount(1);
+    testRetryCount(0);
     cout << "ok" << endl;
 
     cout << "calling AMI operation to kill connection with second proxy... " << flush;
     retry2->begin_op(true, newCallback_Retry_op(cb2, &CallbackFail::response, &CallbackFail::exception));
     cb2->check();
+    testInvocationCount(invocationCount + 4);
+    testFailureCount(2);
+    testRetryCount(0);
     cout << "ok" << endl;
 
     cout << "calling regular AMI operation with first proxy again... " << flush;
     retry1->begin_op(false, newCallback_Retry_op(cb1, &CallbackSuccess::response, &CallbackSuccess::exception));
     cb1->check();
+    testInvocationCount(invocationCount + 5);
+    testFailureCount(2);
+    testRetryCount(0);
     cout << "ok" << endl;
+    
+    cout << "testing idempotent operation... " << flush;
+    test(retry1->opIdempotent(0) == 4);
+    testInvocationCount(invocationCount + 6);
+    testFailureCount(2);
+    testRetryCount(4);
+    test(retry1->end_opIdempotent(retry1->begin_opIdempotent(4)) == 8);
+    testInvocationCount(invocationCount + 7);
+    testFailureCount(2);
+    testRetryCount(8);
+    cout << "ok" << endl;
+
+    cout << "testing non-idempotent operation... " << flush;
+    try
+    {
+        retry1->opNotIdempotent(8);
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    testInvocationCount(invocationCount + 8);
+    testFailureCount(3);
+    testRetryCount(8);
+    try
+    {
+        retry1->end_opNotIdempotent(retry1->begin_opNotIdempotent(9));
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    testInvocationCount(invocationCount + 9);
+    testFailureCount(4);
+    testRetryCount(8);
+    cout << "ok" << endl;
+
+    if(!retry1->ice_getConnection())
+    {
+        invocationCount = invocationCount + 10;
+        cout << "testing system exception... " << flush;
+        try
+        {
+            retry1->opSystemException();
+            test(false);
+        }
+        catch(const SystemFailure&)
+        {
+        }
+        test(invocationCount + 1);
+        testFailureCount(5);
+        testRetryCount(8);
+        try
+        {
+            retry1->end_opSystemException(retry1->begin_opSystemException());
+            test(false);
+        }
+        catch(const SystemFailure&)
+        {
+        }
+        testInvocationCount(invocationCount + 2);
+        testFailureCount(6);
+        testRetryCount(8);
+        cout << "ok" << endl;
+    }
 
     return retry1;
 }

@@ -15,10 +15,10 @@ public abstract class Functional_TwowayCallbackDoubleUE
     public Functional_TwowayCallbackDoubleUE(
         Functional_DoubleCallback responseCb, 
         Functional_GenericCallback1<Ice.UserException> userExceptionCb, 
-        Functional_GenericCallback1<Ice.LocalException> localExceptionCb, 
+        Functional_GenericCallback1<Ice.Exception> exceptionCb, 
         Functional_BoolCallback sentCb)
     {
-        super(userExceptionCb != null, responseCb, localExceptionCb, sentCb);
+        super(userExceptionCb != null, responseCb, exceptionCb, sentCb);
         __userExceptionCb = userExceptionCb;
     }
 

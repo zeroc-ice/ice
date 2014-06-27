@@ -379,6 +379,69 @@ public class AllTests : TestCommon.TestApp
             test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 500);
         }
         WriteLine("ok");
+
+        Write("testing invocation timeouts with collocated calls... ");
+        Flush();
+        {
+            communicator.getProperties().setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
+
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TimeoutCollocated");
+            adapter.activate();
+
+            Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.addWithUUID(new TimeoutI()));
+            proxy = (Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
+            try
+            {
+                proxy.sleep(150);
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException)
+            {
+            }
+
+            try
+            {
+                proxy.end_sleep(proxy.begin_sleep(150));
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException)
+            {
+            }
+
+            Test.TimeoutPrx batchTimeout = (Test.TimeoutPrx)proxy.ice_batchOneway();
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+
+            ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(150); // Keep the server thread pool busy.
+            try
+            {
+                batchTimeout.ice_flushBatchRequests();
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException)
+            {
+            }
+
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+
+            ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(150); // Keep the server thread pool busy.
+            try
+            {
+                batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException)
+            {
+            }
+
+
+            adapter.destroy();
+        }
+        WriteLine("ok");
+
 #if SILVERLIGHT
         timeout.shutdown();
 #else

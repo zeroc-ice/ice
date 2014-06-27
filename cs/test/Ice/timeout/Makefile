@@ -11,7 +11,7 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= AllTests.cs Client.cs ../../TestCommon/TestApp.cs
+C_SRCS		= AllTests.cs Client.cs ../../TestCommon/TestApp.cs TimeoutI.cs
 S_SRCS		= TimeoutI.cs Server.cs 
 
 SLICE_SRCS	= $(SDIR)/Test.ice

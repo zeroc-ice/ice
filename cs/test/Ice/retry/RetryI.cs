@@ -19,12 +19,62 @@ public sealed class RetryI : Test.RetryDisp_
     {
         if(kill)
         {
-            current.con.close(true);
+            if(current.con != null)
+            {
+                current.con.close(true);
+            }
+            else
+            {
+                throw new Ice.ConnectionLostException();
+            }
         }
     }
 
+    public override int opIdempotent(int counter, Ice.Current current)
+    {
+        if(counter + nRetry > _counter)
+        {
+            ++_counter;
+            if(current.con != null)
+            {
+                current.con.close(true);
+            }
+            else
+            {
+                throw new Ice.ConnectionLostException();
+            }
+        }
+        return _counter;
+    }
+    
+    public override void opNotIdempotent(int counter, Ice.Current current)
+    {
+        if(_counter != counter)
+        {
+            return;
+        }
+        
+        ++_counter;
+        if(current.con != null)
+        {
+            current.con.close(true);
+        }
+        else
+        {
+            throw new Ice.ConnectionLostException();
+        }
+    }
+    
+    public override void opSystemException(Ice.Current c)
+    {
+        throw new SystemFailure();
+    }
+    
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private int _counter;
+    static readonly int nRetry = 4;
 }

@@ -20,6 +20,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\BuiltinSequences.obj \
 		  $(ARCH)\$(CONFIG)\CommunicatorI.obj \
 		  $(ARCH)\$(CONFIG)\Communicator.obj \
+		  $(ARCH)\$(CONFIG)\CollocatedRequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\ConnectRequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionFactory.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionI.obj \
@@ -28,7 +29,6 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\Current.obj \
 		  $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj \
-		  $(ARCH)\$(CONFIG)\Direct.obj \
                   $(ARCH)\$(CONFIG)\DispatchInterceptor.obj \
 		  $(ARCH)\$(CONFIG)\DynamicLibrary.obj \
 		  $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj \
@@ -91,6 +91,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Reference.obj \
 		  $(ARCH)\$(CONFIG)\RetryQueue.obj \
 		  $(ARCH)\$(CONFIG)\RequestHandler.obj \
+		  $(ARCH)\$(CONFIG)\ResponseHandler.obj \
 		  $(ARCH)\$(CONFIG)\RouterInfo.obj \
 		  $(ARCH)\$(CONFIG)\Router.obj \
 		  $(ARCH)\$(CONFIG)\Selector.obj \

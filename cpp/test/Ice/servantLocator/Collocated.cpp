@@ -74,15 +74,17 @@ public:
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
+    communicator->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->addServantLocator(new ServantLocatorI(""), "");
     adapter->addServantLocator(new ServantLocatorI("category"), "category");
     adapter->add(new TestI, communicator->stringToIdentity("asm"));
     adapter->add(new TestActivationI, communicator->stringToIdentity("test/activation"));
 
-    Test::TestIntfPrx allTests(const CommunicatorPtr&, bool);
-    allTests(communicator, true);
+    Test::TestIntfPrx allTests(const CommunicatorPtr&);
+    allTests(communicator);
 
     return EXIT_SUCCESS;
 }

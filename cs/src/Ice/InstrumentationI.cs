@@ -345,12 +345,20 @@ namespace IceInternal
         
         public Ice.ConnectionInfo getConnectionInfo()
         {
-            return _current.con.getInfo();
+            if(_current.con != null)
+            {
+                return _current.con.getInfo();
+            }
+            return null;
         }
         
         public Ice.Endpoint getEndpoint()
         {
-            return _current.con.getEndpoint();
+            if(_current.con != null)
+            {
+                return _current.con.getEndpoint();
+            }
+            return null;
         }
 
         public Ice.Connection getConnection()
@@ -360,7 +368,7 @@ namespace IceInternal
         
         public Ice.EndpointInfo getEndpointInfo()
         {
-            if(_endpointInfo == null)
+            if(_current.con != null && _endpointInfo == null)
             {
                 _endpointInfo = _current.con.getEndpoint().getInfo();
             }
@@ -740,6 +748,63 @@ namespace IceInternal
         private Ice.EndpointInfo _endpointInfo;
     };
 
+    public class CollocatedInvocationHelper : MetricsHelper<RemoteMetrics>
+    {
+        class AttributeResolverI : MetricsHelper<RemoteMetrics>.AttributeResolver
+        { 
+            public AttributeResolverI()
+            {
+                try
+                {
+                    Type cl = typeof(CollocatedInvocationHelper);
+                    add("parent", cl.GetMethod("getParent"));
+                    add("id", cl.GetMethod("getId"));
+                    add("requestId", cl.GetMethod("getRequestId"));
+                }
+                catch(Exception)
+                {
+                    Debug.Assert(false);
+                }
+            }
+        };
+        static AttributeResolver _attributes = new AttributeResolverI();
+
+        public CollocatedInvocationHelper(int requestId, int size) :
+            base(_attributes)
+        {
+            _requestId = requestId;
+            _size = size;
+        }
+
+        override public void initMetrics(RemoteMetrics v)
+        {
+            v.size += _size;
+        }
+
+        public string getId()
+        {
+            if(_id == null)
+            {
+                _id = _requestId.ToString();
+            }
+            return _id;
+        }
+
+        public int getRequestId()
+        {
+            return _requestId;
+        }
+    
+        public string getParent()
+        {
+            return "Communicator";
+        }
+        
+        readonly private int _size;
+        readonly private int _requestId;
+        private string _id;
+    };
+
     public class ObserverWithDelegateI : ObserverWithDelegate<Metrics, Ice.Instrumentation.Observer>
     {
     };
@@ -860,6 +925,19 @@ namespace IceInternal
             return getObserver<RemoteMetrics, RemoteObserverI, 
                 Ice.Instrumentation.RemoteObserver>("Remote", 
                                                     new RemoteInvocationHelper(con, endpt, requestId, size),
+                                                    del);
+        }
+
+        public Ice.Instrumentation.RemoteObserver getCollocatedObserver(int requestId, int size)
+        {
+            Ice.Instrumentation.RemoteObserver del = null;
+            if(delegate_ != null)
+            {
+                del = delegate_.getCollocatedObserver(requestId, size);
+            }
+            return getObserver<RemoteMetrics, RemoteObserverI,
+                Ice.Instrumentation.RemoteObserver>("Remote", 
+                                                    new CollocatedInvocationHelper(requestId, size),
                                                     del);
         }
 

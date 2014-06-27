@@ -70,7 +70,7 @@ public final class ProxyFactory
         if(ref != null)
         {
             Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
-            proxy.setup(ref);
+            proxy.__setup(ref);
             return proxy;
         }
         else
@@ -248,23 +248,7 @@ public final class ProxyFactory
             logger.trace(traceLevels.retryCat, s);
         }
 
-        if(sleepInterval != null)
-        {
-            sleepInterval.value = interval;
-        }
-        else if(interval > 0)
-        {
-            //
-            // Sleep before retrying.
-            //
-            try
-            {
-                Thread.sleep(interval);
-            }
-            catch(InterruptedException ex1)
-            {
-            }
-        }
+        sleepInterval.value = interval;
         return cnt;
     }
 

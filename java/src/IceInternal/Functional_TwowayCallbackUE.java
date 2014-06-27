@@ -13,11 +13,11 @@ public abstract class Functional_TwowayCallbackUE extends Functional_TwowayCallb
 {
     public Functional_TwowayCallbackUE(boolean responseCb,
                                        Functional_GenericCallback1<Ice.UserException> userExceptionCb,
-                                       Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                       Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                        Functional_BoolCallback sentCb)
     {
-        super(localExceptionCb, sentCb);
-        CallbackBase.check(responseCb || (userExceptionCb != null && localExceptionCb != null));
+        super(exceptionCb, sentCb);
+        CallbackBase.check(responseCb || (userExceptionCb != null && exceptionCb != null));
         __userExceptionCb = userExceptionCb;
     }
     

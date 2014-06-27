@@ -15,6 +15,7 @@ SERVER		= $(call mktestname,server)
 TARGETS		= $(CLIENT) $(SERVER)
 
 COBJS		= Test.o \
+		  TestI.o \
 		  Client.o \
 		  AllTests.o
 

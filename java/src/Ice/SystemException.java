@@ -9,36 +9,17 @@
 
 package Ice;
 
-public abstract class SystemException extends RuntimeException implements Cloneable
+/**
+ * Base class for all Ice system exceptions.
+ **/
+public abstract class SystemException extends Exception
 {
-    public java.lang.Object clone()
+    public SystemException()
     {
-        java.lang.Object o = null;
-        try
-        {
-            o = super.clone();
-        }
-        catch(CloneNotSupportedException ex)
-        {
-            assert false; // Impossible
-        }
-        return o;
     }
 
-    public abstract String
-    ice_name();
-
-    public String
-    toString()
+    public SystemException(Throwable cause)
     {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
-        out.setUseTab(false);
-        out.print(getClass().getName());
-        out.inc();
-        IceInternal.ValueWriter.write(this, out);
-        pw.flush();
-        return sw.toString();
+        super(cause);
     }
 }

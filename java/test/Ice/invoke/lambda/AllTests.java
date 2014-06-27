@@ -60,14 +60,13 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class Callback_Object_opStringI extends Ice.Callback_Object_ice_invoke
+    private static class Callback_Object_opStringI
     {
         public Callback_Object_opStringI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
-        @Override
         public void response(boolean ok, byte[] outEncaps)
         {
             if(ok)
@@ -87,10 +86,13 @@ public class AllTests
             }
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
+        }
+
+        public void sent(boolean sent)
+        {
         }
 
         public void check()
@@ -102,14 +104,13 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class Callback_Object_opExceptionI extends Ice.Callback_Object_ice_invoke
+    private static class Callback_Object_opExceptionI
     {
         public Callback_Object_opExceptionI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
-        @Override
         public void response(boolean ok, byte[] outEncaps)
         {
             if(ok)
@@ -136,8 +137,7 @@ public class AllTests
             }
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -145,6 +145,10 @@ public class AllTests
         public void check()
         {
             callback.check();
+        }
+
+        public void sent(boolean sent)
+        {
         }
 
         private Ice.Communicator _communicator;
@@ -173,7 +177,7 @@ public class AllTests
             Callback_Object_opStringI cb2 = new Callback_Object_opStringI(communicator);
             cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps,
                 (boolean ret, byte[] outParams) -> cb2.response(ret, outParams),
-                (Ice.LocalException ex) -> cb2.exception(ex),
+                (Ice.Exception ex) -> cb2.exception(ex),
                 (boolean sent) -> cb2.sent(sent));
             cb2.check();
         }
@@ -183,7 +187,7 @@ public class AllTests
             Callback_Object_opExceptionI cb2 = new Callback_Object_opExceptionI(communicator);
             cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null,
                 (boolean ret, byte[] outParams) -> cb2.response(ret, outParams),
-                (Ice.LocalException ex) -> cb2.exception(ex),
+                (Ice.Exception ex) -> cb2.exception(ex),
                 (boolean sent) -> cb2.sent(sent));
             cb2.check();
         }

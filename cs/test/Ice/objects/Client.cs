@@ -22,7 +22,7 @@ public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        InitialPrx initial = AllTests.allTests(communicator, false);
+        InitialPrx initial = AllTests.allTests(communicator);
         initial.shutdown();
         return 0;
     }

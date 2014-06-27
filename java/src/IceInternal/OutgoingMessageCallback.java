@@ -12,8 +12,11 @@ package IceInternal;
 public interface OutgoingMessageCallback
 {
     boolean send(Ice.ConnectionI conection, boolean compress, boolean response)
-        throws LocalExceptionWrapper;
+        throws RetryException;
+
+    void invokeCollocated(CollocatedRequestHandler handler);
 
     void sent();
-    void finished(Ice.LocalException ex, boolean sent);
+
+    void finished(Ice.Exception ex, boolean sent);
 }

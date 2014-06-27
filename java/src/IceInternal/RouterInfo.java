@@ -110,21 +110,7 @@ public final class RouterInfo
                 public void
                 exception(Ice.LocalException ex)
                 {
-                    if(ex instanceof Ice.CollocationOptimizationException)
-                    {
-                        try
-                        {
-                            callback.setEndpoints(getClientEndpoints());
-                        }
-                        catch(Ice.LocalException e)
-                        {
-                            callback.setException(e);
-                        }
-                    }
-                    else
-                    {
-                        callback.setException(ex);
-                    }
+                    callback.setException(ex);
                 }
             });
     }
@@ -189,22 +175,7 @@ public final class RouterInfo
                 public void
                 exception(Ice.LocalException ex)
                 {
-                    if(ex instanceof Ice.CollocationOptimizationException)
-                    {
-                        try
-                        {
-                            addProxy(proxy);
-                            callback.addedProxy();
-                        }
-                        catch(Ice.LocalException e)
-                        {
-                            callback.setException(ex);
-                        }
-                    }
-                    else
-                    {
-                        callback.setException(ex);
-                    }
+                    callback.setException(ex);
                 }
             });
 
@@ -249,13 +220,9 @@ public final class RouterInfo
                 // router, we must use the same timeout as the already
                 // existing connection.
                 //
-                try
+                if(_router.ice_getConnection() != null)
                 {
                     clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
-                }
-                catch(Ice.CollocationOptimizationException ex)
-                {
-                    // Ignore - collocated router.
                 }
             
                 _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();

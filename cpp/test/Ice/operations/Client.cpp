@@ -18,8 +18,8 @@ using namespace std;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::InitializationData&)
 {
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
-    Test::MyClassPrx myClass = allTests(communicator, false);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
+    Test::MyClassPrx myClass = allTests(communicator);
 
 #ifndef ICE_OS_WINRT
     cout << "testing server shutdown... " << flush;

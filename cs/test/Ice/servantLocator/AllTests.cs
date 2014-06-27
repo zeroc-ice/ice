@@ -17,7 +17,7 @@ using System.Windows.Controls;
 
 public class AllTests : TestCommon.TestApp
 {
-    public static void testExceptions(TestIntfPrx obj, bool collocated)
+    public static void testExceptions(TestIntfPrx obj)
     {
         try
         {
@@ -26,12 +26,9 @@ public class AllTests : TestCommon.TestApp
         }
         catch(ObjectNotExistException ex)
         {
-            if(!collocated)
-            {
-                test(ex.id.Equals(obj.ice_getIdentity()));
-                test(ex.facet.Equals(obj.ice_getFacet()));
-                test(ex.operation.Equals("requestFailedException"));
-            }
+            test(ex.id.Equals(obj.ice_getIdentity()));
+            test(ex.facet.Equals(obj.ice_getFacet()));
+            test(ex.operation.Equals("requestFailedException"));
         }
         catch(System.Exception)
         {
@@ -213,12 +210,9 @@ public class AllTests : TestCommon.TestApp
     override
     public void run(Ice.Communicator communicator)
 #else
-    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static TestIntfPrx allTests(Ice.Communicator communicator)
 #endif
     {
-#if SILVERLIGHT
-        bool collocated = false;
-#endif
         Write("testing stringToProxy... ");
         Flush();
         string @ref = "asm:default -p 12010";
@@ -305,14 +299,14 @@ public class AllTests : TestCommon.TestApp
         Flush();
         @base = communicator.stringToProxy("category/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
-        testExceptions(obj, collocated);
+        testExceptions(obj);
         WriteLine("ok");
 
         Write("testing finished exceptions... ");
         Flush();
         @base = communicator.stringToProxy("category/finished:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
-        testExceptions(obj, collocated);
+        testExceptions(obj);
 
         //
         // Only call these for category/finished.

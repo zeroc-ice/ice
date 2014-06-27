@@ -46,13 +46,6 @@ namespace Ice
     public interface Request
     {
         /// <summary>
-        /// Returns whether this request is collocated.
-        /// </summary>
-        /// <returns>True if the invocation was made via proxy created by the same communicator
-        /// that hosts the target's object adapter; false, otherwise.</returns>
-        bool isCollocated();
-
-        /// <summary>
         /// Returns the {@link Current} object for this the request.
         /// </summary>
         /// <returns>The Current object for this request.</returns>
@@ -153,8 +146,6 @@ namespace Ice
         DispatchStatus ice_dispatch(Request request);
 
         DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
-
-        DispatchStatus collocDispatch__(IceInternal.Direct request);
 
         void write__(IceInternal.BasicStream os__);
         void read__(IceInternal.BasicStream is__);
@@ -346,28 +337,21 @@ namespace Ice
         /// <returns>The dispatch status for the operation.</returns>
         public virtual DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
         {
-            if(request.isCollocated())
+            IceInternal.Incoming inc = (IceInternal.Incoming)request;
+            if(cb != null)
             {
-                return collocDispatch__((IceInternal.Direct)request);
+                inc.push(cb);
             }
-            else
+            try
             {
-                IceInternal.Incoming inc = (IceInternal.Incoming)request;
+                inc.startOver(); // may raise ResponseSentException
+                return dispatch__(inc, inc.getCurrent());
+            }
+            finally
+            {
                 if(cb != null)
                 {
-                    inc.push(cb);
-                }
-                try
-                {
-                    inc.startOver(); // may raise ResponseSentException
-                    return dispatch__(inc, inc.getCurrent());
-                }
-                finally
-                {
-                    if(cb != null)
-                    {
                         inc.pop();
-                    }
                 }
             }
         }
@@ -413,11 +397,6 @@ namespace Ice
 
             Debug.Assert(false);
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
-        }
-
-        public virtual DispatchStatus collocDispatch__(IceInternal.Direct request)
-        {
-            return request.run(this);
         }
 
         public virtual void write__(IceInternal.BasicStream os__)

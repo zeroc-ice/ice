@@ -77,22 +77,21 @@ public:
 
     Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 
+    const Ice::ObjectAdapterPtr& getRegistryAdapter() { return _registryAdapter; }
+
 private:
 
-    Ice::LocatorRegistryPrx setupLocatorRegistry(const Ice::ObjectAdapterPtr&); 
-    LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorRegistryPrx&,
-                            const RegistryPrx&, const QueryPrx&); 
-    QueryPrx setupQuery(const Ice::ObjectAdapterPtr&);
-    RegistryPrx setupRegistry(const Ice::ObjectAdapterPtr&);
-    InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&);
-    void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
-    bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
-    Ice::ObjectAdapterPtr setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const LocatorPrx&);
-    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, 
-                                                   const LocatorPrx&);
+    Ice::LocatorRegistryPrx setupLocatorRegistry(); 
+    LocatorPrx setupLocator(const Ice::LocatorRegistryPrx&, const RegistryPrx&, const QueryPrx&); 
+    QueryPrx setupQuery();
+    RegistryPrx setupRegistry();
+    InternalRegistryPrx setupInternalRegistry();
+    void setupNullPermissionsVerifier();
+    bool setupUserAccountMapper();
+    Ice::ObjectAdapterPtr setupClientSessionFactory(const LocatorPrx&);
+    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectPtr&, const LocatorPrx&);
 
-    Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-                                                            const std::string&, const std::string&);
+    Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const LocatorPrx&, const std::string&, const std::string&);
 
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
@@ -109,6 +108,7 @@ private:
     DatabasePtr _database;
     Ice::ObjectAdapterPtr _clientAdapter;
     Ice::ObjectAdapterPtr _serverAdapter;
+    Ice::ObjectAdapterPtr _registryAdapter;
     WellKnownObjectsManagerPtr _wellKnownObjects;
     std::string _instanceName;
     bool _master;

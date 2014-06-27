@@ -17,7 +17,7 @@ using namespace Ice;
 using namespace Test;
 
 void
-testExceptions(const TestIntfPrx& obj, bool collocated)
+testExceptions(const TestIntfPrx& obj)
 {
     try
     {
@@ -26,12 +26,9 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const ObjectNotExistException& ex)
     {
-        if(!collocated)
-        {
-            test(ex.id == obj->ice_getIdentity());
-            test(ex.facet == obj->ice_getFacet());
-            test(ex.operation == "requestFailedException");
-        }
+        test(ex.id == obj->ice_getIdentity());
+        test(ex.facet == obj->ice_getFacet());
+        test(ex.operation == "requestFailedException");
     }
     catch(...)
     {
@@ -217,7 +214,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
 }
 
 TestIntfPrx
-allTests(const CommunicatorPtr& communicator, bool collocated)
+allTests(const CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     ObjectPrx base = communicator->stringToProxy("asm:default -p 12010");
@@ -298,13 +295,13 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     cout << "testing locate exceptions... " << flush;
     base = communicator->stringToProxy("category/locate:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
-    testExceptions(obj, collocated);
+    testExceptions(obj);
     cout << "ok" << endl;
 
     cout << "testing finished exceptions... " << flush;
     base = communicator->stringToProxy("category/finished:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
-    testExceptions(obj, collocated);
+    testExceptions(obj);
 
     //
     // Only call these for category/finished.

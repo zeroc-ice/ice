@@ -59,6 +59,8 @@ class BatchOneways
         }
 
         Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+        batch.ice_flushBatchRequests();
+        batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
 
         for(int i = 0 ; i < 30 ; ++i)
         {
@@ -73,40 +75,43 @@ class BatchOneways
             }
         }
 
-        batch.ice_getConnection().flushBatchRequests();
-
-        Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
-
-        batch.ice_ping();
-        batch2.ice_ping();
-        batch.ice_flushBatchRequests();
-        batch.ice_getConnection().close(false);
-        batch.ice_ping();
-        batch2.ice_ping();
-
-        batch.ice_getConnection();
-        batch2.ice_getConnection();
-
-        batch.ice_ping();
-        batch.ice_getConnection().close(false);
-        try
+        if(batch.ice_getConnection() != null)
         {
+            batch.ice_getConnection().flushBatchRequests();
+
+            Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+
             batch.ice_ping();
-            test(false);
-        }
-        catch(Ice.CloseConnectionException)
-        {
-        }
-        try
-        {
             batch2.ice_ping();
-            test(false);
+            batch.ice_flushBatchRequests();
+            batch.ice_getConnection().close(false);
+            batch.ice_ping();
+            batch2.ice_ping();
+
+            batch.ice_getConnection();
+            batch2.ice_getConnection();
+
+            batch.ice_ping();
+            batch.ice_getConnection().close(false);
+            try
+            {
+                batch.ice_ping();
+                test(false);
+            }
+            catch(Ice.CloseConnectionException)
+            {
+            }
+            try
+            {
+                batch2.ice_ping();
+                test(false);
+            }
+            catch(Ice.CloseConnectionException)
+            {
+            }
+            batch.ice_ping();
+            batch2.ice_ping();
         }
-        catch(Ice.CloseConnectionException)
-        {
-        }
-        batch.ice_ping();
-        batch2.ice_ping();
 
         Ice.Identity identity = new Ice.Identity();
         identity.name = "invalid";

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 
 #include <IceDiscovery/PluginI.h>
@@ -32,21 +33,12 @@ createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, cons
 
 PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
 {
-    Ice::InitializationData initData;
-    initData.properties = communicator->getProperties()->clone();
-    initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
-    Ice::PropertyDict props = initData.properties->getPropertiesForPrefix("Ice.Plugin.");
-    for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
-    {
-        initData.properties->setProperty(p->first, "");
-    }
-    _pluginCommunicator = Ice::initialize(initData);
 }
 
 void
 PluginI::initialize()
 {
-    Ice::PropertiesPtr properties = _pluginCommunicator->getProperties();
+    Ice::PropertiesPtr properties = _communicator->getProperties();
 
     bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
     string address;
@@ -83,26 +75,19 @@ PluginI::initialize()
     }
     if(properties->getProperty("IceDiscovery.Locator.Endpoints").empty())
     {
-        if(ipv4)
-        {
-            properties->setProperty("IceDiscovery.Locator.Endpoints", "tcp -h 127.0.0.1");
-        }
-        else
-        {
-            properties->setProperty("IceDiscovery.Locator.Endpoints", "tcp -h \"::1\"");
-        }
+        properties->setProperty("IceDiscovery.Locator.AdapterId", IceUtil::generateUUID());
     }
 
-    Ice::ObjectAdapterPtr multicastAdapter = _pluginCommunicator->createObjectAdapter("IceDiscovery.Multicast");
-    Ice::ObjectAdapterPtr replyAdapter = _pluginCommunicator->createObjectAdapter("IceDiscovery.Reply");
-    Ice::ObjectAdapterPtr locatorAdapter = _pluginCommunicator->createObjectAdapter("IceDiscovery.Locator");
+    _multicastAdapter = _communicator->createObjectAdapter("IceDiscovery.Multicast");
+    _replyAdapter = _communicator->createObjectAdapter("IceDiscovery.Reply");
+    _locatorAdapter = _communicator->createObjectAdapter("IceDiscovery.Locator");
 
     //
     // Setup locatory registry.
     //
     LocatorRegistryIPtr locatorRegistry = new LocatorRegistryI(_communicator);
     Ice::LocatorRegistryPrx locatorRegistryPrx = 
-        Ice::LocatorRegistryPrx::uncheckedCast(locatorAdapter->addWithUUID(locatorRegistry));
+        Ice::LocatorRegistryPrx::uncheckedCast(_locatorAdapter->addWithUUID(locatorRegistry));
 
     string lookupEndpoints = properties->getProperty("IceDiscovery.Lookup");
     if(lookupEndpoints.empty())
@@ -116,31 +101,33 @@ PluginI::initialize()
         lookupEndpoints = os.str();
     }
 
-    Ice::ObjectPrx lookupPrx = _pluginCommunicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
-    lookupPrx = lookupPrx->ice_collocationOptimized(false);
+    Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
+    lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
 
     //
     // Add lookup and lookup reply Ice objects
     //
     LookupIPtr lookup = new LookupI(locatorRegistry, LookupPrx::uncheckedCast(lookupPrx), properties);
-    multicastAdapter->add(lookup, _pluginCommunicator->stringToIdentity("IceDiscovery/Lookup"));
+    _multicastAdapter->add(lookup, _communicator->stringToIdentity("IceDiscovery/Lookup"));
 
-    Ice::ObjectPrx lookupReply = replyAdapter->addWithUUID(new LookupReplyI(lookup))->ice_datagram();
+    Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(new LookupReplyI(lookup))->ice_datagram();
     lookup->setLookupReply(LookupReplyPrx::uncheckedCast(lookupReply));
 
     //
     // Setup locator on the communicator.
     //
-    Ice::ObjectPrx loc = locatorAdapter->addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
+    Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
     _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(_communicator->stringToProxy(loc->ice_toString())));
     
-    multicastAdapter->activate();
-    replyAdapter->activate();
-    locatorAdapter->activate();
+    _multicastAdapter->activate();
+    _replyAdapter->activate();
+    _locatorAdapter->activate();
 }
 
 void
 PluginI::destroy()
 {
-    _pluginCommunicator->destroy();
+    _multicastAdapter->destroy();
+    _replyAdapter->destroy();
+    _locatorAdapter->destroy();
 }

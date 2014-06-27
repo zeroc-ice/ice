@@ -30,7 +30,7 @@ ReplicaCache::ReplicaCache(const Ice::CommunicatorPtr& communicator, const IceSt
         t = topicManager->retrieve("ReplicaObserverTopic");
     }
 
-    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t->ice_collocationOptimized(true));
+    const_cast<IceStorm::TopicPrx&>(_topic) = IceStorm::TopicPrx::uncheckedCast(t);
     const_cast<ReplicaObserverPrx&>(_observers) = ReplicaObserverPrx::uncheckedCast(_topic->getPublisher());
 }
 

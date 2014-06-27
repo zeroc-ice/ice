@@ -13,20 +13,20 @@ public abstract class Functional_TwowayCallbackInt
     extends Functional_TwowayCallback implements Ice.TwowayCallbackInt
 {
     public Functional_TwowayCallbackInt(Functional_IntCallback responseCb, 
-                                        Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                        Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                         Functional_BoolCallback sentCb)
     {
-        super(responseCb != null, localExceptionCb, sentCb);
+        super(responseCb != null, exceptionCb, sentCb);
         __responseCb = responseCb;
     }
     
     protected Functional_TwowayCallbackInt(boolean userExceptionCb,
                                            Functional_IntCallback responseCb, 
-                                           Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                           Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                            Functional_BoolCallback sentCb)
     {
-        super(localExceptionCb, sentCb);
-        CallbackBase.check(responseCb != null || (userExceptionCb && localExceptionCb != null));
+        super(exceptionCb, sentCb);
+        CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
         __responseCb = responseCb;
     }
     

@@ -165,11 +165,6 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     initData.properties = createProperties(argc, argv, initData.properties);
     
     //
-    // Make sure that IceGridRegistry doesn't use collocation optimization.
-    //
-    initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
-
-    //
     // Setup the client thread pool size.
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);

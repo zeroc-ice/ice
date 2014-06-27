@@ -23,6 +23,7 @@ SERVER		= $(NAME_PREFIX)server
 TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT)
 
 COBJS		= Test.obj \
+		  TestI.obj \
 		  Client.obj \
 		  AllTests.obj
 

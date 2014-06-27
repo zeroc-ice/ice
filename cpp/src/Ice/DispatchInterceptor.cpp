@@ -9,7 +9,6 @@
 
 #include <Ice/DispatchInterceptor.h>
 #include <Ice/IncomingRequest.h>
-#include <Ice/Direct.h>
 #include <Ice/LocalException.h>
 
 using namespace Ice;
@@ -47,13 +46,4 @@ Ice::DispatchInterceptor::__dispatch(IceInternal::Incoming& in, const Current& /
         }
         throw;
     }
-}
-    
-DispatchStatus
-Ice::DispatchInterceptor::__collocDispatch(Direct& request)
-{
-    //
-    // Should only return DispatchOK or DispatchUserException
-    //
-    return dispatch(request);
 }

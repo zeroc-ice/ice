@@ -15,7 +15,7 @@ public class ConnectionRequestHandler implements RequestHandler
 {
     public void
     prepareBatchRequest(BasicStream out)
-        throws LocalExceptionWrapper
+        throws RetryException
     {
         _connection.prepareBatchRequest(out);
     }
@@ -34,14 +34,14 @@ public class ConnectionRequestHandler implements RequestHandler
 
     public boolean
     sendRequest(OutgoingMessageCallback out)
-        throws LocalExceptionWrapper
+        throws RetryException
     {
         return out.send(_connection, _compress, _response) && !_response; // Finished if sent and no response
     }
 
     public int
     sendAsyncRequest(OutgoingAsyncMessageCallback out)
-        throws LocalExceptionWrapper
+        throws RetryException
     {
         return out.__send(_connection, _compress, _response);
     }
@@ -56,20 +56,6 @@ public class ConnectionRequestHandler implements RequestHandler
     asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
     {
         _connection.asyncRequestTimedOut(outAsync);
-    }
-
-    public Outgoing
-    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context, 
-                InvocationObserver observer)
-        throws LocalExceptionWrapper
-    {
-        return _connection.getOutgoing(this, operation, mode, context, observer);
-    }
-
-    public void
-    reclaimOutgoing(Outgoing out)
-    {
-        _connection.reclaimOutgoing(out);
     }
 
     public Reference 

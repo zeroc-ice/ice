@@ -148,6 +148,16 @@ public:
         return 0;
     }
 
+    ::Ice::Instrumentation::RemoteObserverPtr
+    getCollocatedObserver(int requestId, int size)
+    {
+        if(_observer)
+        {
+            return _observer->getCollocatedObserver(requestId, size);
+        }
+        return 0;
+    }
+
     void
     userException()
     {

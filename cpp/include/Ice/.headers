@@ -14,8 +14,8 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionFactoryF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionIF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Current.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DefaultObjectFactory.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DeprecatedStringConverter.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Direct.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Dispatcher.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DispatchInterceptor.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\DynamicLibrary.h \
@@ -81,6 +81,7 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProxyHandle.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ReferenceF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\RequestHandlerF.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ResponseHandlerF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Router.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\RouterF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ServantLocator.h \
@@ -91,8 +92,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SliceChecksums.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SlicedData.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SlicedDataF.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Stats.h \
- $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StatsF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Stream.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamHelpers.h \

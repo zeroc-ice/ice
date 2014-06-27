@@ -22,13 +22,66 @@ public final class RetryI extends _RetryDisp
     {
         if(kill)
         {
-            current.con.close(true);
+            if(current.con != null)
+            {
+                current.con.close(true);
+            }
+            else
+            {
+                throw new Ice.ConnectionLostException();
+            }
         }
     }
 
+    public int
+    opIdempotent(int counter, Ice.Current current)
+    {
+        if(counter + nRetry > _counter)
+        {
+            ++_counter;
+            if(current.con != null)
+            {
+                current.con.close(true);
+            }
+            else
+            {
+                throw new Ice.ConnectionLostException();
+            }
+        }
+        return _counter;
+    }
+    
+    public void
+    opNotIdempotent(int counter, Ice.Current current)
+    {
+        if(_counter != counter)
+        {
+            return;
+        }
+        
+        ++_counter;
+        if(current.con != null)
+        {
+            current.con.close(true);
+        }
+        else
+        {
+            throw new Ice.ConnectionLostException();
+        }
+    }
+    
+    public void
+    opSystemException(Ice.Current c)
+    {
+        throw new SystemFailure();
+    }
+    
     public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private int _counter;
+    static final int nRetry = 4;
 }

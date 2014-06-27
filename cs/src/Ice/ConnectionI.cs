@@ -16,7 +16,7 @@ namespace Ice
     using System.Threading;
     using Ice.Instrumentation;
 
-    public sealed class ConnectionI : IceInternal.EventHandler, Connection
+    public sealed class ConnectionI : IceInternal.EventHandler, IceInternal.ResponseHandler, Connection
     {
         public interface StartCallback
         {
@@ -431,7 +431,7 @@ namespace Ice
                     // to send our request, we always try to send the request
                     // again.
                     //
-                    throw new IceInternal.LocalExceptionWrapper(_exception, true);
+                    throw new IceInternal.RetryException(_exception);
                 }
 
                 Debug.Assert(_state > StateNotValidated);
@@ -513,7 +513,7 @@ namespace Ice
                     // to send our request, we always try to send the request
                     // again.
                     //
-                    throw new IceInternal.LocalExceptionWrapper(_exception, true);
+                    throw new IceInternal.RetryException(_exception);
                 }
 
                 Debug.Assert(_state > StateNotValidated);
@@ -599,7 +599,7 @@ namespace Ice
                     //
                     if(_batchStream.isEmpty())
                     {
-                        throw new IceInternal.LocalExceptionWrapper(_exception, true);
+                        throw new IceInternal.RetryException(_exception);
                     }
                     else
                     {
@@ -652,7 +652,7 @@ namespace Ice
 
                     if(_exception != null)
                     {
-                        throw _exception;
+                        return;
                     }
 
                     bool flush = false;
@@ -794,8 +794,7 @@ namespace Ice
 
         public void flushBatchRequests()
         {
-            InvocationObserver observer = IceInternal.ObserverHelper.get(_instance, __flushBatchRequests_name);
-            IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(this, _instance, observer);
+            IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(this, _instance, __flushBatchRequests_name);
             @out.invoke();
         }
 
@@ -1140,7 +1139,7 @@ namespace Ice
             }
         }
 
-        public void sendResponse(IceInternal.BasicStream os, byte compressFlag)
+        public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag)
         {
             _m.Lock();
             try
@@ -2007,7 +2006,7 @@ namespace Ice
             }
         }
 
-        public void invokeException(LocalException ex, int invokeNum)
+        public void invokeException(int requestId, LocalException ex, int invokeNum)
         {
             //
             // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
@@ -2068,7 +2067,7 @@ namespace Ice
             _readTimeoutScheduled = false;
             _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = initData.properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-            _cacheBuffers = initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 1) == 1;
+            _cacheBuffers = instance.cacheMessageBuffers() > 0;
             if(_monitor != null && _monitor.getACM().timeout > 0)
             {
                 _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
@@ -3043,7 +3042,7 @@ namespace Ice
             }
             catch(LocalException ex)
             {
-                invokeException(ex, invokeNum);
+                invokeException(requestId, ex, invokeNum);
             }
             finally
             {
@@ -3224,20 +3223,20 @@ namespace Ice
                 {
                     if(_incomingCache == null)
                     {
-                        inc = new IceInternal.Incoming(_instance, this, adapter, response, compress, requestId);
+                        inc = new IceInternal.Incoming(_instance, this, this, adapter, response, compress, requestId);
                     }
                     else
                     {
                         inc = _incomingCache;
                         _incomingCache = _incomingCache.next;
-                        inc.reset(_instance, this, adapter, response, compress, requestId);
+                        inc.reset(_instance, this, this, adapter, response, compress, requestId);
                         inc.next = null;
                     }
                 }
             }
             else
             {
-                inc = new IceInternal.Incoming(_instance, this, adapter, response, compress, requestId);
+                inc = new IceInternal.Incoming(_instance, this, this, adapter, response, compress, requestId);
             }
 
             return inc;
@@ -3255,54 +3254,6 @@ namespace Ice
                     // Clear references to Ice objects as soon as possible.
                     //
                     _incomingCache.reclaim();
-                }
-            }
-        }
-
-        public IceInternal.Outgoing getOutgoing(IceInternal.RequestHandler handler, string operation,
-                                                OperationMode mode, Dictionary<string, string> context,
-                                                InvocationObserver observer)
-        {
-            IceInternal.Outgoing og = null;
-
-            if(_cacheBuffers)
-            {
-                lock(_outgoingCacheMutex)
-                {
-                    if(_outgoingCache == null)
-                    {
-                        og = new IceInternal.Outgoing(handler, operation, mode, context, observer);
-                    }
-                    else
-                    {
-                        og = _outgoingCache;
-                        _outgoingCache = _outgoingCache.next;
-                        og.reset(handler, operation, mode, context, observer);
-                        og.next = null;
-                    }
-                }
-            }
-            else
-            {
-                og = new IceInternal.Outgoing(handler, operation, mode, context, observer);
-            }
-
-            return og;
-        }
-
-        public void reclaimOutgoing(IceInternal.Outgoing og)
-        {
-            if(_cacheBuffers)
-            {
-                //
-                // Clear references to Ice objects as soon as possible.
-                //
-                og.reclaim();
-
-                lock(_outgoingCacheMutex)
-                {
-                    og.next = _outgoingCache;
-                    _outgoingCache = og;
                 }
             }
         }
@@ -3466,9 +3417,6 @@ namespace Ice
 
         private IceInternal.Incoming _incomingCache;
         private object _incomingCacheMutex = new object();
-
-        private IceInternal.Outgoing _outgoingCache;
-        private object _outgoingCacheMutex = new object();
 
         private static bool _compressionSupported;
 

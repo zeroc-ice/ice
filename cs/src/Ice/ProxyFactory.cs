@@ -96,7 +96,7 @@ namespace IceInternal
             }
         }
         
-        public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, bool sleep, ref int cnt)
+        public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)
         {
             TraceLevels traceLevels = instance_.traceLevels();
             Ice.Logger logger = instance_.initializationData().logger;
@@ -234,13 +234,6 @@ namespace IceInternal
                 logger.trace(traceLevels.retryCat, s);
             }
 
-            if(sleep && interval > 0)
-            {
-                //
-                // Sleep before retrying.
-                //
-                System.Threading.Thread.Sleep(interval);
-            }
             return interval;
         }
 

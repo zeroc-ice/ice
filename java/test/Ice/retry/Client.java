@@ -25,11 +25,11 @@ public class Client extends test.Util.Application
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
+        initData.observer = Instrumentation.getObserver();
+
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        //
-        // For this test, we want to disable retries.
-        //
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+
+        initData.properties.setProperty("Ice.RetryIntervals", "0 10 20 30");
 
         //
         // We don't want connection warnings because of the timeout

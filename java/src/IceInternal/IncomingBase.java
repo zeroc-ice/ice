@@ -12,22 +12,22 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
-                 byte compress, int requestId)
+    IncomingBase(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+                 boolean response, byte compress, int requestId)
     {
         _instance = instance;
+        _responseHandler = handler;
         _response = response;
         _compress = compress;
         if(_response)
         {
             _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
         }
-        _connection = connection;
 
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
-        _current.con = _connection;
+        _current.con = connection;
         _current.requestId = requestId;
 
         _cookie = new Ice.LocalObjectHolder();
@@ -86,8 +86,8 @@ public class IncomingBase
         _os = other._os;
         other._os = null;
 
-        _connection = other._connection;
-        other._connection = null;
+        _responseHandler = other._responseHandler;
+        other._responseHandler = null;
     }
 
     public BasicStream
@@ -177,8 +177,8 @@ public class IncomingBase
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
-          int requestId)
+    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+          boolean response, byte compress, int requestId)
     {
         _instance = instance;
 
@@ -205,7 +205,7 @@ public class IncomingBase
             _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
         }
 
-        _connection = connection;
+        _responseHandler = handler;
 
         _interceptorAsyncCallbackList = null;
     }
@@ -245,9 +245,9 @@ public class IncomingBase
         out.print("\nidentity: " + _instance.identityToString(_current.id));
         out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
         out.print("\noperation: " + _current.operation);
-        if(_connection != null)
+        if(_current.con != null)
         {
-            Ice.ConnectionInfo connInfo = _connection.getInfo();
+            Ice.ConnectionInfo connInfo = _current.con.getInfo();
             if(connInfo instanceof Ice.IPConnectionInfo)
             {
                 Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
@@ -272,7 +272,7 @@ public class IncomingBase
         }
         catch(Ice.UserException ex)
         {
-            assert(_connection != null);
+            assert(_responseHandler != null);
 
             if(_observer != null)
             {
@@ -293,11 +293,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
 
             if(_observer != null)
@@ -305,7 +305,7 @@ public class IncomingBase
                 _observer.detach();
                 _observer = null;
             }
-            _connection = null;
+            _responseHandler = null;
         }
         catch(java.lang.Exception ex)
         {
@@ -317,7 +317,7 @@ public class IncomingBase
     final protected void
     __handleException(java.lang.Exception exc)
     {
-        assert(_connection != null);
+        assert(_responseHandler != null);
 
         try
         {
@@ -390,11 +390,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
         catch(Ice.UnknownLocalException ex)
@@ -418,11 +418,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
         catch(Ice.UnknownUserException ex)
@@ -446,11 +446,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
         catch(Ice.UnknownException ex)
@@ -474,15 +474,28 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
-        catch(Ice.LocalException ex)
+        catch(Ice.Exception ex)
         {
+            if(ex instanceof Ice.SystemException)
+            {
+                //
+                // Only rethrow the system exception if it's a collocated
+                // call. For now, on-the-wire system exceptions aren't
+                // supported.
+                //
+                if(_current.con == null)
+                {
+                    throw ex;
+                }
+            }
+
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
@@ -508,11 +521,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
         catch(Ice.UserException ex)
@@ -542,11 +555,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
         catch(java.lang.Exception ex)
@@ -575,11 +588,11 @@ public class IncomingBase
                 {
                     _observer.reply(_os.size() - Protocol.headerSize - 4);
                 }
-                _connection.sendResponse(_os, _compress);
+                _responseHandler.sendResponse(_current.requestId, _os, _compress);
             }
             else
             {
-                _connection.sendNoResponse();
+                _responseHandler.sendNoResponse();
             }
         }
 
@@ -588,7 +601,7 @@ public class IncomingBase
             _observer.detach();
             _observer = null;
         }
-        _connection = null;
+        _responseHandler = null;
     }
 
     protected Instance _instance;
@@ -603,7 +616,7 @@ public class IncomingBase
 
     protected BasicStream _os;
 
-    protected Ice.ConnectionI _connection;
+    protected ResponseHandler _responseHandler;
 
     protected java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback> _interceptorAsyncCallbackList;
 }

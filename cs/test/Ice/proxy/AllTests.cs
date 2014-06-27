@@ -623,13 +623,7 @@ public class AllTests : TestCommon.TestApp
         string ref13 = "test -e 1.3:default -p 12010";
         Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
-        try
-        {
-            cl13.end_ice_ping(cl13.begin_ice_ping());
-        }
-        catch(Ice.CollocationOptimizationException)
-        {
-        }
+        cl13.end_ice_ping(cl13.begin_ice_ping());
 
         try
         {
@@ -698,13 +692,7 @@ public class AllTests : TestCommon.TestApp
         ref13 = "test -p 1.3:default -p 12010";
         cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
-        try
-        {
-            cl13.end_ice_ping(cl13.begin_ice_ping());
-        }
-        catch(Ice.CollocationOptimizationException)
-        {
-        }
+        cl13.end_ice_ping(cl13.begin_ice_ping());
         WriteLine("ok");
 
         Write("testing opaque endpoints... ");

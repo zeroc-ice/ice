@@ -54,7 +54,7 @@ Init init;
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _instanceCopy(_os.instance()),
-    _connectionCopy(_connection),
+    _responseHandlerCopy(_responseHandler),
     _retriable(in.isRetriable()),
     _active(true)
 {
@@ -119,7 +119,7 @@ IceInternal::IncomingAsync::ice_exception(const ::std::exception& ex)
         _active = false;
     }
 
-    if(_connection)
+    if(_responseHandler)
     {
         __exception(ex);
     }
@@ -170,7 +170,7 @@ IceInternal::IncomingAsync::ice_exception()
         _active = false;
     }
 
-    if(_connection)
+    if(_responseHandler)
     {
         __exception();
     }
@@ -196,24 +196,24 @@ IceInternal::IncomingAsync::__response()
             return;
         }
 
-        assert(_connection);
+        assert(_responseHandler);
 
         if(_response)
         {
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _connection->sendResponse(&_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
-            _connection->sendNoResponse();
+            _responseHandler->sendNoResponse();
         }
 
         _observer.detach();
-        _connection = 0;
+        _responseHandler = 0;
     }
     catch(const LocalException& ex)
     {
-        _connection->invokeException(ex, 1); // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, ex, 1); // Fatal invocation exception
     }
 }
 
@@ -231,7 +231,7 @@ IceInternal::IncomingAsync::__exception(const std::exception& exc)
     }
     catch(const LocalException& ex)
     {
-        _connection->invokeException(ex, 1);  // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, ex, 1);  // Fatal invocation exception
     }
 }
 
@@ -249,7 +249,7 @@ IceInternal::IncomingAsync::__exception()
     }
     catch(const LocalException& ex)
     {
-        _connection->invokeException(ex, 1);  // Fatal invocation exception
+        _responseHandler->invokeException(_current.requestId, ex, 1);  // Fatal invocation exception
     }
 }
 

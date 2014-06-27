@@ -274,13 +274,21 @@ public:
     ConnectionInfoPtr
     getConnectionInfo() const
     {
-        return _current.con->getInfo();
+        if(_current.con)
+        {
+            return _current.con->getInfo();
+        }
+        return 0;
     }
 
     EndpointPtr
     getEndpoint() const
     {
-        return _current.con->getEndpoint();
+        if(_current.con)
+        {
+            return _current.con->getEndpoint();
+        }
+        return 0;
     }
 
     const ConnectionPtr&
@@ -292,7 +300,7 @@ public:
     const EndpointInfoPtr&
     getEndpointInfo() const
     {
-        if(!_endpointInfo)
+        if(_current.con && !_endpointInfo)
         {
             _endpointInfo = _current.con->getEndpoint()->getInfo();
         }
@@ -575,6 +583,70 @@ private:
 
 RemoteInvocationHelper::Attributes RemoteInvocationHelper::attributes;
 
+class CollocatedInvocationHelper : public MetricsHelperT<RemoteMetrics>
+{
+public:
+
+    class Attributes : public AttributeResolverT<CollocatedInvocationHelper>
+    {
+    public:
+        
+        Attributes()
+        {
+            add("parent", &CollocatedInvocationHelper::getParent);
+            add("id", &CollocatedInvocationHelper::getId);
+            add("requestId", &CollocatedInvocationHelper::_requestId);
+        }
+    };
+    static Attributes attributes;
+    
+    CollocatedInvocationHelper(int requestId, int size) : _requestId(requestId), _size(size)
+    {
+    }
+
+    virtual string operator()(const string& attribute) const
+    {
+        return attributes(this, attribute);
+    }
+
+    virtual void initMetrics(const RemoteMetricsPtr& v) const
+    {
+        v->size += _size;
+    }
+
+    const string&
+    getId() const
+    {
+        if(_id.empty())
+        {
+            ostringstream os;
+            os << _requestId;
+            _id = os.str();
+        }
+        return _id;
+    }
+    
+    string 
+    getParent() const
+    {
+        return "Communicator";
+    }
+
+protected:
+    //
+    // COMPILERFIX: Clang 4.2 reports unused-private-field for the _requestId
+    // field that is only used in the nested Attributes class.
+    //
+    const int _requestId;
+
+private:
+
+    const int _size;
+    mutable string _id;
+};
+
+CollocatedInvocationHelper::Attributes CollocatedInvocationHelper::attributes;
+
 class ThreadHelper : public MetricsHelperT<ThreadMetrics>
 {
 public:
@@ -786,6 +858,26 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
         }
         return getObserverWithDelegate<RemoteObserverI>("Remote", 
                                                         RemoteInvocationHelper(connection, endpoint, requestId, size),
+                                                        delegate);
+    }
+    catch(const exception&)
+    {
+    }
+    return 0;
+}
+
+RemoteObserverPtr
+InvocationObserverI::getCollocatedObserver(int requestId, int size)
+{
+    try
+    {
+        RemoteObserverPtr delegate;
+        if(_delegate)
+        {
+            delegate = _delegate->getCollocatedObserver(requestId, size);
+        }
+        return getObserverWithDelegate<RemoteObserverI>("Collocated",
+                                                        CollocatedInvocationHelper(requestId, size),
                                                         delegate);
     }
     catch(const exception&)

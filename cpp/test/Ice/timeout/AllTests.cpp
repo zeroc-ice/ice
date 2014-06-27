@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <TestI.h>
 
 using namespace std;
 using namespace Test;
@@ -341,6 +342,66 @@ allTests(const Ice::CommunicatorPtr& communicator)
         IceUtil::Time now = IceUtil::Time::now();
         comm->destroy();
         test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(500));
+    }
+    cout << "ok" << endl;
+
+    cout << "testing invocation timeouts with collocated calls... " << flush;
+    {
+        communicator->getProperties()->setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
+
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TimeoutCollocated");
+        adapter->activate();
+
+        TimeoutPrx timeout = TimeoutPrx::uncheckedCast(adapter->addWithUUID(new TimeoutI()));
+        timeout = timeout->ice_invocationTimeout(100);
+        try
+        {
+            timeout->sleep(150);
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+        }
+
+        try
+        {
+            timeout->end_sleep(timeout->begin_sleep(150));
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+        }
+
+        TimeoutPrx batchTimeout = timeout->ice_batchOneway();
+        batchTimeout->ice_ping();
+        batchTimeout->ice_ping();
+        batchTimeout->ice_ping();
+
+        timeout->ice_invocationTimeout(-1)->begin_sleep(150); // Keep the server thread pool busy.
+        try
+        {
+            batchTimeout->ice_flushBatchRequests();
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+        }
+
+        batchTimeout->ice_ping();
+        batchTimeout->ice_ping();
+        batchTimeout->ice_ping();
+
+        timeout->ice_invocationTimeout(-1)->begin_sleep(150); // Keep the server thread pool busy.
+        try
+        {
+            batchTimeout->end_ice_flushBatchRequests(batchTimeout->begin_ice_flushBatchRequests());
+            test(false);
+        }
+        catch(const Ice::InvocationTimeoutException&)
+        {
+        }
+
+        adapter->destroy();
     }
     cout << "ok" << endl;
 

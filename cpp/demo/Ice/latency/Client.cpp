@@ -36,6 +36,11 @@ LatencyClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Latency");
+    Ice::ObjectPtr object = new Ping;
+    adapter->add(object, communicator()->stringToIdentity("ping"));
+    adapter->activate();
+
     PingPrx ping = PingPrx::checkedCast(communicator()->propertyToProxy("Ping.Proxy"));
     if(!ping)
     {

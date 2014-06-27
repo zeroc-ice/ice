@@ -490,7 +490,7 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
 }
 
 IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table, bool background) :
-    _locator(locator->ice_collocationOptimized(false)),
+    _locator(locator),
     _table(table),
     _background(background)
 {
@@ -539,7 +539,7 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     //
     // Do not make locator calls from within sync.
     //
-    LocatorRegistryPrx locatorRegistry = _locator->getRegistry()->ice_collocationOptimized(false);
+    LocatorRegistryPrx locatorRegistry = _locator->getRegistry();
     
     {
         IceUtil::Mutex::Lock sync(*this);

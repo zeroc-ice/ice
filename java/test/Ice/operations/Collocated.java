@@ -13,12 +13,13 @@ public class Collocated extends test.Util.Application
 {
     public int run(String[] args)
     {
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         java.io.PrintWriter out = getWriter();
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), communicator().stringToIdentity("test"));
         adapter.activate();
 
-        AllTests.allTests(this, true, out);
+        AllTests.allTests(this, out);
 
         return 0;
     }
@@ -28,7 +29,21 @@ public class Collocated extends test.Util.Application
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+
+        //
+        // We must set MessageSizeMax to an explicit values,
+        // because we run tests to check whether
+        // Ice.MemoryLimitException is raised as expected.
+        //
+        initData.properties.setProperty("Ice.MessageSizeMax", "100");
+
+        //
+        // Its possible to have batch oneway requests dispatched
+        // after the adapter is deactivated due to thread
+        // scheduling so we supress this warning.
+        //
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+
         return initData;
     }
 

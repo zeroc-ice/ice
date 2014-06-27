@@ -24,10 +24,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter->add(new TestIntfI(communicator), communicator->stringToIdentity("test"));
     adapter->add(new Test1::WstringClassI, communicator->stringToIdentity("wstring1"));
     adapter->add(new Test2::WstringClassI, communicator->stringToIdentity("wstring2"));
-    adapter->activate();
 
-    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);
-    allTests(communicator, true);
+    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);
+    allTests(communicator);
 
     return EXIT_SUCCESS;
 }

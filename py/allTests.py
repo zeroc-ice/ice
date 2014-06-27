@@ -44,7 +44,6 @@ tests = [
     ("Ice/slicing/objects", ["core"]),
     ("Ice/custom", ["core"]),
     ("Ice/checksum", ["core"]),
-    ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/blobject", ["core"]),

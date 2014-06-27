@@ -15,6 +15,11 @@ module Test
 interface Retry
 {
     void op(bool kill);
+
+    idempotent int opIdempotent(int c);
+    void opNotIdempotent(int c);
+    void opSystemException();
+
     void shutdown();
 };
 

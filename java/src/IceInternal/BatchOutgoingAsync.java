@@ -22,13 +22,19 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         return connection.flushAsyncBatchRequests(this);
     }
 
+    public int
+    __invokeCollocated(CollocatedRequestHandler handler)
+    {
+        return handler.invokeAsyncBatchRequests(this);
+    }
+
     public boolean 
     __sent()
     {
         synchronized(_monitor)
         {
             _state |= Done | OK | Sent;
-            _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
+            //_os.resize(0, false); // Don't clear the buffer now, it's needed for the collocation optimization
             if(_remoteObserver != null)
             {
                 _remoteObserver.detach();
@@ -51,7 +57,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     }
     
     public void 
-    __finished(Ice.LocalException exc, boolean sent)
+    __finished(Ice.Exception exc, boolean sent)
     {
         if(_remoteObserver != null)
         {

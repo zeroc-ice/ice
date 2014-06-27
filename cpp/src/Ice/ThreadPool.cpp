@@ -141,14 +141,11 @@ class ThreadPoolDestroyedException
 
 }
 
-IceInternal::DispatchWorkItem::DispatchWorkItem(const InstancePtr& instance) : _instance(instance)
-{
-}
-
 void
 IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
 {
-    Ice::DispatcherPtr dispatcher = _instance->initializationData().dispatcher;
+    InstancePtr instance = current.getInstance();
+    Ice::DispatcherPtr dispatcher = instance->initializationData().dispatcher;
     if(dispatcher)
     {
         try
@@ -157,17 +154,17 @@ IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
         }
         catch(const std::exception& ex)
         {
-            if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
-                Warning out(_instance->initializationData().logger);
+                Warning out(instance->initializationData().logger);
                 out << "dispatch exception:\n" << ex;
             }
         }
         catch(...)
         {
-            if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
-                Warning out(_instance->initializationData().logger);
+                Warning out(instance->initializationData().logger);
                 out << "dispatch exception:\nunknown c++ exception";
             }
         }
@@ -179,8 +176,7 @@ IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
     }    
 }
 
-IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(const InstancePtr& instance,
-                                                      Selector& selector) :
+IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(const InstancePtr& instance, Selector& selector) :
     _instance(instance),
     _selector(selector),
     _destroyed(false)
@@ -1353,4 +1349,10 @@ ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance,
     , _leader(false)
 #endif
 {
+}
+
+InstancePtr
+ThreadPoolCurrent::getInstance()
+{
+    return stream.instance();
 }

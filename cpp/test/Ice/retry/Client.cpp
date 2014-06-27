@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <InstrumentationI.h>
 
 DEFINE_TEST("client")
 
@@ -35,11 +36,9 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
+        initData.observer = getObserver();
 
-        //
-        // For this test, we want to disable retries.
-        //
-        initData.properties->setProperty("Ice.RetryIntervals", "-1");
+        initData.properties->setProperty("Ice.RetryIntervals", "0 10 20 30");
 
         //
         // This test kills connections, so we don't want warnings.

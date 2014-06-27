@@ -32,7 +32,7 @@ class ConnectRequestHandler : public RequestHandler,
 {
 public:
 
-    ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&, const Handle< ::IceDelegate::Ice::Object>&);
+    ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrx&);
     virtual ~ConnectRequestHandler();
 
     RequestHandlerPtr connect();
@@ -54,8 +54,7 @@ public:
 
     virtual void addedProxy();
 
-    void flushRequestsWithException(const Ice::LocalException&);
-    void flushRequestsWithException(const LocalExceptionWrapper&);
+    void flushRequestsWithException();
 
 private:
 
@@ -74,7 +73,6 @@ private:
     };
 
     Ice::ObjectPrx _proxy;
-    Handle< ::IceDelegate::Ice::Object> _delegate;
 
     const bool _batchAutoFlush;
 

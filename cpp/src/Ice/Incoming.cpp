@@ -21,6 +21,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
+#include <Ice/ResponseHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <typeinfo>
 
@@ -36,16 +37,16 @@ extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 }
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance, ConnectionI* connection,
-                                        const ObjectAdapterPtr& adapter,
+IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
+                                        Ice::Connection* connection, const ObjectAdapterPtr& adapter,
                                         bool response, Byte compress, Int requestId) :
     _response(response),
     _compress(compress),
     _os(instance, Ice::currentProtocolEncoding),
-    _connection(connection)
+    _responseHandler(responseHandler)
 {
     _current.adapter = adapter;
-    _current.con = _connection;
+    _current.con = connection;
     _current.requestId = requestId;
 }
 
@@ -79,8 +80,8 @@ IceInternal::IncomingBase::__adopt(IncomingBase& other)
 
     _os.swap(other._os);
 
-    _connection = other._connection;
-    other._connection = 0;
+    _responseHandler = other._responseHandler;
+    other._responseHandler = 0;
 }
 
 BasicStream* 
@@ -173,9 +174,9 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
     out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 
-    if(_connection)
+    if(_current.con)
     {
-        Ice::ConnectionInfoPtr connInfo = _connection->getInfo();
+        Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
         Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
         if(ipConnInfo)
         {
@@ -194,9 +195,9 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 
-    if(_connection)
+    if(_current.con)
     {
-        Ice::ConnectionInfoPtr connInfo = _connection->getInfo();
+        Ice::ConnectionInfoPtr connInfo = _current.con->getInfo();
         Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
         if(ipConnInfo)
         {
@@ -216,7 +217,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
     }
     catch(const UserException& ex)
     {
-        assert(_connection);
+        assert(_responseHandler);
 
         _observer.userException();
 
@@ -231,15 +232,15 @@ IceInternal::IncomingBase::__servantLocatorFinished()
             _os.write(ex);
             _os.endWriteEncaps();
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _connection->sendResponse(&_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
-            _connection->sendNoResponse();
+            _responseHandler->sendNoResponse();
         }
 
         _observer.detach();
-        _connection = 0;
+        _responseHandler = 0;
     }
     catch(const std::exception& ex)
     {
@@ -255,7 +256,20 @@ IceInternal::IncomingBase::__servantLocatorFinished()
 void
 IceInternal::IncomingBase::__handleException(const std::exception& exc)
 {
-    assert(_connection);
+    assert(_responseHandler);
+
+    if(const SystemException* ex = dynamic_cast<const SystemException*>(&exc))
+    {
+        //
+        // Only rethrow the system exception if it's a collocated
+        // call. For now, on-the-wire system exceptions aren't
+        // supported.
+        //
+        if(!_current.con)
+        {
+            ex->ice_throw();
+        }
+    }
 
     if(dynamic_cast<const RequestFailedException*>(&exc))
     {
@@ -324,11 +338,11 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             _os.write(rfe->operation, false);
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _connection->sendResponse(&_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
-            _connection->sendNoResponse();
+            _responseHandler->sendNoResponse();
         }
     }
     else if(const Exception* ex = dynamic_cast<const Exception*>(&exc))
@@ -396,11 +410,11 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             }
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _connection->sendResponse(&_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
-            _connection->sendNoResponse();
+            _responseHandler->sendNoResponse();
         }
     }
     else
@@ -424,16 +438,16 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
             _os.write(str.str(), false);
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-            _connection->sendResponse(&_os, _compress);
+            _responseHandler->sendResponse(_current.requestId, &_os, _compress);
         }
         else
         {
-            _connection->sendNoResponse();
+            _responseHandler->sendNoResponse();
         }
     }
 
     _observer.detach();
-    _connection = 0;
+    _responseHandler = 0;
 }
 
 void
@@ -444,7 +458,7 @@ IceInternal::IncomingBase::__handleException()
         __warning("unknown c++ exception");
     }
 
-    assert(_connection);
+    assert(_responseHandler);
 
     if(_observer)
     {
@@ -458,21 +472,21 @@ IceInternal::IncomingBase::__handleException()
         string reason = "unknown c++ exception";
         _os.write(reason, false);
         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-        _connection->sendResponse(&_os, _compress);
+        _responseHandler->sendResponse(_current.requestId, &_os, _compress);
     }
     else
     {
-        _connection->sendNoResponse();
+        _responseHandler->sendNoResponse();
     }
 
     _observer.detach();
-    _connection = 0;
+    _responseHandler = 0;
 }
 
 
-IceInternal::Incoming::Incoming(Instance* instance, ConnectionI* connection, const ObjectAdapterPtr& adapter,
-                                bool response, Byte compress, Int requestId) :
-    IncomingBase(instance, connection, adapter, response, compress, requestId),
+IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection, 
+                                const ObjectAdapterPtr& adapter, bool response, Byte compress, Int requestId) :
+    IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
     _inParamPos(0)
 {
     //
@@ -639,15 +653,15 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                         _os.write(ex);
                         _os.endWriteEncaps();
                         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-                        _connection->sendResponse(&_os, _compress);
+                        _responseHandler->sendResponse(_current.requestId, &_os, _compress);
                     }
                     else
                     {
-                        _connection->sendNoResponse();
+                        _responseHandler->sendNoResponse();
                     }
 
                     _observer.detach();
-                    _connection = 0;
+                    _responseHandler = 0;
                     return;
                 }
                 catch(const std::exception& ex)
@@ -730,21 +744,15 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
     if(_response)
     {
         _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-        _connection->sendResponse(&_os, _compress);
+        _responseHandler->sendResponse(_current.requestId, &_os, _compress);
     }
     else
     {
-        _connection->sendNoResponse();
+        _responseHandler->sendNoResponse();
     }
 
     _observer.detach();
-    _connection = 0;
-}
-
-bool
-IceInternal::IncomingRequest::isCollocated()
-{
-    return false;
+    _responseHandler = 0;
 }
 
 const Current&

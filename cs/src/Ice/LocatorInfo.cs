@@ -303,7 +303,7 @@ namespace IceInternal
 
         internal LocatorInfo(Ice.LocatorPrx locator, LocatorTable table, bool background)
         {
-            _locator = (Ice.LocatorPrx)locator.ice_collocationOptimized(false);
+            _locator = locator;
             _table = table;
             _background = background;
         }
@@ -354,8 +354,7 @@ namespace IceInternal
             //
             // Do not make locator calls from within sync.
             //
-            Ice.LocatorRegistryPrx locatorRegistry = 
-                (Ice.LocatorRegistryPrx)_locator.getRegistry().ice_collocationOptimized(false);
+            Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
 
             lock(this)
             {

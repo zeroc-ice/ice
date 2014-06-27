@@ -27,6 +27,14 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- The collocation optimization has been significanly improved to
+  remove limitations. It now works with AMI, AMD, blobjects and
+  batching. Collocated requests are now always marshaled and
+  un-marshalled but they don't go through any transport.
+
+- Fixed a bug where retries might fail if the request failed right
+  after connection establishment.
+
 - New garbage collection support for object graphs with cycles. 
 
   There's no more background thread to collect objects. Instead,
@@ -93,6 +101,9 @@ General Changes
 
 C++ Changes
 ===========
+
+- Fixed a bug where the communicator destruction could raise an
+  Ice::NullHandleException if a custom observer was setup.
 
 - Fixed a bug where the selector wouldn't check for EPOLLERR on
   Linux. This could cause the selector thread to loop indefinetely if

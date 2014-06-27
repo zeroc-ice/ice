@@ -13,17 +13,18 @@ using namespace Ice;
 using namespace std;
 
 void
-IceGrid::AdminCallbackRouter::invokeResponse(bool ok, const std::pair<const Byte*, const Byte*>& outParams,
-                                             const InvokeCookiePtr& cookie)
+IceGrid::AdminCallbackRouter::invokeResponse(bool ok, 
+                                             const std::pair<const Byte*, const Byte*>& outParams,
+                                             const AMD_Object_ice_invokePtr& amdCB)
 {
-    cookie->cb()->ice_response(ok, outParams);
+    amdCB->ice_response(ok, outParams);
 }
 
 void
-IceGrid::AdminCallbackRouter::invokeException(const Ice::Exception&, const InvokeCookiePtr& cookie)
+IceGrid::AdminCallbackRouter::invokeException(const Ice::Exception&, const AMD_Object_ice_invokePtr& amdCB)
 {
     // Callback object is unreachable.
-    cookie->cb()->ice_exception(ObjectNotExistException(__FILE__, __LINE__));
+    amdCB->ice_exception(ObjectNotExistException(__FILE__, __LINE__));
 }
 
 void
@@ -79,10 +80,9 @@ IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& c
     // Call with AMI
     //
     target->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, 
-                             newCallback_Object_ice_invoke(
-                                            this, 
-                                            &AdminCallbackRouter::invokeResponse, 
-                                            &AdminCallbackRouter::invokeException),
-                             new InvokeCookie(cb));
+                             newCallback_Object_ice_invoke(this, 
+                                                           &AdminCallbackRouter::invokeResponse, 
+                                                           &AdminCallbackRouter::invokeException),
+                             cb);
 }
 

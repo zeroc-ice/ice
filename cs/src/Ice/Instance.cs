@@ -319,6 +319,12 @@ namespace IceInternal
             return _messageSizeMax;
         }
 
+        public int cacheMessageBuffers()
+        {
+            // No mutex lock, immutable.
+            return _cacheMessageBuffers;
+        }
+
         public ACMConfig clientACM()
         {
             // No mutex lock, immutable.
@@ -785,6 +791,8 @@ namespace IceInternal
                     }
                 }
 
+                _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+
                 _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
                 _routerManager = new RouterManager();
 
@@ -1250,6 +1258,7 @@ namespace IceInternal
         private string[] _factoryAssemblies; // Immutable, not reset by destroy().
 #endif
         private int _messageSizeMax; // Immutable, not reset by destroy().
+        private int _cacheMessageBuffers; // Immutable, not reset by destroy().
         private ACMConfig _clientACM; // Immutable, not reset by destroy().
         private ACMConfig _serverACM; // Immutable, not reset by destroy().
         private Ice.ImplicitContextI _implicitContext; // Immutable

@@ -63,7 +63,7 @@ namespace IceInternal
                 }
             }
 
-            if(connection_ != null)
+            if(responseHandler_ != null)
             {
                 exception__(ex);
             }
@@ -107,7 +107,7 @@ namespace IceInternal
                     return;
                 }
 
-                Debug.Assert(connection_ != null);
+                Debug.Assert(responseHandler_ != null);
 
                 if(response_)
                 {
@@ -115,11 +115,11 @@ namespace IceInternal
                     {
                         observer_.reply(os_.size() - Protocol.headerSize - 4);
                     }
-                    connection_.sendResponse(os_, compress_);
+                    responseHandler_.sendResponse(current_.requestId, os_, compress_);
                 }
                 else
                 {
-                    connection_.sendNoResponse();
+                    responseHandler_.sendNoResponse();
                 }
 
                 if(observer_ != null)
@@ -127,11 +127,11 @@ namespace IceInternal
                     observer_.detach();
                     observer_ = null;
                 }
-                connection_ = null;
+                responseHandler_ = null;
             }
             catch(Ice.LocalException ex)
             {
-                connection_.invokeException(ex, 1);
+                responseHandler_.invokeException(current_.requestId, ex, 1);
             }
         }
         
@@ -148,7 +148,7 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                connection_.invokeException(ex, 1);
+                responseHandler_.invokeException(current_.requestId, ex, 1);
             }
         }
         

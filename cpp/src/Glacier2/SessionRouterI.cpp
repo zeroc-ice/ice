@@ -169,10 +169,6 @@ public:
         {
             exception(ex);
         }
-        else if(dynamic_cast<const CollocationOptimizationException*>(&ex))
-        {
-            authorizeCollocated();
-        }
         else
         {
             unexpectedAuthorizeException(ex);
@@ -191,29 +187,6 @@ public:
                                                           newCallback_PermissionsVerifier_checkPermissions(this,
                                                                 &UserPasswordCreateSession::checkPermissionsResponse,
                                                                 &UserPasswordCreateSession::checkPermissionsException));
-    }
-
-    virtual void
-    authorizeCollocated()
-    {
-        try
-        {
-            string reason;
-            Ice::Context ctx = _current.ctx;
-            ctx.insert(_context.begin(), _context.end());
-            if(_sessionRouter->_verifier->checkPermissions(_user, _password, reason, ctx))
-            {
-                authorized(_sessionRouter->_sessionManager);
-            }
-            else
-            {
-                exception(PermissionDeniedException(reason.empty() ? string("permission denied") : reason));
-            }
-        }
-        catch(const Ice::Exception& ex)
-        {
-            unexpectedAuthorizeException(ex);
-        }
     }
 
     virtual FilterManagerPtr
@@ -284,10 +257,6 @@ public:
         {
             exception(ex);
         }
-        else if(dynamic_cast<const CollocationOptimizationException*>(&ex))
-        {
-            authorizeCollocated();
-        }
         else
         {
             unexpectedAuthorizeException(ex);
@@ -305,29 +274,6 @@ public:
                                                       newCallback_SSLPermissionsVerifier_authorize(this,
                                                                              &SSLCreateSession::authorizeResponse, 
                                                                              &SSLCreateSession::authorizeException));
-    }
-
-    virtual void
-    authorizeCollocated()
-    {
-        try
-        {
-            string reason;
-            Ice::Context ctx = _current.ctx;
-            ctx.insert(_context.begin(), _context.end());
-            if(_sessionRouter->_sslVerifier->authorize(_sslInfo, reason, ctx))
-            {
-                authorized(_sessionRouter->_sslSessionManager);
-            }
-            else
-            {
-                exception(PermissionDeniedException(reason.empty() ? string("permission denied") : reason));
-            }
-        }
-        catch(const Ice::Exception& ex)
-        {
-            unexpectedAuthorizeException(ex);
-        }
     }
 
     virtual FilterManagerPtr

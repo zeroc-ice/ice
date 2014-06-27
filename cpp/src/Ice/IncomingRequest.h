@@ -28,7 +28,6 @@ public:
     {
     }
 
-    virtual bool isCollocated();
     virtual const Ice::Current& getCurrent();
     
     Incoming& _in;

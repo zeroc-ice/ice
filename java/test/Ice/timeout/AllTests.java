@@ -428,6 +428,69 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing invocation timeouts with collocated calls... ");
+        out.flush();
+        {
+            communicator.getProperties().setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
+
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TimeoutCollocated");
+            adapter.activate();
+
+            TimeoutPrx proxy = TimeoutPrxHelper.uncheckedCast(adapter.addWithUUID(new TimeoutI()));
+            proxy = (TimeoutPrx)proxy.ice_invocationTimeout(100);
+            try
+            {
+                proxy.sleep(150);
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException ex)
+            {
+            }
+
+            try
+            {
+                proxy.end_sleep(proxy.begin_sleep(150));
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException ex)
+            {
+            }
+
+            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).ice_ping();
+
+            TimeoutPrx batchTimeout = (TimeoutPrx)proxy.ice_batchOneway();
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+
+            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(150); // Keep the server thread pool busy.
+            try
+            {
+                batchTimeout.ice_flushBatchRequests();
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException ex)
+            {
+            }
+
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+            batchTimeout.ice_ping();
+            
+            ((TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(150); // Keep the server thread pool busy.
+            try
+            {
+                batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());
+                test(false);
+            }
+            catch(Ice.InvocationTimeoutException ex)
+            {
+            }
+
+            adapter.destroy();
+        }
+        out.println("ok");
+
         return timeout;
     }
 }

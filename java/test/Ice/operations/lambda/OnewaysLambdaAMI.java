@@ -9,9 +9,6 @@
 
 package test.Ice.operations.lambda;
 
-import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
-import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
-import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
@@ -29,9 +26,9 @@ public class OnewaysLambdaAMI
         }
     }
 
-    private static class CallbackBase
+    private static class Callback
     {
-        CallbackBase()
+        Callback()
         {
             _called = false;
         }
@@ -59,25 +56,18 @@ public class OnewaysLambdaAMI
             notify();
         }
 
-        private boolean _called;
-    }
-
-    static class Callback extends CallbackBase
-    {
-        public Callback()
-        {
-        }
-
         public void
         sent(boolean sentSynchronously)
         {
             called();
         }
 
-        void noException(Ice.LocalException ex)
+        void noException(Ice.Exception ex)
         {
             test(false);
         }
+
+        private boolean _called;
     }
 
     public static void
@@ -88,29 +78,9 @@ public class OnewaysLambdaAMI
 
         {
             final Callback cb = new Callback();
-            Ice.Callback_Object_ice_ping callback = new Ice.Callback_Object_ice_ping()
-                {
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
             p.begin_ice_ping(
-                () -> callback.response(),
-                (Ice.LocalException ex) -> callback.exception(ex),
+                () -> test(false),
+                (Ice.Exception ex) -> cb.noException(ex),
                 (boolean sent) -> cb.sent(sent)
             );
             cb.check();
@@ -151,29 +121,9 @@ public class OnewaysLambdaAMI
 
         {
             final Callback cb = new Callback();
-            Callback_MyClass_opVoid callback = new Callback_MyClass_opVoid()
-                {
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
             p.begin_opVoid(
-                () -> callback.response(),
-                (Ice.LocalException ex) -> callback.exception(ex),
+                () -> test(false),
+                (Ice.Exception ex) -> cb.noException(ex),
                 (boolean sent) -> cb.sent(sent)
             );
             cb.check();
@@ -181,29 +131,9 @@ public class OnewaysLambdaAMI
 
         {
             final Callback cb = new Callback();
-            Callback_MyClass_opIdempotent callback = new Callback_MyClass_opIdempotent()
-                {
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
             p.begin_opIdempotent(
-                () -> callback.response(),
-                (Ice.LocalException ex) -> callback.exception(ex),
+                () -> test(false),
+                (Ice.Exception ex) -> cb.noException(ex),
                 (boolean sent) -> cb.sent(sent)
             );
             cb.check();
@@ -211,29 +141,9 @@ public class OnewaysLambdaAMI
 
         {
             final Callback cb = new Callback();
-            Callback_MyClass_opNonmutating callback = new Callback_MyClass_opNonmutating()
-                {
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
-
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noException(ex);
-                    }
-
-                    public void
-                    sent(boolean sentSynchronously)
-                    {
-                        cb.sent(sentSynchronously);
-                    }
-                };
             p.begin_opNonmutating(
-                () -> callback.response(),
-                (Ice.LocalException ex) -> callback.exception(ex),
+                () -> test(false),
+                (Ice.Exception ex) -> cb.noException(ex),
                 (boolean sent) -> cb.sent(sent)
             );
             cb.check();

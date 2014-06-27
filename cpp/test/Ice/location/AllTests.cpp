@@ -570,8 +570,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing object migration... " << flush;
     hello = HelloPrx::checkedCast(communicator->stringToProxy("hello"));
     obj->migrateHello();
-    // TODO: enable after fixing ICE-5489
-    //hello->ice_getConnection()->close(false);
+    hello->ice_getConnection()->close(false);
     hello->sayHello();
     obj->migrateHello();
     hello->sayHello();
@@ -637,15 +636,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     registry->addObject(adapter->add(new HelloI, id));
     adapter->activate();
     
-    try
-    {
-        HelloPrx helloPrx = HelloPrx::checkedCast(communicator->stringToProxy(communicator->identityToString(id)));
-        Ice::ConnectionPtr connection = helloPrx->ice_getConnection();
-        test(false);
-    }
-    catch(const Ice::CollocationOptimizationException&)
-    {
-    }
+    HelloPrx helloPrx = HelloPrx::checkedCast(communicator->stringToProxy(communicator->identityToString(id)));
+    test(!helloPrx->ice_getConnection());
+
     adapter->deactivate();
     cout << "ok" << endl;
 

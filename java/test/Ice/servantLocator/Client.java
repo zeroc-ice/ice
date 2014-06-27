@@ -15,7 +15,7 @@ public class Client extends test.Util.Application
 {
     public int run(String[] args)
     {
-        TestIntfPrx obj = AllTests.allTests(communicator(), false, getWriter());
+        TestIntfPrx obj = AllTests.allTests(communicator(), getWriter());
         obj.shutdown();
         return 0;
     }

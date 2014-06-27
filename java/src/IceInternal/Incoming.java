@@ -14,10 +14,10 @@ import Ice.Instrumentation.CommunicatorObserver;
 final public class Incoming extends IncomingBase implements Ice.Request
 {
     public
-    Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
-             int requestId)
+    Incoming(Instance instance, ResponseHandler responseHandler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
+             boolean response, byte compress, int requestId)
     {
-        super(instance, connection, adapter, response, compress, requestId);
+        super(instance, responseHandler, connection, adapter, response, compress, requestId);
 
         //
         // Prepare the response if necessary.
@@ -33,15 +33,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
     }
 
-    //
-    // Request implementation
-    //
-    public boolean 
-    isCollocated()
-    {
-        return false;
-    }
-    
     public Ice.Current
     getCurrent()
     {
@@ -52,13 +43,13 @@ final public class Incoming extends IncomingBase implements Ice.Request
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
-          int requestId)
+    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+          boolean response, byte compress, int requestId)
     {
         _cb = null;
         _inParamPos = -1;
             
-        super.reset(instance, connection, adapter, response, compress, requestId);
+        super.reset(instance, handler, connection, adapter, response, compress, requestId);
 
         //
         // Prepare the response if necessary.
@@ -179,11 +170,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
                             {
                                 _observer.reply(_os.size() - Protocol.headerSize - 4);
                             }
-                            _connection.sendResponse(_os, _compress);
+                            _responseHandler.sendResponse(_current.requestId, _os, _compress);
                         }
                         else
                         {
-                            _connection.sendNoResponse();
+                            _responseHandler.sendNoResponse();
                         }
 
                         if(_observer != null)
@@ -191,7 +182,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                             _observer.detach();
                             _observer = null;
                         }
-                        _connection = null;
+                        _responseHandler = null;
                         return;
                     }
                     catch(java.lang.Exception ex)
@@ -274,7 +265,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         // the caller of this operation.
         //
 
-        assert(_connection != null);
+        assert(_responseHandler != null);
 
         if(_response)
         {
@@ -282,11 +273,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
             {
                 _observer.reply(_os.size() - Protocol.headerSize - 4);
             }
-            _connection.sendResponse(_os, _compress);
+            _responseHandler.sendResponse(_current.requestId, _os, _compress);
         }
         else
         {
-            _connection.sendNoResponse();
+            _responseHandler.sendNoResponse();
         }
 
         if(_observer != null)
@@ -294,7 +285,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _observer.detach();
             _observer = null;
         }
-        _connection = null;
+        _responseHandler = null;
     }
 
     public final void

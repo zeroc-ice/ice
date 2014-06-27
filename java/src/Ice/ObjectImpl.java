@@ -269,28 +269,21 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public DispatchStatus
     ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
     {
-        if(request.isCollocated())
+        IceInternal.Incoming in = (IceInternal.Incoming)request;
+        if(cb != null)
         {
-            return __collocDispatch((IceInternal.Direct)request);
+            in.push(cb);
         }
-        else
+        try
         {
-            IceInternal.Incoming in = (IceInternal.Incoming)request;
+            in.startOver(); // may raise ResponseSentException
+            return __dispatch(in, in.getCurrent());
+        }
+        finally
+        {
             if(cb != null)
             {
-                in.push(cb);
-            }
-            try
-            {
-                in.startOver(); // may raise ResponseSentException
-                return __dispatch(in, in.getCurrent());
-            }
-            finally
-            {
-                if(cb != null)
-                {
-                    in.pop();
-                }
+                in.pop();
             }
         }
     }
@@ -342,12 +335,6 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
 
         assert(false);
         throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
-    }
-
-    public DispatchStatus
-    __collocDispatch(IceInternal.Direct request)
-    {
-        return request.run(this);
     }
 
     public void

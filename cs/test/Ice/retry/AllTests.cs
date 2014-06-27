@@ -90,7 +90,7 @@ public class AllTests : TestCommon.TestApp
 
         public void exception(Ice.Exception ex)
         {
-            test(ex is Ice.ConnectionLostException);
+            test(ex is Ice.ConnectionLostException || ex is Ice.UnknownLocalException);
             callback.called();
         }
 
@@ -102,16 +102,14 @@ public class AllTests : TestCommon.TestApp
         private Callback callback = new Callback();
     }
 
-
 #if SILVERLIGHT
     public override Ice.InitializationData initData()
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
-        //
-        // For this test, we want to disable retries.
-        //
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        initData.observer = Instrumentation.getObserver();
+
+        initData.properties.setProperty("Ice.RetryIntervals", "0 10 20 30");
 
         //
         // This test kills connections, so we don't want warnings.
@@ -150,6 +148,8 @@ public class AllTests : TestCommon.TestApp
         retry1.op(false);
         WriteLine("ok");
 
+        int invocationCount = 3;
+
         Write("calling operation to kill connection with second proxy... ");
         Flush();
         try
@@ -157,14 +157,24 @@ public class AllTests : TestCommon.TestApp
             retry2.op(true);
             test(false);
         }
+        catch(Ice.UnknownLocalException)
+        {
+            // Expected with collocation
+        }
         catch(Ice.ConnectionLostException)
         {
-            WriteLine("ok");
         }
+        Instrumentation.testInvocationCount(invocationCount + 1);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
+        WriteLine("ok");
 
         Write("calling regular operation with first proxy again... ");
         Flush();
         retry1.op(false);
+        Instrumentation.testInvocationCount(invocationCount + 2);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         AMIRegular cb1 = new AMIRegular();
@@ -173,17 +183,92 @@ public class AllTests : TestCommon.TestApp
         Write("calling regular AMI operation with first proxy... ");
         retry1.begin_op(false).whenCompleted(cb1.response, cb1.exception);
         cb1.check();
+        Instrumentation.testInvocationCount(invocationCount + 3);
+        Instrumentation.testFailureCount(1);
+        Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         Write("calling AMI operation to kill connection with second proxy... ");
         retry2.begin_op(true).whenCompleted(cb2.response, cb2.exception);
         cb2.check();
+        Instrumentation.testInvocationCount(invocationCount + 4);
+        Instrumentation.testFailureCount(2);
+        Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         Write("calling regular AMI operation with first proxy again... ");
         retry1.begin_op(false).whenCompleted(cb1.response, cb1.exception);
         cb1.check();
+        Instrumentation.testInvocationCount(invocationCount + 5);
+        Instrumentation.testFailureCount(2);
+        Instrumentation.testRetryCount(0);
         WriteLine("ok");
+
+        Write("testing idempotent operation... ");
+        test(retry1.opIdempotent(0) == 4);
+        Instrumentation.testInvocationCount(invocationCount + 6);
+        Instrumentation.testFailureCount(2);
+        Instrumentation.testRetryCount(4);
+        test(retry1.end_opIdempotent(retry1.begin_opIdempotent(4)) == 8);
+        Instrumentation.testInvocationCount(invocationCount + 7);
+        Instrumentation.testFailureCount(2);
+        Instrumentation.testRetryCount(8);
+        WriteLine("ok");
+
+        Write("testing non-idempotent operation... ");
+        try
+        {
+            retry1.opNotIdempotent(8);
+            test(false);
+        }
+        catch(Ice.LocalException)
+        {
+        }
+        Instrumentation.testInvocationCount(invocationCount + 8);
+        Instrumentation.testFailureCount(3);
+        Instrumentation.testRetryCount(8);
+        try
+        {
+            retry1.end_opNotIdempotent(retry1.begin_opNotIdempotent(9));
+            test(false);
+        }
+        catch(Ice.LocalException)
+        {
+        }
+        Instrumentation.testInvocationCount(invocationCount + 9);
+        Instrumentation.testFailureCount(4);
+        Instrumentation.testRetryCount(8);
+        WriteLine("ok");
+
+        if(retry1.ice_getConnection() == null)
+        {
+            invocationCount = invocationCount + 10;
+            Write("testing system exception... ");
+            try
+            {
+                retry1.opSystemException();
+                test(false);
+            }
+            catch(SystemFailure)
+            {
+            }
+            Instrumentation.testInvocationCount(invocationCount + 1);
+            Instrumentation.testFailureCount(5);
+            Instrumentation.testRetryCount(8);
+            try
+            {
+                retry1.end_opSystemException(retry1.begin_opSystemException());
+                test(false);
+            }
+            catch(SystemFailure)
+            {
+            }
+            Instrumentation.testInvocationCount(invocationCount + 2);
+            Instrumentation.testFailureCount(6);
+            Instrumentation.testRetryCount(8);
+            WriteLine("ok");
+        }
+
 #if SILVERLIGHT
         retry1.shutdown();
 #else

@@ -157,6 +157,20 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
         }
     }
 
+    public Ice.Instrumentation.RemoteObserver
+    getCollocatedObserver(int a, int b)
+    {
+        lock(this)
+        {
+            if(remoteObserver == null)
+            {
+                remoteObserver = new RemoteObserverI();
+                remoteObserver.reset();
+            }
+            return remoteObserver;
+        }
+    }
+
     public int userExceptionCount;
     public int retriedCount;
 

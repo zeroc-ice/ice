@@ -158,6 +158,8 @@ public:
     }
 #endif
 
+    InstancePtr getInstance();
+
 private:
 
     ThreadPool* _threadPool;
@@ -182,15 +184,9 @@ public:
 
 class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
 {
-public:
-    
-    DispatchWorkItem(const InstancePtr&);
+private:
  
     virtual void execute(ThreadPoolCurrent&);
-
-private:
-
-    const InstancePtr _instance;
 };
 
 class ThreadPoolWorkQueue : public EventHandler, public IceUtil::Mutex

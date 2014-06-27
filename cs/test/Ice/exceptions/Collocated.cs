@@ -25,7 +25,7 @@ public class Collocated
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object obj = new ThrowerI();
         adapter.add(obj, communicator.stringToIdentity("thrower"));
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator);
         return 0;
     }
 
@@ -36,7 +36,11 @@ public class Collocated
 
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties();
+            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(System.Exception ex)

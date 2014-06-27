@@ -30,6 +30,7 @@ SRCS		= Acceptor.cs \
                   Compare.cs \
 		  CollectionBase.cs \
 		  Collections.cs \
+		  CollocatedRequestHandler.cs \
 		  ConnectRequestHandler.cs \
 		  ConnectionI.cs \
 		  ConnectionFactory.cs \
@@ -37,7 +38,6 @@ SRCS		= Acceptor.cs \
 		  Connector.cs \
 		  DefaultsAndOverrides.cs \
                   DictionaryBase.cs \
-		  Direct.cs \
                   DispatchInterceptor.cs \
 		  EndpointI.cs \
 		  EndpointFactory.cs \
@@ -87,6 +87,7 @@ SRCS		= Acceptor.cs \
 		  ReferenceFactory.cs \
                   ReplyStatus.cs \
                   RequestHandler.cs \
+	  	  ResponseHandler.cs \
 		  RetryQueue.cs \
 		  RouterInfo.cs \
 		  ServantManager.cs \

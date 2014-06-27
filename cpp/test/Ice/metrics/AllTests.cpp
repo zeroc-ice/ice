@@ -374,7 +374,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     MetricsPrx metrics = MetricsPrx::checkedCast(communicator->stringToProxy("metrics:default -p 12010"));
 
     cout << "testing metrics admin facet checkedCast... " << flush;
-    Ice::ObjectPrx admin = communicator->getAdmin()->ice_collocationOptimized(false);
+    Ice::ObjectPrx admin = communicator->getAdmin();
     Ice::PropertiesAdminPrx clientProps = Ice::PropertiesAdminPrx::checkedCast(admin, "Properties");
     IceMX::MetricsAdminPrx clientMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics");
     test(clientProps && clientMetrics);

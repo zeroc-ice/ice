@@ -378,7 +378,7 @@ public final class PropertiesI implements Properties
             {
                 throw ex;
             }
-            catch(Exception ex)
+            catch(java.lang.Exception ex)
             {
                 throw new InitializationException("Could not read Windows registry key `" + file + "'", ex);
             }

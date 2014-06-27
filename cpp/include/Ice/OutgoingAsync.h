@@ -40,12 +40,9 @@ typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
 namespace Ice
 {
 
-class ICE_API AsyncResult : virtual public IceUtil::Shared, protected IceUtil::TimerTask, private IceUtil::noncopyable
+class ICE_API AsyncResult : virtual public Ice::LocalObject, protected IceUtil::TimerTask, private IceUtil::noncopyable
 {
 public:
-
-    virtual bool operator==(const AsyncResult&) const;
-    virtual bool operator<(const AsyncResult&) const;
 
     virtual Int getHash() const;
 
@@ -122,10 +119,17 @@ public:
     virtual void __invokeException(const Exception&); // Required to be public for AsynchronousException
     void __invokeSent(); // Required to be public for AsynchronousSent
 
-    virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, 
-                                        Ice::Int requestId, Ice::Int sz)
+    void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, 
+                                Ice::Int requestId, Ice::Int sz)
     {
         _remoteObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, sz));
+    }
+
+    void __attachCollocatedObserver(Ice::Int requestId)
+    {
+        _remoteObserver.attach(_observer.getCollocatedObserver(requestId, 
+                                                               static_cast<Ice::Int>(_os.b.size() - 
+                                                                                     IceInternal::headerSize - 4)));
     }
 
     IceInternal::InvocationObserver& __getObserver()
@@ -184,13 +188,13 @@ namespace IceInternal
 //
 extern ICE_API CallbackBasePtr __dummyCallback;
 
-class LocalExceptionWrapper;
+class CollocatedRequestHandler;
 
 //
 // This interface is used by the connection to handle OutgoingAsync
 // and BatchOutgoingAsync messages.
 //
-class ICE_API OutgoingAsyncMessageCallback : virtual public IceUtil::Shared
+class ICE_API OutgoingAsyncMessageCallback : virtual public Ice::LocalObject
 {
 public:
 
@@ -202,6 +206,11 @@ public:
     // Called by the request handler to send the request over the connection.
     //
     virtual IceInternal::AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool) = 0;
+
+    //
+    // Called by the collocated request handler to invoke the request.
+    //
+    virtual IceInternal::AsyncStatus __invokeCollocated(CollocatedRequestHandler*) = 0;
 
     //
     // Called by the connection when the message is confirmed sent. The connection is locked
@@ -222,7 +231,7 @@ public:
     // not the message was possibly sent (this is useful for retry to figure out whether
     // or not the request can't be retried without breaking at-most-once semantics.)
     //
-    virtual void __finished(const Ice::LocalException&, bool) = 0;
+    virtual void __finished(const Ice::Exception&, bool) = 0;
 };
 
 class ICE_API OutgoingAsync : public OutgoingAsyncMessageCallback, public Ice::AsyncResult
@@ -240,11 +249,11 @@ public:
     }
 
     virtual IceInternal::AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual IceInternal::AsyncStatus __invokeCollocated(CollocatedRequestHandler*);
     virtual bool __sent();
     virtual void __invokeSent();
-    virtual void __finished(const Ice::LocalException&, bool);
+    virtual void __finished(const Ice::Exception&, bool);
 
-    void __finished(const LocalExceptionWrapper&);
     void __finished();
     bool __invoke(bool);
 
@@ -285,10 +294,9 @@ protected:
 
 private:
 
-    int handleException(const Ice::LocalException&, bool);
-    int handleException(const LocalExceptionWrapper&);
+    bool handleException(const Ice::Exception&, bool);
 
-    Handle< IceDelegate::Ice::Object> _delegate;
+    RequestHandlerPtr _handler;
     Ice::EncodingVersion _encoding;
     int _cnt;
     Ice::OperationMode _mode;
@@ -302,9 +310,10 @@ public:
                        const Ice::LocalObjectPtr&);
 
     virtual IceInternal::AsyncStatus __send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual IceInternal::AsyncStatus __invokeCollocated(CollocatedRequestHandler*);
     virtual bool __sent();
     virtual void __invokeSent();
-    virtual void __finished(const Ice::LocalException&, bool);
+    virtual void __finished(const Ice::Exception&, bool);
 };
 
 class ICE_API ProxyBatchOutgoingAsync : public BatchOutgoingAsync

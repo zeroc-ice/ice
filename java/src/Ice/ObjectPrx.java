@@ -106,7 +106,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_isA(String __id, IceInternal.Functional_BoolCallback __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Tests whether this proxy supports a given interface.
@@ -118,7 +118,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_isA(String __id, IceInternal.Functional_BoolCallback __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                               IceInternal.Functional_BoolCallback __sentCb);
 
     /**
@@ -132,7 +132,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context, 
                               IceInternal.Functional_BoolCallback __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Tests whether this proxy supports a given interface.
@@ -146,7 +146,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context, 
                               IceInternal.Functional_BoolCallback __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                               IceInternal.Functional_BoolCallback __sentCb);
 
     /**
@@ -226,7 +226,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb, 
-                               IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Tests whether the target object of this proxy can be reached.
@@ -237,7 +237,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb, 
-                               IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                IceInternal.Functional_BoolCallback __sentCb);
     
     /**
@@ -250,7 +250,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_ping(java.util.Map<String, String> __context, 
                                IceInternal.Functional_VoidCallback __responseCb, 
-                               IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Tests whether the target object of this proxy can be reached.
@@ -263,7 +263,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_ping(java.util.Map<String, String> __context, 
                                IceInternal.Functional_VoidCallback __responseCb, 
-                               IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                IceInternal.Functional_BoolCallback __sentCb);
 
     /**
@@ -347,7 +347,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -358,7 +358,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                               IceInternal.Functional_BoolCallback __sentCb);
     
     /**
@@ -371,7 +371,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_ids(java.util.Map<String, String> __context,
                               IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -384,7 +384,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_ids(java.util.Map<String, String> __context,
                               IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                              IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                               IceInternal.Functional_BoolCallback __sentCb);
 
     /**
@@ -468,7 +468,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -479,7 +479,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                              IceInternal.Functional_BoolCallback __sentCb);
     
     /**
@@ -492,7 +492,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_id(java.util.Map<String, String> __context,
                              IceInternal.Functional_GenericCallback1<String> __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
     
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -505,7 +505,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_id(java.util.Map<String, String> __context,
                              IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                              IceInternal.Functional_BoolCallback __sentCb);
 
     /**
@@ -672,7 +672,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                  IceInternal.Functional_BoolCallback __sentCb);
     
     /**
@@ -691,7 +691,7 @@ public interface ObjectPrx
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
                                  
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -712,7 +712,7 @@ public interface ObjectPrx
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> __context,
                                  FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                  IceInternal.Functional_BoolCallback __sentCb);
                                  
     /**
@@ -733,7 +733,7 @@ public interface ObjectPrx
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> __context,
                                  FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb);
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
 
     /**
      * Completes the asynchronous ice_invoke request.
@@ -1191,7 +1191,7 @@ public interface ObjectPrx
      * @return The asynchronous result object.
      **/
     AsyncResult begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-                                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                              IceInternal.Functional_BoolCallback __sentCb);
 
     /**

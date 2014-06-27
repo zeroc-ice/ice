@@ -19,19 +19,28 @@ EXT		= .dll
 
 CLIENT		= $(NAME_PREFIX)client
 SERVER		= $(NAME_PREFIX)server
+COLLOCATED	= $(NAME_PREFIX)collocated
 
-TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT)
+TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(COLLOCATED)$(EXT)
 
 COBJS		= Test.obj \
 		  Client.obj \
+		  InstrumentationI.obj \
 		  AllTests.obj
 
 SOBJS		= Test.obj \
 		  TestI.obj \
 		  Server.obj
 
+COLOBJS		= Test.obj \
+		  Collocated.obj \
+		  AllTests.obj \
+		  InstrumentationI.obj \
+		  TestI.obj
+
 SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+		  $(SOBJS:.obj=.cpp) \
+		  $(COLOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -46,6 +55,7 @@ LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT).pdb
 SPDBFLAGS        = /pdb:$(SERVER).pdb
+COPDBFLAGS       = /pdb:$(COLLOCATED).pdb
 !endif
 
 $(CLIENT)$(EXT): $(COBJS)
@@ -55,6 +65,11 @@ $(CLIENT)$(EXT): $(COBJS)
 
 $(SERVER)$(EXT): $(SOBJS)
 	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+$(COLLOCATED)$(EXT): $(COLOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

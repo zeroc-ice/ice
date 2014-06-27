@@ -267,6 +267,11 @@ public abstract class IPEndpointI extends EndpointI
                 throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `" + toString() + "'");
             }
         }
+
+        if(_host == null)
+        {
+            _host = "";
+        }
     }
 
     protected boolean checkOption(String option, String argument, String endpoint)

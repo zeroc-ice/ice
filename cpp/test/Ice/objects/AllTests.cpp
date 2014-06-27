@@ -52,7 +52,7 @@ testUOE(const Ice::CommunicatorPtr& communicator)
 }
 
 InitialPrx
-allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     string ref = "initial:default -p 12010";
@@ -140,15 +140,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(BPtr::dynamicCast(b1->theA)->theB == b1);
     test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC));
     test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC)->theB == b1->theA);
-    if(!collocated)
-    {
-        test(b1->preMarshalInvoked);
-        test(b1->postUnmarshalInvoked());
-        test(b1->theA->preMarshalInvoked);
-        test(b1->theA->postUnmarshalInvoked());
-        test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
-        test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked());
-    }
+
+    test(b1->preMarshalInvoked);
+    test(b1->postUnmarshalInvoked());
+    test(b1->theA->preMarshalInvoked);
+    test(b1->theA->postUnmarshalInvoked());
+    test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
+    test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked());
+    
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
     test(d->theC == 0);
@@ -179,17 +178,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(d->theA == b1);
     test(d->theB == b2);
     test(d->theC == 0);
-    if(!collocated)
-    {
-        test(d->preMarshalInvoked);
-        test(d->postUnmarshalInvoked());
-        test(d->theA->preMarshalInvoked);
-        test(d->theA->postUnmarshalInvoked());
-        test(d->theB->preMarshalInvoked);
-        test(d->theB->postUnmarshalInvoked());
-        test(d->theB->theC->preMarshalInvoked);
-        test(d->theB->theC->postUnmarshalInvoked());
-    }
+    
+    test(d->preMarshalInvoked);
+    test(d->postUnmarshalInvoked());
+    test(d->theA->preMarshalInvoked);
+    test(d->theA->postUnmarshalInvoked());
+    test(d->theB->preMarshalInvoked);
+    test(d->theB->postUnmarshalInvoked());
+    test(d->theB->theC->preMarshalInvoked);
+    test(d->theB->theC->postUnmarshalInvoked());
+
     cout << "ok" << endl;
 
     cout << "testing protected members... " << flush;
@@ -235,12 +233,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    if(!collocated)
-    {
-        cout << "testing UnexpectedObjectException... " << flush;
-        testUOE(communicator);
-        cout << "ok" << endl;
-    }
+    cout << "testing UnexpectedObjectException... " << flush;
+    testUOE(communicator);
+    cout << "ok" << endl;
 
     return initial;
 }

@@ -30,8 +30,8 @@ namespace TestCommon
         {
             if(!b)
             {
+                System.Diagnostics.Debug.Assert(false);
                 throw new System.Exception();
-                //System.Diagnostics.Debug.Assert(false);
             }
         }
 

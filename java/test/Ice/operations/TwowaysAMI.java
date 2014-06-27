@@ -1238,6 +1238,7 @@ class TwowaysAMI
             }
             catch(java.lang.Exception ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             cb.check();

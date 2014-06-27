@@ -14,15 +14,15 @@ import Ice.Instrumentation.InvocationObserver;
 public interface RequestHandler
 {
     void prepareBatchRequest(BasicStream out)
-        throws LocalExceptionWrapper;
+        throws RetryException;
     void finishBatchRequest(BasicStream out);
     void abortBatchRequest();
 
     boolean sendRequest(OutgoingMessageCallback out)
-        throws LocalExceptionWrapper;
+        throws RetryException;
 
     int sendAsyncRequest(OutgoingAsyncMessageCallback out)
-        throws LocalExceptionWrapper;
+        throws RetryException;
 
     void requestTimedOut(OutgoingMessageCallback out);
     void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync);
@@ -30,10 +30,4 @@ public interface RequestHandler
     Reference getReference();
 
     Ice.ConnectionI getConnection(boolean wait);
-
-    Outgoing getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context, 
-                         InvocationObserver observer)
-        throws LocalExceptionWrapper;
-
-    void reclaimOutgoing(Outgoing out);
 }

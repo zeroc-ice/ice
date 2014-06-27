@@ -27,6 +27,16 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
     public abstract void exception(LocalException ex);
 
     /**
+     * Called when the invocation raises an Ice system exception.
+     *
+     * @param ex The Ice system exception raised by the operation.
+     **/
+    public void exception(SystemException ex)
+    {        
+        exception(new Ice.UnknownException(ex));
+    }
+
+    /**
      * Called when a queued invocation is sent successfully.
      **/
     public void sent(boolean sentSynchronously)
@@ -45,6 +55,11 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
             ((ObjectPrxHelperBase)__result.getProxy()).__end(__result, __result.getOperation());
         }
         catch(LocalException __ex)
+        {
+            exception(__ex);
+            return;
+        }
+        catch(SystemException __ex)
         {
             exception(__ex);
             return;

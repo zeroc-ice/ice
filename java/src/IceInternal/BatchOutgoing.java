@@ -15,78 +15,37 @@ import Ice.Instrumentation.InvocationObserver;
 public final class BatchOutgoing implements OutgoingMessageCallback
 {
     public
-    BatchOutgoing(Ice.ConnectionI connection, Instance instance, InvocationObserver observer)
+    BatchOutgoing(Ice.ConnectionI connection, Instance instance, String op)
     {
         _connection = connection;
         _sent = false;
         _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
-        _observer = observer;
+        _observer = IceInternal.ObserverHelper.get(instance, op);
     }
 
     public
-    BatchOutgoing(RequestHandler handler, InvocationObserver observer)
+    BatchOutgoing(Ice.ObjectPrxHelperBase proxy, String op)
     {
-        _handler = handler;
+        _proxy = proxy;
         _sent = false;
-        _os = new BasicStream(handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
-        _observer = observer;
-        Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
+        _os = new BasicStream(proxy.__reference().getInstance(), Protocol.currentProtocolEncoding);
+        _observer = IceInternal.ObserverHelper.get(proxy, op);
+        Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
     }
 
     public void
     invoke()
     {
-        assert(_handler != null || _connection != null);
+        assert(_proxy != null || _connection != null);
 
-        int timeout;
         if(_connection != null)
         {
             if(_connection.flushBatchRequests(this))
             {
                 return;
             }
-            timeout = -1;
-        }
-        else
-        {
-            try
-            {
-                if(_handler.sendRequest(this))
-                {
-                    return;
-                }
-            }
-            catch(IceInternal.LocalExceptionWrapper ex)
-            {
-                throw ex.get();
-            }
-            timeout = _handler.getReference().getInvocationTimeout();
-        }
 
-        boolean timedOut = false;
-        synchronized(this)
-        {
-            if(timeout > 0)
-            {
-                long now = Time.currentMonotonicTimeMillis();
-                long deadline = now + timeout;
-                while(_exception == null && !_sent && !timedOut)
-                {
-                    try
-                    {
-                        wait(deadline - now);
-                        if(_exception == null && !_sent)
-                        {
-                            now = Time.currentMonotonicTimeMillis();
-                            timedOut = now >= deadline;
-                        }
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
-                }
-            }
-            else
+            synchronized(this)
             {
                 while(_exception == null && !_sent)
                 {
@@ -98,19 +57,103 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                     {
                     }
                 }
+                if(_exception != null)
+                {
+                    throw _exception;
+                }
             }
-        }
-        
-        if(timedOut)
-        {
-            _handler.requestTimedOut(this);
-            assert(_exception != null);
+            return;
         }
 
-        if(_exception != null)
+        RequestHandler handler = null;
+        try
         {
-            _exception.fillInStackTrace();
-            throw _exception;
+            handler = _proxy.__getRequestHandler(false);
+            if(handler.sendRequest(this))
+            {
+                return;
+            }
+
+            boolean timedOut = false;
+            synchronized(this)
+            {
+                int timeout = _proxy.__reference().getInvocationTimeout();
+                if(timeout > 0)
+                {
+                    long now = Time.currentMonotonicTimeMillis();
+                    long deadline = now + timeout;
+                    while(_exception == null && !_sent && !timedOut)
+                    {
+                        try
+                        {
+                            wait(deadline - now);
+                            if(_exception == null && !_sent)
+                            {
+                                now = Time.currentMonotonicTimeMillis();
+                                timedOut = now >= deadline;
+                            }
+                        }
+                        catch(InterruptedException ex)
+                        {
+                        }
+                    }
+                }
+                else
+                {
+                    while(_exception == null && !_sent)
+                    {
+                        try
+                        {
+                            wait();
+                        }
+                        catch(InterruptedException ex)
+                        {
+                        }
+                    }
+                }
+            }
+            
+            if(timedOut)
+            {
+                handler.requestTimedOut(this);
+
+                synchronized(this)
+                {
+                    while(_exception == null)
+                    {
+                        try
+                        {
+                            wait();
+                        }
+                        catch(InterruptedException ex)
+                        {
+                        }
+                    }
+                }
+            }
+
+            if(_exception != null)
+            {
+                throw (Ice.Exception)_exception.fillInStackTrace();
+            }
+        }
+        catch(RetryException ex)
+        {
+            //
+            // Clear request handler but don't retry or throw. Retrying
+            // isn't useful, there were no batch requests associated with
+            // the proxy's request handler.
+            //
+            _proxy.__setRequestHandler(handler, null); 
+        }
+        catch(Ice.Exception ex)
+        {
+            _proxy.__setRequestHandler(handler, null); // Clear request handler
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+            }
+            throw ex; // Throw to notify the user that batch requests were potentially lost.
         }
     }
 
@@ -118,6 +161,12 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
         return connection.flushBatchRequests(this);
+    }
+
+    public void
+    invokeCollocated(CollocatedRequestHandler handler)
+    {
+        handler.invokeBatchRequests(this);
     }
 
     synchronized public void
@@ -133,7 +182,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     }
     
     public synchronized void
-    finished(Ice.LocalException ex, boolean sent)
+    finished(Ice.Exception ex, boolean sent)
     {
         if(_remoteObserver != null)
         {
@@ -164,11 +213,23 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         }
     }
 
-    private RequestHandler _handler;
+    public void attachCollocatedObserver(int requestId)
+    {
+        if(_observer != null)
+        {
+            _remoteObserver = _observer.getCollocatedObserver(requestId, _os.size() - Protocol.headerSize - 4);
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.attach();
+            }
+        }
+    }
+
+    private Ice.ObjectPrxHelperBase _proxy;
     private Ice.ConnectionI _connection;
     private BasicStream _os;
     private boolean _sent;
-    private Ice.LocalException _exception;
+    private Ice.Exception _exception;
 
     private InvocationObserver _observer;
     private Observer _remoteObserver;

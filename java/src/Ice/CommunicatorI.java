@@ -202,11 +202,11 @@ public final class CommunicatorI implements Communicator
     
     public AsyncResult
     begin_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.LocalException> __localExceptionCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                              IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_flushBatchRequestsInternal(
-            new IceInternal.Functional_CallbackBase(false, __localExceptionCb, __sentCb)
+            new IceInternal.Functional_CallbackBase(false, __exceptionCb, __sentCb)
                 {
                     public final void __completed(AsyncResult __result)
                     {
@@ -214,9 +214,9 @@ public final class CommunicatorI implements Communicator
                         {
                             __result.getCommunicator().end_flushBatchRequests(__result);
                         }
-                        catch(LocalException __ex)
+                        catch(Exception __ex)
                         {
-                            __localExceptionCb.apply(__ex);
+                            __exceptionCb.apply(__ex);
                         }
                     }
                 });

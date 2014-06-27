@@ -68,12 +68,6 @@ protected:
     void writeThrowsClause(const std::string&, const ExceptionList&);
 
     //
-    // Generate a throws clause for delegate operations containing only
-    // non-local exceptions.
-    //
-    void writeDelegateThrowsClause(const std::string&, const ExceptionList&);
-
-    //
     // Generate code to compute a hash code for a type.
     //
     void writeHashCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int&,
@@ -258,41 +252,6 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-    };
-
-    class DelegateVisitor : public JavaVisitor
-    {
-    public:
-
-        DelegateVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class DelegateMVisitor : public JavaVisitor
-    {
-    public:
-
-        DelegateMVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-
-        void writeOperation(const ClassDefPtr&, const std::string&, const OperationPtr&, bool);
-    };
-
-    class DelegateDVisitor : public JavaVisitor
-    {
-    public:
-
-        DelegateDVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-
-        void writeOperation(const ClassDefPtr&, const std::string&, const OperationPtr&, bool);
     };
 
     class DispatcherVisitor : public JavaVisitor

@@ -633,13 +633,7 @@ public class AllTests
         String ref13 = "test -e 1.3:default -p 12010";
         MyClassPrx cl13 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
-        try
-        {
-            cl13.end_ice_ping(cl13.begin_ice_ping());
-        }
-        catch(Ice.CollocationOptimizationException ex)
-        {
-        }
+        cl13.end_ice_ping(cl13.begin_ice_ping());
 
         try
         {
@@ -706,13 +700,7 @@ public class AllTests
         ref13 = "test -p 1.3:default -p 12010";
         cl13 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
-        try
-        {
-            cl13.end_ice_ping(cl13.begin_ice_ping());
-        }
-        catch(Ice.CollocationOptimizationException ex)
-        {
-        }
+        cl13.end_ice_ping(cl13.begin_ice_ping());
         out.println("ok");
         
         out.print("testing opaque endpoints... ");

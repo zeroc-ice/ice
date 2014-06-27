@@ -194,7 +194,11 @@ public:
     virtual void userException();
 
     virtual Ice::Instrumentation::RemoteObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, 
-                                                                      const Ice::EndpointPtr&, Ice::Int, Ice::Int);
+                                                                      const Ice::EndpointPtr&, 
+                                                                      Ice::Int, 
+                                                                      Ice::Int);
+
+    virtual Ice::Instrumentation::RemoteObserverPtr getCollocatedObserver(Ice::Int, Ice::Int);
 };
 
 typedef ObserverWithDelegateT<IceMX::Metrics, Ice::Instrumentation::Observer> ObserverI;

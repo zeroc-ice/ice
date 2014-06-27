@@ -36,7 +36,7 @@ public class AllTests
     }
 
     public static void
-    testExceptions(TestIntfPrx obj, boolean collocated)
+    testExceptions(TestIntfPrx obj)
     {
         try
         {
@@ -45,12 +45,9 @@ public class AllTests
         }
         catch(ObjectNotExistException ex)
         {
-            if(!collocated)
-            {
-                test(ex.id.equals(obj.ice_getIdentity()));
-                test(ex.facet.equals(obj.ice_getFacet()));
-                test(ex.operation.equals("requestFailedException"));
-            }
+            test(ex.id.equals(obj.ice_getIdentity()));
+            test(ex.facet.equals(obj.ice_getFacet()));
+            test(ex.operation.equals("requestFailedException"));
         }
 
         try
@@ -210,9 +207,9 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
-                out.print("testing stringToProxy... ");
+        out.print("testing stringToProxy... ");
         out.flush();
         String ref = "asm:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
@@ -298,14 +295,14 @@ public class AllTests
         out.flush();
         base = communicator.stringToProxy("category/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
-        testExceptions(obj, collocated);
+        testExceptions(obj);
         out.println("ok");
 
         out.print("testing finished exceptions... ");
         out.flush();
         base = communicator.stringToProxy("category/finished:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
-        testExceptions(obj, collocated);
+        testExceptions(obj);
 
         //
         // Only call these for category/finished.

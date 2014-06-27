@@ -33,7 +33,7 @@ public class Collocated
             adapter.add(new TestI(), communicator().stringToIdentity("asm"));
             adapter.add(new TestActivationI(), communicator().stringToIdentity("test/activation"));
 
-            AllTests.allTests(communicator(), true);
+            AllTests.allTests(communicator());
 
             return 0;
         }

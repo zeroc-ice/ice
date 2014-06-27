@@ -262,13 +262,21 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         public Ice.ConnectionInfo
         getConnectionInfo()
         {
-            return _current.con.getInfo();
+            if(_current.con != null)
+            {
+                return _current.con.getInfo();
+            }
+            return null;
         }
         
         public Ice.Endpoint
         getEndpoint()
         {
-            return _current.con.getEndpoint();
+            if(_current.con != null)
+            {
+                return _current.con.getEndpoint();
+            }
+            return null;
         }
 
         public Ice.Connection
@@ -280,7 +288,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         public Ice.EndpointInfo
         getEndpointInfo()
         {
-            if(_endpointInfo == null)
+            if(_current.con != null && _endpointInfo == null)
             {
                 _endpointInfo = _current.con.getEndpoint().getInfo();
             }

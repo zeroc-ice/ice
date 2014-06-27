@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/UniquePtr.h>
+
 #include <Ice/RequestHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
@@ -31,37 +32,7 @@ class LocalException;
 namespace IceInternal
 {
 
-//
-// An exception wrapper, which is used for local exceptions that
-// require special retry considerations.
-//
-class ICE_API LocalExceptionWrapper
-{
-public:
-
-    LocalExceptionWrapper(const Ice::LocalException&, bool);
-    LocalExceptionWrapper(const LocalExceptionWrapper&);
-
-    const Ice::LocalException* get() const;
-
-    //
-    // If true, always repeat the request. Don't take retry settings
-    // or "at-most-once" guarantees into account.
-    //
-    // If false, only repeat the request if the retry settings allow
-    // to do so, and if "at-most-once" does not need to be guaranteed.
-    //
-    bool retry() const;
-
-    static void throwWrapper(const ::std::exception&);
-
-private:
-
-    const LocalExceptionWrapper& operator=(const LocalExceptionWrapper&);
-
-    IceUtil::UniquePtr<Ice::LocalException> _ex;
-    bool _retry;
-};
+class CollocatedRequestHandler; // Forward declaration
 
 class ICE_API OutgoingMessageCallback : private IceUtil::noncopyable
 {
@@ -70,25 +41,27 @@ public:
     virtual ~OutgoingMessageCallback() { }
  
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool) = 0;
+    virtual void invokeCollocated(CollocatedRequestHandler*) = 0;
+
     virtual void sent() = 0;
-    virtual void finished(const Ice::LocalException&, bool) = 0;
+    virtual void finished(const Ice::Exception&, bool) = 0;
 };
 
 class ICE_API Outgoing : public OutgoingMessageCallback
 {
 public:
 
-    Outgoing(RequestHandler*, const std::string&, Ice::OperationMode, const Ice::Context*, InvocationObserver&);
+    Outgoing(IceProxy::Ice::Object*, const std::string&, Ice::OperationMode, const Ice::Context*);
     ~Outgoing();
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
 
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual void invokeCollocated(CollocatedRequestHandler*);
     virtual void sent();
-    virtual void finished(const Ice::LocalException&, bool);
+    virtual void finished(const Ice::Exception&, bool);
 
-    void finished(const LocalExceptionWrapper&);
     void finished(BasicStream&);
 
     // Inlined for speed optimization.
@@ -149,17 +122,24 @@ public:
         _remoteObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, size));
     }
 
+    void attachCollocatedObserver(Ice::Int requestId)
+    {
+        _remoteObserver.attach(_observer.getCollocatedObserver(requestId, 
+                                                               static_cast<Ice::Int>(_os.b.size() - 
+                                                                                     IceInternal::headerSize - 4)));
+    }
+
 private:
 
     //
     // Optimization. The request handler and the reference may not be
     // deleted while a stack-allocated Outgoing still holds it.
     //
-    RequestHandler* _handler;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
-    bool _exceptionWrapper;
-    bool _exceptionWrapperRetry;
-    InvocationObserver& _observer;
+    IceProxy::Ice::Object* _proxy;
+    Ice::OperationMode _mode;
+    RequestHandlerPtr _handler;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
+    InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
 
     enum
@@ -191,14 +171,15 @@ class BatchOutgoing : public OutgoingMessageCallback
 {
 public:
 
-    BatchOutgoing(RequestHandler*, InvocationObserver&);
-    BatchOutgoing(Ice::ConnectionI*, Instance*, InvocationObserver&);
+    BatchOutgoing(IceProxy::Ice::Object*, const std::string&);
+    BatchOutgoing(Ice::ConnectionI*, Instance*, const std::string&);
     
     void invoke();
 
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
+    virtual void invokeCollocated(CollocatedRequestHandler*);
     virtual void sent();
-    virtual void finished(const Ice::LocalException&, bool);
+    virtual void finished(const Ice::Exception&, bool);
     
     BasicStream* os() { return &_os; }
 
@@ -207,17 +188,24 @@ public:
         _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt, 0, sz));
     }
 
+    void attachCollocatedObserver(Ice::Int requestId)
+    {
+        _remoteObserver.attach(_observer.getCollocatedObserver(requestId, 
+                                                               static_cast<Ice::Int>(_os.b.size() - 
+                                                                                     IceInternal::headerSize - 4)));
+    }
+
 private:
 
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
-    RequestHandler* _handler;
+    IceProxy::Ice::Object* _proxy;
     Ice::ConnectionI* _connection;
     bool _sent;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
 
     BasicStream _os;
 
-    InvocationObserver& _observer;
+    InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
 };
 

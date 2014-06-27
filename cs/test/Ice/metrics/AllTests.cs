@@ -386,7 +386,7 @@ public class AllTests : TestCommon.TestApp
             
         Write("testing metrics admin facet checkedCast... ");
         Flush();
-        Ice.ObjectPrx admin = communicator.getAdmin().ice_collocationOptimized(false);
+        Ice.ObjectPrx admin = communicator.getAdmin();
         Ice.PropertiesAdminPrx clientProps = Ice.PropertiesAdminPrxHelper.checkedCast(admin, "Properties");
         IceMX.MetricsAdminPrx clientMetrics = IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics");
         test(clientProps != null && clientMetrics != null);

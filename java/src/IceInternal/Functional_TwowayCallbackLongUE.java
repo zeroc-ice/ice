@@ -15,10 +15,10 @@ public abstract class Functional_TwowayCallbackLongUE
     public Functional_TwowayCallbackLongUE(
         Functional_LongCallback responseCb, 
         Functional_GenericCallback1<Ice.UserException> userExceptionCb, 
-        Functional_GenericCallback1<Ice.LocalException> localExceptionCb, 
+        Functional_GenericCallback1<Ice.Exception> exceptionCb, 
         Functional_BoolCallback sentCb)
     {
-        super(responseCb, localExceptionCb, sentCb);
+        super(responseCb, exceptionCb, sentCb);
         __userExceptionCb = userExceptionCb;
     }
 

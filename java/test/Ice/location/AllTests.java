@@ -611,6 +611,7 @@ public class AllTests
         out.flush();
         hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();
+        hello.ice_getConnection().close(false);
         hello.sayHello();
         obj.migrateHello();
         hello.sayHello();
@@ -678,18 +679,12 @@ public class AllTests
         registry.addObject(adapter.add(new HelloI(), id));
         adapter.activate();
 
-        try
-        {
-            // Note the quotes are necessary here due to ":" in the
-            // java generated UUID.
-            HelloPrx helloPrx = HelloPrxHelper.checkedCast(
-                communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
-            Ice.Connection connection = helloPrx.ice_getConnection();
-            test(false);
-        }
-        catch(Ice.CollocationOptimizationException ex)
-        {
-        }
+        // Note the quotes are necessary here due to ":" in the
+        // java generated UUID.
+        HelloPrx helloPrx = HelloPrxHelper.checkedCast(
+            communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
+        test(helloPrx.ice_getConnection() == null);
+
         adapter.deactivate();
         out.println("ok");
 

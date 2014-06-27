@@ -219,6 +219,18 @@ public:
         return remoteObserver;
     }
 
+    virtual Ice::Instrumentation::RemoteObserverPtr 
+    getCollocatedObserver(Ice::Int, Ice::Int)
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        if(!remoteObserver)
+        {
+            remoteObserver = new RemoteObserverI();
+            remoteObserver->reset();
+        }
+        return remoteObserver;
+    }
+
     Ice::Int userExceptionCount;
     Ice::Int retriedCount;
 

@@ -243,7 +243,7 @@ public class AsyncResult
         }
     }
 
-    public final void __invokeExceptionAsync(final LocalException ex)
+    public final void __invokeExceptionAsync(final Ice.Exception ex)
     {
         //
         // This is called when it's not safe to call the exception callback synchronously
@@ -252,7 +252,7 @@ public class AsyncResult
         //
         try
         {
-            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem(_instance)
+            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem()
                 {
                     public void
                     run()
@@ -267,7 +267,7 @@ public class AsyncResult
         }
     }
 
-    public final void __invokeException(LocalException ex)
+    public final void __invokeException(Ice.Exception ex)
     {
         synchronized(_monitor)
         {
@@ -342,6 +342,19 @@ public class AsyncResult
         }
     }
 
+    public void __attachCollocatedObserver(int requestId)
+    {
+        if(_observer != null)
+        {
+            _remoteObserver = _observer.getCollocatedObserver(requestId, 
+                                                              _os.size() - IceInternal.Protocol.headerSize - 4);
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.attach();
+            }
+        }
+    }
+
     public Ice.Instrumentation.InvocationObserver __getObserver()
     {
         return _observer;
@@ -356,7 +369,7 @@ public class AsyncResult
         //
         try
         {
-            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem(_instance)
+            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem()
                 {
                     public void
                     run()
@@ -476,7 +489,7 @@ public class AsyncResult
         {
             final IceInternal.RequestHandler h = handler;
             _instance.clientThreadPool().execute(
-                new IceInternal.DispatchWorkItem(_instance)
+                new IceInternal.DispatchWorkItem()
                 {
                     public void
                     run()
@@ -519,7 +532,7 @@ public class AsyncResult
 
     protected byte _state;
     protected boolean _sentSynchronously;
-    protected LocalException _exception;
+    protected Ice.Exception _exception;
 
     protected Ice.Instrumentation.InvocationObserver _observer;
     protected Ice.Instrumentation.RemoteObserver _remoteObserver;

@@ -103,6 +103,8 @@ namespace IceInternal
         //
         bool send__(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback sentCallback);
 
+        bool invokeCollocated__(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCallback);
+        
         //
         // Called by the connection when the message is confirmed sent. The connection is locked
         // when this is called so this method can call the sent callback. Instead, this method
@@ -122,7 +124,7 @@ namespace IceInternal
         // not the message was possibly sent (this is useful for retry to figure out whether
         // or not the request can't be retried without breaking at-most-once semantics.)
         //
-        void finished__(Ice.LocalException ex, bool sent);
+        void finished__(Ice.Exception ex, bool sent);
     }
 
     abstract public class OutgoingAsyncBase : Ice.AsyncResult
@@ -546,6 +548,19 @@ namespace IceInternal
             }
         }
 
+        virtual public void attachCollocatedObserver__(int requestId)
+        {
+            if(observer_ != null)
+            {
+                remoteObserver_ = observer_.getCollocatedObserver(requestId, 
+                                                                  os_.size() - IceInternal.Protocol.headerSize - 4);
+                if(remoteObserver_ != null)
+                {
+                    remoteObserver_.attach();
+                }
+            }
+        }
+
         public Ice.Instrumentation.InvocationObserver getObserver__()
         {
             return observer_;
@@ -812,7 +827,7 @@ namespace IceInternal
 
         protected int state_;
         protected bool sentSynchronously_;
-        protected Exception exception_;
+        protected Ice.Exception exception_;
         protected EventWaitHandle waitHandle_;
 
         protected Ice.Instrumentation.InvocationObserver observer_;
@@ -827,18 +842,17 @@ namespace IceInternal
 
     abstract public class OutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback, TimerTask
     {
-        public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
-            base(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).reference__().getInstance(), operation,
-                 cookie)
+        public OutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, object cookie) :
+            base(prx.ice_getCommunicator(), prx.reference__().getInstance(), operation, cookie)
         {
-            proxy_ = (Ice.ObjectPrxHelperBase)prx;
+            proxy_ = prx;
             _encoding = Protocol.getCompatibleEncoding(proxy_.reference__().getEncoding());
         }
 
         public void prepare__(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
                               bool explicitContext)
         {
-            _delegate = null;
+            _handler = null;
             _cnt = 0;
             _mode = mode;
             sentSynchronously_ = false;
@@ -920,6 +934,11 @@ namespace IceInternal
             return connection.sendAsyncRequest(this, compress, response, out sentCB);
         }
 
+        public bool invokeCollocated__(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCallback)
+        {
+            return handler.invokeAsyncRequest(this, out sentCallback);
+        }
+        
         public Ice.AsyncCallback sent__()
         {
             monitor_.Lock();
@@ -942,7 +961,7 @@ namespace IceInternal
                         timeoutRequestHandler_ = null;
                     }
                     state_ |= Done | OK;
-                    os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
+                    //_os.resize(0, false); // Don't clear the buffer now, it's needed for the collocation optimization
                     if(waitHandle_ != null)
                     {
                         waitHandle_.Set();
@@ -955,14 +974,14 @@ namespace IceInternal
             {
                 monitor_.Unlock();
             }
-    }
+        }
 
         public new void invokeSent__(Ice.AsyncCallback cb)
         {
             base.invokeSent__(cb);
         }
 
-        public void finished__(Ice.LocalException exc, bool sent)
+        public void finished__(Ice.Exception exc, bool sent)
         {
             monitor_.Lock();
             try
@@ -992,52 +1011,14 @@ namespace IceInternal
 
             try
             {
-                int interval = handleException(exc, sent); // This will throw if the invocation can't be retried.
-                if(interval > 0)
+                if(!handleException(exc, sent))
                 {
-                    instance_.retryQueue().add(this, interval);
+                    return; // Can't be retried immediately.
                 }
-                else
-                {
-                    invoke__(false);
-                }
+            
+                invoke__(false); // Retry the invocation
             }
-            catch(Ice.LocalException ex)
-            {
-                invokeException__(ex);
-            }
-        }
-
-        public void finished__(LocalExceptionWrapper exc)
-        {
-            //
-            // NOTE: at this point, synchronization isn't needed, no other threads should be
-            // calling on the callback. The LocalExceptionWrapper exception is only called
-            // before the invocation is sent.
-            //
-
-            if(remoteObserver_ != null)
-            {
-                remoteObserver_.failed(exc.get().ice_name());
-                remoteObserver_.detach();
-                remoteObserver_ = null;
-            }
-
-            Debug.Assert(timeoutRequestHandler_ == null);
-
-            try
-            {
-                int interval = handleException(exc); // This will throw if the invocation can't be retried.
-                if(interval > 0)
-                {
-                    instance_.retryQueue().add(this, interval);
-                }
-                else
-                {
-                    invoke__(false);
-                }
-            }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
                 invokeException__(ex);
             }
@@ -1221,13 +1202,11 @@ namespace IceInternal
         {
             while(true)
             {
-                int interval = 0;
                 try
                 {
-                    _delegate = proxy_.getDelegate__(true);
-                    RequestHandler handler = _delegate.getRequestHandler__();
+                    _handler = proxy_.getRequestHandler__(true);
                     Ice.AsyncCallback sentCallback;
-                    bool sent = handler.sendAsyncRequest(this, out sentCallback);
+                    bool sent = _handler.sendAsyncRequest(this, out sentCallback);
                     if(sent)
                     {
                         if(synchronous) // Only set sentSynchronously_ If called synchronously by the user thread.
@@ -1248,11 +1227,11 @@ namespace IceInternal
                         {
                             if((state_ & Done) == 0)
                             {
-                                int invocationTimeout = handler.getReference().getInvocationTimeout();
+                                int invocationTimeout = _handler.getReference().getInvocationTimeout();
                                 if(invocationTimeout > 0)
                                 {
                                     instance_.timer().schedule(this, invocationTimeout);
-                                    timeoutRequestHandler_ = handler;
+                                    timeoutRequestHandler_ = _handler;
                                 }
                             }
                         }
@@ -1263,19 +1242,16 @@ namespace IceInternal
                     }
                     break;
                 }
-                catch(LocalExceptionWrapper ex)
+                catch(RetryException)
                 {
-                    interval = handleException(ex);
+                    proxy_.setRequestHandler__(_handler, null); // Clear request handler and retry.
                 }
-                catch(Ice.LocalException ex)
+                catch(Ice.Exception ex)
                 {
-                    interval = handleException(ex, false);
-                }
-
-                if(interval > 0)
-                {
-                    instance_.retryQueue().add(this, interval);
-                    return false;
+                    if(!handleException(ex, false)) // This will throw if the invocation can't be retried.
+                    {
+                        break; // Can't be retried immediately.
+                    }
                 }
             }
             return sentSynchronously_;
@@ -1348,58 +1324,32 @@ namespace IceInternal
             runTimerTask__();
         }
         
-        private int handleException(LocalExceptionWrapper ex)
-        {
-            if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
-            {
-                return proxy_.handleExceptionWrapperRelaxed__(_delegate, ex, false, ref _cnt, observer_);
-            }
-            else
-            {
-                return proxy_.handleExceptionWrapper__(_delegate, ex, observer_);
-            }
-        }
-
-        private int handleException(Ice.LocalException exc, bool sent)
+        private bool handleException(Ice.Exception exc, bool sent)
         {
             try
             {
-                //
-                // A CloseConnectionException indicates graceful server shutdown, and is therefore
-                // always repeatable without violating "at-most-once". That's because by sending a
-                // close connection message, the server guarantees that all outstanding requests
-                // can safely be repeated.
-                //
-                // An ObjectNotExistException can always be retried as well without violating
-                // "at-most-once" (see the implementation of the checkRetryAfterException method of
-                // the ProxyFactory class for the reasons why it can be useful).
-                //
-                if(!sent || exc is Ice.CloseConnectionException || exc is Ice.ObjectNotExistException)
+                int interval = proxy_.handleException__(exc, _handler, _mode, sent, ref _cnt);
+                if(observer_ != null)
                 {
-                    throw exc;
+                    observer_.retried(); // Invocation is being retried.
                 }
-
-                //
-                // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the
-                // request cannot be resent without potentially violating the "at-most-once"
-                // principle.
-                //
-                throw new LocalExceptionWrapper(exc, false);
-            }
-            catch(LocalExceptionWrapper ex)
-            {
-                if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
+                if(interval > 0)
                 {
-                    return proxy_.handleExceptionWrapperRelaxed__(_delegate, ex, false, ref _cnt, observer_);
+                    instance_.retryQueue().add(this, interval);
+                    return false; // Don't retry immediately, the retry queue will take care of the retry.
                 }
                 else
                 {
-                    return proxy_.handleExceptionWrapper__(_delegate, ex, observer_);
+                    return true; // Retry immediately.
                 }
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.Exception ex)
             {
-                return proxy_.handleException__(_delegate, ex, false, ref _cnt, observer_);
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                }
+                throw ex;
             }
         }
 
@@ -1420,7 +1370,7 @@ namespace IceInternal
 
         protected Ice.ObjectPrxHelperBase proxy_;
 
-        private Ice.ObjectDel_ _delegate;
+        private RequestHandler _handler;
         private Ice.EncodingVersion _encoding;
         private int _cnt;
         private Ice.OperationMode _mode;
@@ -1430,7 +1380,7 @@ namespace IceInternal
 
     abstract public class OutgoingAsync<T> : OutgoingAsync, Ice.AsyncResult<T>
     {
-        public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
+        public OutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, object cookie) :
             base(prx, operation, cookie)
         {
         }
@@ -1525,7 +1475,8 @@ namespace IceInternal
 
     public class TwowayOutgoingAsync<T> : OutgoingAsync<T>
     {
-        public TwowayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyTwowayCallback<T> cb, object cookie) :
+        public TwowayOutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, ProxyTwowayCallback<T> cb, 
+                                   object cookie) :
             base(prx, operation, cookie)
         {
             Debug.Assert(cb != null);
@@ -1547,7 +1498,8 @@ namespace IceInternal
 
     public class OnewayOutgoingAsync<T> : OutgoingAsync<T>
     {
-        public OnewayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyOnewayCallback<T> cb, object cookie) :
+        public OnewayOutgoingAsync(Ice.ObjectPrxHelperBase prx, string operation, ProxyOnewayCallback<T> cb,
+                                   object cookie) :
             base(prx, operation, cookie)
         {
             Debug.Assert(cb != null);
@@ -1592,6 +1544,11 @@ namespace IceInternal
             return connection.flushAsyncBatchRequests(this, out sentCallback);
         }
         
+        public bool invokeCollocated__(CollocatedRequestHandler handler, out Ice.AsyncCallback sentCallback)
+        {
+            return handler.invokeAsyncBatchRequests(this, out sentCallback);
+        }
+        
         virtual public Ice.AsyncCallback sent__()
         {
             monitor_.Lock();
@@ -1599,7 +1556,7 @@ namespace IceInternal
             {
                 Debug.Assert((state_ & (Done | OK | Sent)) == 0);
                 state_ |= (Done | OK | Sent);
-                os_.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
+                //_os.resize(0, false); // Don't clear the buffer now, it's needed for the collocation optimization
                 if(remoteObserver_ != null)
                 {
                     remoteObserver_.detach();
@@ -1628,7 +1585,7 @@ namespace IceInternal
             base.invokeSent__(cb);
         }
 
-        virtual public void finished__(Ice.LocalException exc, bool sent)
+        virtual public void finished__(Ice.Exception exc, bool sent)
         {
             if(remoteObserver_ != null)
             {
@@ -1653,11 +1610,10 @@ namespace IceInternal
 
     public class ProxyBatchOutgoingAsync : BatchOutgoingAsync
     {
-        public ProxyBatchOutgoingAsync(Ice.ObjectPrx proxy, string operation, object cookie) :
-            base(proxy.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)proxy).reference__().getInstance(), operation,
-                 cookie)
+        public ProxyBatchOutgoingAsync(Ice.ObjectPrxHelperBase proxy, string operation, object cookie) :
+            base(proxy.ice_getCommunicator(), proxy.reference__().getInstance(), operation, cookie)
         {
-            _proxy = (Ice.ObjectPrxHelperBase)proxy;
+            _proxy = proxy;
             observer_ = ObserverHelper.get(proxy, operation);
         }
 
@@ -1665,17 +1621,12 @@ namespace IceInternal
         {
             Protocol.checkSupportedProtocol(_proxy.reference__().getProtocol());
 
-            //
-            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-            // requests were queued with the connection, they would be lost without being noticed.
-            //
-            Ice.ObjectDel_ @delegate = null;
-            int cnt = -1; // Don't retry.
+            RequestHandler handler = null;
             try
             {
-                @delegate = _proxy.getDelegate__(false);
+                handler = _proxy.getRequestHandler__(true);
                 Ice.AsyncCallback sentCallback;
-                if(@delegate.getRequestHandler__().sendAsyncRequest(this, out sentCallback))
+                if(handler.sendAsyncRequest(this, out sentCallback))
                 {
                     sentSynchronously_ = true;
                     if(sentCallback != null)
@@ -1683,10 +1634,44 @@ namespace IceInternal
                         invokeSent__(sentCallback);
                     }
                 }
+                else
+                {
+                    monitor_.Lock();
+                    try
+                    {
+                        if((state_ & Done) == 0)
+                        {
+                            int invocationTimeout = handler.getReference().getInvocationTimeout();
+                            if(invocationTimeout > 0)
+                            {
+                                instance_.timer().schedule(this, invocationTimeout);
+                                timeoutRequestHandler_ = handler;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        monitor_.Unlock();
+                    }
+                }
             }
-            catch(Ice.LocalException __ex)
+            catch(RetryException)
             {
-                _proxy.handleException__(@delegate, __ex, false, ref cnt, observer_);
+                //
+                // Clear request handler but don't retry or throw. Retrying
+                // isn't useful, there were no batch requests associated with
+                // the proxy's request handler.
+                //
+                _proxy.setRequestHandler__(handler, null);
+            }
+            catch(Ice.Exception ex)
+            {
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                }
+                _proxy.setRequestHandler__(handler, null); // Clear request handler
+                throw ex; // Throw to notify the user lthat batch requests were potentially lost.
             }
         }
 
@@ -1841,7 +1826,7 @@ namespace IceInternal
                 return null;
             }
 
-            override public void finished__(Ice.LocalException ex, bool sent)
+            override public void finished__(Ice.Exception ex, bool sent)
             {
                 if(remoteObserver_ != null)
                 {

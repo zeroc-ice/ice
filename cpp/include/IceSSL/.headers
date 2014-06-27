@@ -1,4 +1,5 @@
 SDK_HEADERS = \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Config.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionInfo.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointInfo.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceSSL.h \

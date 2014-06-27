@@ -1675,6 +1675,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing batch requests with proxy... " << flush;
     {
+        test(p->ice_batchOneway()->begin_ice_flushBatchRequests()->sentSynchronously());
+
         CookiePtr cookie = new Cookie(5);
 
         {
@@ -1709,36 +1711,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p->waitForBatch(2));
         }
 
+        if(p->ice_getConnection())
         {
-            //
-            // AsyncResult exception without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback();
-            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
-                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync));
-            cb->check();
-            test(!r->isSent());
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // AsyncResult exception without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback();
+                Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync));
+                cb->check();
+                test(!r->isSent());
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // AsyncResult exception with cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback(cookie);
-            b1->begin_ice_flushBatchRequests(
-                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync), cookie);
-            cb->check();
-            test(p->opBatchCount() == 0);
+            {
+                //
+                // AsyncResult exception with cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback(cookie);
+                b1->begin_ice_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync), cookie);
+                cb->check();
+                test(p->opBatchCount() == 0);
+            }
         }
 
         {
@@ -1775,38 +1780,41 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p->waitForBatch(2));
         }
 
+        if(p->ice_getConnection())
         {
-            //
-            // Exception without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback();
-            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
-                Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushExCallback::exception,
-                                                               &FlushExCallback::sent));
-            cb->check();
-            test(!r->isSent());
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
-
-        {
-            //
-            // Exception with cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback(cookie);
-            b1->begin_ice_flushBatchRequests(
-                Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushExCallback::exceptionWC,
+            {
+                //
+                // Exception without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback();
+                Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
+                    Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushExCallback::exception,
+                                                                   &FlushExCallback::sent));
+                cb->check();
+                test(!r->isSent());
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
+            
+            {
+                //
+                // Exception with cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback(cookie);
+                b1->begin_ice_flushBatchRequests(
+                    Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushExCallback::exceptionWC,
                                                                &FlushExCallback::sentWC), cookie);
-            cb->check();
-            test(p->opBatchCount() == 0);
+                cb->check();
+                test(p->opBatchCount() == 0);
+            }
         }
     }
     cout << "ok" << endl;
@@ -1831,6 +1839,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p->waitForBatch(2));
         }
 
+        if(p->ice_getConnection())
         {
             test(p->opBatchCount() == 0);
             Test::TestIntfPrx b1 = p->ice_batchOneway();
@@ -1848,566 +1857,572 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 #endif
-    cout << "testing batch requests with connection... " << flush;
+
+    if(p->ice_getConnection()) // No collocation optimization
     {
-        CookiePtr cookie = new Cookie(5);
-
+        cout << "testing batch requests with connection... " << flush;
         {
-            //
-            // AsyncResult without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
+            CookiePtr cookie = new Cookie(5);
 
-        {
-            //
-            // AsyncResult with cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback(cookie);
-            b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
-            cb->check();
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // AsyncResult without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // AsyncResult exception without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback();
-            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync));
-            cb->check();
-            test(!r->isSent());
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // AsyncResult with cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback(cookie);
+                b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+                cb->check();
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // AsyncResult exception with cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback(cookie);
-            b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync), cookie);
-            cb->check();
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // AsyncResult exception without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback();
+                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync));
+                cb->check();
+                test(!r->isSent());
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // Without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // AsyncResult exception with cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback(cookie);
+                b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync), cookie);
+                cb->check();
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // With cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback(cookie);
-            b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushCallback::exceptionWC,
-                                                               &FlushCallback::sentWC), cookie);
-            cb->check();
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // Without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback_Connection_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // Exception without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback();
-            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushExCallback::exception,
-                                                               &FlushExCallback::sent));
-            cb->check();
-            test(!r->isSent());
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // With cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback(cookie);
+                b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback_Connection_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                                                                   &FlushCallback::sentWC), cookie);
+                cb->check();
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // Exception with cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback(cookie);
-            b1->ice_getConnection()->begin_flushBatchRequests(
-                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushExCallback::exceptionWC,
-                                                               &FlushExCallback::sentWC), cookie);
-            cb->check();
-            test(p->opBatchCount() == 0);
+            {
+                //
+                // Exception without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback();
+                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback_Connection_flushBatchRequests(cb, &FlushExCallback::exception,
+                                                                   &FlushExCallback::sent));
+                cb->check();
+                test(!r->isSent());
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
+
+            {
+                //
+                // Exception with cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback(cookie);
+                b1->ice_getConnection()->begin_flushBatchRequests(
+                    Ice::newCallback_Connection_flushBatchRequests(cb, &FlushExCallback::exceptionWC,
+                                                                   &FlushExCallback::sentWC), cookie);
+                cb->check();
+                test(p->opBatchCount() == 0);
+            }
         }
-    }
-    cout << "ok" << endl;
+        cout << "ok" << endl;
     
 #ifdef ICE_CPP11
-    cout << "testing C++11 batch requests with connection... " << flush;
-    {
+        cout << "testing C++11 batch requests with connection... " << flush;
         {
-            //
-            // Without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
+            if(p->ice_getConnection())
+            {
+                //
+                // Without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // Exception without cookie.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushExCallbackPtr cb = new FlushExCallback();
-            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(!r->isSent());
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
+            if(p->ice_getConnection())
+            {
+                //
+                // Exception without cookie.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushExCallbackPtr cb = new FlushExCallback();
+                Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(!r->isSent());
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
         }
-    }
-    cout << "ok" << endl;
+        cout << "ok" << endl;
 #endif
 
-    cout << "testing batch requests with communicator... " << flush;
-    {
-        CookiePtr cookie = new Cookie(5);
-
+        cout << "testing batch requests with communicator... " << flush;
         {
-            //
-            // AsyncResult without cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
+            CookiePtr cookie = new Cookie(5);
 
-        {
-            //
-            // AsyncResult with cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback(cookie);
-            communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
-            cb->check();
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // AsyncResult without cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // AsyncResult exception without cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // AsyncResult with cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback(cookie);
+                communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+                cb->check();
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // AsyncResult exception with cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback(cookie);
-            communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
-            cb->check();
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // AsyncResult exception without cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // AsyncResult - 2 connections.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b1->opBatch();
-            b2->opBatch();
-            b2->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(4));
-        }
+            {
+                //
+                // AsyncResult exception with cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback(cookie);
+                communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+                cb->check();
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // AsyncResult exception - 2 connections - 1 failure.
-            //
-            // All connections should be flushed even if there are failures on some connections.
-            // Exceptions should not be reported.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b2->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->waitForBatch(1));
-        }
+            {
+                //
+                // AsyncResult - 2 connections.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b1->opBatch();
+                b2->opBatch();
+                b2->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(4));
+            }
 
-        {
-            //
-            // AsyncResult exception - 2 connections - 2 failures.
-            //
-            // The sent callback should be invoked even if all connections fail.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b2->opBatch();
-            b1->ice_getConnection()->close(false);
-            b2->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // AsyncResult exception - 2 connections - 1 failure.
+                //
+                // All connections should be flushed even if there are failures on some connections.
+                // Exceptions should not be reported.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b2->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->waitForBatch(1));
+            }
 
-        {
-            //
-            // Without cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // AsyncResult exception - 2 connections - 2 failures.
+                //
+                // The sent callback should be invoked even if all connections fail.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b2->opBatch();
+                b1->ice_getConnection()->close(false);
+                b2->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // With cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback(cookie);
-            communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exceptionWC,
-                    &FlushCallback::sentWC), cookie);
-            cb->check();
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // Without cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // Exception without cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // With cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback(cookie);
+                communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                                                                     &FlushCallback::sentWC), cookie);
+                cb->check();
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // Exception with cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback(cookie);
-            communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exceptionWC,
-                    &FlushCallback::sentWC), cookie);
-            cb->check();
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // Exception without cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // 2 connections.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b1->opBatch();
-            b2->opBatch();
-            b2->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(4));
-        }
+            {
+                //
+                // Exception with cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback(cookie);
+                communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                                                                     &FlushCallback::sentWC), cookie);
+                cb->check();
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // Exception - 2 connections - 1 failure.
-            //
-            // All connections should be flushed even if there are failures on some connections.
-            // Exceptions should not be reported.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b2->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->waitForBatch(1));
-        }
+            {
+                //
+                // 2 connections.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b1->opBatch();
+                b2->opBatch();
+                b2->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(4));
+            }
 
-        {
-            //
-            // Exception - 2 connections - 2 failures.
-            //
-            // The sent callback should be invoked even if all connections fail.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b2->opBatch();
-            b1->ice_getConnection()->close(false);
-            b2->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
+            {
+                //
+                // Exception - 2 connections - 1 failure.
+                //
+                // All connections should be flushed even if there are failures on some connections.
+                // Exceptions should not be reported.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b2->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->waitForBatch(1));
+            }
+
+            {
+                //
+                // Exception - 2 connections - 2 failures.
+                //
+                // The sent callback should be invoked even if all connections fail.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b2->opBatch();
+                b1->ice_getConnection()->close(false);
+                b2->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
         }
-    }
-    cout << "ok" << endl;
+        cout << "ok" << endl;
 
 #ifdef ICE_CPP11
-    cout << "testing C++11 batch requests with communicator... " << flush;
-    {
+        cout << "testing C++11 batch requests with communicator... " << flush;
         {
-            //
-            // Without cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(2));
-        }
+            {
+                //
+                // Without cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(2));
+            }
 
-        {
-            //
-            // Exception without cookie - 1 connection.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            b1->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
-        }
+            {
+                //
+                // Exception without cookie - 1 connection.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                b1->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
 
-        {
-            //
-            // 2 connections.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b1->opBatch();
-            b2->opBatch();
-            b2->opBatch();
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent());
-            test(r->isCompleted());
-            test(p->waitForBatch(4));
-        }
+            {
+                //
+                // 2 connections.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b1->opBatch();
+                b2->opBatch();
+                b2->opBatch();
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(r->isSent());
+                test(r->isCompleted());
+                test(p->waitForBatch(4));
+            }
 
-        {
-            //
-            // Exception - 2 connections - 1 failure.
-            //
-            // All connections should be flushed even if there are failures on some connections.
-            // Exceptions should not be reported.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b2->opBatch();
-            b1->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->waitForBatch(1));
-        }
+            {
+                //
+                // Exception - 2 connections - 1 failure.
+                //
+                // All connections should be flushed even if there are failures on some connections.
+                // Exceptions should not be reported.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b2->opBatch();
+                b1->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->waitForBatch(1));
+            }
 
-        {
-            //
-            // Exception - 2 connections - 2 failures.
-            //
-            // The sent callback should be invoked even if all connections fail.
-            //
-            test(p->opBatchCount() == 0);
-            Test::TestIntfPrx b1 = p->ice_batchOneway();
-            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
-            b2->ice_getConnection(); // Ensure connection is established.
-            b1->opBatch();
-            b2->opBatch();
-            b1->ice_getConnection()->close(false);
-            b2->ice_getConnection()->close(false);
-            FlushCallbackPtr cb = new FlushCallback();
-            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
-                [=](const Ice::Exception& ex){ cb->exception(ex);},
-                [=](bool sent){ cb->sent(sent); });
-            cb->check();
-            test(r->isSent()); // Exceptions are ignored!
-            test(r->isCompleted());
-            test(p->opBatchCount() == 0);
+            {
+                //
+                // Exception - 2 connections - 2 failures.
+                //
+                // The sent callback should be invoked even if all connections fail.
+                //
+                test(p->opBatchCount() == 0);
+                Test::TestIntfPrx b1 = p->ice_batchOneway();
+                Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+                b2->ice_getConnection(); // Ensure connection is established.
+                b1->opBatch();
+                b2->opBatch();
+                b1->ice_getConnection()->close(false);
+                b2->ice_getConnection()->close(false);
+                FlushCallbackPtr cb = new FlushCallback();
+                Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                    [=](const Ice::Exception& ex){ cb->exception(ex);},
+                    [=](bool sent){ cb->sent(sent); });
+                cb->check();
+                test(r->isSent()); // Exceptions are ignored!
+                test(r->isCompleted());
+                test(p->opBatchCount() == 0);
+            }
         }
-    }
-    cout << "ok" << endl;
+        cout << "ok" << endl;
 #endif
+    }
     cout << "testing AsyncResult operations... " << flush;
     {
         {
@@ -2445,10 +2460,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(r1->getHash() != r2->getHash());
                 test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
 
-                test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
-                     (!r1->sentSynchronously() && !r1->isCompleted()));
-
-                test(!r2->sentSynchronously() && !r2->isCompleted());
+                if(p->ice_getConnection())
+                {
+                    test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
+                         (!r1->sentSynchronously() && !r1->isCompleted()));
+                    
+                    test(!r2->sentSynchronously() && !r2->isCompleted());
+                }
             }
             catch(...)
             {
@@ -2509,91 +2527,96 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(r->getProxy() == p2);
             p2->end_ice_flushBatchRequests(r);
 
-            //
-            // Batch request via connection
-            //
-            Ice::ConnectionPtr con = p->ice_getConnection();
-            p2 = p->ice_batchOneway();
-            p2->ice_ping();
-            r = con->begin_flushBatchRequests();
-            test(r->getConnection() == con);
-            test(r->getCommunicator() == communicator);
-            test(!r->getProxy()); // Expected
-            con->end_flushBatchRequests(r);
+            if(p->ice_getConnection())
+            {
+                //
+                // Batch request via connection
+                //
+                Ice::ConnectionPtr con = p->ice_getConnection();
+                p2 = p->ice_batchOneway();
+                p2->ice_ping();
+                r = con->begin_flushBatchRequests();
+                test(r->getConnection() == con);
+                test(r->getCommunicator() == communicator);
+                test(!r->getProxy()); // Expected
+                con->end_flushBatchRequests(r);
 
-            //
-            // Batch request via communicator
-            //
-            p2 = p->ice_batchOneway();
-            p2->ice_ping();
-            r = communicator->begin_flushBatchRequests();
-            test(!r->getConnection()); // Expected
-            test(r->getCommunicator() == communicator);
-            test(!r->getProxy()); // Expected
-            communicator->end_flushBatchRequests(r);
+                //
+                // Batch request via communicator
+                //
+                p2 = p->ice_batchOneway();
+                p2->ice_ping();
+                r = communicator->begin_flushBatchRequests();
+                test(!r->getConnection()); // Expected
+                test(r->getCommunicator() == communicator);
+                test(!r->getProxy()); // Expected
+                communicator->end_flushBatchRequests(r);
+            }
         }
     }
     cout << "ok" << endl;
 
-    cout << "testing close connection with sending queue... " << flush;
+    if(p->ice_getConnection())
     {
-        Ice::ByteSeq seq;
-        seq.resize(1024 * 10); // Make sure the request doesn't compress too well.
-        for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+        cout << "testing close connection with sending queue... " << flush;
         {
-            *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-        }
-
-        //
-        // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
-        // The goal is to make sure that none of the opWithPayload fail even if the server closes 
-        // the connection gracefully in between.
-        // 
-        int maxQueue = 2;
-        bool done = false;
-        while(!done && maxQueue < 50)
-        {
-            done = true;
-            p->ice_ping();
-            vector<Ice::AsyncResultPtr> results;
-            for(int i = 0; i < maxQueue; ++i)
+            Ice::ByteSeq seq;
+            seq.resize(1024 * 10); // Make sure the request doesn't compress too well.
+            for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
             {
-                results.push_back(p->begin_opWithPayload(seq));
+                *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
             }
-            if(!p->begin_close(false)->isSent())
+
+            //
+            // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+            // The goal is to make sure that none of the opWithPayload fail even if the server closes 
+            // the connection gracefully in between.
+            // 
+            int maxQueue = 2;
+            bool done = false;
+            while(!done && maxQueue < 50)
             {
-                for(int i = 0; i < maxQueue; i++)
+                done = true;
+                p->ice_ping();
+                vector<Ice::AsyncResultPtr> results;
+                for(int i = 0; i < maxQueue; ++i)
                 {
-                    Ice::AsyncResultPtr r = p->begin_opWithPayload(seq);
-                    results.push_back(r);
-                    if(r->isSent())
+                    results.push_back(p->begin_opWithPayload(seq));
+                }
+                if(!p->begin_close(false)->isSent())
+                {
+                    for(int i = 0; i < maxQueue; i++)
                     {
-                        done = false;
-                        maxQueue *= 2;
-                        break;
+                        Ice::AsyncResultPtr r = p->begin_opWithPayload(seq);
+                        results.push_back(r);
+                        if(r->isSent())
+                        {
+                            done = false;
+                            maxQueue *= 2;
+                            break;
+                        }
+                    }
+                }
+                else 
+                {
+                    maxQueue *= 2;
+                    done = false;
+                }
+                for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+                {
+                    (*p)->waitForCompleted();
+                    try
+                    {
+                        (*p)->throwLocalException();
+                    }
+                    catch(const Ice::LocalException&)
+                    {
+                        test(false);
                     }
                 }
             }
-            else 
-            {
-                maxQueue *= 2;
-                done = false;
-            }
-            for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
-            {
-                (*p)->waitForCompleted();
-                try
-                {
-                    (*p)->throwLocalException();
-                }
-                catch(const Ice::LocalException&)
-                {
-                    test(false);
-                }
-            }
         }
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
-
     p->shutdown();
 }

@@ -55,7 +55,6 @@ class ICE_API Request
 public:
 
     virtual ~Request() {}
-    virtual bool isCollocated() = 0;
     virtual const Current& getCurrent() = 0;
 };
 
@@ -93,7 +92,6 @@ public:
 
     virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
-    virtual DispatchStatus __collocDispatch(IceInternal::Direct&);
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);

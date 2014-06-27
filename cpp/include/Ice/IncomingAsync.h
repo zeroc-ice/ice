@@ -64,7 +64,7 @@ private:
     // We need a separate ConnectionIPtr, because IncomingBase only
     // holds a ConnectionI* for optimization.
     //
-    const Ice::ConnectionIPtr _connectionCopy;
+    const ResponseHandlerPtr _responseHandlerCopy;
 
     const bool _retriable;
     bool _active;

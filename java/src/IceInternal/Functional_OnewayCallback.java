@@ -12,11 +12,11 @@ package IceInternal;
 public class Functional_OnewayCallback extends IceInternal.Functional_CallbackBase
 {
     public Functional_OnewayCallback(Functional_VoidCallback responseCb, 
-                                     Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                     Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                      Functional_BoolCallback sentCb)
     {
-        super(localExceptionCb, sentCb);
-        CallbackBase.check(responseCb != null || localExceptionCb != null);
+        super(exceptionCb, sentCb);
+        CallbackBase.check(responseCb != null || exceptionCb != null);
         __responseCb = responseCb;
     }
 
@@ -30,11 +30,11 @@ public class Functional_OnewayCallback extends IceInternal.Functional_CallbackBa
                 __responseCb.apply();
             }
         }
-        catch(Ice.LocalException __ex)
+        catch(Ice.Exception __ex)
         {
-            if(__localExceptionCb != null)
+            if(__exceptionCb != null)
             {
-                __localExceptionCb.apply(__ex);
+                __exceptionCb.apply(__ex);
             }
         }
     }

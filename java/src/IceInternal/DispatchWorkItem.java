@@ -17,14 +17,10 @@ package IceInternal;
 //
 abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
 {
-    public DispatchWorkItem(Instance instance)
-    {
-        _instance = instance;
-    }
-    
     final public void execute(ThreadPoolCurrent current)
     {
-        Ice.Dispatcher dispatcher = _instance.initializationData().dispatcher;
+        Instance instance = current.stream.instance();
+        Ice.Dispatcher dispatcher = instance.initializationData().dispatcher;
         if(dispatcher != null)
         {
             try
@@ -33,13 +29,13 @@ abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
             }
             catch(java.lang.Exception ex)
             {
-                if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     ex.printStackTrace(pw);
                     pw.flush();
-                    _instance.initializationData().logger.warning("dispatch exception:\n" + sw.toString());
+                    instance.initializationData().logger.warning("dispatch exception:\n" + sw.toString());
                 }
             }
         }
@@ -49,6 +45,4 @@ abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
             this.run();
         }
     }
-
-    private Instance _instance;
 }

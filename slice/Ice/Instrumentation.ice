@@ -240,6 +240,24 @@ local interface RemoteObserver extends Observer
 
 /**
  *
+ * The collocated invocation observer to instrument invocations that
+ * are collocated
+ *
+ **/
+local interface CollocatedObserver extends Observer
+{
+    /**
+     *
+     * Reply notification.
+     *
+     * @param size The size of the reply.
+     *
+     **/
+    void reply(int size);
+};
+
+/**
+ *
  * The invocation observer to instrument invocations on proxies. A
  * proxy invocation can either result in a collocated or remote
  * invocation. If it results in a remote invocation, a sub-observer is
@@ -278,6 +296,19 @@ local interface InvocationObserver extends Observer
      *
      **/
     RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint endpt, int requestId, int size);
+
+    /**
+     *
+     * Get a collocated observer for this invocation.
+     *
+     * @param requestId The ID of the invocation.
+     *
+     * @param size The size of the invocation.
+     *
+     * @return The observer to instrument the collocated invocation.
+     *
+     **/
+    RemoteObserver getCollocatedObserver(int requestId, int size);
 };
 
 /**

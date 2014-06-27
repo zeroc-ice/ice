@@ -9,10 +9,11 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe server.exe
+TARGETS		= client.exe server.exe collocated.exe
 
 C_SRCS		= AllTests.cs Client.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= Server.cs TestI.cs
+COL_SRCS	= AllTests.cs Collocated.cs ..\..\TestCommon\TestApp.cs TestI.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 
@@ -31,5 +32,8 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(S_SRCS) $(GEN_SRCS)
+
+collocated.exe: $(COL_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(COL_SRCS) $(GEN_SRCS)
 
 !include .depend.mak

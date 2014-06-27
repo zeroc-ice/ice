@@ -15,22 +15,12 @@ public class PluginI implements Ice.Plugin
     PluginI(Ice.Communicator communicator)
     {
         _communicator = communicator;
-
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = communicator.getProperties()._clone();
-        initData.properties.setProperty("Ice.Default.CollocationOptimized", "0");
-        java.util.Map<String, String> props = initData.properties.getPropertiesForPrefix("Ice.Plugin.");
-        for(String key : props.keySet())
-        {
-            initData.properties.setProperty(key, "");
-        }
-        _pluginCommunicator = Ice.Util.initialize(initData);
     }
 
     public void
     initialize()
     {
-        Ice.Properties properties = _pluginCommunicator.getProperties();
+        Ice.Properties properties = _communicator.getProperties();
 
         boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
         String address;
@@ -67,19 +57,19 @@ public class PluginI implements Ice.Plugin
         }
         if(properties.getProperty("IceDiscovery.Locator.Endpoints").isEmpty())
         {
-            properties.setProperty("IceDiscovery.Locator.Endpoints", "tcp -h 127.0.0.1");
+            properties.setProperty("IceDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
         }
 
-        Ice.ObjectAdapter multicastAdapter = _pluginCommunicator.createObjectAdapter("IceDiscovery.Multicast");
-        Ice.ObjectAdapter replyAdapter = _pluginCommunicator.createObjectAdapter("IceDiscovery.Reply");
-        Ice.ObjectAdapter locatorAdapter = _pluginCommunicator.createObjectAdapter("IceDiscovery.Locator");
+        _multicastAdapter = _communicator.createObjectAdapter("IceDiscovery.Multicast");
+        _replyAdapter = _communicator.createObjectAdapter("IceDiscovery.Reply");
+        _locatorAdapter = _communicator.createObjectAdapter("IceDiscovery.Locator");
 
         //
         // Setup locatory registry.
         //
         LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
         Ice.LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
-            locatorAdapter.addWithUUID(locatorRegistry));
+            _locatorAdapter.addWithUUID(locatorRegistry));
 
         String lookupEndpoints = properties.getProperty("IceDiscovery.Lookup");
         if(lookupEndpoints.isEmpty())
@@ -93,36 +83,40 @@ public class PluginI implements Ice.Plugin
             lookupEndpoints = s.toString();
         }
 
-        Ice.ObjectPrx lookupPrx = _pluginCommunicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
-        lookupPrx = lookupPrx.ice_collocationOptimized(false);
+        Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
+        lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
 
         //
         // Add lookup and lookup reply Ice objects
         //
         LookupI lookup = new LookupI(locatorRegistry, LookupPrxHelper.uncheckedCast(lookupPrx), properties);
-        multicastAdapter.add(lookup, _pluginCommunicator.stringToIdentity("IceDiscovery/Lookup"));
+        _multicastAdapter.add(lookup, _communicator.stringToIdentity("IceDiscovery/Lookup"));
 
-        Ice.ObjectPrx lookupReply = replyAdapter.addWithUUID(new LookupReplyI(lookup)).ice_datagram();
+        Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(lookup)).ice_datagram();
         lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
 
         //
         // Setup locator on the communicator.
         //
-        Ice.ObjectPrx locator = locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
+        Ice.ObjectPrx locator = _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
         _communicator.setDefaultLocator(
             Ice.LocatorPrxHelper.uncheckedCast(_communicator.stringToProxy(locator.toString())));
     
-        multicastAdapter.activate();
-        replyAdapter.activate();
-        locatorAdapter.activate();
+        _multicastAdapter.activate();
+        _replyAdapter.activate();
+        _locatorAdapter.activate();
     }
 
     public void
     destroy()
     {
-        _pluginCommunicator.destroy();
+        _multicastAdapter.destroy();
+        _replyAdapter.destroy();
+        _locatorAdapter.destroy();
     }
 
     private Ice.Communicator _communicator;
-    private Ice.Communicator _pluginCommunicator;
+    private Ice.ObjectAdapter _multicastAdapter;
+    private Ice.ObjectAdapter _replyAdapter;
+    private Ice.ObjectAdapter _locatorAdapter;
 }

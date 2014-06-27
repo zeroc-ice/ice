@@ -19,7 +19,9 @@ public interface OutgoingAsyncMessageCallback
     // Called by the request handler to send the request over the connection.
     //
     int __send(Ice.ConnectionI conection, boolean compress, boolean response)
-        throws LocalExceptionWrapper;
+        throws RetryException;
+
+    int __invokeCollocated(CollocatedRequestHandler handler);
 
     //
     // Called by the connection when the message is confirmed sent. The connection is locked
@@ -40,5 +42,5 @@ public interface OutgoingAsyncMessageCallback
     // not the message was possibly sent (this is useful for retry to figure out whether
     // or not the request can't be retried without breaking at-most-once semantics.)
     //
-    public abstract void __finished(Ice.LocalException ex, boolean sent);
+    public abstract void __finished(Ice.Exception ex, boolean sent);
 }

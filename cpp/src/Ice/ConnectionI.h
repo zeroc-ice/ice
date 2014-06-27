@@ -30,6 +30,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/ResponseHandler.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/ConnectionAsync.h>
@@ -52,7 +53,10 @@ namespace Ice
 
 class LocalException;
 
-class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
+class ConnectionI : public Connection, 
+                    public IceInternal::EventHandler, 
+                    public IceInternal::ResponseHandler,
+                    public IceUtil::Monitor<IceUtil::Mutex>
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {
@@ -103,7 +107,7 @@ public:
         }
 
         void adopt(IceInternal::BasicStream*);
-        void timedOut();
+        bool timedOut(bool);
         bool sent();
         void finished(const Ice::LocalException&);
 
@@ -189,8 +193,8 @@ public:
     void requestTimedOut(IceInternal::OutgoingMessageCallback*);
     void asyncRequestTimedOut(const IceInternal::OutgoingAsyncMessageCallbackPtr&);
 
-    void sendResponse(IceInternal::BasicStream*, Byte);
-    void sendNoResponse();
+    virtual void sendResponse(Int, IceInternal::BasicStream*, Byte);
+    virtual void sendNoResponse();
 
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
@@ -220,8 +224,8 @@ public:
     virtual ConnectionInfoPtr getInfo() const; // From Connection
 
     void exception(const LocalException&);
-    void invokeException(const LocalException&, int);
-
+    virtual void invokeException(Ice::Int, const LocalException&, int);
+    
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, const IceInternal::OutgoingAsyncPtr&, 
                   const ConnectionCallbackPtr&, IceInternal::BasicStream&);

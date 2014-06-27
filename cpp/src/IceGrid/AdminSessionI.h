@@ -65,8 +65,8 @@ public:
 
 private:
 
-    void setupObserverSubscription(TopicName, const Ice::ObjectPrx&);
-    Ice::ObjectPrx toProxy(const Ice::Identity&, const Ice::ConnectionPtr&, const Ice::EncodingVersion&);
+    void setupObserverSubscription(TopicName, const Ice::ObjectPrx&, bool = false);
+    Ice::ObjectPrx addForwarder(const Ice::Identity&, const Ice::Current&);
     FileIteratorPrx addFileIterator(const FileReaderPrx&, const std::string&, int, const Ice::Current&);
 
     virtual void destroyImpl(bool);
@@ -74,7 +74,7 @@ private:
     const int _timeout;
     const std::string _replicaName;
     AdminPrx _admin;
-    std::map<TopicName, Ice::ObjectPrx> _observers;
+    std::map<TopicName, std::pair<Ice::ObjectPrx, bool> > _observers;
     RegistryIPtr _registry;
     Ice::ObjectPrx _adminCallbackTemplate;
 };

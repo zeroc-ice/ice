@@ -380,8 +380,6 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             H << "\n#include <Ice/IncomingAsync.h>";
         }
-        H << "\n#include <Ice/Direct.h>";
-
         C << "\n#include <Ice/LocalException.h>";
         C << "\n#include <Ice/ObjectFactory.h>";
     }
@@ -512,15 +510,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     ProxyVisitor proxyVisitor(H, C, _dllExport);
     p->visit(&proxyVisitor, false);
-
-    DelegateVisitor delegateVisitor(H, C, _dllExport);
-    p->visit(&delegateVisitor, false);
-
-    DelegateMVisitor delegateMVisitor(H, C, _dllExport);
-    p->visit(&delegateMVisitor, false);
-
-    DelegateDVisitor delegateDVisitor(H, C, _dllExport);
-    p->visit(&delegateDVisitor, false);
 
     ObjectVisitor objectVisitor(H, C, _dllExport, _stream);
     p->visit(&objectVisitor, false);
@@ -1650,8 +1639,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.dec();
     H << sp << nl << "private: ";
     H.inc();
-    H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
-    H << nl << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
     H << nl << "virtual ::IceProxy::Ice::Object* __newInstance() const;";
     H << eb << ';';
 
@@ -1661,16 +1648,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "return "<< scoped << "::ice_staticId();";
     C << eb;
 
-    C << sp << nl << "::IceInternal::Handle< ::IceDelegateM::Ice::Object>";
-    C << nl << "IceProxy" << scoped << "::__createDelegateM()";
-    C << sb;
-    C << nl << "return ::IceInternal::Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM" << scoped << ");";
-    C << eb;
-    C << sp << nl << "::IceInternal::Handle< ::IceDelegateD::Ice::Object>";
-    C << nl << "IceProxy" << scoped << "::__createDelegateD()";
-    C << sb;
-    C << nl << "return ::IceInternal::Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD" << scoped << ");";
-    C << eb;
     C << sp << nl << "::IceProxy::Ice::Object*";
     C << nl << "IceProxy" << scoped << "::__newInstance() const";
     C << sb;
@@ -1716,6 +1693,7 @@ void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
+    string flatName = p->flattenedScope() + p->name() + "_name";
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
 
@@ -2173,56 +2151,119 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     
     C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
     C << sb;
-    C << nl << "::IceInternal::InvocationObserver __observer(this, " << p->flattenedScope() << p->name() 
-      << "_name, __ctx);";
-    C << nl << "int __cnt = 0;";
-    C << nl << "while(true)";
-    C << sb;
-    C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;";
-    C << nl << "try";
-    C << sb;
-
     if(p->returnsData())
     {
-        C << nl << "__checkTwowayOnly(" << p->flattenedScope() + p->name() + "_name);";
+        C << nl << "__checkTwowayOnly(" << flatName << ");";
     }
-    C << nl << "__delBase = __getDelegate(false);";
-    C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
-      << thisPointer << ">(__delBase.get());";
-    C << nl;
-    if(ret)
+    C << nl << "::IceInternal::Outgoing __og(this, " << flatName << ", " << operationModeToString(p->sendMode()) 
+      << ", __ctx);";
+    if(inParams.empty())
     {
-        C << "return ";
-    }
-    C << "__del->" << fixKwd(name) << spar << args << "__ctx" << "__observer" << epar << ';';
-    if(!ret)
-    {
-        C << nl << "return;";
-    }
-    C << eb;
-    C << nl << "catch(const ::IceInternal::LocalExceptionWrapper& __ex)";
-    C << sb;
-    if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
-    {
-        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, true, __cnt, __observer);";
+        C << nl << "__og.writeEmptyParams();";
     }
     else
     {
-        C << nl << "__handleExceptionWrapper(__delBase, __ex, __observer);";
+        C << nl << "try";
+        C << sb;
+        C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
+        writeMarshalCode(C, inParams, 0, TypeContextInParam);
+        if(p->sendsClasses(false))
+        {
+            C << nl << "__os->writePendingObjects();";
+        }
+        C << nl << "__og.endWriteParams();";
+        C << eb;
+        C << nl << "catch(const ::Ice::LocalException& __ex)";
+        C << sb;
+        C << nl << "__og.abort(__ex);";
+        C << eb;
     }
-    C << eb;
-    C << nl << "catch(const ::Ice::LocalException& __ex)";
-    C << sb;
-    C << nl << "__handleException(__delBase, __ex, true, __cnt, __observer);";
-    C << eb;
-    C << eb;
+
+    if(!p->returnsData())
+    {
+        C << nl << "__invoke(__og);"; // Use helpers for methods that don't return data.
+    }
+    else
+    {
+        C << nl << "if(!__og.invoke())";
+        C << sb;
+        C << nl << "try";
+        C << sb;
+        C << nl << "__og.throwUserException();";
+        C << eb;
+    
+        //
+        // Generate a catch block for each legal user exception. This is necessary
+        // to prevent an "impossible" user exception to be thrown if client and
+        // and server use different exception specifications for an operation. For
+        // example:
+        //
+        // Client compiled with:
+        // exception A {};
+        // exception B {};
+        // interface I {
+        //     void op() throws A;
+        // };
+        //
+        // Server compiled with:
+        // exception A {};
+        // exception B {};
+        // interface I {
+        //     void op() throws B; // Differs from client
+        // };
+        //
+        // We need the catch blocks so, if the server throws B from op(), the
+        // client receives UnknownUserException instead of B.
+        //
+        ExceptionList throws = p->throws();
+        throws.sort();
+        throws.unique();
+#if defined(__SUNPRO_CC)
+        throws.sort(derivedToBaseCompare);
+#else
+        throws.sort(Slice::DerivedToBaseCompare());
+#endif
+        for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+        {
+            C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
+            C << sb;
+            C << nl << "throw;";
+            C << eb;
+        }
+        C << nl << "catch(const ::Ice::UserException& __ex)";
+        C << sb;
+        //
+        // COMPILERFIX: Don't throw UnknownUserException directly. This is causing access
+        // violation errors with Visual C++ 64bits optimized builds. See bug #2962.
+        //
+        C << nl << "::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());";
+        C << nl << "throw __uue;";
+        C << eb;
+        C << eb;
+
+        if(ret || !outParams.empty())
+        {
+            writeAllocateCode(C, ParamDeclList(), p, _useWstring);
+            C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
+            writeUnmarshalCode(C, outParams, p);
+            if(p->returnsClasses(false))
+            {
+                C << nl << "__is->readPendingObjects();";
+            }
+            C << nl << "__og.endReadParams();";
+        }
+
+        if(ret)
+        {
+            C << nl << "return __ret;";
+        }
+    }
     C << eb;
 
     C << sp << nl << "::Ice::AsyncResultPtr" << nl << "IceProxy" << scope << "begin_" << name << spar << paramsDeclAMI
       << "const ::Ice::Context* __ctx" << "const ::IceInternal::CallbackBasePtr& __del"
       << "const ::Ice::LocalObjectPtr& __cookie" << epar;
     C << sb;
-    string flatName = p->flattenedScope() + name + "_name";
     if(p->returnsData())
     {
         C << nl << "__checkAsyncTwowayOnly(" << flatName <<  ");";
@@ -2248,7 +2289,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     C << nl << "__result->__invoke(true);";
     C << eb;
-    C << nl << "catch(const ::Ice::LocalException& __ex)";
+    C << nl << "catch(const ::Ice::Exception& __ex)";
     C << sb;
     C << nl << "__result->__invokeExceptionAsync(__ex);";
     C << eb;
@@ -2269,10 +2310,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // and Windows 64 bits when compiled with optimization (see bug 4400).
         //
         writeAllocateCode(C, ParamDeclList(), p, _useWstring | TypeContextAMIEnd);
-        C << nl << "bool __ok = __result->__wait();";
-        C << nl << "try";
-        C << sb;
-        C << nl << "if(!__ok)";
+        C << nl << "if(!__result->__wait())";
         C << sb;
         C << nl << "try";
         C << sb;
@@ -2280,7 +2318,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         //
         // Generate a catch block for each legal user exception.
-        // (See comment in DelegateMVisitor::visitOperation() for details.)
         //
         ExceptionList throws = p->throws();
         throws.sort();
@@ -2321,12 +2358,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "return __ret;";
         }
-        C << eb;
-        C << nl << "catch(const ::Ice::LocalException& ex)";
-        C << sb;
-        C << nl << "__result->__getObserver().failed(ex.ice_name());";
-        C << nl << "throw;";
-        C << eb;
     }
     else
     {
@@ -2350,7 +2381,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         //
         // Generate a catch block for each legal user exception.
-        // (See comment in DelegateMVisitor::visitOperation() for details.)
         //
         ExceptionList throws = p->throws();
         throws.sort();
@@ -2508,752 +2538,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
               << ';';
         }
         C << nl << "return __ar->sentSynchronously();";
-        C << eb;
-    }
-}
-
-Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output&, const string& dllExport) :
-    H(h), _dllExport(dllExport), _useWstring(false)
-{
-}
-
-bool
-Slice::Gen::DelegateVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDefs())
-    {
-        return false;
-    }
-
-    H << sp << nl << "namespace IceDelegate" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr&)
-{
-    H << sp << nl << '}';
-}
-
-bool
-Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDefs())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    string name = fixKwd(p->name());
-
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr&)
-{
-    H << sp << nl << '}';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-bool
-Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    string name = fixKwd(p->name());
-    ClassList bases = p->bases();
-
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    if(bases.empty())
-    {
-        H << "virtual public ::IceDelegate::Ice::Object";
-    }
-    else
-    {
-        H.useCurrentPosAsIndent();
-        ClassList::const_iterator q = bases.begin();
-        while(q != bases.end())
-        {
-            H << "virtual public ::IceDelegate" << fixKwd((*q)->scoped());
-            if(++q != bases.end())
-            {
-                H << ',' << nl;
-            }
-        }
-        H.restoreIndent();
-    }
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    H << eb << ';';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-void
-Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
-
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring);
-
-    vector<string> params;
-
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        StringList metaData = (*q)->getMetaData();
-        string typeString;
-        if((*q)->isOutParam())
-        {
-            typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
-        }
-        else
-        {
-            typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
-        }
-        params.push_back(typeString);
-    }
-
-    params.push_back("const ::Ice::Context*");
-    params.push_back("::IceInternal::InvocationObserver&");
-
-    H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << " = 0;";
-}
-
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
-{
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDefs())
-    {
-        return false;
-    }
-
-    H << sp << nl << "namespace IceDelegateM" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr&)
-{
-    H << sp << nl << '}';
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDefs())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    string name = fixKwd(p->name());
-
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr&)
-{
-    H << sp << nl << '}';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-    ClassList bases = p->bases();
-
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
-    H << "virtual public ::IceDelegate" << scoped << ',';
-    if(bases.empty())
-    {
-        H << nl << "virtual public ::IceDelegateM::Ice::Object";
-    }
-    else
-    {
-        ClassList::const_iterator q = bases.begin();
-        while(q != bases.end())
-        {
-            H << nl << "virtual public ::IceDelegateM" << fixKwd((*q)->scoped());
-            if(++q != bases.end())
-            {
-                H << ',';
-            }
-        }
-    }
-    H.restoreIndent();
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    H << eb << ';';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring);
-
-    vector<string> params;
-    vector<string> paramsDecl;
-
-    ParamDeclList inParams;
-    ParamDeclList outParams;
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        string paramName = fixKwd((*q)->name());
-        TypePtr type = (*q)->type();
-        bool isOutParam = (*q)->isOutParam();
-        StringList metaData = (*q)->getMetaData();
-        string typeString;
-        if(isOutParam)
-        {
-            outParams.push_back(*q);
-            typeString = outputTypeToString(type, (*q)->optional(), metaData, _useWstring);
-        }
-        else
-        {
-            inParams.push_back(*q);
-            typeString = inputTypeToString(type, (*q)->optional(), metaData, _useWstring);
-        }
-
-        params.push_back(typeString);
-        paramsDecl.push_back(typeString + ' ' + paramName);
-    }
-
-    params.push_back("const ::Ice::Context*");
-    params.push_back("::IceInternal::InvocationObserver&");
-    paramsDecl.push_back("const ::Ice::Context* __context");
-    paramsDecl.push_back("::IceInternal::InvocationObserver& __observer");
-
-    string flatName = p->flattenedScope() + p->name() + "_name";
-
-    H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
-    C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
-    C << sb;
-    C << nl << "::IceInternal::Outgoing __og(__handler.get(), " << flatName << ", "
-      << operationModeToString(p->sendMode()) << ", __context, __observer);";
-    if(inParams.empty())
-    {
-        C << nl << "__og.writeEmptyParams();";
-    }
-    else
-    {
-        C << nl << "try";
-        C << sb;
-        C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
-        writeMarshalCode(C, inParams, 0, TypeContextInParam);
-        if(p->sendsClasses(false))
-        {
-            C << nl << "__os->writePendingObjects();";
-        }
-        C << nl << "__og.endWriteParams();";
-        C << eb;
-        C << nl << "catch(const ::Ice::LocalException& __ex)";
-        C << sb;
-        C << nl << "__og.abort(__ex);";
-        C << eb;
-    }
-
-    C << nl << "bool __ok = __og.invoke();";
-
-    //
-    // Declare the return __ret variable at the top-level scope to
-    // enable NRVO with GCC (see also bug #3619).
-    //
-    writeAllocateCode(C, ParamDeclList(), p, _useWstring);
-    if(!p->returnsData())
-    {
-        C << nl << "if(__og.hasResponse())";
-        C << sb;
-    }
-    C << nl << "try";
-    C << sb;
-    C << nl << "if(!__ok)";
-    C << sb;
-    C << nl << "try";
-    C << sb;
-    C << nl << "__og.throwUserException();";
-    C << eb;
-    
-    //
-    // Generate a catch block for each legal user exception. This is necessary
-    // to prevent an "impossible" user exception to be thrown if client and
-    // and server use different exception specifications for an operation. For
-    // example:
-    //
-    // Client compiled with:
-    // exception A {};
-    // exception B {};
-    // interface I {
-    //     void op() throws A;
-    // };
-    //
-    // Server compiled with:
-    // exception A {};
-    // exception B {};
-    // interface I {
-    //     void op() throws B; // Differs from client
-    // };
-    //
-    // We need the catch blocks so, if the server throws B from op(), the
-    // client receives UnknownUserException instead of B.
-    //
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-#if defined(__SUNPRO_CC)
-    throws.sort(derivedToBaseCompare);
-#else
-    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-    for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-    {
-        C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
-        C << sb;
-        C << nl << "throw;";
-        C << eb;
-    }
-    C << nl << "catch(const ::Ice::UserException& __ex)";
-    C << sb;
-    //
-    // COMPILERFIX: Don't throw UnknownUserException directly. This is causing access
-    // violation errors with Visual C++ 64bits optimized builds. See bug #2962.
-    //
-    C << nl << "::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());";
-    C << nl << "throw __uue;";
-    C << eb;
-    C << eb;
-
-    if(ret || !outParams.empty())
-    {
-        C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
-        writeUnmarshalCode(C, outParams, p);
-        if(p->returnsClasses(false))
-        {
-            C << nl << "__is->readPendingObjects();";
-        }
-        C << nl << "__og.endReadParams();";
-    }
-    else
-    {
-        C << nl << "__og.readEmptyParams();";
-    }
-
-    if(ret)
-    {
-        C << nl << "return __ret;";
-    }
-    C << eb;
-    C << nl << "catch(const ::Ice::LocalException& __ex)";
-    C << sb;
-    C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
-    C << eb;
-    if(!p->returnsData())
-    {
-        C << eb;
-    }
-    C << eb;
-}
-
-Slice::Gen::DelegateDVisitor::DelegateDVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport), _useWstring(false)
-{
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDefs())
-    {
-        return false;
-    }
-
-    H << sp << nl << "namespace IceDelegateD" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitUnitEnd(const UnitPtr&)
-{
-    H << sp << nl << '}';
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDefs())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    string name = fixKwd(p->name());
-
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitModuleEnd(const ModulePtr&)
-{
-    H << sp << nl << '}';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-    ClassList bases = p->bases();
-
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
-    H << "virtual public ::IceDelegate" << scoped << ',';
-    if(bases.empty())
-    {
-        H << nl << "virtual public ::IceDelegateD::Ice::Object";
-    }
-    else
-    {
-        ClassList::const_iterator q = bases.begin();
-        while(q != bases.end())
-        {
-            H << nl << "virtual public ::IceDelegateD" << fixKwd((*q)->scoped());
-            if(++q != bases.end())
-            {
-                H << ',';
-            }
-        }
-    }
-    H.restoreIndent();
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    H << eb << ';';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring);
-
-    vector<string> params;
-    vector<string> paramsDecl;
-    vector<string> directParamsDecl;
-    vector<string> args;
-    vector<string> argMembers;
-
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        string paramName = fixKwd((*q)->name());
-
-        StringList metaData = (*q)->getMetaData();
-        string typeString;
-        if((*q)->isOutParam())
-        {
-            typeString = outputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
-        }
-        else
-        {
-            typeString = inputTypeToString((*q)->type(), (*q)->optional(), metaData, _useWstring);
-        }
-
-        params.push_back(typeString);
-        paramsDecl.push_back(typeString + ' ' + paramName);
-        directParamsDecl.push_back(typeString + " __p_" + paramName);
-        args.push_back(paramName);
-        argMembers.push_back("_m_" + paramName);
-    }
-
-    params.push_back("const ::Ice::Context*");
-    params.push_back("::IceInternal::InvocationObserver&");
-    paramsDecl.push_back("const ::Ice::Context* __context");
-    paramsDecl.push_back("::IceInternal::InvocationObserver&");
-    args.push_back("__current");
-    argMembers.push_back("_current");
-
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string thisPointer = fixKwd(cl->scoped()) + "*";
-
-    H << sp;
-
-    H << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
-    bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
-    if(amd)
-    {
-        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << params << epar;
-        C << sb;
-        C << nl << "throw ::Ice::CollocationOptimizationException(__FILE__, __LINE__);";
-        if(ret != 0)
-        {
-            C << nl << "return " << retS << "(); // to avoid a warning with some compilers;";
-        }
-        C << eb;
-    }
-    else
-    {
-        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl << epar;
-        C << sb;
-        C << nl << "class _DirectI : public ::IceInternal::Direct";
-        C << sb;
-        C.dec();
-        C << nl << "public:";
-        C.inc();
-
-        //
-        // Constructor
-        //
-        C << sp << nl << "_DirectI" << spar;
-        if(ret)
-        {
-            string resultRef = outputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring);
-            C << resultRef + " __result";
-        }
-        C << directParamsDecl << "const ::Ice::Current& __current" << epar << " : ";
-        C.inc();
-        C << nl << "::IceInternal::Direct(__current)";
-
-        if(ret)
-        {
-            C << "," << nl << "_result(__result)";
-        }
-
-        for(size_t i = 0; i < args.size(); ++i)
-        {
-            if(args[i] != "__current")
-            {
-                C << "," << nl << argMembers[i] + "(__p_" + args[i] + ")";
-            }
-        }
-        C.dec();
-        C << sb;
-        C << eb;
-
-        //
-        // run
-        //
-        C << nl << nl << "virtual ::Ice::DispatchStatus";
-        C << nl << "run(::Ice::Object* object)";
-        C << sb;
-        C << nl << thisPointer << " servant = dynamic_cast< " << thisPointer << ">(object);";
-        C << nl << "if(!servant)";
-        C << sb;
-        C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);";
-        C << eb;
-
-        ExceptionList throws = p->throws();
-
-        if(!throws.empty())
-        {
-            C << nl << "try";
-            C << sb;
-        }
-        C << nl;
-        if(ret)
-        {
-            C << "_result = ";
-        }
-        C << "servant->" << name << spar << argMembers << epar << ';';
-        C << nl << "return ::Ice::DispatchOK;";
-
-        if(!throws.empty())
-        {
-            C << eb;
-            C << nl << "catch(const ::Ice::UserException& __ex)";
-            C << sb;
-            C << nl << "setUserException(__ex);";
-            C << nl << "return ::Ice::DispatchUserException;";
-            C << eb;
-            throws.sort();
-            throws.unique();
-#if defined(__SUNPRO_CC)
-            throws.sort(derivedToBaseCompare);
-#else
-            throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-        }
-
-        C << eb;
-        C << nl;
-
-        C.dec();
-        C << nl << "private:";
-        C.inc();
-        C << nl;
-        if(ret)
-        {
-            string resultRef= outputTypeToString(ret, p->returnIsOptional(), p->getMetaData(), _useWstring);
-            C << nl << resultRef << " _result;";
-        }
-
-        for(size_t j = 0; j < argMembers.size(); ++j)
-        {
-            if(argMembers[j] != "_current")
-            {
-                C << nl << params[j] + " " + argMembers[j] << ";";
-            }
-        }
-
-        C << eb << ";";
-
-        C << nl << nl << "::Ice::Current __current;";
-        C << nl << "__initCurrent(__current, " << p->flattenedScope() + p->name() + "_name, "
-          << operationModeToString(p->sendMode()) << ", __context);";
-
-        if(ret)
-        {
-            C << nl << retS << " __result;";
-        }
-
-        C << nl << "try";
-        C << sb;
-
-        C << nl << "_DirectI __direct" << spar;
-        if(ret)
-        {
-            C << "__result";
-        }
-        C << args << epar << ";";
-
-        C << nl << "try";
-        C << sb;
-        C << nl << "__direct.getServant()->__collocDispatch(__direct);";
-        C << eb;
-#if 0
-        C << nl << "catch(const ::std::exception& __ex)";
-        C << sb;
-        C << nl << "__direct.destroy();";
-        C << nl << "::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);";
-        C << eb;
-        C << nl << "catch(...)";
-        C << sb;
-        C << nl << "__direct.destroy();";
-        C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__, \"unknown c++ exception\");";
-        C << eb;
-#else
-        C << nl << "catch(...)";
-        C << sb;
-        C << nl << "__direct.destroy();";
-        C << nl << "throw;";
-        C << eb;
-#endif
-        C << nl << "__direct.destroy();";
-        C << eb;
-        for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
-        {
-            C << nl << "catch(const " << fixKwd((*k)->scoped()) << "&)";
-            C << sb;
-            C << nl << "throw;";
-            C << eb;
-        }
-        C << nl << "catch(const ::Ice::SystemException&)";
-        C << sb;
-        C << nl << "throw;";
-        C << eb;
-        C << nl << "catch(const ::IceInternal::LocalExceptionWrapper&)";
-        C << sb;
-        C << nl << "throw;";
-        C << eb;
-        C << nl << "catch(const ::std::exception& __ex)";
-        C << sb;
-        C << nl << "::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);";
-        C << eb;
-        C << nl << "catch(...)";
-        C << sb;
-        C << nl << "throw ::IceInternal::LocalExceptionWrapper("
-          << "::Ice::UnknownException(__FILE__, __LINE__, \"unknown c++ exception\"), false);";
-        C << eb;
-        if(ret)
-        {
-            C << nl << "return __result;";
-        }
-
         C << eb;
     }
 }

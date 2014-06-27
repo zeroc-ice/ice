@@ -13,20 +13,20 @@ public abstract class Functional_TwowayCallbackFloat
     extends Functional_TwowayCallback implements Ice.TwowayCallbackFloat
 {
     public Functional_TwowayCallbackFloat(Functional_FloatCallback responseCb, 
-                                          Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                          Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                           Functional_BoolCallback sentCb)
     {
-        super(responseCb != null, localExceptionCb, sentCb);
+        super(responseCb != null, exceptionCb, sentCb);
         __responseCb = responseCb;
     }
     
     protected Functional_TwowayCallbackFloat(boolean userExceptionCb,
                                              Functional_FloatCallback responseCb, 
-                                             Functional_GenericCallback1<Ice.LocalException> localExceptionCb,
+                                             Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                              Functional_BoolCallback sentCb)
     {
-        super(localExceptionCb, sentCb);
-        CallbackBase.check(responseCb != null || (userExceptionCb && localExceptionCb != null));
+        super(exceptionCb, sentCb);
+        CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
         __responseCb = responseCb;
     }
     

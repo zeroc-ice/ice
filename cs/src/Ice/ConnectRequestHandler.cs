@@ -77,11 +77,18 @@ namespace IceInternal
                     _m.Wait();
                 }
 
-                if(!initialized())
+                try
                 {
-                    _batchRequestInProgress = true;
-                    _batchStream.swap(os);
-                    return;
+                    if(!initialized())
+                    {
+                        _batchRequestInProgress = true;
+                        _batchStream.swap(os);
+                        return;
+                    }
+                }
+                catch(Ice.LocalException ex)
+                {
+                    throw new RetryException(ex);
                 }
             }
             finally
@@ -96,7 +103,7 @@ namespace IceInternal
             _m.Lock();
             try
             {
-                if(!initialized())
+                if(!initialized()) // This can't throw until _batchRequestInProgress = false 
                 {
                     Debug.Assert(_batchRequestInProgress);
                     _batchRequestInProgress = false;
@@ -126,7 +133,7 @@ namespace IceInternal
             _m.Lock();
             try
             {
-                if(!initialized())
+                if(!initialized()) // This can't throw until _batchRequestInProgress = false 
                 {
                     Debug.Assert(_batchRequestInProgress);
                     _batchRequestInProgress = false;
@@ -152,10 +159,17 @@ namespace IceInternal
             _m.Lock();
             try
             {
-                if(!initialized())
+                try
                 {
-                    _requests.AddLast(new Request(@out));
-                    return false; // Not sent
+                    if(!initialized())
+                    {
+                        _requests.AddLast(new Request(@out));
+                        return false; // Not sent
+                    }
+                }
+                catch(Ice.LocalException ex)
+                {
+                    throw new RetryException(ex);
                 }
             }
             finally
@@ -172,11 +186,18 @@ namespace IceInternal
             _m.Lock();
             try
             {
-                if(!initialized())
+                try
                 {
-                    _requests.AddLast(new Request(outAsync));
-                    sentCallback = null;
-                    return false;
+                    if(!initialized())
+                    {
+                        _requests.AddLast(new Request(outAsync));
+                        sentCallback = null;
+                        return false;
+                    }
+                }
+                catch(Ice.LocalException ex)
+                {
+                    throw new RetryException(ex);
                 }
             }
             finally
@@ -191,6 +212,11 @@ namespace IceInternal
             _m.Lock();
             try
             {
+                if(_exception != null)
+                {
+                    return; // The request has been notified of a failure already.
+                }
+
                 if(!initialized())
                 {
                     LinkedListNode<Request> p = _requests.First;
@@ -217,9 +243,15 @@ namespace IceInternal
 
         public void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
         {
+            bool timedOut = false;
             _m.Lock();
             try
             {
+                if(_exception != null)
+                {
+                    return; // The request has been notified of a failure already.
+                }
+
                 if(!initialized())
                 {
                     LinkedListNode<Request> p = _requests.First;
@@ -228,9 +260,9 @@ namespace IceInternal
                         Request request = p.Value;
                         if(request.outAsync == outAsync)
                         {
-                            outAsync.finished__(new Ice.InvocationTimeoutException(), false);
+                            timedOut = true;
                             _requests.Remove(p);
-                            return;
+                            break;
                         }
                         p = p.Next;
                     }
@@ -241,44 +273,12 @@ namespace IceInternal
             {
                 _m.Unlock();
             }
+            if(timedOut)
+            {
+                outAsync.finished__(new Ice.InvocationTimeoutException(), false);
+                return;
+            }
             _connection.asyncRequestTimedOut(outAsync);
-        }
-
-        public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
-                                    InvocationObserver observer)
-        {
-            _m.Lock();
-            try
-            {
-                if(!initialized())
-                {
-                    return new IceInternal.Outgoing(this, operation, mode, context, observer);
-                }
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-
-            return _connection.getOutgoing(this, operation, mode, context, observer);
-        }
-
-        public void reclaimOutgoing(Outgoing og)
-        {
-            _m.Lock();
-            try
-            {
-                if(_connection == null)
-                {
-                    return;
-                }
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-
-            _connection.reclaimOutgoing(og);
         }
 
         public Reference getReference()
@@ -364,7 +364,6 @@ namespace IceInternal
 
                 _exception = ex;
                 _proxy = null; // Break cyclic reference count.
-                _delegate = null; // Break cyclic reference count.
 
                 //
                 // If some requests were queued, we notify them of the failure. This is done from a thread
@@ -374,9 +373,9 @@ namespace IceInternal
                 if(_requests.Count > 0)
                 {
                     _reference.getInstance().clientThreadPool().dispatch(delegate()
-                                                                        {
-                                                                            flushRequestsWithException(ex);
-                                                                        });
+                                                                         {
+                                                                             flushRequestsWithException();
+                                                                         });
                 }
 
                 _m.NotifyAll();
@@ -399,12 +398,11 @@ namespace IceInternal
             flushRequests();
         }
 
-        public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy, Ice.ObjectDelM_ del)
+        public ConnectRequestHandler(Reference @ref, Ice.ObjectPrx proxy)
         {
             _reference = @ref;
             _response = _reference.getMode() == Reference.Mode.ModeTwoway;
             _proxy = (Ice.ObjectPrxHelperBase)proxy;
-            _delegate = del;
             _batchAutoFlush = @ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
                 "Ice.BatchAutoFlush", 1) > 0 ? true : false;
             _initialized = false;
@@ -506,17 +504,24 @@ namespace IceInternal
                     _requests.Remove(tmp);
                 }
             }
-            catch(LocalExceptionWrapper ex)
+            catch(RetryException ex)
             {
+                //
+                // If the connection dies shortly after connection
+                // establishment, we don't systematically retry on
+                // RetryException. We handle the exception like it
+                // was an exception that occured while sending the
+                // request.
+                // 
                 _m.Lock();
                 try
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
                     _reference.getInstance().clientThreadPool().dispatch(delegate()
-                                                                        {
-                                                                            flushRequestsWithException(ex);
-                                                                        });
+                                                                         {
+                                                                             flushRequestsWithException();
+                                                                         });
                 }
                 finally
                 {
@@ -531,9 +536,9 @@ namespace IceInternal
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
                     _reference.getInstance().clientThreadPool().dispatch(delegate()
-                                                                        {
-                                                                            flushRequestsWithException(ex);
-                                                                        });
+                                                                         {
+                                                                             flushRequestsWithException();
+                                                                         });
                 }
                 finally
                 {
@@ -567,7 +572,7 @@ namespace IceInternal
             //
             if(_updateRequestHandler && _exception == null)
             {
-                _proxy.setRequestHandler__(_delegate, new ConnectionRequestHandler(_reference, _connection, _compress));
+                _proxy.setRequestHandler__(this, new ConnectionRequestHandler(_reference, _connection, _compress));
             }
 
             _m.Lock();
@@ -580,7 +585,6 @@ namespace IceInternal
                     _flushing = false;
                 }
                 _proxy = null; // Break cyclic reference count.
-                _delegate = null; // Break cyclic reference count.
                 _m.NotifyAll();
             }
             finally
@@ -590,48 +594,17 @@ namespace IceInternal
         }
 
         private void
-        flushRequestsWithException(Ice.LocalException ex)
+        flushRequestsWithException()
         {
             foreach(Request request in _requests)
             {
                 if(request.@out != null)
                 {            
-                    request.@out.finished(ex, false);
+                    request.@out.finished(_exception, false);
                 }
                 else if(request.outAsync != null)
                 {
-                    request.outAsync.finished__(ex, false);
-                }
-            }
-            _requests.Clear();
-        }
-
-        private void
-        flushRequestsWithException(LocalExceptionWrapper ex)
-        {
-            foreach(Request request in _requests)
-            {
-                if(request.@out != null)
-                {            
-                    if(request.@out is Outgoing)
-                    {
-                        ((Outgoing)request.@out).finished(ex);
-                    }
-                    else
-                    {
-                        request.@out.finished(ex.get(), false);
-                    }
-                }
-                if(request.outAsync != null)
-                {
-                    if(request.outAsync is OutgoingAsync)
-                    {
-                        ((OutgoingAsync)request.outAsync).finished__(ex);
-                    }
-                    else
-                    {
-                        request.outAsync.finished__(ex.get(), false);
-                    }
+                    request.outAsync.finished__(_exception, false);
                 }
             }
             _requests.Clear();
@@ -641,7 +614,6 @@ namespace IceInternal
         private bool _response;
 
         private Ice.ObjectPrxHelperBase _proxy;
-        private Ice.ObjectDelM_ _delegate;
 
         private bool _batchAutoFlush;
 

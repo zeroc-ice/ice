@@ -51,9 +51,8 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
         // topic because the subscribe() method is given a fixed proxy
         // which can't be marshalled.
         //
-        _topics[encodings[i]] = t->ice_collocationOptimized(true);
-        _basePublishers.push_back(
-            t->getPublisher()->ice_collocationOptimized(false)->ice_encodingVersion(encodings[i]));
+        _topics[encodings[i]] = t;
+        _basePublishers.push_back(t->getPublisher()->ice_encodingVersion(encodings[i]));
     }
 }
 

@@ -27,7 +27,9 @@ public:
 private:
 
     const Ice::CommunicatorPtr _communicator;
-    Ice::CommunicatorPtr _pluginCommunicator;
+    Ice::ObjectAdapterPtr _multicastAdapter;
+    Ice::ObjectAdapterPtr _replyAdapter;
+    Ice::ObjectAdapterPtr _locatorAdapter;
 };
 
 };

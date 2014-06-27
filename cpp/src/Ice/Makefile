@@ -21,6 +21,7 @@ OBJS		= Acceptor.o \
 		  Buffer.o \
 		  BasicStream.o \
 		  BuiltinSequences.o \
+		  CollocatedRequestHandler.o \
 		  CommunicatorI.o \
 		  Communicator.o \
 		  ConnectRequestHandler.o \
@@ -32,7 +33,6 @@ OBJS		= Acceptor.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
                   DeprecatedStringConverter.o \
-		  Direct.o \
                   DispatchInterceptor.o \
 		  DynamicLibrary.o \
 		  Endpoint.o \
@@ -92,6 +92,7 @@ OBJS		= Acceptor.o \
 		  Proxy.o \
 		  ReferenceFactory.o \
 		  Reference.o \
+		  ResponseHandler.o \
 		  RetryQueue.o \
 		  RequestHandler.o \
 		  RouterInfo.o \

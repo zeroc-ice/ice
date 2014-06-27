@@ -19,7 +19,7 @@
 #include <Ice/Current.h>
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/ObserverHelper.h>
-
+#include <Ice/ResponseHandlerF.h>
 
 #include <deque>
 
@@ -40,7 +40,8 @@ public:
 
 protected:
 
-    IncomingBase(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
+    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, 
+                 Ice::Int);
     IncomingBase(IncomingBase&); // Adopts the argument. It must not be used afterwards.
 
     void __warning(const Ice::Exception&) const;
@@ -62,10 +63,10 @@ protected:
     BasicStream _os;
 
     //
-    // Optimization. The connection may not be deleted while a
+    // Optimization. The request handler may not be deleted while a
     // stack-allocated Incoming still holds it.
     //
-    Ice::ConnectionI* _connection;
+    ResponseHandler* _responseHandler;
 
     std::deque<Ice::DispatchInterceptorAsyncCallbackPtr> _interceptorAsyncCallbackQueue;
 };
@@ -74,7 +75,7 @@ class ICE_API Incoming : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
+    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
 
     const Ice::Current& getCurrent()
     {

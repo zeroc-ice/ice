@@ -19,7 +19,7 @@ public class Collocated extends test.Util.Application
         Ice.Object object = new ThrowerI();
         adapter.add(object, communicator.stringToIdentity("thrower"));
 
-        AllTests.allTests(communicator, true, getWriter());
+        AllTests.allTests(communicator, getWriter());
 
         return 0;
     }
@@ -27,8 +27,10 @@ public class Collocated extends test.Util.Application
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
+        initData.logger = new DummyLogger();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         return initData;
     }

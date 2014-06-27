@@ -7,15 +7,14 @@
 //
 // **********************************************************************
 
-#pragma once
+#include <Ice/ResponseHandler.h>
 
-module Test
+using namespace std;
+using namespace IceInternal;
+
+IceUtil::Shared* IceInternal::upCast(ResponseHandler* obj) { return obj; }
+
+ResponseHandler::~ResponseHandler()
 {
+}
 
-interface Retry
-{
-    ["ami"] void op(bool kill);
-    void shutdown();
-};
-
-};

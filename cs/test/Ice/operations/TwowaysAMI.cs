@@ -75,6 +75,7 @@ public class TwowaysAMI
 
         public override void ice_exception(Ice.Exception ex)
         {
+            Console.WriteLine(ex.ToString());
             test(false);
         }
 

@@ -57,7 +57,7 @@ local exception PluginInitializationException
  * supported with collocation optimization.
  *
  **/
-["cpp:ice_print"]
+["cpp:ice_print", "deprecate:this exception isn't used anymore by the Ice runtime"]
 local exception CollocationOptimizationException
 {
 };

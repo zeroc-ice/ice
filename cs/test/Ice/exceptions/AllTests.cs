@@ -970,11 +970,10 @@ public class AllTests : TestCommon.TestApp
     override
     public void run(Ice.Communicator communicator)
 #else
-    public static ThrowerPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static ThrowerPrx allTests(Ice.Communicator communicator)
 #endif
     {
 #if SILVERLIGHT
-        bool collocated = false;
         WriteLine("Ice.FactoryAssemblies: " + communicator.getProperties().getProperty("Ice.FactoryAssemblies"));
 #endif
 
@@ -1315,7 +1314,7 @@ public class AllTests : TestCommon.TestApp
             try
             {
                 thrower.throwMemoryLimitException(null);
-                test(collocated);
+                test(false);
             }
             catch(Ice.UnknownLocalException)
             {
@@ -1328,7 +1327,7 @@ public class AllTests : TestCommon.TestApp
             try
             {
                 thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
-                test(collocated);
+                test(false);
             }
             catch(Ice.MemoryLimitException)
             {
@@ -1338,21 +1337,18 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             }
             
-            if(!collocated)
+            try
             {
-                try
-                {
-                    thrower.end_throwMemoryLimitException(
-                        thrower.begin_throwMemoryLimitException(new byte[20 * 1024])); // 20KB
-                    test(false);
-                }
-                catch(Ice.MemoryLimitException)
-                {
-                }
-                catch(Exception)
-                {
-                    test(false);
-                }
+                thrower.end_throwMemoryLimitException(
+                    thrower.begin_throwMemoryLimitException(new byte[20 * 1024])); // 20KB
+                test(false);
+            }
+            catch(Ice.MemoryLimitException)
+            {
+            }
+            catch(Exception)
+            {
+                test(false);
             }
         }
         WriteLine("ok");
@@ -1501,305 +1497,302 @@ public class AllTests : TestCommon.TestApp
 
         WriteLine("ok");
 
-        if(!collocated)
+        Write("catching exact types with AMI... ");
+        Flush();
+
         {
-            Write("catching exact types with AMI... ");
+            AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
+            thrower.throwAasA_async(cb, 1);
+            cb.check();
+        }
+
+        {
+            AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
+            thrower.throwAorDasAorD_async(cb, 1);
+            cb.check();
+        }
+
+        {
+            AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
+            thrower.throwAorDasAorD_async(cb, - 1);
+            cb.check();
+        }
+
+        {
+            AMI_Thrower_throwBasBI cb = new AMI_Thrower_throwBasBI();
+            thrower.throwBasB_async(cb, 1, 2);
+            cb.check();
+        }
+
+        {
+            AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
+            thrower.throwCasC_async(cb, 1, 2, 3);
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching derived types... ");
+        Flush();
+
+        {
+            AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
+            thrower.throwBasA_async(cb, 1, 2);
+            cb.check();
+        }
+
+        {
+            AMI_Thrower_throwCasAI cb = new AMI_Thrower_throwCasAI();
+            thrower.throwCasA_async(cb, 1, 2, 3);
+            cb.check();
+        }
+
+        {
+            AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
+            thrower.throwCasB_async(cb, 1, 2, 3);
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        if(thrower.supportsUndeclaredExceptions())
+        {
+            Write("catching unknown user exception with AMI... ");
             Flush();
 
             {
-                AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
-                thrower.throwAasA_async(cb, 1);
+                AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
+                thrower.throwUndeclaredA_async(cb, 1);
                 cb.check();
             }
 
             {
-                AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
-                thrower.throwAorDasAorD_async(cb, 1);
+                AMI_Thrower_throwUndeclaredBI cb = new AMI_Thrower_throwUndeclaredBI();
+                thrower.throwUndeclaredB_async(cb, 1, 2);
                 cb.check();
             }
 
             {
-                AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
-                thrower.throwAorDasAorD_async(cb, - 1);
-                cb.check();
-            }
-
-            {
-                AMI_Thrower_throwBasBI cb = new AMI_Thrower_throwBasBI();
-                thrower.throwBasB_async(cb, 1, 2);
-                cb.check();
-            }
-
-            {
-                AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
-                thrower.throwCasC_async(cb, 1, 2, 3);
+                AMI_Thrower_throwUndeclaredCI cb = new AMI_Thrower_throwUndeclaredCI();
+                thrower.throwUndeclaredC_async(cb, 1, 2, 3);
                 cb.check();
             }
 
             WriteLine("ok");
+        }
 
-            Write("catching derived types... ");
-            Flush();
+        Write("catching object not exist exception with AMI... ");
+        Flush();
 
+        {
+            Ice.Identity id = communicator.stringToIdentity("does not exist");
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+            AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
+            thrower2.throwAasA_async(cb, 1);
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching facet not exist exception with AMI... ");
+        Flush();
+
+        try
+        {
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
             {
-                AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
-                thrower.throwBasA_async(cb, 1, 2);
-                cb.check();
-            }
-
-            {
-                AMI_Thrower_throwCasAI cb = new AMI_Thrower_throwCasAI();
-                thrower.throwCasA_async(cb, 1, 2, 3);
-                cb.check();
-            }
-
-            {
-                AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
-                thrower.throwCasB_async(cb, 1, 2, 3);
-                cb.check();
-            }
-
-            WriteLine("ok");
-
-            if(thrower.supportsUndeclaredExceptions())
-            {
-                Write("catching unknown user exception with AMI... ");
-                Flush();
-
-                {
-                    AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
-                    thrower.throwUndeclaredA_async(cb, 1);
-                    cb.check();
-                }
-
-                {
-                    AMI_Thrower_throwUndeclaredBI cb = new AMI_Thrower_throwUndeclaredBI();
-                    thrower.throwUndeclaredB_async(cb, 1, 2);
-                    cb.check();
-                }
-
-                {
-                    AMI_Thrower_throwUndeclaredCI cb = new AMI_Thrower_throwUndeclaredCI();
-                    thrower.throwUndeclaredC_async(cb, 1, 2, 3);
-                    cb.check();
-                }
-
-                WriteLine("ok");
-            }
-
-            Write("catching object not exist exception with AMI... ");
-            Flush();
-
-            {
-                Ice.Identity id = communicator.stringToIdentity("does not exist");
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-                AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
+                AMI_Thrower_throwAasAFacetNotExistI cb = new AMI_Thrower_throwAasAFacetNotExistI();
                 thrower2.throwAasA_async(cb, 1);
                 cb.check();
             }
+        }
+        catch(Exception)
+        {
+            test(false);
+        }
 
-            WriteLine("ok");
+        WriteLine("ok");
 
-            Write("catching facet not exist exception with AMI... ");
-            Flush();
+        Write("catching operation not exist exception with AMI... ");
+        Flush();
 
-            try
-            {
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-                {
-                    AMI_Thrower_throwAasAFacetNotExistI cb = new AMI_Thrower_throwAasAFacetNotExistI();
-                    thrower2.throwAasA_async(cb, 1);
-                    cb.check();
-                }
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
+        {
+            AMI_WrongOperation_noSuchOperationI cb = new AMI_WrongOperation_noSuchOperationI();
+            WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
+            thrower2.noSuchOperation_async(cb);
+            cb.check();
+        }
 
-            WriteLine("ok");
+        WriteLine("ok");
 
-            Write("catching operation not exist exception with AMI... ");
-            Flush();
+        Write("catching unknown local exception with AMI... ");
+        Flush();
 
-            {
-                AMI_WrongOperation_noSuchOperationI cb = new AMI_WrongOperation_noSuchOperationI();
-                WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
-                thrower2.noSuchOperation_async(cb);
-                cb.check();
-            }
+        {
+            AMI_Thrower_throwLocalExceptionI cb = new AMI_Thrower_throwLocalExceptionI();
+            thrower.throwLocalException_async(cb);
+            cb.check();
+        }
 
-            WriteLine("ok");
+        WriteLine("ok");
 
-            Write("catching unknown local exception with AMI... ");
-            Flush();
+        Write("catching unknown non-Ice exception with AMI... ");
+        Flush();
 
-            {
-                AMI_Thrower_throwLocalExceptionI cb = new AMI_Thrower_throwLocalExceptionI();
-                thrower.throwLocalException_async(cb);
-                cb.check();
-            }
+        AMI_Thrower_throwNonIceExceptionI cb2 = new AMI_Thrower_throwNonIceExceptionI();
+        thrower.throwNonIceException_async(cb2);
+        cb2.check();
 
-            WriteLine("ok");
+        WriteLine("ok");
 
-            Write("catching unknown non-Ice exception with AMI... ");
-            Flush();
+        Write("catching exact types with new AMI mapping... ");
+        Flush();
 
-            AMI_Thrower_throwNonIceExceptionI cb2 = new AMI_Thrower_throwNonIceExceptionI();
-            thrower.throwNonIceException_async(cb2);
-            cb2.check();
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasA);
+            cb3.check();
+        }
 
-            WriteLine("ok");
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwAorDasAorD(1).whenCompleted(cb3.response, cb3.exception_AorDasAorD);
+            cb3.check();
+        }
 
-            Write("catching exact types with new AMI mapping... ");
-            Flush();
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwAorDasAorD(-1).whenCompleted(cb3.response, cb3.exception_AorDasAorD);
+            cb3.check();
+        }
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasA);
-                cb3.check();
-            }
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwBasB(1, 2).whenCompleted(cb3.response, cb3.exception_BasB);
+            cb3.check();
+        }
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwAorDasAorD(1).whenCompleted(cb3.response, cb3.exception_AorDasAorD);
-                cb3.check();
-            }
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwCasC(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasC);
+            cb3.check();
+        }
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwAorDasAorD(-1).whenCompleted(cb3.response, cb3.exception_AorDasAorD);
-                cb3.check();
-            }
+        WriteLine("ok");
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwBasB(1, 2).whenCompleted(cb3.response, cb3.exception_BasB);
-                cb3.check();
-            }
+        Write("catching derived types with new AMI mapping... ");
+        Flush();
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwCasC(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasC);
-                cb3.check();
-            }
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwBasA(1, 2).whenCompleted(cb3.response, cb3.exception_BasA);
+            cb3.check();
+        }
 
-            WriteLine("ok");
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwCasA(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasA);
+            cb3.check();
+        }
 
-            Write("catching derived types with new AMI mapping... ");
-            Flush();
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwCasB(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasB);
+            cb3.check();
+        }
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwBasA(1, 2).whenCompleted(cb3.response, cb3.exception_BasA);
-                cb3.check();
-            }
+        WriteLine("ok");
 
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwCasA(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasA);
-                cb3.check();
-            }
-
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwCasB(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasB);
-                cb3.check();
-            }
-
-            WriteLine("ok");
-
-            if(thrower.supportsUndeclaredExceptions())
-            {
-                Write("catching unknown user exception with new AMI mapping... ");
-                Flush();
-
-                {
-                    AsyncCallback cb3 = new AsyncCallback();
-                    thrower.begin_throwUndeclaredA(1).whenCompleted(cb3.response, cb3.exception_UndeclaredA);
-                    cb3.check();
-                }
-
-                {
-                    AsyncCallback cb3 = new AsyncCallback();
-                    thrower.begin_throwUndeclaredB(1, 2).whenCompleted(cb3.response, cb3.exception_UndeclaredB);
-                    cb3.check();
-                }
-
-                {
-                    AsyncCallback cb3 = new AsyncCallback();
-                    thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(cb3.response, cb3.exception_UndeclaredC);
-                    cb3.check();
-                }
-
-                WriteLine("ok");
-            }
-
-            Write("catching object not exist exception with new AMI mapping... ");
-            Flush();
-
-            {
-                Ice.Identity id = communicator.stringToIdentity("does not exist");
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-                AsyncCallback cb3 = new AsyncCallback(communicator);
-                thrower2.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasAObjectNotExist);
-                cb3.check();
-            }
-
-            WriteLine("ok");
-
-            Write("catching facet not exist exception with new AMI mapping... ");
-            Flush();
-
-            {
-                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower2.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasAFacetNotExist);
-                cb3.check();
-            }
-
-            WriteLine("ok");
-
-            Write("catching operation not exist exception with new AMI mapping... ");
+        if(thrower.supportsUndeclaredExceptions())
+        {
+            Write("catching unknown user exception with new AMI mapping... ");
             Flush();
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
-                WrongOperationPrx thrower4 = WrongOperationPrxHelper.uncheckedCast(thrower);
-                thrower4.begin_noSuchOperation().whenCompleted(cb3.response, cb3.exception_noSuchOperation);
-                cb3.check();
-            }
-
-            WriteLine("ok");
-
-            Write("catching unknown local exception with new AMI mapping... ");
-            Flush();
-
-            {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwLocalException().whenCompleted(cb3.response, cb3.exception_LocalException);
+                thrower.begin_throwUndeclaredA(1).whenCompleted(cb3.response, cb3.exception_UndeclaredA);
                 cb3.check();
             }
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwLocalExceptionIdempotent().whenCompleted(cb3.response, cb3.exception_LocalException);
+                thrower.begin_throwUndeclaredB(1, 2).whenCompleted(cb3.response, cb3.exception_UndeclaredB);
                 cb3.check();
             }
 
-            WriteLine("ok");
-
-            Write("catching unknown non-Ice exception with new AMI mapping... ");
-            Flush();
-
             {
                 AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwNonIceException().whenCompleted(cb3.response, cb3.exception_NonIceException);
+                thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(cb3.response, cb3.exception_UndeclaredC);
                 cb3.check();
             }
 
             WriteLine("ok");
         }
+
+        Write("catching object not exist exception with new AMI mapping... ");
+        Flush();
+
+        {
+            Ice.Identity id = communicator.stringToIdentity("does not exist");
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+            AsyncCallback cb3 = new AsyncCallback(communicator);
+            thrower2.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasAObjectNotExist);
+            cb3.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching facet not exist exception with new AMI mapping... ");
+        Flush();
+
+        {
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower2.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasAFacetNotExist);
+            cb3.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching operation not exist exception with new AMI mapping... ");
+        Flush();
+
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            WrongOperationPrx thrower4 = WrongOperationPrxHelper.uncheckedCast(thrower);
+            thrower4.begin_noSuchOperation().whenCompleted(cb3.response, cb3.exception_noSuchOperation);
+            cb3.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching unknown local exception with new AMI mapping... ");
+        Flush();
+
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwLocalException().whenCompleted(cb3.response, cb3.exception_LocalException);
+            cb3.check();
+        }
+
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwLocalExceptionIdempotent().whenCompleted(cb3.response, cb3.exception_LocalException);
+            cb3.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching unknown non-Ice exception with new AMI mapping... ");
+        Flush();
+
+        {
+            AsyncCallback cb3 = new AsyncCallback();
+            thrower.begin_throwNonIceException().whenCompleted(cb3.response, cb3.exception_NonIceException);
+            cb3.check();
+        }
+
+        WriteLine("ok");
 #if SILVERLIGHT
         thrower.shutdown();
 #else

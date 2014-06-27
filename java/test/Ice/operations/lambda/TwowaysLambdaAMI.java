@@ -9,39 +9,6 @@
 
 package test.Ice.operations.lambda;
 
-import test.Ice.operations.Test.Callback_MyClass_opVoid;
-import test.Ice.operations.Test.Callback_MyClass_opBool;
-import test.Ice.operations.Test.Callback_MyClass_opBoolS;
-import test.Ice.operations.Test.Callback_MyClass_opBoolSS;
-import test.Ice.operations.Test.Callback_MyClass_opByte;
-import test.Ice.operations.Test.Callback_MyClass_opByteBoolD;
-import test.Ice.operations.Test.Callback_MyClass_opByteS;
-import test.Ice.operations.Test.Callback_MyClass_opByteSS;
-import test.Ice.operations.Test.Callback_MyClass_opContext;
-import test.Ice.operations.Test.Callback_MyClass_opFloatDouble;
-import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleS;
-import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleSS;
-import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
-import test.Ice.operations.Test.Callback_MyClass_opIntS;
-import test.Ice.operations.Test.Callback_MyClass_opLongFloatD;
-import test.Ice.operations.Test.Callback_MyClass_opMyClass;
-import test.Ice.operations.Test.Callback_MyClass_opMyEnum;
-import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
-import test.Ice.operations.Test.Callback_MyClass_opShortIntD;
-import test.Ice.operations.Test.Callback_MyClass_opShortIntLong;
-import test.Ice.operations.Test.Callback_MyClass_opShortIntLongS;
-import test.Ice.operations.Test.Callback_MyClass_opShortIntLongSS;
-import test.Ice.operations.Test.Callback_MyClass_opString;
-import test.Ice.operations.Test.Callback_MyClass_opStringMyEnumD;
-import test.Ice.operations.Test.Callback_MyClass_opMyEnumStringD;
-import test.Ice.operations.Test.Callback_MyClass_opStringS;
-import test.Ice.operations.Test.Callback_MyClass_opStringSS;
-import test.Ice.operations.Test.Callback_MyClass_opStringSSS;
-import test.Ice.operations.Test.Callback_MyClass_opStringStringD;
-import test.Ice.operations.Test.Callback_MyClass_opStruct;
-import test.Ice.operations.Test.Callback_MyClass_opMyStructMyEnumD;
-import test.Ice.operations.Test.Callback_MyClass_opDoubleMarshaling;
-import test.Ice.operations.Test.Callback_MyDerivedClass_opDerived;
 import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
@@ -99,16 +66,14 @@ public class TwowaysLambdaAMI
         private boolean _called;
     }
 
-    private static class pingI extends Ice.Callback_Object_ice_ping
+    private static class pingI
     {
-        @Override
         public void response()
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -121,17 +86,15 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class isAI extends Ice.Callback_Object_ice_isA
+    private static class isAI
     {
-        @Override
         public void response(boolean r)
         {
             test(r);
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -144,17 +107,15 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class idI extends Ice.Callback_Object_ice_id
+    private static class idI
     {
-        @Override
         public void response(String id)
         {
             test(id.equals(MyDerivedClass.ice_staticId()));
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -167,17 +128,15 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class idsI extends Ice.Callback_Object_ice_ids
+    private static class idsI
     {
-        @Override
         public void response(String[] ids)
         {
             test(ids.length == 3);
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -190,16 +149,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opVoidI extends Callback_MyClass_opVoid
+    private static class opVoidI
     {
-        @Override
         public void response()
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -212,9 +169,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opByteI extends Callback_MyClass_opByte
+    private static class opByteI
     {
-        @Override
         public void response(byte r, byte b)
         {
             test(b == (byte)0xf0);
@@ -222,8 +178,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -236,9 +191,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opBoolI extends Callback_MyClass_opBool
+    private static class opBoolI
     {
-        @Override
         public void response(boolean r, boolean b)
         {
             test(b);
@@ -246,8 +200,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -260,9 +213,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opShortIntLongI extends Callback_MyClass_opShortIntLong
+    private static class opShortIntLongI
     {
-        @Override
         public void response(long r, short s, int i, long l)
         {
             test(s == 10);
@@ -272,8 +224,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -286,9 +237,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opFloatDoubleI extends Callback_MyClass_opFloatDouble
+    private static class opFloatDoubleI
     {
-        @Override
         public void response(double r, float f, double d)
         {
             test(f == 3.14f);
@@ -297,8 +247,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -311,9 +260,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opStringI extends Callback_MyClass_opString
+    private static class opStringI
     {
-        @Override
         public void response(String r, String s)
         {
             test(s.equals("world hello"));
@@ -321,8 +269,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -335,9 +282,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opMyEnumI extends Callback_MyClass_opMyEnum
+    private static class opMyEnumI
     {
-        @Override
         public void response(MyEnum r, MyEnum e)
         {
             test(e == MyEnum.enum2);
@@ -345,8 +291,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -359,14 +304,13 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opMyClassI extends Callback_MyClass_opMyClass
+    private static class opMyClassI
     {
         opMyClassI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
-        @Override
         public void response(MyClassPrx r, MyClassPrx c1, MyClassPrx c2)
         {
             test(c1.ice_getIdentity().equals(_communicator.stringToIdentity("test")));
@@ -389,8 +333,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -404,14 +347,13 @@ public class TwowaysLambdaAMI
         private Ice.Communicator _communicator;
     }
 
-    private static class opStructI extends Callback_MyClass_opStruct
+    private static class opStructI
     {
         opStructI(Ice.Communicator communicator)
         {
             _communicator = communicator;
         }
 
-        @Override
         public void response(Structure rso, Structure so)
         {
             test(rso.p == null);
@@ -427,8 +369,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -442,9 +383,8 @@ public class TwowaysLambdaAMI
         private Ice.Communicator _communicator;
     }
 
-    private static class opByteSI extends Callback_MyClass_opByteS
+    private static class opByteSI
     {
-        @Override
         public void response(byte[] rso, byte[] bso)
         {
             test(bso.length == 4);
@@ -464,8 +404,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -478,9 +417,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opBoolSI extends Callback_MyClass_opBoolS
+    private static class opBoolSI
     {
-        @Override
         public void response(boolean[] rso, boolean[] bso)
         {
             test(bso.length == 4);
@@ -495,8 +433,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -509,9 +446,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opShortIntLongSI extends Callback_MyClass_opShortIntLongS
+    private static class opShortIntLongSI
     {
-        @Override
         public void response(long[] rso, short[] sso, int[] iso, long[] lso)
         {
             test(sso.length == 3);
@@ -537,8 +473,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -551,9 +486,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opFloatDoubleSI extends Callback_MyClass_opFloatDoubleS
+    private static class opFloatDoubleSI
     {
-        @Override
         public void response(double[] rso, float[] fso, double[] dso)
         {
             test(fso.length == 2);
@@ -572,8 +506,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -586,9 +519,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opStringSI extends Callback_MyClass_opStringS
+    private static class opStringSI
     {
-        @Override
         public void response(String[] rso, String[] sso)
         {
             test(sso.length == 4);
@@ -603,8 +535,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -617,9 +548,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opByteSSI extends Callback_MyClass_opByteSS
+    private static class opByteSSI
     {
-        @Override
         public void response(byte[][] rso, byte[][] bso)
         {
             test(bso.length == 2);
@@ -644,8 +574,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -658,16 +587,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opBoolSSI extends Callback_MyClass_opBoolSS
+    private static class opBoolSSI
     {
-        @Override
         public void response(boolean[][] rso, boolean[][] bso)
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -680,16 +607,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opShortIntLongSSI extends Callback_MyClass_opShortIntLongSS
+    private static class opShortIntLongSSI
     {
-        @Override
         public void response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -702,9 +627,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opFloatDoubleSSI extends Callback_MyClass_opFloatDoubleSS
+    private static class opFloatDoubleSSI
     {
-        @Override
         public void response(double[][] rso, float[][] fso, double[][] dso)
         {
             test(fso.length == 3);
@@ -730,8 +654,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -744,9 +667,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opStringSSI extends Callback_MyClass_opStringSS
+    private static class opStringSSI
     {
-        @Override
         public void response(String[][] rso, String[][] sso)
         {
             test(sso.length == 5);
@@ -767,8 +689,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -781,9 +702,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opStringSSSI extends Callback_MyClass_opStringSSS
+    private static class opStringSSSI
     {
-        @Override
         public void response(String[][][] rsso, String[][][] ssso)
         {
             test(ssso.length == 5);
@@ -821,8 +741,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -835,9 +754,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opByteBoolDI extends Callback_MyClass_opByteBoolD
+    private static class opByteBoolDI
     {
-        @Override
         public void response(java.util.Map<Byte, Boolean> ro, java.util.Map<Byte, Boolean> _do)
         {
             java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<Byte, Boolean>();
@@ -852,8 +770,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -866,9 +783,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opShortIntDI extends Callback_MyClass_opShortIntD
+    private static class opShortIntDI
     {
-        @Override
         public void response(java.util.Map<Short, Integer> ro, java.util.Map<Short, Integer> _do)
         {
             java.util.Map<Short, Integer> di1 = new java.util.HashMap<Short, Integer>();
@@ -883,8 +799,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -897,9 +812,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opLongFloatDI extends Callback_MyClass_opLongFloatD
+    private static class opLongFloatDI
     {
-        @Override
         public void response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
         {
             java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
@@ -914,8 +828,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -928,9 +841,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opStringStringDI extends Callback_MyClass_opStringStringD
+    private static class opStringStringDI
     {
-        @Override
         public void response(java.util.Map<String, String> ro, java.util.Map<String, String> _do)
         {
             java.util.Map<String, String> di1 = new java.util.HashMap<String, String>();
@@ -945,8 +857,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -959,9 +870,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opStringMyEnumDI extends Callback_MyClass_opStringMyEnumD
+    private static class opStringMyEnumDI
     {
-        @Override
         public void response(java.util.Map<String, MyEnum> ro, java.util.Map<String, MyEnum> _do)
         {
             java.util.Map<String, MyEnum> di1 = new java.util.HashMap<String, MyEnum>();
@@ -976,8 +886,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -990,9 +899,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opMyEnumStringDI extends Callback_MyClass_opMyEnumStringD
+    private static class opMyEnumStringDI
     {
-        @Override
         public void response(java.util.Map<MyEnum, String> ro, java.util.Map<MyEnum, String> _do)
         {
             java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
@@ -1005,8 +913,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1019,9 +926,8 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opMyStructMyEnumDI extends Callback_MyClass_opMyStructMyEnumD
+    private static class opMyStructMyEnumDI
     {
-        @Override
         public void response(java.util.Map<MyStruct, MyEnum> ro, java.util.Map<MyStruct, MyEnum> _do)
         {
             MyStruct s11 = new MyStruct(1, 1);
@@ -1040,8 +946,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1054,14 +959,13 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opIntSI extends Callback_MyClass_opIntS
+    private static class opIntSI
     {
         opIntSI(int l)
         {
             _l = l;
         }
 
-        @Override
         public void response(int[] r)
         {
             test(r.length == _l);
@@ -1072,8 +976,7 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1087,16 +990,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opDerivedI extends Callback_MyDerivedClass_opDerived
+    private static class opDerivedI
     {
-        @Override
         public void response()
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1109,16 +1010,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opDoubleMarshalingI extends Callback_MyClass_opDoubleMarshaling
+    private static class opDoubleMarshalingI
     {
-        @Override
         public void response()
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1131,16 +1030,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opIdempotentI extends Callback_MyClass_opIdempotent
+    private static class opIdempotentI
     {
-        @Override
         public void response()
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1153,16 +1050,14 @@ public class TwowaysLambdaAMI
         private Callback callback = new Callback();
     }
 
-    private static class opNonmutatingI extends Callback_MyClass_opNonmutating
+    private static class opNonmutatingI
     {
-        @Override
         public void response()
         {
             callback.called();
         }
 
-        @Override
-        public void exception(Ice.LocalException ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -1182,31 +1077,31 @@ public class TwowaysLambdaAMI
 
         {
             pingI cb = new pingI();
-            p.begin_ice_ping(() -> cb.response(), (Ice.LocalException ex) -> test(false));
+            p.begin_ice_ping(() -> cb.response(), (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
         {
             isAI cb = new isAI();
-            p.begin_ice_isA(MyClass.ice_staticId(), (boolean r) -> cb.response(r), (Ice.LocalException ex) -> test(false));
+            p.begin_ice_isA(MyClass.ice_staticId(), (boolean r) -> cb.response(r), (Ice.Exception ex) -> test(false));
             cb.check();
         }
     
         {
             idI cb = new idI();
-            p.begin_ice_id((String id) -> cb.response(id), (Ice.LocalException ex) -> test(false));
+            p.begin_ice_id((String id) -> cb.response(id), (Ice.Exception ex) -> test(false));
             cb.check();
         }
     
         {
             idsI cb = new idsI();
-            p.begin_ice_ids((String[] ids) -> cb.response(ids), (Ice.LocalException ex) -> test(false));
+            p.begin_ice_ids((String[] ids) -> cb.response(ids), (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
         {
             opVoidI cb = new opVoidI();
-            p.begin_opVoid(() -> cb.response(), (Ice.LocalException ex) -> test(false));
+            p.begin_opVoid(() -> cb.response(), (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1214,7 +1109,7 @@ public class TwowaysLambdaAMI
             opByteI cb = new opByteI();
             p.begin_opByte((byte)0xff, (byte)0x0f, 
                 (byte p1, byte p2) -> cb.response(p1, p2), 
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1222,7 +1117,7 @@ public class TwowaysLambdaAMI
             opBoolI cb = new opBoolI();
             p.begin_opBool(true, false, 
                 (boolean p1, boolean p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1230,7 +1125,7 @@ public class TwowaysLambdaAMI
             opShortIntLongI cb = new opShortIntLongI();
             p.begin_opShortIntLong((short)10, 11, 12L,
                 (long p1, short p2, int p3, long p4) -> cb.response(p1, p2, p3, p4),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1238,7 +1133,7 @@ public class TwowaysLambdaAMI
             opFloatDoubleI cb = new opFloatDoubleI();
             p.begin_opFloatDouble(3.14f, 1.1E10,
                 (double p1, float p2, double p3) -> cb.response(p1, p2, p3),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1246,7 +1141,7 @@ public class TwowaysLambdaAMI
             opStringI cb = new opStringI();
             p.begin_opString("hello", "world",
                 (String p1, String p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1254,7 +1149,7 @@ public class TwowaysLambdaAMI
             opMyEnumI cb = new opMyEnumI();
             p.begin_opMyEnum(MyEnum.enum2,
                 (MyEnum p1, MyEnum p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1262,7 +1157,7 @@ public class TwowaysLambdaAMI
             opMyClassI cb = new opMyClassI(communicator);
             p.begin_opMyClass(p,
                 (MyClassPrx p1, MyClassPrx p2, MyClassPrx p3) -> cb.response(p1, p2, p3),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1281,7 +1176,7 @@ public class TwowaysLambdaAMI
             opStructI cb = new opStructI(communicator);
             p.begin_opStruct(si1, si2,
                 (Structure p1, Structure p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1304,7 +1199,7 @@ public class TwowaysLambdaAMI
             opByteSI cb = new opByteSI();
             p.begin_opByteS(bsi1, bsi2,
                 (byte[] p1, byte[] p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1315,7 +1210,7 @@ public class TwowaysLambdaAMI
             opBoolSI cb = new opBoolSI();
             p.begin_opBoolS(bsi1, bsi2,
                 (boolean[] p1, boolean[] p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1327,7 +1222,7 @@ public class TwowaysLambdaAMI
             opShortIntLongSI cb = new opShortIntLongSI();
             p.begin_opShortIntLongS(ssi, isi, lsi,
                 (long[] p1, short[] p2, int[] p3, long[] p4) -> cb.response(p1, p2, p3, p4),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1338,7 +1233,7 @@ public class TwowaysLambdaAMI
             opFloatDoubleSI cb = new opFloatDoubleSI();
             p.begin_opFloatDoubleS(fsi, dsi, 
                 (double[] p1, float[] p2, double[] p3) -> cb.response(p1, p2, p3),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1349,7 +1244,7 @@ public class TwowaysLambdaAMI
             opStringSI cb = new opStringSI();
             p.begin_opStringS(ssi1, ssi2, 
                 (String[] p1, String[] p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1368,7 +1263,7 @@ public class TwowaysLambdaAMI
             opByteSSI cb = new opByteSSI();
             p.begin_opByteSS(bsi1, bsi2,
                 (byte[][] p1, byte[][] p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1387,7 +1282,7 @@ public class TwowaysLambdaAMI
             opFloatDoubleSSI cb = new opFloatDoubleSSI();
             p.begin_opFloatDoubleSS(fsi, dsi, 
                 (double[][] p1, float[][] p2, double[][] p3) -> cb.response(p1, p2, p3),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1407,7 +1302,7 @@ public class TwowaysLambdaAMI
             opStringSSI cb = new opStringSSI();
             p.begin_opStringSS(ssi1, ssi2,
                 (String[][] p1, String[][] p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1451,7 +1346,7 @@ public class TwowaysLambdaAMI
             opStringSSSI cb = new opStringSSSI();
             p.begin_opStringSSS(sssi1, sssi2,
                 (String[][][] p1, String[][][] p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1467,7 +1362,7 @@ public class TwowaysLambdaAMI
             opByteBoolDI cb = new opByteBoolDI();
             p.begin_opByteBoolD(di1, di2, 
                 (Map<Byte, Boolean> p1, Map<Byte, Boolean> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1483,7 +1378,7 @@ public class TwowaysLambdaAMI
             opShortIntDI cb = new opShortIntDI();
             p.begin_opShortIntD(di1, di2,
                 (Map<Short, Integer> p1, Map<Short, Integer> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1499,7 +1394,7 @@ public class TwowaysLambdaAMI
             opLongFloatDI cb = new opLongFloatDI();
             p.begin_opLongFloatD(di1, di2,
                 (Map<Long, Float> p1, Map<Long, Float> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1515,7 +1410,7 @@ public class TwowaysLambdaAMI
             opStringStringDI cb = new opStringStringDI();
             p.begin_opStringStringD(di1, di2,
                 (Map<String, String> p1, Map<String, String> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1531,7 +1426,7 @@ public class TwowaysLambdaAMI
             opStringMyEnumDI cb = new opStringMyEnumDI();
             p.begin_opStringMyEnumD(di1, di2,
                 (Map<String, MyEnum> p1, Map<String, MyEnum> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1545,7 +1440,7 @@ public class TwowaysLambdaAMI
             opMyEnumStringDI cb = new opMyEnumStringDI();
             p.begin_opMyEnumStringD(di1, di2,
                 (Map<MyEnum, String> p1, Map<MyEnum, String> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1565,7 +1460,7 @@ public class TwowaysLambdaAMI
             opMyStructMyEnumDI cb = new opMyStructMyEnumDI();
             p.begin_opMyStructMyEnumD(di1, di2,
                 (Map<MyStruct, MyEnum> p1, Map<MyStruct, MyEnum> p2) -> cb.response(p1, p2),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1582,7 +1477,7 @@ public class TwowaysLambdaAMI
                 opIntSI cb = new opIntSI(l);
                 p.begin_opIntS(s, 
                     (int[] p1) -> cb.response(p1),
-                    (Ice.LocalException ex) -> test(false));
+                    (Ice.Exception ex) -> test(false));
                 cb.check();
             }
         }
@@ -1597,13 +1492,15 @@ public class TwowaysLambdaAMI
             opDoubleMarshalingI cb = new opDoubleMarshalingI();
             p.begin_opDoubleMarshaling(d, ds,
                 () -> cb.response(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
         {
             opIdempotentI cb = new opIdempotentI();
-            p.begin_opIdempotent(cb);
+            p.begin_opIdempotent(
+                () -> cb.response(),
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1611,7 +1508,7 @@ public class TwowaysLambdaAMI
             opNonmutatingI cb = new opNonmutatingI();
             p.begin_opNonmutating(
                 () -> cb.response(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1621,7 +1518,7 @@ public class TwowaysLambdaAMI
             opDerivedI cb = new opDerivedI();
             derived.begin_opDerived(
                 () -> cb.response(),
-                (Ice.LocalException ex) -> test(false));
+                (Ice.Exception ex) -> test(false));
             cb.check();
         }
     }

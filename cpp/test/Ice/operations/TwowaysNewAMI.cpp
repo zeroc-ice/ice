@@ -1063,6 +1063,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         cb->check();
     }
 #ifdef ICE_CPP11
+
     {
         CallbackPtr cb = new Callback;
         p->begin_ice_ping([=](){ cb->ping(); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });

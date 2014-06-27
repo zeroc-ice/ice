@@ -513,7 +513,7 @@ Slice::JavaVisitor::getParamsAsyncLambda(const OperationPtr& op, const string& p
         params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> __userExceptionCb");
     }
     
-    params.push_back("IceInternal.Functional_GenericCallback1<Ice.LocalException> __localExceptionCb");
+    params.push_back("IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb");
     
     if(sentCB)
     {
@@ -534,7 +534,7 @@ Slice::JavaVisitor::getArgsAsyncLambda(const OperationPtr& op, const string& pac
     {
         args.push_back("__userExceptionCb");
     }
-    args.push_back("__localExceptionCb");
+    args.push_back("__exceptionCb");
     args.push_back(sentCB ? "__sentCb" : "null");
     return args;
 }
@@ -744,24 +744,6 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
         out.restoreIndent();
         out.dec();
     }
-}
-
-void
-Slice::JavaVisitor::writeDelegateThrowsClause(const string& package, const ExceptionList& throws)
-{
-    Output& out = output();
-    out.inc();
-    out << nl << "throws ";
-    out.useCurrentPosAsIndent();
-    out << "IceInternal.LocalExceptionWrapper";
-
-    for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-    {
-        out << "," << nl;
-        out << getAbsolute(*r, package);
-    }
-    out.restoreIndent();
-    out.dec();
 }
 
 void
@@ -2359,15 +2341,6 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
     ProxyVisitor proxyVisitor(_dir);
     p->visit(&proxyVisitor, false);
 
-    DelegateVisitor delegateVisitor(_dir);
-    p->visit(&delegateVisitor, false);
-
-    DelegateMVisitor delegateMVisitor(_dir);
-    p->visit(&delegateMVisitor, false);
-
-    DelegateDVisitor delegateDVisitor(_dir);
-    p->visit(&delegateDVisitor, false);
-
     DispatcherVisitor dispatcherVisitor(_dir, stream);
     p->visit(&dispatcherVisitor, false);
 
@@ -2649,8 +2622,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << eb;
 
-    out << sp << nl << "public _" << name << "Tie(" << '_' << name << opIntfName
-        << " delegate)";
+    out << sp << nl << "public _" << name << "Tie(" << '_' << name << opIntfName << " delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
     out << eb;
@@ -4749,10 +4721,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(op->returnsData())
         {
             out << nl << "Ice.AsyncResult.__check(__result, this, __" << op->name() << "_name);";
-            out << nl << "boolean __ok = __result.__wait();";
-            out << nl << "try";
-            out << sb;
-            out << nl << "if(!__ok)";
+            out << nl << "if(!__result.__wait())";
             out << sb;
             out << nl << "try";
             out << sb;
@@ -4819,17 +4788,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out << nl << "return __ret;";
                 }
             }
-
-            out << eb;
-            out << nl << "catch(Ice.LocalException ex)";
-            out << sb;
-            out << nl << "Ice.Instrumentation.InvocationObserver __obsv = __result.__getObserver();";
-            out << nl << "if(__obsv != null)";
-            out << sb;
-            out << nl << "__obsv.failed(ex.ice_name());";
-            out << eb;
-            out << nl << "throw ex;";
-            out << eb;
         }
         else
         {
@@ -4892,6 +4850,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << eb;
             }
             out << nl << "catch(Ice.LocalException __ex)";
+            out << sb;
+            out << nl << "__cb.exception(__ex);";
+            out << nl << "return;";
+            out << eb;
+            out << nl << "catch(Ice.SystemException __ex)";
             out << sb;
             out << nl << "__cb.exception(__ex);";
             out << nl << "return;";
@@ -5136,16 +5099,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public static String ice_staticId()";
     out << sb;
     out << nl << "return __ids[" << scopedPos << "];";
-    out << eb;
-
-    out << sp << nl << "protected Ice._ObjectDelM __createDelegateM()";
-    out << sb;
-    out << nl << "return new _" << name << "DelM();";
-    out << eb;
-
-    out << sp << nl << "protected Ice._ObjectDelD __createDelegateD()";
-    out << sb;
-    out << nl << "return new _" << name << "DelD();";
     out << eb;
 
     out << sp << nl << "public static void __write(IceInternal.BasicStream __os, " << name << "Prx v)";
@@ -5522,6 +5475,23 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
     vector<string> params = getParamsProxy(op, package, false, optionalMapping);
     vector<string> args = getArgs(op);
 
+    int iter = 0;
+
+    ParamDeclList inParams;
+    ParamDeclList outParams;
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+    {
+        if((*pli)->isOutParam())
+        {
+            outParams.push_back(*pli);
+        }
+        else
+        {
+            inParams.push_back(*pli);
+        }
+    }
+
     ExceptionList throws = op->throws();
     throws.sort();
     throws.unique();
@@ -5564,60 +5534,90 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         << explicitContextParam << epar;
     writeThrowsClause(package, throws);
     out << sb;
-    out << nl << "if(__explicitCtx && __ctx == null)";
-    out << sb;
-    out << nl << "__ctx = _emptyContext;";
-    out << eb;
-    out << nl << "final Ice.Instrumentation.InvocationObserver __observer = "
-        << "IceInternal.ObserverHelper.get(this, \"" << opName << "\", __ctx);";
-    out << nl << "int __cnt = 0;";
-    out << nl << "try";
-    out << sb;
-    out << nl << "while(true)";
-    out << sb;
-    out << nl << "Ice._ObjectDel __delBase = null;";
-    out << nl << "try";
-    out << sb;
     if(op->returnsData())
     {
-        out << nl << "__checkTwowayOnly(\"" << opName << "\");";
+        out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
     }
-    out << nl << "__delBase = __getDelegate(false);";
-    out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
-    out << nl;
-    if(ret)
-    {
-        out << "return ";
-    }
-    out << "__del." << opName << spar << args << "__ctx" << "__observer" << epar << ';';
-    if(!ret)
-    {
-        out << nl << "return;";
-    }
-    out << eb;
-    out << nl << "catch(IceInternal.LocalExceptionWrapper __ex)";
+
+    out << nl << "IceInternal.Outgoing __og = getOutgoing(__" << op->name() << "_name, " << 
+        sliceModeToIceMode(op->sendMode()) << ", __ctx, __explicitCtx);";
+    out << nl << "try";
     out << sb;
-    if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
+    if(!inParams.empty())
     {
-        out << nl << "__cnt = __handleExceptionWrapperRelaxed(__delBase, __ex, null, __cnt, __observer);";
+        out << nl << "try";
+        out << sb;
+        out << nl << "IceInternal.BasicStream __os = __og.startWriteParams(" << opFormatTypeToString(op) << ");";
+        writeMarshalUnmarshalParams(out, package, inParams, 0, iter, true, optionalMapping);
+        if(op->sendsClasses(false))
+        {
+            out << nl << "__os.writePendingObjects();";
+        }
+        out << nl << "__og.endWriteParams();";
+        out << eb;
+        out << nl << "catch(Ice.LocalException __ex)";
+        out << sb;
+        out << nl << "__og.abort(__ex);";
+        out << eb;
     }
     else
     {
-        out << nl << "__handleExceptionWrapper(__delBase, __ex, __observer);";
+        out << nl << "__og.writeEmptyParams();";
     }
-    out << eb;
-    out << nl << "catch(Ice.LocalException __ex)";
-    out << sb;
-    out << nl << "__cnt = __handleException(__delBase, __ex, null, __cnt, __observer);";
-    out << eb;
-    out << eb;
+
+    if(!op->returnsData())
+    {
+        out << nl << "__invoke(__og);";
+    }
+    else
+    {
+        out << nl << "if(!__og.invoke())";
+        out << sb;
+        out << nl << "try";
+        out << sb;
+        out << nl << "__og.throwUserException();";
+        out << eb;
+        for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+        {
+            out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
+            out << sb;
+            out << nl << "throw __ex;";
+            out << eb;
+        }
+        out << nl << "catch(Ice.UserException __ex)";
+        out << sb;
+        out << nl << "throw new Ice.UnknownUserException(__ex.ice_name(), __ex);";
+        out << eb;
+        out << eb;
+        if(ret || !outParams.empty())
+        {
+            out << nl << "IceInternal.BasicStream __is = __og.startReadParams();";
+            writeMarshalUnmarshalParams(out, package, outParams, op, iter, false, true);
+            if(op->returnsClasses(false))
+            {
+                out << nl << "__is.readPendingObjects();";
+            }
+            out << nl << "__og.endReadParams();";
+        }
+        
+        if(ret)
+        {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+            if(!op->returnIsOptional() &&
+               ((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret)))
+            {
+                out << nl << "return __ret.value;";
+            }
+            else
+            {
+                out << nl << "return __ret;";
+            }
+        }
+    }
     out << eb;
     out << nl << "finally";
     out << sb;
-    out << nl << "if(__observer != null)";
-    out << sb;
-    out << nl << "__observer.detach();";
-    out << eb;
+    out << nl << "reclaimOutgoing(__og);";
     out << eb;
     out << eb;
 
@@ -5743,7 +5743,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             params = getInOutArgs(op, InParam);
             params.push_back("__ctx");
             params.push_back("__explicitCtx");
-            params.push_back("new IceInternal.Functional_OnewayCallback(__responseCb, __localExceptionCb, __sentCb)");
+            params.push_back("new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, __sentCb)");
             out << nl << "return begin_" << op->name();
             writeParamList(out, params);
             out << ';';
@@ -5756,7 +5756,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             {
                 params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> userExceptionCb");
             }
-            params.push_back("IceInternal.Functional_GenericCallback1<Ice.LocalException> localExceptionCb");
+            params.push_back("IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb");
             params.push_back("IceInternal.Functional_BoolCallback sentCb");
             
             out << sp;
@@ -5770,7 +5770,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             {
                 out << "userExceptionCb, ";
             }
-            out << "localExceptionCb, sentCb);";
+            out << "exceptionCb, sentCb);";
             out << nl << "__responseCb = responseCb;";
             out << eb;
             
@@ -5798,9 +5798,10 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out << eb;
             
             
-            out << nl << "return begin_" << op->name() << spar << getInOutArgs(op, InParam) << "__ctx" << "__explicitCtx"
-                << (throws.empty() ? "new CB(__responseCb, __localExceptionCb, __sentCb)" : 
-                                     "new CB(__responseCb, __userExceptionCb, __localExceptionCb, __sentCb)") 
+            out << nl << "return begin_" << op->name() << spar << getInOutArgs(op, InParam) << "__ctx"
+                << "__explicitCtx"
+                << (throws.empty() ? "new CB(__responseCb, __exceptionCb, __sentCb)" : 
+                                     "new CB(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)") 
                 << epar << ';';
         }
         else
@@ -5812,8 +5813,8 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             const string baseClass = getAsyncCallbackBaseClass(op, true);
             out << nl << "return begin_" << op->name();
             writeParamList(out, params, false, false);
-            out << nl << (throws.empty() ? "new " + baseClass + "(__responseCb, __localExceptionCb, __sentCb)" : 
-                                           "new " + baseClass + "(__responseCb, __userExceptionCb, __localExceptionCb, __sentCb)");
+            out << nl << (throws.empty() ? "new " + baseClass + "(__responseCb, __exceptionCb, __sentCb)" : 
+                                           "new " + baseClass + "(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)");
             out.inc();
             out << sb;
             out << nl << "public final void __completed(Ice.AsyncResult __result)";
@@ -5875,7 +5876,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         }
         out << nl << "__result.__invoke(true);";
         out << eb;
-        out << nl << "catch(Ice.LocalException __ex)";
+        out << nl << "catch(Ice.Exception __ex)";
         out << sb;
         out << nl << "__result.__invokeExceptionAsync(__ex);";
         out << eb;
@@ -6136,7 +6137,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << callbackParam
             << epar << ';';
             
-            
         //
         // Async methods that accept Java 8 lambda callbacks.
         //
@@ -6202,580 +6202,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeDocCommentAsync(out, p, InParam, contextDoc);
         out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << contextParam << epar << ';';
     }
-}
-
-Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "Del");
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    out << sp << nl << "public interface _" << name << "Del extends ";
-    if(bases.empty())
-    {
-        out << "Ice._ObjectDel";
-    }
-    else
-    {
-        out.useCurrentPosAsIndent();
-        for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
-        {
-            out << getAbsolute(*q, package, "_", "Del");
-            if(++q != bases.end())
-            {
-                out << ',' << nl;
-            }
-        }
-        out.restoreIndent();
-    }
-
-    out << sb;
-
-    string contextParam = "java.util.Map<String, String> __ctx";
-    string observerParam = "Ice.Instrumentation.InvocationObserver __obsv";
-
-    OperationList ops = p->operations();
-    for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        string opName = fixKwd(op->name());
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
-
-        vector<string> params = getParamsProxy(op, package, false, true);
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        out << sp;
-        out << nl << retS << ' ' << opName << spar << params << contextParam << observerParam << epar;
-        writeDelegateThrowsClause(package, throws);
-        out << ';';
-
-        if(op->sendsOptionals())
-        {
-            //
-            // Write an overloaded version of the method using required params.
-            //
-            vector<string> reqParams = getParamsProxy(op, package, false, false);
-
-            out << sp;
-            out << nl << retS << ' ' << opName << spar << reqParams << contextParam << observerParam << epar;
-            writeDelegateThrowsClause(package, throws);
-            out << ';';
-        }
-    }
-
-    out << eb;
-    close();
-
-    return false;
-}
-
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    const string name = p->name();
-    const string package = getPackage(p);
-    const string absolute = getAbsolute(p, "", "_", "DelM");
-
-    open(absolute, p->file());
-    Output& out = output();
-
-    out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
-    out << sb;
-
-    const OperationList ops = p->allOperations();
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        writeOperation(p, package, *r, true);
-
-        if((*r)->sendsOptionals())
-        {
-            //
-            // Write an overloaded version that uses required params.
-            //
-            writeOperation(p, package, *r, false);
-        }
-    }
-
-    out << eb;
-    close();
-
-    return false;
-}
-
-void
-Slice::Gen::DelegateMVisitor::writeOperation(const ClassDefPtr& /*p*/, const string& package, const OperationPtr& op,
-                                             bool optionalMapping)
-{
-    Output& out = output();
-
-    string contextParam = "java.util.Map<String, String> __ctx";
-    string observerParam = "Ice.Instrumentation.InvocationObserver __observer";
-
-    StringList opMetaData = op->getMetaData();
-    string opName = fixKwd(op->name());
-    TypePtr ret = op->returnType();
-    string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true, op->returnIsOptional());
-    int iter = 0;
-
-    ParamDeclList inParams;
-    ParamDeclList outParams;
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-    {
-        if((*pli)->isOutParam())
-        {
-            outParams.push_back(*pli);
-        }
-        else
-        {
-            inParams.push_back(*pli);
-        }
-    }
-
-    ExceptionList throws = op->throws();
-    throws.sort();
-    throws.unique();
-
-    //
-    // Arrange exceptions into most-derived to least-derived order. If we don't
-    // do this, a base exception handler can appear before a derived exception
-    // handler, causing compiler warnings and resulting in the base exception
-    // being marshaled instead of the derived exception.
-    //
-#if defined(__SUNPRO_CC)
-    throws.sort(Slice::derivedToBaseCompare);
-#else
-    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-    vector<string> params = getParamsProxy(op, package, false, optionalMapping);
-
-    out << sp;
-    out << nl << "public " << retS << nl << opName << spar << params << contextParam << observerParam << epar;
-    writeDelegateThrowsClause(package, throws);
-    out << sb;
-
-    out << nl << "IceInternal.Outgoing __og = __handler.getOutgoing(\"" << op->name() << "\", "
-        << sliceModeToIceMode(op->sendMode()) << ", __ctx, __observer);";
-    out << nl << "try";
-    out << sb;
-    if(!inParams.empty())
-    {
-        out << nl << "try";
-        out << sb;
-        out << nl << "IceInternal.BasicStream __os = __og.startWriteParams(" << opFormatTypeToString(op) << ");";
-        writeMarshalUnmarshalParams(out, package, inParams, 0, iter, true, optionalMapping);
-        if(op->sendsClasses(false))
-        {
-            out << nl << "__os.writePendingObjects();";
-        }
-        out << nl << "__og.endWriteParams();";
-        out << eb;
-        out << nl << "catch(Ice.LocalException __ex)";
-        out << sb;
-        out << nl << "__og.abort(__ex);";
-        out << eb;
-    }
-    else
-    {
-        out << nl << "__og.writeEmptyParams();";
-    }
-
-    out << nl << "boolean __ok = __og.invoke();";
-    if(!op->returnsData())
-    {
-        out << nl << "if(__og.hasResponse())";
-        out << sb;
-    }
-
-    out << nl << "try";
-    out << sb;
-    out << nl << "if(!__ok)";
-    out << sb;
-    out << nl << "try";
-    out << sb;
-    out << nl << "__og.throwUserException();";
-    out << eb;
-    for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-    {
-        out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
-        out << sb;
-        out << nl << "throw __ex;";
-        out << eb;
-    }
-    out << nl << "catch(Ice.UserException __ex)";
-    out << sb;
-    out << nl << "throw new Ice.UnknownUserException(__ex.ice_name(), __ex);";
-    out << eb;
-    out << eb;
-    if(ret || !outParams.empty())
-    {
-        out << nl << "IceInternal.BasicStream __is = __og.startReadParams();";
-        writeMarshalUnmarshalParams(out, package, outParams, op, iter, false, true);
-        if(op->returnsClasses(false))
-        {
-            out << nl << "__is.readPendingObjects();";
-        }
-        out << nl << "__og.endReadParams();";
-    }
-    else
-    {
-        out << nl << "__og.readEmptyParams();";
-    }
-
-    if(ret)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-        if(!op->returnIsOptional() &&
-           ((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret)))
-        {
-            out << nl << "return __ret.value;";
-        }
-        else
-        {
-            out << nl << "return __ret;";
-        }
-    }
-    out << eb;
-    out << nl << "catch(Ice.LocalException __ex)";
-    out << sb;
-    out << nl << "throw new IceInternal.LocalExceptionWrapper(__ex, false);";
-    out << eb;
-    if(!op->returnsData())
-    {
-        out << eb;
-    }
-
-    out << eb;
-    out << nl << "finally";
-    out << sb;
-    out << nl << "__handler.reclaimOutgoing(__og);";
-    out << eb;
-    out << eb;
-}
-
-Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    const string name = p->name();
-    const string package = getPackage(p);
-    const string absolute = getAbsolute(p, "", "_", "DelD");
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
-    out << sb;
-
-    const OperationList ops = p->allOperations();
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        writeOperation(p, package, op, true);
-
-        if(op->sendsOptionals())
-        {
-            writeOperation(p, package, op, false);
-        }
-    }
-
-    out << eb;
-    close();
-
-    return false;
-}
-
-void
-Slice::Gen::DelegateDVisitor::writeOperation(const ClassDefPtr& p, const string& package, const OperationPtr& op,
-                                             bool optionalMapping)
-{
-    const string name = p->name();
-    Output& out = output();
-
-    const string contextParam = "java.util.Map<String, String> __ctx";
-    const string observerParam = "Ice.Instrumentation.InvocationObserver __observer";
-
-    const ContainerPtr container = op->container();
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    const string opName = fixKwd(op->name());
-    const TypePtr ret = op->returnType();
-    const string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
-
-    ExceptionList throws = op->throws();
-    throws.sort();
-    throws.unique();
-
-    const string deprecateReason = getDeprecateReason(op, cl, "operation");
-
-    //
-    // Arrange exceptions into most-derived to least-derived order. If we don't
-    // do this, a base exception handler can appear before a derived exception
-    // handler, causing compiler warnings
-    //
-#if defined(__SUNPRO_CC)
-    throws.sort(Slice::derivedToBaseCompare);
-#else
-    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-    vector<string> params = getParamsProxy(op, package, true, optionalMapping);
-
-    out << sp;
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/** @deprecated **/";
-    }
-    out << nl << "public " << retS << ' ' << opName << spar << params << contextParam << observerParam << epar;
-    writeDelegateThrowsClause(package, throws);
-    out << sb;
-    if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
-    {
-        out << nl << "throw new Ice.CollocationOptimizationException();";
-    }
-    else
-    {
-        const StringList metaData = op->getMetaData();
-        out << nl << "final Ice.Current __current = new Ice.Current();";
-        out << nl << "__initCurrent(__current, \"" << op->name() << "\", "
-            << sliceModeToIceMode(op->sendMode())
-            << ", __ctx);";
-
-        string resultType;
-        if(ret)
-        {
-            resultType = typeToString(ret, TypeModeOut, package, op->getMetaData(), true, op->returnIsOptional());
-            out << nl << "final " << resultType << " __result = new " << resultType << "();";
-        }
-
-        out << nl << "IceInternal.Direct __direct = null;";
-        out << nl << "try";
-        out << sb;
-        out << nl << "__direct = new IceInternal.Direct(__current)";
-        out << sb;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/** @deprecated **/";
-        }
-        out << nl << "public Ice.DispatchStatus run(Ice.Object __obj)";
-        out << sb;
-        out << nl << fixKwd(name) << " __servant = null;";
-        out << nl << "if(__obj == null || __obj instanceof " << fixKwd(name) << ")";
-        out << sb;
-        out << nl << "__servant = (" << fixKwd(name) << ")__obj;";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl
-            << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
-        out << eb;
-
-        if(!throws.empty())
-        {
-            out << nl << "try";
-            out << sb;
-        }
-
-        //
-        // Collect the arguments that will be passed to the servant.
-        //
-        const bool servantOptionalMapping = useOptionalMapping(op);
-        const ParamDeclList paramList = op->parameters();
-        vector<string> args;
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            string param = fixKwd((*q)->name());
-
-            //
-            // For optional parameters, the proxy mapping can differ from the servant
-            // mapping, depending on whether the optional mapping is being used.
-            //
-            if((*q)->optional())
-            {
-                if((*q)->isOutParam())
-                {
-                    if(!servantOptionalMapping)
-                    {
-                        param = "__" + (*q)->name();
-                        string typeS = typeToString((*q)->type(), TypeModeOut, package, (*q)->getMetaData());
-                        out << nl << typeS << ' ' << param << " = new " << typeS << "();";
-                    }
-                }
-                else
-                {
-                    if(!optionalMapping)
-                    {
-                        string typeS = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true, true);
-                        param = "new " + typeS + "(" + param + ")";
-                    }
-                }
-            }
-            args.push_back(param);
-        }
-
-        out << nl;
-        if(ret)
-        {
-            if(op->returnIsOptional())
-            {
-                if(servantOptionalMapping)
-                {
-                    out << resultType << " __r = ";
-                }
-                else
-                {
-                    out << typeToString(ret, TypeModeIn, package, op->getMetaData()) << " __r = ";
-                }
-            }
-            else
-            {
-                out << "__result.value = ";
-            }
-        }
-
-        out << "__servant." << opName << spar << args << "__current" << epar << ';';
-
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            //
-            // For optional parameters, the proxy mapping can differ from the servant
-            // mapping, depending on whether the optional mapping is being used.
-            //
-            if((*q)->optional() && !servantOptionalMapping && (*q)->isOutParam())
-            {
-                out << nl << fixKwd((*q)->name()) << ".set(__" << (*q)->name() << ".value);";
-            }
-        }
-
-        if(ret && op->returnIsOptional())
-        {
-            if(servantOptionalMapping)
-            {
-                out << nl << "if(__r != null && __r.isSet())";
-                out << sb;
-                out << nl << "__result.set(__r.get());";
-                out << eb;
-            }
-            else
-            {
-                out << nl << "__result.set(__r);";
-            }
-        }
-
-        out << nl << "return Ice.DispatchStatus.DispatchOK;";
-
-        if(!throws.empty())
-        {
-            out << eb;
-            out << nl << "catch(Ice.UserException __ex)";
-            out << sb;
-            out << nl << "setUserException(__ex);";
-            out << nl << "return Ice.DispatchStatus.DispatchUserException;";
-            out << eb;
-        }
-
-        out << eb;
-        out << eb;
-        out << ";";
-
-        out << nl << "try";
-        out << sb;
-        out << sp << nl << "Ice.DispatchStatus __status = __direct.getServant().__collocDispatch(__direct);";
-        out << nl << "if(__status == Ice.DispatchStatus.DispatchUserException)";
-        out << sb;
-        out << nl << "__direct.throwUserException();";
-        out << eb;
-        out << nl << "assert __status == Ice.DispatchStatus.DispatchOK;";
-        if(ret)
-        {
-            if(op->returnIsOptional())
-            {
-                out << nl << "return __result;";
-            }
-            else
-            {
-                out << nl << "return __result.value;";
-            }
-        }
-
-        out << eb;
-        out << nl << "finally";
-        out << sb;
-        out << nl << "__direct.destroy();";
-        out << eb;
-
-        out << eb;
-        for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-        {
-            string exS = getAbsolute(*t, package);
-            out << nl << "catch(" << exS << " __ex)";
-            out << sb;
-            out << nl << "throw __ex;";
-            out << eb;
-        }
-
-        out << nl << "catch(Ice.SystemException __ex)";
-        out << sb;
-        out << nl << "throw __ex;";
-        out << eb;
-
-        out << nl << "catch(java.lang.Throwable __ex)";
-        out << sb;
-        out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(__ex);";
-        out << eb;
-    }
-    if(ret && !cl->hasMetaData("amd") && !op->hasMetaData("amd"))
-    {
-        if(op->returnIsOptional())
-        {
-            out << nl << "return __result;";
-        }
-        else
-        {
-            out << nl << "return __result.value;";
-        }
-    }
-    out << eb;
 }
 
 Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir, bool stream) :

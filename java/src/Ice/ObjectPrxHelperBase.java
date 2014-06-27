@@ -79,40 +79,39 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private boolean
     ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx)
     {
-        if(__explicitCtx && __context == null)
-        {
-            __context = _emptyContext;
-        }
-
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, __ice_isA_name, __context);
-        int __cnt = 0;
+        __checkTwowayOnly(__ice_isA_name);
+        IceInternal.Outgoing __og = getOutgoing(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
         try
         {
-            while(true)
+            try
             {
-                _ObjectDel __del = null;
+                IceInternal.BasicStream __os = __og.startWriteParams(Ice.FormatType.DefaultFormat);
+                __os.writeString(__id);
+                __og.endWriteParams();
+            }
+            catch(LocalException __ex)
+            {
+                __og.abort(__ex);
+            }
+            if(!__og.invoke())
+            {
                 try
                 {
-                    __checkTwowayOnly(__ice_isA_name);
-                    __del = __getDelegate(false);
-                    return __del.ice_isA(__id, __context, __observer);
+                    __og.throwUserException();
                 }
-                catch(IceInternal.LocalExceptionWrapper __ex)
+                catch(UserException __ex)
                 {
-                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt, __observer);
-                }
-                catch(LocalException __ex)
-                {
-                    __cnt = __handleException(__del, __ex, null, __cnt, __observer);
+                    throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
+            IceInternal.BasicStream __is = __og.startReadParams();
+            boolean __ret = __is.readBool();
+            __og.endReadParams();
+            return __ret;
         }
         finally
         {
-            if(__observer != null)
-            {
-                __observer.detach();
-            }
+            reclaimOutgoing(__og);
         }
     }
 
@@ -206,7 +205,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_isA(String __id, 
                   IceInternal.Functional_BoolCallback __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_isA(__id, null, false, __responseCb, __exceptionCb, null);
     }
@@ -223,7 +222,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_isA(String __id, 
                   IceInternal.Functional_BoolCallback __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_isA(__id, null, false, __responseCb, __exceptionCb, __sentCb);
@@ -242,7 +241,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     begin_ice_isA(String __id,
                   java.util.Map<String, String> __context, 
                   IceInternal.Functional_BoolCallback __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_isA(__id, __context, true, __responseCb, __exceptionCb, null);
     }
@@ -261,7 +260,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     begin_ice_isA(String __id,
                   java.util.Map<String, String> __context, 
                   IceInternal.Functional_BoolCallback __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_isA(__id, __context, true, __responseCb, __exceptionCb, __sentCb);
@@ -272,7 +271,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                   java.util.Map<String, String> __context,
                   boolean __explicitCtx,
                   IceInternal.Functional_BoolCallback __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_isA(__id, __context, __explicitCtx,
@@ -289,8 +288,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     begin_ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx,
                   IceInternal.CallbackBase __cb)
     {
-        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_isA_name, __cb);
         __checkAsyncTwowayOnly(__ice_isA_name);
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_isA_name, __cb);
         try
         {
             __result.__prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
@@ -299,7 +298,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __result.__endWriteParams();
             __result.__invoke(true);
         }
-        catch(LocalException __ex)
+        catch(Exception __ex)
         {
             __result.__invokeExceptionAsync(__ex);
         }
@@ -316,35 +315,22 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     end_ice_isA(AsyncResult __result)
     {
         AsyncResult.__check(__result, this, __ice_isA_name);
-        boolean __ok = __result.__wait();
-        try
+        if(!__result.__wait())
         {
-            if(!__ok)
+            try
             {
-                try
-                {
-                    __result.__throwUserException();
-                }
-                catch(UserException __ex)
-                {
-                    throw new UnknownUserException(__ex.ice_name(), __ex);
-                }
+                __result.__throwUserException();
             }
-            boolean __ret;
-            IceInternal.BasicStream __is = __result.__startReadParams();
-            __ret = __is.readBool();
-            __result.__endReadParams();
-            return __ret;
-        }
-        catch(Ice.LocalException ex)
-        {
-            InvocationObserver obsv = __result.__getObserver();
-            if(obsv != null)
+            catch(UserException __ex)
             {
-                obsv.failed(ex.ice_name());
+                throw new UnknownUserException(__ex.ice_name(), __ex);
             }
-            throw ex;
         }
+        boolean __ret;
+        IceInternal.BasicStream __is = __result.__startReadParams();
+        __ret = __is.readBool();
+        __result.__endReadParams();
+        return __ret;
     }
     
     static public final void __ice_isA_completed(TwowayCallbackBool __cb, Ice.AsyncResult __result)
@@ -355,6 +341,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __ret = __result.getProxy().end_ice_isA(__result);
         }
         catch(LocalException __ex)
+        {
+            __cb.exception(__ex);
+            return;
+        }
+        catch(SystemException __ex)
         {
             __cb.exception(__ex);
             return;
@@ -387,40 +378,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private void
     ice_ping(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
-        if(__explicitCtx && __context == null)
-        {
-            __context = _emptyContext;
-        }
-
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, __ice_ping_name, __context);
-        int __cnt = 0;
+        IceInternal.Outgoing __og = getOutgoing(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx);
         try
         {
-            while(true)
-            {
-                _ObjectDel __del = null;
-                try
-                {
-                    __del = __getDelegate(false);
-                    __del.ice_ping(__context, __observer);
-                    return;
-                }
-                catch(IceInternal.LocalExceptionWrapper __ex)
-                {
-                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt, __observer);
-                }
-                catch(LocalException __ex)
-                {
-                    __cnt = __handleException(__del, __ex, null, __cnt, __observer);
-                }
-            }
+            __og.writeEmptyParams();
+            __invoke(__og);
         }
         finally
         {
-            if(__observer != null)
-            {
-                __observer.detach();
-            }
+            reclaimOutgoing(__og);
         }
     }
 
@@ -506,7 +472,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult
     begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb, 
-                   IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_ping(null, false, 
                               new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, null));
@@ -522,7 +488,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult
     begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb, 
-                   IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                    IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_ping(null, false, new 
@@ -540,7 +506,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_ping(java.util.Map<String, String> __context, 
                    IceInternal.Functional_VoidCallback __responseCb, 
-                   IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_ping(__context, true, 
                               new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, null));
@@ -558,7 +524,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_ping(java.util.Map<String, String> __context,
                    IceInternal.Functional_VoidCallback __responseCb, 
-                   IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                    IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_ping(__context, true, 
@@ -575,7 +541,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __result.__writeEmptyParams();
             __result.__invoke(true);
         }
-        catch(LocalException __ex)
+        catch(Exception __ex)
         {
             __result.__invokeExceptionAsync(__ex);
         }
@@ -623,40 +589,30 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private String[]
     ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
-        if(__explicitCtx && __context == null)
-        {
-            __context = _emptyContext;
-        }
-
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, __ice_ids_name, __context);
-        int __cnt = 0;
+        __checkTwowayOnly(__ice_id_name);
+        IceInternal.Outgoing __og = getOutgoing(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
         try
         {
-            while(true)
+            __og.writeEmptyParams();
+            if(!__og.invoke())
             {
-                _ObjectDel __del = null;
                 try
                 {
-                    __checkTwowayOnly(__ice_ids_name);
-                    __del = __getDelegate(false);
-                    return __del.ice_ids(__context, __observer);
+                    __og.throwUserException();
                 }
-                catch(IceInternal.LocalExceptionWrapper __ex)
+                catch(UserException __ex)
                 {
-                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt, __observer);
-                }
-                catch(LocalException __ex)
-                {
-                    __cnt = __handleException(__del, __ex, null, __cnt, __observer);
+                    throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
+            IceInternal.BasicStream __is = __og.startReadParams();
+            String[] __ret = __is.readStringSeq();
+            __og.endReadParams();
+            return __ret;
         }
         finally
         {
-            if(__observer != null)
-            {
-                __observer.detach();
-            }
+            reclaimOutgoing(__og);
         }
     }
 
@@ -736,7 +692,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     class FunctionalCallback_Object_ice_ids extends IceInternal.Functional_TwowayCallbackArg1<String[]>
     {
         FunctionalCallback_Object_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                                          IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                                          IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                           IceInternal.Functional_BoolCallback __sentCb)
         {
             super(__responseCb, __exceptionCb, __sentCb);
@@ -757,7 +713,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult
     begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_ids(null, false, new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, null));
     }
@@ -772,7 +728,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult
     begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_ids(null, false, 
@@ -790,7 +746,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context,
                   IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_ids(__context, true, 
                              new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, null));
@@ -808,7 +764,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context,
                   IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_ids(__context, true, 
@@ -819,7 +775,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     begin_ice_ids(java.util.Map<String, String> __context,
                   boolean __explicitCtx,
                   IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
-                  IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_ids(__context, true, 
@@ -835,15 +791,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
     {
-        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_ids_name, __cb);
         __checkAsyncTwowayOnly(__ice_ids_name);
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_ids_name, __cb);
         try
         {
             __result.__prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
             __result.__writeEmptyParams();
             __result.__invoke(true);
         }
-        catch(LocalException __ex)
+        catch(Exception __ex)
         {
             __result.__invokeExceptionAsync(__ex);
         }
@@ -861,35 +817,22 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     end_ice_ids(AsyncResult __result)
     {
         AsyncResult.__check(__result, this, __ice_ids_name);
-        boolean __ok = __result.__wait();
-        try
+        if(!__result.__wait())
         {
-            if(!__ok)
+            try
             {
-                try
-                {
-                    __result.__throwUserException();
-                }
-                catch(UserException __ex)
-                {
-                    throw new UnknownUserException(__ex.ice_name(), __ex);
-                }
+                __result.__throwUserException();
             }
-            String[] __ret = null;
-            IceInternal.BasicStream __is = __result.__startReadParams();
-            __ret = StringSeqHelper.read(__is);
-            __result.__endReadParams();
-            return __ret;
-        }
-        catch(Ice.LocalException ex)
-        {
-            InvocationObserver obsv = __result.__getObserver();
-            if(obsv != null)
+            catch(UserException __ex)
             {
-                obsv.failed(ex.ice_name());
+                throw new UnknownUserException(__ex.ice_name(), __ex);
             }
-            throw ex;
         }
+        String[] __ret = null;
+        IceInternal.BasicStream __is = __result.__startReadParams();
+        __ret = StringSeqHelper.read(__is);
+        __result.__endReadParams();
+        return __ret;
     }
     
     static public final void __ice_ids_completed(TwowayCallbackArg1<String[]> __cb, AsyncResult __result)
@@ -900,6 +843,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __ret = __result.getProxy().end_ice_ids(__result);
         }
         catch(LocalException __ex)
+        {
+            __cb.exception(__ex);
+            return;
+        }
+        catch(SystemException __ex)
         {
             __cb.exception(__ex);
             return;
@@ -935,40 +883,30 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private String
     ice_id(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
-        if(__explicitCtx && __context == null)
-        {
-            __context = _emptyContext;
-        }
-
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, __ice_id_name, __context);
-        int __cnt = 0;
+        __checkTwowayOnly(__ice_id_name);
+        IceInternal.Outgoing __og = getOutgoing(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
         try
         {
-            while(true)
+            __og.writeEmptyParams();
+            if(!__og.invoke())
             {
-                _ObjectDel __del = null;
                 try
                 {
-                    __checkTwowayOnly(__ice_id_name);
-                    __del = __getDelegate(false);
-                    return __del.ice_id(__context, __observer);
+                    __og.throwUserException();
                 }
-                catch(IceInternal.LocalExceptionWrapper __ex)
+                catch(UserException __ex)
                 {
-                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt, __observer);
-                }
-                catch(LocalException __ex)
-                {
-                    __cnt = __handleException(__del, __ex, null, __cnt, __observer);
+                    throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
+            IceInternal.BasicStream __is = __og.startReadParams();
+            String __ret = __is.readString();
+            __og.endReadParams();
+            return __ret;
         }
         finally
         {
-            if(__observer != null)
-            {
-                __observer.detach();
-            }
+            reclaimOutgoing(__og);
         }
     }
 
@@ -1048,7 +986,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     class FunctionalCallback_Object_ice_id extends IceInternal.Functional_TwowayCallbackArg1<String>
     {
         FunctionalCallback_Object_ice_id(IceInternal.Functional_GenericCallback1<String> responseCb,
-                                         IceInternal.Functional_GenericCallback1<Ice.LocalException> exceptionCb,
+                                         IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                          IceInternal.Functional_BoolCallback sentCb)
         {
             super(responseCb, exceptionCb, sentCb);
@@ -1069,7 +1007,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult
     begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_id(null, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, null));
     }
@@ -1084,7 +1022,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult
     begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                  IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_id(null, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, __sentCb));
@@ -1101,7 +1039,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context,
                  IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb)
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_id(__context, true, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, null));
     }
@@ -1118,7 +1056,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context,
                  IceInternal.Functional_GenericCallback1<String> __responseCb, 
-                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                  IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_id(__context, true, 
@@ -1128,15 +1066,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private AsyncResult
     begin_ice_id(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
     {
-        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_id_name, __cb);
         __checkAsyncTwowayOnly(__ice_id_name);
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_id_name, __cb);
         try
         {
             __result.__prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
             __result.__writeEmptyParams();
             __result.__invoke(true);
         }
-        catch(LocalException __ex)
+        catch(Exception __ex)
         {
             __result.__invokeExceptionAsync(__ex);
         }
@@ -1153,35 +1091,22 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     end_ice_id(AsyncResult __result)
     {
         AsyncResult.__check(__result, this, __ice_id_name);
-        boolean __ok = __result.__wait();
-        try
+        if(!__result.__wait())
         {
-            if(!__ok)
+            try
             {
-                try
-                {
-                    __result.__throwUserException();
-                }
-                catch(UserException __ex)
-                {
-                    throw new UnknownUserException(__ex.ice_name(), __ex);
-                }
+                __result.__throwUserException();
             }
-            String __ret = null;
-            IceInternal.BasicStream __is = __result.__startReadParams();
-            __ret = __is.readString();
-            __result.__endReadParams();
-            return __ret;
-        }
-        catch(Ice.LocalException ex)
-        {
-            InvocationObserver obsv = __result.__getObserver();
-            if(obsv != null)
+            catch(UserException __ex)
             {
-                obsv.failed(ex.ice_name());
+                throw new UnknownUserException(__ex.ice_name(), __ex);
             }
-            throw ex;
         }
+        String __ret = null;
+        IceInternal.BasicStream __is = __result.__startReadParams();
+        __ret = __is.readString();
+        __result.__endReadParams();
+        return __ret;
     }
     
     static public final void __ice_id_completed(TwowayCallbackArg1<String> __cb, AsyncResult __result)
@@ -1192,6 +1117,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __ret = __result.getProxy().end_ice_id(__result);
         }
         catch(LocalException __ex)
+        {
+            __cb.exception(__ex);
+            return;
+        }
+        catch(SystemException __ex)
         {
             __cb.exception(__ex);
             return;
@@ -1249,46 +1179,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map<String, String> context, boolean explicitCtx)
     {
-        if(explicitCtx && context == null)
-        {
-            context = _emptyContext;
-        }
-
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, operation, context);
-        int __cnt = 0;
+        IceInternal.Outgoing __og = getOutgoing(operation, mode, context, explicitCtx);
         try
         {
-            while(true)
+            __og.writeParamEncaps(inParams);
+            boolean ok = __og.invoke();
+            if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
-                _ObjectDel __del = null;
-                try
+                if(outParams != null) 
                 {
-                    __del = __getDelegate(false);
-                    return __del.ice_invoke(operation, mode, inParams, outParams, context, __observer);
-                }
-                catch(IceInternal.LocalExceptionWrapper __ex)
-                {
-                    if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
-                    {
-                        __cnt = __handleExceptionWrapperRelaxed(__del, __ex, null, __cnt, __observer);
-                    }
-                    else
-                    {
-                        __handleExceptionWrapper(__del, __ex, __observer);
-                    }
-                }
-                catch(LocalException __ex)
-                {
-                    __cnt = __handleException(__del, __ex, null, __cnt, __observer);
+                    outParams.value = __og.readParamEncaps();
                 }
             }
+            return ok;
         }
         finally
         {
-            if(__observer != null)
-            {
-                __observer.detach();
-            }
+            reclaimOutgoing(__og);
         }
     }
 
@@ -1428,7 +1335,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> exceptionCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                  IceInternal.Functional_BoolCallback sentCb)
     {
          return begin_ice_invoke(operation, mode, inParams, null, false, responseCb, exceptionCb, sentCb);
@@ -1450,7 +1357,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> exceptionCb)
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
         return begin_ice_invoke(operation, mode, inParams, null, false, responseCb, exceptionCb, null);
     }
@@ -1474,7 +1381,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> context,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> exceptionCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                  IceInternal.Functional_BoolCallback sentCb)
     {
         return begin_ice_invoke(operation, mode, inParams, context, true, responseCb, exceptionCb, sentCb);
@@ -1498,7 +1405,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> context,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> exceptionCb)
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
         return begin_ice_invoke(operation, mode, inParams, context, true, responseCb, exceptionCb, null);
     }
@@ -1507,13 +1414,13 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                                  java.util.Map<String, String> __context,
                                  boolean __explicitCtx,
                                  FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                  IceInternal.Functional_BoolCallback __sentCb)
     {
         class CB extends IceInternal.Functional_TwowayCallback implements _Callback_Object_ice_invoke
         {
             CB(FunctionalCallback_Object_ice_invoke_Response responseCb,
-               IceInternal.Functional_GenericCallback1<Ice.LocalException> exceptionCb,
+               IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
                IceInternal.Functional_BoolCallback sentCb)
             {
                 super(responseCb != null, exceptionCb, sentCb);
@@ -1547,7 +1454,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __result.__writeParamEncaps(inParams);
             __result.__invoke(true);
         }
-        catch(LocalException __ex)
+        catch(Exception __ex)
         {
             __result.__invokeExceptionAsync(__ex);
         }
@@ -1572,21 +1479,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         boolean ok = __result.__wait();
         if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
         {
-            try
+            if(outParams != null)
             {
-                if(outParams != null)
-                {
-                    outParams.value = __result.__readParamEncaps();
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                InvocationObserver obsv = __result.__getObserver();
-                if(obsv != null)
-                {
-                    obsv.failed(ex.ice_name());
-                }
-                throw ex;
+                outParams.value = __result.__readParamEncaps();
             }
         }
         return ok;
@@ -1601,6 +1496,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __ret = __result.getProxy().end_ice_invoke(outParams, __result);
         }
         catch(LocalException __ex)
+        {
+            __cb.exception(__ex);
+            return;
+        }
+        catch(SystemException __ex)
         {
             __cb.exception(__ex);
             return;
@@ -1683,7 +1583,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeIdentity(newIdentity));
+            proxy.__setup(_reference.changeIdentity(newIdentity));
             return proxy;
         }
     }
@@ -1744,7 +1644,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeFacet(newFacet));
+            proxy.__setup(_reference.changeFacet(newFacet));
             return proxy;
         }
     }
@@ -2361,31 +2261,55 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Connection
     ice_getConnection()
     {
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
-        int __cnt = 0;
+        final InvocationObserver observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
+        int cnt = 0;
         try
         {
             while(true)
             {
-                _ObjectDel __del = null;
+                IceInternal.RequestHandler handler = null;
                 try
                 {
-                    __del = __getDelegate(false);
-                    // Wait for the connection to be established.
-                    return __del.__getRequestHandler().getConnection(true);
-                    
+                    handler = __getRequestHandler(false);
+                    return handler.getConnection(true);
                 }
-                catch(LocalException __ex)
+                catch(Ice.Exception ex)
                 {
-                    __cnt = __handleException(__del, __ex, null, __cnt, __observer);
+                    try
+                    {
+                        Ice.IntHolder interval = new Ice.IntHolder();
+                        cnt = __handleException(ex, handler, OperationMode.Idempotent, false, interval, cnt);
+                        if(observer != null)
+                        {
+                            observer.retried();
+                        }
+                        if(interval.value > 0)
+                        {
+                            try
+                            {
+                                Thread.sleep(interval.value);
+                            }
+                            catch(InterruptedException ex1)
+                            {
+                            }
+                        }
+                    }
+                    catch(Ice.Exception exc)
+                    {
+                        if(observer != null)
+                        {
+                            observer.failed(exc.ice_name());
+                        }
+                        throw exc;
+                    }
                 }
             }
         }
         finally
         {
-            if(__observer != null)
+            if(observer != null)
             {
-                __observer.detach();
+                observer.detach();
             }
         }
     }
@@ -2404,18 +2328,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Connection
     ice_getCachedConnection()
     {
-        _ObjectDel __del = null;
+        IceInternal.RequestHandler handler = null;
         synchronized(this)
         {
-            __del = _delegate;
+            handler = _requestHandler;
         }
 
-        if(__del != null)
+        if(handler != null)
         {
             try
             {
-                // Don't wait for the connection to be established.
-                return __del.__getRequestHandler().getConnection(false);
+                return handler.getConnection(false);
             }
             catch(LocalException ex)
             {
@@ -2430,23 +2353,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public void
     ice_flushBatchRequests()
     {
-        //
-        // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-        // requests were queued with the connection, they would be lost without being noticed.
-        //
-        final InvocationObserver __observer = IceInternal.ObserverHelper.get(this, __ice_flushBatchRequests_name);
-        _ObjectDel __del = null;
-        int __cnt = -1; // Don't retry.
-        try
-        {
-            __del = __getDelegate(false);
-            __del.ice_flushBatchRequests(__observer);
-            return;
-        }
-        catch(LocalException __ex)
-        {
-            __cnt = __handleException(__del, __ex, null, __cnt, __observer);
-        }
+        IceInternal.BatchOutgoing __og = new IceInternal.BatchOutgoing(this, __ice_flushBatchRequests_name);
+        __og.invoke();
     }
 
     /**
@@ -2511,7 +2419,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     public AsyncResult
     begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.LocalException> __exceptionCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                                  IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_flushBatchRequestsInternal(
@@ -2529,7 +2437,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __result.__invoke();
         }
-        catch(LocalException __ex)
+        catch(Exception __ex)
         {
             __result.__invokeExceptionAsync(__ex);
         }
@@ -2575,156 +2483,58 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final void
     __copyFrom(ObjectPrx from)
     {
-        ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
-        IceInternal.Reference ref = null;
-        _ObjectDelM delegateM = null;
-        _ObjectDelD delegateD = null;
-
         synchronized(from)
         {
-            ref = h._reference;
-            try
-            {
-                delegateM = (_ObjectDelM)h._delegate;
-            }
-            catch(ClassCastException ex)
-            {
-            }
-            try
-            {
-                delegateD = (_ObjectDelD)h._delegate;
-            }
-            catch(ClassCastException ex)
-            {
-            }
-        }
-
-        //
-        // No need to synchronize "*this", as this operation is only
-        // called upon initialization.
-        //
-
-        assert(_reference == null);
-        assert(_delegate == null);
-
-        _reference = ref;
-
-        if(_reference.getCacheConnection())
-        {
-            //
-            // The _delegate attribute is only used if "cache connection"
-            // is enabled. If it's not enabled, we don't keep track of the
-            // delegate -- a new delegate is created for each invocation.
-            //
-
-            if(delegateD != null)
-            {
-                _ObjectDelD delegate = __createDelegateD();
-                delegate.__copyFrom(delegateD);
-                _delegate = delegate;
-            }
-            else if(delegateM != null)
-            {
-                _ObjectDelM delegate = __createDelegateM();
-                delegate.__copyFrom(delegateM);
-                _delegate = delegate;
-            }
+            ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
+            _reference = h._reference;
+            _requestHandler = h._requestHandler;
         }
     }
 
     public final int
-    __handleException(_ObjectDel delegate, LocalException ex, Ice.IntHolder interval, int cnt, 
-                      InvocationObserver obsv)
+    __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent, Ice.IntHolder interval, 
+                      int cnt)
     {
-        //
-        // Only _delegate needs to be mutex protected here.
-        //
-        synchronized(this)
-        {
-            if(delegate == _delegate)
-            {
-                _delegate = null;
-            }
-        }
+        __setRequestHandler(handler, null); // Clear the request handler
 
-        try
+        //
+        // We only retry local exception, system exceptions aren't retried.
+        //
+        // A CloseConnectionException indicates graceful server shutdown, and is therefore
+        // always repeatable without violating "at-most-once". That's because by sending a
+        // close connection message, the server guarantees that all outstanding requests
+        // can safely be repeated.
+        //
+        // An ObjectNotExistException can always be retried as well without violating
+        // "at-most-once" (see the implementation of the checkRetryAfterException method
+        //  of the ProxyFactory class for the reasons why it can be useful).
+        //
+        // If the request didn't get sent or if it's non-mutating or idempotent it can 
+        // also always be retried if the retry count isn't reached.
+        //
+        if(ex instanceof LocalException && (!sent ||
+                                            mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
+                                            ex instanceof CloseConnectionException ||
+                                            ex instanceof ObjectNotExistException))
         {
-            if(cnt == -1) // Don't retry if the retry count is -1.
+            try
             {
+                return _reference.getInstance().proxyFactory().checkRetryAfterException((LocalException)ex,
+                                                                                        _reference,
+                                                                                        interval,
+                                                                                        cnt);
+            }
+            catch(CommunicatorDestroyedException exc)
+            {
+                //
+                // The communicator is already destroyed, so we cannot retry.
+                //
                 throw ex;
             }
-
-            try
-            {
-                cnt = _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, interval, 
-                                                                                            cnt);
-            }
-            catch(CommunicatorDestroyedException e)
-            {
-                //
-                // The communicator is already destroyed, so we cannot
-                // retry.
-                //
-                throw e;
-            }
-            if(obsv != null)
-            {
-                obsv.retried();
-            }
-            return cnt;
-        }
-        catch(Ice.LocalException e)
-        {
-            if(obsv != null)
-            {
-                obsv.failed(e.ice_name());
-            }
-            throw e;
-        }
-    }
-
-    public final void
-    __handleExceptionWrapper(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, InvocationObserver obsv)
-    {
-        synchronized(this)
-        {
-            if(delegate == _delegate)
-            {
-                _delegate = null;
-            }
-        }
-
-        if(!ex.retry())
-        {
-            if(obsv != null)
-            {
-                obsv.failed(ex.get().ice_name());
-            }
-            throw ex.get();
-        }
-    }
-
-    public final int
-    __handleExceptionWrapperRelaxed(_ObjectDel delegate,
-                                    IceInternal.LocalExceptionWrapper ex, 
-                                    Ice.IntHolder interval,
-                                    int cnt, 
-                                    InvocationObserver obsv)
-    {
-        if(!ex.retry())
-        {
-            return __handleException(delegate, ex.get(), interval, cnt, obsv);
         }
         else
         {
-            synchronized(this)
-            {
-                if(delegate == _delegate)
-                {
-                    _delegate = null;
-                }
-            }
-            return cnt;
+            throw ex; // Retry could break at-most-once semantics, don't retry.
         }
     }
 
@@ -2758,52 +2568,31 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public final _ObjectDel
-    __getDelegate(boolean ami)
+    public void
+    __invoke(IceInternal.Outgoing __og)
     {
-        if(_reference.getCacheConnection())
+        //
+        // Helper for operations without out/return parameters and user
+        // exceptions.
+        //
+        boolean __ok = __og.invoke();
+        if(__og.hasResponse())
         {
-            synchronized(this)
+            if(!__ok)
             {
-                if(_delegate != null)
+                try
                 {
-                    return _delegate;
+                    __og.throwUserException();
                 }
-                // Connect asynchrously to avoid blocking with the proxy mutex locked.
-                _delegate = createDelegate(true);
-                return _delegate;
-            }
-        }
-        else
-        {
-            final int mode = _reference.getMode();
-            return createDelegate(ami ||
-                                  mode == IceInternal.Reference.ModeBatchOneway ||
-                                  mode == IceInternal.Reference.ModeBatchDatagram);
-        }
-    }
-
-    synchronized public void
-    __setRequestHandler(_ObjectDel delegate, IceInternal.RequestHandler handler)
-    {
-        if(_reference.getCacheConnection())
-        {
-            if(delegate == _delegate)
-            {
-                if(_delegate instanceof _ObjectDelM)
+                catch(UserException __ex)
                 {
-                    _delegate = __createDelegateM();
-                    _delegate.__setRequestHandler(handler);
-                }
-                else if(_delegate instanceof _ObjectDelD)
-                {
-                    _delegate = __createDelegateD();
-                    _delegate.__setRequestHandler(handler);
+                    throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
+            __og.readEmptyParams();
         }
     }
-
+    
     public final void
     __end(AsyncResult __result, String operation)
     {
@@ -2811,69 +2600,105 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         boolean ok = __result.__wait();
         if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
         {
-            try
+            if(!ok)
             {
-                if(!ok)
+                try
+                {
+                    __result.__throwUserException();
+                }
+                catch(UserException __ex)
+                {
+                    throw new UnknownUserException(__ex.ice_name(), __ex);
+                }
+            }
+            __result.__readEmptyParams();
+        }
+    }
+
+    public final IceInternal.RequestHandler
+    __getRequestHandler(boolean async)
+    {
+        if(_reference.getCacheConnection())
+        {
+            synchronized(this)
+            {
+                if(_requestHandler != null)
+                {
+                    return _requestHandler;
+                }
+                // async = true to avoid blocking with the proxy mutex locked.
+                _requestHandler = createRequestHandler(true); 
+                return _requestHandler;
+            }
+        }
+
+        final int mode = _reference.getMode();
+        return createRequestHandler(async ||
+                                    mode == IceInternal.Reference.ModeBatchOneway ||
+                                    mode == IceInternal.Reference.ModeBatchDatagram);
+    }
+
+    public void
+    __setRequestHandler(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
+    {
+        if(_reference.getCacheConnection())
+        {
+            synchronized(this)
+            {
+                if(previous == _requestHandler)
+                {
+                    _requestHandler = handler;
+                }
+                else if(previous != null && _requestHandler != null)
                 {
                     try
                     {
-                        __result.__throwUserException();
+                        //
+                        // If both request handlers point to the same connection, we also
+                        // update the request handler. See bug ICE-5489 for reasons why
+                        // this can be useful.
+                        //
+                        if(previous.getConnection(false) == _requestHandler.getConnection(false))
+                        {
+                            _requestHandler = handler;
+                        }
                     }
-                    catch(UserException __ex)
+                    catch(Ice.Exception ex)
                     {
-                        throw new UnknownUserException(__ex.ice_name(), __ex);
+                        // Ignore
                     }
                 }
-                __result.__readEmptyParams();
-            }
-            catch(Ice.LocalException ex)
-            {
-                InvocationObserver obsv = __result.__getObserver();
-                if(obsv != null)
-                {
-                    obsv.failed(ex.ice_name());
-                }
-                throw ex;
             }
         }
     }
 
-    protected _ObjectDelM
-    __createDelegateM()
-    {
-        return new _ObjectDelM();
-    }
-
-    protected _ObjectDelD
-    __createDelegateD()
-    {
-        return new _ObjectDelD();
-    }
-
-    _ObjectDel
-    createDelegate(boolean async)
+    private IceInternal.RequestHandler
+    createRequestHandler(boolean async)
     {
         if(_reference.getCollocationOptimized())
         {
             ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
             if(adapter != null)
             {
-                _ObjectDelD d = __createDelegateD();
-                d.setup(_reference, adapter);
-                return d;
+                return new IceInternal.CollocatedRequestHandler(_reference, adapter);
             }
         }
 
-        _ObjectDelM d = __createDelegateM();
-        d.setup(_reference, this, async);
-        return d;
+        if(async)
+        {
+            return (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
+        }
+        else
+        {
+            return new IceInternal.ConnectionRequestHandler(_reference, this);
+        }
     }
 
     //
     // Only for use by IceInternal.ProxyFactory
     //
     public final void
-    setup(IceInternal.Reference ref)
+    __setup(IceInternal.Reference ref)
     {
         //
         // No need to synchronize, as this operation is only called
@@ -2881,7 +2706,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         //
 
         assert(_reference == null);
-        assert(_delegate == null);
+        assert(_requestHandler == null);
 
         _reference = ref;
     }
@@ -2892,7 +2717,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)getClass().newInstance();
-            proxy.setup(ref);
+            proxy.__setup(ref);
             return proxy;
         }
         catch(InstantiationException e)
@@ -2934,7 +2759,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
             ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)communicator.stringToProxy(s);
             _reference = proxy._reference;
-            assert(proxy._delegate == null);
+            assert(proxy._requestHandler == null);
         }
         catch(ClassCastException ex)
         {
@@ -2951,9 +2776,55 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
-    protected static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
+    protected IceInternal.Outgoing
+    getOutgoing(String operation, OperationMode mode, java.util.Map<String, String> context, boolean explicitCtx)
+    {
+        IceInternal.Outgoing out = null;
+        if(_reference.getInstance().cacheMessageBuffers() > 0)
+        {
+            synchronized(this)
+            {
+                if(_outgoingCache != null)
+                {
+                    out = _outgoingCache;
+                    _outgoingCache = _outgoingCache.next;
+                    out.next = null;
+                }
+            }
+        }
+        if(out == null)
+        {
+            out = new IceInternal.Outgoing(this, operation, mode, context, explicitCtx);
+        }
+        else
+        {
+            out.reset(this, operation, mode, context, explicitCtx);
+        }
+        return out;
+    }
+
+    protected void
+    reclaimOutgoing(IceInternal.Outgoing out)
+    {
+        out.detach();
+
+        if(_reference.getInstance().cacheMessageBuffers() > 0)
+        {
+            //
+            // Clear references to Ice objects as soon as possible.
+            //
+            out.reclaim();
+
+            synchronized(this)
+            {
+                out.next = _outgoingCache;
+                _outgoingCache = out;
+            }
+        }
+    }
 
     private transient IceInternal.Reference _reference;
-    private transient _ObjectDel _delegate;
+    private transient IceInternal.RequestHandler _requestHandler;
+    private transient IceInternal.Outgoing _outgoingCache;
     public static final long serialVersionUID = 0L;
 }

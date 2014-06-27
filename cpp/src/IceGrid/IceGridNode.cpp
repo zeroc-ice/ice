@@ -467,7 +467,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             try
             {
                 Ice::ObjectPrx object = _adapter->addWithUUID(new FileUserAccountMapperI(userAccountFileProperty));
-                object = object->ice_collocationOptimized(true);
                 mapper = UserAccountMapperPrx::uncheckedCast(object);
             }
             catch(const std::string& msg)
@@ -795,11 +794,6 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
-
-    //
-    // Make sure that IceGridNode doesn't use collocation optimization
-    //
-    initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
     //
     // Delay creation of Admin object:

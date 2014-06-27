@@ -15,6 +15,24 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(RequestHandler* obj) { return obj; }
 
+
+RetryException::RetryException(const Ice::LocalException& ex)
+{
+    _ex.reset(ex.ice_clone());
+}
+
+RetryException::RetryException(const RetryException& ex)
+{
+    _ex.reset(ex.get()->ice_clone());
+}
+
+const Ice::LocalException*
+RetryException::get() const
+{
+    assert(_ex.get());
+    return _ex.get();
+}
+
 RequestHandler::~RequestHandler()
 {
 }

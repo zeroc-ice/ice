@@ -24,9 +24,6 @@ public:
 
     virtual DispatchStatus
     __dispatch(IceInternal::Incoming&, const Current&);
-    
-    virtual DispatchStatus
-    __collocDispatch(IceInternal::Direct&);
 };
 
 typedef IceInternal::Handle<DispatchInterceptor> DispatchInterceptorPtr;

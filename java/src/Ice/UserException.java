@@ -12,7 +12,7 @@ package Ice;
 /**
  * Base class for Slice user exceptions.
  **/
-public abstract class UserException extends Exception implements Cloneable
+public abstract class UserException extends java.lang.Exception implements Cloneable
 {
     public UserException()
     {

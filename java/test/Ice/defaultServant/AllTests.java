@@ -59,7 +59,7 @@ public class AllTests
             identity.name = names[idx];
             MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
-            test(prx.getName() == names[idx]);
+            test(prx.getName().equals(names[idx]));
         }
 
         identity.name = "ObjectNotExist";
@@ -163,7 +163,7 @@ public class AllTests
             identity.name = names[idx];
             prx = MyObjectPrxHelper.uncheckedCast(oa.createProxy(identity));
             prx.ice_ping();
-            test(prx.getName() == names[idx]);
+            test(prx.getName().equals(names[idx]));
         }
 
         out.println("ok");

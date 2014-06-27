@@ -39,12 +39,9 @@ public class AllTests : TestCommon.TestApp
     override
     public void run(Ice.Communicator communicator)
 #else
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static Test.MyClassPrx allTests(Ice.Communicator communicator)
 #endif
     {
-#if SILVERLIGHT
-        bool collocated = false;
-#endif
         Flush();
         string rf = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
@@ -63,36 +60,33 @@ public class AllTests : TestCommon.TestApp
         Oneways.oneways(communicator, cl);
         WriteLine("ok");
 
-        if(!collocated)
-        {
-            Write("testing twoway operations with AMI... ");
-            Flush();
-            TwowaysAMI.twowaysAMI(communicator, cl);
-            TwowaysAMI.twowaysAMI(communicator, derivedProxy);
-            WriteLine("ok");
+        Write("testing twoway operations with AMI... ");
+        Flush();
+        TwowaysAMI.twowaysAMI(communicator, cl);
+        TwowaysAMI.twowaysAMI(communicator, derivedProxy);
+        WriteLine("ok");
 
-            Write("testing twoway operations with new AMI mapping... ");
-            Flush();
-            TwowaysNewAMI.twowaysNewAMI(communicator, cl);
-            TwowaysNewAMI.twowaysNewAMI(communicator, derivedProxy);
-            WriteLine("ok");
+        Write("testing twoway operations with new AMI mapping... ");
+        Flush();
+        TwowaysNewAMI.twowaysNewAMI(communicator, cl);
+        TwowaysNewAMI.twowaysNewAMI(communicator, derivedProxy);
+        WriteLine("ok");
 
-            Write("testing oneway operations with AMI... ");
-            Flush();
-            OnewaysAMI.onewaysAMI(communicator, cl);
-            WriteLine("ok");
+        Write("testing oneway operations with AMI... ");
+        Flush();
+        OnewaysAMI.onewaysAMI(communicator, cl);
+        WriteLine("ok");
 
-            Write("testing oneway operations with new AMI mapping... ");
-            Flush();
-            OnewaysNewAMI.onewaysNewAMI(communicator, cl);
-            WriteLine("ok");
+        Write("testing oneway operations with new AMI mapping... ");
+        Flush();
+        OnewaysNewAMI.onewaysNewAMI(communicator, cl);
+        WriteLine("ok");
 
-            Write("testing batch oneway operations... ");
-            Flush();
-            BatchOneways.batchOneways(cl);
-            BatchOneways.batchOneways(derivedProxy);
-            WriteLine("ok");
-        }
+        Write("testing batch oneway operations... ");
+        Flush();
+        BatchOneways.batchOneways(cl);
+        BatchOneways.batchOneways(derivedProxy);
+        WriteLine("ok");
 #if SILVERLIGHT
         cl.shutdown();
 #else

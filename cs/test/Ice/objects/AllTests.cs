@@ -75,12 +75,9 @@ public class AllTests : TestCommon.TestApp
     override
     public void run(Ice.Communicator communicator)
 #else
-    public static InitialPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static InitialPrx allTests(Ice.Communicator communicator)
 #endif
     {
-#if SILVERLIGHT
-        bool collocated = false;
-#endif
         Ice.ObjectFactory factory = new MyObjectFactory();
         communicator.addObjectFactory(factory, "::Test::B");
         communicator.addObjectFactory(factory, "::Test::C");
@@ -144,15 +141,13 @@ public class AllTests : TestCommon.TestApp
         test(((B) b1.theA).theB == b1);
         //test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
         test(((C) (((B) b1.theA).theC)).theB == b1.theA);
-        if(!collocated)
-        {
-            test(b1.preMarshalInvoked);
-            test(b1.postUnmarshalInvoked());
-            test(b1.theA.preMarshalInvoked);
-            test(b1.theA.postUnmarshalInvoked());
-            test(((B)b1.theA).theC.preMarshalInvoked);
-            test(((B)b1.theA).theC.postUnmarshalInvoked());
-        }
+        test(b1.preMarshalInvoked);
+        test(b1.postUnmarshalInvoked());
+        test(b1.theA.preMarshalInvoked);
+        test(b1.theA.postUnmarshalInvoked());
+        test(((B)b1.theA).theC.preMarshalInvoked);
+        test(((B)b1.theA).theC.postUnmarshalInvoked());
+
         // More tests possible for b2 and d, but I think this is already
         // sufficient.
         test(b2.theA == b2);
@@ -185,17 +180,15 @@ public class AllTests : TestCommon.TestApp
         test(dout.theA == b1out);
         test(dout.theB == b2out);
         test(dout.theC == null);
-        if(!collocated)
-        {
-            test(dout.preMarshalInvoked);
-            test(dout.postUnmarshalInvoked());
-            test(dout.theA.preMarshalInvoked);
-            test(dout.theA.postUnmarshalInvoked()); 
-            test(dout.theB.preMarshalInvoked);
-            test(dout.theB.postUnmarshalInvoked());
-            test(dout.theB.theC.preMarshalInvoked);
-            test(dout.theB.theC.postUnmarshalInvoked());
-        }
+        test(dout.preMarshalInvoked);
+        test(dout.postUnmarshalInvoked());
+        test(dout.theA.preMarshalInvoked);
+        test(dout.theA.postUnmarshalInvoked()); 
+        test(dout.theB.preMarshalInvoked);
+        test(dout.theB.postUnmarshalInvoked());
+        test(dout.theB.theC.preMarshalInvoked);
+        test(dout.theB.theC.postUnmarshalInvoked());
+
         WriteLine("ok");
 
         Write("testing protected members... ");
@@ -261,32 +254,29 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-        if(!collocated)
+        Write("testing UnexpectedObjectException...");
+        Flush();
+        @ref = "uoet:default -p 12010";
+        @base = communicator.stringToProxy(@ref);
+        test(@base != null);
+        UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
+        test(uoet != null);
+        try
         {
-            Write("testing UnexpectedObjectException...");
-            Flush();
-            @ref = "uoet:default -p 12010";
-            @base = communicator.stringToProxy(@ref);
-            test(@base != null);
-            UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
-            test(uoet != null);
-            try
-            {
-                uoet.op();
-                test(false);
-            }
-            catch(Ice.UnexpectedObjectException ex)
-            {
-                test(ex.type.Equals("::Test::AlsoEmpty"));
-                test(ex.expectedType.Equals("::Test::Empty"));
-            }
-            catch(System.Exception ex)
-            {
-                WriteLine(ex.ToString());
-                test(false);
-            }
-            WriteLine("ok");
+            uoet.op();
+            test(false);
         }
+        catch(Ice.UnexpectedObjectException ex)
+        {
+            test(ex.type.Equals("::Test::AlsoEmpty"));
+            test(ex.expectedType.Equals("::Test::Empty"));
+        }
+        catch(System.Exception ex)
+        {
+            WriteLine(ex.ToString());
+            test(false);
+        }
+        WriteLine("ok");
 #if SILVERLIGHT
         initial.shutdown();
 #else
