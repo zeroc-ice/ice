@@ -18,33 +18,54 @@ public class Buffer
     public
     Buffer(int maxCapacity, boolean direct)
     {
+        this(maxCapacity, direct, java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public
+    Buffer(int maxCapacity, boolean direct, java.nio.ByteOrder order)
+    {
         b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
         _maxCapacity = maxCapacity;
         _direct = direct;
+        _order = order;
     }
 
     public
     Buffer(byte[] data)
     {
+        this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public
+    Buffer(byte[] data, java.nio.ByteOrder order)
+    {
         b = java.nio.ByteBuffer.wrap(data);
-        b.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        b.order(order);
         _size = data.length;
         _capacity = 0;
         _maxCapacity = 0;
         _direct = false;
+        _order = order;
     }
 
     public
     Buffer(java.nio.ByteBuffer data)
     {
+        this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public
+    Buffer(java.nio.ByteBuffer data, java.nio.ByteOrder order)
+    {
         b = data;
-        b.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        b.order(order);
         _size = data.remaining();
         _capacity = 0;
         _maxCapacity = 0;
         _direct = false;
+        _order = order;
     }
 
     public int
@@ -181,7 +202,7 @@ public class Buffer
                 b.position(pos);
             }
 
-            b.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+            b.order(_order); // Preserve the original order.
         }
         catch(OutOfMemoryError ex)
         {
@@ -199,4 +220,5 @@ public class Buffer
     private int _maxCapacity;
     private boolean _direct; // Use direct buffers?
     private int _shrinkCounter;
+    private java.nio.ByteOrder _order;
 }

@@ -141,7 +141,7 @@ public class AllTests
         test(obj != null);
 
         int mult = 1;
-        if(communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("ssl"))
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
         {
             mult = 4;
         }
@@ -193,8 +193,8 @@ public class AllTests
             //
             // Expect TimeoutException.
             //
-            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250 * mult));
-            to.holdAdapter(500);
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250));
+            to.holdAdapter(500 * mult);
             try
             {
                 to.sendData(new byte[10000000]);
@@ -211,7 +211,7 @@ public class AllTests
             //
             timeout.op(); // Ensure adapter is active.
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000 * mult));
-            to.holdAdapter(500);
+            to.holdAdapter(500 * mult);
             try
             {
                 to.sendData(new byte[1000000]);
@@ -231,17 +231,17 @@ public class AllTests
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(500);
+                to.sleep(500 * mult);
                 test(false);
             }
             catch(Ice.InvocationTimeoutException ex)
             {
             }
-            to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500));
+            to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500 * mult));
             test(connection == to.ice_getConnection());
             try
             {
-                to.sleep(250);
+                to.sleep(250 * mult);
             }
             catch(Ice.InvocationTimeoutException ex)
             {
@@ -255,16 +255,16 @@ public class AllTests
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(250));
             CallbackFail cb = new CallbackFail();
-            to.begin_sleep(500, cb);
+            to.begin_sleep(500 * mult, cb);
             cb.check();
         }
         {
             //
             // Expect success.
             //
-            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500));
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500 * mult));
             CallbackSuccess cb = new CallbackSuccess();
-            to.begin_sleep(250, cb);
+            to.begin_sleep(250 * mult, cb);
             cb.check();
         }
         out.println("ok");
@@ -272,7 +272,7 @@ public class AllTests
         out.print("testing close timeout... ");
         out.flush();
         {
-            TimeoutPrx to = TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
+            TimeoutPrx to = TimeoutPrxHelper.checkedCast(obj.ice_timeout(250 * mult));
             Ice.Connection connection = to.ice_getConnection();
             timeout.holdAdapter(750);
             connection.close(false);
@@ -286,7 +286,7 @@ public class AllTests
             }
             try
             {
-                Thread.sleep(500);
+                Thread.sleep(500 * mult);
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -314,17 +314,10 @@ public class AllTests
             String[] args = new String[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            if(mult == 1)
-            {
-                initData.properties.setProperty("Ice.Override.Timeout", "250");
-            }
-            else
-            {
-                initData.properties.setProperty("Ice.Override.Timeout", "2000");
-            }
+            initData.properties.setProperty("Ice.Override.Timeout", mult == 1 ? "250" : "2000");
             Ice.Communicator comm = app.initialize(initData);
             TimeoutPrx to = TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
-            to.holdAdapter(500);
+            to.holdAdapter(1000 * mult);
             try
             {
                 to.sendData(new byte[10000000]);
@@ -339,7 +332,7 @@ public class AllTests
             //
             timeout.op(); // Ensure adapter is active.
             to = TimeoutPrxHelper.checkedCast(to.ice_timeout(1000 * mult));
-            to.holdAdapter(500);
+            to.holdAdapter(1000 * mult);
             try
             {
                 to.sendData(new byte[10000000]);
@@ -358,18 +351,11 @@ public class AllTests
             String[] args = new String[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            if(mult == 1)
-            {
-                initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
-            }
-            else
-            {
-                initData.properties.setProperty("Ice.Override.ConnectTimeout", "4000");
-            }
+            initData.properties.setProperty("Ice.Override.ConnectTimeout", mult == 1 ? "250" : "3000");
 
             Ice.Communicator comm = app.initialize(initData);
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(500 * mult);
+            timeout.holdAdapter(1000 * mult);
             try
             {
                 to.op();
@@ -383,7 +369,7 @@ public class AllTests
             // Calling ice_timeout() should have no effect on the connect timeout.
             //
             timeout.op(); // Ensure adapter is active.
-            timeout.holdAdapter(500 * mult);
+            timeout.holdAdapter(1000 * mult);
             to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(750 * mult));
             try
             {
@@ -399,8 +385,8 @@ public class AllTests
             //
             timeout.op(); // Ensure adapter is active.
             to.op(); // Force connection.
-            timeout.holdAdapter(500 * mult);
-            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250 * mult));
+            timeout.holdAdapter(1500 * mult);
+            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(500));
             try
             {
                 to.sendData(new byte[10000000]);

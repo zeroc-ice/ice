@@ -70,7 +70,7 @@ tests = [
     ("Ice/hash", ["once"]),
     ("Ice/optional", ["once"]),
     ("Ice/admin", ["core"]),
-    ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress", "nosocks"]),
+    ("Ice/metrics", ["core", "nossl", "nows", "noipv6", "nocompress", "nosocks"]),
     ("Ice/enums", ["once"]),
     ("IceBox/admin", ["core", "noipv6", "nomx"]),
     ("IceBox/configuration", ["core", "noipv6", "nomx"]),
@@ -79,7 +79,7 @@ tests = [
     ("Freeze/evictor", ["core"]),
     ("Freeze/fileLock", ["once"]),
     ("Glacier2/router", ["service"]),
-    ("Glacier2/sessionHelper", ["service", "nossl", "noipv6"]),
+    ("Glacier2/sessionHelper", ["service", "nossl", "nows", "noipv6"]),
     ("IceDiscovery/simple", ["service"]),
     ("IceGrid/simple", ["service"]),
     ("IceSSL/configuration", ["once"])

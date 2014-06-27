@@ -228,13 +228,13 @@ public abstract class IPEndpointI extends EndpointI
         return _port;
     }
 
-    protected void streamWriteImpl(BasicStream s)
+    public void streamWriteImpl(BasicStream s)
     {
         s.writeString(_host);
         s.writeInt(_port);
     }
 
-    protected int hashInit(int h)
+    public int hashInit(int h)
     {
         h = HashUtil.hashAdd(h, _host);
         h = HashUtil.hashAdd(h, _port);
@@ -242,7 +242,7 @@ public abstract class IPEndpointI extends EndpointI
         return h;
     }
 
-    protected void fillEndpointInfo(Ice.IPEndpointInfo info)
+    public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         info.host = _host;
         info.port = _port;

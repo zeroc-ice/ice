@@ -249,7 +249,7 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Marshal the endpoint
     //
-    protected void streamWriteImpl(BasicStream s)
+    public void streamWriteImpl(BasicStream s)
     {
         super.streamWriteImpl(s);
         if(s.getWriteEncoding().equals(Ice.Util.Encoding_1_0))
@@ -262,7 +262,7 @@ final class UdpEndpointI extends IPEndpointI
         s.writeBool(_compress);
     }
 
-    protected int hashInit(int h)
+    public int hashInit(int h)
     {
         h = super.hashInit(h);
         h = IceInternal.HashUtil.hashAdd(h, _mcastInterface);
@@ -272,7 +272,7 @@ final class UdpEndpointI extends IPEndpointI
         return h;
     }
 
-    protected void fillEndpointInfo(Ice.IPEndpointInfo info)
+    public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
         if(info instanceof Ice.UDPEndpointInfo)

@@ -2,7 +2,12 @@
 # The client reads this property to create the reference to the "Ping"
 # object in the server.
 #
-Ping.Proxy=ping:default -p 10000 -h localhost
+Ping.Proxy=ping:tcp -p 10000 -h localhost
+
+#
+# Uncomment to use the WebSocket transports instead.
+#
+Ping.Proxy=ping:ws -p 10002
 
 #
 # Disable client-side ACM.
@@ -16,3 +21,8 @@ Ice.ACM.Client.Timeout=0
 Ice.Admin.InstanceName=client
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS.PluginFactory

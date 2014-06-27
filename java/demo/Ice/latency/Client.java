@@ -38,6 +38,7 @@ class Client extends Ice.Application
             System.out.flush();
             for(int i = 0; i < repetitions; i++)
             {
+if((i % 100) == 0) System.out.println("" + i);
                 ping.ice_ping();
             }
             System.out.println(" ok");

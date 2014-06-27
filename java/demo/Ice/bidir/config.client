@@ -5,6 +5,11 @@
 CallbackSender.Proxy=sender:tcp -h localhost -p 10000
 
 #
+# Uncomment to use the WebSocket transport instead.
+#
+#CallbackSender.Proxy=sender:ws -h localhost -p 10002
+
+#
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1
@@ -26,3 +31,8 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS.PluginFactory

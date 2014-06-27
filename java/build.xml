@@ -124,6 +124,16 @@
             </fileset>
         </slice2java>
 
+        <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.IceWS">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/IceWS">
+                <include name="EndpointInfo.ice" />
+                <include name="ConnectionInfo.ice" />
+            </fileset>
+        </slice2java>
+
         <!-- Generate Slice checksums for the Ice services. -->
 
         <slice2java ice="on" tie="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
@@ -204,6 +214,7 @@
             <include name="IceSSL/*.java"/>
             <include name="IceUtil/*.java"/>
             <include name="IceUtilInternal/*.java"/>
+            <include name="IceWS/*.java"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
@@ -215,6 +226,7 @@
             <include name="IceSSL/*.java"/>
             <include name="IceUtil/*.java"/>
             <include name="IceUtilInternal/*.java"/>
+            <include name="IceWS/*.java"/>
         </javac>
     </target>
 
@@ -227,6 +239,7 @@
             <include name="IceInternal/*.class"/>
             <include name="IceUtilInternal/*.class"/>
             <include name="IceSSL/*.class"/>
+            <include name="IceWS/*.class"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>

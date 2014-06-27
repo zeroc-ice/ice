@@ -829,7 +829,8 @@ public class AllTests
         {
             // Working?
             boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
-            if(!ssl)
+            boolean tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("tcp");
+            if(tcp)
             {
                 p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
             }
@@ -845,13 +846,13 @@ public class AllTests
             //
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
             pstr = communicator.proxyToString(p1);
-            if(!ssl)
-            {
-                test(pstr.equals("test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
-            }
-            else
+            if(ssl)
             {
                 test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
+            }
+            else if(tcp)
+            {
+                test(pstr.equals("test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
             }
 
             //
@@ -859,18 +860,16 @@ public class AllTests
             // NoEndpointException (or ConnectFailedException when
             // running with SSL).
             //
-            try
+            if(ssl)
             {
-                p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                test(!ssl);
-            }
-            catch(Ice.ConnectFailedException ex)
-            {
-                test(ssl);
+                try
+                {
+                    p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+                    test(false);
+                }
+                catch(Ice.ConnectFailedException ex)
+                {
+                }
             }
 
             //
@@ -881,13 +880,14 @@ public class AllTests
             //
             p2 = derived.echo(p1);
             pstr = communicator.proxyToString(p2);
-            if(!ssl)
-            {
-                test(pstr.equals("test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
-            }
-            else
+            if(ssl)
             {
                 test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
+            }
+            else if(tcp)
+            {
+                test(pstr.equals(
+                    "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
             }
 
         }

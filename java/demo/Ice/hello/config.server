@@ -3,7 +3,17 @@
 # "Hello". The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -h localhost -p 10000:udp -h localhost -p 10000:ssl -h localhost -p 10001
+Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001:ws -p 10002:wss -p 10003
+
+#
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
+
+#
+# We need to disable VerifyPeer for secure WebSocket (WSS) and Windows Store App clients.
+#
+IceSSL.VerifyPeer=0
 
 #
 # Warn about connection exceptions
@@ -53,3 +63,8 @@ IceSSL.Password=password
 Ice.Admin.InstanceName=server
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS.PluginFactory

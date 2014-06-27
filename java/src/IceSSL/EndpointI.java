@@ -218,14 +218,14 @@ final class EndpointI extends IceInternal.IPEndpointI
         return super.compareTo(obj);
     }
 
-    protected void streamWriteImpl(IceInternal.BasicStream s)
+    public void streamWriteImpl(IceInternal.BasicStream s)
     {
         super.streamWriteImpl(s);
         s.writeInt(_timeout);
         s.writeBool(_compress);
     }
 
-    protected int hashInit(int h)
+    public int hashInit(int h)
     {
         h = super.hashInit(h);
         h = IceInternal.HashUtil.hashAdd(h, _timeout);
@@ -233,7 +233,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         return h;
     }
 
-    protected void fillEndpointInfo(Ice.IPEndpointInfo info)
+    public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
         if(info instanceof IceSSL.EndpointInfo)

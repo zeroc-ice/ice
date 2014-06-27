@@ -724,6 +724,18 @@ wsConfigTree = {
             "server" : " ",
             "colloc" : " ",
             },
+        "java" : {
+            "plugin" : " --Ice.Plugin.IceWS=IceWS.PluginFactory ",
+            "client" : " ",
+            "server" : " ",
+            "colloc" : " ",
+            },
+        "cs" : {
+            "plugin" : " --Ice.Plugin.IceWS=%(icewscs)s:IceWS.PluginFactory ",
+            "client" : " ",
+            "server" : " ",
+            "colloc" : " ",
+            },
         }
 wsConfigTree["py"] = wsConfigTree["cpp"]
 wsConfigTree["rb"] = wsConfigTree["cpp"]
