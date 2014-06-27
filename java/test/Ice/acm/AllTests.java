@@ -216,12 +216,12 @@ public class AllTests
             }
         }
 
-        public void heartbeat(Ice.Connection con)
+        synchronized public void heartbeat(Ice.Connection con)
         {
             ++_heartbeat;
         }
 
-        public void closed(Ice.Connection con)
+        synchronized public void closed(Ice.Connection con)
         {
             _closed = true;
         }
@@ -298,7 +298,11 @@ public class AllTests
             {
                 adapter.activate();
                 proxy.interruptSleep();
-                test(_closed);
+
+                synchronized(this)
+                {
+                    test(_closed);
+                }
             }
         }
     };
@@ -324,8 +328,12 @@ public class AllTests
             catch(Ice.ConnectionTimeoutException ex)
             {
                 proxy.interruptSleep();
-                test(_heartbeat == 0);
-                test(_closed);
+
+                synchronized(this)
+                {
+                    test(_heartbeat == 0);
+                    test(_closed);
+                }
             }
         }
     };
@@ -344,8 +352,12 @@ public class AllTests
             // No close on invocation, the call should succeed this
             // time.
             proxy.sleep(2);
-            test(_heartbeat == 0);
-            test(!_closed);
+
+            synchronized(this)
+            {
+                test(_heartbeat == 0);
+                test(!_closed);
+            }
         }
     };
 
@@ -366,8 +378,12 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-            test(_heartbeat == 0);
-            test(_closed);
+
+            synchronized(this)
+            {
+                test(_heartbeat == 0);
+                test(_closed);
+            }
         }
     };
         
@@ -388,8 +404,12 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-            test(_heartbeat == 0);
-            test(!_closed);
+
+            synchronized(this)
+            {
+                test(_heartbeat == 0);
+                test(!_closed);
+            }
         }
     };
     
@@ -416,8 +436,13 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-            test(_heartbeat == 0);
-            test(!_closed); // Not closed yet because of graceful close.
+
+            synchronized(this)
+            {
+                test(_heartbeat == 0);
+                test(!_closed); // Not closed yet because of graceful close.
+            }
+
             adapter.activate();
             try
             {
@@ -426,7 +451,11 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-            test(_closed); // Connection should be closed this time.
+
+            synchronized(this)
+            {
+                test(_closed); // Connection should be closed this time.
+            }
         }
     };
 
@@ -448,8 +477,12 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-            test(_heartbeat == 0);
-            test(_closed); // Connection closed forcefully by ACM
+
+            synchronized(this)
+            {
+                test(_heartbeat == 0);
+                test(_closed); // Connection closed forcefully by ACM
+            }
         }
     };
     
@@ -470,7 +503,11 @@ public class AllTests
             catch(java.lang.InterruptedException ex)
             {
             }
-            test(_heartbeat >= 3);
+
+            synchronized(this)
+            {
+                test(_heartbeat >= 3);
+            }
         }
     };
 
@@ -495,7 +532,11 @@ public class AllTests
                 {
                 }
             }
-            test(_heartbeat >= 3);
+
+            synchronized(this)
+            {
+                test(_heartbeat >= 3);
+            }
         }
     };
 

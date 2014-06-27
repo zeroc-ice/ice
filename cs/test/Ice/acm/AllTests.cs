@@ -248,7 +248,11 @@ public class AllTests : TestCommon.TestApp
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             proxy.sleep(2);
-            test(_heartbeat >= 2);
+
+            lock(this)
+            {
+                test(_heartbeat >= 2);
+            }
         }
     };
 
@@ -274,7 +278,11 @@ public class AllTests : TestCommon.TestApp
             {
                 adapter.activate();
                 proxy.interruptSleep();
-                test(_closed);
+
+                lock(this)
+                {
+                    test(_closed);
+                }
             }
         }
     };
@@ -299,8 +307,12 @@ public class AllTests : TestCommon.TestApp
             catch(Ice.ConnectionTimeoutException)
             {
                 proxy.interruptSleep();
-                test(_heartbeat == 0);
-                test(_closed);
+
+                lock(this)
+                {
+                    test(_heartbeat == 0);
+                    test(_closed);
+                }
             }
         }
     };
@@ -319,8 +331,12 @@ public class AllTests : TestCommon.TestApp
             // No close on invocation, the call should succeed this
             // time.
             proxy.sleep(2);
-            test(_heartbeat == 0);
-            test(!_closed);
+
+            lock(this)
+            {
+                test(_heartbeat == 0);
+                test(!_closed);
+            }
         }
     };
 
@@ -333,9 +349,13 @@ public class AllTests : TestCommon.TestApp
             
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(1500); // Idle for 1.5 second
-            test(_heartbeat == 0);
-            test(_closed);
+            Thread.Sleep(1600); // Idle for 1.6 second
+
+            lock(this)
+            {
+                test(_heartbeat == 0);
+                test(_closed);
+            }
         }
     };
         
@@ -348,9 +368,13 @@ public class AllTests : TestCommon.TestApp
         
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(1500); // Idle for 1.5 second
-            test(_heartbeat == 0);
-            test(!_closed);
+            Thread.Sleep(1600); // Idle for 1.6 second
+
+            lock(this)
+            {
+                test(_heartbeat == 0);
+                test(!_closed);
+            }
         }
     };
     
@@ -369,12 +393,21 @@ public class AllTests : TestCommon.TestApp
             // the close is graceful or forceful.
             //
             adapter.hold();
-            Thread.Sleep(1500); // Idle for 1.5 second
-            test(_heartbeat == 0);
-            test(!_closed); // Not closed yet because of graceful close.
+            Thread.Sleep(1600); // Idle for 1.6 second
+
+            lock(this)
+            {
+                test(_heartbeat == 0);
+                test(!_closed); // Not closed yet because of graceful close.
+            }
+
             adapter.activate();
             Thread.Sleep(500);
-            test(_closed); // Connection should be closed this time.
+
+            lock(this)
+            {
+                test(_closed); // Connection should be closed this time.
+            }
         }
     };
 
@@ -389,9 +422,13 @@ public class AllTests : TestCommon.TestApp
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             adapter.hold();
-            Thread.Sleep(1500); // Idle for 1.5 second
-            test(_heartbeat == 0);
-            test(_closed); // Connection closed forcefully by ACM
+            Thread.Sleep(1600); // Idle for 1.6 second
+
+            lock(this)
+            {
+                test(_heartbeat == 0);
+                test(_closed); // Connection closed forcefully by ACM
+            }
         }
     };
     
@@ -405,7 +442,11 @@ public class AllTests : TestCommon.TestApp
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             Thread.Sleep(2000);
-            test(_heartbeat >= 3);
+
+            lock(this)
+            {
+                test(_heartbeat >= 3);
+            }
         }
     };
     
@@ -423,7 +464,11 @@ public class AllTests : TestCommon.TestApp
                 proxy.ice_ping();
                 Thread.Sleep(200);
             }
-            test(_heartbeat >= 3);
+
+            lock(this)
+            {
+                test(_heartbeat >= 3);
+            }
         }
     };
     
