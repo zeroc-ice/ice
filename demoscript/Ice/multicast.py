@@ -76,10 +76,7 @@ def run(clientCmd, serverCmd):
         # On OS X, using the interface-local address doesn't work, the client fails with 
         # a "Host not reachable" error, instead we use a link-local address with on loopback.
         #
-        if Util.isDarwin():
-            endpoint = 'udp -h \\"ff02::1:1\\" -p 10000 --interface \\"::1\\"'
-        else:
-            endpoint = 'udp -h \\"ff01::1:1\\" -p 10000'
+        endpoint = 'udp -h \\"ff15::1:1\\" -p 10000'
         serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="%s"' % (endpoint)
         clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:%s"' % (endpoint)
             

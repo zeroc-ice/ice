@@ -40,11 +40,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     string endpoint;
     if(properties->getProperty("Ice.IPv6") == "1")
     {
-#if defined(__APPLE__)
-        endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
-#else
-        endpoint = "udp -h \"ff01::1:1\" -p 12020";
-#endif
+        endpoint = "udp -h \"ff15::1:1\" -p 12020";
     }
     else
     {
