@@ -59,7 +59,7 @@ tests = [
     ("Ice/hold", ["core"]),
     ("Ice/custom", ["core", "nossl", "nows"]),
     ("Ice/retry", ["core"]),
-    ("Ice/timeout", ["core"]),
+    ("Ice/timeout", ["core", "nocompress"]),
     ("Ice/acm", ["core"]),
     ("Ice/background", ["core", "nomingw"]),
     ("Ice/servantLocator", ["core"]),
