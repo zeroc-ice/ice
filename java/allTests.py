@@ -53,7 +53,7 @@ tests = [
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),
     ("Ice/retry", ["core"]),
-    ("Ice/timeout", ["core"]),
+    ("Ice/timeout", ["core", "nocompress"]),
     ("Ice/acm", ["core"]),
     ("Ice/background", ["core"]),
     ("Ice/servantLocator", ["core"]),

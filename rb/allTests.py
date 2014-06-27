@@ -39,7 +39,7 @@ tests = [
     ("Ice/proxy", ["core"]),
     ("Ice/properties", ["once", "nowin32"]),
     ("Ice/operations", ["core"]),
-    ("Ice/timeout", ["core"]),
+    ("Ice/timeout", ["core", "nocompress"]),
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/defaultValue", ["core"]),

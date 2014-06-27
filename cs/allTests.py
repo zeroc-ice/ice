@@ -49,7 +49,7 @@ tests = [
     ("Ice/dispatcher", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/retry", ["core"]),
-    ("Ice/timeout", ["core"]),
+    ("Ice/timeout", ["core", "nocompress"]),
     ("Ice/acm", ["core"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/interceptor", ["core", "nosilverlight"]),
