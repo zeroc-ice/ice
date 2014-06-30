@@ -752,6 +752,7 @@ Subscriber::destroy()
         }
     }
 
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_lock);
     _observer.detach();
 }
 
