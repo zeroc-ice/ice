@@ -358,7 +358,7 @@ CollocatedRequestHandler::invokeRequest(Outgoing* out)
         }
     } 
 
-    out->attachCollocatedObserver(requestId);
+    out->attachCollocatedObserver(_adapter, requestId);
 
     if(_reference->getInvocationTimeout() > 0)
     {
@@ -389,7 +389,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsync* outAsync)
         }
     }
 
-    outAsync->__attachCollocatedObserver(requestId);
+    outAsync->__attachCollocatedObserver(_adapter, requestId);
 
     _adapter->getThreadPool()->execute(new InvokeAllAsync(outAsync, outAsync->__getOs(), this, requestId, 1, false));
     return AsyncStatusQueued;
@@ -428,7 +428,7 @@ CollocatedRequestHandler::invokeBatchRequests(BatchOutgoing* out)
         }
     }
         
-    out->attachCollocatedObserver(0);
+    out->attachCollocatedObserver(_adapter, 0);
 
     if(invokeNum > 0)
     {
@@ -480,7 +480,7 @@ CollocatedRequestHandler::invokeAsyncBatchRequests(BatchOutgoingAsync* outAsync)
         }
     }
 
-    outAsync->__attachCollocatedObserver(0);
+    outAsync->__attachCollocatedObserver(_adapter, 0);
     
     if(invokeNum > 0)
     {

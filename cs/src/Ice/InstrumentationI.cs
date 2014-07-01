@@ -748,9 +748,9 @@ namespace IceInternal
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    public class CollocatedInvocationHelper : MetricsHelper<RemoteMetrics>
+    public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
     {
-        class AttributeResolverI : MetricsHelper<RemoteMetrics>.AttributeResolver
+        class AttributeResolverI : MetricsHelper<CollocatedMetrics>.AttributeResolver
         { 
             public AttributeResolverI()
             {
@@ -769,24 +769,21 @@ namespace IceInternal
         };
         static AttributeResolver _attributes = new AttributeResolverI();
 
-        public CollocatedInvocationHelper(int requestId, int size) :
+        public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
             base(_attributes)
         {
+            _id = adapter.getName();
             _requestId = requestId;
             _size = size;
         }
 
-        override public void initMetrics(RemoteMetrics v)
+        override public void initMetrics(CollocatedMetrics v)
         {
             v.size += _size;
         }
 
         public string getId()
         {
-            if(_id == null)
-            {
-                _id = _requestId.ToString();
-            }
             return _id;
         }
 
@@ -802,7 +799,7 @@ namespace IceInternal
         
         readonly private int _size;
         readonly private int _requestId;
-        private string _id;
+        readonly private string _id;
     };
 
     public class ObserverWithDelegateI : ObserverWithDelegate<Metrics, Ice.Instrumentation.Observer>
@@ -891,6 +888,21 @@ namespace IceInternal
         }
     }
 
+    public class CollocatedObserverI : ObserverWithDelegate<CollocatedMetrics, Ice.Instrumentation.CollocatedObserver>,
+        Ice.Instrumentation.CollocatedObserver
+    {
+        public void reply(int size)
+        {
+            forEach((CollocatedMetrics v) => {
+                    v.replySize += size;
+                });
+            if(delegate_ != null)
+            {
+                delegate_.reply(size);
+            }
+        }
+    }
+
     public class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, Ice.Instrumentation.InvocationObserver>,
         Ice.Instrumentation.InvocationObserver
     {
@@ -928,16 +940,18 @@ namespace IceInternal
                                                     del);
         }
 
-        public Ice.Instrumentation.RemoteObserver getCollocatedObserver(int requestId, int size)
+        public Ice.Instrumentation.CollocatedObserver getCollocatedObserver(Ice.ObjectAdapter adapter, 
+                                                                            int requestId, 
+                                                                            int size)
         {
-            Ice.Instrumentation.RemoteObserver del = null;
+            Ice.Instrumentation.CollocatedObserver del = null;
             if(delegate_ != null)
             {
-                del = delegate_.getCollocatedObserver(requestId, size);
+                del = delegate_.getCollocatedObserver(adapter, requestId, size);
             }
-            return getObserver<RemoteMetrics, RemoteObserverI,
-                Ice.Instrumentation.RemoteObserver>("Remote", 
-                                                    new CollocatedInvocationHelper(requestId, size),
+            return getObserver<CollocatedMetrics, CollocatedObserverI,
+                Ice.Instrumentation.CollocatedObserver>("Collocated", 
+                                                    new CollocatedInvocationHelper(adapter, requestId, size),
                                                     del);
         }
 
@@ -1028,7 +1042,9 @@ namespace IceInternal
 
             try
             {
-                _invocations.registerSubMap<RemoteMetrics>("Remote", typeof(InvocationMetrics).GetField("remotes"));
+                Type cl = typeof(InvocationMetrics);
+                _invocations.registerSubMap<RemoteMetrics>("Remote", cl.GetField("remotes"));
+                _invocations.registerSubMap<CollocatedMetrics>("Collocated", cl.GetField("collocated"));
             }
             catch(Exception)
             {

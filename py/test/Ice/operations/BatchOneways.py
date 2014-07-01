@@ -59,36 +59,37 @@ def batchOneways(p):
         except Ice.MemoryLimitException:
             test(False)
 
-    batch.ice_getConnection().flushBatchRequests()
+    if p.ice_getConnection():
+        batch.ice_getConnection().flushBatchRequests()
 
-    batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
+        batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
-    batch.ice_ping()
-    batch2.ice_ping()
-    batch.ice_flushBatchRequests()
-    batch.ice_getConnection().close(False)
-    batch.ice_ping()
-    batch2.ice_ping()
-
-    batch.ice_getConnection()
-    batch2.ice_getConnection()
-
-    batch.ice_ping()
-    batch.ice_getConnection().close(False)
-    try:
         batch.ice_ping()
-        test(False)
-    except Ice.CloseConnectionException:
-        pass
-
-    try:
         batch2.ice_ping()
-        test(False)
-    except Ice.CloseConnectionException:
-        pass
+        batch.ice_flushBatchRequests()
+        batch.ice_getConnection().close(False)
+        batch.ice_ping()
+        batch2.ice_ping()
+        
+        batch.ice_getConnection()
+        batch2.ice_getConnection()
+        
+        batch.ice_ping()
+        batch.ice_getConnection().close(False)
+        try:
+            batch.ice_ping()
+            test(False)
+        except Ice.CloseConnectionException:
+            pass
 
-    batch.ice_ping()
-    batch2.ice_ping()
+        try:
+            batch2.ice_ping()
+            test(False)
+        except Ice.CloseConnectionException:
+            pass
+
+        batch.ice_ping()
+        batch2.ice_ping()
 
     identity = Ice.Identity()
     identity.name = "invalid";

@@ -76,8 +76,8 @@ public:
         return 0;
     }
 
-    virtual ::Ice::Instrumentation::RemoteObserverPtr 
-    getCollocatedObserver(::Ice::Int, ::Ice::Int)
+    virtual ::Ice::Instrumentation::CollocatedObserverPtr 
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::Ice::Int, ::Ice::Int)
     {
         return 0;
     }

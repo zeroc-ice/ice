@@ -617,6 +617,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             _invocations.registerSubMap("Remote", RemoteMetrics.class, 
                                         InvocationMetrics.class.getDeclaredField("remotes"));
+            _invocations.registerSubMap("Collocated", CollocatedMetrics.class, 
+                                        InvocationMetrics.class.getDeclaredField("collocated"));
         }
         catch(Exception ex)
         {

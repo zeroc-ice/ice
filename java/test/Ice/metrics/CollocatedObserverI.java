@@ -9,7 +9,7 @@
 
 package test.Ice.metrics;
 
-class RemoteObserverI extends ChildInvocationObserverI implements Ice.Instrumentation.RemoteObserver
+class CollocatedObserverI extends ChildInvocationObserverI implements Ice.Instrumentation.CollocatedObserver
 {
 };
 

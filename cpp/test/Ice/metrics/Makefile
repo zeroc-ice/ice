@@ -12,8 +12,9 @@ top_srcdir	= ../../..
 CLIENT		= $(call mktestname,client)
 SERVER		= $(call mktestname,server)
 SERVERAMD	= $(call mktestname,serveramd)
+COLLOCATED	= $(call mktestname,collocated)
 
-TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
+TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
 COBJS		= Test.o \
 		  Client.o \
@@ -27,10 +28,15 @@ SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
 		  ServerAMD.o
 
+COLOBJS		= Test.o \
+		  Collocated.o \
+		  AllTests.o \
+		  TestI.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
-		  $(SAMDOBJS:.o=.cpp)
+		  $(SAMDOBJS:.o=.cpp) \
+		  $(COLOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice TestAMD.ice
 
@@ -49,5 +55,9 @@ $(SERVER): $(SOBJS)
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
 	$(call mktest,$@,$(SAMDOBJS),$(LIBS))
+
+$(COLLOCATED): $(COLOBJS)
+	rm -f $@
+	$(call mktest,$@,$(COLOBJS),$(LIBS))
 
 include .depend

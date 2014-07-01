@@ -20,8 +20,9 @@ EXT		= .dll
 CLIENT		= $(NAME_PREFIX)client
 SERVER		= $(NAME_PREFIX)server
 SERVERAMD	= $(NAME_PREFIX)serveramd
+COLLOCATED	= $(NAME_PREFIX)collocated
 
-TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT)
+TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT) $(COLLOCATED)$(EXT)
 
 COBJS		= Test.obj \
 		  Client.obj \
@@ -34,6 +35,11 @@ SOBJS		= Test.obj \
 SAMDOBJS	= TestAMD.obj \
 		  TestAMDI.obj \
 		  ServerAMD.obj
+
+COLOBJS		= Test.obj \
+		  TestI.obj \
+		  AllTests.obj \
+		  Collocated.obj
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
@@ -52,6 +58,8 @@ LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT).pdb
 SPDBFLAGS        = /pdb:$(SERVER).pdb
+SAPDBFLAGS       = /pdb:$(SERVERAMD).pdb
+COPDBFLAGS       = /pdb:$(COLLOCATED).pdb
 !endif
 
 $(CLIENT)$(EXT): $(COBJS)
@@ -69,6 +77,10 @@ $(SERVERAMD)$(EXT): $(SAMDOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
+$(COLLOCATED)$(EXT): $(COLOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 clean::
 	del /q Test.cpp Test.h
 	del /q TestAMD.cpp TestAMD.h

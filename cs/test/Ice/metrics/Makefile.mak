@@ -9,11 +9,12 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe server.exe serveramd.exe
+TARGETS		= client.exe server.exe serveramd.exe collocated.exe
 
 C_SRCS		= AllTests.cs Client.cs InstrumentationI.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= MetricsI.cs Server.cs 
 SAMD_SRCS	= MetricsAMDI.cs Server.cs
+COL_SRCS	= AllTests.cs Collocated.cs InstrumentationI.cs ..\..\TestCommon\TestApp.cs MetricsI.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs
@@ -34,5 +35,8 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SAMD_SRCS) $(GEN_AMD_SRCS)
+
+collocated.exe: $(COL_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(COL_SRCS) $(GEN_SRCS)
 
 !include .depend.mak

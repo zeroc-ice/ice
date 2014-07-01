@@ -23,7 +23,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    timeout = AllTests.allTests(communicator, False)
+    timeout = AllTests.allTests(communicator)
     timeout.shutdown()
 
     return True

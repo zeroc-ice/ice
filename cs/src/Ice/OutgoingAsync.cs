@@ -540,23 +540,24 @@ namespace IceInternal
         {
             if(observer_ != null)
             {
-                remoteObserver_ = observer_.getRemoteObserver(info, endpt, requestId, sz);
-                if(remoteObserver_ != null)
+                childObserver_ = observer_.getRemoteObserver(info, endpt, requestId, sz);
+                if(childObserver_ != null)
                 {
-                    remoteObserver_.attach();
+                    childObserver_.attach();
                 }
             }
         }
 
-        virtual public void attachCollocatedObserver__(int requestId)
+        virtual public void attachCollocatedObserver__(Ice.ObjectAdapter adapter, int requestId)
         {
             if(observer_ != null)
             {
-                remoteObserver_ = observer_.getCollocatedObserver(requestId, 
+                childObserver_ = observer_.getCollocatedObserver(adapter, 
+                                                                  requestId, 
                                                                   os_.size() - IceInternal.Protocol.headerSize - 4);
-                if(remoteObserver_ != null)
+                if(childObserver_ != null)
                 {
-                    remoteObserver_.attach();
+                    childObserver_.attach();
                 }
             }
         }
@@ -831,7 +832,7 @@ namespace IceInternal
         protected EventWaitHandle waitHandle_;
 
         protected Ice.Instrumentation.InvocationObserver observer_;
-        protected Ice.Instrumentation.RemoteObserver remoteObserver_;
+        protected Ice.Instrumentation.ChildInvocationObserver childObserver_;
 
         protected Ice.AsyncCallback completedCallback_;
         protected Ice.AsyncCallback sentCallback_;
@@ -950,10 +951,10 @@ namespace IceInternal
                 Debug.Assert((state_ & Done) == 0);
                 if(!proxy_.ice_isTwoway())
                 {
-                    if(remoteObserver_ != null)
+                    if(childObserver_ != null)
                     {
-                        remoteObserver_.detach();
-                        remoteObserver_ = null;
+                        childObserver_.detach();
+                        childObserver_ = null;
                     }
                     if(timeoutRequestHandler_ != null)
                     {
@@ -987,11 +988,11 @@ namespace IceInternal
             try
             {
                 Debug.Assert((state_ & Done) == 0);
-                if(remoteObserver_ != null)
+                if(childObserver_ != null)
                 {
-                    remoteObserver_.failed(exc.ice_name());
-                    remoteObserver_.detach();
-                    remoteObserver_ = null;
+                    childObserver_.failed(exc.ice_name());
+                    childObserver_.detach();
+                    childObserver_ = null;
                 }
                 if(timeoutRequestHandler_ != null)
                 {
@@ -1038,11 +1039,11 @@ namespace IceInternal
                     Debug.Assert(exception_ == null && (state_ & Done) == 0);
                     Debug.Assert(is_ != null);
 
-                    if(remoteObserver_ != null)
+                    if(childObserver_ != null)
                     {
-                        remoteObserver_.reply(is_.size() - Protocol.headerSize - 4);
-                        remoteObserver_.detach();
-                        remoteObserver_ = null;
+                        childObserver_.reply(is_.size() - Protocol.headerSize - 4);
+                        childObserver_.detach();
+                        childObserver_ = null;
                     }
 
                     if(timeoutRequestHandler_ != null)
@@ -1557,10 +1558,10 @@ namespace IceInternal
                 Debug.Assert((state_ & (Done | OK | Sent)) == 0);
                 state_ |= (Done | OK | Sent);
                 //_os.resize(0, false); // Don't clear the buffer now, it's needed for the collocation optimization
-                if(remoteObserver_ != null)
+                if(childObserver_ != null)
                 {
-                    remoteObserver_.detach();
-                    remoteObserver_ = null;
+                    childObserver_.detach();
+                    childObserver_ = null;
                 }
                 if(timeoutRequestHandler_ != null)
                 {
@@ -1587,11 +1588,11 @@ namespace IceInternal
 
         virtual public void finished__(Ice.Exception exc, bool sent)
         {
-            if(remoteObserver_ != null)
+            if(childObserver_ != null)
             {
-                remoteObserver_.failed(exc.ice_name());
-                remoteObserver_.detach();
-                remoteObserver_ = null;
+                childObserver_.failed(exc.ice_name());
+                childObserver_.detach();
+                childObserver_ = null;
             }
             if(timeoutRequestHandler_ != null)
             {
@@ -1817,10 +1818,10 @@ namespace IceInternal
 
             override public Ice.AsyncCallback sent__()
             {
-                if(remoteObserver_ != null)
+                if(childObserver_ != null)
                 {
-                    remoteObserver_.detach();
-                    remoteObserver_ = null;
+                    childObserver_.detach();
+                    childObserver_ = null;
                 }
                 _outAsync.check(false);
                 return null;
@@ -1828,11 +1829,11 @@ namespace IceInternal
 
             override public void finished__(Ice.Exception ex, bool sent)
             {
-                if(remoteObserver_ != null)
+                if(childObserver_ != null)
                 {
-                    remoteObserver_.failed(ex.ice_name());
-                    remoteObserver_.detach();
-                    remoteObserver_ = null;
+                    childObserver_.failed(ex.ice_name());
+                    childObserver_.detach();
+                    childObserver_ = null;
                 }
                 _outAsync.check(false);
             }
@@ -1842,10 +1843,10 @@ namespace IceInternal
             {
                 if(_outAsync.observer_ != null)
                 {
-                    remoteObserver_ = _outAsync.observer_.getRemoteObserver(info, endpt, requestId, sz);
-                    if(remoteObserver_ != null)
+                    childObserver_ = _outAsync.observer_.getRemoteObserver(info, endpt, requestId, sz);
+                    if(childObserver_ != null)
                     {
-                        remoteObserver_.attach();
+                        childObserver_.attach();
                     }
                 }
             }

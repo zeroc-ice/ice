@@ -9,12 +9,6 @@
 
 import Ice, Test, TestI, sys
 
-#
-# Ice for Python behaves differently than Ice for C++, because
-# collocated invocations are still sent "over the wire". Therefore
-# we always need to install the factories, even for the collocated
-# case.
-#
 class MyObjectFactory(Ice.ObjectFactory):
     def create(self, type):
         if type == '::Test::B':
@@ -43,7 +37,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator, collocated):
+def allTests(communicator):
     factory = MyObjectFactory()
     communicator.addObjectFactory(factory, '::Test::B')
     communicator.addObjectFactory(factory, '::Test::C')
@@ -204,7 +198,10 @@ def allTests(communicator, collocated):
         pass
     print("ok")
 
-    if not collocated:
+    # Don't run this test with collocation, this should work with collocation
+    # but the test isn't written to support it (we'd need support for the 
+    # streaming interface)
+    if initial.ice_getConnection():
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()
         ref = "uoet:default -p 12010"

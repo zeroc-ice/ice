@@ -19,10 +19,9 @@ def testExceptions(obj, collocated):
         obj.requestFailedException()
         test(False)
     except Ice.ObjectNotExistException as ex:
-        if not collocated:
-            test(ex.id == obj.ice_getIdentity())
-            test(ex.facet == obj.ice_getFacet())
-            test(ex.operation == "requestFailedException")
+        test(ex.id == obj.ice_getIdentity())
+        test(ex.facet == obj.ice_getFacet())
+        test(ex.operation == "requestFailedException")
     except:
         test(False)
 

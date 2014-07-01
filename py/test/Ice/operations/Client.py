@@ -25,7 +25,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    myClass = AllTests.allTests(communicator, False)
+    myClass = AllTests.allTests(communicator)
 
     sys.stdout.write("testing server shutdown... ")
     sys.stdout.flush()

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-import Ice.Instrumentation.RemoteObserver;
+import Ice.Instrumentation.ChildInvocationObserver;
 import Ice.Instrumentation.InvocationObserver;
 
 public final class Outgoing implements OutgoingMessageCallback
@@ -255,10 +255,10 @@ public final class Outgoing implements OutgoingMessageCallback
     {
         if(_proxy.__reference().getMode() != Reference.ModeTwoway)
         {
-            if(_remoteObserver != null)
+            if(_childObserver != null)
             {
-                _remoteObserver.detach();
-                _remoteObserver = null;
+                _childObserver.detach();
+                _childObserver = null;
             }
             _state = StateOK;
         }
@@ -273,11 +273,11 @@ public final class Outgoing implements OutgoingMessageCallback
         
         assert(_state <= StateInProgress);
         
-        if(_remoteObserver != null)
+        if(_childObserver != null)
         {
-            _remoteObserver.reply(is.size() - Protocol.headerSize - 4);
-            _remoteObserver.detach();
-            _remoteObserver = null;
+            _childObserver.reply(is.size() - Protocol.headerSize - 4);
+            _childObserver.detach();
+            _childObserver = null;
         }
 
         if(_is == null)
@@ -418,11 +418,11 @@ public final class Outgoing implements OutgoingMessageCallback
     finished(Ice.Exception ex, boolean sent)
     {
         assert(_state <= StateInProgress);
-        if(_remoteObserver != null)
+        if(_childObserver != null)
         {
-            _remoteObserver.failed(ex.ice_name());
-            _remoteObserver.detach();
-            _remoteObserver = null;
+            _childObserver.failed(ex.ice_name());
+            _childObserver.detach();
+            _childObserver = null;
         }
         _state = StateFailed;
         _exception = ex;
@@ -520,23 +520,23 @@ public final class Outgoing implements OutgoingMessageCallback
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
-            if(_remoteObserver != null)
+            _childObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
+            if(_childObserver != null)
             {
-                _remoteObserver.attach();
+                _childObserver.attach();
             }
         }
     }
 
     public void
-    attachCollocatedObserver(int requestId)
+    attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getCollocatedObserver(requestId, _os.size() - Protocol.headerSize - 4);
-            if(_remoteObserver != null)
+            _childObserver = _observer.getCollocatedObserver(adapter, requestId, _os.size() - Protocol.headerSize - 4);
+            if(_childObserver != null)
             {
-                _remoteObserver.attach();
+                _childObserver.attach();
             }
         }
     }
@@ -659,7 +659,7 @@ public final class Outgoing implements OutgoingMessageCallback
     private int _state;
 
     private InvocationObserver _observer;
-    private RemoteObserver _remoteObserver;
+    private ChildInvocationObserver _childObserver;
 
     public Outgoing next; // For use by Ice.ObjectPrxHelperBase
 

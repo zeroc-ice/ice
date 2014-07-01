@@ -583,7 +583,7 @@ private:
 
 RemoteInvocationHelper::Attributes RemoteInvocationHelper::attributes;
 
-class CollocatedInvocationHelper : public MetricsHelperT<RemoteMetrics>
+class CollocatedInvocationHelper : public MetricsHelperT<CollocatedMetrics>
 {
 public:
 
@@ -600,7 +600,8 @@ public:
     };
     static Attributes attributes;
     
-    CollocatedInvocationHelper(int requestId, int size) : _requestId(requestId), _size(size)
+    CollocatedInvocationHelper(const Ice::ObjectAdapterPtr& adapter, int requestId, int size) : 
+        _requestId(requestId), _size(size), _id(adapter->getName())
     {
     }
 
@@ -609,7 +610,7 @@ public:
         return attributes(this, attribute);
     }
 
-    virtual void initMetrics(const RemoteMetricsPtr& v) const
+    virtual void initMetrics(const CollocatedMetricsPtr& v) const
     {
         v->size += _size;
     }
@@ -617,12 +618,6 @@ public:
     const string&
     getId() const
     {
-        if(_id.empty())
-        {
-            ostringstream os;
-            os << _requestId;
-            _id = os.str();
-        }
         return _id;
     }
     
@@ -824,6 +819,16 @@ RemoteObserverI::reply(Int size)
 }
 
 void
+CollocatedObserverI::reply(Int size)
+{
+    forEach(add(&CollocatedMetrics::replySize, size));
+    if(_delegate)
+    {
+        _delegate->reply(size);
+    }
+}
+
+void
 InvocationObserverI::retried()
 {
     forEach(inc(&InvocationMetrics::retry));
@@ -866,19 +871,19 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
     return 0;
 }
 
-RemoteObserverPtr
-InvocationObserverI::getCollocatedObserver(int requestId, int size)
+CollocatedObserverPtr
+InvocationObserverI::getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, int requestId, int size)
 {
     try
     {
-        RemoteObserverPtr delegate;
+        CollocatedObserverPtr delegate;
         if(_delegate)
         {
-            delegate = _delegate->getCollocatedObserver(requestId, size);
+            delegate = _delegate->getCollocatedObserver(adapter, requestId, size);
         }
-        return getObserverWithDelegate<RemoteObserverI>("Collocated",
-                                                        CollocatedInvocationHelper(requestId, size),
-                                                        delegate);
+        return getObserverWithDelegate<CollocatedObserverI>("Collocated",
+                                                            CollocatedInvocationHelper(adapter, requestId, size),
+                                                            delegate);
     }
     catch(const exception&)
     {
@@ -899,6 +904,7 @@ CommunicatorObserverI::CommunicatorObserverI(const IceInternal::MetricsAdminIPtr
     _endpointLookups(metrics, "EndpointLookup")
 {
     _invocations.registerSubMap<RemoteMetrics>("Remote", &InvocationMetrics::remotes);
+    _invocations.registerSubMap<CollocatedMetrics>("Collocated", &InvocationMetrics::collocated);
 }
 
 void

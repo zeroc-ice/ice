@@ -13,7 +13,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator, collocated):
+def allTests(communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 

@@ -22,16 +22,27 @@ import Test, TestI, AllTests
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(TestI.MyDerivedClassI(), communicator.stringToIdentity("test"))
+    prx = adapter.add(TestI.MyDerivedClassI(), communicator.stringToIdentity("test"))
     adapter.activate()
 
-    AllTests.allTests(communicator, True)
+    if prx.ice_getConnection():
+        raise RuntimeError("collocation doesn't work")
+
+    cl = AllTests.allTests(communicator)
 
     return True
 
 try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
+
+    #
+    # We must set MessageSizeMax to an explicit values, because
+    # we run tests to check whether Ice.MemoryLimitException is
+    # raised as expected.
+    #
+    initData.properties.setProperty("Ice.MessageSizeMax", "100")
+
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:

@@ -16,8 +16,13 @@ public class Collocated extends test.Util.Application
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         java.io.PrintWriter out = getWriter();
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), communicator().stringToIdentity("test"));
+        Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), communicator().stringToIdentity("test"));
         adapter.activate();
+
+        if(prx.ice_getConnection() != null)
+        {
+            throw new RuntimeException();
+        }
 
         AllTests.allTests(this, out);
 

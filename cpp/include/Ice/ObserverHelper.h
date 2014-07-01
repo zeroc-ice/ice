@@ -138,7 +138,7 @@ public:
         }
     }
 
-    ::Ice::Instrumentation::RemoteObserverPtr
+    ::Ice::Instrumentation::ChildInvocationObserverPtr
     getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt, int requestId, int size)
     {
         if(_observer)
@@ -148,12 +148,12 @@ public:
         return 0;
     }
 
-    ::Ice::Instrumentation::RemoteObserverPtr
-    getCollocatedObserver(int requestId, int size)
+    ::Ice::Instrumentation::ChildInvocationObserverPtr
+    getCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, int requestId, int size)
     {
         if(_observer)
         {
-            return _observer->getCollocatedObserver(requestId, size);
+            return _observer->getCollocatedObserver(adapter, requestId, size);
         }
         return 0;
     }

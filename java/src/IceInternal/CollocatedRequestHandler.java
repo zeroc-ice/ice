@@ -315,7 +315,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             }
         }
 
-        out.attachCollocatedObserver(requestId);
+        out.attachCollocatedObserver(_adapter, requestId);
 
         if(_reference.getInvocationTimeout() > 0)
         {
@@ -348,7 +348,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             }
         }
 
-        outAsync.__attachCollocatedObserver(requestId);
+        outAsync.__attachCollocatedObserver(_adapter, requestId);
 
         _adapter.getThreadPool().execute(new InvokeAllAsync(outAsync, outAsync.__getOs(), requestId, 1, false));
 
@@ -395,7 +395,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             }
         }
         
-        out.attachCollocatedObserver(0);
+        out.attachCollocatedObserver(_adapter, 0);
 
         if(invokeNum > 0)
         {
@@ -454,7 +454,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             }
         }
 
-        outAsync.__attachCollocatedObserver(0);
+        outAsync.__attachCollocatedObserver(_adapter, 0);
     
         if(invokeNum > 0)
         {

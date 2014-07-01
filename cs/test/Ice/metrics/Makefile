@@ -9,11 +9,12 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= client.exe server.exe serveramd.exe
+TARGETS		= client.exe server.exe serveramd.exe collocated.exe
 
 C_SRCS		= AllTests.cs Client.cs InstrumentationI.cs ../../TestCommon/TestApp.cs
 S_SRCS		= MetricsI.cs Server.cs 
 SAMD_SRCS	= MetricsAMDI.cs Server.cs
+COL_SRCS	= AllTests.cs Collocated.cs InstrumentationI.cs ../../TestCommon/TestApp.cs MetricsI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 SLICE_AMD_SRCS  = $(SDIR)/TestAMD.ice
@@ -35,6 +36,9 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 include .depend

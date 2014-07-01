@@ -9,7 +9,21 @@
 
 package test.Ice.metrics;
 
-class RemoteObserverI extends ChildInvocationObserverI implements Ice.Instrumentation.RemoteObserver
+class ChildInvocationObserverI extends ObserverI implements Ice.Instrumentation.ChildInvocationObserver
 {
+    public synchronized void 
+    reset()
+    {
+        super.reset();
+        replySize = 0;
+    }
+
+    public synchronized void
+    reply(int s)
+    {
+        replySize += s;
+    }
+
+    int replySize;
 };
 

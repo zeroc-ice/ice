@@ -280,17 +280,12 @@ def allTests(communicator, collocated):
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
     prop.setProperty(property, "")
-
-    #
-    # isCollocationOptimized is not implemented because the
-    # collocation optimization is permanently disabled with IcePy.
-    #
-    #property = propertyPrefix + ".CollocationOptimized"
-    #test(b1.ice_isCollocationOptimized())
-    #prop.setProperty(property, "0")
-    #b1 = communicator.propertyToProxy(propertyPrefix)
-    #test(not b1.ice_isCollocationOptimized())
-    #prop.setProperty(property, "")
+    property = propertyPrefix + ".CollocationOptimized"
+    test(b1.ice_isCollocationOptimized())
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(not b1.ice_isCollocationOptimized())
+    prop.setProperty(property, "")
 
     print("ok")
 
@@ -298,7 +293,7 @@ def allTests(communicator, collocated):
     sys.stdout.flush()
 
     b1 = communicator.stringToProxy("test")
-    #b1 = b1.ice_collocationOptimized(True)
+    b1 = b1.ice_collocationOptimized(True)
     b1 = b1.ice_connectionCached(True)
     b1 = b1.ice_preferSecure(False)
     b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
@@ -307,7 +302,7 @@ def allTests(communicator, collocated):
     b1 = b1.ice_encodingVersion(Ice.EncodingVersion(1, 0))
 
     router = communicator.stringToProxy("router")
-    #router = router.ice_collocationOptimized(False)
+    router = router.ice_collocationOptimized(False)
     router = router.ice_connectionCached(True)
     router = router.ice_preferSecure(True)
     router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
@@ -315,7 +310,7 @@ def allTests(communicator, collocated):
     router = router.ice_invocationTimeout(1500);
 
     locator = communicator.stringToProxy("locator")
-    #locator = locator.ice_collocationOptimized(True)
+    locator = locator.ice_collocationOptimized(True)
     locator = locator.ice_connectionCached(False)
     locator = locator.ice_preferSecure(True)
     locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
@@ -329,7 +324,7 @@ def allTests(communicator, collocated):
     test(len(proxyProps) == 21)
 
     test(proxyProps["Test"] == "test -t -e 1.0")
-    #test(proxyProps["Test.CollocationOptimized"] == "1")
+    test(proxyProps["Test.CollocationOptimized"] == "1")
     test(proxyProps["Test.ConnectionCached"] == "1")
     test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
@@ -337,7 +332,7 @@ def allTests(communicator, collocated):
     test(proxyProps["Test.InvocationTimeout"] == "1234");
 
     test(proxyProps["Test.Locator"] == "locator -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()))
-    #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
+    test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
     test(proxyProps["Test.Locator.ConnectionCached"] == "0")
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
@@ -345,7 +340,7 @@ def allTests(communicator, collocated):
     test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
     test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice.encodingVersionToString(Ice.currentEncoding()))
-    #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
+    test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
@@ -374,8 +369,8 @@ def allTests(communicator, collocated):
     test(base.ice_batchDatagram().ice_isBatchDatagram())
     test(base.ice_secure(True).ice_isSecure())
     test(not base.ice_secure(False).ice_isSecure())
-    #test(base.ice_collocationOptimized(True)->ice_isCollocationOptimized())
-    #test(!base.ice_collocationOptimized(False)->ice_isCollocationOptimized())
+    test(base.ice_collocationOptimized(True).ice_isCollocationOptimized())
+    test(not base.ice_collocationOptimized(False).ice_isCollocationOptimized())
     test(base.ice_preferSecure(True).ice_isPreferSecure())
     test(not base.ice_preferSecure(False).ice_isPreferSecure())
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() == Ice.Encoding_1_0)
@@ -408,10 +403,10 @@ def allTests(communicator, collocated):
     test(compObj.ice_secure(False) < compObj.ice_secure(True))
     test(not (compObj.ice_secure(True) < compObj.ice_secure(False)))
 
-    #test(compObj.ice_collocationOptimized(True) == compObj.ice_collocationOptimized(True))
-    #test(compObj.ice_collocationOptimized(False) != compObj.ice_collocationOptimized(True))
-    #test(compObj.ice_collocationOptimized(False) < compObj.ice_collocationOptimized(True))
-    #test(!(compObj.ice_collocationOptimized(True) < compObj.ice_collocationOptimized(False)))
+    test(compObj.ice_collocationOptimized(True) == compObj.ice_collocationOptimized(True))
+    test(compObj.ice_collocationOptimized(False) != compObj.ice_collocationOptimized(True))
+    test(compObj.ice_collocationOptimized(False) < compObj.ice_collocationOptimized(True))
+    test(not (compObj.ice_collocationOptimized(True) < compObj.ice_collocationOptimized(False)))
 
     test(compObj.ice_connectionCached(True) == compObj.ice_connectionCached(True))
     test(compObj.ice_connectionCached(False) != compObj.ice_connectionCached(True))

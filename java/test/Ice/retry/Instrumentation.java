@@ -65,8 +65,8 @@ public class Instrumentation
             return null;
         }
 
-        public Ice.Instrumentation.RemoteObserver 
-        getCollocatedObserver(int i , int j)
+        public Ice.Instrumentation.CollocatedObserver 
+        getCollocatedObserver(Ice.ObjectAdapter adapter, int i , int j)
         {
             return null;
         }

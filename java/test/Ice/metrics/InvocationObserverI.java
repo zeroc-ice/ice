@@ -21,6 +21,10 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
         {
             remoteObserver.reset();
         }
+        if(collocatedObserver != null)
+        {
+            collocatedObserver.reset();
+        }
     }
 
     public synchronized void 
@@ -46,19 +50,21 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
         return remoteObserver;
     }
 
-    public synchronized Ice.Instrumentation.RemoteObserver 
-    getCollocatedObserver(int a, int b)
+
+    public synchronized Ice.Instrumentation.CollocatedObserver 
+    getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
     {
-        if(remoteObserver == null)
+        if(collocatedObserver == null)
         {
-            remoteObserver = new RemoteObserverI();
-            remoteObserver.reset();
+            collocatedObserver = new CollocatedObserverI();
+            collocatedObserver.reset();
         }
-        return remoteObserver;
+        return collocatedObserver;
     }
 
     int userExceptionCount;
     int retriedCount;
 
     RemoteObserverI remoteObserver = null;
+    CollocatedObserverI collocatedObserver = null;
 };

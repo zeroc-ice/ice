@@ -24,6 +24,7 @@
 #include <Ice/Current.h>
 #include <Ice/BasicStream.h>
 #include <Ice/ObserverHelper.h>
+#include <Ice/ObjectAdapterF.h>
 
 #ifdef ICE_CPP11
 #   include <functional> // for std::function
@@ -122,12 +123,13 @@ public:
     void __attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, 
                                 Ice::Int requestId, Ice::Int sz)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, sz));
+        _childObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, sz));
     }
 
-    void __attachCollocatedObserver(Ice::Int requestId)
+    void __attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
     {
-        _remoteObserver.attach(_observer.getCollocatedObserver(requestId, 
+        _childObserver.attach(_observer.getCollocatedObserver(adapter, 
+                                                               requestId, 
                                                                static_cast<Ice::Int>(_os.b.size() - 
                                                                                      IceInternal::headerSize - 4)));
     }
@@ -175,7 +177,7 @@ protected:
     bool _sentSynchronously;
     IceUtil::UniquePtr<Exception> _exception;
     IceInternal::InvocationObserver _observer;
-    IceInternal::ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
+    IceInternal::ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
 };
 
 }

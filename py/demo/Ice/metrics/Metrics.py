@@ -72,6 +72,15 @@ maps = {
         ("replySize", "RepSz", '>', 5),
         ("averageLifetime", "Avg (ms)", '>', 8)
     ],
+    "Collocated" : [
+        ("id", "Invocations", '>', 39), 
+        ("current", "#", '>', 3),
+        ("total", "Total", '>', 5),
+        ("", "", '>', 5),
+        ("size", "Sz", '>', 5),
+        ("replySize", "RepSz", '>', 5),
+        ("averageLifetime", "Avg (ms)", '>', 8)
+    ],
     "Session" : [
         ("id", "Sessions", '<', 15), 
         ("current", "#", '>', 3),
@@ -180,6 +189,8 @@ def printMetricsMap(admin, viewName, mapName, map):
             printMetrics(mapName, metricsField(o))
             for so in o.remotes:
                 printMetrics("Remote", metricsField(so))
+            for co in o.collocated:
+                printMetrics("Collocated", metricsField(so))
 
     #
     # Print the table footer.

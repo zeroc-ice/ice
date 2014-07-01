@@ -9,6 +9,10 @@
 
 import Ice, Test, sys
 
+class HelloI(Test.Hello):
+    def sayHello(self, current=None):
+        pass
+
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
@@ -17,6 +21,9 @@ def allTests(communicator, ref):
     manager = Test.ServerManagerPrx.checkedCast(communicator.stringToProxy(ref))
     locator = communicator.getDefaultLocator()
     test(manager)
+
+    registry = Test.TestLocatorRegistryPrx.checkedCast(locator.getRegistry());
+    test(registry);
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
@@ -189,7 +196,7 @@ def allTests(communicator, ref):
     sys.stdout.flush()
     hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"))
     obj.migrateHello()
-    hello.ice_getConnection().close(false);
+    hello.ice_getConnection().close(False);
     hello.sayHello()
     obj.migrateHello()
     hello.sayHello()
@@ -222,9 +229,25 @@ def allTests(communicator, ref):
     print("ok")
 
     #
-    # Collocated invocations are not supported in Python.
+    # Set up test for calling a collocated object through an indirect, adapterless reference.
     #
-    #sys.stdout.write("testing indirect references to collocated objects... ")
+    sys.stdout.write("testing indirect references to collocated objects... ")
+    sys.stdout.flush()
+    properties = communicator.getProperties();
+    properties.setProperty("Ice.PrintAdapterReady", "0");
+    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+    adapter.setLocator(locator);
+
+    id = Ice.Identity();
+    id.name = Ice.generateUUID();
+    registry.addObject(adapter.add(HelloI(), id));
+    adapter.activate();
+    
+    helloPrx = Test.HelloPrx.checkedCast(communicator.stringToProxy(communicator.identityToString(id)));
+    test(not helloPrx.ice_getConnection());
+
+    adapter.deactivate();
+    print("ok")
 
     sys.stdout.write("shutdown server manager... ")
     sys.stdout.flush()

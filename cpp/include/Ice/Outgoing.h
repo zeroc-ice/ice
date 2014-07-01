@@ -21,6 +21,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
 #include <Ice/ObserverHelper.h>
+#include <Ice/ObjectAdapterF.h>
 
 namespace Ice
 {
@@ -119,12 +120,13 @@ public:
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt,
                               Ice::Int requestId, Ice::Int size)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, size));
+        _childObserver.attach(_observer.getRemoteObserver(c, endpt, requestId, size));
     }
 
-    void attachCollocatedObserver(Ice::Int requestId)
+    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
     {
-        _remoteObserver.attach(_observer.getCollocatedObserver(requestId, 
+        _childObserver.attach(_observer.getCollocatedObserver(adapter, 
+                                                               requestId, 
                                                                static_cast<Ice::Int>(_os.b.size() - 
                                                                                      IceInternal::headerSize - 4)));
     }
@@ -140,7 +142,7 @@ private:
     RequestHandlerPtr _handler;
     IceUtil::UniquePtr<Ice::Exception> _exception;
     InvocationObserver _observer;
-    ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
+    ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
 
     enum
     {
@@ -185,12 +187,13 @@ public:
 
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt, Ice::Int sz)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt, 0, sz));
+        _childObserver.attach(_observer.getRemoteObserver(connection, endpt, 0, sz));
     }
 
-    void attachCollocatedObserver(Ice::Int requestId)
+    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
     {
-        _remoteObserver.attach(_observer.getCollocatedObserver(requestId, 
+        _childObserver.attach(_observer.getCollocatedObserver(adapter, 
+                                                               requestId, 
                                                                static_cast<Ice::Int>(_os.b.size() - 
                                                                                      IceInternal::headerSize - 4)));
     }
@@ -206,7 +209,7 @@ private:
     BasicStream _os;
 
     InvocationObserver _observer;
-    ObserverHelperT<Ice::Instrumentation::RemoteObserver> _remoteObserver;
+    ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
 };
 
 }

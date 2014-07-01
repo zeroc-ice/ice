@@ -114,7 +114,7 @@ public class InvocationObserverI
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    static public final class CollocatedInvocationHelper extends MetricsHelper<RemoteMetrics>
+    static public final class CollocatedInvocationHelper extends MetricsHelper<CollocatedMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
         { 
@@ -134,15 +134,16 @@ public class InvocationObserverI
             }
         };
         
-        CollocatedInvocationHelper(int requestId, int size) 
+        CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) 
         {
             super(_attributes);
+            _id = adapter.getName();
             _requestId = requestId;
             _size = size;
         }
 
         public void 
-        initMetrics(RemoteMetrics v)
+        initMetrics(CollocatedMetrics v)
         {
             v.size += _size;
         }
@@ -150,10 +151,6 @@ public class InvocationObserverI
         public String
         getId()
         {
-            if(_id == null)
-            {
-                _id = Integer.toString(_requestId);
-            }
             return _id;
         }
 
@@ -171,7 +168,7 @@ public class InvocationObserverI
 
         final private int _requestId;
         final private int _size;
-        private String _id;
+        final private String _id;
     };
 
     public void
@@ -209,19 +206,20 @@ public class InvocationObserverI
                                                                delegate);
     }
 
-    public Ice.Instrumentation.RemoteObserver 
-    getCollocatedObserver(int requestId, int sz)
+    public Ice.Instrumentation.CollocatedObserver
+    getCollocatedObserver(Ice.ObjectAdapter adapter, int requestId, int sz)
     {
-        Ice.Instrumentation.RemoteObserver delegate = null;
+        Ice.Instrumentation.CollocatedObserver delegate = null;
         if(_delegate != null)
         {
-            delegate = _delegate.getCollocatedObserver(requestId, sz);
+            delegate = _delegate.getCollocatedObserver(adapter, requestId, sz);
         }
-        return (Ice.Instrumentation.RemoteObserver)getObserver("Collocated",
-                                                               new CollocatedInvocationHelper(requestId, sz),
-                                                               RemoteMetrics.class, 
-                                                               RemoteObserverI.class,
-                                                               delegate);
+        return (Ice.Instrumentation.CollocatedObserver)getObserver(
+            "Collocated",
+            new CollocatedInvocationHelper(adapter, requestId, sz),
+            CollocatedMetrics.class, 
+            CollocatedObserverI.class,
+            delegate);
     }
 
     final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>()

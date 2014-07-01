@@ -172,10 +172,10 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     synchronized public void
     sent()
     {
-        if(_remoteObserver != null)
+        if(_childObserver != null)
         {
-            _remoteObserver.detach();
-            _remoteObserver = null;
+            _childObserver.detach();
+            _childObserver = null;
         }
         _sent = true;
         notify();
@@ -184,11 +184,11 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     public synchronized void
     finished(Ice.Exception ex, boolean sent)
     {
-        if(_remoteObserver != null)
+        if(_childObserver != null)
         {
-            _remoteObserver.failed(ex.ice_name());
-            _remoteObserver.detach();
-            _remoteObserver = null;
+            _childObserver.failed(ex.ice_name());
+            _childObserver.detach();
+            _childObserver = null;
         }
         _exception = ex;
         notify();
@@ -205,22 +205,23 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getRemoteObserver(info, endpt, 0, size);
-            if(_remoteObserver != null)
+            _childObserver = _observer.getRemoteObserver(info, endpt, 0, size);
+            if(_childObserver != null)
             {
-                _remoteObserver.attach();
+                _childObserver.attach();
             }
         }
     }
 
-    public void attachCollocatedObserver(int requestId)
+    public void 
+    attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getCollocatedObserver(requestId, _os.size() - Protocol.headerSize - 4);
-            if(_remoteObserver != null)
+            _childObserver = _observer.getCollocatedObserver(adapter, requestId, _os.size() - Protocol.headerSize - 4);
+            if(_childObserver != null)
             {
-                _remoteObserver.attach();
+                _childObserver.attach();
             }
         }
     }
@@ -232,6 +233,6 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     private Ice.Exception _exception;
 
     private InvocationObserver _observer;
-    private Observer _remoteObserver;
+    private Observer _childObserver;
 
 }

@@ -334,23 +334,24 @@ public class AsyncResult
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
-            if(_remoteObserver != null)
+            _childObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
+            if(_childObserver != null)
             {
-                _remoteObserver.attach();
+                _childObserver.attach();
             }
         }
     }
 
-    public void __attachCollocatedObserver(int requestId)
+    public void __attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
         if(_observer != null)
         {
-            _remoteObserver = _observer.getCollocatedObserver(requestId, 
+            _childObserver = _observer.getCollocatedObserver(adapter,
+                                                              requestId, 
                                                               _os.size() - IceInternal.Protocol.headerSize - 4);
-            if(_remoteObserver != null)
+            if(_childObserver != null)
             {
-                _remoteObserver.attach();
+                _childObserver.attach();
             }
         }
     }
@@ -535,7 +536,7 @@ public class AsyncResult
     protected Ice.Exception _exception;
 
     protected Ice.Instrumentation.InvocationObserver _observer;
-    protected Ice.Instrumentation.RemoteObserver _remoteObserver;
+    protected Ice.Instrumentation.ChildInvocationObserver _childObserver;
     
     private IceInternal.CallbackBase _callback;
 }

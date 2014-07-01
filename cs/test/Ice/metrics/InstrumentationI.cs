@@ -84,7 +84,7 @@ public class ObserverI : Ice.Instrumentation.Observer
     public int failedCount;
 };
 
-public class RemoteObserverI : ObserverI, Ice.Instrumentation.RemoteObserver
+public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvocationObserver
 {
     override public void 
     reset()
@@ -108,6 +108,14 @@ public class RemoteObserverI : ObserverI, Ice.Instrumentation.RemoteObserver
     public int replySize;
 };
 
+public class RemoteObserverI : ChildInvocationObserverI, Ice.Instrumentation.RemoteObserver
+{
+};
+
+public class CollocatedObserverI : ChildInvocationObserverI, Ice.Instrumentation.CollocatedObserver
+{
+};
+
 public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObserver
 {
     override public void 
@@ -121,6 +129,10 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
             if(remoteObserver != null)
             {
                 remoteObserver.reset();
+            }
+            if(collocatedObserver != null)
+            {
+                collocatedObserver.reset();
             }
         }
     }
@@ -157,17 +169,17 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
         }
     }
 
-    public Ice.Instrumentation.RemoteObserver
-    getCollocatedObserver(int a, int b)
+    public Ice.Instrumentation.CollocatedObserver
+    getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
     {
         lock(this)
         {
-            if(remoteObserver == null)
+            if(collocatedObserver == null)
             {
-                remoteObserver = new RemoteObserverI();
-                remoteObserver.reset();
+                collocatedObserver = new CollocatedObserverI();
+                collocatedObserver.reset();
             }
-            return remoteObserver;
+            return collocatedObserver;
         }
     }
 
@@ -175,6 +187,7 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
     public int retriedCount;
 
     public RemoteObserverI remoteObserver = null;
+    public CollocatedObserverI collocatedObserver = null;
 };
 
 public class DispatchObserverI : ObserverI , Ice.Instrumentation.DispatchObserver

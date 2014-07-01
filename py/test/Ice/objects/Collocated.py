@@ -24,7 +24,7 @@ def run(args, communicator):
     adapter.add(uoet, communicator.stringToIdentity("uoet"))
     adapter.activate()
 
-    AllTests.allTests(communicator, True)
+    AllTests.allTests(communicator)
 
     # We must call shutdown even in the collocated case for cyclic dependency cleanup
     initial.shutdown()

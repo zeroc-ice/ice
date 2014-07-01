@@ -50,10 +50,10 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             public boolean 
             __sent()
             {
-                if(_remoteObserver != null)
+                if(_childObserver != null)
                 {
-                    _remoteObserver.detach();
-                    _remoteObserver = null;
+                    _childObserver.detach();
+                    _childObserver = null;
                 }
                 check(false);
                 return false;
@@ -62,11 +62,11 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             public void 
             __finished(Ice.LocalException ex, boolean sent)
             {
-                if(_remoteObserver != null)
+                if(_childObserver != null)
                 {
-                    _remoteObserver.failed(ex.ice_name());
-                    _remoteObserver.detach();
-                    _remoteObserver = null;
+                    _childObserver.failed(ex.ice_name());
+                    _childObserver.detach();
+                    _childObserver = null;
                 }
                 check(false);
             }
@@ -76,11 +76,11 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             {
                 if(CommunicatorBatchOutgoingAsync.this._observer != null)
                 {
-                    _remoteObserver = CommunicatorBatchOutgoingAsync.this._observer.getRemoteObserver(info, endpt,
+                    _childObserver = CommunicatorBatchOutgoingAsync.this._observer.getRemoteObserver(info, endpt,
                                                                                                       requestId, size);
-                    if(_remoteObserver != null)
+                    if(_childObserver != null)
                     {
-                        _remoteObserver.attach();
+                        _childObserver.attach();
                     }
                 }
             }

@@ -184,6 +184,14 @@ public:
     virtual void reply(Ice::Int);
 };
 
+class CollocatedObserverI : public ObserverWithDelegateT<IceMX::CollocatedMetrics, 
+                                                         Ice::Instrumentation::CollocatedObserver>
+{
+public:
+
+    virtual void reply(Ice::Int);
+};
+
 class InvocationObserverI : public ObserverWithDelegateT<IceMX::InvocationMetrics, 
                                                          Ice::Instrumentation::InvocationObserver>
 {
@@ -193,12 +201,11 @@ public:
 
     virtual void userException();
 
-    virtual Ice::Instrumentation::RemoteObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, 
-                                                                      const Ice::EndpointPtr&, 
-                                                                      Ice::Int, 
-                                                                      Ice::Int);
+    virtual Ice::Instrumentation::RemoteObserverPtr 
+    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, Ice::Int, Ice::Int);
 
-    virtual Ice::Instrumentation::RemoteObserverPtr getCollocatedObserver(Ice::Int, Ice::Int);
+    virtual Ice::Instrumentation::CollocatedObserverPtr
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, Ice::Int, Ice::Int);
 };
 
 typedef ObserverWithDelegateT<IceMX::Metrics, Ice::Instrumentation::Observer> ObserverI;

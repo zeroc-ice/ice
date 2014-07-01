@@ -124,10 +124,10 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
 
             if(!_proxy.ice_isTwoway())
             {
-                if(_remoteObserver != null)
+                if(_childObserver != null)
                 {
-                    _remoteObserver.detach();
-                    _remoteObserver = null;
+                    _childObserver.detach();
+                    _childObserver = null;
                 }
                 if(_timeoutRequestHandler != null)
                 {
@@ -154,11 +154,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         synchronized(_monitor)
         {
             assert((_state & Done) == 0);
-            if(_remoteObserver != null)
+            if(_childObserver != null)
             {
-                _remoteObserver.failed(exc.ice_name());
-                _remoteObserver.detach();
-                _remoteObserver = null;
+                _childObserver.failed(exc.ice_name());
+                _childObserver.detach();
+                _childObserver = null;
             }
             if(_timeoutRequestHandler != null)
             {
@@ -197,11 +197,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             synchronized(_monitor)
             {
                 assert(_exception == null && (_state & Done) == 0);
-                if(_remoteObserver != null)
+                if(_childObserver != null)
                 {
-                    _remoteObserver.reply(is.size() - Protocol.headerSize - 4);
-                    _remoteObserver.detach();
-                    _remoteObserver = null;
+                    _childObserver.reply(is.size() - Protocol.headerSize - 4);
+                    _childObserver.detach();
+                    _childObserver = null;
                 }
 
                 if(_timeoutRequestHandler != null)

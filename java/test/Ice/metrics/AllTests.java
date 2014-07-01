@@ -336,8 +336,18 @@ public class AllTests
                 Map<String, String> props,
                 String map)
     {
-        cprops.setProperties(getClientProps(cprops, props, map));
-        sprops.setProperties(getServerProps(sprops, props, map));
+        if(sprops.ice_getConnection() != null)
+        {
+            cprops.setProperties(getClientProps(cprops, props, map));
+            sprops.setProperties(getServerProps(sprops, props, map));
+        }
+        else
+        {
+            Map<String, String> clientProps = getClientProps(cprops, props, map);
+            Map<String, String> serverProps = getServerProps(sprops, props, map);
+            serverProps.putAll(clientProps);
+            cprops.setProperties(serverProps);
+        }
         callback.waitForUpdate();
     }
     
@@ -401,7 +411,8 @@ public class AllTests
         throws IceMX.UnknownMetricsView
     {
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:default -p 12010"));
-            
+        boolean collocated = metrics.ice_getConnection() == null;
+
         out.print("testing metrics admin facet checkedCast... ");
         out.flush();
         Ice.ObjectPrx admin = communicator.getAdmin();
@@ -428,8 +439,11 @@ public class AllTests
         updateProps(clientProps, serverProps, update, props, "");
         Ice.LongHolder timestamp = new Ice.LongHolder();
         Map<String, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", timestamp);
-        test(view.get("Connection").length == 1 && view.get("Connection")[0].current == 1 && 
-             view.get("Connection")[0].total == 1);
+        if(!collocated)
+        {
+            test(view.get("Connection").length == 1 && view.get("Connection")[0].current == 1 && 
+                 view.get("Connection")[0].total == 1);
+        }
         test(view.get("Thread").length == 1 && view.get("Thread")[0].current == 3 && view.get("Thread")[0].total == 3);
         out.println("ok");
 
@@ -447,312 +461,332 @@ public class AllTests
 
         view = clientMetrics.getMetricsView("View", timestamp);
         test(view.get("Thread").length == 3);
-        test(view.get("Connection").length == 2);
+        if(!collocated)
+        {
+            test(view.get("Connection").length == 2);
+        }
         test(view.get("Invocation").length == 1);
 
         IceMX.InvocationMetrics invoke = (IceMX.InvocationMetrics)view.get("Invocation")[0];
         test(invoke.id.indexOf("[ice_ping]") > 0 && invoke.current == 0 && invoke.total == 5);
-        test(invoke.remotes.length == 2);
-        test(invoke.remotes[0].total >= 2 && invoke.remotes[1].total >= 2);
-        test((invoke.remotes[0].total + invoke.remotes[1].total) == 5);
-
+        if(!collocated)
+        {
+            test(invoke.remotes.length == 2);
+            test(invoke.remotes[0].total >= 2 && invoke.remotes[1].total >= 2);
+            test((invoke.remotes[0].total + invoke.remotes[1].total) == 5);
+        }
+        else
+        {
+            test(invoke.collocated.length == 1);
+            test(invoke.collocated[0].total == 5);
+        }
         view = serverMetrics.getMetricsView("View", timestamp);
-        test(view.get("Thread").length > 3);
-        test(view.get("Connection").length == 2);
+        if(!collocated)
+        {
+            test(view.get("Thread").length > 3);
+            test(view.get("Connection").length == 2);
+        }
         test(view.get("Dispatch").length == 1);
         test(view.get("Dispatch")[0].current <= 1 && view.get("Dispatch")[0].total == 5);
         test(view.get("Dispatch")[0].id.indexOf("[ice_ping]") > 0);
 
-        metrics.ice_getConnection().close(false);
-        metrics.ice_connectionId("Con1").ice_getConnection().close(false);
+        if(!collocated)
+        {
+            metrics.ice_getConnection().close(false);
+            metrics.ice_connectionId("Con1").ice_getConnection().close(false);
 
-        waitForCurrent(clientMetrics, "View", "Connection", 0);
-        waitForCurrent(serverMetrics, "View", "Connection", 0);
-
+            waitForCurrent(clientMetrics, "View", "Connection", 0);
+            waitForCurrent(serverMetrics, "View", "Connection", 0);
+        }
         clearView(clientProps, serverProps, update);
     
         out.println("ok");
 
-        out.print("testing connection metrics... ");
-        out.flush();
+        Map<String, IceMX.Metrics> map;
 
-        props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
-        updateProps(clientProps, serverProps, update, props, "Connection");
+        if(!collocated)
+        {
+            out.print("testing connection metrics... ");
+            out.flush();
 
-        test(clientMetrics.getMetricsView("View", timestamp).get("Connection").length == 0);
-        test(serverMetrics.getMetricsView("View", timestamp).get("Connection").length == 0);
+            props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
+            updateProps(clientProps, serverProps, update, props, "Connection");
 
-        metrics.ice_ping();
+            test(clientMetrics.getMetricsView("View", timestamp).get("Connection").length == 0);
+            test(serverMetrics.getMetricsView("View", timestamp).get("Connection").length == 0);
 
-        IceMX.ConnectionMetrics cm1, sm1, cm2, sm2;
-        cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-        sm1 = getServerConnectionMetrics(serverMetrics, 25);
-        test(cm1.total == 1 && sm1.total == 1);
+            metrics.ice_ping();
 
-        metrics.ice_ping();
+            IceMX.ConnectionMetrics cm1, sm1, cm2, sm2;
+            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+            sm1 = getServerConnectionMetrics(serverMetrics, 25);
+            test(cm1.total == 1 && sm1.total == 1);
 
-        cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-        sm2 = getServerConnectionMetrics(serverMetrics, 50);
+            metrics.ice_ping();
 
-        test(cm2.sentBytes - cm1.sentBytes == 45); // 45 for ice_ping request
-        test(cm2.receivedBytes - cm1.receivedBytes == 25); // 25 bytes for ice_ping response
-        test(sm2.receivedBytes - sm1.receivedBytes == 45);
-        test(sm2.sentBytes - sm1.sentBytes == 25);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+            sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
-        cm1 = cm2;
-        sm1 = sm2;
+            test(cm2.sentBytes - cm1.sentBytes == 45); // 45 for ice_ping request
+            test(cm2.receivedBytes - cm1.receivedBytes == 25); // 25 bytes for ice_ping response
+            test(sm2.receivedBytes - sm1.receivedBytes == 45);
+            test(sm2.sentBytes - sm1.sentBytes == 25);
 
-        byte[] bs = new byte[0];
-        metrics.opByteS(bs);
+            cm1 = cm2;
+            sm1 = sm2;
 
-        cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-        sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + cm2.receivedBytes - cm1.receivedBytes);
-        long requestSz = cm2.sentBytes - cm1.sentBytes;
-        long replySz = cm2.receivedBytes - cm1.receivedBytes;
+            byte[] bs = new byte[0];
+            metrics.opByteS(bs);
 
-        cm1 = cm2;
-        sm1 = sm2;
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+            sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + cm2.receivedBytes - cm1.receivedBytes);
+            long requestSz = cm2.sentBytes - cm1.sentBytes;
+            long replySz = cm2.receivedBytes - cm1.receivedBytes;
 
-        bs = new byte[456];
-        metrics.opByteS(bs);
+            cm1 = cm2;
+            sm1 = sm2;
 
-        cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-        sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
+            bs = new byte[456];
+            metrics.opByteS(bs);
 
-        test(cm2.sentBytes - cm1.sentBytes == requestSz + bs.length + 4); // 4 is for the seq variable size
-        test(cm2.receivedBytes - cm1.receivedBytes == replySz);
-        test(sm2.receivedBytes - sm1.receivedBytes == requestSz + bs.length + 4);
-        test(sm2.sentBytes - sm1.sentBytes == replySz);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+            sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
-        cm1 = cm2;
-        sm1 = sm2;
+            test(cm2.sentBytes - cm1.sentBytes == requestSz + bs.length + 4); // 4 is for the seq variable size
+            test(cm2.receivedBytes - cm1.receivedBytes == replySz);
+            test(sm2.receivedBytes - sm1.receivedBytes == requestSz + bs.length + 4);
+            test(sm2.sentBytes - sm1.sentBytes == replySz);
 
-        bs = new byte[1024 * 1024 * 10]; // Try with large amount of data which should be sent in several chunks
-        metrics.opByteS(bs);
+            cm1 = cm2;
+            sm1 = sm2;
 
-        cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-        sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
+            bs = new byte[1024 * 1024 * 10]; // Try with large amount of data which should be sent in several chunks
+            metrics.opByteS(bs);
 
-        test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.length + 4)); // 4 is for the seq variable size
-        test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
-        test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.length + 4));
-        test((sm2.sentBytes - sm1.sentBytes) == replySz);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+            sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
+
+            test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.length + 4)); // 4 is for the seq variable size
+            test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
+            test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.length + 4));
+            test((sm2.sentBytes - sm1.sentBytes) == replySz);
     
-        props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "state");
-        updateProps(clientProps, serverProps, update, props, "Connection");
+            props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "state");
+            updateProps(clientProps, serverProps, update, props, "Connection");
 
-        Map<String, IceMX.Metrics> map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
+            map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
 
-        test(map.get("active").current == 1);
+            test(map.get("active").current == 1);
 
-        ControllerPrx controller = ControllerPrxHelper.checkedCast(
-            communicator.stringToProxy("controller:default -p 12011"));
-        controller.hold();
+            ControllerPrx controller = ControllerPrxHelper.checkedCast(
+                communicator.stringToProxy("controller:default -p 12011"));
+            controller.hold();
 
-        map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Connection"));
-        test(map.get("active").current == 1);
-        map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
-        test(map.get("holding").current == 1);
+            map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Connection"));
+            test(map.get("active").current == 1);
+            map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
+            test(map.get("holding").current == 1);
 
-        metrics.ice_getConnection().close(false);
+            metrics.ice_getConnection().close(false);
 
-        map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Connection"));
-        test(map.get("closing").current == 1);
-        map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
-        test(map.get("holding").current == 1);
+            map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Connection"));
+            test(map.get("closing").current == 1);
+            map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
+            test(map.get("holding").current == 1);
 
-        controller.resume();
+            controller.resume();
 
-        map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
-        test(map.get("holding").current == 0);
+            map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Connection"));
+            test(map.get("holding").current == 0);
 
-        props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
-        updateProps(clientProps, serverProps, update, props, "Connection");
+            props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "none");
+            updateProps(clientProps, serverProps, update, props, "Connection");
 
-        metrics.ice_getConnection().close(false);
+            metrics.ice_getConnection().close(false);
 
-        metrics.ice_timeout(500).ice_ping();
-        controller.hold();
-        try
-        {
-            ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[10000000]);
-            test(false);
-        }
-        catch(Ice.TimeoutException ex)
-        {
-        }
-        controller.resume();
-
-        cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-        while(true)
-        {
-            sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", timestamp).get("Connection")[0];
-            if(sm1.failures >= 2)
-            {
-                break;
-            }
+            metrics.ice_timeout(500).ice_ping();
+            controller.hold();
             try
             {
-                Thread.sleep(10);
+                ((MetricsPrx)metrics.ice_timeout(500)).opByteS(new byte[10000000]);
+                test(false);
             }
-            catch(InterruptedException ex)
+            catch(Ice.TimeoutException ex)
             {
             }
-        }
-        test(cm1.failures == 2 && sm1.failures >= 2);
+            controller.resume();
 
-        checkFailure(clientMetrics, "Connection", cm1.id, "Ice::TimeoutException", 1, out);
-        checkFailure(clientMetrics, "Connection", cm1.id, "Ice::ConnectTimeoutException", 1, out);
-        checkFailure(serverMetrics, "Connection", sm1.id, "Ice::ConnectionLostException", 0, out);
+            cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+            while(true)
+            {
+                sm1 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+                if(sm1.failures >= 2)
+                {
+                    break;
+                }
+                try
+                {
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+            test(cm1.failures == 2 && sm1.failures >= 2);
 
-        MetricsPrx m = (MetricsPrx)metrics.ice_timeout(500).ice_connectionId("Con1");
-        m.ice_ping();
+            checkFailure(clientMetrics, "Connection", cm1.id, "Ice::TimeoutException", 1, out);
+            checkFailure(clientMetrics, "Connection", cm1.id, "Ice::ConnectTimeoutException", 1, out);
+            checkFailure(serverMetrics, "Connection", sm1.id, "Ice::ConnectionLostException", 0, out);
 
-        testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", out);
-        //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
-                      "tcp -h 127.0.0.1 -p 12010 -t 500", out);
+            MetricsPrx m = (MetricsPrx)metrics.ice_timeout(500).ice_connectionId("Con1");
+            m.ice_ping();
 
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", "1", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "false", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", "false", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "false", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", "127.0.0.1", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", "12010", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", out);
+            //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
+                          "tcp -h 127.0.0.1 -p 12010 -t 500", out);
 
-        testAttribute(clientMetrics, clientProps, update, "Connection", "incoming", "false", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "adapterName", "", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "localHost", "127.0.0.1", out);
-        //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", "127.0.0.1", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", "12010", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", "1", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "false", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", "false", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "false", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", "127.0.0.1", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", "12010", out);
+
+            testAttribute(clientMetrics, clientProps, update, "Connection", "incoming", "false", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "adapterName", "", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "localHost", "127.0.0.1", out);
+            //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", "127.0.0.1", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", "12010", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", out);
+            testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", out);
     
-        m.ice_getConnection().close(false);
+            m.ice_getConnection().close(false);
 
-        waitForCurrent(clientMetrics, "View", "Connection", 0);
-        waitForCurrent(serverMetrics, "View", "Connection", 0);
+            waitForCurrent(clientMetrics, "View", "Connection", 0);
+            waitForCurrent(serverMetrics, "View", "Connection", 0);
 
-        out.println("ok");
+            out.println("ok");
 
-        out.print("testing connection establishment metrics... ");
-        out.flush();
+            out.print("testing connection establishment metrics... ");
+            out.flush();
 
-        props.put("IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy", "id");
-        updateProps(clientProps, serverProps, update, props, "ConnectionEstablishment");
-        test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 0);
+            props.put("IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy", "id");
+            updateProps(clientProps, serverProps, update, props, "ConnectionEstablishment");
+            test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 0);
 
-        metrics.ice_ping();
+            metrics.ice_ping();
     
-        test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 1);
-        IceMX.Metrics m1 = clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment")[0];
-        test(m1.current == 0 && m1.total == 1 && m1.id.equals("127.0.0.1:12010"));
+            test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 1);
+            IceMX.Metrics m1 = clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment")[0];
+            test(m1.current == 0 && m1.total == 1 && m1.id.equals("127.0.0.1:12010"));
 
-        metrics.ice_getConnection().close(false);
-        controller.hold();
-        try
-        {
-            communicator.stringToProxy("test:tcp -p 12010 -h 127.0.0.1").ice_timeout(10).ice_ping();
-            test(false);
-        }
-        catch(Ice.ConnectTimeoutException ex)
-        {
-        }
-        catch(Ice.LocalException ex)
-        {
-            test(false);
-        }
-        controller.resume();
-        test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 1);
-        m1 = clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment")[0];
-        test(m1.id.equals("127.0.0.1:12010") && m1.total == 3 && m1.failures == 2);
+            metrics.ice_getConnection().close(false);
+            controller.hold();
+            try
+            {
+                communicator.stringToProxy("test:tcp -p 12010 -h 127.0.0.1").ice_timeout(10).ice_ping();
+                test(false);
+            }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            controller.resume();
+            test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 1);
+            m1 = clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment")[0];
+            test(m1.id.equals("127.0.0.1:12010") && m1.total == 3 && m1.failures == 2);
 
-        checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "Ice::ConnectTimeoutException", 2, out);
+            checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "Ice::ConnectTimeoutException", 2, out);
 
-        Connect c = new Connect(metrics);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c, out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                      "tcp -h 127.0.0.1 -p 12010", c, out);
+            Connect c = new Connect(metrics);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
+                          "tcp -h 127.0.0.1 -p 12010", c, out);
 
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c, out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c, 
-                      out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c, 
-                      out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "-1", c, out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c, 
-                      out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c, 
-                      out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", "12010", c, 
-                      out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c, 
+                          out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c, 
+                          out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "-1", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c, 
+                          out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c, 
+                          out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", "12010", c, 
+                          out);
 
-        out.println("ok");
+            out.println("ok");
 
-        out.print("testing endpoint lookup metrics... ");
-        out.flush();
+            out.print("testing endpoint lookup metrics... ");
+            out.flush();
 
-        props.put("IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy", "id");
-        updateProps(clientProps, serverProps, update, props, "EndpointLookup");
-        test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 0);
+            props.put("IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy", "id");
+            updateProps(clientProps, serverProps, update, props, "EndpointLookup");
+            test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 0);
 
-        Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost");
-        prx.ice_ping();
+            Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost");
+            prx.ice_ping();
     
-        test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 1);
-        m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
-        test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -h localhost -p 12010"));
+            test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 1);
+            m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
+            test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -h localhost -p 12010"));
 
-        prx.ice_getConnection().close(false);
+            prx.ice_getConnection().close(false);
 
-        boolean dnsException = false;
-        try
-        {
-            communicator.stringToProxy("test:tcp -t 500 -p 12010 -h unknownfoo.zeroc.com").ice_ping();
-            test(false);
+            boolean dnsException = false;
+            try
+            {
+                communicator.stringToProxy("test:tcp -t 500 -p 12010 -h unknownfoo.zeroc.com").ice_ping();
+                test(false);
+            }
+            catch(Ice.DNSException ex)
+            {
+                dnsException = true;
+            }
+            catch(Ice.LocalException ex)
+            {
+                // Some DNS servers don't fail on unknown DNS names.
+            }
+            test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 2);
+            m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
+            if(!m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500"))
+            {
+                m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[1];
+            }
+            test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 && 
+                 (!dnsException || m1.failures == 2));
+            if(dnsException)
+            {
+                checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2, out);
+            }
+
+            c = new Connect(prx);
+
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -h localhost -p 12010", c,
+                          out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", 
+                          "tcp -h localhost -p 12010", c, out);
+
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", "1", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "false", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", "false", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "-1", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "false", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", "12010", c, out);
+
+            out.println("ok");
         }
-        catch(Ice.DNSException ex)
-        {
-            dnsException = true;
-        }
-        catch(Ice.LocalException ex)
-        {
-            // Some DNS servers don't fail on unknown DNS names.
-        }
-        test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 2);
-        m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
-        if(!m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500"))
-        {
-            m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[1];
-        }
-        test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 && 
-             (!dnsException || m1.failures == 2));
-        if(dnsException)
-        {
-            checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2, out);
-        }
-
-        c = new Connect(prx);
-
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -h localhost -p 12010", c,
-                      out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", 
-                      "tcp -h localhost -p 12010", c, out);
-
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", "1", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "false", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", "false", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "-1", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "false", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", "12010", c, out);
-
-        out.println("ok");
 
         out.print("testing dispatch metrics... ");
         out.flush();
@@ -794,17 +828,19 @@ public class AllTests
         catch(Ice.UnknownException ex)
         {
         }
-        try
+        if(!collocated)
         {
+            try
+            {
             metrics.fail();
             test(false);
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+            }
         }
-        catch(Ice.ConnectionLostException ex)
-        {
-        }
-
         map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Dispatch"));
-        test(map.size() == 6);
+        test(map.size() == (!collocated ? 6 : 5));
 
         IceMX.DispatchMetrics dm1 = (IceMX.DispatchMetrics)map.get("op");
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
@@ -833,27 +869,30 @@ public class AllTests
 
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", 
-                      "tcp -h 127.0.0.1 -p 12010", op, out);
-        //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
-
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", "1", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "false", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", "false", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "-1", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "false", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", "12010", op, out);
-
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "true", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", "127.0.0.1", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", "12010", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", "127.0.0.1", op, out);
-        //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", "12010", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op, out);
+        if(!collocated)
+        {
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", 
+                          "tcp -h 127.0.0.1 -p 12010", op, out);
+            //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
+            
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", "1", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "false", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", "false", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "-1", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "false", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", "12010", op, out);
+            
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "true", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localHost", "127.0.0.1", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", "12010", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", "127.0.0.1", op, out);
+            //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", "12010", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op, out);
+        }
 
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "operation", "op", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "identity", "metrics", op, out);
@@ -871,6 +910,7 @@ public class AllTests
 
         props.put("IceMX.Metrics.View.Map.Invocation.GroupBy", "operation");
         props.put("IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy", "localPort");
+        props.put("IceMX.Metrics.View.Map.Invocation.Map.Collocated.GroupBy", "id");
         updateProps(clientProps, serverProps, update, props, "Invocation");
         test(serverMetrics.getMetricsView("View", timestamp).get("Invocation").length == 0);
 
@@ -957,77 +997,88 @@ public class AllTests
         metrics.begin_opWithUnknownException(cb);
         cb.waitForResponse();
 
-        try
+        if(!collocated)
         {
-            metrics.fail();
-            test(false);
+            try
+            {
+                metrics.fail();
+                test(false);
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+            }
+            try
+            {
+                metrics.end_fail(metrics.begin_fail());
+                test(false);
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+            }
+            metrics.begin_fail(cb);
+            cb.waitForResponse();
         }
-        catch(Ice.ConnectionLostException ex)
-        {
-        }
-        try
-        {
-            metrics.end_fail(metrics.begin_fail());
-            test(false);
-        }
-        catch(Ice.ConnectionLostException ex)
-        {
-        }
-        metrics.begin_fail(cb);
-        cb.waitForResponse();
 
         map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
-        test(map.size() == 6);
+        test(map.size() == (!collocated ? 6 : 5));
 
         IceMX.InvocationMetrics im1;
-        IceMX.RemoteMetrics rim1;
+        IceMX.ChildInvocationMetrics rim1;
         im1 = (IceMX.InvocationMetrics)map.get("op");
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.length == 1);
-        rim1 = (IceMX.RemoteMetrics)im1.remotes[0];
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(!collocated ? im1.remotes.length == 1 : im1.collocated.length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
         test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
         test(rim1.size == 63 && rim1.replySize == 21);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithUserException");
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.length == 1);
-        rim1 = (IceMX.RemoteMetrics)im1.remotes[0];
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(!collocated ? im1.remotes.length == 1 : im1.collocated.length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
         test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
         test(rim1.size == 114 && rim1.replySize == 69);
         test(im1.userException == 3);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithLocalException");
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.length == 1);
-        rim1 = (IceMX.RemoteMetrics)im1.remotes[0];
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0);
+        test(!collocated ? im1.remotes.length == 1 : im1.collocated.length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
         test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
         test(rim1.size == 117 && rim1.replySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownLocalException", 3, out);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithRequestFailedException");
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.length == 1);
-        rim1 = (IceMX.RemoteMetrics)im1.remotes[0];
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0);
+        test(!collocated ? im1.remotes.length == 1 : im1.collocated.length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
         test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
         test(rim1.size == 141 && rim1.replySize == 120);
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ObjectNotExistException", 3, out);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithUnknownException");
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.length == 1);
-        rim1 = (IceMX.RemoteMetrics)im1.remotes[0];
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0);
+        test(!collocated ? im1.remotes.length == 1 : im1.collocated.length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
         test(rim1.current == 0 && rim1.total == 3 && rim1.failures == 0);
         test(rim1.size == 123 && rim1.replySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownException", 3, out);
 
-        im1 = (IceMX.InvocationMetrics)map.get("fail");
-        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.length == 6);
-        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 1 && im1.remotes[0].failures == 1);
-        test(im1.remotes[1].current == 0 && im1.remotes[1].total == 1 && im1.remotes[1].failures == 1);
-        test(im1.remotes[2].current == 0 && im1.remotes[2].total == 1 && im1.remotes[2].failures == 1);
-        test(im1.remotes[3].current == 0 && im1.remotes[3].total == 1 && im1.remotes[3].failures == 1);
-        test(im1.remotes[4].current == 0 && im1.remotes[4].total == 1 && im1.remotes[4].failures == 1);
-        test(im1.remotes[5].current == 0 && im1.remotes[5].total == 1 && im1.remotes[5].failures == 1);
-        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ConnectionLostException", 3, out);
+        if(!collocated)
+        {
+            im1 = (IceMX.InvocationMetrics)map.get("fail");
+            test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.length == 6);
+            test(im1.remotes[0].current == 0 && im1.remotes[0].total == 1 && im1.remotes[0].failures == 1);
+            test(im1.remotes[1].current == 0 && im1.remotes[1].total == 1 && im1.remotes[1].failures == 1);
+            test(im1.remotes[2].current == 0 && im1.remotes[2].total == 1 && im1.remotes[2].failures == 1);
+            test(im1.remotes[3].current == 0 && im1.remotes[3].total == 1 && im1.remotes[3].failures == 1);
+            test(im1.remotes[4].current == 0 && im1.remotes[4].total == 1 && im1.remotes[4].failures == 1);
+            test(im1.remotes[5].current == 0 && im1.remotes[5].total == 1 && im1.remotes[5].failures == 1);
+            checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ConnectionLostException", 3, out);
+        }
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op, out);
-
+        
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op, out);
@@ -1079,34 +1130,59 @@ public class AllTests
         out.flush();
 
         test(obsv.threadObserver.getTotal() > 0);
-        test(obsv.connectionObserver.getTotal() > 0);
-        test(obsv.connectionEstablishmentObserver.getTotal() > 0);
-        test(obsv.endpointLookupObserver.getTotal() > 0);
+        if(!collocated)
+        {
+            test(obsv.connectionObserver.getTotal() > 0);
+            test(obsv.connectionEstablishmentObserver.getTotal() > 0);
+            test(obsv.endpointLookupObserver.getTotal() > 0);
+            test(obsv.invocationObserver.remoteObserver.getTotal() > 0);
+        }
+        else
+        {
+            test(obsv.invocationObserver.collocatedObserver.getTotal() > 0);
+        }
         test(obsv.dispatchObserver.getTotal() > 0);
         test(obsv.invocationObserver.getTotal() > 0);
-        test(obsv.invocationObserver.remoteObserver.getTotal() > 0);
 
         test(obsv.threadObserver.getCurrent() > 0);
-        test(obsv.connectionObserver.getCurrent() > 0);
-        test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
-        test(obsv.endpointLookupObserver.getCurrent() == 0);
+        if(!collocated)
+        {
+            test(obsv.connectionObserver.getCurrent() > 0);
+            test(obsv.connectionEstablishmentObserver.getCurrent() == 0);
+            test(obsv.endpointLookupObserver.getCurrent() == 0);
+            test(obsv.invocationObserver.remoteObserver.getCurrent() == 0);
+        }
+        else
+        {
+            test(obsv.invocationObserver.collocatedObserver.getCurrent() == 0);
+        }
         test(obsv.dispatchObserver.getCurrent() == 0);
         test(obsv.invocationObserver.getCurrent() == 0);
-        test(obsv.invocationObserver.remoteObserver.getCurrent() == 0);
 
         test(obsv.threadObserver.getFailedCount() == 0);
-        test(obsv.connectionObserver.getFailedCount() > 0);
-        test(obsv.connectionEstablishmentObserver.getFailedCount() > 0);
-        test(obsv.endpointLookupObserver.getFailedCount() > 0);
+        if(!collocated)
+        {
+            test(obsv.connectionObserver.getFailedCount() > 0);
+            test(obsv.connectionEstablishmentObserver.getFailedCount() > 0);
+            test(obsv.endpointLookupObserver.getFailedCount() > 0);
+            test(obsv.invocationObserver.remoteObserver.getFailedCount() > 0);
+        }
         //test(obsv.dispatchObserver.getFailedCount() > 0);
         test(obsv.invocationObserver.getFailedCount() > 0);
-        test(obsv.invocationObserver.remoteObserver.getFailedCount() > 0);
 
-        test(obsv.threadObserver.states > 0);
-        test(obsv.connectionObserver.received > 0 && obsv.connectionObserver.sent > 0);
+        if(!collocated)
+        {
+            test(obsv.threadObserver.states > 0);
+            test(obsv.connectionObserver.received > 0 && obsv.connectionObserver.sent > 0);
+            test(obsv.invocationObserver.retriedCount > 0);
+            test(obsv.invocationObserver.remoteObserver.replySize > 0);
+        }
+        else
+        {
+            test(obsv.invocationObserver.collocatedObserver.replySize > 0);
+        }
         //test(obsv.dispatchObserver.userExceptionCount > 0);
-        test(obsv.invocationObserver.userExceptionCount > 0 && obsv.invocationObserver.retriedCount > 0);
-        test(obsv.invocationObserver.remoteObserver.replySize > 0);
+        test(obsv.invocationObserver.userExceptionCount > 0);
 
         out.println("ok");
 

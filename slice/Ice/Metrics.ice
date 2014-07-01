@@ -304,12 +304,14 @@ class DispatchMetrics extends Metrics
 
 /**
  *
- * Provides information on invocations that are specifically sent over
- * Ice connections. Remote metrics are embedded within {@link
+ * Provides information on child invocations. A child invocation is
+ * either remote (sent over an Ice connection) or collocated. An
+ * invocation can have multiple child invocation if it is
+ * retried. Child invocation metrics are embedded within {@link
  * InvocationMetrics}.
  *
  **/
-class RemoteMetrics extends Metrics
+class ChildInvocationMetrics extends Metrics
 {
     /**
      *
@@ -330,10 +332,29 @@ class RemoteMetrics extends Metrics
 
 /**
  *
+ * Provides information on invocations that are collocated. Collocated
+ * metrics are embedded within {@link InvocationMetrics}.
+ *
+ **/
+class CollocatedMetrics extends ChildInvocationMetrics
+{
+};
+
+/**
+ *
+ * Provides information on invocations that are specifically sent over
+ * Ice connections. Remote metrics are embedded within {@link
+ * InvocationMetrics}.
+ *
+ **/
+class RemoteMetrics extends ChildInvocationMetrics
+{
+};
+
+/**
+ *
  * Provide measurements for proxy invocations. Proxy invocations can
- * either be sent over the wire or be collocated. The metrics for
- * invocations sent over the wire are specifically measured with
- * {@link RemoteMetrics}.
+ * either be sent over the wire or be collocated.
  *
  **/
 class InvocationMetrics extends Metrics
@@ -360,6 +381,15 @@ class InvocationMetrics extends Metrics
      *
      **/
     MetricsMap remotes;
+
+    /**
+     *
+     * The collocated invocation metrics map.
+     *
+     * @see CollocatedMetrics
+     *
+     **/
+    MetricsMap collocated;
 };
 
 /**

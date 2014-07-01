@@ -264,7 +264,7 @@ namespace IceInternal
                 }
             }
 
-            @out.attachCollocatedObserver(requestId);
+            @out.attachCollocatedObserver(_adapter, requestId);
 
             if(_reference.getInvocationTimeout() > 0)
             {
@@ -304,7 +304,7 @@ namespace IceInternal
                 }
             }
 
-            outAsync.attachCollocatedObserver__(requestId);
+            outAsync.attachCollocatedObserver__(_adapter, requestId);
 
             _adapter.getThreadPool().dispatch(
                 delegate()
@@ -352,7 +352,7 @@ namespace IceInternal
                 }
             }
 
-            @out.attachCollocatedObserver(0);
+            @out.attachCollocatedObserver(_adapter, 0);
 
             if(invokeNum > 0)
             {
@@ -412,7 +412,7 @@ namespace IceInternal
                 }
             }
 
-            outAsync.attachCollocatedObserver__(0);
+            outAsync.attachCollocatedObserver__(_adapter, 0);
 
             if(invokeNum > 0)
             {

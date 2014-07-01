@@ -22,8 +22,10 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     communicator->getProperties()->setProperty("TestAdapter.AdapterId", "test");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
+    Ice::ObjectPrx prx = adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
     adapter->activate();
+
+    test(!prx->ice_getConnection());
 
     Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

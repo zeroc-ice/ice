@@ -527,7 +527,7 @@ IceInternal::OutgoingAsync::__sent()
     assert(!(_state & Done));
     if(_proxy->__reference()->getMode() != Reference::ModeTwoway)
     {
-        _remoteObserver.detach();
+        _childObserver.detach();
         if(!_callback || !_callback->__hasSentCallback())
         {
             _observer.detach();
@@ -556,8 +556,8 @@ IceInternal::OutgoingAsync::__finished(const Ice::Exception& exc, bool sent)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(!(_state & Done));
-        _remoteObserver.failed(exc.ice_name());
-        _remoteObserver.detach();
+        _childObserver.failed(exc.ice_name());
+        _childObserver.detach();
         if(_timeoutRequestHandler)
         {
             _instance->timer()->cancel(this);
@@ -596,11 +596,11 @@ IceInternal::OutgoingAsync::__finished()
         assert(!_exception.get() && !(_state & Done));
         assert(!_is.b.empty());
 
-        if(_remoteObserver)
+        if(_childObserver)
         {
-            _remoteObserver->reply(static_cast<Int>(_is.b.size() - headerSize - 4));
+            _childObserver->reply(static_cast<Int>(_is.b.size() - headerSize - 4));
         }
-        _remoteObserver.detach();
+        _childObserver.detach();
 
         if(_timeoutRequestHandler)
         {
@@ -854,7 +854,7 @@ IceInternal::BatchOutgoingAsync::__sent()
     assert(!_exception.get());
     _state |= Done | OK | Sent;
     //_os.resize(0); // Don't clear the buffer now, it's needed for collocation optimization.
-    _remoteObserver.detach();
+    _childObserver.detach();
     if(_timeoutRequestHandler)
     {
         _instance->timer()->cancel(this);
@@ -878,8 +878,8 @@ IceInternal::BatchOutgoingAsync::__invokeSent()
 void
 IceInternal::BatchOutgoingAsync::__finished(const Ice::Exception& exc, bool)
 {
-    _remoteObserver.failed(exc.ice_name());
-    _remoteObserver.detach();
+    _childObserver.failed(exc.ice_name());
+    _childObserver.detach();
     if(_timeoutRequestHandler)
     {
         _instance->timer()->cancel(this);
@@ -1021,7 +1021,7 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
 
         virtual bool __sent()
         {
-            _remoteObserver.detach();
+            _childObserver.detach();
             _outAsync->check(false);
             return false;
         }
@@ -1032,15 +1032,15 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
 
         virtual void __finished(const Ice::Exception& ex, bool)
         {
-            _remoteObserver.failed(ex.ice_name());
-            _remoteObserver.detach();
+            _childObserver.failed(ex.ice_name());
+            _childObserver.detach();
             _outAsync->check(false);
         }
 
         virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt,
                                             Ice::Int requestId, Ice::Int sz)
         {
-            _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt, requestId, sz));
+            _childObserver.attach(_observer.getRemoteObserver(connection, endpt, requestId, sz));
         }
 
     private:

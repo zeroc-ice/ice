@@ -222,11 +222,11 @@ local interface DispatchObserver extends Observer
 
 /**
  *
- * The remote invocation observer to instrument invocations that go
- * over the wire.
+ * The child invocation observer to instrument remote or collocated
+ * invocations.
  *
  **/
-local interface RemoteObserver extends Observer
+local interface ChildInvocationObserver extends Observer
 {
     /**
      *
@@ -238,22 +238,25 @@ local interface RemoteObserver extends Observer
     void reply(int size);
 };
 
+
 /**
  *
- * The collocated invocation observer to instrument invocations that
- * are collocated
+ * The remote observer to instrument invocations that are sent over
+ * the wire.
  *
- **/
-local interface CollocatedObserver extends Observer
+ **/ 
+local interface RemoteObserver extends ChildInvocationObserver
 {
-    /**
-     *
-     * Reply notification.
-     *
-     * @param size The size of the reply.
-     *
-     **/
-    void reply(int size);
+};
+
+/**
+ *
+ * The collocated observer to instrument invocations that are
+ * collocated.
+ *
+ **/ 
+local interface CollocatedObserver extends ChildInvocationObserver
+{
 };
 
 /**
@@ -301,6 +304,8 @@ local interface InvocationObserver extends Observer
      *
      * Get a collocated observer for this invocation.
      *
+     * @param adapter The object adapter hosting the collocated Ice object.
+     *
      * @param requestId The ID of the invocation.
      *
      * @param size The size of the invocation.
@@ -308,7 +313,7 @@ local interface InvocationObserver extends Observer
      * @return The observer to instrument the collocated invocation.
      *
      **/
-    RemoteObserver getCollocatedObserver(int requestId, int size);
+    CollocatedObserver getCollocatedObserver(ObjectAdapter adapter, int requestId, int size);
 };
 
 /**

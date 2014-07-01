@@ -35,10 +35,10 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         {
             _state |= Done | OK | Sent;
             //_os.resize(0, false); // Don't clear the buffer now, it's needed for the collocation optimization
-            if(_remoteObserver != null)
+            if(_childObserver != null)
             {
-                _remoteObserver.detach();
-                _remoteObserver = null;
+                _childObserver.detach();
+                _childObserver = null;
             }
             if(_timeoutRequestHandler != null)
             {
@@ -59,11 +59,11 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     public void 
     __finished(Ice.Exception exc, boolean sent)
     {
-        if(_remoteObserver != null)
+        if(_childObserver != null)
         {
-            _remoteObserver.failed(exc.ice_name());
-            _remoteObserver.detach();
-            _remoteObserver = null;
+            _childObserver.failed(exc.ice_name());
+            _childObserver.detach();
+            _childObserver = null;
         }
         if(_timeoutRequestHandler != null)
         {

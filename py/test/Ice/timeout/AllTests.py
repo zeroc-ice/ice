@@ -45,7 +45,7 @@ class Callback(CallbackBase):
         test(isinstance(ex, Ice.TimeoutException))
         self.called()
 
-def allTests(communicator, collocated):
+def allTests(communicator):
     sref = "timeout:default -p 12010"
     obj = communicator.stringToProxy(sref)
     test(obj != None)

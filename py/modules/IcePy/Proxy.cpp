@@ -1595,7 +1595,62 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
     return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-// NOTE: ice_collocationOptimized is not currently supported.
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceIsCollocationOptimized(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    PyObject* b;
+    try
+    {
+        b = (*self->proxy)->ice_isCollocationOptimized() ? getTrue() : getFalse();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(b);
+    return b;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
+{
+    PyObject* flag;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
+    {
+        return 0;
+    }
+
+    int n = PyObject_IsTrue(flag);
+    if(n < 0)
+    {
+        return 0;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_collocationOptimized(n == 1);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+}
 
 #ifdef WIN32
 extern "C"
@@ -2295,6 +2350,10 @@ static PyMethodDef ProxyMethods[] =
         METH_NOARGS, PyDoc_STR(STRCAST("ice_getInvocationTimeout() -> int")) },
     { STRCAST("ice_getConnectionId"), reinterpret_cast<PyCFunction>(proxyIceGetConnectionId),
         METH_NOARGS, PyDoc_STR(STRCAST("ice_getConnectionId() -> string")) },
+    { STRCAST("ice_isCollocationOptimized"), reinterpret_cast<PyCFunction>(proxyIceIsCollocationOptimized), METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isCollocationOptimized() -> bool")) },
+    { STRCAST("ice_collocationOptimized"), reinterpret_cast<PyCFunction>(proxyIceCollocationOptimized), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_collocationOptimized(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_locatorCacheTimeout"), reinterpret_cast<PyCFunction>(proxyIceLocatorCacheTimeout), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_locatorCacheTimeout(int) -> Ice.ObjectPrx")) },
     { STRCAST("ice_invocationTimeout"), reinterpret_cast<PyCFunction>(proxyIceInvocationTimeout), METH_VARARGS,

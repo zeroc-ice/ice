@@ -13,7 +13,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator, collocated):
+def allTests(communicator):
     ref = "test:default -p 12010"
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
@@ -31,31 +31,30 @@ def allTests(communicator, collocated):
     Oneways.oneways(communicator, cl)
     print("ok")
 
-    if not collocated:
-        sys.stdout.write("testing twoway operations with AMI... ")
-        sys.stdout.flush()
-        TwowaysAMI.twowaysAMI(communicator, cl)
-        print("ok")
-
-        sys.stdout.write("testing twoway operations with new AMI mapping... ")
-        sys.stdout.flush()
-        TwowaysNewAMI.twowaysNewAMI(communicator, cl)
-        print("ok")
-
-        sys.stdout.write("testing oneway operations with AMI... ")
-        sys.stdout.flush()
-        OnewaysAMI.onewaysAMI(communicator, cl)
-        print("ok")
-
-        sys.stdout.write("testing oneway operations with new AMI mapping... ")
-        sys.stdout.flush()
-        OnewaysNewAMI.onewaysNewAMI(communicator, cl)
-        print("ok")
-
-        sys.stdout.write("testing batch oneway operations...  ")
-        sys.stdout.flush()
-        BatchOneways.batchOneways(cl)
-        BatchOneways.batchOneways(derived)
-        print("ok")
-
+    sys.stdout.write("testing twoway operations with AMI... ")
+    sys.stdout.flush()
+    TwowaysAMI.twowaysAMI(communicator, cl)
+    print("ok")
+    
+    sys.stdout.write("testing twoway operations with new AMI mapping... ")
+    sys.stdout.flush()
+    TwowaysNewAMI.twowaysNewAMI(communicator, cl)
+    print("ok")
+    
+    sys.stdout.write("testing oneway operations with AMI... ")
+    sys.stdout.flush()
+    OnewaysAMI.onewaysAMI(communicator, cl)
+    print("ok")
+    
+    sys.stdout.write("testing oneway operations with new AMI mapping... ")
+    sys.stdout.flush()
+    OnewaysNewAMI.onewaysNewAMI(communicator, cl)
+    print("ok")
+    
+    sys.stdout.write("testing batch oneway operations...  ")
+    sys.stdout.flush()
+    BatchOneways.batchOneways(cl)
+    BatchOneways.batchOneways(derived)
+    print("ok")
+    
     return cl

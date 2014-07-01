@@ -279,7 +279,7 @@ IceInternal::Outgoing::sent()
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     if(_proxy->__reference()->getMode() != Reference::ModeTwoway)
     {
-        _remoteObserver.detach();
+        _childObserver.detach();
         _state = StateOK;
     }
     _sent = true;
@@ -297,8 +297,8 @@ IceInternal::Outgoing::finished(const Exception& ex, bool sent)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(_state <= StateInProgress);
-    _remoteObserver.failed(ex.ice_name());
-    _remoteObserver.detach();
+    _childObserver.failed(ex.ice_name());
+    _childObserver.detach();
 
     _state = StateFailed;
     _exception.reset(ex.ice_clone());
@@ -314,11 +314,11 @@ IceInternal::Outgoing::finished(BasicStream& is)
     assert(_proxy->__reference()->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
     assert(_state <= StateInProgress);
-    if(_remoteObserver)
+    if(_childObserver)
     {
-        _remoteObserver->reply(static_cast<Int>(is.b.size() - headerSize - 4));
+        _childObserver->reply(static_cast<Int>(is.b.size() - headerSize - 4));
     }
-    _remoteObserver.detach();
+    _childObserver.detach();
 
     _is.swap(is);
 
@@ -615,7 +615,7 @@ void
 IceInternal::BatchOutgoing::sent()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    _remoteObserver.detach();
+    _childObserver.detach();
     
     _sent = true;
     _monitor.notify();
@@ -631,8 +631,8 @@ void
 IceInternal::BatchOutgoing::finished(const Ice::Exception& ex, bool)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    _remoteObserver.failed(ex.ice_name());
-    _remoteObserver.detach();
+    _childObserver.failed(ex.ice_name());
+    _childObserver.detach();
     _exception.reset(ex.ice_clone());
     _monitor.notify();
 }
