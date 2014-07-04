@@ -59,7 +59,6 @@
                     //
                     if(i === 0 && v === -1)
                     {
-                        this._retryIntervals = [ 0 ];
                         break;
                     }
 

@@ -19,7 +19,6 @@ $(document).foundation();
                 $("#test").append("<option value=\"" + basePath + name + "/index.html\">" + name + "</option>");
             }
             $("#test").val(basePath + current + "/index.html");
-            
 
             var out = 
             {
@@ -44,6 +43,7 @@ $(document).foundation();
                     $(this).addClass("disabled");
                     $("#test").prop("disabled", "disabled");
                     $("#protocol").prop("disabled", "disabled");
+                    $("#language").prop("disabled", "disabled");
                     var defaultHost = document.location.hostname || "127.0.0.1";;
                     
                     protocol = $("#protocol").val();
@@ -51,6 +51,8 @@ $(document).foundation();
                     id.properties = Ice.createProperties();
                     id.properties.setProperty("Ice.Default.Host", defaultHost);
                     id.properties.setProperty("Ice.Default.Protocol", protocol);
+
+                    var language = $("#language").val();
 
                     var str;
                     if(protocol == "ws")
@@ -76,7 +78,7 @@ $(document).foundation();
                             srv = current
                         }
                         out.write("starting " + srv + " server... ");
-                        p = controller.runServer("cpp", srv, protocol, defaultHost).then(
+                        p = controller.runServer(language, srv, protocol, defaultHost).then(
                             function(proxy)
                             {
                                 var ref = proxy.ice_getIdentity().name + ":" + protocol + " -h " + defaultHost + 
@@ -130,6 +132,7 @@ $(document).foundation();
                         {
                             $("#test").prop("disabled", false);
                             $("#protocol").prop("disabled", false);
+                            $("#language").prop("disabled", false);
                             $("#run").removeClass("disabled");
                         }
                     ).then(
@@ -137,17 +140,39 @@ $(document).foundation();
                         {
                             if($("#loop").is(":checked"))
                             {
-                                var location = document.location;
-                                var href = location.protocol + "//" + location.hostname;
-                                if(protocol == "wss")
+                                var href = document.location.protocol + "//" + document.location.host;
+                                if(!next)
                                 {
-                                    href += ":9090";
+                                    next = "Ice/binding";
+                                    if(protocol == "ws")
+                                    {
+                                        protocol = "wss";
+                                        href = href.replace("http", "https");
+                                        href = href.replace("8080", "9090");
+                                    }
+                                    else
+                                    {
+                                        protocol = "ws";
+                                        href = href.replace("https", "http");
+                                        href = href.replace("9090", "8080");
+                                        if(language == "cpp")
+                                        {
+                                            language = "java";
+                                        }
+                                        else if(language == "java")
+                                        {
+                                        // TODO: Enable when CS supports IceWS
+                                        //     language = "cs";
+                                        // }
+                                        // else
+                                        // {
+                                            language = "cpp";
+                                        }
+                                    }
                                 }
-                                else
-                                {
-                                    href += ":8080";
-                                }
-                                href += location.pathname.replace(current, next) + "?loop=true";
+
+                                href += document.location.pathname.replace(current, next);
+                                href += "?loop=true&language=" + language;
                                 document.location.assign(href);
                             }
                         }
@@ -182,6 +207,18 @@ $(document).foundation();
                 //
                 var href = document.location.href;
                 var i = href.indexOf("?");
+                
+                var languageIdx = i !== -1 ? href.substr(i).indexOf("language=") : -1;
+                if(languageIdx !== -1)
+                {
+                    $("#language").val(href.substr(i + languageIdx + 9));
+                }
+                else
+                {
+                    $("#language").val("cpp");
+                }
+
+
                 var autoStart = i !== -1 && href.substr(i).indexOf("loop=true") !== -1;
                 if(autoStart)
                 {
@@ -199,6 +236,7 @@ $(document).foundation();
                               document.location.assign($(this).val());
                               return false;
                           });
+
             //
             // Protocol
             //
@@ -208,7 +246,8 @@ $(document).foundation();
                                 var newProtocol = $(this).val();
                                 if(protocol !== newProtocol)
                                 {
-                                    var href = document.location.protocol + "//" + document.location.host + document.location.pathname;
+                                    var href = document.location.protocol + "//" + document.location.host + 
+                                        document.location.pathname;
                                     if(newProtocol == "ws")
                                     {
                                         href = href.replace("https", "http");

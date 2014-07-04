@@ -394,7 +394,23 @@ final class TransceiverI implements IceInternal.Transceiver
             {
                 if(_readState == ReadStatePayload)
                 {
-                    s = _delegate.read(buf, moreData);
+                    //
+                    // If the payload length is smaller than what remains to be read, we read
+                    // no more than the payload length. The remaining of the buffer will be 
+                    // sent over in another frame.
+                    //
+                    int readSz = _readPayloadLength - (buf.b.position() - _readStart);
+                    if(buf.b.remaining() > readSz)
+                    {
+                        int size = buf.size();
+                        buf.resize(readSz, true);
+                        s = _delegate.read(buf, moreData);
+                        buf.resize(size, true);
+                    }
+                    else
+                    {
+                        s = _delegate.read(buf, moreData);
+                    }
                 }
                 else
                 {
@@ -890,6 +906,14 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 case OP_DATA: // Data frame
                 {
+                    if(_instance.traceLevel() >= 2)
+                    {
+                        _instance.logger().trace(
+                            _instance.traceCategory(),
+                            "received " + protocol() + " data frame with payload length of " + _readPayloadLength +
+                            " bytes\n" + toString());
+                    }
+
                     if(!_readLastFrame)
                     {
                         throw new Ice.ProtocolException("continuation frames not supported");

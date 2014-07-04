@@ -14,7 +14,7 @@
     require("Ice/BasicStream");
     require("Ice/Debug");
     require("Ice/HashMap");
-    require("Ice/LocalExceptionWrapper");
+    require("Ice/RetryException");
     require("Ice/Current");
     require("Ice/Protocol");
     require("Ice/BuiltinSequences");
@@ -29,7 +29,7 @@
     var BasicStream = Ice.BasicStream;
     var Debug = Ice.Debug;
     var HashMap = Ice.HashMap;
-    var LocalExceptionWrapper = Ice.LocalExceptionWrapper;
+    var RetryException = Ice.RetryException;
     var OperationMode = Ice.OperationMode;
     var Protocol = Ice.Protocol;
     var Identity = Ice.Identity;
@@ -84,16 +84,13 @@
                     }
                     catch(ex)
                     {
-                        if(ex instanceof LocalExceptionWrapper)
+                        if(ex instanceof RetryException)
                         {
-                            this.handleExceptionWrapper(ex);
-                        }
-                        else if(ex instanceof Ice.LocalException)
-                        {
-                            this.handleException(ex, false);
+                            this._proxy.__setRequestHandler(this._handler, null); // Clear request handler and retry.
                         }
                         else
                         {
+                            this._proxy.__setRequestHandler(this._handler, null); // Clear request handler and retry.
                             throw ex;
                         }
                     }
@@ -195,51 +192,16 @@
 
             try
             {
-                var interval = this.handleException(exc, sent); // This will throw if the invocation can't be retried.
-                if(interval > 0)
+                if(!this.handleException(exc, sent))
                 {
-                    this._instance.retryQueue().add(this, interval);
+                    return; // Can't be retried immediately.
                 }
-                else
-                {
-                    this.__invoke();
-                }
+
+                this.__invoke();
             }
             catch(ex)
             {
-                if(ex instanceof Ice.LocalException)
-                {
-                    this.__invokeException(ex);
-                }
-                else
-                {
-                    this.fail(ex, this);
-                }
-            }
-        },
-        __finishedExWrapper: function(exc)
-        {
-            //
-            // The LocalExceptionWrapper exception is only called before the invocation is sent.
-            //
-
-            Debug.assert(this._timeoutRequestHandler == null);
-
-            try
-            {
-                var interval = this.handleExceptionWrapper(exc); // This will throw if the invocation can't be retried.
-                if(interval > 0)
-                {
-                    this._instance.retryQueue().add(this, interval);
-                }
-                else
-                {
-                    this.__invoke();
-                }
-            }
-            catch(ex)
-            {
-                if(ex instanceof Ice.LocalException)
+                if(ex instanceof Ice.Exception)
                 {
                     this.__invokeException(ex);
                 }
@@ -414,54 +376,50 @@
                 Debug.assert(this._handler !== null);
                 this._handler.finishBatchRequest(this._os);
                 this.succeed(this);
+                return;
             }
-            else
+
+            while(true)
             {
-                while(true)
+                var interval = 0;
+                try
                 {
-                    var interval = 0;
-                    try
+                    this._handler = this._proxy.__getRequestHandler();
+                    var status = this._handler.sendAsyncRequest(this);
+                    if(this._proxy.ice_isTwoway() || (status & AsyncStatus.Sent) === 0)
                     {
-                        this._handler = this._proxy.__getRequestHandler();
-                        var status = this._handler.sendAsyncRequest(this);
-                        if(this._proxy.ice_isTwoway() || (status & AsyncStatus.Sent) === 0)
+                        Debug.assert((this._state & AsyncResult.Done) === 0);
+                        
+                        var invocationTimeout = this._handler.getReference().getInvocationTimeout();
+                        if(invocationTimeout > 0)
                         {
-                            Debug.assert((this._state & AsyncResult.Done) === 0);
-
-                            var invocationTimeout = this._handler.getReference().getInvocationTimeout();
-                            if(invocationTimeout > 0)
-                            {
-                                var self = this;
-                                this._timeoutToken = this._instance.timer().schedule(function() 
-                                                                                     { 
-                                                                                         self.__runTimerTask(); 
-                                                                                     }, 
-                                                                                     invocationTimeout);
-                                this._timeoutRequestHandler = this._handler;
-                            }
-                        }
-                        break;
-                    }
-                    catch(ex)
-                    {
-                        if(ex instanceof LocalExceptionWrapper)
-                        {
-                            interval = this.handleExceptionWrapper(ex);
-                        }
-                        else if(ex instanceof Ice.LocalException)
-                        {
-                            interval = this.handleException(ex, false);
-                        }
-                        else
-                        {
-                            throw ex;
+                            var self = this;
+                            this._timeoutToken = this._instance.timer().schedule(function() 
+                                                                                 { 
+                                                                                     self.__runTimerTask(); 
+                                                                                 }, 
+                                                                                 invocationTimeout);
+                            this._timeoutRequestHandler = this._handler;
                         }
                     }
-
-                    if(interval > 0)
+                    break;
+                }
+                catch(ex)
+                {
+                    if(ex instanceof RetryException)
                     {
-                        this._instance.retryQueue().add(this, interval);
-                        return false;
+                        this._proxy.__setRequestHandler(this._handler, null); // Clear request handler and retry.
+                    }
+                    else if(ex instanceof Ice.Exception)
+                    {
+                        if(!this.handleException(ex, false)) // This will throw if the invocation can't be retried.
+                        {
+                            break; // Can't be retried immediately.
+                        }
+                    }
+                    else
+                    {
+                        throw ex;
                     }
                 }
             }
@@ -503,66 +461,16 @@
         handleException: function(exc, sent)
         {
             var interval = { value: 0 };
-            try
+            this._cnt = this._proxy.__handleException(exc, this._handler, this._mode, sent, interval, this._cnt);
+            if(interval.value > 0)
             {
-                //
-                // A CloseConnectionException indicates graceful server shutdown, and is therefore
-                // always repeatable without violating "at-most-once". That's because by sending a
-                // close connection message, the server guarantees that all outstanding requests
-                // can safely be repeated.
-                //
-                // An ObjectNotExistException can always be retried as well without violating
-                // "at-most-once" (see the implementation of the checkRetryAfterException method of
-                // the ProxyFactory class for the reasons why it can be useful).
-                //
-                if(!sent || exc instanceof Ice.CloseConnectionException || exc instanceof Ice.ObjectNotExistException)
-                {
-                    throw exc;
-                }
-
-                //
-                // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the
-                // request cannot be resent without potentially violating the "at-most-once"
-                // principle.
-                //
-                throw new LocalExceptionWrapper(exc, false);
-            }
-            catch(ex)
-            {
-                if(ex instanceof LocalExceptionWrapper)
-                {
-                    if(this._mode === OperationMode.Nonmutating || this._mode === OperationMode.Idempotent)
-                    {
-                        this._cnt = this._proxy.__handleExceptionWrapperRelaxed(this._handler, ex, interval, this._cnt);
-                    }
-                    else
-                    {
-                        this._proxy.__handleExceptionWrapper(this._handler, ex);
-                    }
-                }
-                else if(ex instanceof Ice.LocalException)
-                {
-                    this._cnt = this._proxy.__handleException(this._handler, ex, interval, this._cnt);
-                }
-                else
-                {
-                    throw ex;
-                }
-            }
-            return interval.value;
-        },
-        handleExceptionWrapper: function(ex)
-        {
-            var interval = { value: 0 };
-            if(this._mode === OperationMode.Nonmutating || this._mode === OperationMode.Idempotent)
-            {
-                this._cnt = this._proxy.__handleExceptionWrapperRelaxed(this._handler, ex, interval, this._cnt);
+                this._instance.retryQueue().add(this, interval.value);
+                return false; // Don't retry immediately, the retry queue will take care of the retry.
             }
             else
             {
-                this._proxy.__handleExceptionWrapper(this._handler, ex);
+                return true; // Retry immediately.
             }
-            return interval.value;
         },
     });    
     OutgoingAsync._emptyContext = new HashMap();
@@ -608,12 +516,7 @@
         {
             Protocol.checkSupportedProtocol(this._proxy.__reference().getProtocol());
 
-            //
-            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-            // requests were queued with the connection, they would be lost without being noticed.
-            //
             var handler = null;
-            var cnt = -1; // Don't retry.
             try
             {
                 handler = this._proxy.__getRequestHandler();
@@ -635,7 +538,20 @@
             }
             catch(__ex)
             {
-                cnt = this._proxy.__handleException(handler, __ex, 0, cnt);
+                if(__ex instanceof RetryException)
+                {
+                    //
+                    // Clear request handler but don't retry or throw. Retrying
+                    // isn't useful, there were no batch requests associated with
+                    // the proxy's request handler.
+                    //
+                    this._proxy.__setRequestHandler(handler, null);
+                }
+                else
+                {
+                    this._proxy.__setRequestHandler(handler, null); // Clear request handler
+                    throw __ex; // Throw to notify the user lthat batch requests were potentially lost.
+                }
             }
         }
     });

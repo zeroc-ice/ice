@@ -37,10 +37,12 @@
     var TcpTransceiver = Ice.Class({
         __init__: function(instance)
         {
+            var id = instance.initializationData();
             this._traceLevels = instance.traceLevels();
-            this._logger = instance.initializationData().logger;
+            this._logger = id.logger;
             this._readBuffers = [];
             this._readPosition = 0;
+            this._maxSendPacketSize = id.properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1204);
         },
         setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
         {
@@ -171,34 +173,71 @@
                 throw this._exception;
             }
 
-            var remaining = byteBuffer.remaining;
-            Debug.assert(remaining > 0);
+            var packetSize = byteBuffer.remaining;
+            Debug.assert(packetSize > 0);
 
-            //
-            // Create a slice of the source buffer representing the remaining data to be written.
-            //
-            var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + remaining);
+            if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
+            {
+                packetSize = this._maxSendPacketSize;
+            }
 
-            //
-            // The socket will accept all of the data.
-            //
-            byteBuffer.position = byteBuffer.position + remaining;
+            while(packetSize > 0)
+            {
+                var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+                
+                var self = this;
+                var sync = true;
+                sync = this._fd.write(slice, null, function() {
+                    if(sync)
+                    {
+                        return;
+                    }
 
-            var self = this;
+                    if(self._traceLevels.network >= 3)
+                    {
+                        var msg = "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " + 
+                            self.type() + "\n" + self._desc;
+                        self._logger.trace(self._traceLevels.networkCat, msg);
+                    }
 
-            var sync = true;
-            sync = this._fd.write(slice, null, function() {
-                if(self._traceLevels.network >= 3)
-                {
-                    var msg = "sent " + remaining + " bytes via " + self.type() + "\n" + self._desc;
-                    self._logger.trace(self._traceLevels.networkCat, msg);
-                }
-                if(!sync)
-                {
+                    byteBuffer.position = byteBuffer.position + packetSize;
+                    if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
+                    {
+                        packetSize = this._maxSendPacketSize;
+                    }
+                    else
+                    {
+                        packetSize = byteBuffer.remaining;
+                    }
                     self._bytesWrittenCallback();
+                });
+
+                if(sync)
+                {
+                    if(self._traceLevels.network >= 3)
+                    {
+                        var msg = "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " + 
+                            self.type() + "\n" + self._desc;
+                        self._logger.trace(self._traceLevels.networkCat, msg);
+                    }
+                    
+                    byteBuffer.position = byteBuffer.position + packetSize;
+                    
+                    if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
+                    {
+                        packetSize = this._maxSendPacketSize;
+                    }
+                    else
+                    {
+                        packetSize = byteBuffer.remaining;
+                    }
                 }
-            });
-            return sync;
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
         },
         read: function(byteBuffer, moreData)
         {

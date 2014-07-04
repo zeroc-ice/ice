@@ -15,7 +15,7 @@
     require("Ice/ConnectionRequestHandler");
     require("Ice/Debug");
     require("Ice/ExUtil");
-    require("Ice/LocalExceptionWrapper");
+    require("Ice/RetryException");
     require("Ice/OutgoingAsync");
     require("Ice/Protocol");
     require("Ice/ReferenceMode");
@@ -30,7 +30,7 @@
     var ConnectionRequestHandler = Ice.ConnectionRequestHandler;
     var Debug = Ice.Debug;
     var ExUtil = Ice.ExUtil;
-    var LocalExceptionWrapper = Ice.LocalExceptionWrapper;
+    var RetryException = Ice.RetryException;
     var OutgoingAsync = Ice.OutgoingAsync;
     var Protocol = Ice.Protocol;
     var ReferenceMode = Ice.ReferenceMode;
@@ -86,13 +86,19 @@
         },
         prepareBatchRequest: function(os)
         {
-            if(!this.initialized())
+            try
             {
-                this._batchRequestInProgress = true;
-                this._batchStream.swap(os);
-                return;
+                if(!this.initialized())
+                {
+                    this._batchRequestInProgress = true;
+                    this._batchStream.swap(os);
+                    return;
+                }
             }
-
+            catch(ex)
+            {
+                throw new RetryException(ex);
+            }
             this._connection.prepareBatchRequest(os);
         },
         finishBatchRequest: function(os)
@@ -134,15 +140,27 @@
         },
         sendAsyncRequest: function(out)
         {
-            if(!this.initialized())
+            try
             {
-                this._requests.push(new Request(out));
-                return AsyncStatus.Queued;
+                if(!this.initialized())
+                {
+                    this._requests.push(new Request(out));
+                    return AsyncStatus.Queued;
+                }
+            }
+            catch(ex)
+            {
+                throw new RetryException(ex);
             }
             return out.__send(this._connection, this._compress, this._response);
         },
         asyncRequestTimedOut: function(out)
         {
+            if(this._exception != null)
+            {
+                return; // The request has been notified of a failure already.
+            }
+
             if(!this.initialized())
             {
                 for(var i = 0; i < this._requests.length; i++)
@@ -295,17 +313,24 @@
             }
             catch(ex)
             {
-                if(ex instanceof LocalExceptionWrapper)
+                if(ex instanceof RetryException)
                 {
+                    //
+                    // If the connection dies shortly after connection
+                    // establishment, we don't systematically retry on
+                    // RetryException. We handle the exception like it
+                    // was an exception that occured while sending the
+                    // request.
+                    // 
                     Debug.assert(this._exception === null && this._requests.length > 0);
                     this._exception = ex.inner;
-                    this.flushRequestsWithExceptionWrapper(ex);
+                    this.flushRequestsWithException();
                 }
                 else if(ex instanceof LocalException)
                 {
                     Debug.assert(this._exception === null && this._requests.length > 0);
                     this._exception = ex;
-                    this.flushRequestsWithException(ex);
+                    this.flushRequestsWithException();
                 }
                 else
                 {
@@ -324,8 +349,8 @@
             //
             if(this._updateRequestHandler && this._exception === null)
             {
-                this._proxy.__setRequestHandler(
-                    new ConnectionRequestHandler(this._reference, this._connection, this._compress));
+                this._proxy.__setRequestHandler(this, new ConnectionRequestHandler(this._reference, this._connection, 
+                                                                                   this._compress));
             }
 
             Debug.assert(!this._initialized);
@@ -336,33 +361,14 @@
             }
             this._proxy = null; // Break cyclic reference count.
         },
-        flushRequestsWithException: function(ex)
+        flushRequestsWithException: function()
         {
             for(var i = 0; i < this._requests.length; ++i)
             {
                 var request = this._requests[i];
                 if(request.out !== null)
                 {
-                    request.out.__finishedEx(ex, false);
-                }
-            }
-            this._requests = [];
-        },
-        flushRequestsWithExceptionWrapper: function(ex)
-        {
-            for(var i = 0; i < this._requests.length; ++i)
-            {
-                var request = this._requests[i];
-                if(request.out !== null)
-                {
-                    if(request.out instanceof OutgoingAsync)
-                    {
-                        request.out.__finishedExWrapper(ex);
-                    }
-                    else
-                    {
-                        request.out.__finishedEx(ex.inner, false);
-                    }
+                    request.out.__finishedEx(this._exception, false);
                 }
             }
             this._requests = [];

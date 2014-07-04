@@ -9,17 +9,17 @@
 
 #pragma once
 
+[["java:package:test.Ice.echo"]]
 module Test
 {
 
-interface Retry
+//
+// This object is available with the identity "__echo".
+//
+interface Echo
 {
-    void op(bool kill);
-
-    idempotent int opIdempotent(int c);
-    void opNotIdempotent(int c);
-    void opSystemException();
-
+    void startBatch();
+    void flushBatch();
     void shutdown();
 };
 

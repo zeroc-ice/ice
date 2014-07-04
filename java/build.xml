@@ -476,6 +476,7 @@
                 <include name="test/Ice/defaultServant/Test.ice" />
                 <include name="test/Ice/defaultValue/Test.ice" />
                 <include name="test/Ice/dispatcher/Test.ice" />
+                <include name="test/Ice/echo/Test.ice" />
                 <include name="test/Ice/exceptions/Test.ice" />
                 <include name="test/Ice/exceptions/TestAMD.ice" />
                 <include name="test/Ice/facets/Test.ice" />

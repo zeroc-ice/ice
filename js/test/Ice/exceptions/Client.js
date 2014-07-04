@@ -126,6 +126,7 @@
                                     failCB,
                                     function(ex)
                                     {
+                                        out.writeLine(ex);
                                         test(ex instanceof Ice.ConnectionLostException);
                                         out.writeLine("ok");
                                     }

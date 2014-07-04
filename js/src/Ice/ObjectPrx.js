@@ -46,7 +46,7 @@
         __init__: function()
         {
             this._reference = null;
-            this._handler = null;
+            this._requestHandler = null;
         },
         hashCode: function(r)
         {
@@ -420,7 +420,7 @@
         },
         ice_getCachedConnection: function()
         {
-            return this._handler ? this._handler.getConnection() : null;
+            return this._requestHandler ? this._requestHandler.getConnection() : null;
         },
         ice_flushBatchRequests: function()
         {
@@ -456,74 +456,60 @@
         __copyFrom: function(from)
         {
             Debug.assert(this._reference === null);
-            Debug.assert(this._handler === null);
+            Debug.assert(this._requestHandler === null);
 
             this._reference = from._reference;
-
-            if(this._reference.getCacheConnection())
-            {
-                this._handler = from._handler;
-            }
+            this._requestHandler = from._requestHandler;
         },
-        __handleException: function(handler, ex, interval, cnt)
+        __handleException: function(ex, handler, mode, sent, sleep, cnt)
         {
-            if(this._handler !== null && handler._connection === this._handler._connection)
-            {
-                this._handler = null;
-            }
+            this.__setRequestHandler(handler, null); // Clear the request handler
 
-            if(cnt == -1) // Don't retry if the retry count is -1.
+            //
+            // We only retry local exception, system exceptions aren't retried.
+            //
+            // A CloseConnectionException indicates graceful server shutdown, and is therefore
+            // always repeatable without violating "at-most-once". That's because by sending a
+            // close connection message, the server guarantees that all outstanding requests
+            // can safely be repeated.
+            //
+            // An ObjectNotExistException can always be retried as well without violating
+            // "at-most-once" (see the implementation of the checkRetryAfterException method
+            //  of the ProxyFactory class for the reasons why it can be useful).
+            //
+            // If the request didn't get sent or if it's non-mutating or idempotent it can 
+            // also always be retried if the retry count isn't reached.
+            //
+            if(ex instanceof Ice.LocalException && 
+               (!sent ||
+                mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
+                ex instanceof Ice.CloseConnectionException || ex instanceof Ice.ObjectNotExistException))
             {
-                throw ex;
-            }
-
-            try
-            {
-                return this._reference.getInstance().proxyFactory().checkRetryAfterException(ex, this._reference,
-                                                                                                interval, cnt);
-            }
-            catch(e)
-            {
-                if(e instanceof Ice.CommunicatorDestroyedException)
+                try
                 {
-                    //
-                    // The communicator is already destroyed, so we cannot
-                    // retry.
-                    //
-                    throw ex;
+                    return this._reference.getInstance().proxyFactory().checkRetryAfterException(ex, 
+                                                                                                 this._reference,
+                                                                                                 sleep, 
+                                                                                                 cnt);
                 }
-                else
+                catch(exc)
                 {
-                    throw e;
+                    if(exc instanceof Ice.CommunicatorDestroyedException)
+                    {
+                        //
+                        // The communicator is already destroyed, so we cannot retry.
+                        //
+                        throw ex
+                    }
+                    else
+                    {
+                        throw exc;
+                    }
                 }
-            }
-        },
-        __handleExceptionWrapper: function(handler, ex)
-        {
-            if(this._handler !== null && handler._connection === this._handler._connection)
-            {
-                this._handler = null;
-            }
-
-            if(!ex.retry)
-            {
-                throw ex.inner;
-            }
-        },
-        __handleExceptionWrapperRelaxed: function(handler, ex, interval, cnt)
-        {
-            if(!ex.retry)
-            {
-                return this.__handleException(handler, ex.inner, interval, cnt);
             }
             else
             {
-                if(this._handler !== null && handler._connection === this._handler._connection)
-                {
-                    this._handler = null;
-                }
-
-                return cnt;
+                throw ex;
             }
         },
         __checkAsyncTwowayOnly: function(name)
@@ -587,23 +573,45 @@
         {
             if(this._reference.getCacheConnection())
             {
-                if(this._handler !== null)
+                if(this._requestHandler !== null)
                 {
-                    return this._handler;
+                    return this._requestHandler;
                 }
-                this._handler = this.__createRequestHandler();
-                return this._handler;
+                this._requestHandler = this.__createRequestHandler();
+                return this._requestHandler;
             }
             else
             {
                 return this.__createRequestHandler();
             }
         },
-        __setRequestHandler: function(handler)
+        __setRequestHandler: function(previous, handler)
         {
             if(this._reference.getCacheConnection())
             {
-                this._handler = handler;
+                if(previous === this._requestHandler)
+                {
+                    this._requestHandler = handler;
+                }
+                else if(previous !== null && this._requestHandler !== null)
+                {
+                    try
+                    {
+                        //
+                        // If both request handlers point to the same connection, we also
+                        // update the request handler. See bug ICE-5489 for reasons why
+                        // this can be useful.
+                        //
+                        if(previous.getConnection() == this._requestHandler.getConnection())
+                        {
+                            this._requestHandler = handler;
+                        }
+                    }
+                    catch(ex)
+                    {
+                        // Ignore
+                    }
+                }
             }
         },
         __createRequestHandler: function()

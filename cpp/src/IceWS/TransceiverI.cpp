@@ -556,7 +556,24 @@ IceWS::TransceiverI::read(Buffer& buf, bool& hasMoreData)
         {
             if(_readState == ReadStatePayload)
             {
-                s = _delegate->read(buf, hasMoreData);
+                //
+                // If the payload length is smaller than what remains to be read, we read
+                // no more than the payload length. The remaining of the buffer will be 
+                // sent over in another frame.
+                //
+                size_t readSz = _readPayloadLength - (buf.i - _readStart); // Already read
+                if(static_cast<size_t>(buf.b.end() - buf.i) > readSz)
+                {
+                    size_t size = buf.b.size();
+                    buf.b.resize(buf.i - buf.b.begin() + readSz);
+                    s = _delegate->read(buf, hasMoreData);
+                    buf.b.resize(size);
+                }
+                else
+                {
+                    s = _delegate->read(buf, hasMoreData);
+                }
+
             }
             else
             {
@@ -676,7 +693,23 @@ IceWS::TransceiverI::startRead(Buffer& buf)
     {
         if(_readState == ReadStatePayload)
         {
-            _delegate->startRead(buf);
+            //
+            // If the payload length is smaller than what remains to be read, we read
+            // no more than the payload length. The remaining of the buffer will be 
+            // sent over in another frame.
+            //
+            size_t readSz = _readPayloadLength  - (buf.i - _readStart);
+            if(static_cast<size_t>(buf.b.end() - buf.i) > readSz)
+            {
+                size_t size = buf.b.size();
+                buf.b.resize(buf.i - buf.b.begin() + readSz);
+                _delegate->startRead(buf);
+                buf.b.resize(size);
+            }
+            else
+            {
+                _delegate->startRead(buf);
+            }
         }
         else
         {
@@ -1162,6 +1195,13 @@ IceWS::TransceiverI::preRead(Buffer& buf)
             }
             case OP_DATA: // Data frame
             {
+                if(_instance->traceLevel() >= 2)
+                {
+                    Trace out(_instance->logger(), _instance->traceCategory());
+                    out << "received " << protocol() << " data frame with payload length of " << _readPayloadLength;
+                    out << " bytes\n" << toString();
+                }
+
                 if(!_readLastFrame)
                 {
                     throw ProtocolException(__FILE__, __LINE__, "continuation frames not supported");

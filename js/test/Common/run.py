@@ -68,7 +68,7 @@ class ControllerI(Test.Controller):
         self.currentServer = None
 
     def runServer(self, lang, name, protocol, host, current):
-
+        
         # If server is still running, terminate it
         if self.currentServer:
             try:
@@ -85,7 +85,9 @@ class ControllerI(Test.Controller):
 
             serverDesc = os.path.join(lang, "test", name)
             lang = TestUtil.getDefaultMapping()
-            server = os.path.join(serverdir, TestUtil.getDefaultServerFile())
+            server = TestUtil.getDefaultServerFile()
+            if lang != "java":
+                server = os.path.join(serverdir, server)
             serverenv = TestUtil.getTestEnv(lang, serverdir)
             
             sys.stdout.write("starting " + serverDesc + "... ")

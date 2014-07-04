@@ -38,6 +38,7 @@
             }
         };
 
+        var seq;
         Promise.try(
             function()
             {
@@ -117,23 +118,22 @@
                 out.writeLine("ok");
                 out.write("testing connection timeout... ");
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
-                return to.holdAdapter(750 * mult);
+                seq = Ice.Buffer.createNative(new Array(10000000));
+                return to.holdAdapter(750 * 2 * mult);
             }
         ).then(
             function()
             {
-                var seq = Ice.Buffer.createNative(new Array(1000000));
-                for(var i = 0; i < seq.length; ++i)
-                {
-                    seq[i] = 0;
-                }
                 //
                 // Expect TimeoutException.
                 //
                 return to.sendData(seq);
             }
         ).then(
-            failCB,
+            function()
+            {
+                test(false);
+            },
             function(ex)
             {
                 test(ex instanceof Ice.TimeoutException);
@@ -157,10 +157,6 @@
                 else
                 {
                     seq = Ice.Buffer.createNative(new Array(5 * 1024));
-                }
-                for(var i = 0; i < seq.length; ++i)
-                {
-                    seq[i] = 0;
                 }
                 //
                 // Expect success.
@@ -272,16 +268,11 @@
             function(obj)
             {
                 to = obj;
-                return to.holdAdapter(750 * mult);
+                return to.holdAdapter(750 * 2 * mult);
             }
         ).then(
             function()
             {
-                var seq = Ice.Buffer.createNative(new Array(1000000));
-                for(var i = 0; i < seq.length; ++i)
-                {
-                    seq[i] = 0;
-                }
                 //
                 // Expect TimeoutException.
                 //
@@ -306,16 +297,11 @@
             function(obj)
             {
                 to = obj;
-                return to.holdAdapter(750 * mult);
+                return to.holdAdapter(750 * 2 * mult);
             }
         ).then(
             function()
             {
-                var seq = Ice.Buffer.createNative(new Array(1000000));
-                for(var i = 0; i < seq.length; ++i)
-                {
-                    seq[i] = 0;
-                }
                 //
                 // Expect TimeoutException.
                 //
@@ -466,14 +452,20 @@
                 // We don't want connection warnings because of the timeout
                 //
                 id.properties.setProperty("Ice.Warn.Connections", "0");
+
+                //
+                // We need to send messages large enough to cause the transport
+                // buffers to fill up.
+                //
+                id.properties.setProperty("Ice.MessageSizeMax", "10000");
+
+                id.properties.setProperty("Ice.RetryIntervals", "-1");
+
                 var c = Ice.initialize(id);
                 return allTests(out, c).finally(
                     function()
                     {
-                        if(c)
-                        {
-                            return c.destroy();
-                        }
+                        return c.destroy();
                     });
             });
     };

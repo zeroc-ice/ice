@@ -121,9 +121,9 @@ extern "C" __global void
 PyMODINIT_FUNC
 #endif
 #if PY_VERSION_HEX >= 0x03000000
-ICE_DECLSPEC_EXPORT PyInit_IcePy(void)
+PyInit_IcePy(void)
 #else
-ICE_DECLSPEC_EXPORT initIcePy(void)
+initIcePy(void)
 #endif
 {
     PyObject* module;

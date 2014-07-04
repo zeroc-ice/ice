@@ -41,16 +41,33 @@
     var Transceiver = Ice.Class({
         __init__: function(instance)
         {
+            var id = instance.initializationData();
             this._traceLevels = instance.traceLevels();
-            this._logger = instance.initializationData().logger;
+            this._logger = id.logger;
             this._readBuffers = [];
             this._readPosition = 0;
+            this._maxSendPacketSize = id.properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1204);
         },
         setCallbacks: function(connectedCallback, bytesAvailableCallback, bytesWrittenCallback)
         {
             this._connectedCallback = connectedCallback;
             this._bytesAvailableCallback = bytesAvailableCallback;
-            this._bytesWrittenCallback = bytesWrittenCallback;
+
+            var transceiver = this;
+            this._bytesWrittenCallback = function()
+            {
+                if(transceiver._fd)
+                {
+                    if(transceiver._fd.bufferedAmount < 1024 || this._exception)
+                    {
+                        bytesWrittenCallback();
+                    }
+                    else
+                    {
+                        setTimeout(transceiver._bytesWrittenCallback, 50);
+                    }
+                }
+            };
         },
         //
         // Returns SocketOperation.None when initialization is complete.
@@ -181,55 +198,54 @@
             {
                 throw this._exception;
             }
-
-            var remaining = byteBuffer.remaining;
-            Debug.assert(remaining > 0);
-            Debug.assert(this._fd);
-            
-            //
-            // Delay the send if more than 1KB is already queued for
-            // sending on the socket. If less, we consider that it's
-            // fine to push more data on the socket.
-            //
-            if(this._fd.bufferedAmount < 1024)
+            else if(byteBuffer.remaining === 0)
             {
-                //
-                // Create a slice of the source buffer representing the remaining data to be written.
-                //
-                var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + remaining);
-                
-                //
-                // The socket will accept all of the data.
-                //
-                byteBuffer.position = byteBuffer.position + remaining;
-                this._fd.send(slice);
-                if(remaining > 0 && this._traceLevels.network >= 3)
-                {
-                    var msg = "sent " + remaining + " of " + remaining + " bytes via " + this.type() + "\n" +this._desc;
-                    this._logger.trace(this._traceLevels.networkCat, msg);
-                }
                 return true;
             }
-            else
+
+            if(this._fd.bufferedAmount > 1024)
             {
-                var transceiver = this;
-                var writtenCB = function()
-                {
-                    if(transceiver._fd)
-                    {
-                        if(transceiver._fd.bufferedAmount === 0 || this._exception)
-                        {
-                            transceiver._bytesWrittenCallback();
-                        }
-                        else
-                        {
-                            setTimeout(writtenCB, 50);
-                        }
-                    }
-                };
-                setTimeout(writtenCB, 50);
+                setTimeout(this._bytesWrittenCallback, 50);
                 return false;
             }
+
+            var packetSize = byteBuffer.remaining;
+            Debug.assert(packetSize > 0);
+            Debug.assert(this._fd);
+            
+            if(this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize)
+            {
+                packetSize = this._maxSendPacketSize;
+            }
+
+            while(packetSize > 0)
+            {
+                var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+                this._fd.send(slice);
+
+                if(this._traceLevels.network >= 3)
+                {
+                    this._logger.trace(this._traceLevels.networkCat, "sent " + packetSize + " of " +
+                                       byteBuffer.remaining + " bytes via " + this.type() + "\n" + this._desc);
+                }
+                byteBuffer.position = byteBuffer.position + packetSize;
+
+                if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
+                {
+                    packetSize = this._maxSendPacketSize;
+                }
+                else
+                {
+                    packetSize = byteBuffer.remaining;
+                }
+
+                if(this._fd.bufferedAmount > 0 && packetSize > 0)
+                {
+                    setTimeout(this._bytesWrittenCallback, 50);
+                    return false;
+                }
+            }
+            return true;
         },
         read: function(byteBuffer, moreData)
         {
@@ -383,9 +399,9 @@
         }
         else
         {
-            if(err === 1000) // CLOSE_NORMAL
+            if(err.code === 1000 || err.code === 1006) // CLOSE_NORMAL | CLOSE_ABNORMAL
             {
-                throw new Ice.ConnectionLostException();
+                return new Ice.ConnectionLostException();
             }
             return new Ice.SocketException(err.code, err);
         }

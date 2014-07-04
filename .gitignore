@@ -56,6 +56,9 @@ vcproj
 .DS_Store
 # VIM swap file
 *.swp
+server.keychain
+client.keychain
+.fl????????
 
 # OS X (Desktop Service Store)
 .DS_Store

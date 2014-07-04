@@ -1156,6 +1156,16 @@
         ).then(
             function()
             {
+                return hello.ice_getConnection();
+            }
+        ).then(
+            function(con)
+            {
+                return con.close(false);
+            }
+        ).then(
+            function()
+            {
                 return hello.sayHello();
             }
         ).then(

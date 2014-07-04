@@ -17,7 +17,7 @@
     require("Ice/ExUtil");
     require("Ice/HashMap");
     require("Ice/IncomingAsync");
-    require("Ice/LocalExceptionWrapper");
+    require("Ice/RetryException");
     require("Ice/Promise");
     require("Ice/Protocol");
     require("Ice/SocketOperation");
@@ -37,7 +37,7 @@
     var ExUtil = Ice.ExUtil;
     var HashMap = Ice.HashMap;
     var IncomingAsync = Ice.IncomingAsync;
-    var LocalExceptionWrapper = Ice.LocalExceptionWrapper;
+    var RetryException = Ice.RetryException;
     var Promise = Ice.Promise;
     var Protocol = Ice.Protocol;
     var SocketOperation = Ice.SocketOperation;
@@ -366,7 +366,7 @@
                 // to send our request, we always try to send the request
                 // again.
                 //
-                throw new LocalExceptionWrapper(this._exception, true);
+                throw new RetryException(this._exception);
             }
 
             Debug.assert(this._state > StateNotValidated);
@@ -437,7 +437,7 @@
                 //
                 if(this._batchStream.isEmpty())
                 {
-                    throw new LocalExceptionWrapper(this._exception, true);
+                    throw new RetryException(this._exception);
                 }
                 else
                 {
@@ -484,7 +484,7 @@
 
                 if(this._exception !== null)
                 {
-                    throw this._exception;
+                    return;
                 }
 
                 var flush = false;
@@ -733,15 +733,12 @@
                     // If the request is being sent, don't remove it from the send streams, 
                     // it will be removed once the sending is finished.
                     //
-                    if(i === 0)
-                    {
-                        o.timedOut();
-                    }
-                    else
+                    var isSent = i.timedOut();
+                    if(i !== 0)
                     {
                         this._sendStreams.splice(i, 1);
                     }
-                    o.finished(new Ice.InvocationTimeoutException());
+                    outAsync.__finishedEx(new Ice.InvocationTimeoutException(), isSent);
                     return; // We're done.
                 }
             }
@@ -753,8 +750,8 @@
                 {
                     if(e.value === o)
                     {
-                        o.__finishedEx(new Ice.InvocationTimeoutException(), true);
                         this._asyncRequests.delete(e.key);
+                        outAsync.__finishedEx(new Ice.InvocationTimeoutException(), true);
                         return; // We're done.
                     }
                 }
@@ -1118,7 +1115,7 @@
                     //
                 }
 
-                if(info.heartbeatCallback !== null)
+                if(info.heartbeatCallback)
                 {
                     try
                     {
@@ -2160,6 +2157,7 @@
         {
             Debug.assert(this.outAsync !== null);
             this.outAsync = null;
+            return this.isSent;
         },
         doAdopt: function()
         {

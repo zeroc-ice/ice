@@ -43,6 +43,18 @@
                     </div>
                     <div class="row">
                         <div class="small-3 columns">
+                            <label class="right inline">Server:</label>
+                        </div>
+                        <div class="small-9 columns">
+                            <select id="language">
+                                <option value="cpp">C++</option>
+                                <option value="java">Java</option>
+                                <option value="cs">C#</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="small-3 columns">
                             <label class="right inline">Protocol:</label>
                         </div>
                         <div class="small-9 columns">
@@ -144,11 +156,7 @@
                 }
             }
         }
-        if(!next)
-        {
-            next = "Ice/binding";
-        }
-        
+
         scripts = [
             basePath + "../assets/common.min.js",
             basePath + "../lib/Ice.js"

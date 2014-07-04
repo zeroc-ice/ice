@@ -64,7 +64,7 @@ COMMON_SRCS = \
 	IncomingAsync.js \
 	Initialize.js \
 	Instance.js \
-	LocalExceptionWrapper.js \
+	RetryException.js \
 	LocatorInfo.js \
 	LocatorManager.js \
 	LocatorTable.js \

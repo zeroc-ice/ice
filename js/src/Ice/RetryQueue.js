@@ -66,7 +66,7 @@
             {
                 try
                 {
-                    this.outAsync.__send();
+                    this.outAsync.__invoke();
                 }
                 catch(ex)
                 {

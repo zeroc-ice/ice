@@ -2492,8 +2492,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final int
-    __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent, Ice.IntHolder interval, 
-                      int cnt)
+    __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent, 
+                      Ice.IntHolder interval, int cnt)
     {
         __setRequestHandler(handler, null); // Clear the request handler
 
