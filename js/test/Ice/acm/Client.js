@@ -429,6 +429,16 @@
 
     var allTests = function(out, communicator)
     {
+        //
+        // Skip this test with IE it open too many connections IE doesn't allow more 
+        // than 6 connections.
+        //
+        if(typeof(navigator) !== "undefined" && 
+           (navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.indexOf("Trident/7.0")))
+        {
+            return;
+        }
+
         var ref = "communicator:default -p 12010";
         var com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
         
@@ -447,7 +457,7 @@
         tests.push(new HeartbeatAlwaysTest(com, out));
         tests.push(new SetACMTest(com, out));
         
-        var promises = []; 
+        var promises = [];
         for(var test in tests)
         {
             promises.push(tests[test].init());
