@@ -15,9 +15,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
-#ifdef _WIN32
-#   include <Wincrypt.h>
-#else
+#ifndef _WIN32
 #   include <unistd.h>
 #   include <fcntl.h>
 #endif
@@ -25,14 +23,13 @@
 using namespace std;
 using namespace IceUtil;
 
-#if !defined(_WIN32) || !defined(_MSC_VER)
+#if !defined(_WIN32)
 namespace
 {
 
 //
 // The static mutex is required to lazy initialize the file
-// descriptor for /dev/urandom (Unix) or the cryptographic 
-// context (Windows).
+// descriptor for /dev/urandom (Unix)
 //
 // Also, unfortunately on Linux (at least up to 2.6.9), concurrent
 // access to /dev/urandom can return the same value. Search for
@@ -43,10 +40,8 @@ namespace
 // static mutex.
 // 
 Mutex* staticMutex = 0;
-#ifdef _WIN32
-HCRYPTPROV context = 0;
-#else
 int fd = -1;
+
 //
 // Callback to use with pthread_atfork to reset the "/dev/urandom"  
 // fd state. We don't need to close the fd here as that is done 
@@ -64,7 +59,6 @@ void childAtFork()
 }
 
 }
-#endif
 
 class Init
 {
@@ -73,30 +67,21 @@ public:
     Init()
     {
         staticMutex = new IceUtil::Mutex;
-#ifndef _WIN32
+
         //
         // Register a callback to reset the "/dev/urandom" fd 
         // state after fork.
         //
         pthread_atfork(0, 0, &childAtFork);
-#endif
     }
     
     ~Init()
     {
-#ifdef _WIN32
-        if(context != 0)
-        {
-            CryptReleaseContext(context, 0);
-            context = 0;
-        }
-#else
         if(fd != -1)
         {
             close(fd);
             fd = -1;
         }
-#endif
         delete staticMutex;
         staticMutex = 0;
     }
@@ -111,37 +96,11 @@ void
 IceUtilInternal::generateRandom(char* buffer, int size)
 {
 #ifdef _WIN32
-
-#  if defined(_MSC_VER)
     for(int i = 0; i < size; ++i)
     {
         buffer[i] = random(256);
     }
-#  else
-    //
-    // It's not clear from the Microsoft documentation if CryptGenRandom 
-    // can be called concurrently from several threads. To be on the safe
-    // side, we also serialize calls to CryptGenRandom with the static 
-    // mutex.
-    //
-
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
-    if(context == 0)
-    {
-        if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-        {
-            throw SyscallException(__FILE__, __LINE__, GetLastError());
-        }
-    }
-
-    if(!CryptGenRandom(context, size, reinterpret_cast<unsigned char*>(buffer)))
-    {
-        throw SyscallException(__FILE__, __LINE__, GetLastError());
-    }
-#  endif
-
 #else
-
     //
     // Serialize access to /dev/urandom; see comment above.
     //
