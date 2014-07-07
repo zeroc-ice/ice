@@ -73,21 +73,6 @@ checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ct
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_ice_getHash(VALUE self)
-{
-    rb_warning("ice_getHash is deprecated, use hash instead.");
-
-    ICE_RUBY_TRY
-    {
-        Ice::ObjectPrx p = getProxy(self);
-        return INT2FIX(p->__hash());
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
 IceRuby_ObjectPrx_hash(VALUE self)
 {
     ICE_RUBY_TRY
@@ -1234,7 +1219,6 @@ IceRuby::initProxy(VALUE iceModule)
     //
     // Instance methods.
     //
-    rb_define_method(_proxyClass, "ice_getHash", CAST_METHOD(IceRuby_ObjectPrx_ice_getHash), 0);
     rb_define_method(_proxyClass, "ice_getCommunicator", CAST_METHOD(IceRuby_ObjectPrx_ice_getCommunicator), 0);
     rb_define_method(_proxyClass, "ice_toString", CAST_METHOD(IceRuby_ObjectPrx_ice_toString), 0);
     rb_define_method(_proxyClass, "ice_isA", CAST_METHOD(IceRuby_ObjectPrx_ice_isA), -1);

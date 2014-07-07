@@ -12,11 +12,6 @@
 #include <Test.h>
 #include <TestCommon.h>
 
-#ifdef _MSC_VER
-// For 'Ice::Object::ice_getHash': was declared deprecated
-#pragma warning( disable : 4996 )
-#endif
-
 #if defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -28,11 +23,10 @@ DEFINE_TEST("client")
 
 int main(int argc, char** argv)
 {
-    cout << "testing proxy & endpoint hash algorithm collisions... " << flush;
+    cout << "testing proxy hash algorithm collisions... " << flush;
     map<Ice::Int, Ice::ObjectPrx> seenProxy;
     map<Ice::Int, Ice::EndpointPtr> seenEndpoint;
     unsigned int proxyCollisions = 0;
-    unsigned int endpointCollisions = 0;
     unsigned int i = 0;
     unsigned int maxCollisions = 10;
     unsigned int maxIterations = 10000;
@@ -48,9 +42,7 @@ int main(int argc, char** argv)
     id.properties->setProperty("IceSSL.KeychainPassword", "password");
 #endif
     Ice::CommunicatorPtr communicator = Ice::initialize(id);
-    for(i = 0; proxyCollisions < maxCollisions && 
-               endpointCollisions < maxCollisions  && 
-               i < maxIterations; ++i)
+    for(i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
     {
         ostringstream os;
         os << i << ":tcp -p " << IceUtilInternal::random(65536) << " -t 10" << IceUtilInternal::random(1000000)
@@ -58,28 +50,13 @@ int main(int argc, char** argv)
                 
         Ice::ObjectPrx obj = communicator->stringToProxy(os.str());
         Ice::EndpointSeq endpoints = obj->ice_getEndpoints();
-        if(!seenProxy.insert(make_pair(obj->ice_getHash(), obj)).second)
+        if(!seenProxy.insert(make_pair(obj->__hash(), obj)).second)
         {
             ++proxyCollisions;
         }
-        test(obj->ice_getHash() == obj->ice_getHash());
-        
-        for(Ice::EndpointSeq::const_iterator j = endpoints.begin(); j != endpoints.end(); ++j)
-        {
-            Ice::EndpointPtr endpoint = (*j);
-            if(!seenEndpoint.insert(make_pair(endpoint->ice_getHash(), endpoint)).second)
-            {
-                if(endpoint == seenEndpoint[endpoint->ice_getHash()])
-                {
-                    continue; // Same object
-                }
-                ++endpointCollisions;
-            }
-            test(endpoint->ice_getHash() == endpoint->ice_getHash());
-        }
+        test(obj->__hash() == obj->__hash());
     }
     test(proxyCollisions < maxCollisions);
-    test(endpointCollisions < maxCollisions);
     
     //
     // Check the same proxy produce the same hash, even when we recreate the proxy.
@@ -96,45 +73,30 @@ int main(int argc, char** argv)
     Ice::ObjectPrx prx10 = communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
     map<string, int> proxyMap;
-    proxyMap["prx1"] = prx1->ice_getHash();
-    proxyMap["prx2"] = prx2->ice_getHash();
-    proxyMap["prx3"] = prx3->ice_getHash();
-    proxyMap["prx4"] = prx4->ice_getHash();
-    proxyMap["prx5"] = prx5->ice_getHash();
-    proxyMap["prx6"] = prx6->ice_getHash();
-    proxyMap["prx7"] = prx7->ice_getHash();
-    proxyMap["prx8"] = prx8->ice_getHash();
-    proxyMap["prx9"] = prx9->ice_getHash();
-    proxyMap["prx10"] = prx10->ice_getHash();
+    proxyMap["prx1"] = prx1->__hash();
+    proxyMap["prx2"] = prx2->__hash();
+    proxyMap["prx3"] = prx3->__hash();
+    proxyMap["prx4"] = prx4->__hash();
+    proxyMap["prx5"] = prx5->__hash();
+    proxyMap["prx6"] = prx6->__hash();
+    proxyMap["prx7"] = prx7->__hash();
+    proxyMap["prx8"] = prx8->__hash();
+    proxyMap["prx9"] = prx9->__hash();
+    proxyMap["prx10"] = prx10->__hash();
 
-    test( communicator->stringToProxy("Glacier2/router:tcp -p 10010")->ice_getHash() == proxyMap["prx1"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -p 10011")->ice_getHash() == proxyMap["prx2"]);
-    test( communicator->stringToProxy("Glacier2/router:udp -p 10012")->ice_getHash() == proxyMap["prx3"]);
-    test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")->ice_getHash() == proxyMap["prx4"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")->ice_getHash() == proxyMap["prx5"]);
-    test( communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")->ice_getHash() == proxyMap["prx6"]);
-    test( communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")->ice_getHash() == proxyMap["prx7"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->ice_getHash() == proxyMap["prx8"]);
-    test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->ice_getHash() == proxyMap["prx9"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->ice_getHash() == proxyMap["prx10"]);
+    test( communicator->stringToProxy("Glacier2/router:tcp -p 10010")->__hash() == proxyMap["prx1"]);
+    test( communicator->stringToProxy("Glacier2/router:ssl -p 10011")->__hash() == proxyMap["prx2"]);
+    test( communicator->stringToProxy("Glacier2/router:udp -p 10012")->__hash() == proxyMap["prx3"]);
+    test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")->__hash() == proxyMap["prx4"]);
+    test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")->__hash() == proxyMap["prx5"]);
+    test( communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")->__hash() == proxyMap["prx6"]);
+    test( communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")->__hash() == proxyMap["prx7"]);
+    test( communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->__hash() == proxyMap["prx8"]);
+    test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->__hash() == proxyMap["prx9"]);
+    test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->__hash() == proxyMap["prx10"]);
     
     cerr << "ok" << endl;
     
-    cout << "testing objects hash algorithm collisions... " << flush;
-    unsigned int objectCollisions = 0;
-    map<Ice::Int, Ice::ObjectPtr> seenObject;
-    for(i = 0; objectCollisions < maxCollisions && i < maxIterations; ++i)
-    {
-        Ice::ObjectPtr obj = new Point;
-        if(!seenObject.insert(make_pair(obj->ice_getHash(), obj)).second)
-        {
-            ++objectCollisions;
-        }
-        test(obj->ice_getHash() == obj->ice_getHash());
-    }
-    test(objectCollisions < maxCollisions);
-
-    cerr << "ok" << endl;
     if(communicator)
     {
         try
