@@ -111,6 +111,14 @@ namespace IceInternal
             }
         }
 
+        public void destroy()
+        {
+#if ICE_SOCKET_ASYNC_API
+            _readEventArgs.Dispose();
+            _writeEventArgs.Dispose();
+#endif            
+        }
+
         public bool write(Buffer buf)
         {
 #if COMPACT || SILVERLIGHT
@@ -943,6 +951,16 @@ namespace IceInternal
             }
             catch(Ice.LocalException)
             {
+#if ICE_SOCKET_ASYNC_API
+                if(_readEventArgs != null)
+                {
+                    _readEventArgs.Dispose();
+                }
+                if(_writeEventArgs != null)
+                {
+                    _writeEventArgs.Dispose();
+                }
+#endif
                 _fd = null;
                 throw;
             }

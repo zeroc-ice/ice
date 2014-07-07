@@ -32,6 +32,10 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.close();
     }
 
+    public void destroy()
+    {
+    }
+
     public bool write(IceInternal.Buffer buf)
     {
         if(!_initialized)

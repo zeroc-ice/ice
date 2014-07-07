@@ -22,6 +22,7 @@ namespace IceInternal
         int initialize();
 
         void close();
+        void destroy();
 
         //
         // Write data.

@@ -2043,6 +2043,7 @@ namespace Ice
                 case StateFinished:
                 {
                     Debug.Assert(_state == StateClosed);
+                    _transceiver.destroy();
                     _communicator = null;
                     break;
                 }

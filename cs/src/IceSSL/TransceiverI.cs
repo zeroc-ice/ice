@@ -121,6 +121,11 @@ namespace IceSSL
             }
         }
 
+        public void destroy()
+        {
+            // Nothing to do.
+        }
+
         public bool write(IceInternal.Buffer buf)
         {
             Debug.Assert(_fd != null);
