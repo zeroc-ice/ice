@@ -17,6 +17,7 @@ namespace IceInternal
         int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
         int closing(bool initiator, Ice.LocalException ex);
         void close();
+        void destroy();
 
         int write(Buffer buf);
         int read(Buffer buf, ref bool hasMoreData);

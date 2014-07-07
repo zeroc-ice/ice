@@ -130,6 +130,15 @@ namespace IceInternal
             }
         }
 
+        public void destroy()
+        {
+#if ICE_SOCKET_ASYNC_API
+            Debug.Assert(_readEventArgs != null && _writeEventArgs != null);
+            _readEventArgs.Dispose();
+            _writeEventArgs.Dispose();
+#endif            
+        }
+
         public int write(Buffer buf)
         {
 #if COMPACT || SILVERLIGHT
@@ -339,9 +348,7 @@ namespace IceInternal
         {
             if(_fd == null) // Transceiver was closed
             {
-#if ICE_SOCKET_ASYNC_API
-                _readEventArgs = null;
-#else
+#if !ICE_SOCKET_ASYNC_API
                 _readResult = null;
 #endif
                 return;
@@ -490,9 +497,7 @@ namespace IceInternal
                 {
                     buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
                 }
-#if ICE_SOCKET_ASYNC_API
-                _writeEventArgs = null;
-#else
+#if !ICE_SOCKET_ASYNC_API
                 _writeResult = null;
 #endif
                 return;

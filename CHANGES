@@ -126,7 +126,15 @@ C++ Changes
 - Added IceUtil::nativeToWnative and IceUtil::wnativeToNative functions
   which allow to convert between narrow and wide strings, stringToWstring
   and wstringToString have been deprecated.
+
+
+C# Changes
+==========
+
+- Fixed leak in C# transport. The leak occured for each Ice
+  connection.
   
+
 Python Changes
 ==============
 
