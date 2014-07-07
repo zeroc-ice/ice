@@ -29,14 +29,6 @@ public:
 
     virtual bool operator==(const LocalObject&) const;
     virtual bool operator<(const LocalObject&) const;
-    ICE_DEPRECATED_API("is deprecated") ::Ice::Int ice_getHash() const
-    {
-        return internal_getHash();
-    }
-
-protected:
-
-    virtual ::Ice::Int internal_getHash() const;
 };
 
 }

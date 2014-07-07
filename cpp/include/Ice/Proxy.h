@@ -232,8 +232,6 @@ public:
     bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
-    ICE_DEPRECATED_API("is deprecated") ::Ice::Int ice_getHash() const;
-
     ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
     ::std::string ice_toString() const;

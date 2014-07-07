@@ -108,12 +108,6 @@ IceProxy::Ice::Object::operator<(const Object& r) const
     return _reference < r._reference;
 }
 
-Int
-IceProxy::Ice::Object::ice_getHash() const
-{
-    return _reference->hash();
-}
-
 CommunicatorPtr
 IceProxy::Ice::Object::ice_getCommunicator() const
 {
