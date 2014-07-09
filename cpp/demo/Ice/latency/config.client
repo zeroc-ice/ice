@@ -2,12 +2,8 @@
 # The client reads this property to create the reference to the "Ping"
 # object in the server.
 #
-#Ping.Proxy=ping:tcp -p 10000
-Ping.Proxy=ping@Ping
+Ping.Proxy=ping:tcp -p 10000
 #Ping.Proxy=ping:ssl -p 10001
-
-Latency.AdapterId=Ping
-Ice.Default.CollocationOptimized=0
 
 #
 # Uncomment to use the WebSocket transports instead.
