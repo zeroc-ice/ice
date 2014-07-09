@@ -210,6 +210,11 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.checkSendSize(buf, messageSizeMax);
     }
 
+    public void destroy()
+    {
+        _transceiver.destroy();
+    }
+
     //
     // Only for use by Connector, Acceptor
     //
