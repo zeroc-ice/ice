@@ -65,6 +65,7 @@ public class AllTests : TestCommon.TestApp
             called();
         }
 
+
         public void payload()
         {
             test(Dispatcher.isDispatcherThread());
@@ -80,7 +81,7 @@ public class AllTests : TestCommon.TestApp
             test(sentSynchronously || Dispatcher.isDispatcherThread());
         }
 
-        protected void called()
+        public void called()
         {
             _m.Lock();
             try
@@ -139,6 +140,24 @@ public class AllTests : TestCommon.TestApp
             TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
             i.begin_op().whenCompleted(cb.exception);
             cb.check();
+
+            //
+            // Expect InvocationTimeoutException.
+            //
+            {
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                to.begin_sleep(500).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception ex) => {
+                        test(ex is Ice.InvocationTimeoutException);
+                        test(Dispatcher.isDispatcherThread());
+                        cb.called();
+                    });
+                cb.check();
+            }
 
             testController.holdAdapter();
             Test.Callback_TestIntf_opWithPayload resp = cb.payload;

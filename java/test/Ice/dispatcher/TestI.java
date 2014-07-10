@@ -34,6 +34,18 @@ public class TestI extends _TestIntfDisp
     }
 
     public void
+    sleep(int to, Ice.Current current)
+    {
+        try
+        {
+            Thread.currentThread().sleep(to);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+    }
+
+    public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
         test(_dispatcher.isDispatcherThread());

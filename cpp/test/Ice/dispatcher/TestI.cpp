@@ -11,6 +11,7 @@
 #include <Ice/Ice.h>
 #include <Dispatcher.h>
 #include <TestCommon.h>
+#include <IceUtil/Thread.h>
 
 using namespace std;
 
@@ -18,6 +19,12 @@ void
 TestIntfI::op(const Ice::Current&)
 {
     test(Dispatcher::isDispatcherThread());
+}
+
+void
+TestIntfI::sleep(Ice::Int to, const Ice::Current&)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
 }
 
 void

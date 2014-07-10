@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using Test;
+using System.Threading;
 
 public class TestI : TestIntfDisp_
 {
@@ -33,6 +34,11 @@ public class TestI : TestIntfDisp_
     opWithPayload(byte[] seq, Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
+    }
+
+    public override void sleep(int to, Ice.Current current)
+    {
+        Thread.Sleep(to);
     }
 
     override public void

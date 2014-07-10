@@ -97,10 +97,10 @@ namespace IceInternal
                         stream.swap(_batchStream);
 
                         _adapter.getThreadPool().dispatch(
-                            delegate()
+                            () =>
                             {
                                 invokeAll(stream, 0, invokeNum, true);
-                            });
+                            }, null);
 
                         //
                         // Reset the batch.
@@ -275,7 +275,7 @@ namespace IceInternal
                         {
                             invokeAll(@out.ostr(), requestId, 1, false);
                         }
-                    });
+                    }, null);
             }
             else
             {
@@ -313,7 +313,7 @@ namespace IceInternal
                     {
                         invokeAll(outAsync.ostr__, requestId, 1, false);
                     }
-                });
+                }, null);
             sentCallback = null;
             return false;
         }
@@ -359,13 +359,13 @@ namespace IceInternal
                 if(_reference.getInvocationTimeout() > 0)
                 {
                     _adapter.getThreadPool().dispatch(
-                        delegate()
+                        () =>
                         {
                             if(sent(@out))
                             {
                                 invokeAll(@out.ostr(), 0, invokeNum, true);
                             }
-                        });
+                        }, null);
                 }
                 else
                 {
@@ -417,13 +417,13 @@ namespace IceInternal
             if(invokeNum > 0)
             {
                 _adapter.getThreadPool().dispatch(
-                    delegate()
+                    () =>
                     {
                         if(sentAsync(outAsync))
                         {
                             invokeAll(outAsync.ostr__, 0, invokeNum, true);
                         }
-                    });
+                    }, null);
                 sentCallback = null;
                 return false;
             }

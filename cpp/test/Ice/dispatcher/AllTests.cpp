@@ -52,6 +52,18 @@ public:
         called();
     }
 
+    void responseEx()
+    {
+        test(false);
+    }
+
+    void exceptionEx(const ::Ice::Exception& ex)
+    {
+        test(dynamic_cast<const Ice::InvocationTimeoutException*>(&ex));
+        test(Dispatcher::isDispatcherThread());
+        called();
+    }
+
     void
     payload()
     {
@@ -122,6 +134,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::TestIntfPrx i = p->ice_adapterId("dummy");
         i->begin_op(callback);
         cb->check();
+
+        {
+            //
+            // Expect InvocationTimeoutException.
+            //
+            Test::TestIntfPrx to = p->ice_invocationTimeout(250);
+            to->begin_sleep(500, Test::newCallback_TestIntf_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
+            cb->check();
+        }
 
         testController->holdAdapter();
 

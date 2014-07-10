@@ -103,6 +103,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     __send(Ice.ConnectionI connection, boolean compress, boolean response)
         throws RetryException
     {
+        _cachedConnection = connection;
         return connection.sendAsyncRequest(this, compress, response);
     }
 

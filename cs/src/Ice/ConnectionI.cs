@@ -1036,8 +1036,8 @@ namespace Ice
             _m.Lock();
             try
             {
-                LinkedListNode<OutgoingMessage> p = _sendStreams.First;
-                while(p != null)
+                LinkedListNode<OutgoingMessage> p;
+                for(p = _sendStreams.First; p != null; p = p.Next)
                 {
                     OutgoingMessage o = p.Value;
                     if(o.@out == @out)
@@ -1051,18 +1051,14 @@ namespace Ice
                         // If the request is being sent, don't remove it from the send streams, 
                         // it will be removed once the sending is finished.
                         //
-                        if(p == _sendStreams.First) 
-                        {
-                            o.timedOut();
-                        }
-                        else
+                        bool isSent = o.timedOut();
+                        if(p != _sendStreams.First)
                         {
                             _sendStreams.Remove(p);
                         }
-                        o.finished(new InvocationTimeoutException());
+                        @out.finished(new InvocationTimeoutException(), isSent);
                         return; // We're done.
                     }
-                    p = p.Next;
                 }
 
                 if(@out is IceInternal.Outgoing)
@@ -1087,11 +1083,14 @@ namespace Ice
 
         public void asyncRequestTimedOut(IceInternal.OutgoingAsyncMessageCallback outAsync)
         {
+            bool isSent = false;
+            bool finished = false;
+
             _m.Lock();
             try
             {
-                LinkedListNode<OutgoingMessage> p = _sendStreams.First;
-                while(p != null)
+                LinkedListNode<OutgoingMessage> p;
+                for(p = _sendStreams.First; p != null; p = p.Next)
                 {
                     OutgoingMessage o = p.Value;
                     if(o.outAsync == outAsync)
@@ -1105,30 +1104,28 @@ namespace Ice
                         // If the request is being sent, don't remove it from the send streams, 
                         // it will be removed once the sending is finished.
                         //
-                        if(p == _sendStreams.First) 
-                        {
-                            o.timedOut();
-                        }
-                        else
+                        isSent = o.timedOut();
+                        if(o != _sendStreams.First.Value)
                         {
                             _sendStreams.Remove(p);
                         }
-                        o.finished(new InvocationTimeoutException());
-                        return; // We're done.
+                        finished = true;
+                        break; // We're done.
                     }
-                    p = p.Next;
                 }
 
-                if(outAsync is IceInternal.OutgoingAsync)
+                if(!finished && outAsync is IceInternal.OutgoingAsync)
                 {
                     IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
                     foreach(KeyValuePair<int, IceInternal.OutgoingAsync> kvp in _asyncRequests)
                     {
                         if(kvp.Value == o)
                         {
-                            o.finished__(new InvocationTimeoutException(), true);
+
+                            finished = true;
+                            isSent = true;
                             _asyncRequests.Remove(kvp.Key);
-                            return; // We're done.
+                            break; // We're done.
                         }
                     }
                 }
@@ -1136,6 +1133,14 @@ namespace Ice
             finally
             {
                 _m.Unlock();
+            }
+
+
+            if(finished)
+            {
+                // asyncRequestTimedOut is  called from the dispatch thread so this is
+                // safe.
+                outAsync.finished__(new InvocationTimeoutException(), isSent);
             }
         }
 
@@ -1631,32 +1636,12 @@ namespace Ice
                 // of the message must be taken care of by the Ice thread pool.
                 //
                 IceInternal.ThreadPoolCurrent c = current;
-                _threadPool.execute(
-                    delegate()
+                _threadPool.execute(() =>
                     {
-                        if(_dispatcher != null)
-                        {
-                            try
+                        callOnDispatcher(() =>
                             {
-                                _dispatcher(delegate()
-                                            {
-                                                dispatch(startCB, sentCBs, info);
-                                            },
-                                            this);
-                            }
-                            catch(System.Exception ex)
-                            {
-                                if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
-                                       "Ice.Warn.Dispatch", 1) > 1)
-                                {
-                                    warning("dispatch exception", ex);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            dispatch(startCB, sentCBs, info);
-                        }
+                                dispatch(startCB, sentCBs, info);
+                            });
                         msg.destroy(ref c);
                     });
             }
@@ -1810,29 +1795,37 @@ namespace Ice
             // non-blocking activity of the connection from these threads, the dispatching
             // of the message must be taken care of by the Ice thread pool.
             //
-            _threadPool.execute(
-                delegate()
+            _threadPool.execute(() =>
                 {
-                    if(_dispatcher == null)
-                    {
-                        finish();
-                    }
-                    else
-                    {
-                        try
-                        {
-                            _dispatcher(finish, this);
-                        }
-                        catch(System.Exception ex)
-                        {
-                            if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
-                                   "Ice.Warn.Dispatch", 1) > 1)
-                            {
-                                warning("dispatch exception", ex);
-                            }
-                        }
-                    }
+                    callOnDispatcher(finish);
                 });
+        }
+
+        #if COMPACT
+        public void callOnDispatcher(Ice.VoidAction action)
+#else
+        private void callOnDispatcher(System.Action action)
+#endif
+        {
+            if(_dispatcher != null)
+            {
+                try
+                {
+                    _dispatcher(action, this);
+                }
+                catch(System.Exception ex)
+                {
+                    if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
+                           "Ice.Warn.Dispatch", 1) > 1)
+                    {
+                        warning("dispatch exception", ex);
+                    }
+                }
+            }
+            else
+            {
+                action();
+            }
         }
 
         private void finish()
@@ -3290,11 +3283,12 @@ namespace Ice
                 this.isSent = false;
             }
 
-            internal void timedOut()
+            internal bool timedOut()
             {
                 Debug.Assert((@out != null || outAsync != null) && !isSent);
                 @out = null;
                 outAsync = null;
+                return isSent;
             }
 
             internal void adopt()

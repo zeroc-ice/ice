@@ -17,6 +17,15 @@ package IceInternal;
 //
 abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
 {
+    public DispatchWorkItem()
+    {
+    }
+
+    public DispatchWorkItem(Ice.Connection connection)
+    {
+        _connection = connection;
+    }
+
     final public void execute(ThreadPoolCurrent current)
     {
         Instance instance = current.stream.instance();
@@ -25,7 +34,7 @@ abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
         {
             try
             {
-                dispatcher.dispatch(this, null);
+                dispatcher.dispatch(this, _connection);
             }
             catch(java.lang.Exception ex)
             {
@@ -45,4 +54,6 @@ abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
             this.run();
         }
     }
+
+    private Ice.Connection _connection;
 }

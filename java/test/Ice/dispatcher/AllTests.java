@@ -17,6 +17,7 @@ import test.Ice.dispatcher.Test.TestIntfControllerPrx;
 import test.Ice.dispatcher.Test.TestIntfControllerPrxHelper;
 import test.Ice.dispatcher.Test.Callback_TestIntf_op;
 import test.Ice.dispatcher.Test.Callback_TestIntf_opWithPayload;
+import test.Ice.dispatcher.Test.Callback_TestIntf_sleep;
 
 public class AllTests
 {
@@ -69,6 +70,12 @@ public class AllTests
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
+        int mult = 1;
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
+        {
+            mult = 4;
+        }
+
         TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
         sref = "testController:tcp -p 12011";
@@ -120,6 +127,61 @@ public class AllTests
                 };
             i.begin_op(cb);
             cb.check();
+
+            {
+                //
+                // Expect InvocationTimeoutException.
+                //
+                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                class Callback_TestIntf_sleepImpl extends Callback_TestIntf_sleep
+                {
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        test(ex instanceof Ice.InvocationTimeoutException);
+                        test(dispatcher.isDispatcherThread());
+                        called();
+                    }
+
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        test(sentSynchronously || dispatcher.isDispatcherThread());
+                    }
+
+                    public synchronized void check()
+                    {
+                        while(!_called)
+                        {
+                            try
+                            {
+                                wait();
+                            }
+                            catch(InterruptedException ex)
+                            {
+                            }
+                        }
+
+                        _called = false;
+                    }
+                    private synchronized void called()
+                    {
+                        assert(!_called);
+                        _called = true;
+                        notify();
+                    }
+                    private boolean _called;
+                };
+                Callback_TestIntf_sleepImpl callback = new Callback_TestIntf_sleepImpl();
+                to.begin_sleep(500 * mult, callback);
+                callback.check();
+            }
 
             testController.holdAdapter();
             Callback_TestIntf_opWithPayload callback = new Callback_TestIntf_opWithPayload()

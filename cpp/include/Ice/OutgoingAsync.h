@@ -159,6 +159,7 @@ protected:
     const CommunicatorPtr _communicator;
     const IceInternal::InstancePtr _instance;
     const std::string& _operation;
+    Ice::ConnectionPtr _cachedConnection;
     const IceInternal::CallbackBasePtr _callback;
     const LocalObjectPtr _cookie;
 

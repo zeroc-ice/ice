@@ -18,6 +18,7 @@ module Test
 interface TestIntf
 {
     void op();
+    void sleep(int to);
     void opWithPayload(Ice::ByteSeq seq);
     void shutdown();
 };

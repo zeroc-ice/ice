@@ -373,16 +373,16 @@ namespace IceInternal
         }
 
 #if COMPACT
-        public void dispatch(Ice.VoidAction call)
+        public void dispatch(Ice.VoidAction call, Ice.Connection con)
 #else
-        public void dispatch(System.Action call)
+        public void dispatch(System.Action call, Ice.Connection con)
 #endif
         {
             if(_dispatcher != null)
             {
                 try
                 {
-                    _dispatcher(call, null);
+                    _dispatcher(call, con);
                 }
                 catch(System.Exception ex)
                 {

@@ -22,6 +22,7 @@ namespace IceInternal
         bool sendAsyncRequest(OutgoingAsyncMessageCallback @out, out Ice.AsyncCallback cb);
 
         void requestTimedOut(OutgoingMessageCallback @out);
+        // Must be called from the dispatcher thread.
         void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync);
 
         Reference getReference();

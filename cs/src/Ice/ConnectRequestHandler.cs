@@ -372,10 +372,11 @@ namespace IceInternal
                 //
                 if(_requests.Count > 0)
                 {
-                    _reference.getInstance().clientThreadPool().dispatch(delegate()
-                                                                         {
-                                                                             flushRequestsWithException();
-                                                                         });
+                    _reference.getInstance().clientThreadPool().dispatch(
+                        () =>
+                        {
+                            flushRequestsWithException();
+                        }, _connection);
                 }
 
                 _m.NotifyAll();
@@ -518,10 +519,11 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
-                    _reference.getInstance().clientThreadPool().dispatch(delegate()
-                                                                         {
-                                                                             flushRequestsWithException();
-                                                                         });
+                    _reference.getInstance().clientThreadPool().dispatch(
+                        () =>
+                        {
+                            flushRequestsWithException();
+                        }, _connection);
                 }
                 finally
                 {
@@ -535,10 +537,11 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
-                    _reference.getInstance().clientThreadPool().dispatch(delegate()
-                                                                         {
-                                                                             flushRequestsWithException();
-                                                                         });
+                    _reference.getInstance().clientThreadPool().dispatch(
+                        () =>
+                        {
+                            flushRequestsWithException();
+                        }, _connection);
                 }
                 finally
                 {
@@ -549,16 +552,17 @@ namespace IceInternal
             if(sentCallbacks.Count > 0)
             {
                 Instance instance = _reference.getInstance();
-                instance.clientThreadPool().dispatch(delegate()
-                                                    {
-                                                        foreach(Request r in sentCallbacks)
-                                                        {
-                                                            if(r.outAsync != null)
-                                                            {
-                                                                r.outAsync.invokeSent__(r.sentCallback);
-                                                            }
-                                                        }
-                                                    });
+                instance.clientThreadPool().dispatch(
+                    () =>
+                    {
+                        foreach(Request r in sentCallbacks)
+                        {
+                            if(r.outAsync != null)
+                            {
+                                r.outAsync.invokeSent__(r.sentCallback);
+                            }
+                        }
+                    }, _connection);
             }
 
             //

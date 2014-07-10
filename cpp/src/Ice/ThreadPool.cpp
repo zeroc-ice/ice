@@ -141,6 +141,14 @@ class ThreadPoolDestroyedException
 
 }
 
+
+IceInternal::DispatchWorkItem::DispatchWorkItem() {
+}
+
+IceInternal::DispatchWorkItem::DispatchWorkItem(const Ice::ConnectionPtr& connection) : _connection(connection) {
+    
+}
+
 void
 IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
 {
@@ -150,7 +158,7 @@ IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
     {
         try
         {
-            dispatcher->dispatch(this, 0);
+            dispatcher->dispatch(this, _connection);
         }
         catch(const std::exception& ex)
         {

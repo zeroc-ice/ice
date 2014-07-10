@@ -29,7 +29,8 @@ class FlushRequestsWithException : public DispatchWorkItem
 {
 public:
     
-    FlushRequestsWithException(const ConnectRequestHandlerPtr& handler) : _handler(handler)
+    FlushRequestsWithException(const Ice::ConnectionPtr& connection, const ConnectRequestHandlerPtr& handler) :
+        DispatchWorkItem(connection), _handler(handler)
     {
     }
     
@@ -48,7 +49,8 @@ class FlushSentRequests : public DispatchWorkItem
 {
 public:
     
-    FlushSentRequests(const vector<OutgoingAsyncMessageCallbackPtr>& callbacks) : _callbacks(callbacks)
+    FlushSentRequests(const Ice::ConnectionPtr& connection, const vector<OutgoingAsyncMessageCallbackPtr>& callbacks) :
+        DispatchWorkItem(connection), _callbacks(callbacks)
     {
     }
 
@@ -367,7 +369,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     //
     if(!_requests.empty())
     {
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(this));
+        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(_connection, this));
     }
 
     notifyAll();
@@ -483,19 +485,19 @@ ConnectRequestHandler::flushRequests()
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.get()->ice_clone());
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(this));
+        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(_connection, this));
     }
     catch(const Ice::LocalException& ex)
     {
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.ice_clone());
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(this));
+        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(_connection, this));
     }
 
     if(!sentCallbacks.empty())
     {
-        _reference->getInstance()->clientThreadPool()->execute(new FlushSentRequests(sentCallbacks));
+        _reference->getInstance()->clientThreadPool()->execute(new FlushSentRequests(_connection, sentCallbacks));
     }
         
     //

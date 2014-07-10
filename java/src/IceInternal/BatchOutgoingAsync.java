@@ -19,6 +19,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     public int
     __send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
+        _cachedConnection = connection;
         return connection.flushAsyncBatchRequests(this);
     }
 

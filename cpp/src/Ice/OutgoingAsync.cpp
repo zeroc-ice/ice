@@ -51,8 +51,8 @@ class AsynchronousException : public DispatchWorkItem
 {
 public:
 
-    AsynchronousException(const Ice::AsyncResultPtr& result, const Ice::Exception& ex) :
-        _result(result), _exception(ex.ice_clone())
+    AsynchronousException(const Ice::ConnectionPtr& connection, const Ice::AsyncResultPtr& result, const Ice::Exception& ex) :
+        DispatchWorkItem(connection), _result(result), _exception(ex.ice_clone())
     {
     }
 
@@ -72,7 +72,8 @@ class AsynchronousSent : public DispatchWorkItem
 {
 public:
 
-    AsynchronousSent(const Ice::AsyncResultPtr& result) : _result(result)
+    AsynchronousSent(const Ice::ConnectionPtr& connection, const Ice::AsyncResultPtr& result) :
+        DispatchWorkItem(connection), _result(result)
     {
     }
 
@@ -91,8 +92,8 @@ class AsynchronousTimeout : public DispatchWorkItem
 {
 public:
 
-    AsynchronousTimeout(const IceInternal::RequestHandlerPtr& handler, const Ice::AsyncResultPtr& result) :
-        _handler(handler), _outAsync(OutgoingAsyncMessageCallbackPtr::dynamicCast(result))
+    AsynchronousTimeout(const Ice::ConnectionPtr& connection, const IceInternal::RequestHandlerPtr& handler, const Ice::AsyncResultPtr& result) :
+        DispatchWorkItem(connection), _handler(handler), _outAsync(OutgoingAsyncMessageCallbackPtr::dynamicCast(result))
     {
         assert(_outAsync);
     }
@@ -268,7 +269,7 @@ Ice::AsyncResult::__invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->execute(new AsynchronousSent(this));
+        _instance->clientThreadPool()->execute(new AsynchronousSent(_cachedConnection, this));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -300,7 +301,7 @@ Ice::AsyncResult::__invokeExceptionAsync(const Ice::Exception& ex)
     // CommunicatorDestroyedException is the only exception that can propagate directly
     // from this method.
     //
-    _instance->clientThreadPool()->execute(new AsynchronousException(this, ex));
+    _instance->clientThreadPool()->execute(new AsynchronousException(_cachedConnection, this, ex));
 }
 
 void
@@ -342,7 +343,16 @@ Ice::AsyncResult::runTimerTask() // Implementation of TimerTask::runTimerTask()
 
     if(handler)
     {
-        _instance->clientThreadPool()->execute(new AsynchronousTimeout(handler, this));
+        Ice::ConnectionPtr connection;
+        try
+        {
+            connection = handler->getConnection(false);
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
+        }
+        _instance->clientThreadPool()->execute(new AsynchronousTimeout(connection, handler, this));
     }
 }
 
@@ -507,6 +517,7 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
 AsyncStatus
 IceInternal::OutgoingAsync::__send(const Ice::ConnectionIPtr& connection, bool compress, bool response)
 {
+    _cachedConnection = connection;
     return connection->sendAsyncRequest(this, compress, response);
 }
 
@@ -838,6 +849,7 @@ IceInternal::BatchOutgoingAsync::BatchOutgoingAsync(const CommunicatorPtr& commu
 AsyncStatus 
 IceInternal::BatchOutgoingAsync::__send(const Ice::ConnectionIPtr& connection, bool, bool)
 {
+    _cachedConnection = connection;
     return connection->flushAsyncBatchRequests(this);
 }
 

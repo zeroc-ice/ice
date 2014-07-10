@@ -78,7 +78,6 @@ public:
     }
     void finish(const EventHandlerPtr&);
     void execute(const ThreadPoolWorkItemPtr&);
-
     void joinWithAllThreads();
 
     std::string prefix() const;
@@ -184,9 +183,15 @@ public:
 
 class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
 {
-private:
+public:
+
+    DispatchWorkItem();
+    DispatchWorkItem(const Ice::ConnectionPtr& connection);
  
+ private:
+
     virtual void execute(ThreadPoolCurrent&);
+    Ice::ConnectionPtr _connection;
 };
 
 class ThreadPoolWorkQueue : public EventHandler, public IceUtil::Mutex

@@ -320,17 +320,17 @@ namespace IceInternal
             }
             else
             {
-                instance_.clientThreadPool().dispatch(delegate()
-                                                      {
-                                                          try
-                                                          {
-                                                              sentCallback_(this);
-                                                          }
-                                                          catch(System.Exception ex)
-                                                          {
-                                                              warning__(ex);
-                                                          }
-                                                      });
+                instance_.clientThreadPool().dispatch(() =>
+                {
+                    try
+                    {
+                        sentCallback_(this);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning__(ex);
+                    }
+                }, cachedConnection_);
             }
             return this;
         }
@@ -348,10 +348,10 @@ namespace IceInternal
                 {
                     throw new System.ArgumentException("sent callback already set");
                 }
-                sentCallback_ = delegate(Ice.AsyncResult result)
-                                {
-                                    cb(result.sentSynchronously());
-                                };
+                sentCallback_ = (Ice.AsyncResult result) =>
+                    {
+                        cb(result.sentSynchronously());
+                    };
                 if((state_ & Sent) == 0)
                 {
                     return this;
@@ -375,17 +375,17 @@ namespace IceInternal
             }
             else
             {
-                instance_.clientThreadPool().dispatch(delegate()
-                                                      {
-                                                          try
-                                                          {
-                                                              cb(false);
-                                                          }
-                                                          catch(System.Exception ex)
-                                                          {
-                                                              warning__(ex);
-                                                          }
-                                                      });
+                instance_.clientThreadPool().dispatch(() =>
+                {
+                    try
+                    {
+                        cb(false);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning__(ex);
+                    }
+                }, cachedConnection_);
             }
             return this;
         }
@@ -410,17 +410,17 @@ namespace IceInternal
                 monitor_.Unlock();
             }
 
-            instance_.clientThreadPool().dispatch(delegate()
-                                                  {
-                                                      try
-                                                      {
-                                                          cb(this);
-                                                      }
-                                                      catch(System.Exception ex)
-                                                      {
-                                                          warning__(ex);
-                                                      }
-                                                  });
+            instance_.clientThreadPool().dispatch(() =>
+            {
+                try
+                {
+                    cb(this);
+                }
+                catch(System.Exception ex)
+                {
+                    warning__(ex);
+                }
+            }, cachedConnection_);
             return this;
         }
 
@@ -449,17 +449,17 @@ namespace IceInternal
                 monitor_.Unlock();
             }
 
-            instance_.clientThreadPool().dispatch(delegate()
-                                                  {
-                                                      try
-                                                      {
-                                                          completedCallback_(this);
-                                                      }
-                                                      catch(System.Exception ex)
-                                                      {
-                                                          warning__(ex);
-                                                      }
-                                                  });
+            instance_.clientThreadPool().dispatch(() =>
+                {
+                    try
+                    {
+                        completedCallback_(this);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning__(ex);
+                    }
+                }, cachedConnection_);
             return this;
         }
 
@@ -525,10 +525,10 @@ namespace IceInternal
             //
             try
             {
-                instance_.clientThreadPool().dispatch(delegate()
-                                                      {
-                                                          invokeException__(ex);
-                                                      });
+                instance_.clientThreadPool().dispatch(() =>
+                    {
+                        invokeException__(ex);
+                    }, cachedConnection_);
             }
             catch(Ice.CommunicatorDestroyedException)
             {
@@ -578,11 +578,11 @@ namespace IceInternal
             {
                 try
                 {
-                    instance_.clientThreadPool().dispatch(delegate()
-                                                          {
-                                                              invokeSent__(callback);
-                                                          });
-                }
+                    instance_.clientThreadPool().dispatch(() =>
+                        {
+                            invokeSent__(callback);
+                        }, cachedConnection_);
+            }
                 catch(Ice.CommunicatorDestroyedException)
                 {
                 }
@@ -794,12 +794,20 @@ namespace IceInternal
             
             if(handler != null)
             {
+                Ice.ConnectionI con = null;
+                try
+                {
+                    con = handler.getConnection(false);
+                }
+                catch(Ice.LocalException)
+                {
+                    // Ignore.
+                }
                 IceInternal.OutgoingAsyncMessageCallback outAsync = (IceInternal.OutgoingAsyncMessageCallback)this;
-                instance_.clientThreadPool().execute(
-                    delegate()
+                instance_.clientThreadPool().dispatch(() =>
                     {
                         handler.asyncRequestTimedOut(outAsync);
-                    });
+                    }, con);
             }
         }
 
@@ -814,6 +822,7 @@ namespace IceInternal
         protected Ice.Communicator communicator_;
         protected IceInternal.Instance instance_;
         protected string operation_;
+        protected Ice.Connection cachedConnection_;
 
         protected readonly IceUtilInternal.Monitor monitor_ = new IceUtilInternal.Monitor();
         protected IceInternal.BasicStream is_;
@@ -932,6 +941,8 @@ namespace IceInternal
 
         public bool send__(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback sentCB)
         {
+            // Store away the connection for passing to the dispatcher.
+            cachedConnection_ = connection;
             return connection.sendAsyncRequest(this, compress, response, out sentCB);
         }
 
@@ -1411,17 +1422,19 @@ namespace IceInternal
                 monitor_.Unlock();
             }
 
-            instance_.clientThreadPool().dispatch(delegate()
-                                                 {
-                                                     try
-                                                     {
-                                                         completedCallback_(this);
-                                                     }
-                                                     catch(System.Exception ex)
-                                                     {
-                                                         warning__(ex);
-                                                     }
-                                                 });
+
+            instance_.clientThreadPool().dispatch(
+                () =>
+                {
+                    try
+                    {
+                        completedCallback_(this);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning__(ex);
+                    }
+                }, null);
             return this;
         }
 
@@ -1451,18 +1464,18 @@ namespace IceInternal
                 monitor_.Unlock();
             }
 
-            instance_.clientThreadPool().dispatch(delegate()
-                                                 {
-                                                     try
-                                                     {
-                                                         completedCallback_(this);
-                                                     }
-                                                     catch(System.Exception ex)
-                                                     {
-                                                         warning__(ex);
-                                                     }
-                                                 });
-            return this;
+            instance_.clientThreadPool().dispatch(() =>
+                {
+                    try
+                    {
+                        completedCallback_(this);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        warning__(ex);
+                    }
+                }, null);
+        return this;
         }
 
         new public Ice.AsyncResult<T> whenSent(Ice.SentCallback cb)
@@ -1542,6 +1555,8 @@ namespace IceInternal
 
         public bool send__(Ice.ConnectionI connection, bool compress, bool response, out Ice.AsyncCallback sentCallback)
         {
+            // Store away the connection for passing to the dispatcher.
+            cachedConnection_ = connection;
             return connection.flushAsyncBatchRequests(this, out sentCallback);
         }
         

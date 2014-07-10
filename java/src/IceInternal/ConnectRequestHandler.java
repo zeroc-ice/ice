@@ -333,7 +333,7 @@ public class ConnectRequestHandler
         //
         if(!_requests.isEmpty())
         {
-            _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem()
+            _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_connection)
                                                                 {
                                                                     public void
                                                                     run()
@@ -487,7 +487,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
-                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem()
+                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_connection)
                     {
                         public void
                         run()
@@ -503,7 +503,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
-                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem()
+                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_connection)
                     {
                         public void
                         run()
@@ -517,7 +517,7 @@ public class ConnectRequestHandler
         if(!sentCallbacks.isEmpty())
         {
             _reference.getInstance().clientThreadPool().execute(
-                new DispatchWorkItem()
+                new DispatchWorkItem(_connection)
                 {
                     public void
                     run()
