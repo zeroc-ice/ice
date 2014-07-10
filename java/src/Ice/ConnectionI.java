@@ -1007,22 +1007,22 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     break; // We're done.
                 }
             }
-        }
 
-        if(!finished)
-        {
-            if(outAsync instanceof IceInternal.OutgoingAsync)
+            if(!finished)
             {
-                IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
-                java.util.Iterator<IceInternal.OutgoingAsync> it2 = _asyncRequests.values().iterator();
-                while(it2.hasNext())
+                if(outAsync instanceof IceInternal.OutgoingAsync)
                 {
-                    if(it2.next() == o)
+                    IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
+                    java.util.Iterator<IceInternal.OutgoingAsync> it2 = _asyncRequests.values().iterator();
+                    while(it2.hasNext())
                     {
-                        it2.remove();
-                        finished = true;
-                        isSent = true;
-                        break; // We're done.
+                        if(it2.next() == o)
+                        {
+                            it2.remove();
+                            finished = true;
+                            isSent = true;
+                            break; // We're done.
+                        }
                     }
                 }
             }
