@@ -8,10 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/BuiltinSequences.h>
-#include <IceGrid/Query.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Registry.h>
+#include <IceGrid/IceGrid.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/Thread.h>
 #include <TestCommon.h>
@@ -378,8 +375,13 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
 void
 allTests(const Ice::CommunicatorPtr& comm)
 {
-    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(comm->stringToProxy("IceGrid/Registry"));
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
+    IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(
+        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Query"));
+    test(query);
+
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
@@ -409,9 +411,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(find(adapterIds.begin(), adapterIds.end(), "SimpleIceBox.SimpleService.SimpleService") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "ReplicatedAdapter") != adapterIds.end());
     cout << "ok" << endl;
-
-    QueryPrx query = QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
-    test(query);
 
     cout << "testing object registration... " << flush;
     Ice::ObjectProxySeq objs = query->findAllObjectsByType("::Test");
@@ -744,7 +743,7 @@ void
 allTestsWithTarget(const Ice::CommunicatorPtr& comm)
 {
     RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-        comm->stringToProxy("IceGrid/Registry"));
+        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 

@@ -1,7 +1,7 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 12000 -t 10000:default -h localhost -p 12001 -t 10000:default -h localhost -p 12002 -t 10000
+Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000 -t 10000:default -h localhost -p 12001 -t 10000:default -h localhost -p 12002 -t 10000
 
 #
 # IceGrid node configuration.

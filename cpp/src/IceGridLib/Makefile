@@ -18,20 +18,23 @@ TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
 		  Locator.o \
+		  Discovery.o \
 		  Query.o \
 	 	  Exception.o \
 		  Descriptor.o \
+		  DiscoveryPluginI.o \
                   FileParser.o \
 		  Observer.o \
 		  Session.o \
 		  Registry.o \
 		  UserAccountMapper.o \
 		  PluginFacade.o \
-		  PluginFacadeI.o
+		  PluginFacadeI.o \
 
 SRCS		= $(LIB_OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/Admin.ice \
+		  $(SDIR)/Discovery.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/FileParser.ice \
                   $(SDIR)/Locator.ice \

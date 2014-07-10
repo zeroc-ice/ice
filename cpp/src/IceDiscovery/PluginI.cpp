@@ -130,7 +130,7 @@ PluginI::initialize()
     // Setup locator on the communicator.
     //
     Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
-    _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(_communicator->stringToProxy(loc->ice_toString())));
+    _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(loc));
     
     _multicastAdapter->activate();
     _replyAdapter->activate();

@@ -12,7 +12,7 @@
         <property name="Glacier2.Client.Endpoints" value="${endpoints}"/>
         <property name="Glacier2.Server.Endpoints" value="tcp"/>
         <property name="Glacier2.SessionManager" value="${manager}"/>
-        <property name="Glacier2.SSLSessionManager" value="IceGrid/SSLSessionManager"/>
+        <property name="Glacier2.SSLSessionManager" value="TestIceGrid/SSLSessionManager"/>
         <property name="Glacier2.PermissionsVerifier" value="${verifier}"/>
         <property name="Glacier2.Client.Trace.Reject" value="0"/>
       </server>
@@ -23,7 +23,7 @@
       <server-instance template="Glacier2" id="Glacier2" 
                        endpoints="default -p 12347" 
                        verifier="PermissionsVerifier"
-                       manager="IceGrid/SessionManager"/>
+                       manager="TestIceGrid/SessionManager"/>
 
       <server id="ObjectAllocation" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">

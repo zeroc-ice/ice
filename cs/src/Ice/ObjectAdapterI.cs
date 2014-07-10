@@ -1478,7 +1478,7 @@ namespace Ice
                 }
             }
 
-            if(instance_.traceLevels().network >= 1)
+            if(instance_.traceLevels().network >= 1 && endpoints.Count > 0)
             {
                  StringBuilder s = new StringBuilder("published endpoints for object adapter `");
                  s.Append(_name);

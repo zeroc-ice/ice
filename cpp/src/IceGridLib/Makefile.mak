@@ -16,9 +16,11 @@ TARGETS         = $(LIBNAME) $(DLLNAME)
 
 LIB_OBJS	= Admin.obj \
 		  Locator.obj \
+		  Discovery.obj \
 		  Query.obj \
 		  Exception.obj \
 		  Descriptor.obj \
+		  DiscoveryPluginI.obj \
                   FileParser.obj \
 		  Observer.obj \
 		  Session.obj \
@@ -58,6 +60,7 @@ clean::
 	-del /q FileParser.cpp $(HDIR)\FileParser.h
 	-del /q Admin.cpp $(HDIR)\Admin.h
 	-del /q Descriptor.cpp $(HDIR)\Descriptor.h
+	-del /q Discovery.cpp $(HDIR)\Discovery.h
 	-del /q Exception.cpp $(HDIR)\Exception.h
 	-del /q Locator.cpp $(HDIR)\Locator.h
 	-del /q Observer.cpp $(HDIR)\Observer.h

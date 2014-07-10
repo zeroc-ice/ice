@@ -8,8 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Registry.h>
+#include <IceGrid/IceGrid.h>
 #include <IceUtil/Thread.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -90,7 +89,8 @@ typedef IceUtil::Handle<PingThread> PingThreadPtr;
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
     IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 

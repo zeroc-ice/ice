@@ -4,6 +4,14 @@
 Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 4061 -t 30000
 
 #
+# To use the IceGrid discovery plugin comment out the default locator
+# property above and un-comment the two properties below. The discovery
+# plugin uses multicast to discover IceGrid.
+#
+#Ice.Plugin.IceGridDiscovery=IceGrid:createIceGridDiscovery
+#IceGridDiscovery.InstanceName=DemoIceGrid
+
+#
 # The `currency' context sent to the IceGrid locator. This context is
 # used by the replica group filter from the plugin to filter out
 # replicas. You can set the currency to one of the configured currency

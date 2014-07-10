@@ -9,11 +9,7 @@
 
 #include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/Query.h>
-#include <IceGrid/Session.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Observer.h>
+#include <IceGrid/IceGrid.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -493,8 +489,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     bool encoding10 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
 
-    RegistryPrx registry = RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
-    test(registry);
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
     AdminSessionPrx session = registry->createAdminSession("admin3", "test3");
     session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
@@ -869,11 +865,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-        Ice::ObjectPrx obj = communicator->stringToProxy("IceGrid/Query");
+        Ice::ObjectPrx obj = communicator->stringToProxy("TestIceGrid/Query");
         obj->ice_connectionId("router1")->ice_router(router1)->ice_ping();
         obj->ice_connectionId("router2")->ice_router(router2)->ice_ping();
 
-        obj = communicator->stringToProxy("IceGrid/Registry");
+        obj = communicator->stringToProxy("TestIceGrid/Registry");
         try
         {
             obj->ice_connectionId("router1")->ice_router(router1)->ice_ping();
@@ -935,7 +931,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin1->ice_ping();
         admin2->ice_ping();
 
-        obj = communicator->stringToProxy("IceGrid/Query");
+        obj = communicator->stringToProxy("TestIceGrid/Query");
         obj->ice_connectionId("admRouter1")->ice_router(adminRouter1)->ice_ping();
         obj->ice_connectionId("admRouter2")->ice_router(adminRouter2)->ice_ping();
 
@@ -1035,11 +1031,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-        Ice::ObjectPrx obj = communicator->stringToProxy("IceGrid/Query");
+        Ice::ObjectPrx obj = communicator->stringToProxy("TestIceGrid/Query");
         obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
         obj->ice_connectionId("router21")->ice_router(router2)->ice_ping();
 
-        obj = communicator->stringToProxy("IceGrid/Registry");
+        obj = communicator->stringToProxy("TestIceGrid/Registry");
         try
         {
             obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
@@ -1099,7 +1095,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin1->ice_ping();
         admin2->ice_ping();
 
-        obj = communicator->stringToProxy("IceGrid/Query");
+        obj = communicator->stringToProxy("TestIceGrid/Query");
         obj->ice_connectionId("admRouter11")->ice_router(adminRouter1)->ice_ping();
         obj->ice_connectionId("admRouter21")->ice_router(adminRouter2)->ice_ping();
 
@@ -1903,7 +1899,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(registryObs1->registries.find("Master") != registryObs1->registries.end());
         test(appObs1->applications.empty());
 
-        QueryPrx query = QueryPrx::uncheckedCast(communicator->stringToProxy("IceGrid/Query"));
+        QueryPrx query = QueryPrx::uncheckedCast(communicator->stringToProxy("TestIceGrid/Query"));
         Ice::ObjectProxySeq registries = query->findAllObjectsByType("::IceGrid::Registry");
         const string prefix("Registry-");
         for(Ice::ObjectProxySeq::const_iterator p = registries.begin(); p != registries.end(); ++p)

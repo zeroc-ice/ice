@@ -43,11 +43,11 @@ sys.stdout.flush()
 args = ' --Glacier2.SessionTimeout=5' + \
        ' --Glacier2.Client.Endpoints="default -p 12347"' + \
        ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1"' \
-       ' --Glacier2.SessionManager=IceGrid/AdminSessionManager' + \
+       ' --Glacier2.SessionManager=TestIceGrid/AdminSessionManager' + \
        ' --Glacier2.PermissionsVerifier=Glacier2/NullPermissionsVerifier' + \
-       ' --Glacier2.SSLSessionManager=IceGrid/AdminSSLSessionManager' + \
+       ' --Glacier2.SSLSessionManager=TestIceGrid/AdminSSLSessionManager' + \
        ' --Glacier2.SSLPermissionsVerifier=Glacier2/NullSSLPermissionsVerifier' + \
-       ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
+       ' --Ice.Default.Locator="TestIceGrid/Locator:default -p 12010"' + \
        ' --IceSSL.VerifyPeer=1'
 routerProc = TestUtil.startServer(router, args, count=2)
 print("ok")
@@ -57,7 +57,7 @@ sys.stdout.flush()
 
 # Direct registry connection with username/password
 icegridadmin = TestUtil.getIceGridAdmin()
-args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
+args = ' --Ice.Default.Locator="TestIceGrid/Locator:default -p 12010"' + \
        ' --IceGridAdmin.Username=demo' + \
        ' --IceGridAdmin.Password=dummy'
 admin = TestUtil.startClient(icegridadmin, args, None, None, False)
@@ -86,7 +86,7 @@ if TestUtil.protocol == "ssl":
 
     # Direct registry connection with SSL
     icegridadmin = TestUtil.getIceGridAdmin()
-    args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010" --ssl'
+    args = ' --Ice.Default.Locator="TestIceGrid/Locator:default -p 12010" --ssl'
     admin = TestUtil.startClient(icegridadmin, args, None, None, False)
     admin.expect('>>> ')
     admin.sendline("server list")
@@ -108,7 +108,7 @@ if TestUtil.protocol == "ssl":
 sys.stdout.write("testing commands... ")
 sys.stdout.flush()
 icegridadmin = TestUtil.getIceGridAdmin()
-args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
+args = ' --Ice.Default.Locator="TestIceGrid/Locator:default -p 12010"' + \
        ' --IceGridAdmin.Username=demo' + \
        ' --IceGridAdmin.Password=dummy'
 admin = TestUtil.startClient(icegridadmin, args, None, None, False)

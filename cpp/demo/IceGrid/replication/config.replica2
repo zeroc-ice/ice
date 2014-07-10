@@ -1,7 +1,7 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 12000 -t 10000:default -h localhost -p 12001 -t 10000
+Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000 -t 10000:default -h localhost -p 12001 -t 10000
 
 #
 # IceGrid registry configuration.
@@ -11,8 +11,8 @@ IceGrid.Registry.Server.Endpoints=default -h localhost -t 10000
 IceGrid.Registry.Internal.Endpoints=default -h localhost -t 10000
 IceGrid.Registry.Data=db/replica2
 IceGrid.Registry.ReplicaName=Replica2
-IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
-IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.PermissionsVerifier=ReplicationDemoIceGrid/NullPermissionsVerifier
+IceGrid.Registry.AdminPermissionsVerifier=ReplicationDemoIceGrid/NullPermissionsVerifier
 
 Ice.StdErr=db/replica2/stderr.txt
 Ice.StdOut=db/replica2/stdout.txt

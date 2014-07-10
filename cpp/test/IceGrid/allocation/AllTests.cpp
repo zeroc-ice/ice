@@ -10,9 +10,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Random.h>
 #include <Ice/Ice.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Query.h>
+#include <IceGrid/IceGrid.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -276,7 +274,8 @@ typedef IceUtil::Handle<StressClient> StressClientPtr;
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 

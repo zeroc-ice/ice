@@ -9,9 +9,7 @@
 
 #include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
-#include <IceGrid/Observer.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Registry.h>
+#include <IceGrid/IceGrid.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -153,7 +151,8 @@ updateServiceRuntimeProperties(const AdminPrx& admin, const ServiceDescriptorPtr
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(communicator->stringToProxy("IceGrid/Registry"));
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 

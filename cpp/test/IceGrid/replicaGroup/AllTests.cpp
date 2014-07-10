@@ -9,9 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
-#include <IceGrid/Query.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/Admin.h>
+#include <IceGrid/IceGrid.h>
 #include <IceUtil/Thread.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -105,8 +103,12 @@ removeServer(const AdminPrx& admin, const string& id)
 void
 allTests(const Ice::CommunicatorPtr& comm)
 {
-    RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(comm->stringToProxy("IceGrid/Registry"));
+    IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
+    IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(
+        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Query"));
+    test(query);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
@@ -133,9 +135,6 @@ allTests(const Ice::CommunicatorPtr& comm)
         instantiateServer(admin, "Server", "localnode", params);
         params["id"] = "Server3";
         instantiateServer(admin, "Server", "localnode", params);
-
-        QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
-        test(query);
         
         TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@RoundRobin"));
         Ice::ObjectProxySeq objs = query->findAllReplicas(obj);
@@ -514,9 +513,6 @@ allTests(const Ice::CommunicatorPtr& comm)
             test(false);
         }
 
-        QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
-        test(query);
-
         try
         {
             ctx["server"] = "Server3";
@@ -785,7 +781,6 @@ allTests(const Ice::CommunicatorPtr& comm)
         //
         // Also make sure that findObjectByTypeOnLeastLoadedNode still work.
         //
-        QueryPrx query = IceGrid::QueryPrx::checkedCast(comm->stringToProxy("IceGrid/Query"));
         obj = TestIntfPrx::uncheckedCast(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample1));
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
         

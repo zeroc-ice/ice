@@ -1265,7 +1265,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
         }
 
-        if(_instance.traceLevels().network >= 1)
+        if(_instance.traceLevels().network >= 1 && !endpoints.isEmpty())
         {
             StringBuffer s = new StringBuffer("published endpoints for object adapter `");
             s.append(_name);

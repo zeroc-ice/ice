@@ -120,3 +120,14 @@ WellKnownObjectsManager::getEndpoints(const string& name)
     Lock sync(*this);
     return _endpoints[name];
 }
+
+LocatorPrx
+WellKnownObjectsManager::getLocator()
+{
+    Lock sync(*this);
+    Ice::Identity id;
+    id.name = "Locator";
+    id.category = _database->getInstanceName();
+    Ice::ObjectPrx prx = _database->getReplicaCache().getEndpoints("Client", _endpoints["Client"]);
+    return LocatorPrx::uncheckedCast(prx->ice_identity(id));
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,16 +11,15 @@
 #define PLUGIN_I_H
 
 #include <Ice/Plugin.h>
-#include <IceDiscovery/LookupI.h>
 
-namespace IceDiscovery
+namespace IceGrid
 {
 
-class PluginI : public Ice::Plugin
+class DiscoveryPluginI : public Ice::Plugin
 {
 public:
     
-    PluginI(const Ice::CommunicatorPtr&);
+    DiscoveryPluginI(const Ice::CommunicatorPtr&);
 
     virtual void initialize();
     virtual void destroy();
@@ -28,9 +27,8 @@ public:
 private:
 
     const Ice::CommunicatorPtr _communicator;
-    Ice::ObjectAdapterPtr _multicastAdapter;
-    Ice::ObjectAdapterPtr _replyAdapter;
     Ice::ObjectAdapterPtr _locatorAdapter;
+    Ice::ObjectAdapterPtr _replyAdapter;
 };
 
 };

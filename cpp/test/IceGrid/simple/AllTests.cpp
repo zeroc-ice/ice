@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
-#include <IceGrid/Admin.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/Locator.h>
+#include <Ice/Ice.h>
+#include <IceGrid/IceGrid.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -39,6 +37,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "pinging server... " << flush;
     obj->ice_ping();
+    cout << "ok" << endl;
+
+    cout << "testing discovery... " << flush;
+    {
+        Ice::InitializationData initData;
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Default.Locator", "");
+        initData.properties->setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:createIceGridDiscovery");
+
+        Ice::CommunicatorPtr com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
+        com->stringToProxy("test @ TestAdapter")->ice_ping();
+        com->destroy();
+    }
     cout << "ok" << endl;
 
     cout << "shutting down server... " << flush;
@@ -124,8 +136,9 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-        communicator->stringToProxy("IceGrid/Registry"));
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
+
     IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);

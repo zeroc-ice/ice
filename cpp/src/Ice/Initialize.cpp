@@ -359,6 +359,14 @@ IceInternal::getInstance(const CommunicatorPtr& communicator)
     return p->_instance;
 }
 
+IceUtil::TimerPtr
+IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
+{
+    CommunicatorI* p = dynamic_cast<CommunicatorI*>(communicator.get());
+    assert(p);
+    return p->_instance->timer();
+}
+
 #ifdef ICE_CPP11
 void
 IceInternal::Cpp11Dispatcher::dispatch(const ::Ice::DispatcherCallPtr& call, const ::Ice::ConnectionPtr& conn)

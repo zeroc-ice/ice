@@ -130,6 +130,7 @@ namespace IceInternal
 // to be used by modules such as Freeze.
 //
 ICE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
+ICE_API IceUtil::TimerPtr getInstanceTimer(const ::Ice::CommunicatorPtr&);
 
 }
 

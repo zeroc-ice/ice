@@ -11,6 +11,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
+#include <Ice/Initialize.h>
 
 #include <IceDiscovery/LookupI.h>
 
@@ -105,7 +106,7 @@ LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, c
     _retryCount(properties->getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3)),
     _latencyMultiplier(properties->getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1)),
     _domainId(properties->getProperty("IceDiscovery.DomainId")),
-    _timer(new IceUtil::Timer())
+    _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator()))
 {
 }
 

@@ -1,7 +1,15 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -h localhost -p 12000:default -h localhost -p 12001:default -h localhost -p 12002
+Ice.Default.Locator=ReplicationDemoIceGrid/Locator:default -h localhost -p 12000:default -h localhost -p 12001:default -h localhost -p 12002
+
+#
+# To use the IceGrid discovery plugin comment out the default locator
+# property above and un-comment the two properties below. The discovery
+# plugin uses multicast to discover IceGrid.
+#
+#Ice.Plugin.IceGridDiscovery=IceGrid:createIceGridDiscovery
+#IceGridDiscovery.InstanceName=ReplicationDemoIceGrid
 
 Ice.Override.Timeout=10000
 

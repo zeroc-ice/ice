@@ -113,8 +113,7 @@ public class PluginI implements Ice.Plugin
         // Setup locator on the communicator.
         //
         Ice.ObjectPrx locator = _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
-        _communicator.setDefaultLocator(
-            Ice.LocatorPrxHelper.uncheckedCast(_communicator.stringToProxy(locator.toString())));
+        _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
     
         _multicastAdapter.activate();
         _replyAdapter.activate();

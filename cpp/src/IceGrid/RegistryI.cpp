@@ -21,7 +21,7 @@
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/ReapThread.h>
-
+#include <IceGrid/Discovery.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/LocatorI.h>
 #include <IceGrid/LocatorRegistryI.h>
@@ -139,11 +139,46 @@ private:
     ObjectPtr _servant;
 };
 
+class LookupI : public IceGrid::Lookup
+{
+public:
+    
+    LookupI(const std::string& instanceName, const WellKnownObjectsManagerPtr& wellKnownObjects) : 
+        _instanceName(instanceName), _wellKnownObjects(wellKnownObjects)
+    {
+    }
+    
+    virtual void
+    findLocator(const string& instanceName, const LookupReplyPrx& reply, const Ice::Current&)
+    {
+        if(!instanceName.empty() && instanceName != _instanceName)
+        {
+            return; // Ignore.
+        }
+
+        if(reply)
+        {
+            reply->begin_foundLocator(_wellKnownObjects->getLocator());
+        }
+    }
+
+    virtual IceGrid::LocatorPrx
+    getLocator(const Ice::Current&)
+    {
+        return _wellKnownObjects->getLocator();
+    }
+
+private:
+
+    const string _instanceName;
+    const WellKnownObjectsManagerPtr _wellKnownObjects;
+};
+
 }
 
-RegistryI::RegistryI(const CommunicatorPtr& communicator, 
-                     const TraceLevelsPtr& traceLevels, 
-                     bool nowarn, 
+RegistryI::RegistryI(const CommunicatorPtr& communicator,
+                     const TraceLevelsPtr& traceLevels,
+                     bool nowarn,
                      bool readonly,
                      const string& initFromReplica) : 
     _communicator(communicator),
@@ -550,10 +585,68 @@ RegistryI::startImpl()
     }
 
     //
+    // Setup the lookup servant and add it to the client adapter.
+    //
+    Ice::Identity id = _communicator->stringToIdentity("IceGridDiscovery/Lookup");
+    Ice::ObjectPtr lookup = new LookupI(_instanceName, _wellKnownObjects);
+    _clientAdapter->add(lookup, id);
+
+    //
+    // Setup the discovery object adapter and also add it the lookup
+    // servant to receive multicast lookup queries.
+    //
+    Ice::ObjectAdapterPtr discoveryAdapter;
+    if(properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Enabled", 1) > 0)
+    {
+        bool ipv4 = properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+        string address;
+        if(ipv4)
+        {
+            address = properties->getPropertyWithDefault("IceGrid.Registry.Discovery.Address", "239.255.0.1");
+        }
+        else
+        {
+            address = properties->getPropertyWithDefault("IceGrid.Registry.Discovery.Address", "ff15::1");
+        }
+        int port = properties->getPropertyAsIntWithDefault("IceGrid.Registry.Discovery.Port", 4061);
+        string interface = properties->getProperty("IceGrid.Registry.Discovery.Interface");
+        if(properties->getProperty("IceGrid.Registry.Discovery.Endpoints").empty())
+        {
+            ostringstream os;
+            os << "udp -h \"" << address << "\" -p " << port;
+            if(!interface.empty())
+            {
+                os << " --interface \"" << interface << "\"";
+            }
+            properties->setProperty("IceGrid.Registry.Discovery.Endpoints", os.str());
+        }
+
+        try
+        {
+            discoveryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Discovery");
+            discoveryAdapter->add(lookup, id);
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            if(!_nowarn)
+            {
+                Warning out(_communicator->getLogger());
+                out << "failed to join the multicast group for IceGrid discovery:\n";
+                out << "endpoints = " << properties->getProperty("IceGrid.Registry.Discovery.Endpoints") << "\n";
+                out << ex;
+            }
+        }
+    }
+    
+    //
     // We are ready to go!
     //
     _serverAdapter->activate();
     _clientAdapter->activate();
+    if(discoveryAdapter)
+    {
+        discoveryAdapter->activate();
+    }
   
     if(sessionAdpt)
     {

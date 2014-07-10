@@ -138,7 +138,7 @@ public class AllTests
         Console.Out.WriteLine("ok");    
 
         IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
-            communicator.stringToProxy("IceGrid/Registry"));
+            communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
         test(registry != null);
         IceGrid.AdminSessionPrx session = null;
         try

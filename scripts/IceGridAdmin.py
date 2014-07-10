@@ -14,12 +14,13 @@ from threading import Thread
 #
 # Set nreplicas to a number N to test replication with N replicas.
 #
-#nreplicas=0
-nreplicas=1
+nreplicas=0
+#nreplicas=1
 
 iceGridPort = 12010;
 
 nodeOptions = r' --Ice.Warn.Connections=0' + \
+              r' --IceGrid.InstanceName=TestIceGrid' + \
               r' --IceGrid.Node.Endpoints=default' + \
               r' --IceGrid.Node.WaitTime=240' + \
               r' --Ice.ProgramName=icegridnode' + \
@@ -34,10 +35,11 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --Ice.ServerIdleTime=0'
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
-                  r' --IceGrid.Registry.PermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
-                  r' --IceGrid.Registry.AdminPermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
-                  r' --IceGrid.Registry.SSLPermissionsVerifier=IceGrid/NullSSLPermissionsVerifier' + \
-                  r' --IceGrid.Registry.AdminSSLPermissionsVerifier=IceGrid/NullSSLPermissionsVerifier' + \
+                  r' --IceGrid.InstanceName=TestIceGrid' + \
+                  r' --IceGrid.Registry.PermissionsVerifier=TestIceGrid/NullPermissionsVerifier' + \
+                  r' --IceGrid.Registry.AdminPermissionsVerifier=TestIceGrid/NullPermissionsVerifier' + \
+                  r' --IceGrid.Registry.SSLPermissionsVerifier=TestIceGrid/NullSSLPermissionsVerifier' + \
+                  r' --IceGrid.Registry.AdminSSLPermissionsVerifier=TestIceGrid/NullSSLPermissionsVerifier' + \
                   r' --IceGrid.Registry.Server.Endpoints=default' + \
                   r' --IceGrid.Registry.Internal.Endpoints=default' + \
                   r' --IceGrid.Registry.SessionManager.Endpoints=default' + \
@@ -60,7 +62,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
 def getDefaultLocatorProperty():
 
    i = 0
-   property = '--Ice.Default.Locator="IceGrid/Locator';
+   property = '--Ice.Default.Locator="TestIceGrid/Locator';
    objrefs = ""
    while i < nreplicas + 1:
        objrefs = objrefs + ':default -p ' + str(iceGridPort + i)

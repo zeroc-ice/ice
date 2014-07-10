@@ -125,8 +125,7 @@ namespace IceDiscovery
             Ice.ObjectPrx loc;
             loc = _locatorAdapter.addWithUUID(
                 new LocatorI(lookup, Ice.LocatorRegistryPrxHelper.uncheckedCast(locatorRegistryPrx)));
-            _communicator.setDefaultLocator(
-                Ice.LocatorPrxHelper.uncheckedCast(_communicator.stringToProxy(loc.ToString())));
+            _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(loc));
     
             _multicastAdapter.activate();
             _replyAdapter.activate();

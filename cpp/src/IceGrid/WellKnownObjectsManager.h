@@ -11,6 +11,7 @@
 #define ICE_GRID_WELL_KNOWN_OBJECTS_MANAGER_H
 
 #include <IceGrid/Internal.h>
+#include <IceGrid/Locator.h>
 
 namespace IceGrid
 {
@@ -33,6 +34,8 @@ public:
     void updateReplicatedWellKnownObjects();
 
     Ice::ObjectPrx getEndpoints(const std::string&);
+    
+    LocatorPrx getLocator();
     
 private:
 

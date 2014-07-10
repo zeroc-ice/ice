@@ -1256,7 +1256,7 @@ ObjectAdapterI::parsePublishedEndpoints()
         }
     }
 
-    if(_instance->traceLevels()->network >= 1)
+    if(_instance->traceLevels()->network >= 1 && !endpoints.empty())
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
         out << "published endpoints for object adapter `" << getName() << "':\n";

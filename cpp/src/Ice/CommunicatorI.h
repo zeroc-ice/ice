@@ -96,6 +96,7 @@ private:
     friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, Int);
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
+    friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
 
     AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
