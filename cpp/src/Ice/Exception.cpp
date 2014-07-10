@@ -323,6 +323,14 @@ Ice::IllegalIdentityException::ice_print(ostream& out) const
     out << "'";
 }
 
+void
+Ice::IllegalServantException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nillegal servant: `" << reason << "'";
+}
+
+
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {

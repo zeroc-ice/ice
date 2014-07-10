@@ -52,6 +52,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
         checkIdentity(ident);
+        checkServant(servant);
 
         if(facet == null)
         {

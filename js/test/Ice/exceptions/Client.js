@@ -177,6 +177,25 @@
                         {
                             test(ex instanceof Ice.AlreadyRegisteredException);
                         }
+                        try
+                        {
+                            adapter.add(obj, communicator.stringToIdentity(""));
+                            test(false);
+                        }
+                        catch(ex)
+                        {
+                            test(ex instanceof Ice.IllegalIdentityException);
+                            test(ex.id.name == "");
+                        }
+                        try
+                        {
+                            adapter.add(null, communicator.stringToIdentity("x"));
+                            test(false);
+                        }
+                        catch(ex)
+                        {
+                            test(ex instanceof Ice.IllegalServantException);
+                        }
 
                         adapter.remove(communicator.stringToIdentity("x"));
                         try

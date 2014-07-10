@@ -137,6 +137,7 @@ ObjectPrx
 Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
+    checkServant(servant);
     DeactivateController::Guard deactivateGuard(_deactivateController);
    
     ObjectStore<TransactionalEvictorElement>* store = findStore(facet, _createDb);

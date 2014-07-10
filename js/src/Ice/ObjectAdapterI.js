@@ -313,6 +313,7 @@
         {
             this.checkForDeactivation();
             this.checkIdentity(ident);
+            this.checkServant(object);
 
             //
             // Create a copy of the Identity argument, in case the caller
@@ -334,6 +335,7 @@
         },
         addDefaultServant: function(servant, category)
         {
+            this.checkServant(servant);
             this.checkForDeactivation();
 
             this._servantManager.addDefaultServant(servant, category);
@@ -493,14 +495,19 @@
         {
             if(ident.name === undefined || ident.name === null || ident.name.length === 0)
             {
-                var e = new Ice.IllegalIdentityException();
-                e.id = ident.clone();
-                throw e;
+                throw new Ice.IllegalIdentityException(ident);
             }
 
             if(ident.category === undefined || ident.category === null)
             {
                 ident.category = "";
+            }
+        },
+        checkServant: function(servant)
+        {
+            if(servant === undefined || servant === null)
+            {
+                throw new Ice.IllegalServantException("cannot add null servant to Object Adapter");
             }
         },
         filterProperties: function(unknownProps)

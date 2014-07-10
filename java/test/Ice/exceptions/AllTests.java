@@ -1431,6 +1431,24 @@ public class AllTests
             {
             }
 
+            try
+            {
+                adapter.add(obj, communicator.stringToIdentity(""));
+                test(false);
+            }
+            catch(Ice.IllegalIdentityException ex)
+            {
+                test(ex.id.name.equals(""));
+            } 
+            try
+            {
+                adapter.add(null, communicator.stringToIdentity("x"));
+                test(false);
+            }
+            catch(Ice.IllegalServantException ex)
+            {
+            }
+            
             adapter.remove(communicator.stringToIdentity("x"));
             try
             {

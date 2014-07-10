@@ -423,6 +423,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         checkForDeactivation();
         checkIdentity(ident);
+        checkServant(object);
 
         //
         // Create a copy of the Identity argument, in case the caller
@@ -456,6 +457,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     addDefaultServant(Ice.Object servant, String category)
     {
+        checkServant(servant);
         checkForDeactivation();
 
         _servantManager.addDefaultServant(servant, category);
@@ -1150,14 +1152,21 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         if(ident.name == null || ident.name.length() == 0)
         {
-            IllegalIdentityException e = new IllegalIdentityException();
-            e.id = (Identity)ident.clone();
-            throw e;
+            throw new IllegalIdentityException(ident);
         }
 
         if(ident.category == null)
         {
             ident.category = "";
+        }
+    }
+
+    private static void
+    checkServant(Ice.Object servant)
+    {
+        if(servant == null)
+        {
+            throw new IllegalServantException("cannot add null servant to Object Adapter");
         }
     }
 

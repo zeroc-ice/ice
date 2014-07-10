@@ -198,6 +198,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
         checkIdentity(ident);
+        checkServant(servant);
 
         if(facet == null)
         {

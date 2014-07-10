@@ -1024,6 +1024,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
+        try
+        {
+            adapter->add(obj, communicator->stringToIdentity(""));
+        }
+        catch(const Ice::IllegalIdentityException& ex)
+        {
+            test(ex.id.name == "");
+        }
+        
+        try
+        {
+            adapter->add(0, communicator->stringToIdentity("x"));
+        }
+        catch(const Ice::IllegalServantException&)
+        {
+        }
+
+
         adapter->remove(communicator->stringToIdentity("x"));
         try
         {

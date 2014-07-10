@@ -403,6 +403,24 @@ local exception IllegalIdentityException
 
 /**
  *
+ * This exception is raised to reject an illegal servant (typically
+ * a null servant)
+ *
+ **/
+["cpp:ice_print"]
+local exception IllegalServantException
+{
+    /**
+     *
+     * Describes why this servant is illegal.
+     *
+     **/
+    string reason;
+};
+
+
+/**
+ *
  * This exception is raised if a request failed. This exception, and
  * all exceptions derived from {@link RequestFailedException}, are
  * transmitted by the Ice protocol, even though they are declared

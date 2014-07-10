@@ -111,7 +111,6 @@ private:
     ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
     ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
-    static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
     std::vector<IceInternal::EndpointIPtr> parsePublishedEndpoints();
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);

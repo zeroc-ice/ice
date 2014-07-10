@@ -1036,6 +1036,25 @@ public class AllTests : TestCommon.TestApp
             {
             }
 
+            try
+            {
+                adapter.add(obj, communicator.stringToIdentity(""));
+                test(false);
+            }
+            catch(Ice.IllegalIdentityException e)
+            {
+                test(e.id.name.Equals(""));
+            }
+
+            try
+            {
+                adapter.add(null, communicator.stringToIdentity("x"));
+                test(false);
+            }
+            catch(Ice.IllegalServantException)
+            {
+            }
+
             adapter.remove(communicator.stringToIdentity("x"));
             try
             {

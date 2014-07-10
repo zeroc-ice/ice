@@ -275,8 +275,6 @@ Freeze::EvictorIBase::locate(const Current& current, LocalObjectPtr& cookie)
 }
 
 
-
-
 void 
 Freeze::EvictorIBase::initialize(const Identity& ident, const string& facet, const ObjectPtr& servant)
 {

@@ -342,6 +342,15 @@ checkIdentity(const Ice::Identity& ident)
     }
 }
 
+inline void
+checkServant(const Ice::ObjectPtr& servant)
+{
+    if(servant == 0)
+    {
+        throw Ice::IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Freeze Evictor");
+    }
+}
+
 }
 
 #endif

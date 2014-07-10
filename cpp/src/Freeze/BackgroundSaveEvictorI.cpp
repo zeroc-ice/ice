@@ -233,6 +233,7 @@ Ice::ObjectPrx
 Freeze::BackgroundSaveEvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
+    checkServant(servant);
     DeactivateController::Guard deactivateGuard(_deactivateController);
    
     ObjectStore<BackgroundSaveEvictorElement>* store = findStore(facet, _createDb);

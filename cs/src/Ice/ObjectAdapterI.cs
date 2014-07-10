@@ -459,6 +459,7 @@ namespace Ice
             {
                 checkForDeactivation();
                 checkIdentity(ident);
+                checkServant(obj);
 
                 //
                 // Create a copy of the Identity argument, in case the caller
@@ -494,6 +495,8 @@ namespace Ice
 
         public void addDefaultServant(Ice.Object servant, string category)
         {
+            checkServant(servant);
+
             _m.Lock();
             try
             {
@@ -1346,14 +1349,19 @@ namespace Ice
         {
             if(ident.name == null || ident.name.Length == 0)
             {
-                IllegalIdentityException e = new IllegalIdentityException();
-                e.id.name = ident.name;
-                e.id.category = ident.category;
-                throw e;
+                throw new IllegalIdentityException(ident);
             }       
             if(ident.category == null)
             {
                 ident.category = "";
+            }
+        }
+
+        private static void checkServant(Ice.Object servant)
+        {
+            if(servant == null)
+            {
+                throw new IllegalServantException("cannot add null servant to Object Adapter");
             }
         }
 

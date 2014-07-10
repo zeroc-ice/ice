@@ -44,6 +44,25 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+inline void checkIdentity(const Identity& ident)
+{
+    if(ident.name.size() == 0)
+    {
+        throw IllegalIdentityException(__FILE__, __LINE__, ident);
+    }
+}
+
+inline void checkServant(const ObjectPtr& servant)
+{
+    if(servant == 0)
+    {
+        throw IllegalServantException(__FILE__, __LINE__, "cannot add null servant to Object Adapter");
+    }
+}
+}
+
 string
 Ice::ObjectAdapterI::getName() const
 {
@@ -428,6 +447,7 @@ Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, co
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
+    checkServant(object);
     checkIdentity(ident);
 
     _servantManager->addServant(object, ident, facet);
@@ -452,10 +472,11 @@ Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& fac
 void
 Ice::ObjectAdapterI::addDefaultServant(const ObjectPtr& servant, const string& category)
 {
+    checkServant(servant);
+
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
-
     _servantManager->addDefaultServant(servant, category);
 }
 
@@ -1137,17 +1158,6 @@ Ice::ObjectAdapterI::checkForDeactivation() const
         ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
         ex.name = getName();
         throw ex;
-    }
-}
-
-void
-Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
-{
-    if(ident.name.size() == 0)
-    {
-        IllegalIdentityException e(__FILE__, __LINE__);
-        e.id = ident;
-        throw e;
     }
 }
 

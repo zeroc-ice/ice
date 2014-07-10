@@ -561,9 +561,16 @@ abstract class EvictorI implements Evictor
     {
         if(ident.name == null || ident.name.length() == 0)
         {
-            Ice.IllegalIdentityException e = new Ice.IllegalIdentityException();
-            e.id = ident;
-            throw e;
+            throw new Ice.IllegalIdentityException(ident);
+        }
+    }
+
+    static void
+    checkServant(Ice.Object servant)
+    {
+        if(servant == null)
+        {
+            throw new Ice.IllegalServantException("cannot add null servant to Freeze Evictor");
         }
     }
 
