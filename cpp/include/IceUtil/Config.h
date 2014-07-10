@@ -50,23 +50,17 @@
 //
 // Check for C++ 11 support
 // 
-// We cannot just check for C++11 mode as some features were not 
-// implemented in first versions of the compilers.
+// For GCC, we recognize --std=c++0x only for GCC version 4.5 and greater,
+// as C++11 support in prior releases was too limited.
 //
-// The require compiler version should be equal or greater than
-// VC100, G++ 4.5, Clang Apple 4.2 or Clang 3.2 (Unsupported).
-//
-#if (defined(__GNUC__) && (((__GNUC__* 100) + __GNUC_MINOR__) >= 405) && defined(__GXX_EXPERIMENTAL_CXX0X__)) || \
-    (defined(__clang__) && \
-      ((defined(__apple_build_version__) && (((__clang_major__ * 100) + __clang_minor__) >= 402)) || \
-       (!defined(__apple_build_version__) && (((__clang_major__ * 100) + __clang_minor__) >= 302))) && \
-      __cplusplus >= 201103) || \
+#if (__cplusplus >= 201103) || \
+    ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1600))
 #   define ICE_CPP11
 #endif
 
-#if defined(ICE_CPP11) && !defined(_MSC_VER)
 
+#if defined(ICE_CPP11) && !defined(_MSC_VER)
 // Visual Studio does not support noexcept yet
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
@@ -117,6 +111,9 @@
     (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
+//
+//  ICE_HAS_DECLSPEC_IMPORT_EXPORT defined only for compilers with distinct
+//  declspec for IMPORT and EXPORT
 #   define ICE_HAS_DECLSPEC_IMPORT_EXPORT
 #elif defined(__GNUC__)
 #   define ICE_DECLSPEC_EXPORT __attribute__((visibility ("default")))
