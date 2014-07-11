@@ -21,23 +21,6 @@ public class Client
 {
     public class App : Ice.Application
     {
-        public void success()
-        {
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            if(ex is RequestCanceledException)
-            {
-                Console.Error.WriteLine("RequestCanceledException");
-            }
-            else
-            {
-                Console.Error.WriteLine("sayHello AMI call failed:");
-                Console.Error.WriteLine(ex);
-            }
-        }
-
         private static void menu()
         {
             Console.Out.WriteLine(
@@ -84,7 +67,20 @@ public class Client
                     }
                     else if(line.Equals("d"))
                     {
-                        hello.begin_sayHello(5000).whenCompleted(success, exception);
+                        hello.begin_sayHello(5000).whenCompleted(
+                            () => { },
+                            (Ice.Exception ex) =>
+                            {
+                                if(ex is RequestCanceledException)
+                                {
+                                    Console.Error.WriteLine("RequestCanceledException");
+                                }
+                                else
+                                {
+                                    Console.Error.WriteLine("sayHello AMI call failed:");
+                                    Console.Error.WriteLine(ex);
+                                }
+                            });
                     }
                     else if(line.Equals("s"))
                     {

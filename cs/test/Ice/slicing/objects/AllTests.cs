@@ -63,445 +63,6 @@ public class AllTests : TestCommon.TestApp
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
-    private class AsyncCallback
-    {
-        public void response_SBaseAsObject(Ice.Object o)
-        {
-            AllTests.test(o != null);
-            AllTests.test(o.ice_id().Equals("::Test::SBase"));
-            SBase sb = (SBase) o;
-            AllTests.test(sb != null);
-            AllTests.test(sb.sb.Equals("SBase.sb"));
-            callback.called();
-        }
-
-        public void response_SBaseAsSBase(SBase sb)
-        {
-            AllTests.test(sb.sb.Equals("SBase.sb"));
-            callback.called();
-        }
-
-        public void response_SBSKnownDerivedAsSBase(SBase sb)
-        {
-            AllTests.test(sb.sb.Equals("SBSKnownDerived.sb"));
-            SBSKnownDerived sbskd = (SBSKnownDerived) sb;
-            AllTests.test(sbskd != null);
-            AllTests.test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
-            callback.called();
-        }
-
-        public void response_SBSKnownDerivedAsSBSKnownDerived(SBSKnownDerived sbskd)
-        {
-            AllTests.test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
-            callback.called();
-        }
-
-        public void response_SBSUnknownDerivedAsSBase(SBase sb)
-        {
-            AllTests.test(sb.sb.Equals("SBSUnknownDerived.sb"));
-            callback.called();
-        }
-
-        public void response_SBSUnknownDerivedAsSBaseCompact(SBase sb)
-        {
-            AllTests.test(false);
-        }
-
-        public void exception_SBSUnknownDerivedAsSBaseCompact(Ice.Exception ex)
-        {
-            AllTests.test(ex is Ice.NoObjectFactoryException);
-            callback.called();
-        }
-
-        public void response_SUnknownAsObject1(Ice.Object o)
-        {
-            AllTests.test(false);
-        }
-
-        public void exception_SUnknownAsObject1(Ice.Exception exc)
-        {
-            AllTests.test(exc.GetType().FullName.Equals("Ice.NoObjectFactoryException"));
-            callback.called();
-        }
-
-        public void response_SUnknownAsObject2(Ice.Object o)
-        {
-            AllTests.test(o is Ice.UnknownSlicedObject);
-            AllTests.test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
-            callback.called();
-        }
-
-        public void exception_SUnknownAsObject2(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-
-        public void response_oneElementCycle(B b)
-        {
-            AllTests.test(b != null);
-            AllTests.test(b.ice_id().Equals("::Test::B"));
-            AllTests.test(b.sb.Equals("B1.sb"));
-            AllTests.test(b.pb == b);
-            callback.called();
-        }
-
-        public void response_twoElementCycle(B b1)
-        {
-            AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::Test::B"));
-            AllTests.test(b1.sb.Equals("B1.sb"));
-
-            B b2 = b1.pb;
-            AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::Test::B"));
-            AllTests.test(b2.sb.Equals("B2.sb"));
-            AllTests.test(b2.pb == b1);
-            callback.called();
-        }
-
-        public void response_D1AsB(B b1)
-        {
-            AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::Test::D1"));
-            AllTests.test(b1.sb.Equals("D1.sb"));
-            AllTests.test(b1.pb != null);
-            AllTests.test(b1.pb != b1);
-            D1 d1 = (D1) b1;
-            AllTests.test(d1 != null);
-            AllTests.test(d1.sd1.Equals("D1.sd1"));
-            AllTests.test(d1.pd1 != null);
-            AllTests.test(d1.pd1 != b1);
-            AllTests.test(b1.pb == d1.pd1);
-
-            B b2 = b1.pb;
-            AllTests.test(b2 != null);
-            AllTests.test(b2.pb == b1);
-            AllTests.test(b2.sb.Equals("D2.sb"));
-            AllTests.test(b2.ice_id().Equals("::Test::B"));
-            callback.called();
-        }
-
-        public void response_D1AsD1(D1 d1)
-        {
-            AllTests.test(d1 != null);
-            AllTests.test(d1.ice_id().Equals("::Test::D1"));
-            AllTests.test(d1.sb.Equals("D1.sb"));
-            AllTests.test(d1.pb != null);
-            AllTests.test(d1.pb != d1);
-
-            B b2 = d1.pb;
-            AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::Test::B"));
-            AllTests.test(b2.sb.Equals("D2.sb"));
-            AllTests.test(b2.pb == d1);
-            callback.called();
-        }
-
-        public void response_D2AsB(B b2)
-        {
-            AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::Test::B"));
-            AllTests.test(b2.sb.Equals("D2.sb"));
-            AllTests.test(b2.pb != null);
-            AllTests.test(b2.pb != b2);
-
-            B b1 = b2.pb;
-            AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::Test::D1"));
-            AllTests.test(b1.sb.Equals("D1.sb"));
-            AllTests.test(b1.pb == b2);
-            D1 d1 = (D1) b1;
-            AllTests.test(d1 != null);
-            AllTests.test(d1.sd1.Equals("D1.sd1"));
-            AllTests.test(d1.pd1 == b2);
-            callback.called();
-        }
-
-        public void response_paramTest1(B b1, B b2)
-        {
-            AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::Test::D1"));
-            AllTests.test(b1.sb.Equals("D1.sb"));
-            AllTests.test(b1.pb == b2);
-            D1 d1 = (D1) b1;
-            AllTests.test(d1 != null);
-            AllTests.test(d1.sd1.Equals("D1.sd1"));
-            AllTests.test(d1.pd1 == b2);
-
-            AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
-            AllTests.test(b2.sb.Equals("D2.sb"));
-            AllTests.test(b2.pb == b1);
-            callback.called();
-        }
-
-        public void response_paramTest2(B b2, B b1)
-        {
-            AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::Test::D1"));
-            AllTests.test(b1.sb.Equals("D1.sb"));
-            AllTests.test(b1.pb == b2);
-            D1 d1 = (D1) b1;
-            AllTests.test(d1 != null);
-            AllTests.test(d1.sd1.Equals("D1.sd1"));
-            AllTests.test(d1.pd1 == b2);
-
-            AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
-            AllTests.test(b2.sb.Equals("D2.sb"));
-            AllTests.test(b2.pb == b1);
-            callback.called();
-        }
-
-        public void response_returnTest1(B r, B p1, B p2)
-        {
-            AllTests.test(r == p1);
-            callback.called();
-        }
-
-        public void response_returnTest2(B r, B p1, B p2)
-        {
-            AllTests.test(r == p1);
-            callback.called();
-        }
-
-        public void response_returnTest3(B b)
-        {
-            rb = b;
-            callback.called();
-        }
-
-        public void response_paramTest3(B ret, B p1, B p2)
-        {
-            AllTests.test(p1 != null);
-            AllTests.test(p1.sb.Equals("D2.sb (p1 1)"));
-            AllTests.test(p1.pb == null);
-            AllTests.test(p1.ice_id().Equals("::Test::B"));
-
-            AllTests.test(p2 != null);
-            AllTests.test(p2.sb.Equals("D2.sb (p2 1)"));
-            AllTests.test(p2.pb == null);
-            AllTests.test(p2.ice_id().Equals("::Test::B"));
-
-            AllTests.test(ret != null);
-            AllTests.test(ret.sb.Equals("D1.sb (p2 2)"));
-            AllTests.test(ret.pb == null);
-            AllTests.test(ret.ice_id().Equals("::Test::D1"));
-            callback.called();
-        }
-
-        public void response_paramTest4(B ret, B b)
-        {
-            AllTests.test(b != null);
-            AllTests.test(b.sb.Equals("D4.sb (1)"));
-            AllTests.test(b.pb == null);
-            AllTests.test(b.ice_id().Equals("::Test::B"));
-
-            AllTests.test(ret != null);
-            AllTests.test(ret.sb.Equals("B.sb (2)"));
-            AllTests.test(ret.pb == null);
-            AllTests.test(ret.ice_id().Equals("::Test::B"));
-            callback.called();
-        }
-
-        public void response_sequenceTest(SS3 ss)
-        {
-            rss = ss;
-            callback.called();
-        }
-
-        public void response_dictionaryTest(Dictionary<int, B> r, Dictionary<int, B> bout)
-        {
-            this.rbdict = (Dictionary<int, B>)r;
-            this.obdict = (Dictionary<int, B>)bout;
-            callback.called();
-        }
-
-        public void exception_throwBaseAsBase(Ice.Exception exc)
-        {
-            try
-            {
-                BaseException e = (BaseException)exc;
-                AllTests.test(e.sbe.Equals("sbe"));
-                AllTests.test(e.pb != null);
-                AllTests.test(e.pb.sb.Equals("sb"));
-                AllTests.test(e.pb.pb == e.pb);
-            }
-            catch(Exception)
-            {
-                AllTests.test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_throwDerivedAsBase(Ice.Exception exc)
-        {
-            try
-            {
-                DerivedException e = (DerivedException)exc;
-                AllTests.test(e.sbe.Equals("sbe"));
-                AllTests.test(e.pb != null);
-                AllTests.test(e.pb.sb.Equals("sb1"));
-                AllTests.test(e.pb.pb == e.pb);
-                AllTests.test(e.sde.Equals("sde1"));
-                AllTests.test(e.pd1 != null);
-                AllTests.test(e.pd1.sb.Equals("sb2"));
-                AllTests.test(e.pd1.pb == e.pd1);
-                AllTests.test(e.pd1.sd1.Equals("sd2"));
-                AllTests.test(e.pd1.pd1 == e.pd1);
-            }
-            catch(Exception)
-            {
-                AllTests.test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_throwDerivedAsDerived(Ice.Exception exc)
-        {
-            try
-            {
-                DerivedException e = (DerivedException)exc;
-                AllTests.test(e.sbe.Equals("sbe"));
-                AllTests.test(e.pb != null);
-                AllTests.test(e.pb.sb.Equals("sb1"));
-                AllTests.test(e.pb.pb == e.pb);
-                AllTests.test(e.sde.Equals("sde1"));
-                AllTests.test(e.pd1 != null);
-                AllTests.test(e.pd1.sb.Equals("sb2"));
-                AllTests.test(e.pd1.pb == e.pd1);
-                AllTests.test(e.pd1.sd1.Equals("sd2"));
-                AllTests.test(e.pd1.pd1 == e.pd1);
-            }
-            catch(Exception)
-            {
-                AllTests.test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_throwUnknownDerivedAsBase(Ice.Exception exc)
-        {
-            try
-            {
-                BaseException e = (BaseException)exc;
-                AllTests.test(e.sbe.Equals("sbe"));
-                AllTests.test(e.pb != null);
-                AllTests.test(e.pb.sb.Equals("sb d2"));
-                AllTests.test(e.pb.pb == e.pb);
-            }
-            catch(Exception)
-            {
-                AllTests.test(false);
-            }
-            callback.called();
-        }
-
-        public void response_useForward(Forward f)
-        {
-            AllTests.test(f != null);
-            callback.called();
-        }
-
-        public void response_exchangePBase1(PBase r)
-        {
-            PDerived p2 = (PDerived)r;
-            AllTests.test(p2.pi == 3);
-            AllTests.test(p2.ps.Equals("preserved"));
-            AllTests.test(p2.pb == p2);
-            callback.called();
-        }
-
-        public void response_exchangePBase2(PBase r)
-        {
-            AllTests.test(!(r is PCUnknown));
-            AllTests.test(r.pi == 3);
-            callback.called();
-        }
-
-        public void response_exchangePBase3(PBase r)
-        {
-            AllTests.test(!(r is PCDerived));
-            AllTests.test(r.pi == 3);
-            callback.called();
-        }
-
-        public void response_exchangePBase4(PBase r)
-        {
-            PCDerived p2 = r as PCDerived;
-            AllTests.test(p2.pi == 3);
-            AllTests.test(p2.pbs[0] == p2);
-            callback.called();
-        }
-
-        public void response_exchangePBaseCompact1(PBase r)
-        {
-            AllTests.test(!(r is CompactPCDerived));
-            AllTests.test(r.pi == 3);
-            callback.called();
-        }
-
-        public void response_exchangePBaseCompact2(PBase r)
-        {
-            CompactPCDerived p2 = r as CompactPCDerived;
-            AllTests.test(p2.pi == 3);
-            AllTests.test(p2.pbs[0] == p2);
-            callback.called();
-        }
-
-        public void response_exchangePBase5(PBase r)
-        {
-            AllTests.test(!(r is PCDerived3));
-            AllTests.test(r is Preserved);
-            AllTests.test(r.pi == 3);
-            callback.called();
-        }
-
-        public void response_exchangePBase6(PBase r)
-        {
-            PCDerived3 p3 = r as PCDerived3;
-            AllTests.test(p3.pi == 3);
-            for(int i = 0; i < 300; ++i)
-            {
-                PCDerived2 p2 = p3.pbs[i] as PCDerived2;
-                test(p2.pi == i);
-                test(p2.pbs.Length == 1);
-                test(p2.pbs[0] == null);
-                test(p2.pcd2 == i);
-            }
-            test(p3.pcd2 == p3.pi);
-            test(p3.pcd3 == p3.pbs[10]);
-            callback.called();
-        }
-
-        public void response()
-        {
-            AllTests.test(false);
-        }
-
-        public void exception(Ice.Exception exc)
-        {
-            if(exc is Ice.OperationNotExistException)
-            {
-                callback.called();
-                return;
-            }
-            AllTests.test(false);
-        }
-
-        public virtual void check()
-        {
-            callback.check();
-        }
-
-        public B rb;
-        public SS3 rss;
-        public Dictionary<int, B> rbdict;
-        public Dictionary<int, B> obdict;
-
-        private Callback callback = new Callback();
-    }
-
     private class PNodeI : PNode
     {
         public PNodeI()
@@ -606,8 +167,21 @@ public class AllTests : TestCommon.TestApp
         Write("base as Object (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_SBaseAsObject().whenCompleted(cb.response_SBaseAsObject, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_SBaseAsObject().whenCompleted(
+                (Ice.Object o) =>
+                {
+                    test(o != null);
+                    test(o.ice_id().Equals("::Test::SBase"));
+                    SBase sb = (SBase) o;
+                    test(sb != null);
+                    test(sb.sb.Equals("SBase.sb"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -631,8 +205,17 @@ public class AllTests : TestCommon.TestApp
         Write("base as base (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_SBaseAsSBase().whenCompleted(cb.response_SBaseAsSBase, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_SBaseAsSBase().whenCompleted(
+                (SBase sb) =>
+                {
+                    test(sb.sb.Equals("SBase.sb"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -660,8 +243,20 @@ public class AllTests : TestCommon.TestApp
         Write("base with known derived as base (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_SBSKnownDerivedAsSBase().whenCompleted(cb.response_SBSKnownDerivedAsSBase, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_SBSKnownDerivedAsSBase().whenCompleted(
+                (SBase sb) =>
+                {
+                    test(sb.sb.Equals("SBSKnownDerived.sb"));
+                    SBSKnownDerived sbskd = (SBSKnownDerived) sb;
+                    test(sbskd != null);
+                    test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -685,9 +280,17 @@ public class AllTests : TestCommon.TestApp
         Write("base with known derived as known derived (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_SBSKnownDerivedAsSBSKnownDerived().whenCompleted(
-                        cb.response_SBSKnownDerivedAsSBSKnownDerived, cb.exception);
+                (SBSKnownDerived sbskd) =>
+                {
+                    test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -743,9 +346,17 @@ public class AllTests : TestCommon.TestApp
         Write("base with unknown derived as base (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_SBSUnknownDerivedAsSBase().whenCompleted(
-                        cb.response_SBSUnknownDerivedAsSBase, cb.exception);
+                (SBase sb) =>
+                {
+                    test(sb.sb.Equals("SBSUnknownDerived.sb"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
@@ -753,9 +364,17 @@ public class AllTests : TestCommon.TestApp
             //
             // This test succeeds for the 1.0 encoding.
             //
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_SBSUnknownDerivedAsSBaseCompact().whenCompleted(
-                cb.response_SBSUnknownDerivedAsSBase, cb.exception);
+                (SBase sb) =>
+                {
+                    test(sb.sb.Equals("SBSUnknownDerived.sb"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         else
@@ -764,9 +383,17 @@ public class AllTests : TestCommon.TestApp
             // This test fails when using the compact format because the instance cannot
             // be sliced to a known type.
             //
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_SBSUnknownDerivedAsSBaseCompact().whenCompleted(
-                cb.response_SBSUnknownDerivedAsSBaseCompact, cb.exception_SBSUnknownDerivedAsSBaseCompact);
+                (SBase sb) =>
+                {
+                    test(false);
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(ex is Ice.NoObjectFactoryException);
+                    cb.called();
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -798,16 +425,33 @@ public class AllTests : TestCommon.TestApp
         {
             try
             {
-                AsyncCallback cb = new AsyncCallback();
+                Callback cb = new Callback();
                 if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
                 {
                     testPrx.begin_SUnknownAsObject().whenCompleted(
-                            cb.response_SUnknownAsObject1, cb.exception_SUnknownAsObject1);
+                        (Ice.Object o) =>
+                        {
+                            test(false);
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            test(ex.GetType().FullName.Equals("Ice.NoObjectFactoryException"));
+                            cb.called();
+                        });
                 }
                 else
                 {
                     testPrx.begin_SUnknownAsObject().whenCompleted(
-                            cb.response_SUnknownAsObject2, cb.exception_SUnknownAsObject2);
+                        (Ice.Object o) =>
+                        {
+                            test(o is Ice.UnknownSlicedObject);
+                            test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
+                            cb.called();
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            test(false);
+                        });
                 }
                 cb.check();
             }
@@ -839,9 +483,20 @@ public class AllTests : TestCommon.TestApp
         Write("one-element cycle (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_oneElementCycle().whenCompleted(
-                        cb.response_oneElementCycle, cb.exception);
+                (B b) =>
+                {
+                    test(b != null);
+                    test(b.ice_id().Equals("::Test::B"));
+                    test(b.sb.Equals("B1.sb"));
+                    test(b.pb == b);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -872,9 +527,25 @@ public class AllTests : TestCommon.TestApp
         Write("two-element cycle (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_twoElementCycle().whenCompleted(
-                        cb.response_twoElementCycle, cb.exception);
+                (B b1) =>
+                {
+                    test(b1 != null);
+                    test(b1.ice_id().Equals("::Test::B"));
+                    test(b1.sb.Equals("B1.sb"));
+
+                    B b2 = b1.pb;
+                    test(b2 != null);
+                    test(b2.ice_id().Equals("::Test::B"));
+                    test(b2.sb.Equals("B2.sb"));
+                    test(b2.pb == b1);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -914,8 +585,33 @@ public class AllTests : TestCommon.TestApp
         Write("known derived pointer slicing as base (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_D1AsB().whenCompleted(cb.response_D1AsB, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_D1AsB().whenCompleted(
+                (B b1) =>
+                {
+                    test(b1 != null);
+                    test(b1.ice_id().Equals("::Test::D1"));
+                    test(b1.sb.Equals("D1.sb"));
+                    test(b1.pb != null);
+                    test(b1.pb != b1);
+                    D1 d1 = (D1) b1;
+                    test(d1 != null);
+                    test(d1.sd1.Equals("D1.sd1"));
+                    test(d1.pd1 != null);
+                    test(d1.pd1 != b1);
+                    test(b1.pb == d1.pd1);
+
+                    B b2 = b1.pb;
+                    test(b2 != null);
+                    test(b2.pb == b1);
+                    test(b2.sb.Equals("D2.sb"));
+                    test(b2.ice_id().Equals("::Test::B"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -949,8 +645,27 @@ public class AllTests : TestCommon.TestApp
         Write("known derived pointer slicing as derived (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_D1AsD1().whenCompleted(cb.response_D1AsD1, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_D1AsD1().whenCompleted(
+                (D1 d1) =>
+                {
+                    test(d1 != null);
+                    test(d1.ice_id().Equals("::Test::D1"));
+                    test(d1.sb.Equals("D1.sb"));
+                    test(d1.pb != null);
+                    test(d1.pb != d1);
+
+                    B b2 = d1.pb;
+                    test(b2 != null);
+                    test(b2.ice_id().Equals("::Test::B"));
+                    test(b2.sb.Equals("D2.sb"));
+                    test(b2.pb == d1);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -988,8 +703,31 @@ public class AllTests : TestCommon.TestApp
         Write("unknown derived pointer slicing as base (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_D2AsB().whenCompleted(cb.response_D2AsB, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_D2AsB().whenCompleted(
+                (B b2) =>
+                {
+                    test(b2 != null);
+                    test(b2.ice_id().Equals("::Test::B"));
+                    test(b2.sb.Equals("D2.sb"));
+                    test(b2.pb != null);
+                    test(b2.pb != b2);
+
+                    B b1 = b2.pb;
+                    test(b1 != null);
+                    test(b1.ice_id().Equals("::Test::D1"));
+                    test(b1.sb.Equals("D1.sb"));
+                    test(b1.pb == b2);
+                    D1 d1 = (D1) b1;
+                    test(d1 != null);
+                    test(d1.sd1.Equals("D1.sd1"));
+                    test(d1.pd1 == b2);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1027,8 +765,29 @@ public class AllTests : TestCommon.TestApp
         Write("param ptr slicing with known first (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_paramTest1().whenCompleted(cb.response_paramTest1, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_paramTest1().whenCompleted(
+                (B b1, B b2) =>
+                {
+                    test(b1 != null);
+                    test(b1.ice_id().Equals("::Test::D1"));
+                    test(b1.sb.Equals("D1.sb"));
+                    test(b1.pb == b2);
+                    D1 d1 = (D1) b1;
+                    test(d1 != null);
+                    test(d1.sd1.Equals("D1.sd1"));
+                    test(d1.pd1 == b2);
+
+                    test(b2 != null);
+                    test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
+                    test(b2.sb.Equals("D2.sb"));
+                    test(b2.pb == b1);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1066,8 +825,29 @@ public class AllTests : TestCommon.TestApp
         Write("param ptr slicing with unknown first (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_paramTest2().whenCompleted(cb.response_paramTest2, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_paramTest2().whenCompleted(
+                (B b2, B b1) =>
+                {
+                    test(b1 != null);
+                    test(b1.ice_id().Equals("::Test::D1"));
+                    test(b1.sb.Equals("D1.sb"));
+                    test(b1.pb == b2);
+                    D1 d1 = (D1) b1;
+                    test(d1 != null);
+                    test(d1.sd1.Equals("D1.sd1"));
+                    test(d1.pd1 == b2);
+
+                    test(b2 != null);
+                    test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
+                    test(b2.sb.Equals("D2.sb"));
+                    test(b2.pb == b1);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1092,8 +872,17 @@ public class AllTests : TestCommon.TestApp
         Write("return value identity with known first (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_returnTest1().whenCompleted(cb.response_returnTest1, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_returnTest1().whenCompleted(
+                (B r, B p1, B p2) =>
+                {
+                    test(r == p1);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1118,8 +907,17 @@ public class AllTests : TestCommon.TestApp
         Write("return value identity with unknown first (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_returnTest2().whenCompleted(cb.response_returnTest2, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_returnTest2().whenCompleted(
+                (B r, B p1, B p2) =>
+                {
+                    test(r == p1);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1191,10 +989,19 @@ public class AllTests : TestCommon.TestApp
             d1.pb = d3;
             d1.pd1 = d3;
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_returnTest3(d1, d3).whenCompleted(cb.response_returnTest3, cb.exception);
+            B b1 = null;
+            Callback cb = new Callback();
+            testPrx.begin_returnTest3(d1, d3).whenCompleted(
+                (B b) =>
+                {
+                    b1 = b;
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
-            B b1 = cb.rb;
 
             test(b1 != null);
             test(b1.sb.Equals("D1.sb"));
@@ -1294,10 +1101,19 @@ public class AllTests : TestCommon.TestApp
             d1.pb = d3;
             d1.pd1 = d3;
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_returnTest3(d3, d1).whenCompleted(cb.response_returnTest3, cb.exception);
+            B b1 = null;
+            Callback cb = new Callback();
+            testPrx.begin_returnTest3(d3, d1).whenCompleted(
+                (B b) =>
+                {
+                    b1 = b;
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
-            B b1 = cb.rb;
 
             test(b1 != null);
             test(b1.sb.Equals("D3.sb"));
@@ -1364,8 +1180,30 @@ public class AllTests : TestCommon.TestApp
         Write("remainder unmarshaling (3 instances) (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_paramTest3().whenCompleted(cb.response_paramTest3, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_paramTest3().whenCompleted(
+                (B ret, B p1, B p2) =>
+                {
+                    test(p1 != null);
+                    test(p1.sb.Equals("D2.sb (p1 1)"));
+                    test(p1.pb == null);
+                    test(p1.ice_id().Equals("::Test::B"));
+
+                    test(p2 != null);
+                    test(p2.sb.Equals("D2.sb (p2 1)"));
+                    test(p2.pb == null);
+                    test(p2.ice_id().Equals("::Test::B"));
+
+                    test(ret != null);
+                    test(ret.sb.Equals("D1.sb (p2 2)"));
+                    test(ret.pb == null);
+                    test(ret.ice_id().Equals("::Test::D1"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1398,8 +1236,25 @@ public class AllTests : TestCommon.TestApp
         Write("remainder unmarshaling (4 instances) (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_paramTest4().whenCompleted(cb.response_paramTest4, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_paramTest4().whenCompleted(
+                (B ret, B b) =>
+                {
+                    test(b != null);
+                    test(b.sb.Equals("D4.sb (1)"));
+                    test(b.pb == null);
+                    test(b.ice_id().Equals("::Test::B"));
+
+                    test(ret != null);
+                    test(ret.sb.Equals("B.sb (2)"));
+                    test(ret.pb == null);
+                    test(ret.ice_id().Equals("::Test::B"));
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1454,10 +1309,19 @@ public class AllTests : TestCommon.TestApp
             b2.sb = "B.sb(2)";
             b2.pb = b1;
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_returnTest3(d3, b2).whenCompleted(cb.response_returnTest3, cb.exception);
+            B rv = null;
+            Callback cb = new Callback();
+            testPrx.begin_returnTest3(d3, b2).whenCompleted(
+                (B b) =>
+                {
+                    rv = b;                    
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
-            B rv = cb.rb;
 
             test(rv != null);
             test(rv.ice_id().Equals("::Test::B"));
@@ -1521,10 +1385,19 @@ public class AllTests : TestCommon.TestApp
             d12.sd1 = "D1.sd1(2)";
             d12.pd1 = d11;
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_returnTest3(d3, d12).whenCompleted(cb.response_returnTest3, cb.exception);
+            B rv = null;
+            Callback cb = new Callback();
+            testPrx.begin_returnTest3(d3, d12).whenCompleted(
+                (B b) =>
+                {
+                    rv = b;                    
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
-            B rv = cb.rb;
 
             test(rv != null);
             test(rv.ice_id().Equals("::Test::B"));
@@ -1626,7 +1499,7 @@ public class AllTests : TestCommon.TestApp
         Write("sequence slicing (AMI)... ");
         Flush();
         {
-            SS3 ss;
+            SS3 ss = null;
             {
                 B ss1b = new B();
                 ss1b.sb = "B.sb";
@@ -1674,10 +1547,18 @@ public class AllTests : TestCommon.TestApp
                 ss2.s.Add(ss2d1);
                 ss2.s.Add(ss2d3);
 
-                AsyncCallback cb = new AsyncCallback();
-                testPrx.begin_sequenceTest(ss1, ss2).whenCompleted(cb.response_sequenceTest, cb.exception);
+                Callback cb = new Callback();
+                testPrx.begin_sequenceTest(ss1, ss2).whenCompleted(
+                    (SS3 s) =>
+                    {
+                        ss = s;                   
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
                 cb.check();
-                ss = cb.rss;
             }
             test(ss.c1 != null);
             B ss1b3 = ss.c1.s[0];
@@ -1767,8 +1648,8 @@ public class AllTests : TestCommon.TestApp
         Flush();
         {
             Dictionary<int, B> bin = new Dictionary<int, B>();
-            Dictionary<int, B> bout;
-            Dictionary<int, B> rv;
+            Dictionary<int, B> bout = null;
+            Dictionary<int, B> rv = null;
             int i;
             for(i = 0; i < 10; ++i)
             {
@@ -1780,11 +1661,19 @@ public class AllTests : TestCommon.TestApp
                 bin[i] = d1;
             }
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_dictionaryTest(bin).whenCompleted(cb.response_dictionaryTest, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_dictionaryTest(bin).whenCompleted(
+                (Dictionary<int, B> r, Dictionary<int, B> b) =>
+                {
+                    rv = (Dictionary<int, B>)r;
+                    bout = (Dictionary<int, B>)b;
+                    cb.called();              
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
-            bout = cb.obdict;
-            rv = cb.rbdict;
 
             test(bout.Count == 10);
             for(i = 0; i < 10; ++i)
@@ -1841,8 +1730,28 @@ public class AllTests : TestCommon.TestApp
         Write("base exception thrown as base exception (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_throwBaseAsBase().whenCompleted(cb.response, cb.exception_throwBaseAsBase);
+            Callback cb = new Callback();
+            testPrx.begin_throwBaseAsBase().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception ex) =>
+                {
+                     try
+                    {
+                        BaseException e = (BaseException)ex;
+                        test(e.sbe.Equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.Equals("sb"));
+                        test(e.pb.pb == e.pb);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1879,8 +1788,34 @@ public class AllTests : TestCommon.TestApp
         Write("derived exception thrown as base exception (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_throwDerivedAsBase().whenCompleted(cb.response, cb.exception_throwDerivedAsBase);
+            Callback cb = new Callback();
+            testPrx.begin_throwDerivedAsBase().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception ex) =>
+                {
+                    try
+                    {
+                        DerivedException e = (DerivedException)ex;
+                        test(e.sbe.Equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.Equals("sb1"));
+                        test(e.pb.pb == e.pb);
+                        test(e.sde.Equals("sde1"));
+                        test(e.pd1 != null);
+                        test(e.pd1.sb.Equals("sb2"));
+                        test(e.pd1.pb == e.pd1);
+                        test(e.pd1.sd1.Equals("sd2"));
+                        test(e.pd1.pd1 == e.pd1);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1917,8 +1852,34 @@ public class AllTests : TestCommon.TestApp
         Write("derived exception thrown as derived exception (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_throwDerivedAsDerived().whenCompleted(cb.response, cb.exception_throwDerivedAsDerived);
+            Callback cb = new Callback();
+            testPrx.begin_throwDerivedAsDerived().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception ex) =>
+                {
+                    try
+                    {
+                        DerivedException e = (DerivedException)ex;
+                        test(e.sbe.Equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.Equals("sb1"));
+                        test(e.pb.pb == e.pb);
+                        test(e.sde.Equals("sde1"));
+                        test(e.pd1 != null);
+                        test(e.pd1.sb.Equals("sb2"));
+                        test(e.pd1.pb == e.pd1);
+                        test(e.pd1.sd1.Equals("sd2"));
+                        test(e.pd1.pd1 == e.pd1);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1949,9 +1910,28 @@ public class AllTests : TestCommon.TestApp
         Write("unknown derived exception thrown as base exception (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             testPrx.begin_throwUnknownDerivedAsBase().whenCompleted(
-                        cb.response, cb.exception_throwUnknownDerivedAsBase);
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception ex) =>
+                {
+                    try
+                    {
+                        BaseException e = (BaseException)ex;
+                        test(e.sbe.Equals("sbe"));
+                        test(e.pb != null);
+                        test(e.pb.sb.Equals("sb d2"));
+                        test(e.pb.pb == e.pb);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -1975,8 +1955,17 @@ public class AllTests : TestCommon.TestApp
         Write("forward-declared class (AMI)... ");
         Flush();
         {
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_useForward().whenCompleted(cb.response_useForward, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_useForward().whenCompleted(
+                (Forward f) =>
+                {
+                    test(f != null);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");
@@ -2167,8 +2156,20 @@ public class AllTests : TestCommon.TestApp
             pd.ps = "preserved";
             pd.pb = pd;
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_exchangePBase(pd).whenCompleted(cb.response_exchangePBase1, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_exchangePBase(pd).whenCompleted(
+                (PBase r) =>
+                {
+                    PDerived p2 = (PDerived)r;
+                    test(p2.pi == 3);
+                    test(p2.ps.Equals("preserved"));
+                    test(p2.pb == p2);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
 
@@ -2180,8 +2181,18 @@ public class AllTests : TestCommon.TestApp
             pu.pi = 3;
             pu.pu = "preserved";
 
-            AsyncCallback cb = new AsyncCallback();
-            testPrx.begin_exchangePBase(pu).whenCompleted(cb.response_exchangePBase2, cb.exception);
+            Callback cb = new Callback();
+            testPrx.begin_exchangePBase(pu).whenCompleted(
+                (PBase r) =>
+                {
+                    test(!(r is PCUnknown));
+                    test(r.pi == 3);
+                    cb.called();
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
 
@@ -2194,14 +2205,35 @@ public class AllTests : TestCommon.TestApp
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
             {
-                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase3, cb.exception);
+                testPrx.begin_exchangePBase(pcd).whenCompleted(
+                    (PBase r) =>
+                    {
+                        test(!(r is PCDerived));
+                        test(r.pi == 3);
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
             }
             else
             {
-                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase4, cb.exception);
+                testPrx.begin_exchangePBase(pcd).whenCompleted(
+                    (PBase r) =>
+                    {
+                        PCDerived p2 = r as PCDerived;
+                        test(p2.pi == 3);
+                        test(p2.pbs[0] == p2);
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
             }
             cb.check();
         }
@@ -2215,14 +2247,35 @@ public class AllTests : TestCommon.TestApp
             pcd.pi = 3;
             pcd.pbs = new PBase[] { pcd };
 
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
             {
-                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBaseCompact1, cb.exception);
+                testPrx.begin_exchangePBase(pcd).whenCompleted(
+                    (PBase r) =>
+                    {
+                        test(!(r is CompactPCDerived));
+                        test(r.pi == 3);
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
             }
             else
             {
-                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBaseCompact2, cb.exception);
+                testPrx.begin_exchangePBase(pcd).whenCompleted(
+                    (PBase r) =>
+                    {
+                        CompactPCDerived p2 = r as CompactPCDerived;
+                        test(p2.pi == 3);
+                        test(p2.pbs[0] == p2);
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
             }
             cb.check();
         }
@@ -2238,8 +2291,7 @@ public class AllTests : TestCommon.TestApp
             // Sending more than 254 objects exercises the encoding for object ids.
             //
             pcd.pbs = new PBase[300];
-            int i;
-            for(i = 0; i < 300; ++i)
+            for(int i = 0; i < 300; ++i)
             {
                 PCDerived2 p2 = new PCDerived2();
                 p2.pi = i;
@@ -2250,14 +2302,45 @@ public class AllTests : TestCommon.TestApp
             pcd.pcd2 = pcd.pi;
             pcd.pcd3 = pcd.pbs[10];
 
-            AsyncCallback cb = new AsyncCallback();
+            Callback cb = new Callback();
             if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
             {
-                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase5, cb.exception);
+                testPrx.begin_exchangePBase(pcd).whenCompleted(
+                    (PBase r) =>
+                    {
+                        test(!(r is PCDerived3));
+                        test(r is Preserved);
+                        test(r.pi == 3);
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
             }
             else
             {
-                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase6, cb.exception);
+                testPrx.begin_exchangePBase(pcd).whenCompleted(
+                    (PBase r) =>
+                    {
+                        PCDerived3 p3 = r as PCDerived3;
+                        test(p3.pi == 3);
+                        for(int i = 0; i < 300; ++i)
+                        {
+                            PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                            test(p2.pi == i);
+                            test(p2.pbs.Length == 1);
+                            test(p2.pbs[0] == null);
+                            test(p2.pcd2 == i);
+                        }
+                        test(p3.pcd2 == p3.pi);
+                        test(p3.pcd3 == p3.pbs[10]);
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
             }
             cb.check();
         }

@@ -27,9 +27,9 @@ using System.Windows.Shapes;
 
 public class AllTests : TestCommon.TestApp
 {
-    private class CallbackBase
+    private class Callback
     {
-        public CallbackBase()
+        public Callback()
         {
             _called = false;
         }
@@ -71,66 +71,26 @@ public class AllTests : TestCommon.TestApp
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
-    private class Callback
-    {
-        public void response()
+    private static void exceptAbortI(Ice.Exception ex) {
+        try
+        {
+            throw ex;
+        }
+        catch(Ice.ConnectionLostException )
+        {
+        }
+        catch(Ice.ConnectFailedException)
+        {
+        }
+        catch(Ice.SocketException)
+        {
+        }
+        catch(Exception)
         {
             test(false);
         }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public void opPidI(int pid)
-        {
-            _pid = pid;
-            callback.called();
-        }
-
-        public void opShutdownI()
-        {
-            callback.called();
-        }
-        
-        public void exceptAbortI(Ice.Exception ex)
-        {
-            try
-            {
-                throw ex;
-            }
-            catch(Ice.ConnectionLostException )
-            {
-            }
-            catch(Ice.ConnectFailedException)
-            {
-            }
-            catch(Ice.SocketException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public int pid()
-        {
-            return _pid;
-        }
-        
-        public void check()
-        {
-            callback.check();
-        }
-
-        private int _pid;
-        
-        private CallbackBase callback = new CallbackBase();
     }
-    
+
 #if SILVERLIGHT
     public override Ice.InitializationData initData()
     {
@@ -206,9 +166,18 @@ public class AllTests : TestCommon.TestApp
                 Write("testing server #" + i + " with AMI... ");
                 Flush();
                 Callback cb = new Callback();
-                obj.begin_pid().whenCompleted(cb.opPidI, cb.exception);
+                int pid = -1;
+                obj.begin_pid().whenCompleted(
+                    (int p) =>
+                    {
+                        pid = p;
+                        cb.called();
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(false);
+                    });
                 cb.check();
-                int pid = cb.pid();
                 test(pid != oldPid);
                 WriteLine("ok");
                 oldPid = pid;
@@ -227,7 +196,15 @@ public class AllTests : TestCommon.TestApp
                 {
                     Write("shutting down server #" + i + " with AMI... ");
                     Callback cb = new Callback();
-                    obj.begin_shutdown().whenCompleted(cb.opShutdownI, cb.exception);
+                    obj.begin_shutdown().whenCompleted(
+                        () =>
+                        {
+                            cb.called();
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            test(false);
+                        });
                     cb.check();
                     WriteLine("ok");
                 }
@@ -261,7 +238,16 @@ public class AllTests : TestCommon.TestApp
                     Write("aborting server #" + i + " with AMI... ");
                     Flush();
                     Callback cb = new Callback();
-                    obj.begin_abort().whenCompleted(cb.response, cb.exceptAbortI);
+                    obj.begin_abort().whenCompleted(
+                        () =>
+                        {
+                            test(false);
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            exceptAbortI(ex);
+                            cb.called();
+                        });
                     cb.check();
                     WriteLine("ok");
                 }
@@ -295,7 +281,16 @@ public class AllTests : TestCommon.TestApp
                     Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
                     Flush();
                     Callback cb = new Callback();
-                    obj.begin_idempotentAbort().whenCompleted(cb.response, cb.exceptAbortI);
+                    obj.begin_idempotentAbort().whenCompleted(
+                        () =>
+                        {
+                            test(false);
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            exceptAbortI(ex);
+                            cb.called();
+                        });
                     cb.check();
                     WriteLine("ok");
                 }

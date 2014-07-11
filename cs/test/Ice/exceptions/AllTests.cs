@@ -672,290 +672,6 @@ public class AllTests : TestCommon.TestApp
         private Callback callback;
     }
 
-    class AsyncCallback
-    {
-        public AsyncCallback()
-        {
-            callback = new Callback();
-        }
-
-        public AsyncCallback(Ice.Communicator c)
-        {
-            _communicator = c;
-            callback = new Callback();
-        }
-
-        public void response()
-        {
-            test(false);
-        }
-
-        public void exception_AasA(Ice.Exception exc)
-        {
-            test(exc is A);
-            A ex = exc as A;
-            test(ex.aMem == 1);
-            callback.called();
-        }
-
-        public void exception_AorDasAorD(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(A ex)
-            {
-                test(ex.aMem == 1);
-            }
-            catch(D ex)
-            {
-                test(ex.dMem == -1);
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_BasB(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(B ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_CasC(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(C ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_BasA(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(B ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_CasA(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(C ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_CasB(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(C ex)
-            {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_UndeclaredA(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownUserException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_UndeclaredB(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownUserException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_UndeclaredC(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownUserException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_AasAObjectNotExist(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.ObjectNotExistException ex)
-            {
-                Ice.Identity id = _communicator.stringToIdentity("does not exist");
-                test(ex.id.Equals(id));
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_AasAFacetNotExist(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.FacetNotExistException ex)
-            {
-                test(ex.facet.Equals("no such facet"));
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_noSuchOperation(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.OperationNotExistException ex)
-            {
-                test(ex.operation.Equals("noSuchOperation"));
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_LocalException(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownLocalException)
-            {
-            }
-            catch(Ice.OperationNotExistException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void exception_NonIceException(Ice.Exception exc)
-        {
-            try
-            {
-                throw exc;
-            }
-            catch(Ice.UnknownException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback;
-        private Ice.Communicator _communicator;
-    }
-
 #if SILVERLIGHT
     public override Ice.InitializationData initData()
     {
@@ -1668,33 +1384,135 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasA);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwAasA(1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    test(exc is A);
+                    A ex = exc as A;
+                    test(ex.aMem == 1);
+                    cb.called();
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwAorDasAorD(1).whenCompleted(cb3.response, cb3.exception_AorDasAorD);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwAorDasAorD(1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(A ex)
+                    {
+                        test(ex.aMem == 1);
+                    }
+                    catch(D ex)
+                    {
+                        test(ex.dMem == -1);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();                
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwAorDasAorD(-1).whenCompleted(cb3.response, cb3.exception_AorDasAorD);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwAorDasAorD(-1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                     try
+                    {
+                        throw exc;
+                    }
+                    catch(A ex)
+                    {
+                        test(ex.aMem == 1);
+                    }
+                    catch(D ex)
+                    {
+                        test(ex.dMem == -1);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwBasB(1, 2).whenCompleted(cb3.response, cb3.exception_BasB);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwBasB(1, 2).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(B ex)
+                    {
+                        test(ex.aMem == 1);
+                        test(ex.bMem == 2);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwCasC(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasC);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwCasC(1, 2, 3).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(C ex)
+                    {
+                        test(ex.aMem == 1);
+                        test(ex.bMem == 2);
+                        test(ex.cMem == 3);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");
@@ -1703,21 +1521,86 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwBasA(1, 2).whenCompleted(cb3.response, cb3.exception_BasA);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwBasA(1, 2).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(B ex)
+                    {
+                        test(ex.aMem == 1);
+                        test(ex.bMem == 2);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwCasA(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasA);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwCasA(1, 2, 3).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                     try
+                    {
+                        throw exc;
+                    }
+                    catch(C ex)
+                    {
+                        test(ex.aMem == 1);
+                        test(ex.bMem == 2);
+                        test(ex.cMem == 3);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwCasB(1, 2, 3).whenCompleted(cb3.response, cb3.exception_CasB);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwCasB(1, 2, 3).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                     try
+                    {
+                        throw exc;
+                    }
+                    catch(C ex)
+                    {
+                        test(ex.aMem == 1);
+                        test(ex.bMem == 2);
+                        test(ex.cMem == 3);
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");
@@ -1728,21 +1611,78 @@ public class AllTests : TestCommon.TestApp
             Flush();
 
             {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwUndeclaredA(1).whenCompleted(cb3.response, cb3.exception_UndeclaredA);
-                cb3.check();
+                Callback cb = new Callback();
+                thrower.begin_throwUndeclaredA(1).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception exc) =>
+                    {
+                        try
+                        {
+                            throw exc;
+                        }
+                        catch(Ice.UnknownUserException)
+                        {
+                        }
+                        catch(Exception)
+                        {
+                            test(false);
+                        }
+                        cb.called();
+                    });
+                cb.check();
             }
 
             {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwUndeclaredB(1, 2).whenCompleted(cb3.response, cb3.exception_UndeclaredB);
-                cb3.check();
+                Callback cb = new Callback();
+                thrower.begin_throwUndeclaredB(1, 2).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception exc) =>
+                    {
+                        try
+                        {
+                            throw exc;
+                        }
+                        catch(Ice.UnknownUserException)
+                        {
+                        }
+                        catch(Exception)
+                        {
+                            test(false);
+                        }
+                        cb.called();
+                    });
+                cb.check();
             }
 
             {
-                AsyncCallback cb3 = new AsyncCallback();
-                thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(cb3.response, cb3.exception_UndeclaredC);
-                cb3.check();
+                Callback cb = new Callback();
+                thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception exc) =>
+                    {
+                        try
+                        {
+                            throw exc;
+                        }
+                        catch(Ice.UnknownUserException)
+                        {
+                        }
+                        catch(Exception)
+                        {
+                            test(false);
+                        }
+                        cb.called();
+                    });
+                cb.check();
             }
 
             WriteLine("ok");
@@ -1754,9 +1694,29 @@ public class AllTests : TestCommon.TestApp
         {
             Ice.Identity id = communicator.stringToIdentity("does not exist");
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-            AsyncCallback cb3 = new AsyncCallback(communicator);
-            thrower2.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasAObjectNotExist);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower2.begin_throwAasA(1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.ObjectNotExistException ex)
+                    {
+                        test(ex.id.Equals(id));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");
@@ -1766,9 +1726,29 @@ public class AllTests : TestCommon.TestApp
 
         {
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower2.begin_throwAasA(1).whenCompleted(cb3.response, cb3.exception_AasAFacetNotExist);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower2.begin_throwAasA(1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.FacetNotExistException ex)
+                    {
+                        test(ex.facet.Equals("no such facet"));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");
@@ -1777,10 +1757,30 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
+            Callback cb = new Callback();
             WrongOperationPrx thrower4 = WrongOperationPrxHelper.uncheckedCast(thrower);
-            thrower4.begin_noSuchOperation().whenCompleted(cb3.response, cb3.exception_noSuchOperation);
-            cb3.check();
+            thrower4.begin_noSuchOperation().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.OperationNotExistException ex)
+                    {
+                        test(ex.operation.Equals("noSuchOperation"));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");
@@ -1789,15 +1789,59 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwLocalException().whenCompleted(cb3.response, cb3.exception_LocalException);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwLocalException().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.UnknownLocalException)
+                    {
+                    }
+                    catch(Ice.OperationNotExistException)
+                    {
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwLocalExceptionIdempotent().whenCompleted(cb3.response, cb3.exception_LocalException);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwLocalExceptionIdempotent().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.UnknownLocalException)
+                    {
+                    }
+                    catch(Ice.OperationNotExistException)
+                    {
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");
@@ -1806,9 +1850,300 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            AsyncCallback cb3 = new AsyncCallback();
-            thrower.begin_throwNonIceException().whenCompleted(cb3.response, cb3.exception_NonIceException);
-            cb3.check();
+            Callback cb = new Callback();
+            thrower.begin_throwNonIceException().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.UnknownException)
+                    {
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        // ----------------------------------------
+        if(thrower.supportsUndeclaredExceptions())
+        {
+            Write("catching unknown user exception with new AMI mapping... ");
+            Flush();
+
+            {
+                Callback cb = new Callback();
+                thrower.begin_throwUndeclaredA(1).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception exc) =>
+                    {
+                        try
+                        {
+                            throw exc;
+                        }
+                        catch(Ice.UnknownUserException)
+                        {
+                        }
+                        catch(Exception)
+                        {
+                            test(false);
+                        }
+                        cb.called();
+                    });
+                cb.check();
+            }
+
+            {
+                Callback cb = new Callback();
+                thrower.begin_throwUndeclaredB(1, 2).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception exc) =>
+                    {
+                        try
+                        {
+                            throw exc;
+                        }
+                        catch(Ice.UnknownUserException)
+                        {
+                        }
+                        catch(Exception)
+                        {
+                            test(false);
+                        }
+                        cb.called();
+                    });
+                cb.check();
+            }
+
+            {
+                Callback cb = new Callback();
+                thrower.begin_throwUndeclaredC(1, 2, 3).whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception exc) =>
+                    {
+                        try
+                        {
+                            throw exc;
+                        }
+                        catch(Ice.UnknownUserException)
+                        {
+                        }
+                        catch(Exception)
+                        {
+                            test(false);
+                        }
+                        cb.called();
+                    });
+                cb.check();
+            }
+
+            WriteLine("ok");
+        }
+
+        Write("catching object not exist exception with new AMI mapping... ");
+        Flush();
+
+        {
+            Ice.Identity id = communicator.stringToIdentity("does not exist");
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+            Callback cb = new Callback();
+            thrower2.begin_throwAasA(1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.ObjectNotExistException ex)
+                    {
+                        test(ex.id.Equals(id));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching facet not exist exception with new AMI mapping... ");
+        Flush();
+
+        {
+            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+            Callback cb = new Callback();
+            thrower2.begin_throwAasA(1).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.FacetNotExistException ex)
+                    {
+                        test(ex.facet.Equals("no such facet"));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching operation not exist exception with new AMI mapping... ");
+        Flush();
+
+        {
+            Callback cb = new Callback();
+            WrongOperationPrx thrower4 = WrongOperationPrxHelper.uncheckedCast(thrower);
+            thrower4.begin_noSuchOperation().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.OperationNotExistException ex)
+                    {
+                        test(ex.operation.Equals("noSuchOperation"));
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching unknown local exception with new AMI mapping... ");
+        Flush();
+
+        {
+            Callback cb = new Callback();
+            thrower.begin_throwLocalException().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.UnknownLocalException)
+                    {
+                    }
+                    catch(Ice.OperationNotExistException)
+                    {
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            thrower.begin_throwLocalExceptionIdempotent().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.UnknownLocalException)
+                    {
+                    }
+                    catch(Ice.OperationNotExistException)
+                    {
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
+        }
+
+        WriteLine("ok");
+
+        Write("catching unknown non-Ice exception with new AMI mapping... ");
+        Flush();
+
+        {
+            Callback cb = new Callback();
+            thrower.begin_throwNonIceException().whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception exc) =>
+                {
+                    try
+                    {
+                        throw exc;
+                    }
+                    catch(Ice.UnknownException)
+                    {
+                    }
+                    catch(Exception)
+                    {
+                        test(false);
+                    }
+                    cb.called();
+                });
+            cb.check();
         }
 
         WriteLine("ok");

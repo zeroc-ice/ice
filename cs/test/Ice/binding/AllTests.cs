@@ -28,53 +28,41 @@ using System.Windows.Shapes;
 
 public class AllTests : TestCommon.TestApp
 {
-    private class GetAdapterNameCB
+    private static string getAdapterNameWithAMI(TestIntfPrx testIntf)
     {
-        public void response(string name)
-        {
-            _m.Lock();
-            try
+        IceUtilInternal.Monitor m = new IceUtilInternal.Monitor();
+        string result = null;
+        testIntf.begin_getAdapterName().whenCompleted(
+            (string name) =>
             {
-                _name = name;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
-            }
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public string getResult()
-        {
-            _m.Lock();
-            try
-            {
-                while(_name == null)
+                m.Lock();
+                try
                 {
-                    _m.Wait();
+                    result = name;
+                    m.Notify();
                 }
-                return _name;
-            }
-            finally
+                finally
+                {
+                    m.Unlock();
+                }
+            },
+            (Ice.Exception ex) =>
             {
-                _m.Unlock();
+                test(false);
+            });
+        m.Lock();
+        try
+        {
+            while(result == null)
+            {
+                m.Wait();
             }
+            return result;
         }
-
-        private string _name = null;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
-    }
-
-    private static string getAdapterNameWithAMI(TestIntfPrx test)
-    {
-        GetAdapterNameCB cb = new GetAdapterNameCB();
-        test.begin_getAdapterName().whenCompleted(cb.response, cb.exception);
-        return cb.getResult();
+        finally
+        {
+            m.Unlock();
+        }
     }
 
     private static void shuffle(ref List<RemoteObjectAdapterPrx> array)

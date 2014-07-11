@@ -53,7 +53,7 @@ namespace chat
             _instance = this;
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
+            initData.dispatcher = (System.Action action, Ice.Connection connection) =>
             {
                 try
                 {
@@ -95,10 +95,11 @@ namespace chat
         public void
         sendMessage(string message)
         {
-            _chat.begin_say(message).whenCompleted(delegate(Ice.Exception ex)
-            {
-                _chatPage.appendMessage("<system-message> - " + ex.ToString() + Environment.NewLine);
-            });
+            _chat.begin_say(message).whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    _chatPage.appendMessage("<system-message> - " + ex.ToString() + Environment.NewLine);
+                });
         }
 
         public void connectFailed(SessionHelper session, Exception ex)
@@ -127,17 +128,17 @@ namespace chat
             Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(_session.addWithUUID(servant));
             _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
             _chat.begin_setCallback(callback).whenCompleted(
-                            delegate()
-                                {
-                                    _mainPage.setState(ClientState.Connected);
-                                },
-                            delegate(Ice.Exception ex)
-                                {
-                                    if(_session != null)
-                                    {
-                                        _session.destroy();
-                                    }
-                                });
+                () =>
+                {
+                   _mainPage.setState(ClientState.Connected);
+                },
+                (Ice.Exception ex) =>
+                {
+                    if(_session != null)
+                    {
+                        _session.destroy();
+                    }
+                });
         }
 
         public void createdCommunicator(SessionHelper session)

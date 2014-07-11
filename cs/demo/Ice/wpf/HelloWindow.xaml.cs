@@ -52,7 +52,7 @@ namespace Ice.wpf.client
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = Ice.Util.createProperties();
                 initData.properties.load("config.client");
-                initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
+                initData.dispatcher = (System.Action action, Ice.Connection connection) =>
                 {
                     Dispatcher.BeginInvoke(DispatcherPriority.Normal, action);
                 };
@@ -120,56 +120,6 @@ namespace Ice.wpf.client
             return prx;
         }
 
-        class SayHelloCB
-        {
-            public SayHelloCB(HelloWindow window)
-            {
-                _window = window;
-            }
-            
-            public void response()
-            {
-                lock(this)
-                {
-                    Debug.Assert(!_response);
-                    _response = true;
-                    _window.status.Content = "Ready";
-                }
-            }
-
-            public void exception(Exception ex)
-            {
-                lock(this)
-                {
-                    Debug.Assert(!_response);
-                    _response = true;
-                    _window.handleException(ex);
-                }
-            }
-
-            public void sent(bool sentSynchronously)
-            {
-                lock(this)
-                {
-                    if(_response)
-                    {
-                        return;
-                    }
-                    if(_window.deliveryMode.Text.Equals(TWOWAY) || _window.deliveryMode.Text.Equals(TWOWAY_SECURE))
-                    {
-                        _window.status.Content = "Waiting for response";
-                    }
-                    else
-                    {
-                        _window.status.Content = "Ready";
-                    }
-                }
-            }
-
-            private bool _response = false;
-            private HelloWindow _window;
-        }
-
         private void sayHello_Click(object sender, RoutedEventArgs e)
         {
             Demo.HelloPrx hello = createProxy();
@@ -184,8 +134,35 @@ namespace Ice.wpf.client
                 if(!deliveryModeIsBatch())
                 {
                     status.Content = "Sending request";
-                    SayHelloCB cb = new SayHelloCB(this);
-                    hello.begin_sayHello(delay).whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
+                    bool haveResponse = false;
+                    hello.begin_sayHello(delay).whenCompleted(
+                        () =>
+                        {
+                            Debug.Assert(!haveResponse);
+                            haveResponse = true;
+                            status.Content = "Ready";
+                        },
+                        (Ice.Exception ex) =>
+                        {
+                            Debug.Assert(!haveResponse);
+                            haveResponse = true;
+                            handleException(ex);
+                    }).whenSent(
+                        (bool sentSynchronously) =>
+                        {
+                            if (haveResponse)
+                            {
+                                return;
+                            }
+                            if (deliveryMode.Text.Equals(TWOWAY) || deliveryMode.Text.Equals(TWOWAY_SECURE))
+                            {
+                                status.Content = "Waiting for response";
+                            }
+                            else
+                            {
+                                status.Content = "Ready";
+                            }
+                        });
                 }
                 else
                 {
@@ -221,14 +198,15 @@ namespace Ice.wpf.client
                 {
                     AsyncResult<Demo.Callback_Hello_shutdown> result = hello.begin_shutdown();
                     status.Content = "Sending request";
-                    result.whenCompleted(delegate()
-                                         {
-                                             status.Content = "Ready";
-                                         },
-                                         delegate(Exception ex)
-                                         {
-                                             handleException(ex);
-                                         });
+                    result.whenCompleted(
+                        () =>
+                        {
+                            status.Content = "Ready";
+                        },
+                        (Exception ex) =>
+                        {
+                            handleException(ex);
+                        });
                 }
                 else
                 {

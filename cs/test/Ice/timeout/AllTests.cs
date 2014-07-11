@@ -17,9 +17,9 @@ using System.Windows.Controls;
 
 public class AllTests : TestCommon.TestApp
 {
-    private class CallbackBase
+    private class Callback
     {
-        internal CallbackBase()
+        internal Callback()
         {
             _called = false;
         }
@@ -59,37 +59,6 @@ public class AllTests : TestCommon.TestApp
 
         private bool _called;
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
-    }
-
-    private class Callback
-    {
-        public void response()
-        {
-            callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public void responseEx()
-        {
-            test(false);
-        }
-
-        public void exceptionEx(Ice.Exception ex)
-        {
-            test(ex is Ice.TimeoutException);
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private CallbackBase callback = new CallbackBase();
     }
 
 #if SILVERLIGHT
@@ -229,7 +198,16 @@ public class AllTests : TestCommon.TestApp
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(250));
             Callback cb = new Callback();
-            to.begin_sleep(500).whenCompleted(cb.responseEx, cb.exceptionEx);
+            to.begin_sleep(500).whenCompleted(
+                () =>
+                {
+                    test(false);
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(ex is Ice.InvocationTimeoutException);
+                    cb.called();
+                });
             cb.check();
         }
         {
@@ -238,7 +216,16 @@ public class AllTests : TestCommon.TestApp
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500));
             Callback cb = new Callback();
-            to.begin_sleep(250).whenCompleted(cb.response, cb.exception);
+            to.begin_sleep(250).whenCompleted(
+                () =>
+                {
+                    cb.called();
+
+                },
+                (Ice.Exception ex) =>
+                {
+                    test(false);
+                });
             cb.check();
         }
         WriteLine("ok");

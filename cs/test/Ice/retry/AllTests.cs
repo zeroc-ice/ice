@@ -61,47 +61,6 @@ public class AllTests : TestCommon.TestApp
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
-    private class AMIRegular
-    {
-        public void response()
-        {
-            callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMIException
-    {
-        public void response()
-        {
-            test(false);
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(ex is Ice.ConnectionLostException || ex is Ice.UnknownLocalException);
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
 #if SILVERLIGHT
     public override Ice.InitializationData initData()
     {
@@ -177,28 +136,52 @@ public class AllTests : TestCommon.TestApp
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
-        AMIRegular cb1 = new AMIRegular();
-        AMIException cb2 = new AMIException();
+        Callback cb = new Callback();
 
         Write("calling regular AMI operation with first proxy... ");
-        retry1.begin_op(false).whenCompleted(cb1.response, cb1.exception);
-        cb1.check();
+        retry1.begin_op(false).whenCompleted(
+            () =>
+            {
+                cb.called();
+            },
+            (Ice.Exception ex) =>
+            {
+                test(false);
+            });
+        cb.check();
         Instrumentation.testInvocationCount(invocationCount + 3);
         Instrumentation.testFailureCount(1);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         Write("calling AMI operation to kill connection with second proxy... ");
-        retry2.begin_op(true).whenCompleted(cb2.response, cb2.exception);
-        cb2.check();
+        retry2.begin_op(true).whenCompleted(
+            () =>
+            {
+                test(false);
+            },
+            (Ice.Exception ex) =>
+            {
+                test(ex is Ice.ConnectionLostException || ex is Ice.UnknownLocalException);
+                cb.called();
+            });
+        cb.check();
         Instrumentation.testInvocationCount(invocationCount + 4);
         Instrumentation.testFailureCount(2);
         Instrumentation.testRetryCount(0);
         WriteLine("ok");
 
         Write("calling regular AMI operation with first proxy again... ");
-        retry1.begin_op(false).whenCompleted(cb1.response, cb1.exception);
-        cb1.check();
+        retry1.begin_op(false).whenCompleted(
+            () =>
+            {
+                cb.called();
+            },
+            (Ice.Exception ex) =>
+            {
+                test(false);
+            });
+        cb.check();
         Instrumentation.testInvocationCount(invocationCount + 5);
         Instrumentation.testFailureCount(2);
         Instrumentation.testRetryCount(0);

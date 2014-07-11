@@ -86,7 +86,7 @@ namespace Glacier2.chat.client
             initData.properties.load("config.client");
 
             // Dispatch servant calls and AMI callbacks with this windows Dispatcher.
-            initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
+            initData.dispatcher = (System.Action action, Ice.Connection connection) =>
             {
                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, action);
             };
@@ -171,11 +171,12 @@ namespace Glacier2.chat.client
                 string message = input.Text.Trim();
                 if(message.Length > 0)
                 {
-                    _chat.begin_say(message).whenCompleted(delegate(Ice.Exception ex)
-                                             {
-                                                 appendMessage("<system-message> - " + ex.ToString() + 
-                                                               Environment.NewLine);
-                                             });
+                    _chat.begin_say(message).whenCompleted(
+                        (Ice.Exception ex) =>
+                        {
+                            appendMessage("<system-message> - " + ex.ToString() + 
+                                Environment.NewLine);
+                        });
                 }
                 input.Text = "";
             }
@@ -248,19 +249,20 @@ namespace Glacier2.chat.client
 
             Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(_session.addWithUUID(servant));
             _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
-            _chat.begin_setCallback(callback).whenCompleted(delegate()
-                                              {
-                                                  closeCancelDialog();
-                                                  input.IsEnabled = true;
-                                                  status.Content = "Connected with " + _loginData.routerHost;
-                                              },
-                                              delegate(Ice.Exception ex)
-                                              {
-                                                  if(_session != null)
-                                                  {
-                                                      _session.destroy();
-                                                  }
-                                              });
+            _chat.begin_setCallback(callback).whenCompleted(
+                () =>
+                {
+                    closeCancelDialog();
+                    input.IsEnabled = true;
+                    status.Content = "Connected with " + _loginData.routerHost;
+                },
+                (Ice.Exception ex) =>
+                {
+                    if(_session != null)
+                    {
+                        _session.destroy();
+                    }
+                });
         }
 
         public void createdCommunicator(SessionHelper session)

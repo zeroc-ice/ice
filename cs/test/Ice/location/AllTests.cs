@@ -290,13 +290,14 @@ public class AllTests : TestCommon.TestApp
         for(int i = 0; i < 1000; i++)
         {
             Ice.AsyncResult<Test.Callback_Hello_sayHello> result = hello.begin_sayHello().
-                whenCompleted(delegate()
-                              {
-                              },
-                              delegate(Ice.Exception ex)
-                              {
-                                  test(false);
-                              });
+                whenCompleted(
+                    () =>
+                    {
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                      test(false);
+                    });
             results.Add(result);
         }
         foreach(Ice.AsyncResult<Test.Callback_Hello_sayHello> result in results)
@@ -314,14 +315,15 @@ public class AllTests : TestCommon.TestApp
         for(int i = 0; i < 1000; i++)
         {
             Ice.AsyncResult<Test.Callback_Hello_sayHello> result = hello.begin_sayHello().
-                whenCompleted(delegate()
-                              {
-                                  test(false);
-                              },
-                              delegate(Ice.Exception ex)
-                              {
-                                  test(ex is Ice.NotRegisteredException);
-                              });
+                whenCompleted(
+                    () =>
+                    {
+                        test(false);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                        test(ex is Ice.NotRegisteredException);
+                    });
             results.Add(result);
         }
         foreach(Ice.AsyncResult<Test.Callback_Hello_sayHello> result in results)

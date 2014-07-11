@@ -89,7 +89,22 @@ public class OnewaysNewAMI
 
         {
             Callback cb = new Callback();
-            p.begin_ice_ping().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            p.begin_ice_ping().whenCompleted(cb.noException).whenSent(cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
             cb.check();
         }
 
@@ -128,19 +143,64 @@ public class OnewaysNewAMI
 
         {
             Callback cb = new Callback();
-            p.begin_opVoid().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            p.begin_opVoid().whenCompleted(cb.noException).whenSent(cb.sent);
             cb.check();
         }
 
         {
             Callback cb = new Callback();
-            p.begin_opIdempotent().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            p.begin_opVoid().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
             cb.check();
         }
 
         {
             Callback cb = new Callback();
-            p.begin_opNonmutating().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            p.begin_opIdempotent().whenCompleted(cb.noException).whenSent(cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(cb.noException).whenSent(cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(
+                (Ice.Exception ex) =>
+                {
+                    cb.noException(ex);
+                }
+            ).whenSent(
+                (bool sentSynchronously) =>
+                {
+                    cb.sent(sentSynchronously);
+                });
             cb.check();
         }
 

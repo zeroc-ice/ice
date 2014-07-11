@@ -565,6 +565,20 @@ public class TwowaysNewAMI
         }
 
         {
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(
+                () => 
+                {
+                    cb.ice_ping();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_ice_isA(Test.MyClass.ice_staticId());
             test(p.end_ice_isA(r));
         }
@@ -572,6 +586,20 @@ public class TwowaysNewAMI
         {
             Callback cb = new Callback();
             p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(
+                (bool v) => 
+                {
+                    cb.ice_isA(v);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -587,6 +615,20 @@ public class TwowaysNewAMI
         }
 
         {
+            Callback cb = new Callback();
+            p.begin_ice_ids().whenCompleted(
+                (string[] ids) =>
+                {
+                    cb.ice_ids(ids);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_ice_id();
             test(p.end_ice_id(r).Equals(Test.MyDerivedClass.ice_staticId()));
         }
@@ -598,6 +640,20 @@ public class TwowaysNewAMI
         }
 
         {
+            Callback cb = new Callback();
+            p.begin_ice_id().whenCompleted(
+                (string id) => 
+                {
+                    cb.ice_id(id);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_opVoid();
             p.end_opVoid(r);
         }
@@ -605,6 +661,20 @@ public class TwowaysNewAMI
         {
             Callback cb = new Callback();
             p.begin_opVoid().whenCompleted(cb.opVoid, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opVoid().whenCompleted(
+                () =>
+                {
+                    cb.opVoid();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -624,7 +694,35 @@ public class TwowaysNewAMI
 
         {
             Callback cb = new Callback();
+            p.begin_opByte(0xff, 0x0f).whenCompleted(
+                (byte r, byte b) =>
+                {
+                    cb.opByte(r, b);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
             p.begin_opBool(true, false).whenCompleted(cb.opBool, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opBool(true, false).whenCompleted(
+                (bool r, bool b) =>
+                {
+                    cb.opBool(r, b);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -636,7 +734,35 @@ public class TwowaysNewAMI
 
         {
             Callback cb = new Callback();
+            p.begin_opShortIntLong(10, 11, 12).whenCompleted(
+                (long r, short s, int i, long l) =>
+                {
+                    cb.opShortIntLong(r, s, i, l);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
             p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(cb.opFloatDouble, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opFloatDouble(3.14f, 1.1E10).whenCompleted(
+                (double r, float f, double d) =>
+                {
+                    cb.opFloatDouble(r, f, d);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -648,13 +774,55 @@ public class TwowaysNewAMI
 
         {
             Callback cb = new Callback();
+            p.begin_opString("hello", "world").whenCompleted(
+                (string r, string s) =>
+                {
+                    cb.opString(r, s);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
             p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(cb.opMyEnum, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opMyEnum(Test.MyEnum.enum2).whenCompleted(
+                (Test.MyEnum r, Test.MyEnum e) =>
+                {
+                    cb.opMyEnum(r, e);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
         {
             Callback cb = new Callback(communicator);
             p.begin_opMyClass(p).whenCompleted(cb.opMyClass, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback(communicator);
+            p.begin_opMyClass(p).whenCompleted(
+                (Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2) =>
+                {
+                    cb.opMyClass(r, c1, c2);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -676,6 +844,31 @@ public class TwowaysNewAMI
         }
 
         {
+            Test.Structure si1 = new Test.Structure();
+            si1.p = p;
+            si1.e = Test.MyEnum.enum3;
+            si1.s = new Test.AnotherStruct();
+            si1.s.s = "abc";
+            Test.Structure si2 = new Test.Structure();
+            si2.p = null;
+            si2.e = Test.MyEnum.enum2;
+            si2.s = new Test.AnotherStruct();
+            si2.s.s = "def";
+
+            Callback cb = new Callback(communicator);
+            p.begin_opStruct(si1, si2).whenCompleted(
+                (Test.Structure rso, Test.Structure so) =>
+                {
+                    cb.opStruct(rso, so);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             byte[] tbsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
             Test.ByteS bsi1 = new Test.ByteS(tbsi1);
             byte[] tbsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
@@ -687,6 +880,25 @@ public class TwowaysNewAMI
         }
 
         {
+            byte[] tbsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
+            Test.ByteS bsi1 = new Test.ByteS(tbsi1);
+            byte[] tbsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+            Test.ByteS bsi2 = new Test.ByteS(tbsi2);
+
+            Callback cb = new Callback();
+            p.begin_opByteS(bsi1, bsi2).whenCompleted(
+                (Test.ByteS rso, Test.ByteS bso) =>
+                {
+                    cb.opByteS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             bool[] tbsi1 = new bool[] { true, true, false };
             Test.BoolS bsi1 = new Test.BoolS(tbsi1);
             bool[] tbsi2 = new bool[] { false };
@@ -694,6 +906,25 @@ public class TwowaysNewAMI
 
             Callback cb = new Callback();
             p.begin_opBoolS(bsi1, bsi2).whenCompleted(cb.opBoolS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            bool[] tbsi1 = new bool[] { true, true, false };
+            Test.BoolS bsi1 = new Test.BoolS(tbsi1);
+            bool[] tbsi2 = new bool[] { false };
+            Test.BoolS bsi2 = new Test.BoolS(tbsi2);
+
+            Callback cb = new Callback();
+            p.begin_opBoolS(bsi1, bsi2).whenCompleted(
+                (Test.BoolS rso, Test.BoolS bso) =>
+                {
+                    cb.opBoolS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -711,6 +942,27 @@ public class TwowaysNewAMI
         }
 
         {
+            short[] tssi = new short[] { 1, 2, 3 };
+            Test.ShortS ssi = new Test.ShortS(tssi);
+            int[] tisi = new int[] { 5, 6, 7, 8 };
+            Test.IntS isi = new Test.IntS(tisi);
+            long[] tlsi = new long[] { 10, 30, 20 };
+            Test.LongS lsi = new Test.LongS(tlsi);
+
+            Callback cb = new Callback();
+            p.begin_opShortIntLongS(ssi, isi, lsi).whenCompleted(
+                (Test.LongS rso, Test.ShortS sso, Test.IntS iso, Test.LongS lso) =>
+                {
+                    cb.opShortIntLongS(rso, sso, iso, lso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             float[] tfsi = new float[] { 3.14f, 1.11f };
             Test.FloatS fsi = new Test.FloatS(tfsi);
             double[] tdsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
@@ -722,6 +974,25 @@ public class TwowaysNewAMI
         }
 
         {
+            float[] tfsi = new float[] { 3.14f, 1.11f };
+            Test.FloatS fsi = new Test.FloatS(tfsi);
+            double[] tdsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+            Test.DoubleS dsi = new Test.DoubleS(tdsi);
+
+            Callback cb = new Callback();
+            p.begin_opFloatDoubleS(fsi, dsi).whenCompleted(
+                (Test.DoubleS rso, Test.FloatS fso, Test.DoubleS dso) =>
+                {
+                    cb.opFloatDoubleS(rso, fso, dso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             string[] tssi1 = new string[] { "abc", "de", "fghi" };
             Test.StringS ssi1 = new Test.StringS(tssi1);
             string[] tssi2 = new string[] { "xyz" };
@@ -729,6 +1000,25 @@ public class TwowaysNewAMI
 
             Callback cb = new Callback();
             p.begin_opStringS(ssi1, ssi2).whenCompleted(cb.opStringS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            string[] tssi1 = new string[] { "abc", "de", "fghi" };
+            Test.StringS ssi1 = new Test.StringS(tssi1);
+            string[] tssi2 = new string[] { "xyz" };
+            Test.StringS ssi2 = new Test.StringS(tssi2);
+
+            Callback cb = new Callback();
+            p.begin_opStringS(ssi1, ssi2).whenCompleted(
+                (Test.StringS rso, Test.StringS sso) =>
+                {
+                    cb.opStringS(rso, sso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -747,6 +1037,28 @@ public class TwowaysNewAMI
         }
 
         {
+            Test.ByteS s11 = new Test.ByteS(new byte[] { 0x01, 0x11, 0x12 });
+            Test.ByteS s12 = new Test.ByteS(new byte[] { 0xff });
+            Test.ByteSS bsi1 = new Test.ByteSS(new Test.ByteS[] { s11, s12 });
+
+            Test.ByteS s21 = new Test.ByteS(new byte[] { 0x0e });
+            Test.ByteS s22 = new Test.ByteS(new byte[] { 0xf2, 0xf1 });
+            Test.ByteSS bsi2 = new Test.ByteSS(new Test.ByteS[] { s21, s22 });
+
+            Callback cb = new Callback();
+            p.begin_opByteSS(bsi1, bsi2).whenCompleted(
+                (Test.ByteSS rso, Test.ByteSS bso) =>
+                {
+                    cb.opByteSS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Test.FloatS f11 = new Test.FloatS(new float[] { 3.14f });
             Test.FloatS f12 = new Test.FloatS(new float[] { 1.11f });
             Test.FloatS f13 = new Test.FloatS(new float[] { });
@@ -757,6 +1069,28 @@ public class TwowaysNewAMI
 
             Callback cb = new Callback();
             p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(cb.opFloatDoubleSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.FloatS f11 = new Test.FloatS(new float[] { 3.14f });
+            Test.FloatS f12 = new Test.FloatS(new float[] { 1.11f });
+            Test.FloatS f13 = new Test.FloatS(new float[] { });
+            Test.FloatSS fsi = new Test.FloatSS(new Test.FloatS[] { f11, f12, f13 });
+
+            Test.DoubleS d11 = new Test.DoubleS(new double[] { 1.1e10, 1.2e10, 1.3e10 });
+            Test.DoubleSS dsi = new Test.DoubleSS(new Test.DoubleS[] { d11 });
+
+            Callback cb = new Callback();
+            p.begin_opFloatDoubleSS(fsi, dsi).whenCompleted(
+                (Test.DoubleSS rso, Test.FloatSS fso, Test.DoubleSS dso) =>
+                {
+                    cb.opFloatDoubleSS(rso, fso, dso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -785,6 +1119,38 @@ public class TwowaysNewAMI
         }
 
         {
+            Test.StringS s11 = new Test.StringS();
+            s11.Add("abc");
+            Test.StringS s12 = new Test.StringS();
+            s12.Add("de");
+            s12.Add("fghi");
+            Test.StringSS ssi1 = new Test.StringSS();
+            ssi1.Add(s11);
+            ssi1.Add(s12);
+
+            Test.StringS s21 = new Test.StringS();
+            Test.StringS s22 = new Test.StringS();
+            Test.StringS s23 = new Test.StringS();
+            s23.Add("xyz");
+            Test.StringSS ssi2 = new Test.StringSS();
+            ssi2.Add(s21);
+            ssi2.Add(s22);
+            ssi2.Add(s23);
+
+            Callback cb = new Callback();
+            p.begin_opStringSS(ssi1, ssi2).whenCompleted(
+                (Test.StringSS rso, Test.StringSS sso) =>
+                {
+                    cb.opStringSS(rso, sso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Test.StringSS[] sssi1 = { new Test.StringSS(), new Test.StringSS() };
             sssi1[0].Add(new Test.StringS());
             sssi1[0].Add(new Test.StringS());
@@ -808,6 +1174,37 @@ public class TwowaysNewAMI
         }
 
         {
+            Test.StringSS[] sssi1 = { new Test.StringSS(), new Test.StringSS() };
+            sssi1[0].Add(new Test.StringS());
+            sssi1[0].Add(new Test.StringS());
+            sssi1[0][0].Add("abc");
+            sssi1[0][0].Add("de");
+            sssi1[0][1].Add("xyz");
+            sssi1[1].Add(new Test.StringS());
+            sssi1[1][0].Add("hello");
+            Test.StringSS[] sssi2 = { new Test.StringSS(), new Test.StringSS(), new Test.StringSS() };
+            sssi2[0].Add(new Test.StringS());
+            sssi2[0].Add(new Test.StringS());
+            sssi2[0][0].Add("");
+            sssi2[0][0].Add("");
+            sssi2[0][1].Add("abcd");
+            sssi2[1].Add(new Test.StringS());
+            sssi2[1][0].Add("");
+
+            Callback cb = new Callback();
+            p.begin_opStringSSS(sssi1, sssi2).whenCompleted(
+                (Test.StringSS[] rsso, Test.StringSS[] ssso) =>
+                {
+                    cb.opStringSSS(rsso, ssso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
             di1[10] = true;
             di1[100] = false;
@@ -818,6 +1215,28 @@ public class TwowaysNewAMI
 
             Callback cb = new Callback();
             p.begin_opByteBoolD(di1, di2).whenCompleted(cb.opByteBoolD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+            di1[10] = true;
+            di1[100] = false;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            di2[10] = true;
+            di2[11] = false;
+            di2[101] = true;
+
+            Callback cb = new Callback();
+            p.begin_opByteBoolD(di1, di2).whenCompleted(
+                (Dictionary<byte, bool> ro, Dictionary<byte, bool> _do) =>
+                {
+                    cb.opByteBoolD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -836,6 +1255,28 @@ public class TwowaysNewAMI
         }
 
         {
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
+            di1[110] = -1;
+            di1[1100] = 123123;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            di2[110] = -1;
+            di2[111] = -100;
+            di2[1101] = 0;
+
+            Callback cb = new Callback();
+            p.begin_opShortIntD(di1, di2).whenCompleted(
+                (Dictionary<short, int> ro, Dictionary<short, int> _do) =>
+                {
+                    cb.opShortIntD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Dictionary<long, float> di1 = new Dictionary<long, float>();
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
@@ -846,6 +1287,28 @@ public class TwowaysNewAMI
 
             Callback cb = new Callback();
             p.begin_opLongFloatD(di1, di2).whenCompleted(cb.opLongFloatD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
+            di1[999999110L] = -1.1f;
+            di1[999999111L] = 123123.2f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            di2[999999110L] = -1.1f;
+            di2[999999120L] = -100.4f;
+            di2[999999130L] = 0.5f;
+
+            Callback cb = new Callback();
+            p.begin_opLongFloatD(di1, di2).whenCompleted(
+                (Dictionary<long, float> ro, Dictionary<long, float> _do) =>
+                {
+                    cb.opLongFloatD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -864,6 +1327,28 @@ public class TwowaysNewAMI
         }
 
         {
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
+            di1["foo"] = "abc -1.1";
+            di1["bar"] = "abc 123123.2";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            di2["foo"] = "abc -1.1";
+            di2["FOO"] = "abc -100.4";
+            di2["BAR"] = "abc 0.5";
+
+            Callback cb = new Callback();
+            p.begin_opStringStringD(di1, di2).whenCompleted(
+                (Dictionary<string, string> ro, Dictionary<string, string> _do) =>
+                {
+                    cb.opStringStringD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
@@ -878,6 +1363,28 @@ public class TwowaysNewAMI
         }
 
         {
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
+            di1["abc"] = Test.MyEnum.enum1;
+            di1[""] = Test.MyEnum.enum2;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            di2["abc"] = Test.MyEnum.enum1;
+            di2["qwerty"] = Test.MyEnum.enum3;
+            di2["Hello!!"] = Test.MyEnum.enum2;
+
+            Callback cb = new Callback();
+            p.begin_opStringMyEnumD(di1, di2).whenCompleted(
+                (Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do) =>
+                {
+                    cb.opStringMyEnumD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
             di1[Test.MyEnum.enum1] = "abc";
             Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
@@ -886,6 +1393,26 @@ public class TwowaysNewAMI
 
             Callback cb = new Callback();
             p.begin_opMyEnumStringD(di1, di2).whenCompleted(cb.opMyEnumStringD, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Dictionary<Test.MyEnum, string> di1 = new Dictionary<Test.MyEnum, string>();
+            di1[Test.MyEnum.enum1] = "abc";
+            Dictionary<Test.MyEnum, string> di2 = new Dictionary<Test.MyEnum, string>();
+            di2[Test.MyEnum.enum2] = "Hello!!";
+            di2[Test.MyEnum.enum3] = "qwerty";
+
+            Callback cb = new Callback();
+            p.begin_opMyEnumStringD(di1, di2).whenCompleted(
+                (Dictionary<Test.MyEnum, string> ro, Dictionary<Test.MyEnum, string> _do) =>
+                {
+                    cb.opMyEnumStringD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
 
@@ -909,6 +1436,34 @@ public class TwowaysNewAMI
         }
 
         {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s11] = Test.MyEnum.enum1;
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+
+            Callback cb = new Callback();
+            p.begin_opMyStructMyEnumD(di1, di2).whenCompleted(
+                (Dictionary<Test.MyStruct, Test.MyEnum> ro,
+                 Dictionary<Test.MyStruct, Test.MyEnum> _do) =>
+                {
+                    cb.opMyStructMyEnumD(ro, _do);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
             for(int l = 0; l < lengths.Length; ++l)
@@ -921,6 +1476,31 @@ public class TwowaysNewAMI
 
                 Callback cb = new Callback(lengths[l]);
                 p.begin_opIntS(s).whenCompleted(cb.opIntS, cb.exCB);
+                cb.check();
+            }
+        }
+
+        {
+            int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+
+            for(int l = 0; l < lengths.Length; ++l)
+            {
+                Test.IntS s = new Test.IntS();
+                for(int i = 0; i < lengths[l]; ++i)
+                {
+                    s.Add(i);
+                }
+
+                Callback cb = new Callback(lengths[l]);
+                p.begin_opIntS(s).whenCompleted(
+                    (Test.IntS r) =>
+                    {
+                        cb.opIntS(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
                 cb.check();
             }
         }
@@ -953,6 +1533,70 @@ public class TwowaysNewAMI
                 Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                 Callback cb = new Callback(ctx);
                 p2.begin_opContext(ctx).whenCompleted(cb.opContextEqual, cb.exCB);
+                cb.check();
+            }
+        }
+
+        {
+            Dictionary<string, string> ctx = new Dictionary<string, string>();
+            ctx["one"] = "ONE";
+            ctx["two"] = "TWO";
+            ctx["three"] = "THREE";
+            {
+                test(p.ice_getContext().Count == 0);
+                Callback cb = new Callback(ctx);
+                p.begin_opContext().whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextNotEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
+                cb.check();
+            }
+            {
+                test(p.ice_getContext().Count == 0);
+                Callback cb = new Callback(ctx);
+                p.begin_opContext(ctx).whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
+                cb.check();
+            }
+            {
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
+                Callback cb = new Callback(ctx);
+                p2.begin_opContext().whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
+                cb.check();
+            }
+            {
+                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                Callback cb = new Callback(ctx);
+                p2.begin_opContext(ctx).whenCompleted(
+                    (Dictionary<string, string> r) =>
+                    {
+                        cb.opContextEqual(r);
+                    },
+                    (Ice.Exception ex) =>
+                    {
+                         cb.exCB(ex);
+                    });
                 cb.check();
             }
         }
@@ -1047,6 +1691,20 @@ public class TwowaysNewAMI
         }
 
         {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(
+                () =>
+                {
+                    cb.opIdempotent();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Ice.AsyncResult r = p.begin_opNonmutating();
             p.end_opNonmutating(r);
         }
@@ -1058,10 +1716,40 @@ public class TwowaysNewAMI
         }
 
         {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(
+                () =>
+                {
+                    cb.opNonmutating();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
             Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
             test(derived != null);
             Callback cb = new Callback();
             derived.begin_opDerived().whenCompleted(cb.opDerived, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);
+            test(derived != null);
+            Callback cb = new Callback();
+            derived.begin_opDerived().whenCompleted(
+                () =>
+                {
+                    cb.opDerived();
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
             cb.check();
         }
     }
