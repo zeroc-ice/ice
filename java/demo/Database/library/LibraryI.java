@@ -198,7 +198,7 @@ class LibraryI extends _LibraryDisp
 
     public BookPrx
     createBook(String isbn, String title, java.util.List<String> authors, Ice.Current current)
-        throws BookExistsException
+        throws BookExistsException, InvalidISBNException
     {
         SQLRequestContext context = SQLRequestContext.getCurrentContext();
         assert context != null;
@@ -210,6 +210,11 @@ class LibraryI extends _LibraryDisp
             if(rs.next())
             {
                 throw new BookExistsException();
+            }
+
+            if(isbn.length() > 13)
+            {
+                throw new InvalidISBNException();
             }
 
             //

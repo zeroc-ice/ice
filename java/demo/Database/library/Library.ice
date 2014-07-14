@@ -54,6 +54,15 @@ exception InvalidCustomerException
 
 /**
  *
+ * This exception is raised if the ISBN is invalid.
+ *
+ **/
+exception InvalidISBNException
+{
+};
+
+/**
+ *
  * This exception is raised if the book has not been rented.
  *
  **/
@@ -279,7 +288,7 @@ interface Library
      **/
     Book* createBook(string isbn, string title,
                      ["java:type:java.util.LinkedList<String>:java.util.List<String>"] Ice::StringSeq authors)
-        throws BookExistsException;
+        throws BookExistsException, InvalidISBNException;
 };
 
 };

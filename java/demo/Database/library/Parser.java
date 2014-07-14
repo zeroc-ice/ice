@@ -61,6 +61,10 @@ class Parser
         {
             error("the book already exists");
         }
+        catch(InvalidISBNException ex)
+        {
+            error("invalid ISBN");
+        }
         catch(Ice.LocalException ex)
         {
             error(ex.toString());

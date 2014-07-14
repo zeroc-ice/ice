@@ -14,7 +14,7 @@ CREATE TABLE books
 (
 	id		INT UNSIGNED AUTO_INCREMENT NOT NULL,
 	PRIMARY KEY	(id),
-	isbn		CHAR(10),
+	isbn		CHAR(13),
 	title		VARCHAR(255),
 	renter_id	INT
 ) ENGINE=InnoDB;
