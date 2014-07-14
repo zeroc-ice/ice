@@ -851,6 +851,11 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         IcePy::PyObjectHandle m = IcePy::createString(e.reason);
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
+    catch(const Ice::IllegalServantException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
+    }
     catch(const Ice::LocalException&)
     {
         //
