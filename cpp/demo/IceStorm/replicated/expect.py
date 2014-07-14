@@ -51,7 +51,7 @@ else:
 sys.stdout.write("starting icegridnode... ")
 sys.stdout.flush()
 node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --IceGrid.Node.Output=db --IceGrid.Node.RedirectErrToOut --Ice.PrintAdapterReady %s' % (args))
-node.expect('IceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
+node.expect('IceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Registry.Discovery ready\nIceGrid.Node ready')
 print("ok")
 
 sys.stdout.write("deploying application... ")
