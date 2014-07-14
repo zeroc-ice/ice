@@ -95,7 +95,11 @@ class reader(threading.Thread):
         self._tbuf = getStringIO()
         self._tracesuppress = None
         self.logfile = logfile
+        self.watchDog = None
         threading.Thread.__init__(self)
+
+    def setWatchDog(self, watchDog):
+        self.watchDog = watchDog
 
     def run(self):
         try:
@@ -111,6 +115,8 @@ class reader(threading.Thread):
                     if type(c) != str:
                         c = c.decode()
                     self.trace(c)
+                    if self.watchDog is not None:
+                        self.watchDog.reset()
                     self.buf.write(c)
                     self.cv.notify()
                 finally:
@@ -363,7 +369,9 @@ class Expect (object):
         if startReader:
             self.startReader()
 
-    def startReader(self):
+    def startReader(self, watchDog = None):
+        if watchDog is not None:
+            self.r.setWatchDog(watchDog)
         self.r.start()
 
     def __del__(self):

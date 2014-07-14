@@ -1320,7 +1320,9 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             client = getCommandLine(client, clientCfg, additionalClientOptions)
             clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
             print("ok")
-            clientProc.startReader()
+
+            global watchDog
+            clientProc.startReader(watchDog)
             clientProc.waitTestSuccess()
 
         serverProc.waitTestSuccess()
@@ -1353,7 +1355,9 @@ def collocatedTest(additionalOptions = ""):
     collocated = getCommandLine(collocated, DriverConfig("colloc"), additionalOptions)
     collocatedProc = spawnClient(collocated, env = env, startReader = False, lang=lang)
     print("ok")
-    collocatedProc.startReader()
+
+    global watchDog
+    collocatedProc.startReader(watchDog)
     collocatedProc.waitTestSuccess()
     if appverifier:
         appVerifierAfterTestEnd([exe])
