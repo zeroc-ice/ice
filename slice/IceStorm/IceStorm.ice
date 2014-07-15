@@ -382,5 +382,26 @@ interface TopicManager
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 };
 
+/**
+ *
+ * This inferface is advertised by the IceStorm service through the
+ * Ice object with the identity `IceStorm/Finder'. This allows clients
+ * to retrieve the topic manager with just the endpoint information of
+ * the IceStorm service.
+ *
+ **/
+interface Finder
+{
+    /**
+     *
+     * Get the topic manager proxy. The proxy might point to several
+     * replicas.
+     *
+     * @return The topic manager proxy.
+     *
+     **/
+    TopicManager* getTopicManager();
+};
+
 };
 

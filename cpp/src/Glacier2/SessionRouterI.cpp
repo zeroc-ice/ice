@@ -602,14 +602,6 @@ SessionRouterI::SessionRouterI(const InstancePtr& instance,
     _sessionDestroyCallback(newCallback_Session_destroy(this, &SessionRouterI::sessionDestroyException)),
     _destroy(false)
 {
-    //
-    // This session router is used directly as servant for the main
-    // Glacier2 router Ice object.
-    //
-    Identity routerId;
-    routerId.category = _instance->properties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
-    routerId.name = "router";
-
     if(_sessionThread)
     {
         __setNoDelete(true);
@@ -629,8 +621,6 @@ SessionRouterI::SessionRouterI(const InstancePtr& instance,
 
     try
     {
-        _instance->clientObjectAdapter()->add(this, routerId);
-        
         //
         // All other calls on the client object adapter are dispatched to
         // a router servant based on connection information.

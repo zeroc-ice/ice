@@ -35,7 +35,7 @@ using namespace IceStorm;
 using namespace IceStormInternal;
 using namespace IceStormElection;
 
-namespace IceStormInternal
+namespace
 {
 
 class ServiceI : public IceStormInternal::Service
@@ -68,6 +68,25 @@ private:
     TransientTopicManagerImplPtr _transientManager;
     TopicManagerPrx _managerProxy;
     InstancePtr _instance;
+};
+
+class FinderI : public IceStorm::Finder
+{
+public:
+    
+    FinderI(const TopicManagerPrx& topicManager) : _topicManager(topicManager)
+    {
+    }
+    
+    virtual TopicManagerPrx
+    getTopicManager(const Ice::Current&)
+    {
+        return _topicManager;
+    }
+
+private:
+
+    const TopicManagerPrx _topicManager;
 };
 
 }
@@ -372,6 +391,9 @@ ServiceI::start(
             throw e;
         }
     }
+
+    topicAdapter->add(new FinderI(TopicManagerPrx::uncheckedCast(topicAdapter->createProxy(topicManagerId))), 
+                      communicator->stringToIdentity("IceStorm/Finder"));
         
     topicAdapter->activate();
     publishAdapter->activate();
@@ -379,11 +401,11 @@ ServiceI::start(
 
 void
 ServiceI::start(const CommunicatorPtr& communicator,
-                          const ObjectAdapterPtr& topicAdapter,
-                          const ObjectAdapterPtr& publishAdapter,
-                          const string& name,
-                          const Ice::Identity& id,
-                          const string& /*dbEnv*/)
+                const ObjectAdapterPtr& topicAdapter,
+                const ObjectAdapterPtr& publishAdapter,
+                const string& name,
+                const Ice::Identity& id,
+                const string& /*dbEnv*/)
 {
     //
     // For IceGrid we don't validate the properties as all sorts of

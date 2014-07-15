@@ -174,6 +174,25 @@ private:
     const WellKnownObjectsManagerPtr _wellKnownObjects;
 };
 
+class FinderI : public Ice::LocatorFinder
+{
+public:
+    
+    FinderI(const WellKnownObjectsManagerPtr& wellKnownObjects) : _wellKnownObjects(wellKnownObjects)
+    {
+    }
+    
+    virtual Ice::LocatorPrx
+    getLocator(const Ice::Current&)
+    {
+        return _wellKnownObjects->getLocator();
+    }
+
+private:
+
+    const WellKnownObjectsManagerPtr _wellKnownObjects;
+};
+
 }
 
 RegistryI::RegistryI(const CommunicatorPtr& communicator,
@@ -585,11 +604,9 @@ RegistryI::startImpl()
     }
 
     //
-    // Setup the lookup servant and add it to the client adapter.
+    // Add the locator finder object to the client adapter.
     //
-    Ice::Identity id = _communicator->stringToIdentity("IceGridDiscovery/Lookup");
-    Ice::ObjectPtr lookup = new LookupI(_instanceName, _wellKnownObjects);
-    _clientAdapter->add(lookup, id);
+    _clientAdapter->add(new FinderI(_wellKnownObjects), _communicator->stringToIdentity("Ice/LocatorFinder"));
 
     //
     // Setup the discovery object adapter and also add it the lookup
@@ -623,8 +640,9 @@ RegistryI::startImpl()
 
         try
         {
+            Ice::Identity lookupId = _communicator->stringToIdentity("IceGridDiscovery/Lookup");
             discoveryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Discovery");
-            discoveryAdapter->add(lookup, id);
+            discoveryAdapter->add(new LookupI(_instanceName, _wellKnownObjects), lookupId);
         }
         catch(const Ice::LocalException& ex)
         {

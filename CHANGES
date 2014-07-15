@@ -27,6 +27,37 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added IceStormAdmin.Host and IceStormAdmin.Port properties. You can
+  set these properties to connect to an IceStorm instance running on
+  a given host and port.
+
+- Added IceStorm finder interface (in the IceStorm/IceStorm.ice slice
+  file) to enable clients to easily find the proxy of the topic
+  manager with just the endpoint information of the IceStorm
+  service. The client doesn't have to know the instance name.
+  
+  IceStorm provides an Ice object with the identity `IceStorm/Finder'
+  that implements this interface.
+
+- Added support for IceGridDiscovery to the IceGrid administrative
+  utilities. Also added IceGridAdmin.Host and IceGridAdmin.Port
+  properties, you can set these properties to connect to an IceGrid
+  registry running on a given host and port.
+
+- Added Ice locator and router finder interfaces to enable clients to
+  easily find proxies for the locator or router (in Ice/Locator.ice
+  and Ice/Router.ice slice files).
+
+  Glacier2 and IceGrid implement those interfaces and provide finder
+  Ice objects with respectively the identity `Ice/RouterFinder' and
+  `Ice/LocatorFinder'. Clients can use those objects to connect to
+  Glacier2 and IceGrid with just the endpoint information (they don't
+  need to know the instance name of the Glacier2 or IceGrid service).
+
+- Added IceGrid discovery plugin. This plugin enables Ice applications
+  to discover IceGrid registries running on the network using UDP
+  multicast. See the release notes or Ice manual for more information.
+
 - The collocation optimization has been significanly improved to
   remove limitations. It now works with AMI, AMD, blobjects and
   batching. Collocated requests are now always marshaled and
@@ -79,6 +110,13 @@ General Changes
   invocation will never timeout if the connection between the client
   and server is alive. See the release notes and Ice manual for more
   information.
+
+- Added IceDiscovery plugin. This plugin provides a UDP multicast
+  based Ice locator implementation. This can be used as an alternative
+  to IceGrid when running few clients and servers on the same network
+  and if you don't want to deploy a central service such as IceGrid.
+
+  See the release notes or Ice manual for more information.
 
 - Added support for IceGrid custom load balancing with the addition of
   replica group and type filters. These filters allow you to select

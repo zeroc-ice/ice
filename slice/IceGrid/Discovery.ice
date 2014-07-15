@@ -22,8 +22,6 @@ interface LookupReply
 interface Lookup
 {
     idempotent void findLocator(string instanceName, LookupReply* reply);
-
-    Locator* getLocator();
 };
 
 };

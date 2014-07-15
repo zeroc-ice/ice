@@ -452,6 +452,14 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     {
+        cout << "testing router finder... " << flush;
+        Ice::RouterFinderPrx finder = 
+            RouterFinderPrx::uncheckedCast(communicator()->stringToProxy("Ice/RouterFinder:default -p 12347"));
+        test(finder->getRouter()->ice_getIdentity() == router->ice_getIdentity());
+        cout << "ok" << endl;
+    }
+
+    {
         cout << "installing router with communicator... " << flush;
         communicator()->setDefaultRouter(router);
         cout << "ok" << endl;

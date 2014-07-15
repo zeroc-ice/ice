@@ -527,13 +527,13 @@ Client::run(StringSeq& originalArgs)
             {
                 const int timeout = 3000; // 3s connection timeout.
                 ostringstream os;
-                os << "IceGridDiscovery/Lookup" << (ssl ? " -s" : "");
+                os << "Ice/LocatorFinder" << (ssl ? " -s" : "");
                 os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port) << " -t " << timeout;
                 os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4063 : port) << " -t " << timeout;
-                LookupPrx lookup = LookupPrx::uncheckedCast(communicator()->stringToProxy(os.str()));
+                LocatorFinderPrx finder = LocatorFinderPrx::uncheckedCast(communicator()->stringToProxy(os.str()));
                 try
                 {
-                    communicator()->setDefaultLocator(lookup->getLocator());
+                    communicator()->setDefaultLocator(finder->getLocator());
                 }
                 catch(const Ice::LocalException&)
                 {

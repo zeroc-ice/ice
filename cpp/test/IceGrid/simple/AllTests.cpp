@@ -39,6 +39,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     obj->ice_ping();
     cout << "ok" << endl;
 
+    cout << "testing locator finder... " << flush;
+    Ice::Identity finderId;
+    finderId.category = "Ice";
+    finderId.name = "LocatorFinder";
+    Ice::LocatorFinderPrx finder = Ice::LocatorFinderPrx::checkedCast(
+        communicator->getDefaultLocator()->ice_identity(finderId));
+    test(finder->getLocator());
+    cout << "ok" << endl;
+
     cout << "testing discovery... " << flush;
     {
         Ice::InitializationData initData;

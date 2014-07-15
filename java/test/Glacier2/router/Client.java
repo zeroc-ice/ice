@@ -53,6 +53,15 @@ public class Client extends test.Util.Application
         }
 
         {
+            out.print("testing router finder... ");
+            out.flush();
+            Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
+                communicator().stringToProxy("Ice/RouterFinder:default -p 12347"));
+            test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
+            out.println("ok");
+        }
+
+        {
             out.print("installing router with communicator... ");
             out.flush();
             communicator().setDefaultRouter(router);

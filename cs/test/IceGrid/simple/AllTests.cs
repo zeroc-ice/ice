@@ -47,6 +47,15 @@ public class AllTests
         Console.Out.Flush();
         obj.ice_ping();
         Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing locator finder... ");
+        Ice.Identity finderId = new Ice.Identity();
+        finderId.category = "Ice";
+        finderId.name = "LocatorFinder";
+        Ice.LocatorFinderPrx finder = Ice.LocatorFinderPrxHelper.checkedCast(
+            communicator.getDefaultLocator().ice_identity(finderId));
+        test(finder.getLocator() != null);
+        Console.Out.WriteLine("ok");
         
         System.Console.Out.Write("shutting down server... ");
         System.Console.Out.Flush();

@@ -22,7 +22,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-namespace Glacier2
+namespace
 {
 
 class RouterService : public Service
@@ -66,14 +66,33 @@ public:
     }
 };
 
+class FinderI : public Ice::RouterFinder
+{
+public:
+    
+    FinderI(const Glacier2::RouterPrx& router) : _router(router)
+    {
+    }
+    
+    virtual Ice::RouterPrx
+    getRouter(const Ice::Current&)
+    {
+        return _router;
+    }
+
+private:
+
+    const Glacier2::RouterPrx _router;
 };
 
-Glacier2::RouterService::RouterService()
+};
+
+RouterService::RouterService()
 {
 }
 
 bool
-Glacier2::RouterService::start(int argc, char* argv[], int& status)
+RouterService::start(int argc, char* argv[], int& status)
 {
     bool nowarn;
 
@@ -465,6 +484,24 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
     //
     _sessionRouter = new SessionRouterI(_instance, verifier, sessionManager, sslVerifier, sslSessionManager);
 
+    //
+    // Th session router is used directly as servant for the main
+    // Glacier2 router Ice object.
+    //
+    Identity routerId;
+    routerId.category = _instance->properties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
+    routerId.name = "router";
+    Glacier2::RouterPrx routerPrx = Glacier2::RouterPrx::uncheckedCast(clientAdapter->add(_sessionRouter, routerId));
+
+    //
+    // Add the Ice router finder object to allow retrieving the router
+    // proxy with just the endpoint information of the router.
+    //
+    Identity finderId;
+    finderId.category = "Ice";
+    finderId.name = "RouterFinder";
+    clientAdapter->add(new FinderI(routerPrx), finderId);
+
     if(_instance->getObserver())
     {
         _instance->getObserver()->setObserverUpdater(_sessionRouter);
@@ -496,7 +533,7 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
 }
 
 bool
-Glacier2::RouterService::stop()
+RouterService::stop()
 {
     if(_sessionRouter)
     {
@@ -517,7 +554,7 @@ Glacier2::RouterService::stop()
 }
 
 CommunicatorPtr
-Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[], 
+RouterService::initializeCommunicator(int& argc, char* argv[], 
                                                 const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
@@ -549,7 +586,7 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[],
 }
 
 void
-Glacier2::RouterService::usage(const string& appName)
+RouterService::usage(const string& appName)
 {
     string options =
         "Options:\n"
@@ -581,6 +618,6 @@ main(int argc, char* argv[])
 
 #endif
 {
-    Glacier2::RouterService svc;
+    RouterService svc;
     return svc.main(argc, argv);
 }

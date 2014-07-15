@@ -50,7 +50,16 @@ public class AllTests
         out.flush();
         obj.ice_ping();
         out.println("ok");
-        
+
+        out.print("testing locator finder... ");
+        Ice.Identity finderId = new Ice.Identity();
+        finderId.category = "Ice";
+        finderId.name = "LocatorFinder";
+        Ice.LocatorFinderPrx finder = Ice.LocatorFinderPrxHelper.checkedCast(
+            communicator.getDefaultLocator().ice_identity(finderId));
+        test(finder.getLocator() != null);
+        out.println("ok");
+
         out.print("shutting down server... ");
         out.flush();
         obj.shutdown();

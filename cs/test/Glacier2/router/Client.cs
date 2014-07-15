@@ -45,6 +45,16 @@ public class Client
                 Console.Out.WriteLine("ok");
             }
 
+
+            {
+                Console.Out.Write("testing router finder... ");
+                Console.Out.Flush();
+                Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
+                    communicator().stringToProxy("Ice/RouterFinder:default -p 12347"));
+                test(finder.getRouter().ice_getIdentity().Equals(router.ice_getIdentity()));
+                Console.Out.WriteLine("ok");
+            }
+
             {
                 Console.Out.Write("installing router with communicator... ");
                 Console.Out.Flush();

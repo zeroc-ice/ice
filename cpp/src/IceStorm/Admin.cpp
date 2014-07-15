@@ -41,12 +41,7 @@ main(int argc, char* argv[])
     Ice::InitializationData id;
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
     id.properties = Ice::createProperties(args);
-    //
-    // We don't want to load DB plug-ins with icestormadmin, as this will
-    // cause FileLock issues when run with the same configuration file
-    // used by the service.
-    //
-    id.properties->setProperty("Ice.Plugin.DB", "");
+    id.properties->setProperty("Ice.Warn.Endpoints", "0");
     int rc = app.main(argc, argv, id);
     return rc;
 }
@@ -152,6 +147,27 @@ Client::run(int argc, char* argv[])
         else if(!managers.empty())
         {
             defaultManager = managers.begin()->second;
+        }
+    }
+
+    if(!defaultManager)
+    {
+        string host = properties->getProperty("IceStormAdmin.Host");
+        string port = properties->getProperty("IceStormAdmin.Port");
+
+        const int timeout = 3000; // 3s connection timeout.
+        ostringstream os;
+        os << "IceStorm/Finder";
+        os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+        os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
+        IceStorm::FinderPrx finder = IceStorm::FinderPrx::uncheckedCast(communicator()->stringToProxy(os.str()));
+        try
+        {
+            defaultManager = finder->getTopicManager();
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
         }
     }
 

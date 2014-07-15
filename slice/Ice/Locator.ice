@@ -200,5 +200,28 @@ interface LocatorRegistry
         throws ServerNotFoundException;
 };
 
+/**
+ *
+ * This inferface should be implemented by services implementing the
+ * Ice::Locator interface. It should be advertised through an Ice
+ * object with the identity `Ice/LocatorFinder'. This allows clients
+ * to retrieve the locator proxy with just the endpoint information of
+ * the service.
+ *
+ **/
+interface LocatorFinder
+{
+    /**
+     *
+     * Get the locator proxy implemented by the process hosting this
+     * finder object. The proxy might point to several replicas.
+     *
+     * @return The locator proxy.
+     *
+     **/
+    Locator* getLocator();
 };
+
+};
+
 
