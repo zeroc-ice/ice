@@ -21,7 +21,7 @@ namespace IceInternal
         }
 
         public enum ByteOrder { BIG_ENDIAN, LITTLE_ENDIAN };
-        
+
         public static ByteOrder nativeOrder()
         {
             return NO._o;
@@ -82,7 +82,7 @@ namespace IceInternal
             _position = pos;
             return this;
         }
-        
+
         public int limit()
         {
             return _limit;
@@ -105,6 +105,27 @@ namespace IceInternal
         public void clear()
         {
             _position = 0;
+            _limit = _capacity;
+        }
+
+        public void flip()
+        {
+            _limit = _position;
+            _position = 0;
+        }
+
+        public void compact()
+        {
+            if(_position < _limit)
+            {
+                int n = _limit - _position;
+                System.Buffer.BlockCopy(_bytes, _position, _bytes, 0, n);
+                _position = n;
+            }
+            else
+            {
+                _position = 0;
+            }
             _limit = _capacity;
         }
 
@@ -167,6 +188,11 @@ namespace IceInternal
         {
             checkUnderflow(1);
             return System.Buffer.GetByte(_bytes, _position++);
+        }
+
+        public byte get(int pos)
+        {
+            return System.Buffer.GetByte(_bytes, pos);
         }
 
         public ByteBuffer get(byte[] b)
@@ -290,30 +316,36 @@ namespace IceInternal
             public byte b7;
         }
 
+        public short getShort()
+        {
+            short v = getShort(_position);
+            _position += 2;
+            return v;
+        }
+
 #if !MANAGED && !COMPACT && !SILVERLIGHT
         unsafe
 #endif
-        public short getShort()
+        public short getShort(int pos)
         {
-            checkUnderflow(2);
+            checkUnderflow(pos, 2);
             if(NO._o == _order)
             {
 #if !MANAGED && !COMPACT && !SILVERLIGHT
-                fixed(byte* p = &_bytes[_position])
+                fixed(byte* p = &_bytes[pos])
                 {
                     _valBytes.shortVal = *((short*)p);
                 }
 #else
-                _valBytes.b0 = _bytes[_position];
-                _valBytes.b1 = _bytes[_position + 1];
+                _valBytes.b0 = _bytes[pos];
+                _valBytes.b1 = _bytes[pos + 1];
 #endif
             }
             else
             {
-                _valBytes.b1 = _bytes[_position];
-                _valBytes.b0 = _bytes[_position + 1];
+                _valBytes.b1 = _bytes[pos];
+                _valBytes.b0 = _bytes[pos + 1];
             }
-            _position += 2;
             return _valBytes.shortVal;
         }
 
@@ -393,7 +425,7 @@ namespace IceInternal
 #endif
         public int getInt()
         {
-            checkUnderflow(4);  
+            checkUnderflow(4);
             if(NO._o == _order)
             {
 #if !MANAGED && !COMPACT && !SILVERLIGHT
@@ -511,42 +543,48 @@ namespace IceInternal
             return this;
         }
 
+        public long getLong()
+        {
+            long v = getLong(_position);
+            _position += 8;
+            return v;
+        }
+
 #if !MANAGED && !COMPACT && !SILVERLIGHT
         unsafe
 #endif
-        public long getLong()
+        public long getLong(int pos)
         {
-            checkUnderflow(8);  
+            checkUnderflow(pos, 8);
             if(NO._o == _order)
             {
 #if !MANAGED && !COMPACT && !SILVERLIGHT
-                fixed(byte* p = &_bytes[_position])
+                fixed(byte* p = &_bytes[pos])
                 {
                     _valBytes.longVal = *((long*)p);
                 }
 #else
-                _valBytes.b0 = _bytes[_position];
-                _valBytes.b1 = _bytes[_position + 1];
-                _valBytes.b2 = _bytes[_position + 2];
-                _valBytes.b3 = _bytes[_position + 3];
-                _valBytes.b4 = _bytes[_position + 4];
-                _valBytes.b5 = _bytes[_position + 5];
-                _valBytes.b6 = _bytes[_position + 6];
-                _valBytes.b7 = _bytes[_position + 7];
+                _valBytes.b0 = _bytes[pos];
+                _valBytes.b1 = _bytes[pos + 1];
+                _valBytes.b2 = _bytes[pos + 2];
+                _valBytes.b3 = _bytes[pos + 3];
+                _valBytes.b4 = _bytes[pos + 4];
+                _valBytes.b5 = _bytes[pos + 5];
+                _valBytes.b6 = _bytes[pos + 6];
+                _valBytes.b7 = _bytes[pos + 7];
 #endif
             }
             else
             {
-                _valBytes.b7 = _bytes[_position];
-                _valBytes.b6 = _bytes[_position + 1];
-                _valBytes.b5 = _bytes[_position + 2];
-                _valBytes.b4 = _bytes[_position + 3];
-                _valBytes.b3 = _bytes[_position + 4];
-                _valBytes.b2 = _bytes[_position + 5];
-                _valBytes.b1 = _bytes[_position + 6];
-                _valBytes.b0 = _bytes[_position + 7];
+                _valBytes.b7 = _bytes[pos];
+                _valBytes.b6 = _bytes[pos + 1];
+                _valBytes.b5 = _bytes[pos + 2];
+                _valBytes.b4 = _bytes[pos + 3];
+                _valBytes.b3 = _bytes[pos + 4];
+                _valBytes.b2 = _bytes[pos + 5];
+                _valBytes.b1 = _bytes[pos + 6];
+                _valBytes.b0 = _bytes[pos + 7];
             }
-            _position += 8;
             return _valBytes.longVal;
         }
 
@@ -650,7 +688,7 @@ namespace IceInternal
 #endif
         public float getFloat()
         {
-            checkUnderflow(4);  
+            checkUnderflow(4);
             if(NO._o == _order)
             {
 #if !MANAGED && !COMPACT && !SILVERLIGHT
@@ -760,7 +798,7 @@ namespace IceInternal
 #endif
         public double getDouble()
         {
-            checkUnderflow(8);  
+            checkUnderflow(8);
             if(NO._o == _order)
             {
 #if !MANAGED && !COMPACT && !SILVERLIGHT
@@ -908,6 +946,14 @@ namespace IceInternal
         private void checkUnderflow(int size)
         {
             if(_position + size > _limit)
+            {
+                throw new InvalidOperationException("buffer underflow");
+            }
+        }
+
+        private void checkUnderflow(int pos, int size)
+        {
+            if(pos + size > _limit)
             {
                 throw new InvalidOperationException("buffer underflow");
             }

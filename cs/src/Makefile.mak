@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-SUBDIRS		= Ice IceStorm Glacier2 IcePatch2 IceGrid IceDiscovery
+SUBDIRS		= Ice IceStorm Glacier2 IcePatch2 IceGrid IceDiscovery IceWS
 
 !if "$(COMPACT)" != "yes" && "$(SILVERLIGHT)" != "yes"
 SUBDIRS		= $(SUBDIRS) IceSSL

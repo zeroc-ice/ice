@@ -925,13 +925,24 @@ public class AllTests : TestCommon.TestApp
                     continue; // IP version not supported.
                 }
 
-                string strPrx = oa.createProxy(serverCommunicator.stringToIdentity("dummy")).ToString();
+                Ice.ObjectPrx prx = oa.createProxy(serverCommunicator.stringToIdentity("dummy"));
+                try
+                {
+                    prx.ice_collocationOptimized(false).ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    serverCommunicator.destroy();
+                    continue; // IP version not supported.
+                }
+
+                string strPrx = prx.ToString();
                 foreach(Ice.Properties q in clientProps)
                 {
                     Ice.InitializationData clientInitData = new Ice.InitializationData();
                     clientInitData.properties = q;
                     Ice.Communicator clientCommunicator = Ice.Util.initialize(clientInitData);
-                    Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
+                    prx = clientCommunicator.stringToProxy(strPrx);
                     try
                     {
                         prx.ice_ping();

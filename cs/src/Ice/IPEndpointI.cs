@@ -257,20 +257,20 @@ namespace IceInternal
             return port_;
         }
 
-        protected virtual void streamWriteImpl(BasicStream s)
+        public virtual void streamWriteImpl(BasicStream s)
         {
             s.writeString(host_);
             s.writeInt(port_);
         }
 
-        protected virtual void hashInit(ref int h)
+        public virtual void hashInit(ref int h)
         {
             HashUtil.hashAdd(ref h, host_);
             HashUtil.hashAdd(ref h, port_);
             HashUtil.hashAdd(ref h, connectionId_);
         }
 
-        protected virtual void fillEndpointInfo(Ice.IPEndpointInfo info)
+        public virtual void fillEndpointInfo(Ice.IPEndpointInfo info)
         {
             info.host = host_;
             info.port = port_;

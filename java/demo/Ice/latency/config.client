@@ -2,12 +2,17 @@
 # The client reads this property to create the reference to the "Ping"
 # object in the server.
 #
-Ping.Proxy=ping:tcp -p 10000 -h localhost
+Ping.Proxy=ping:tcp -p 10000
 
 #
 # Uncomment to use the WebSocket transports instead.
 #
-Ping.Proxy=ping:ws -p 10002
+#Ping.Proxy=ping:ws -p 10002
+
+#
+# Only connect to the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Disable client-side ACM.

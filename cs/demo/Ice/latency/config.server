@@ -2,7 +2,12 @@
 # The server creates one single object adapter with the name
 # "Latency". The following line sets the endpoints for this adapter.
 #
-Latency.Endpoints=default -p 10000 -h localhost
+Latency.Endpoints=tcp -p 10000:ws -p 10002
+
+#
+# Only listen on the localhost interface by default.
+#
+Ice.Default.Host=localhost
 
 #
 # Warn about connection exceptions
@@ -16,3 +21,8 @@ Ice.Warn.Connections=1
 Ice.Admin.InstanceName=server
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+#
+# Install WebSocket transport plug-in
+#
+Ice.Plugin.IceWS=IceWS:IceWS.PluginFactory

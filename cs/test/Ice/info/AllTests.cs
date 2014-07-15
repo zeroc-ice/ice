@@ -51,14 +51,23 @@ public class AllTests : TestCommon.TestApp
             test(ipEndpoint.compress);
             test(!ipEndpoint.datagram());
 
-#if __MonoCS__ || COMPACT || SILVERLIGHT
+#if __MonoCS__
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
+                 ipEndpoint.type() == IceWS.WSEndpointType.value && !ipEndpoint.secure());
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
+                 ipEndpoint.type() == IceWS.WSEndpointType.value && ipEndpoint is IceWS.EndpointInfo);
+#elif COMPACT || SILVERLIGHT
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure());
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo);
 #else
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure());
+                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure() ||
+                 ipEndpoint.type() == IceWS.WSEndpointType.value && !ipEndpoint.secure() ||
+                 ipEndpoint.type() == IceWS.WSSEndpointType.value && ipEndpoint.secure());
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
-                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo);
+                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo ||
+                 ipEndpoint.type() == IceWS.WSEndpointType.value && ipEndpoint is IceWS.EndpointInfo ||
+                 ipEndpoint.type() == IceWS.WSSEndpointType.value && ipEndpoint is IceWS.EndpointInfo);
 #endif
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
@@ -93,10 +102,13 @@ public class AllTests : TestCommon.TestApp
             test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
-#  if __MonoCS__ || COMPACT
+#  if __MonoCS__
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceWS.WSEndpointType.value);
+#  elif COMPACT
             test(ipEndpoint.type() == Ice.TCPEndpointType.value);
 #  else
-            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value);
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value ||
+                 ipEndpoint.type() == IceWS.WSEndpointType.value || ipEndpoint.type() == IceWS.WSSEndpointType.value);
 #  endif
             test(ipEndpoint.host.Equals(defaultHost));
             test(ipEndpoint.port > 0);

@@ -17,21 +17,31 @@ namespace IceInternal
     //
     public class Buffer
     {
-        public Buffer(int maxCapacity)
+        public Buffer(int maxCapacity) : this(maxCapacity, ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+        {
+        }
+
+        public Buffer(int maxCapacity, ByteBuffer.ByteOrder order)
         {
             b = _emptyBuffer;
             _size = 0;
             _capacity = 0;
             _maxCapacity = maxCapacity;
+            _order = order;
         }
 
-        public Buffer(byte[] data)
+        public Buffer(byte[] data) : this(data, ByteBuffer.ByteOrder.LITTLE_ENDIAN)
+        {
+        }
+
+        public Buffer(byte[] data, ByteBuffer.ByteOrder order)
         {
             b = ByteBuffer.wrap(data);
-            b.order(ByteBuffer.ByteOrder.LITTLE_ENDIAN);
+            b.order(order);
             _size = data.Length;
             _capacity = 0;
             _maxCapacity = 0;
+            _order = order;
         }
 
         public int size()
@@ -154,7 +164,7 @@ namespace IceInternal
                     b.position(pos);
                 }
 
-                b.order(ByteBuffer.ByteOrder.LITTLE_ENDIAN);
+                b.order(_order);
             }
             catch(System.OutOfMemoryException)
             {
@@ -182,6 +192,7 @@ namespace IceInternal
         private int _capacity; // Cache capacity to avoid excessive method calls.
         private int _maxCapacity;
         private int _shrinkCounter;
+        private ByteBuffer.ByteOrder _order;
     }
 
 }

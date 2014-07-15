@@ -30,7 +30,7 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 !if "$(COMPACT)" == "yes"
 	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(C_SRCS) $(GEN_SRCS)
 !else
-	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:"$(refdir)\IceSSL.dll" $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:"$(refdir)\IceSSL.dll" -r:"$(refdir)\IceWS.dll" $(C_SRCS) $(GEN_SRCS)
 !endif
 
 server.exe: $(S_SRCS) $(GEN_SRCS)

@@ -7,7 +7,7 @@ Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 #
 # Uncomment to use the WebSocket transports instead.
 #
-Hello.Proxy=hello:ws -p 10002:udp -p 10000:wss -p 10003
+#Hello.Proxy=hello:ws -p 10002:udp -p 10000:wss -p 10003
 
 #
 # Only connect to the localhost interface by default.

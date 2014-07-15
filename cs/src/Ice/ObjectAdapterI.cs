@@ -1435,20 +1435,20 @@ namespace Ice
                 if(endp == null)
                 {
 #if COMPACT
-                    if(s.StartsWith("ssl", StringComparison.Ordinal))
+                    if(s.StartsWith("ssl", StringComparison.Ordinal) || s.StartsWith("wss", StringComparison.Ordinal))
                     {
                         instance_.initializationData().logger.warning(
-                            "SSL endpoint `" + s +
-                            "' ignored: IceSSL is not supported with the .NET Compact Framework");
+                            "ignoring endpoint `" + s +
+                            "': IceSSL is not supported with the .NET Compact Framework");
                         ++end;
                         continue;
                     }
 #else
                     if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
-                       s.StartsWith("ssl", StringComparison.Ordinal))
+                       (s.StartsWith("ssl", StringComparison.Ordinal) || s.StartsWith("wss", StringComparison.Ordinal)))
                     {
                         instance_.initializationData().logger.warning(
-                            "SSL endpoint `" + s + "' ignored: IceSSL is not supported with Mono");
+                            "ignoring endpoint `" + s + "': IceSSL is not supported with Mono");
                         ++end;
                         continue;
                     }

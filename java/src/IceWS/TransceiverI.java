@@ -860,7 +860,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 else if(_readPayloadLength == 127)
                 {
-                    long l = _readBuffer.b.getLong(_readBufferPos);
+                    long l = _readBuffer.b.getLong(_readBufferPos); // Uses network byte order.
                     _readBufferPos += 8;
                     if(l < 0 || l > Integer.MAX_VALUE)
                     {
@@ -1080,11 +1080,22 @@ final class TransceiverI implements IceInternal.Transceiver
             //
             // Unmask the data we just read.
             //
-            int p = _readStart;
-            for(int n = _readStart; p < buf.b.position(); ++p, ++n)
+            final int pos = buf.b.position();
+            if(buf.b.hasArray())
             {
-                final byte b = (byte)(buf.b.get(n) ^ _readMask[n % 4]);
-                buf.b.put(n, b);
+                byte[] arr = buf.b.array();
+                for(int n = _readStart; n < pos; ++n)
+                {
+                    arr[n] = (byte)(arr[n] ^ _readMask[n % 4]);
+                }
+            }
+            else
+            {
+                for(int n = _readStart; n < pos; ++n)
+                {
+                    final byte b = (byte)(buf.b.get(n) ^ _readMask[n % 4]);
+                    buf.b.put(n, b);
+                }
             }
         }
 
@@ -1436,8 +1447,8 @@ final class TransceiverI implements IceInternal.Transceiver
     private static final int StateClosingResponsePending = 8;
     private static final int StateClosed = 9;
 
-    int _state;
-    int _nextState;
+    private int _state;
+    private int _nextState;
 
     private HttpParser _parser;
     private String _key;

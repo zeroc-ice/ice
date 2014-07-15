@@ -13,6 +13,11 @@ using System.Net.Sockets;
 
 internal class Transceiver : IceInternal.Transceiver
 {
+    public Socket fd()
+    {
+        return _transceiver.fd();
+    }
+
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
     {
         _configuration.checkInitializeException();

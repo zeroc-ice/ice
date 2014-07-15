@@ -25,6 +25,11 @@ namespace IceInternal
 
     sealed class TcpTransceiver : Transceiver
     {
+        public Socket fd()
+        {
+            return _fd;
+        }
+
         public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
             try

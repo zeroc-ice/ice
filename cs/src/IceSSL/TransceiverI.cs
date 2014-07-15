@@ -24,6 +24,11 @@ namespace IceSSL
 
     sealed class TransceiverI : IceInternal.Transceiver
     {
+        public Socket fd()
+        {
+            return _fd;
+        }
+
         public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, ref bool hasMoreData)
         {
             try

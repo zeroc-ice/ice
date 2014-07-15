@@ -14,6 +14,7 @@ namespace IceInternal
 
     public interface Transceiver
     {
+        Socket fd();
         int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData);
         int closing(bool initiator, Ice.LocalException ex);
         void close();

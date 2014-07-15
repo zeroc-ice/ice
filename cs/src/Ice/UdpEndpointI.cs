@@ -265,7 +265,7 @@ namespace IceInternal
         //
         // Marshal the endpoint
         //
-        protected override void streamWriteImpl(BasicStream s)
+        public override void streamWriteImpl(BasicStream s)
         {
             base.streamWriteImpl(s);
             if(s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
@@ -278,7 +278,7 @@ namespace IceInternal
             s.writeBool(_compress);
         }
 
-        protected override void hashInit(ref int h)
+        public override void hashInit(ref int h)
         {
             base.hashInit(ref h);
             IceInternal.HashUtil.hashAdd(ref h, _mcastInterface);
@@ -287,7 +287,7 @@ namespace IceInternal
             IceInternal.HashUtil.hashAdd(ref h, _compress);
         }
 
-        protected override void fillEndpointInfo(Ice.IPEndpointInfo info)
+        public override void fillEndpointInfo(Ice.IPEndpointInfo info)
         {
             base.fillEndpointInfo(info);
             if(info is Ice.UDPEndpointInfo)

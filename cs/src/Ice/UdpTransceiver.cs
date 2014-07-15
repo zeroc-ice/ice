@@ -27,6 +27,11 @@ namespace IceInternal
 
     sealed class UdpTransceiver : Transceiver
     {
+        public Socket fd()
+        {
+            return _fd;
+        }
+
         public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
         {
             if(_state == StateNeedConnect)

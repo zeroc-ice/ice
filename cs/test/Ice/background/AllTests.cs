@@ -616,6 +616,29 @@ public class AllTests
         thread2.Join();
     }
 
+    private sealed class CloseCallback : Callback, Ice.ConnectionCallback
+    {
+        public void heartbeat(Ice.Connection con)
+        {
+        }
+
+        public void closed(Ice.Connection con)
+        {
+            called();
+        }
+    }
+
+    //
+    // Close the connection associated with the proxy and wait until the close completes.
+    //
+    private static void closeConnection(Ice.ObjectPrx prx)
+    {
+        CloseCallback cb = new CloseCallback();
+        prx.ice_getConnection().setCallback(cb);
+        prx.ice_getConnection().close(false);
+        cb.check();
+    }
+
     private static void validationTests(Configuration configuration, Test.BackgroundPrx background,
                                         Test.BackgroundControllerPrx ctl)
     {
@@ -627,7 +650,7 @@ public class AllTests
         {
             test(false);
         }
-        background.ice_getConnection().close(false);
+        closeConnection(background);
 
         try
         {
@@ -659,7 +682,8 @@ public class AllTests
             configuration.readException(null);
         }
 
-        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl"))
+        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-ssl") &&
+           !background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").Equals("test-wss"))
         {
             try
             {
@@ -673,7 +697,7 @@ public class AllTests
                 Console.Error.WriteLine(ex);
                 test(false);
             }
-            background.ice_getConnection().close(false);
+            closeConnection(background);
 
             try
             {
@@ -745,7 +769,7 @@ public class AllTests
             Console.Error.WriteLine(ex);
             test(false);
         }
-        background.ice_getConnection().close(false);
+        closeConnection(background);
 
         try
         {
@@ -769,7 +793,7 @@ public class AllTests
         // First send small requests to test without auto-flushing.
         //
         backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
+        closeConnection(backgroundBatchOneway);
         try
         {
             backgroundBatchOneway.ice_ping();
@@ -790,7 +814,7 @@ public class AllTests
         // Send bigger requests to test with auto-flushing.
         //
         backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
+        closeConnection(backgroundBatchOneway);
         try
         {
             backgroundBatchOneway.ice_ping();
@@ -812,7 +836,7 @@ public class AllTests
         //
 
         backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
+        closeConnection(backgroundBatchOneway);
         try
         {
             backgroundBatchOneway.ice_ping();
@@ -828,10 +852,10 @@ public class AllTests
         backgroundBatchOneway.op();
         ctl.resumeAdapter();
         backgroundBatchOneway.begin_ice_flushBatchRequests();
-        backgroundBatchOneway.ice_getConnection().close(false);
+        closeConnection(backgroundBatchOneway);
 
         backgroundBatchOneway.ice_ping();
-        backgroundBatchOneway.ice_getConnection().close(false);
+        closeConnection(backgroundBatchOneway);
         try
         {
             backgroundBatchOneway.ice_ping();
@@ -856,7 +880,7 @@ public class AllTests
         //
         //backgroundBatchOneway.ice_getConnection().close(false);
         backgroundBatchOneway.end_ice_flushBatchRequests(r3);
-        backgroundBatchOneway.ice_getConnection().close(false);
+        closeConnection(backgroundBatchOneway);
     }
 
     private static void readWriteTests(Configuration configuration, Test.BackgroundPrx background,

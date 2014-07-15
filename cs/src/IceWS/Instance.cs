@@ -7,8 +7,13 @@
 //
 // **********************************************************************
 
-package IceWS;
-
-public final class Util
+namespace IceWS
 {
+    internal class Instance : IceInternal.ProtocolInstance
+    {
+        internal Instance(Ice.Communicator communicator, short type, string protocol) :
+            base(communicator, type, protocol)
+        {
+        }
+    }
 }

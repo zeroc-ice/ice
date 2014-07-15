@@ -27,7 +27,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,IceWS) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
