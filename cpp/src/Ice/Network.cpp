@@ -538,7 +538,7 @@ getInterfaceIndex(const string& name)
     // 
     if(isAddr)
     {
-#if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#  if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
         struct ifaddrs* ifap;
         if(::getifaddrs(&ifap) != SOCKET_ERROR)
         {
@@ -558,13 +558,13 @@ getInterfaceIndex(const string& name)
             }
             ::freeifaddrs(ifap);
         }
-#else
+#  else
         SOCKET fd = createSocketImpl(false, AF_INET6);
-#ifdef _AIX
+#    ifdef _AIX
         int cmd = CSIOCGIFCONF;
-#else
+#    else
         int cmd = SIOCGIFCONF;
-#endif
+#    endif
         struct ifconf ifc;
         int numaddrs = 10;
         int old_ifc_len = 0;
@@ -622,7 +622,7 @@ getInterfaceIndex(const string& name)
             }
             free(ifc.ifc_buf);
         }
-#endif
+#  endif
     }
     else // Look for an interface with the given name.
     {
@@ -723,12 +723,14 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
     }
 }
 #elif defined(ICE_OS_WINRT)
+
 void
 IceInternal::NativeInfo::completed(SocketOperation operation)
 {
     assert(_completedHandler);
     _completedHandler(operation);
 }
+
 #endif
 
 IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
@@ -1701,17 +1703,18 @@ IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, cons
     }
 }
 
+#ifdef ICE_OS_WINRT
 void
-#ifndef ICE_OS_WINRT
-IceInternal::setBlock(SOCKET fd, bool block)
-#else
 IceInternal::setBlock(SOCKET fd, bool)
-#endif
 {
-#ifndef ICE_OS_WINRT
+}
+#else
+void
+IceInternal::setBlock(SOCKET fd, bool block)
+{
+#ifdef _WIN32
     if(block)
     {
-#ifdef _WIN32
         unsigned long arg = 0;
         if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
         {
@@ -1720,7 +1723,21 @@ IceInternal::setBlock(SOCKET fd, bool)
             ex.error = WSAGetLastError();
             throw ex;
         }
+    }
+    else
+    {
+        unsigned long arg = 1;
+        if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
+        {
+            closeSocketNoThrow(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = WSAGetLastError();
+            throw ex;
+        }
+    }
 #else
+    if(block)
+    {
         int flags = fcntl(fd, F_GETFL);
         flags &= ~O_NONBLOCK;
         if(fcntl(fd, F_SETFL, flags) == SOCKET_ERROR)
@@ -1730,20 +1747,9 @@ IceInternal::setBlock(SOCKET fd, bool)
             ex.error = errno;
             throw ex;
         }
-#endif
     }
     else
     {
-#ifdef _WIN32
-        unsigned long arg = 1;
-        if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
-        {
-            closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = WSAGetLastError();
-            throw ex;
-        }
-#else
         int flags = fcntl(fd, F_GETFL);
         flags |= O_NONBLOCK;
         if(fcntl(fd, F_SETFL, flags) == SOCKET_ERROR)
@@ -1753,10 +1759,10 @@ IceInternal::setBlock(SOCKET fd, bool)
             ex.error = errno;
             throw ex;
         }
-#endif
     }
 #endif
 }
+#endif
 
 void
 IceInternal::setSendBufferSize(SOCKET fd, int sz)
@@ -1812,7 +1818,6 @@ IceInternal::setRecvBufferSize(SOCKET, int)
 void
 IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 {
-
     if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
@@ -2035,12 +2040,12 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
 
     Address local;
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
-#ifdef NDEBUG
+#  ifdef NDEBUG
     getsockname(fd, &local.sa, &len);
-#else
+#  else
     int ret = getsockname(fd, &local.sa, &len);
     assert(ret != SOCKET_ERROR);
-#endif
+#  endif
     return local;
 #endif
 }
@@ -2424,12 +2429,12 @@ IceInternal::createPipe(SOCKET fds[2])
     try
     {
         setBlock(fds[0], true);
-#ifndef NDEBUG
+#  ifndef NDEBUG
         bool connected = doConnect(fds[0], addr);
         assert(connected);
-#else
+#  else
         doConnect(fds[0], addr);
-#endif
+#  endif
     }
     catch(...)
     {
