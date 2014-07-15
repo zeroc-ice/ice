@@ -462,6 +462,19 @@ def allTests(communicator):
     except Ice.AlreadyRegisteredException:
         pass
 
+    try:
+        adapter.add(obj, communicator.stringToIdentity(""))
+        test(false)
+    except Ice.IllegalIdentityException as ex:
+        test(ex.id.name == "")
+
+    try:
+        adapter.add(None, communicator.stringToIdentity("x"))
+        test(false)
+    except Ice.IllegalServantException:
+        pass
+
+
     adapter.remove(communicator.stringToIdentity("x"))
     try:
         adapter.remove(communicator.stringToIdentity("x"))
