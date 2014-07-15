@@ -1,0 +1,14 @@
+#
+# This property is used by the icestormadmin to connect to IceStorm.
+#
+IceStormAdmin.TopicManager.Default=DemoIceStorm/TopicManager:default -h localhost -p 10000
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=1
