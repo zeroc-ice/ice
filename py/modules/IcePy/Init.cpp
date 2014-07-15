@@ -115,15 +115,14 @@ PyDoc_STRVAR(moduleDoc, "The Internet Communications Engine.");
 
 #endif
 
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
-extern "C" __global void
-#else
 PyMODINIT_FUNC
+#ifndef _WIN32 // On Windows, PyMODINIT_FUNC already defines dllexport
+ICE_DECLSPEC_EXPORT
 #endif
 #if PY_VERSION_HEX >= 0x03000000
-ICE_DECLSPEC_EXPORT PyInit_IcePy(void)
+PyInit_IcePy(void)
 #else
-ICE_DECLSPEC_EXPORT initIcePy(void)
+initIcePy(void)
 #endif
 {
     PyObject* module;
