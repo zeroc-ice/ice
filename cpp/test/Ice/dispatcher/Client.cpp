@@ -45,8 +45,6 @@ main(int argc, char* argv[])
         initData.dispatcher = new Dispatcher();
 #endif
         communicator = Ice::initialize(argc, argv, initData);
-        
-
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

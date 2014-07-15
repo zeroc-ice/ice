@@ -949,12 +949,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 // If the request is being sent, don't remove it from the send streams, 
                 // it will be removed once the sending is finished.
                 //
-                boolean isSent = o.timedOut();
+                o.timedOut();
                 if(o != _sendStreams.getFirst())
                 {
                     it.remove();
                 }
-                out.finished(new InvocationTimeoutException(), isSent);
+                out.finished(new InvocationTimeoutException());
                 return; // We're done.
             }
         }
@@ -967,7 +967,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 if(it2.next() == o)
                 {
-                    o.finished(new InvocationTimeoutException(), true);
+                    o.finished(new InvocationTimeoutException());
                     it2.remove();
                     return; // We're done.
                 }
@@ -978,59 +978,44 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void 
     asyncRequestTimedOut(IceInternal.OutgoingAsyncMessageCallback outAsync)
     {
-        boolean isSent = false;
-        boolean finished = false;
-
-        synchronized(this)
+        java.util.Iterator<OutgoingMessage> it = _sendStreams.iterator();
+        while(it.hasNext())
         {
-            java.util.Iterator<OutgoingMessage> it = _sendStreams.iterator();
-            while(it.hasNext())
+            OutgoingMessage o = it.next();
+            if(o.outAsync == outAsync)
             {
-                OutgoingMessage o = it.next();
-                if(o.outAsync == outAsync)
+                if(o.requestId > 0)
                 {
-                    if(o.requestId > 0)
-                    {
-                        _asyncRequests.remove(o.requestId);
-                    }
+                    _asyncRequests.remove(o.requestId);
+                }
                 
-                    //
-                    // If the request is being sent, don't remove it from the send streams, 
-                    // it will be removed once the sending is finished.
-                    //
-                    isSent = o.timedOut();
-                    if(o != _sendStreams.getFirst()) 
-                    {
-                        it.remove();
-                    }
-                    finished = true;
-                    break; // We're done.
-                }
-            }
-
-            if(!finished)
-            {
-                if(outAsync instanceof IceInternal.OutgoingAsync)
+                //
+                // If the request is being sent, don't remove it from the send streams, 
+                // it will be removed once the sending is finished.
+                //
+                o.timedOut();
+                if(o != _sendStreams.getFirst()) 
                 {
-                    IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
-                    java.util.Iterator<IceInternal.OutgoingAsync> it2 = _asyncRequests.values().iterator();
-                    while(it2.hasNext())
-                    {
-                        if(it2.next() == o)
-                        {
-                            it2.remove();
-                            finished = true;
-                            isSent = true;
-                            break; // We're done.
-                        }
-                    }
+                    it.remove();
                 }
+                outAsync.__dispatchInvocationTimeout(_threadPool, this);
+                return; // We're done
             }
         }
 
-        if(finished)
+        if(outAsync instanceof IceInternal.OutgoingAsync)
         {
-            outAsync.__finished(new InvocationTimeoutException(), isSent);
+            IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
+            java.util.Iterator<IceInternal.OutgoingAsync> it2 = _asyncRequests.values().iterator();
+            while(it2.hasNext())
+            {
+                if(it2.next() == o)
+                {
+                    it2.remove();
+                    outAsync.__dispatchInvocationTimeout(_threadPool, this);
+                    return; // We're done.
+                }
+            }
         }
     }
 
@@ -1418,7 +1403,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             current.ioCompleted();
         }
 
-        if(_dispatcher != null)
+        if(!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
+        {
+            dispatch(startCB, sentCBs, info);
+        }
+        else
         {
             if(info != null && info.heartbeatCallback == null) // No need for the stream if heartbeat callback
             {
@@ -1435,28 +1424,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             final StartCallback finalStartCB = startCB;
             final java.util.List<OutgoingMessage> finalSentCBs = sentCBs;
             final MessageInfo finalInfo = info;
-            try
-            {
-                _dispatcher.dispatch(new Runnable()
-                    {
-                        public void
-                        run()
-                            {
-                                dispatch(finalStartCB, finalSentCBs, finalInfo);
-                            }
-                    }, this);
-            }
-            catch(java.lang.Exception ex)
-            {
-                if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            _threadPool.dispatchFromThisThread(
+                new IceInternal.DispatchWorkItem(this)
                 {
-                    warning("dispatch exception", ex);
-                }
-            }
-        }
-        else
-        {
-            dispatch(startCB, sentCBs, info);
+                    public void
+                    run()
+                    {
+                        dispatch(finalStartCB, finalSentCBs, finalInfo);
+                    }
+                });
         }
     }
 
@@ -1586,32 +1562,22 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             return;
         }
 
-        if(_dispatcher == null)
+        current.ioCompleted();
+        if(!_dispatcher)  // Optimization, call finish() directly if there's no dispatcher.
         {
-            current.ioCompleted();
             finish();
         }
         else
         {
-            try
-            {
-                _dispatcher.dispatch(new Runnable()
-                    {
-                        public void
-                        run()
-                        {
-                            finish();
-                        }
-                    },
-                    this);
-            }
-            catch(java.lang.Exception ex)
-            {
-                if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            _threadPool.dispatchFromThisThread(
+                new IceInternal.DispatchWorkItem(this)
                 {
-                    warning("dispatch exception", ex);
-                }
-            }
+                    public void
+                    run()
+                    {
+                        finish();
+                    }
+                });
         }
     }
 
@@ -1656,13 +1622,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         for(IceInternal.Outgoing p : _requests.values())
         {
-            p.finished(_exception, true);
+            p.finished(_exception);
         }
         _requests.clear();
 
         for(IceInternal.OutgoingAsync p : _asyncRequests.values())
         {
-            p.__finished(_exception, true);
+            p.__finished(_exception);
         }
         _asyncRequests.clear();
 
@@ -1796,7 +1762,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _endpoint = endpoint;
         _adapter = adapter;
         final Ice.InitializationData initData = instance.initializationData();
-        _dispatcher = initData.dispatcher; // Cached for better performance.
+        _dispatcher = initData.dispatcher != null; // Cached for better performance.
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
         _timer = instance.timer();
@@ -3093,7 +3059,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             this.stream = stream;
             this.compress = compress;
             this.adopt = adopt;
-            this.isSent = false;
             this.requestId = 0;
         }
 
@@ -3104,7 +3069,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             this.compress = compress;
             this.out = out;
             this.requestId = requestId;
-            this.isSent = false;
         }
 
         OutgoingMessage(IceInternal.OutgoingAsyncMessageCallback out, IceInternal.BasicStream stream, boolean compress,
@@ -3114,16 +3078,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             this.compress = compress;
             this.outAsync = out;
             this.requestId = requestId;
-            this.isSent = false;
         }
 
-        public boolean 
+        public void 
         timedOut()
         {
-            assert((out != null || outAsync != null) && !isSent);
+            assert((out != null || outAsync != null));
             out = null;
             outAsync = null;
-            return isSent;
         }
 
         public void
@@ -3142,21 +3104,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         public boolean
         sent()
         {
-            isSent = true; // The message is sent.
-
             if(out != null)
             {
                 out.sent();
-                return false;
             }
             else if(outAsync != null)
             {
                 return outAsync.__sent();
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void
@@ -3164,11 +3120,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(out != null)
             {
-                out.finished(ex, isSent);
+                out.finished(ex);
             }
             else if(outAsync != null)
             {
-                outAsync.__finished(ex, isSent);
+                outAsync.__finished(ex);
             }
         }
 
@@ -3179,7 +3135,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         public int requestId;
         boolean adopt;
         boolean prepared;
-        boolean isSent;
     }
 
     private Communicator _communicator;
@@ -3194,7 +3149,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private ObjectAdapter _adapter;
     private IceInternal.ServantManager _servantManager;
 
-    private final Dispatcher _dispatcher;
+    private final boolean _dispatcher;
     private final Logger _logger;
     private final IceInternal.TraceLevels _traceLevels;
     private final IceInternal.ThreadPool _threadPool;

@@ -11,8 +11,9 @@ top_srcdir	= ../../..
 
 CLIENT		= $(call mktestname,client)
 SERVER		= $(call mktestname,server)
+COLLOCATED	= $(call mktestname,collocated)
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= Test.o \
 		  Dispatcher.o
@@ -23,9 +24,14 @@ COBJS		= Client.o \
 SOBJS		= TestI.o \
 		  Server.o
 
+COLOBJS		= TestI.o \
+		  Collocated.o \
+		  AllTests.o
+
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp) \
+		  $(COLOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
 
@@ -40,5 +46,9 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(call mktest,$@,$(OBJS) $(SOBJS),$(LIBS))
+
+$(COLLOCATED): $(OBJS) $(COLOBJS)
+	rm -f $@
+	$(call mktest,$@,$(OBJS) $(COLOBJS),$(LIBS))
 
 include .depend

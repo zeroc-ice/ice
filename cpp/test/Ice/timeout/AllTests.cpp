@@ -127,6 +127,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    ByteSeq seq(10000000);
+
     cout << "testing connection timeout... " << flush;
     {
         //
@@ -136,7 +138,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->holdAdapter(500);
         try
         {
-            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }
@@ -177,7 +178,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::InvocationTimeoutException&)
         {
         }
-        to = TimeoutPrx::uncheckedCast(obj->ice_invocationTimeout(500));
+        to = TimeoutPrx::checkedCast(obj->ice_invocationTimeout(500));
         test(connection == to->ice_getConnection());
         try
         {
@@ -251,7 +252,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->holdAdapter(1000);
         try
         {
-            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }
@@ -267,7 +267,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->holdAdapter(500);
         try
         {
-            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }
@@ -319,7 +318,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to = TimeoutPrx::uncheckedCast(to->ice_timeout(500));
         try
         {
-            ByteSeq seq(10000000);
             to->sendData(seq);
             test(false);
         }

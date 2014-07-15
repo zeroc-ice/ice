@@ -31,6 +31,12 @@ public final class ThreadPoolCurrent
         _threadPool.ioCompleted(this);
     }
     
+    public void
+    dispatchFromThisThread(DispatchWorkItem workItem)
+    {
+        _threadPool.dispatchFromThisThread(workItem);
+    }
+    
     final ThreadPool _threadPool;
     final ThreadPool.EventHandlerThread _thread;
     EventHandler _handler;

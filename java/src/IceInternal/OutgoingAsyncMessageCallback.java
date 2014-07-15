@@ -30,17 +30,20 @@ public interface OutgoingAsyncMessageCallback
     // connection will call the __invokeSent() method bellow (which in turn should call the 
     // sent callback).
     //
-    public abstract boolean __sent();
+    boolean __sent();
 
     //
     // Called by the connection to call the user sent callback.
     //
-    public abstract void __invokeSent();
+    void __invokeSent();
     
     //
-    // Called by the connection when the request failed. The boolean indicates whether or
-    // not the message was possibly sent (this is useful for retry to figure out whether
-    // or not the request can't be retried without breaking at-most-once semantics.)
+    // Called by the connection when the request failed.
     //
-    public abstract void __finished(Ice.Exception ex, boolean sent);
+    void __finished(Ice.Exception ex);
+
+    //
+    // Helper to dispatch invocation timeout.
+    //
+    void __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection);
 }

@@ -182,7 +182,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     }
     
     public synchronized void
-    finished(Ice.Exception ex, boolean sent)
+    finished(Ice.Exception ex)
     {
         if(_childObserver != null)
         {

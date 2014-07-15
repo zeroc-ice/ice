@@ -381,14 +381,6 @@
             function()
             {
                 to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250 * mult));
-                var seq = Ice.Buffer.createNative(new Array(1000000));
-                for(var i = 0; i < seq.length; ++i)
-                {
-                    seq[i] = 0;
-                }
-                //
-                // Expect TimeoutException.
-                //
                 return to.sendData(seq);
             }
         ).then(

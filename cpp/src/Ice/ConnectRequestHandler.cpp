@@ -248,7 +248,7 @@ ConnectRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
                 if(p->out == out)
                 {
                     Ice::InvocationTimeoutException ex(__FILE__, __LINE__);
-                    out->finished(ex, false);
+                    out->finished(ex);
                     _requests.erase(p);
                     return;
                 }
@@ -262,7 +262,6 @@ ConnectRequestHandler::requestTimedOut(OutgoingMessageCallback* out)
 void 
 ConnectRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr& outAsync)
 {
-    bool timedOut = false;
     {
         Lock sync(*this);
         if(_exception.get())
@@ -276,18 +275,13 @@ ConnectRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPt
             {
                 if(p->outAsync.get() == outAsync.get())
                 {
-                    timedOut = true;
                     _requests.erase(p);
-                    break;
+                    outAsync->__dispatchInvocationTimeout(_reference->getInstance()->clientThreadPool(), 0);
+                    return;
                 }
             }
+            assert(false); // The request has to be queued if it timed out and we're not initialized yet.
         }
-    }
-    if(timedOut)
-    {
-        Ice::InvocationTimeoutException ex(__FILE__, __LINE__);
-        outAsync->__finished(ex, false);
-        return;
     }
     _connection->asyncRequestTimedOut(outAsync);
 }
@@ -369,7 +363,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     //
     if(!_requests.empty())
     {
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(_connection, this));
+        _reference->getInstance()->clientThreadPool()->dispatch(new FlushRequestsWithException(_connection, this));
     }
 
     notifyAll();
@@ -485,19 +479,19 @@ ConnectRequestHandler::flushRequests()
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.get()->ice_clone());
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(_connection, this));
+        _reference->getInstance()->clientThreadPool()->dispatch(new FlushRequestsWithException(_connection, this));
     }
     catch(const Ice::LocalException& ex)
     {
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(ex.ice_clone());
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(_connection, this));
+        _reference->getInstance()->clientThreadPool()->dispatch(new FlushRequestsWithException(_connection, this));
     }
 
     if(!sentCallbacks.empty())
     {
-        _reference->getInstance()->clientThreadPool()->execute(new FlushSentRequests(_connection, sentCallbacks));
+        _reference->getInstance()->clientThreadPool()->dispatch(new FlushSentRequests(_connection, sentCallbacks));
     }
         
     //
@@ -534,11 +528,11 @@ ConnectRequestHandler::flushRequestsWithException()
     {
         if(p->out)
         {            
-            p->out->finished(*_exception.get(), false);
+            p->out->finished(*_exception.get());
         }
         else if(p->outAsync)
         {            
-            p->outAsync->__finished(*_exception.get(), false);
+            p->outAsync->__finished(*_exception.get());
         }
         else
         {

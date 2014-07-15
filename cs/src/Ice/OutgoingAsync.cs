@@ -120,11 +120,14 @@ namespace IceInternal
         void invokeSent__(Ice.AsyncCallback cb);
 
         //
-        // Called by the connection when the request failed. The boolean indicates whether or
-        // not the message was possibly sent (this is useful for retry to figure out whether
-        // or not the request can't be retried without breaking at-most-once semantics.)
+        // Called by the connection when the request failed.
         //
-        void finished__(Ice.Exception ex, bool sent);
+        void finished__(Ice.Exception ex);
+
+        //
+        // Helper to dispatch invocation timeout.
+        //
+        void dispatchInvocationTimeout__(ThreadPool threadPool, Ice.Connection connection);
     }
 
     abstract public class OutgoingAsyncBase : Ice.AsyncResult
@@ -794,20 +797,7 @@ namespace IceInternal
             
             if(handler != null)
             {
-                Ice.ConnectionI con = null;
-                try
-                {
-                    con = handler.getConnection(false);
-                }
-                catch(Ice.LocalException)
-                {
-                    // Ignore.
-                }
-                IceInternal.OutgoingAsyncMessageCallback outAsync = (IceInternal.OutgoingAsyncMessageCallback)this;
-                instance_.clientThreadPool().dispatch(() =>
-                    {
-                        handler.asyncRequestTimedOut(outAsync);
-                    }, con);
+                handler.asyncRequestTimedOut((OutgoingAsyncMessageCallback)this);
             }
         }
 
@@ -863,6 +853,7 @@ namespace IceInternal
                               bool explicitContext)
         {
             _handler = null;
+            _sent = false;
             _cnt = 0;
             _mode = mode;
             sentSynchronously_ = false;
@@ -958,7 +949,8 @@ namespace IceInternal
             {
                 bool alreadySent = (state_ & Sent) != 0;
                 state_ |= Sent;
-
+                _sent = true;
+    
                 Debug.Assert((state_ & Done) == 0);
                 if(!proxy_.ice_isTwoway())
                 {
@@ -993,7 +985,7 @@ namespace IceInternal
             base.invokeSent__(cb);
         }
 
-        public void finished__(Ice.Exception exc, bool sent)
+        public void finished__(Ice.Exception exc)
         {
             monitor_.Lock();
             try
@@ -1023,7 +1015,7 @@ namespace IceInternal
 
             try
             {
-                if(!handleException(exc, sent))
+                if(!handleException(exc))
                 {
                     return; // Can't be retried immediately.
                 }
@@ -1034,6 +1026,18 @@ namespace IceInternal
             {
                 invokeException__(ex);
             }
+        }
+
+        public void 
+        dispatchInvocationTimeout__(ThreadPool threadPool, Ice.Connection connection)
+        {
+            OutgoingAsync self = this;
+            threadPool.dispatch(
+                () => 
+                {
+                    self.finished__(new Ice.InvocationTimeoutException());
+                },
+                connection);
         }
 
         public void finished__()
@@ -1202,7 +1206,7 @@ namespace IceInternal
             }
             catch(Ice.LocalException ex)
             {
-                finished__(ex, true);
+                finished__(ex);
                 return;
             }
 
@@ -1216,6 +1220,7 @@ namespace IceInternal
             {
                 try
                 {
+                    _sent = false;
                     _handler = proxy_.getRequestHandler__(true);
                     Ice.AsyncCallback sentCallback;
                     bool sent = _handler.sendAsyncRequest(this, out sentCallback);
@@ -1260,7 +1265,7 @@ namespace IceInternal
                 }
                 catch(Ice.Exception ex)
                 {
-                    if(!handleException(ex, false)) // This will throw if the invocation can't be retried.
+                    if(!handleException(ex)) // This will throw if the invocation can't be retried.
                     {
                         break; // Can't be retried immediately.
                     }
@@ -1336,11 +1341,11 @@ namespace IceInternal
             runTimerTask__();
         }
         
-        private bool handleException(Ice.Exception exc, bool sent)
+        private bool handleException(Ice.Exception exc)
         {
             try
             {
-                int interval = proxy_.handleException__(exc, _handler, _mode, sent, ref _cnt);
+                int interval = proxy_.handleException__(exc, _handler, _mode, _sent, ref _cnt);
                 if(observer_ != null)
                 {
                     observer_.retried(); // Invocation is being retried.
@@ -1386,6 +1391,7 @@ namespace IceInternal
         private Ice.EncodingVersion _encoding;
         private int _cnt;
         private Ice.OperationMode _mode;
+        private bool _sent;
 
         private static Dictionary<string, string> emptyContext_ = new Dictionary<string, string>();
     }
@@ -1601,20 +1607,40 @@ namespace IceInternal
             base.invokeSent__(cb);
         }
 
-        virtual public void finished__(Ice.Exception exc, bool sent)
+        virtual public void finished__(Ice.Exception exc)
         {
-            if(childObserver_ != null)
+            monitor_.Lock();
+            try
             {
-                childObserver_.failed(exc.ice_name());
-                childObserver_.detach();
-                childObserver_ = null;
+                if(childObserver_ != null)
+                {
+                    childObserver_.failed(exc.ice_name());
+                    childObserver_.detach();
+                    childObserver_ = null;
+                }
+                if(timeoutRequestHandler_ != null)
+                {
+                    instance_.timer().cancel(this);
+                    timeoutRequestHandler_ = null;
+                }
             }
-            if(timeoutRequestHandler_ != null)
+            finally
             {
-                instance_.timer().cancel(this);
-                timeoutRequestHandler_ = null;
+                monitor_.Unlock();
             }
             invokeException__(exc);
+        }
+
+        public void 
+        dispatchInvocationTimeout__(ThreadPool threadPool, Ice.Connection connection)
+        {
+            BatchOutgoingAsync self = this;
+            threadPool.dispatch(
+                () => 
+                {
+                    self.finished__(new Ice.InvocationTimeoutException());
+                },
+                connection);
         }
 
         public void 
@@ -1842,7 +1868,7 @@ namespace IceInternal
                 return null;
             }
 
-            override public void finished__(Ice.Exception ex, bool sent)
+            override public void finished__(Ice.Exception ex)
             {
                 if(childObserver_ != null)
                 {

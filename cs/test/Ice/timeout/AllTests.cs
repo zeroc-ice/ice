@@ -129,6 +129,8 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        byte[] seq = new byte[10000000];
+
         Write("testing connection timeout... ");
         Flush();
         {
@@ -139,7 +141,7 @@ public class AllTests : TestCommon.TestApp
             to.holdAdapter(500);
             try
             {
-                to.sendData(new byte[10000000]);
+                to.sendData(seq);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -179,8 +181,7 @@ public class AllTests : TestCommon.TestApp
             catch(Ice.InvocationTimeoutException)
             {
             }
-            Thread.Sleep(250);
-            to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500));
+            to = Test.TimeoutPrxHelper.checkedCast(obj.ice_invocationTimeout(500));
             test(connection == to.ice_getConnection());
             try
             {
@@ -275,7 +276,7 @@ public class AllTests : TestCommon.TestApp
             to.holdAdapter(500);
             try
             {
-                to.sendData(new byte[10000000]);
+                to.sendData(seq);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -290,7 +291,7 @@ public class AllTests : TestCommon.TestApp
             to.holdAdapter(500);
             try
             {
-                to.sendData(new byte[10000000]);
+                to.sendData(seq);
                 test(false);
             }
             catch(Ice.TimeoutException)
@@ -342,7 +343,7 @@ public class AllTests : TestCommon.TestApp
             to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
             try
             {
-                to.sendData(new byte[10000000]);
+                to.sendData(seq);
                 test(false);
             }
             catch(Ice.TimeoutException)

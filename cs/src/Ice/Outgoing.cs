@@ -20,13 +20,13 @@ namespace IceInternal
         bool send(Ice.ConnectionI connection, bool compress, bool response);
         void invokeCollocated(CollocatedRequestHandler handler);
         void sent();
-        void finished(Ice.Exception ex, bool sent);
+        void finished(Ice.Exception ex);
     }
 
     public class Outgoing : OutgoingMessageCallback
     {
         public Outgoing(Ice.ObjectPrxHelperBase proxy, string operation, Ice.OperationMode mode, 
-                        Dictionary<string, string> context, bool explicitCtx)
+            Dictionary<string, string> context, bool explicitCtx)
         {
             _state = StateUnsent;
             _sent = false;
@@ -46,7 +46,7 @@ namespace IceInternal
         // These functions allow this object to be reused, rather than reallocated.
         //
         public void reset(Ice.ObjectPrxHelperBase proxy, string operation, Ice.OperationMode mode,
-                          Dictionary<string, string> context, bool explicitCtx)
+          Dictionary<string, string> context, bool explicitCtx)
         {
             _state = StateUnsent;
             _exception = null;
@@ -280,7 +280,7 @@ namespace IceInternal
                 if(_is == null)
                 {
                     _is = new IceInternal.BasicStream(_proxy.reference__().getInstance(), 
-                                                      Ice.Util.currentProtocolEncoding);
+                      Ice.Util.currentProtocolEncoding);
                 }
                 _is.swap(istr);
                 byte replyStatus = _is.readByte();
@@ -417,7 +417,7 @@ namespace IceInternal
             }
         }
 
-        public void finished(Ice.Exception ex, bool sent)
+        public void finished(Ice.Exception ex)
         {
             _m.Lock();
             try
@@ -435,6 +435,7 @@ namespace IceInternal
                     Debug.Assert(_state != StateFailed);
                     _sent = true;
                     _m.Notify();
+                    return;
                 }
                 
                 if(_childObserver != null)
@@ -445,7 +446,6 @@ namespace IceInternal
                 }
                 _state = StateFailed;
                 _exception = ex;
-                _sent = sent;
                 _m.Notify();
             }
             finally
@@ -544,7 +544,7 @@ namespace IceInternal
             if(_observer != null)
             {
                 _childObserver = _observer.getCollocatedObserver(adapter, requestId,
-                                                                  _os.size() - Protocol.headerSize - 4);
+                  _os.size() - Protocol.headerSize - 4);
                 if(_childObserver != null)
                 {
                     _childObserver.attach();
@@ -553,7 +553,7 @@ namespace IceInternal
         }
 
         private void writeHeader(string operation, Ice.OperationMode mode, Dictionary<string, string> context, 
-                                 bool explicitCtx)
+           bool explicitCtx)
         {
             if(explicitCtx && context == null)
             {
@@ -841,7 +841,7 @@ namespace IceInternal
             }
         }
 
-        public void finished(Ice.Exception ex, bool sent)
+        public void finished(Ice.Exception ex)
         {
             _m.Lock();
             if(_childObserver != null)
@@ -882,7 +882,7 @@ namespace IceInternal
             if(_observer != null)
             {
                 _childObserver = _observer.getCollocatedObserver(adapter, requestId, 
-                                                                  _os.size() - Protocol.headerSize - 4);
+                  _os.size() - Protocol.headerSize - 4);
                 if(_childObserver != null)
                 {
                     _childObserver.attach();

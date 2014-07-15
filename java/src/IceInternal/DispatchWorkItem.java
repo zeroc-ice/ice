@@ -26,33 +26,17 @@ abstract public class DispatchWorkItem implements ThreadPoolWorkItem, Runnable
         _connection = connection;
     }
 
-    final public void execute(ThreadPoolCurrent current)
+    final public void 
+    execute(ThreadPoolCurrent current)
     {
-        Instance instance = current.stream.instance();
-        Ice.Dispatcher dispatcher = instance.initializationData().dispatcher;
-        if(dispatcher != null)
-        {
-            try
-            {
-                dispatcher.dispatch(this, _connection);
-            }
-            catch(java.lang.Exception ex)
-            {
-                if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    instance.initializationData().logger.warning("dispatch exception:\n" + sw.toString());
-                }
-            }
-        }
-        else
-        {
-            current.ioCompleted(); // Promote a follower.
-            this.run();
-        }
+        current.ioCompleted(); // Promote a follower
+        current.dispatchFromThisThread(this);
+    }
+
+    public Ice.Connection 
+    getConnection()
+    {
+        return _connection;
     }
 
     private Ice.Connection _connection;

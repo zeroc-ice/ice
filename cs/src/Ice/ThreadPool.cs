@@ -373,9 +373,9 @@ namespace IceInternal
         }
 
 #if COMPACT
-        public void dispatch(Ice.VoidAction call, Ice.Connection con)
+        public void dispatchFromThisThread(Ice.VoidAction call, Ice.Connection con)
 #else
-        public void dispatch(System.Action call, Ice.Connection con)
+        public void dispatchFromThisThread(System.Action call, Ice.Connection con)
 #endif
         {
             if(_dispatcher != null)
@@ -391,15 +391,19 @@ namespace IceInternal
                     {
                         _instance.initializationData().logger.warning("dispatch exception:\n" + ex);
                     }
-                }
+                }                            
             }
             else
             {
-                execute(() => { call(); });
+                call();
             }
         }
 
-        public void execute(ThreadPoolWorkItem workItem)
+#if COMPACT
+        public void dispatch(Ice.VoidAction call, Ice.Connection con)
+#else
+        public void dispatch(System.Action call, Ice.Connection con)
+#endif
         {
             _m.Lock();
             try
@@ -409,7 +413,11 @@ namespace IceInternal
                 {
                     _m.Notify();
                 }
-                _workItems.Enqueue(workItem);
+
+                _workItems.Enqueue(() => 
+                    { 
+                        dispatchFromThisThread(call, con); 
+                    });
 
                 //
                 // If this is a dynamic thread pool which can still grow and if all threads are

@@ -203,7 +203,7 @@ public class ConnectRequestHandler
                     Request request = it.next();
                     if(request.out == out)
                     {
-                        out.finished(new Ice.InvocationTimeoutException(), false);
+                        out.finished(new Ice.InvocationTimeoutException());
                         it.remove();
                         return;
                     }
@@ -217,7 +217,6 @@ public class ConnectRequestHandler
     public void 
     asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
     {
-        boolean timedOut = false;
         synchronized(this)
         {
             if(_exception != null)
@@ -234,16 +233,12 @@ public class ConnectRequestHandler
                     if(request.outAsync == outAsync)
                     {
                         it.remove();
-                        timedOut = true;
-                        break;
+                        outAsync.__dispatchInvocationTimeout(_reference.getInstance().clientThreadPool(), null);
+                        return; // We're done
                     }
                 }
+                assert(false); // The request has to be queued if it timed out and we're not initialized yet.
             }
-        }
-        if(timedOut)
-        {
-            outAsync.__finished(new Ice.InvocationTimeoutException(), false);
-            return;
         }
         _connection.asyncRequestTimedOut(outAsync);
     }
@@ -333,7 +328,7 @@ public class ConnectRequestHandler
         //
         if(!_requests.isEmpty())
         {
-            _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_connection)
+            _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
                                                                 {
                                                                     public void
                                                                     run()
@@ -487,7 +482,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
-                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_connection)
+                _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
                     {
                         public void
                         run()
@@ -503,7 +498,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
-                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_connection)
+                _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
                     {
                         public void
                         run()
@@ -516,7 +511,7 @@ public class ConnectRequestHandler
 
         if(!sentCallbacks.isEmpty())
         {
-            _reference.getInstance().clientThreadPool().execute(
+            _reference.getInstance().clientThreadPool().dispatch(
                 new DispatchWorkItem(_connection)
                 {
                     public void
@@ -564,11 +559,11 @@ public class ConnectRequestHandler
         {
             if(request.out != null)
             {            
-                request.out.finished(_exception, false);
+                request.out.finished(_exception);
             }
             else if(request.outAsync != null)
             {
-                request.outAsync.__finished(_exception, false);
+                request.outAsync.__finished(_exception);
             }
         }
         _requests.clear();

@@ -82,6 +82,7 @@ public final class ThreadPool
     ThreadPool(Instance instance, String prefix, int timeout)
     {
         _instance = instance;
+        _dispatcher = instance.initializationData().dispatcher;
         _destroyed = false;
         _prefix = prefix;
         _selector = new Selector(instance);
@@ -278,7 +279,6 @@ public final class ThreadPool
         {
             return;
         }
-
         _selector.update(handler, remove, add);
 
         if((add & SocketOperation.Read) != 0 && handler._hasMoreData.value &&
@@ -311,7 +311,34 @@ public final class ThreadPool
     }
 
     public void
-    execute(ThreadPoolWorkItem workItem)
+    dispatchFromThisThread(DispatchWorkItem workItem)
+    {
+        if(_dispatcher != null)
+        {
+            try
+            {
+                _dispatcher.dispatch(workItem, workItem.getConnection());
+            }
+            catch(java.lang.Exception ex)
+            {
+                if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                {
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    _instance.initializationData().logger.warning("dispatch exception:\n" + sw.toString());
+                }
+            }
+        }
+        else
+        {
+            workItem.run();
+        }
+    }
+
+    public void
+    dispatch(DispatchWorkItem workItem)
     {
         _workQueue.queue(workItem);
     }
@@ -698,6 +725,7 @@ public final class ThreadPool
     }
 
     private final Instance _instance;
+    private final Ice.Dispatcher _dispatcher;
     private final ThreadPoolWorkQueue _workQueue;
     private boolean _destroyed;
     private final String _prefix;

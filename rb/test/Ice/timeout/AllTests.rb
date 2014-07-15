@@ -65,8 +65,8 @@ def allTests(communicator)
     to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(1000))
     to.holdAdapter(500)
     begin
-        seq = "\0" * 1000000 # 1,000,000 entries
-        to.sendData(seq)
+        seq2 = "\0" * 1000000 # 1,000,000 entries
+        to.sendData(seq2)
     rescue Ice::TimeoutException
         test(false)
     end

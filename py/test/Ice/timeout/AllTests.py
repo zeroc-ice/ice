@@ -86,7 +86,7 @@ def allTests(communicator):
     #
     if sys.version_info[0] == 2:
         seq = []
-        seq[0:100000] = range(0, 10000000) # add 10,000,000 entries.
+        seq[0:10000000] = range(0, 10000000) # add 10,000,000 entries.
         seq = ['\x00' for x in seq] # set them all to \x00
         seq = ''.join(seq) # make into a byte array
     else:
@@ -106,13 +106,13 @@ def allTests(communicator):
     to.holdAdapter(500)
     try:
         if sys.version_info[0] == 2:
-            seq = []
-            seq[0:100000] = range(0, 1000000) # add 1,000,000 entries.
-            seq = ['\x00' for x in seq] # set them all to \x00
-            seq = ''.join(seq) # make into a byte array
+            seq2 = []
+            seq2[0:1000000] = range(0, 1000000) # add 1,000,000 entries.
+            seq2 = ['\x00' for x in seq2] # set them all to \x00
+            seq2 = ''.join(seq2) # make into a byte array
         else:
-            seq = bytes([0 for x in range(0, 1000000)])
-        to.sendData(seq)
+            seq2 = bytes([0 for x in range(0, 1000000)])
+        to.sendData(seq2)
     except Ice.TimeoutException:
         test(False)
     print("ok")

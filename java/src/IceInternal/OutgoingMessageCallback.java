@@ -18,5 +18,5 @@ public interface OutgoingMessageCallback
 
     void sent();
 
-    void finished(Ice.Exception ex, boolean sent);
+    void finished(Ice.Exception ex);
 }

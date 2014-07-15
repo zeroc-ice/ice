@@ -1051,12 +1051,12 @@ namespace Ice
                         // If the request is being sent, don't remove it from the send streams, 
                         // it will be removed once the sending is finished.
                         //
-                        bool isSent = o.timedOut();
+                        o.timedOut();
                         if(p != _sendStreams.First)
                         {
                             _sendStreams.Remove(p);
                         }
-                        @out.finished(new InvocationTimeoutException(), isSent);
+                        @out.finished(new InvocationTimeoutException());
                         return; // We're done.
                     }
                 }
@@ -1068,7 +1068,7 @@ namespace Ice
                     {
                         if(kvp.Value == o)
                         {
-                            o.finished(new InvocationTimeoutException(), true);
+                            o.finished(new InvocationTimeoutException());
                             _requests.Remove(kvp.Key);
                             return; // We're done.
                         }
@@ -1083,9 +1083,6 @@ namespace Ice
 
         public void asyncRequestTimedOut(IceInternal.OutgoingAsyncMessageCallback outAsync)
         {
-            bool isSent = false;
-            bool finished = false;
-
             _m.Lock();
             try
             {
@@ -1104,28 +1101,26 @@ namespace Ice
                         // If the request is being sent, don't remove it from the send streams, 
                         // it will be removed once the sending is finished.
                         //
-                        isSent = o.timedOut();
+                        o.timedOut();
                         if(o != _sendStreams.First.Value)
                         {
                             _sendStreams.Remove(p);
                         }
-                        finished = true;
-                        break; // We're done.
+                        outAsync.dispatchInvocationTimeout__(_threadPool, this);
+                        return; // We're done.
                     }
                 }
 
-                if(!finished && outAsync is IceInternal.OutgoingAsync)
+                if(outAsync is IceInternal.OutgoingAsync)
                 {
                     IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)outAsync;
                     foreach(KeyValuePair<int, IceInternal.OutgoingAsync> kvp in _asyncRequests)
                     {
                         if(kvp.Value == o)
                         {
-
-                            finished = true;
-                            isSent = true;
                             _asyncRequests.Remove(kvp.Key);
-                            break; // We're done.
+                            outAsync.dispatchInvocationTimeout__(_threadPool, this);
+                            return; // We're done.
                         }
                     }
                 }
@@ -1133,14 +1128,6 @@ namespace Ice
             finally
             {
                 _m.Unlock();
-            }
-
-
-            if(finished)
-            {
-                // asyncRequestTimedOut is  called from the dispatch thread so this is
-                // safe.
-                outAsync.finished__(new InvocationTimeoutException(), isSent);
             }
         }
 
@@ -1636,14 +1623,11 @@ namespace Ice
                 // of the message must be taken care of by the Ice thread pool.
                 //
                 IceInternal.ThreadPoolCurrent c = current;
-                _threadPool.execute(() =>
+                _threadPool.dispatch(() =>
                     {
-                        callOnDispatcher(() =>
-                            {
-                                dispatch(startCB, sentCBs, info);
-                            });
+                        dispatch(startCB, sentCBs, info);
                         msg.destroy(ref c);
-                    });
+                    }, this);
             }
             finally
             {
@@ -1676,9 +1660,9 @@ namespace Ice
                     {
                         m.outAsync.invokeSent__(m.sentCallback);
                     }
-                    if(m.replyOutAsync != null)
+                    if(m.receivedReply)
                     {
-                        m.replyOutAsync.finished__();
+                        ((IceInternal.OutgoingAsync)m.outAsync).finished__();
                     }
                 }
                 ++count;
@@ -1795,37 +1779,7 @@ namespace Ice
             // non-blocking activity of the connection from these threads, the dispatching
             // of the message must be taken care of by the Ice thread pool.
             //
-            _threadPool.execute(() =>
-                {
-                    callOnDispatcher(finish);
-                });
-        }
-
-        #if COMPACT
-        public void callOnDispatcher(Ice.VoidAction action)
-#else
-        private void callOnDispatcher(System.Action action)
-#endif
-        {
-            if(_dispatcher != null)
-            {
-                try
-                {
-                    _dispatcher(action, this);
-                }
-                catch(System.Exception ex)
-                {
-                    if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
-                           "Ice.Warn.Dispatch", 1) > 1)
-                    {
-                        warning("dispatch exception", ex);
-                    }
-                }
-            }
-            else
-            {
-                action();
-            }
+            _threadPool.dispatch(finish, this);
         }
 
         private void finish()
@@ -1852,13 +1806,16 @@ namespace Ice
                     // the response has been received in the meantime, we remove the message from
                     // _sendStreams to not call finished on a message which is already done.
                     //
-                    if(message.replyOutAsync != null)
+                    if(message.isSent || message.receivedReply)
                     {
                         if(message.sent() && message.sentCallback != null)
                         {
                             message.outAsync.invokeSent__(message.sentCallback);
                         }
-                        message.replyOutAsync.finished__();
+                        if(message.receivedReply)
+                        {
+                            ((IceInternal.OutgoingAsync)message.outAsync).finished__();
+                        }
                         _sendStreams.RemoveFirst();
                     }
                 }
@@ -1883,13 +1840,13 @@ namespace Ice
 
             foreach(IceInternal.Outgoing o in _requests.Values)
             {
-                o.finished(_exception, true);
+                o.finished(_exception);
             }
             _requests.Clear();
 
             foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values)
             {
-                o.finished__(_exception, true);
+                o.finished__(_exception);
             }
             _asyncRequests.Clear();
 
@@ -2050,7 +2007,6 @@ namespace Ice
             _endpoint = endpoint;
             _adapter = adapter;
             InitializationData initData = instance.initializationData();
-            _dispatcher = initData.dispatcher; // Cached for better performance.
             _logger = initData.logger; // Cached for better performance.
             _traceLevels = instance.traceLevels(); // Cached for better performance.
             _timer = instance.timer();
@@ -2951,7 +2907,7 @@ namespace Ice
                             OutgoingMessage message = _sendStreams.Count > 0 ? _sendStreams.First.Value : null;
                             if(message != null && message.outAsync == info.outAsync)
                             {
-                                message.replyOutAsync = info.outAsync;
+                                message.receivedReply = true;
                                 info.outAsync = null;
                             }
                             else
@@ -3283,12 +3239,11 @@ namespace Ice
                 this.isSent = false;
             }
 
-            internal bool timedOut()
+            internal void timedOut()
             {
-                Debug.Assert((@out != null || outAsync != null) && !isSent);
+                Debug.Assert((@out != null || outAsync != null));
                 @out = null;
                 outAsync = null;
-                return isSent;
             }
 
             internal void adopt()
@@ -3305,40 +3260,33 @@ namespace Ice
 
             internal bool sent()
             {
-                isSent = true; // The message is sent.
-
                 if(@out != null)
                 {
                     @out.sent();
-                    return false;
                 }
                 else if(outAsync != null)
                 {
                     sentCallback = outAsync.sent__();
-                    return sentCallback != null || replyOutAsync != null;
                 }
-                else
-                {
-                    return false;
-                }
+                return sentCallback != null || receivedReply;
             }
 
             internal void finished(LocalException ex)
             {
                 if(@out != null)
                 {
-                    @out.finished(ex, isSent);
+                    @out.finished(ex);
                 }
                 else if(outAsync != null)
                 {
-                    outAsync.finished__(ex, isSent);
+                    outAsync.finished__(ex);
                 }
             }
 
             internal IceInternal.BasicStream stream;
             internal IceInternal.OutgoingMessageCallback @out;
             internal IceInternal.OutgoingAsyncMessageCallback outAsync;
-            internal IceInternal.OutgoingAsync replyOutAsync;
+            internal bool receivedReply;
             internal bool compress;
             internal int requestId;
             internal bool _adopt;
@@ -3359,7 +3307,6 @@ namespace Ice
         private ObjectAdapter _adapter;
         private IceInternal.ServantManager _servantManager;
 
-        private Dispatcher _dispatcher;
         private Logger _logger;
         private IceInternal.TraceLevels _traceLevels;
         private IceInternal.ThreadPool _threadPool;

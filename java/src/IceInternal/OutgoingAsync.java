@@ -23,6 +23,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     {
         _handler = null;
         _cnt = 0;
+        _sent = false;
         _mode = mode;
         _sentSynchronously = false;
 
@@ -120,6 +121,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         {
             boolean alreadySent = (_state & Sent) != 0;
             _state |= Sent;
+            _sent = true;
             
             assert((_state & Done) == 0);
 
@@ -150,7 +152,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     }
 
     public void 
-    __finished(Ice.Exception exc, boolean sent)
+    __finished(Ice.Exception exc)
     {
         synchronized(_monitor)
         {
@@ -174,7 +176,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         //
         try
         {
-            if(!handleException(exc, sent))
+            if(!handleException(exc))
             {
                 return; // Can't be retried immediately.
             }
@@ -185,6 +187,20 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         {
             __invokeException(ex);
         }
+    }
+
+    public void 
+    __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection)
+    {
+        threadPool.dispatch(
+            new DispatchWorkItem(connection)
+            {
+                public void
+                run()
+                {
+                    OutgoingAsync.this.__finished(new Ice.InvocationTimeoutException());
+                }
+            });
     }
 
     public final void
@@ -350,7 +366,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
         catch(Ice.LocalException ex)
         {
-            __finished(ex, true);
+            __finished(ex);
             return;
         }
 
@@ -365,6 +381,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         {
             try
             {
+                _sent = false;
                 _handler = _proxy.__getRequestHandler(true);
                 int status = _handler.sendAsyncRequest(this);
                 if((status & AsyncStatus.Sent) > 0)
@@ -409,7 +426,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             }
             catch(Ice.Exception ex)
             {
-                if(!handleException(ex, false)) // This will throw if the invocation can't be retried.
+                if(!handleException(ex)) // This will throw if the invocation can't be retried.
                 {
                     break; // Can't be retried immediately.
                 }
@@ -463,12 +480,12 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     }
 
     private boolean 
-    handleException(Ice.Exception exc, boolean sent)
+    handleException(Ice.Exception exc)
     {
         try
         {
             Ice.IntHolder interval = new Ice.IntHolder();
-            _cnt = _proxy.__handleException(exc, _handler, _mode, sent, interval, _cnt);
+            _cnt = _proxy.__handleException(exc, _handler, _mode, _sent, interval, _cnt);
             if(_observer != null)
             {
                 _observer.retried(); // Invocation is being retried.
@@ -499,6 +516,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     private Ice.EncodingVersion _encoding;
     private int _cnt;
     private Ice.OperationMode _mode;
+    private boolean _sent;
 
     private static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
 }

@@ -252,7 +252,7 @@ public class AsyncResult
         //
         try
         {
-            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem(_cachedConnection)
+            _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
                 {
                     public void
                     run()
@@ -370,7 +370,7 @@ public class AsyncResult
         //
         try
         {
-            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem(_cachedConnection)
+            _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
                 {
                     public void
                     run()
@@ -488,25 +488,7 @@ public class AsyncResult
         
         if(handler != null)
         {
-            final IceInternal.RequestHandler h = handler;
-            Ice.Connection connection = null;
-            try
-            {
-                connection = handler.getConnection(false);
-            }
-            catch(Ice.LocalException e)
-            {
-                // Ignore.
-            }
-            _instance.clientThreadPool().execute(
-                new IceInternal.DispatchWorkItem(connection)
-                {
-                    public void
-                    run()
-                    {
-                        h.asyncRequestTimedOut((IceInternal.OutgoingAsyncMessageCallback)AsyncResult.this);
-                    }
-                });
+            handler.asyncRequestTimedOut((IceInternal.OutgoingAsyncMessageCallback)this);
         }
     }
 

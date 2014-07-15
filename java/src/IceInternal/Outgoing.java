@@ -415,9 +415,24 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     public synchronized void
-    finished(Ice.Exception ex, boolean sent)
+    finished(Ice.Exception ex)
     {
-        assert(_state <= StateInProgress);
+        //assert(_state <= StateInProgress);
+        if(_state > StateInProgress)
+        {
+            //
+            // Response was already received but message
+            // didn't get removed first from the connection
+            // send message queue so it's possible we can be
+            // notified of failures. In this case, ignore the
+            // failure and assume the outgoing has been sent.
+            //
+            assert(_state != StateFailed);
+            _sent = true;
+            notify();
+            return;
+        }
+
         if(_childObserver != null)
         {
             _childObserver.failed(ex.ice_name());
@@ -426,7 +441,6 @@ public final class Outgoing implements OutgoingMessageCallback
         }
         _state = StateFailed;
         _exception = ex;
-        _sent = sent;
         notify();
     }
     

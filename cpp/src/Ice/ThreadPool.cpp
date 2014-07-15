@@ -37,7 +37,6 @@ using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 ICE_DECLSPEC_EXPORT IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
-ICE_DECLSPEC_EXPORT IceUtil::Shared* IceInternal::upCast(ThreadPoolWorkItem* p) { return p; }
 
 namespace
 {
@@ -141,47 +140,19 @@ class ThreadPoolDestroyedException
 
 }
 
-
-IceInternal::DispatchWorkItem::DispatchWorkItem() {
+IceInternal::DispatchWorkItem::DispatchWorkItem() 
+{
 }
 
-IceInternal::DispatchWorkItem::DispatchWorkItem(const Ice::ConnectionPtr& connection) : _connection(connection) {
-    
+IceInternal::DispatchWorkItem::DispatchWorkItem(const Ice::ConnectionPtr& connection) : _connection(connection) 
+{
 }
 
 void
 IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
 {
-    InstancePtr instance = current.getInstance();
-    Ice::DispatcherPtr dispatcher = instance->initializationData().dispatcher;
-    if(dispatcher)
-    {
-        try
-        {
-            dispatcher->dispatch(this, _connection);
-        }
-        catch(const std::exception& ex)
-        {
-            if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-            {
-                Warning out(instance->initializationData().logger);
-                out << "dispatch exception:\n" << ex;
-            }
-        }
-        catch(...)
-        {
-            if(instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-            {
-                Warning out(instance->initializationData().logger);
-                out << "dispatch exception:\nunknown c++ exception";
-            }
-        }
-    }
-    else
-    {
-        current.ioCompleted(); // Promote a follower.
-        run();
-    }    
+    current.ioCompleted(); // Promote follower
+    current.dispatchFromThisThread(this);
 }
 
 IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(const InstancePtr& instance, Selector& selector) :
@@ -393,6 +364,7 @@ IceInternal::ThreadPoolWorkQueue::postMessage()
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
+    _dispatcher(_instance->initializationData().dispatcher),
     _destroyed(false),
     _prefix(prefix),
     _selector(instance),
@@ -647,7 +619,39 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler)
 }
 
 void
-IceInternal::ThreadPool::execute(const ThreadPoolWorkItemPtr& workItem)
+IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
+{
+    if(_dispatcher)
+    {
+        try
+        {
+            _dispatcher->dispatch(workItem, workItem->getConnection());
+        }
+        catch(const std::exception& ex)
+        {
+            if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            {
+                Warning out(_instance->initializationData().logger);
+                out << "dispatch exception:\n" << ex;
+            }
+        }
+        catch(...)
+        {
+            if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            {
+                Warning out(_instance->initializationData().logger);
+                out << "dispatch exception:\nunknown c++ exception";
+            }
+        }
+    }
+    else
+    {
+        workItem->run();
+    }    
+}
+
+void
+IceInternal::ThreadPool::dispatch(const DispatchWorkItemPtr& workItem)
 {
     _workQueue->queue(workItem);
 }
@@ -1357,10 +1361,4 @@ ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance,
     , _leader(false)
 #endif
 {
-}
-
-InstancePtr
-ThreadPoolCurrent::getInstance()
-{
-    return stream.instance();
 }

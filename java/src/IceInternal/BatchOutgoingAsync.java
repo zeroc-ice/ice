@@ -58,20 +58,37 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     }
     
     public void 
-    __finished(Ice.Exception exc, boolean sent)
+    __finished(Ice.Exception exc)
     {
-        if(_childObserver != null)
+        synchronized(_monitor)
         {
-            _childObserver.failed(exc.ice_name());
-            _childObserver.detach();
-            _childObserver = null;
-        }
-        if(_timeoutRequestHandler != null)
-        {
-            _instance.timer().cancel(this);
-            _timeoutRequestHandler = null;
+            if(_childObserver != null)
+            {
+                _childObserver.failed(exc.ice_name());
+                _childObserver.detach();
+                _childObserver = null;
+            }
+            if(_timeoutRequestHandler != null)
+            {
+                _instance.timer().cancel(this);
+                _timeoutRequestHandler = null;
+            }
         }
         __invokeException(exc);
+    }
+
+    public void 
+    __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection)
+    {
+        threadPool.dispatch(
+            new DispatchWorkItem(connection)
+            {
+                public void
+                run()
+                {
+                    BatchOutgoingAsync.this.__finished(new Ice.InvocationTimeoutException());
+                }
+            });
     }
 
     public void 
@@ -79,5 +96,4 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     {
         __runTimerTask();
     }
-
 }

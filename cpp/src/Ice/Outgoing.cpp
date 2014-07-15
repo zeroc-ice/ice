@@ -293,16 +293,30 @@ IceInternal::Outgoing::sent()
 }
 
 void
-IceInternal::Outgoing::finished(const Exception& ex, bool sent)
+IceInternal::Outgoing::finished(const Exception& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    assert(_state <= StateInProgress);
+    //assert(_state <= StateInProgress);
+    if(_state > StateInProgress)
+    {
+        //
+        // Response was already received but message
+        // didn't get removed first from the connection
+        // send message queue so it's possible we can be
+        // notified of failures. In this case, ignore the
+        // failure and assume the outgoing has been sent.
+        //
+        assert(_state != StateFailed);
+        _sent = true;
+        _monitor.notify();
+        return;
+    }
+
     _childObserver.failed(ex.ice_name());
     _childObserver.detach();
 
     _state = StateFailed;
     _exception.reset(ex.ice_clone());
-    _sent = sent;
     _monitor.notify();
 }
 
@@ -628,7 +642,7 @@ IceInternal::BatchOutgoing::sent()
 }
 
 void
-IceInternal::BatchOutgoing::finished(const Ice::Exception& ex, bool)
+IceInternal::BatchOutgoing::finished(const Ice::Exception& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     _childObserver.failed(ex.ice_name());

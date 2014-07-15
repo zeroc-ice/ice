@@ -45,7 +45,7 @@ public:
     virtual void invokeCollocated(CollocatedRequestHandler*) = 0;
 
     virtual void sent() = 0;
-    virtual void finished(const Ice::Exception&, bool) = 0;
+    virtual void finished(const Ice::Exception&) = 0;
 };
 
 class ICE_API Outgoing : public OutgoingMessageCallback
@@ -61,7 +61,7 @@ public:
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
     virtual void invokeCollocated(CollocatedRequestHandler*);
     virtual void sent();
-    virtual void finished(const Ice::Exception&, bool);
+    virtual void finished(const Ice::Exception&);
 
     void finished(BasicStream&);
 
@@ -181,7 +181,7 @@ public:
     virtual bool send(const Ice::ConnectionIPtr&, bool, bool);
     virtual void invokeCollocated(CollocatedRequestHandler*);
     virtual void sent();
-    virtual void finished(const Ice::Exception&, bool);
+    virtual void finished(const Ice::Exception&);
     
     BasicStream* os() { return &_os; }
 

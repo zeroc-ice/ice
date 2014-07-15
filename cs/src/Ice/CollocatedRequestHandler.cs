@@ -29,6 +29,7 @@ namespace IceInternal
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
+            _dispatcher = _reference.getInstance().initializationData().dispatcher != null;
             _response = _reference.getMode() == Reference.Mode.ModeTwoway;
             _adapter = (Ice.ObjectAdapterI)adapter;
 
@@ -183,7 +184,7 @@ namespace IceInternal
                     {
                         _requests.Remove(requestId);
                     }
-                    @out.finished(new Ice.InvocationTimeoutException(), false);
+                    @out.finished(new Ice.InvocationTimeoutException());
                     _sendRequests.Remove(@out);
                 }
                 else if(@out is Outgoing)
@@ -194,7 +195,7 @@ namespace IceInternal
                     {
                         if(e.Value == o)
                         {
-                            o.finished(new Ice.InvocationTimeoutException(), true);
+                            o.finished(new Ice.InvocationTimeoutException());
                             _requests.Remove(e.Key);
                             return; // We're done.
                         }
@@ -206,8 +207,6 @@ namespace IceInternal
         public void 
         asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
         {
-            OutgoingAsyncMessageCallback @out = null;
-            bool sent = false;
             lock(this)
             {
                 int requestId;
@@ -217,11 +216,12 @@ namespace IceInternal
                     {
                         _asyncRequests.Remove(requestId);
                     }
-                    @out = outAsync;
-                    sent = false;
                     _sendAsyncRequests.Remove(outAsync);
+                    outAsync.dispatchInvocationTimeout__(_reference.getInstance().clientThreadPool(), null);
+                    return;
                 }
-                else if(outAsync is OutgoingAsync)
+
+                if(outAsync is OutgoingAsync)
                 {
                     OutgoingAsync o = (OutgoingAsync)outAsync;
                     Debug.Assert(o != null);
@@ -229,18 +229,12 @@ namespace IceInternal
                     {
                         if(e.Value == o)
                         {
-                            @out = o;
-                            sent = true;
                             _asyncRequests.Remove(e.Key);
-                            break;
+                            outAsync.dispatchInvocationTimeout__(_reference.getInstance().clientThreadPool(), null);
+                            return;
                         }
                     }
                 }
-            }
-
-            if(@out != null)
-            {
-                @out.finished__(new Ice.InvocationTimeoutException(), sent);
             }
         }
 
@@ -268,8 +262,9 @@ namespace IceInternal
 
             if(_reference.getInvocationTimeout() > 0)
             {
+                // Don't invoke from the user thread, invocation timeouts wouldn't work otherwise.
                 _adapter.getThreadPool().dispatch(
-                    delegate()
+                    () =>
                     {
                         if(sent(@out))
                         {
@@ -277,7 +272,16 @@ namespace IceInternal
                         }
                     }, null);
             }
-            else
+            else if(_dispatcher)
+            {
+                _adapter.getThreadPool().dispatchFromThisThread(
+                    () =>
+                    {
+                        @out.sent();
+                        invokeAll(@out.ostr(), requestId, 1, false);
+                    }, null);
+            }
+            else // Optimization: directly call invokeAll if there's no dispatcher. 
             {
                 @out.sent();
                 invokeAll(@out.ostr(), requestId, 1, false);
@@ -307,7 +311,7 @@ namespace IceInternal
             outAsync.attachCollocatedObserver__(_adapter, requestId);
 
             _adapter.getThreadPool().dispatch(
-                delegate()
+                () =>
                 {
                     if(sentAsync(outAsync))
                     {
@@ -367,7 +371,16 @@ namespace IceInternal
                             }
                         }, null);
                 }
-                else
+                else if(_dispatcher)
+                {
+                    _adapter.getThreadPool().dispatchFromThisThread(
+                        () =>
+                        {
+                            @out.sent();
+                            invokeAll(@out.ostr(), 0, invokeNum, true);
+                        }, null);
+                }
+                else // Optimization: directly call invokeAll if there's no dispatcher. 
                 {
                     @out.sent();
                     invokeAll(@out.ostr(), 0, invokeNum, true);
@@ -491,7 +504,7 @@ namespace IceInternal
                     if(_requests.TryGetValue(requestId, out @out))
                     {
                         _requests.Remove(requestId);
-                        @out.finished(ex, true);
+                        @out.finished(ex);
                     }
                     else
                     {
@@ -503,7 +516,7 @@ namespace IceInternal
                 }
                 if(outAsync != null)
                 {
-                    outAsync.finished__(ex, true);
+                    outAsync.finished__(ex);
                 }
             }
             _adapter.decDirectCount();
@@ -532,13 +545,9 @@ namespace IceInternal
                     {
                         return false; // The request timed-out.
                     }
-                    @out.sent();
                 }
             }
-            else
-            {
-                @out.sent();
-            }
+            @out.sent();
             return true;
         }
 
@@ -600,7 +609,7 @@ namespace IceInternal
                     }
                     catch(Ice.ObjectAdapterDeactivatedException ex)
                     {
-                        handleException(requestId, ex, false);
+                        handleException(requestId, ex);
                         return;
                     }
 
@@ -612,7 +621,7 @@ namespace IceInternal
                     }
                     catch(Ice.SystemException ex)
                     {
-                        handleException(requestId, ex, true);
+                        handleException(requestId, ex);
                         _adapter.decDirectCount();
                     }
                     --invokeNum;
@@ -625,7 +634,7 @@ namespace IceInternal
         }
 
         void
-        handleException(int requestId, Ice.Exception ex, bool sent)
+        handleException(int requestId, Ice.Exception ex)
         {
             if(requestId == 0)
             {
@@ -638,7 +647,7 @@ namespace IceInternal
                 Outgoing @out;
                 if(_requests.TryGetValue(requestId, out @out))
                 {
-                    @out.finished(ex, sent);
+                    @out.finished(ex);
                     _requests.Remove(requestId);
                 }
                 else
@@ -652,11 +661,12 @@ namespace IceInternal
 
             if(outAsync != null)
             {
-                outAsync.finished__(ex, sent);
+                outAsync.finished__(ex);
             }
         }
 
         private readonly Reference _reference;
+        private readonly bool _dispatcher;
         private readonly bool _response;
         private readonly Ice.ObjectAdapterI _adapter;
         private readonly Ice.Logger _logger;

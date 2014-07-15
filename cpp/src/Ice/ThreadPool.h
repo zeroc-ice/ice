@@ -37,6 +37,35 @@ class ThreadPoolCurrent;
 class ThreadPoolWorkQueue;
 typedef IceUtil::Handle<ThreadPoolWorkQueue> ThreadPoolWorkQueuePtr;
 
+class ThreadPoolWorkItem : virtual public IceUtil::Shared
+{
+public:
+    
+    virtual void execute(ThreadPoolCurrent&) = 0;
+};
+typedef IceUtil::Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
+
+class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
+{
+public:
+
+    DispatchWorkItem();
+    DispatchWorkItem(const Ice::ConnectionPtr& connection);
+ 
+    const Ice::ConnectionPtr& 
+    getConnection()
+    {
+        return _connection;
+    }
+
+private:
+
+    virtual void execute(ThreadPoolCurrent&);
+
+    const Ice::ConnectionPtr _connection;
+};
+typedef IceUtil::Handle<DispatchWorkItem> DispatchWorkItemPtr;
+
 class ThreadPool : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
     class EventHandlerThread : public IceUtil::Thread
@@ -77,7 +106,10 @@ public:
         update(handler, status, SocketOperationNone);
     }
     void finish(const EventHandlerPtr&);
-    void execute(const ThreadPoolWorkItemPtr&);
+
+    void dispatchFromThisThread(const DispatchWorkItemPtr&);
+    void dispatch(const DispatchWorkItemPtr&);
+
     void joinWithAllThreads();
 
     std::string prefix() const;
@@ -99,6 +131,7 @@ private:
     std::string nextThreadId();
 
     const InstancePtr _instance;
+    const Ice::DispatcherPtr _dispatcher;
     ThreadPoolWorkQueuePtr _workQueue;
     bool _destroyed;
     const std::string _prefix;
@@ -157,7 +190,10 @@ public:
     }
 #endif
 
-    InstancePtr getInstance();
+    void dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
+    {
+        _threadPool->dispatchFromThisThread(workItem);
+    }
 
 private:
 
@@ -172,26 +208,6 @@ private:
     int _error;
 #endif
     friend class ThreadPool;
-};    
-
-class ThreadPoolWorkItem : virtual public IceUtil::Shared
-{
-public:
-    
-    virtual void execute(ThreadPoolCurrent&) = 0;
-};
-
-class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
-{
-public:
-
-    DispatchWorkItem();
-    DispatchWorkItem(const Ice::ConnectionPtr& connection);
- 
- private:
-
-    virtual void execute(ThreadPoolCurrent&);
-    Ice::ConnectionPtr _connection;
 };
 
 class ThreadPoolWorkQueue : public EventHandler, public IceUtil::Mutex

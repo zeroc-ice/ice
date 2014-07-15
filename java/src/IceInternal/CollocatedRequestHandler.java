@@ -80,6 +80,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     CollocatedRequestHandler(Reference ref, Ice.ObjectAdapter adapter)
     {
         _reference = ref;
+        _dispatcher = ref.getInstance().initializationData().dispatcher != null;
         _response = _reference.getMode() == Reference.ModeTwoway;
         _adapter = (Ice.ObjectAdapterI)adapter;
 
@@ -150,7 +151,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                                                                _batchAutoFlush);
                     stream.swap(_batchStream);
 
-                    _adapter.getThreadPool().execute(
+                    _adapter.getThreadPool().dispatch(
                         new DispatchWorkItem()
                         {
                             public void
@@ -235,7 +236,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             {
                 _requests.remove(requestId);
             }
-            out.finished(new Ice.InvocationTimeoutException(), false);
+            out.finished(new Ice.InvocationTimeoutException());
             _sendRequests.remove(out);
         }
         else if(out instanceof Outgoing)
@@ -246,7 +247,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             {
                 if(e.getValue() == o)
                 {
-                    o.finished(new Ice.InvocationTimeoutException(), true);
+                    out.finished(new Ice.InvocationTimeoutException());
                     _requests.remove(e.getKey());
                     return; // We're done.
                 }
@@ -254,44 +255,34 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
-    public void 
+    synchronized public void 
     asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
     {
-        OutgoingAsyncMessageCallback out = null;
-        boolean sent = false;
-        synchronized(this)
+        Integer requestId = _sendAsyncRequests.get(outAsync);
+        if(requestId != null)
         {
-            Integer requestId = _sendAsyncRequests.get(outAsync);
-            if(requestId != null)
+            if(requestId > 0)
             {
-                if(requestId > 0)
-                {
-                    _asyncRequests.remove(requestId);
-                }
-                out = outAsync;
-                sent = false;
-                _sendAsyncRequests.remove(outAsync);
+                _asyncRequests.remove(requestId);
             }
-            else if(outAsync instanceof OutgoingAsync)
-            {
-                OutgoingAsync o = (OutgoingAsync)outAsync;
-                assert(o != null);
-                for(java.util.Map.Entry<Integer, OutgoingAsync> e : _asyncRequests.entrySet())
-                {
-                    if(e.getValue() == o)
-                    {
-                        out = o;
-                        sent = true;
-                        _asyncRequests.remove(e.getKey());
-                        break;
-                    }
-                }
-            }
+            _sendAsyncRequests.remove(outAsync);
+            outAsync.__dispatchInvocationTimeout(_reference.getInstance().clientThreadPool(), null);
+            return; // We're done
         }
 
-        if(out != null)
+        if(outAsync instanceof OutgoingAsync)
         {
-            out.__finished(new Ice.InvocationTimeoutException(), sent);
+            OutgoingAsync o = (OutgoingAsync)outAsync;
+            assert(o != null);
+            for(java.util.Map.Entry<Integer, OutgoingAsync> e : _asyncRequests.entrySet())
+            {
+                if(e.getValue() == o)
+                {
+                    _asyncRequests.remove(e.getKey());
+                    outAsync.__dispatchInvocationTimeout(_reference.getInstance().clientThreadPool(), null);
+                    return; // We're done
+                }
+            }
         }
     }
 
@@ -319,9 +310,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         if(_reference.getInvocationTimeout() > 0)
         {
-            _adapter.getThreadPool().execute(new InvokeAll(out, out.os(), requestId, 1, false));
+            // Don't invoke from the user thread, invocation timeouts wouldn't work otherwise.
+            _adapter.getThreadPool().dispatch(new InvokeAll(out, out.os(), requestId, 1, false));
         }
-        else
+        else if(_dispatcher)
+        {
+            _adapter.getThreadPool().dispatchFromThisThread(new InvokeAll(out, out.os(), requestId, 1, false));
+        }
+        else // Optimization: directly call invokeAll if there's no dispatcher.
         {
             out.sent();
             invokeAll(out.os(), requestId, 1, false);
@@ -350,7 +346,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         outAsync.__attachCollocatedObserver(_adapter, requestId);
 
-        _adapter.getThreadPool().execute(new InvokeAllAsync(outAsync, outAsync.__getOs(), requestId, 1, false));
+        _adapter.getThreadPool().dispatch(new InvokeAllAsync(outAsync, outAsync.__getOs(), requestId, 1, false));
 
         return AsyncStatus.Queued;
     }
@@ -401,9 +397,13 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         {
             if(_reference.getInvocationTimeout() > 0)
             {
-                _adapter.getThreadPool().execute(new InvokeAll(out, out.os(), 0, invokeNum, true));
+                _adapter.getThreadPool().dispatch(new InvokeAll(out, out.os(), 0, invokeNum, true));
             }
-            else
+            else if(_dispatcher)
+            {
+                _adapter.getThreadPool().dispatchFromThisThread(new InvokeAll(out, out.os(), 0, invokeNum, true));
+            }
+            else // Optimization: directly call invokeAll if there's no dispatcher.
             {
                 out.sent();
                 invokeAll(out.os(), 0, invokeNum, true);
@@ -458,7 +458,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     
         if(invokeNum > 0)
         {
-            _adapter.getThreadPool().execute(new InvokeAllAsync(outAsync, outAsync.__getOs(), 0, invokeNum, true));
+            _adapter.getThreadPool().dispatch(new InvokeAllAsync(outAsync, outAsync.__getOs(), 0, invokeNum, true));
             return AsyncStatus.Queued;
         }
         else if(outAsync.__sent())
@@ -527,7 +527,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 Outgoing out = _requests.remove(requestId);
                 if(out != null)
                 {
-                    out.finished(ex, true);
+                    out.finished(ex);
                 }
                 else
                 {
@@ -536,7 +536,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             }
             if(outAsync != null)
             {
-                outAsync.__finished(ex, true);
+                outAsync.__finished(ex);
             }
         }
         _adapter.decDirectCount();
@@ -565,13 +565,9 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 {
                     return false; // The request timed-out.
                 }
-                out.sent();
             }
         }
-        else
-        {
-            out.sent();
-        }
+        out.sent();
         return true;
     }
     
@@ -632,7 +628,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 }
                 catch(Ice.ObjectAdapterDeactivatedException ex)
                 {
-                    handleException(requestId, ex, false);
+                    handleException(requestId, ex);
                     return;
                 }
 
@@ -644,7 +640,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 }
                 catch(Ice.SystemException ex)
                 {
-                    handleException(requestId, ex, true);
+                    handleException(requestId, ex);
                     _adapter.decDirectCount();
                 }
                 --invokeNum;
@@ -679,7 +675,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     }
 
     void
-    handleException(int requestId, Ice.Exception ex, boolean sent)
+    handleException(int requestId, Ice.Exception ex)
     {
         if(requestId == 0)
         {
@@ -692,7 +688,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             Outgoing out = _requests.get(requestId);
             if(out != null)
             {
-                out.finished(ex, sent);
+                out.finished(ex);
                 _requests.remove(requestId);
             }
             else
@@ -707,11 +703,12 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
         if(outAsync != null)
         {
-            outAsync.__finished(ex, sent);
+            outAsync.__finished(ex);
         }
     }
 
     private final Reference _reference;
+    private final boolean _dispatcher;
     private final boolean _response;
     private final Ice.ObjectAdapterI _adapter;
     private final Ice.Logger _logger;

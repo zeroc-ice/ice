@@ -25,6 +25,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/ThreadPoolF.h>
 
 #ifdef ICE_CPP11
 #   include <functional> // for std::function
@@ -230,11 +231,14 @@ public:
     virtual void __invokeSent() = 0;
 
     //
-    // Called by the connection when the request failed. The boolean indicates whether or
-    // not the message was possibly sent (this is useful for retry to figure out whether
-    // or not the request can't be retried without breaking at-most-once semantics.)
+    // Called by the connection when the request failed.
     //
-    virtual void __finished(const Ice::Exception&, bool) = 0;
+    virtual void __finished(const Ice::Exception&) = 0;
+
+    //
+    // Helper to dispatch invocation timeout.
+    //
+    void __dispatchInvocationTimeout(const ThreadPoolPtr&, const Ice::ConnectionPtr&);
 };
 
 class ICE_API OutgoingAsync : public OutgoingAsyncMessageCallback, public Ice::AsyncResult
@@ -255,7 +259,7 @@ public:
     virtual IceInternal::AsyncStatus __invokeCollocated(CollocatedRequestHandler*);
     virtual bool __sent();
     virtual void __invokeSent();
-    virtual void __finished(const Ice::Exception&, bool);
+    virtual void __finished(const Ice::Exception&);
 
     void __finished();
     bool __invoke(bool);
@@ -297,11 +301,12 @@ protected:
 
 private:
 
-    bool handleException(const Ice::Exception&, bool);
+    bool handleException(const Ice::Exception&);
 
     RequestHandlerPtr _handler;
     Ice::EncodingVersion _encoding;
     int _cnt;
+    bool _sent;
     Ice::OperationMode _mode;
 };
 
@@ -316,7 +321,7 @@ public:
     virtual IceInternal::AsyncStatus __invokeCollocated(CollocatedRequestHandler*);
     virtual bool __sent();
     virtual void __invokeSent();
-    virtual void __finished(const Ice::Exception&, bool);
+    virtual void __finished(const Ice::Exception&);
 };
 
 class ICE_API ProxyBatchOutgoingAsync : public BatchOutgoingAsync

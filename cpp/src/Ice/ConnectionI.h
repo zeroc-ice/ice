@@ -82,32 +82,32 @@ public:
     struct OutgoingMessage
     {
         OutgoingMessage(IceInternal::BasicStream* str, bool comp) :
-            stream(str), out(0), compress(comp), requestId(0), adopted(false), isSent(false)
+            stream(str), out(0), compress(comp), requestId(0), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-            , invokeSentCallback(false), receivedReply(false)
+            , isSent(false), invokeSent(false), receivedReply(false)
 #endif
         {
         }
 
         OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, int rid) :
-            stream(str), out(o), compress(comp), requestId(rid), adopted(false), isSent(false)
+            stream(str), out(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-            , invokeSentCallback(false), receivedReply(false)
+            , isSent(false), invokeSent(false), receivedReply(false)
 #endif
         {
         }
 
         OutgoingMessage(const IceInternal::OutgoingAsyncMessageCallbackPtr& o, IceInternal::BasicStream* str,
                         bool comp, int rid) :
-            stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false), isSent(false)
+            stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false)
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-            , invokeSentCallback(false), receivedReply(false)
+            , isSent(false), invokeSent(false), receivedReply(false)
 #endif
         {
         }
 
         void adopt(IceInternal::BasicStream*);
-        bool timedOut(bool);
+        void timedOut(bool);
         bool sent();
         void finished(const Ice::LocalException&);
 
@@ -117,9 +117,9 @@ public:
         bool compress;
         int requestId;
         bool adopted;
-        bool isSent;
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
-        bool invokeSentCallback;
+        bool isSent;
+        bool invokeSent;
         bool receivedReply;
 #endif
     };
@@ -298,7 +298,7 @@ private:
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 
-    const DispatcherPtr _dispatcher;
+    const bool _dispatcher;
     const LoggerPtr _logger;
     const IceInternal::TraceLevelsPtr _traceLevels;
     const IceInternal::ThreadPoolPtr _threadPool;

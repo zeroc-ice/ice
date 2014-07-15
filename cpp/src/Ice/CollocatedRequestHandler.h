@@ -74,9 +74,10 @@ public:
 
 private:
 
-    void handleException(Ice::Int, const Ice::Exception&, bool);
+    void handleException(Ice::Int, const Ice::Exception&);
     
     const Ice::ObjectAdapterIPtr _adapter;
+    const bool _dispatcher;
     const Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;
     const bool _batchAutoFlush;

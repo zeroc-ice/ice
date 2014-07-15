@@ -225,7 +225,7 @@ namespace IceInternal
                         Request request = p.Value;
                         if(request.@out == @out)
                         {
-                            @out.finished(new Ice.InvocationTimeoutException(), false);
+                            @out.finished(new Ice.InvocationTimeoutException());
                             _requests.Remove(p);
                             return;
                         }
@@ -243,7 +243,6 @@ namespace IceInternal
 
         public void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
         {
-            bool timedOut = false;
             _m.Lock();
             try
             {
@@ -260,9 +259,9 @@ namespace IceInternal
                         Request request = p.Value;
                         if(request.outAsync == outAsync)
                         {
-                            timedOut = true;
                             _requests.Remove(p);
-                            break;
+                            outAsync.dispatchInvocationTimeout__(_reference.getInstance().clientThreadPool(), null);
+                            return;
                         }
                         p = p.Next;
                     }
@@ -272,11 +271,6 @@ namespace IceInternal
             finally
             {
                 _m.Unlock();
-            }
-            if(timedOut)
-            {
-                outAsync.finished__(new Ice.InvocationTimeoutException(), false);
-                return;
             }
             _connection.asyncRequestTimedOut(outAsync);
         }
@@ -604,11 +598,11 @@ namespace IceInternal
             {
                 if(request.@out != null)
                 {            
-                    request.@out.finished(_exception, false);
+                    request.@out.finished(_exception);
                 }
                 else if(request.outAsync != null)
                 {
-                    request.outAsync.finished__(_exception, false);
+                    request.outAsync.finished__(_exception);
                 }
             }
             _requests.Clear();
