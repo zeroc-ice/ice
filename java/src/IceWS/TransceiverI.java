@@ -207,7 +207,7 @@ final class TransceiverI implements IceInternal.Transceiver
             _state = StateOpened;
             _nextState = StateOpened;
 
-            moreData.value = _readBufferPos < _readBuffer.b.position();
+            moreData.value = _readBufferPos < _readBuffer.b.position() || moreData.value;
         }
         catch(Ice.LocalException ex)
         {
@@ -304,11 +304,6 @@ final class TransceiverI implements IceInternal.Transceiver
 
     public int write(IceInternal.Buffer buf)
     {
-        if(_writePending)
-        {
-            return IceInternal.SocketOperation.Write;
-        }
-
         if(_state < StateOpened)
         {
             if(_state < StateConnected)
@@ -363,11 +358,6 @@ final class TransceiverI implements IceInternal.Transceiver
     @SuppressWarnings("deprecation")
     public int read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
     {
-        if(_readPending)
-        {
-            return IceInternal.SocketOperation.Read;
-        }
-
         if(_state < StateOpened)
         {
             if(_state < StateConnected)
@@ -426,7 +416,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         while(postRead(buf));
 
-        moreData.value = _readBufferPos < _readBuffer.b.position() || moreData.value;
+        moreData.value = _readBufferPos < _readBuffer.b.position();
 
         s = !buf.b.hasRemaining() ? IceInternal.SocketOperation.None : IceInternal.SocketOperation.Read;
 
@@ -525,8 +515,6 @@ final class TransceiverI implements IceInternal.Transceiver
         _writeState = WriteStateHeader;
         _writeBuffer = new IceInternal.Buffer(0, false, java.nio.ByteOrder.BIG_ENDIAN); // Use network byte order.
         _writeBufferSize = 1024;
-        _readPending = false;
-        _writePending = false;
         _readMask = new byte[4];
         _writeMask = new byte[4];
         _key = "";
@@ -1484,9 +1472,6 @@ final class TransceiverI implements IceInternal.Transceiver
 
     private boolean _closingInitiator;
     private int _closingReason;
-
-    private boolean _readPending;
-    private boolean _writePending;
 
     private byte[] _pingPayload;
 
