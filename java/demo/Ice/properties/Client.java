@@ -78,6 +78,8 @@ public class Client extends Ice.Application
         Ice.PropertiesAdminPrx admin =
             Ice.PropertiesAdminPrxHelper.checkedCast(communicator().propertyToProxy("Admin.Proxy"));
 
+        java.util.List<String> keys = java.util.Arrays.asList("Demo.Prop1", "Demo.Prop2", "Demo.Prop3");
+
         java.util.Map<String, String> batch1 = new java.util.HashMap<String, String>();
         batch1.put("Demo.Prop1", "1");
         batch1.put("Demo.Prop2", "2");
@@ -109,11 +111,12 @@ public class Client extends Ice.Application
                 {
                     java.util.Map<String, String> dict = line.equals("1") ? batch1 : batch2;
                     System.out.println("Sending:");
-                    for(java.util.Map.Entry<String, String> e : dict.entrySet())
+                    for(String key : keys)
                     {
-                        if(e.getKey().startsWith("Demo"))
+                        String value = dict.get(key);
+                        if(value != null)
                         {
-                            System.out.println("  " + e.getKey() + "=" + e.getValue());
+                            System.out.println("  " + key + "=" + value);
                         }
                     }
                     System.out.println();
@@ -128,16 +131,17 @@ public class Client extends Ice.Application
                     }
                     else
                     {
-                        for(java.util.Map.Entry<String, String> e : changes.entrySet())
+                        for(String key : keys)
                         {
-                            System.out.print("  " + e.getKey());
-                            if(e.getValue().length() == 0)
+                            System.out.print("  " + key);
+                            String value = dict.get(key);
+                            if(value == null || value.length() == 0)
                             {
                                 System.out.println(" was removed");
                             }
                             else
                             {
-                                System.out.println(" is now " + e.getValue());
+                                System.out.println(" is now " + value);
                             }
                         }
                     }
