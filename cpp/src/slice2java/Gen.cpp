@@ -319,7 +319,7 @@ Slice::JavaVisitor::getAsyncCallbackInterface(const OperationPtr& op, const stri
     ParamDeclList outParams = getOutParams(op);
     bool throws = !op->throws().empty();
     const string suffix = throws ? "UE" : "";
-    
+
     if(!ret && outParams.empty())
     {
         return throws ? "Ice.TwowayCallbackVoidUE" : "Ice.OnewayCallback";
@@ -350,7 +350,7 @@ Slice::JavaVisitor::getAsyncCallbackInterface(const OperationPtr& op, const stri
                 }
             }
         }
-        
+
         return "Ice.TwowayCallbackArg1" + suffix + "<" +
             typeToString(t, TypeModeIn, package, op->getMetaData(), true, optional) + ">";
     }
@@ -367,13 +367,13 @@ Slice::JavaVisitor::getAsyncCallbackBaseClass(const OperationPtr& op, bool funct
     assert(op->returnsData());
     TypePtr ret = op->returnType();
     ParamDeclList outParams = getOutParams(op);
-    
+
     bool throws = !op->throws().empty();
     const string suffix = throws ? "UE" : "";
     if(!ret && outParams.empty())
     {
         assert(throws);
-        return functional ? 
+        return functional ?
             "IceInternal.Functional_TwowayCallbackVoidUE" :
             "IceInternal.TwowayCallback implements Ice.TwowayCallbackVoidUE";
     }
@@ -405,7 +405,7 @@ Slice::JavaVisitor::getAsyncCallbackBaseClass(const OperationPtr& op, bool funct
                 }
             }
         }
-        
+
         ostringstream os;
         if(functional)
         {
@@ -451,7 +451,7 @@ Slice::JavaVisitor::getLambdaResposeCB(const OperationPtr& op, const string& pac
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(t);
         if(builtin && !optional)
         {
-            static const char* builtinTable[] = 
+            static const char* builtinTable[] =
             {
                 "IceInternal.Functional_ByteCallback",
                 "IceInternal.Functional_BoolCallback",
@@ -479,7 +479,7 @@ Slice::JavaVisitor::getLambdaResposeCB(const OperationPtr& op, const string& pac
                 }
             }
         }
-        
+
         return "IceInternal.Functional_GenericCallback1<" +
             typeToString(t, TypeModeIn, package, op->getMetaData(), true, optional) + ">";
     }
@@ -495,26 +495,26 @@ Slice::JavaVisitor::getParamsAsyncLambda(const OperationPtr& op, const string& p
                                          bool optionalMapping, bool inParams)
 {
     vector<string> params;
-    
+
     if(inParams)
     {
         params = getInOutParams(op, package, InParam, false, optionalMapping);
     }
-    
+
     if(context)
     {
         params.push_back("java.util.Map<String, String> __ctx");
     }
-    
+
     params.push_back(getLambdaResposeCB(op, package) + " __responseCb");
-    
+
     if(!op->throws().empty())
     {
         params.push_back("IceInternal.Functional_GenericCallback1<Ice.UserException> __userExceptionCb");
     }
-    
+
     params.push_back("IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb");
-    
+
     if(sentCB)
     {
         params.push_back("IceInternal.Functional_BoolCallback __sentCb");
@@ -1991,7 +1991,10 @@ Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const st
             out << nl << " * " << extraParam;
             doneExtraParam = true;
         }
-        out << nl << " * " << *i;
+        out << nl << " *";
+        if(!(*i).empty()) {
+            out << " " << *i;
+        }
     }
 
     if(!doneExtraParam && !extraParam.empty())
@@ -2325,7 +2328,7 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
 
     PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
- 
+
     TypesVisitor typesVisitor(_dir, stream);
     p->visit(&typesVisitor, false);
 
@@ -3021,8 +3024,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 string cb = "Callback_" + name + "_" + opname + " __cb";
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << cb << epar << ';';
-                
-                
+
+
                 out << sp;
                 writeDocCommentAMI(out, op, InParam);
                 out << nl;
@@ -3042,7 +3045,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << "public abstract ";
                 }
-                
+
                 out << retS << " end_" << opname << spar << outParams << "Ice.AsyncResult __result" << epar << ';';
             }
         }
@@ -4794,7 +4797,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "__end(__result, __" << op->name() << "_name);";
         }
         out << eb;
-        
+
         //
         // The async callbacks implementation of __completed method delegate to the static
         // __<op-name>_completed method implemented bellow.
@@ -4810,17 +4813,17 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     outParams.push_back(*pli);
                 }
             }
-            
+
             out << sp << nl << "static public void __" << op->name() << "_completed("
                 << getAsyncCallbackInterface(op, package) << " __cb, Ice.AsyncResult __result)";
             out << sb;
             out << nl << getAbsolute(cl, "", "", "Prx") << " __proxy = ("
                 << getAbsolute(cl, "", "", "Prx") << ")__result.getProxy();";
-                
+
             TypePtr ret = op->returnType();
             if(ret)
             {
-                out << nl << typeToString(ret, TypeModeIn, package, op->getMetaData(), true, 
+                out << nl << typeToString(ret, TypeModeIn, package, op->getMetaData(), true,
                                             op->returnIsOptional())
                     << " __ret = " << (op->returnIsOptional() ? "null" : initValue(ret)) << ';';
             }
@@ -4837,9 +4840,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << "__ret = ";
             }
-            out << "__proxy.end_" << op->name() << spar << getInOutArgs(op, OutParam) << "__result" << epar 
+            out << "__proxy.end_" << op->name() << spar << getInOutArgs(op, OutParam) << "__result" << epar
                 << ';';
-            
+
             out << eb;
             if(!throws.empty())
             {
@@ -4859,7 +4862,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "__cb.exception(__ex);";
             out << nl << "return;";
             out << eb;
-            
+
             out << nl << "__cb.response" << spar;
             if(op->returnType())
             {
@@ -5539,7 +5542,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
     }
 
-    out << nl << "IceInternal.Outgoing __og = getOutgoing(__" << op->name() << "_name, " << 
+    out << nl << "IceInternal.Outgoing __og = getOutgoing(__" << op->name() << "_name, " <<
         sliceModeToIceMode(op->sendMode()) << ", __ctx, __explicitCtx);";
     out << nl << "try";
     out << sb;
@@ -5599,7 +5602,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             }
             out << nl << "__og.endReadParams();";
         }
-        
+
         if(ret)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
@@ -5692,7 +5695,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         out << sb;
         out << nl << "return begin_" << op->name() << spar << inArgs << "__ctx" << "true" << "__cb" << epar << ';';
         out << eb;
-        
+
         //
         // Async methods that accept Java 8 lambda callbacks.
         //
@@ -5702,7 +5705,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         out << sb;
         out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package) << epar << ';';
         out << eb;
-        
+
         out << sp;
         out << nl << "public Ice.AsyncResult begin_" << op->name();
         writeParamList(out, getParamsAsyncLambda(op, package, false, true, optionalMapping));
@@ -5710,34 +5713,34 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, false, true) << epar
             << ';';
         out << eb;
-        
+
         out << sp;
         out << nl << "public Ice.AsyncResult begin_" << op->name();
         writeParamList(out, getParamsAsyncLambda(op, package, true, false, optionalMapping));
         out << sb;
         out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true) << epar << ';';
         out << eb;
-        
+
         out << sp;
         out << nl << "public Ice.AsyncResult begin_" << op->name();
         writeParamList(out, getParamsAsyncLambda(op, package, true, true, optionalMapping));
         out << sb;
         out << nl << "return begin_" << op->name() << spar << getArgsAsyncLambda(op, package, true, true) << epar << ';';
         out << eb;
-        
+
         vector<string> params = inParams;
         params.push_back(contextParam);
         params.push_back("boolean __explicitCtx");
         vector<string> asyncParams = getParamsAsyncLambda(op, package, false, true, optionalMapping, false);
         copy(asyncParams.begin(), asyncParams.end(), back_inserter(params));
-        
+
         out << sp;
         out << nl << "private Ice.AsyncResult begin_" << op->name();
         writeParamList(out, params);
         out << sb;
-        
+
         ParamDeclList outParams = getOutParams(op);
-        
+
         if(!op->returnsData())
         {
             params = getInOutArgs(op, InParam);
@@ -5758,7 +5761,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             }
             params.push_back("IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb");
             params.push_back("IceInternal.Functional_BoolCallback sentCb");
-            
+
             out << sp;
             out << nl << "class CB extends " << getAsyncCallbackBaseClass(op, true);
             out << sb;
@@ -5773,7 +5776,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out << "exceptionCb, sentCb);";
             out << nl << "__responseCb = responseCb;";
             out << eb;
-            
+
             out << sp;
             out << nl << "public void response" << spar << getParamsAsyncCB(op, package, false, true) << epar;
             out << sb;
@@ -5787,7 +5790,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out << getInOutArgs(op, OutParam) << epar << ';';
             out << eb;
             out << eb;
-            
+
             out << sp;
             out << nl << "public final void __completed(Ice.AsyncResult __result)";
             out << sb;
@@ -5796,12 +5799,12 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out << sp;
             out << nl << "private final " << getLambdaResposeCB(op, package) << " __responseCb;";
             out << eb;
-            
-            
+
+
             out << nl << "return begin_" << op->name() << spar << getInOutArgs(op, InParam) << "__ctx"
                 << "__explicitCtx"
-                << (throws.empty() ? "new CB(__responseCb, __exceptionCb, __sentCb)" : 
-                                     "new CB(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)") 
+                << (throws.empty() ? "new CB(__responseCb, __exceptionCb, __sentCb)" :
+                                     "new CB(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)")
                 << epar << ';';
         }
         else
@@ -5809,11 +5812,11 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             params = getInOutArgs(op, InParam);
             params.push_back("__ctx");
             params.push_back("__explicitCtx");
-            
+
             const string baseClass = getAsyncCallbackBaseClass(op, true);
             out << nl << "return begin_" << op->name();
             writeParamList(out, params, false, false);
-            out << nl << (throws.empty() ? "new " + baseClass + "(__responseCb, __exceptionCb, __sentCb)" : 
+            out << nl << (throws.empty() ? "new " + baseClass + "(__responseCb, __exceptionCb, __sentCb)" :
                                            "new " + baseClass + "(__responseCb, __userExceptionCb, __exceptionCb, __sentCb)");
             out.inc();
             out << sb;
@@ -5827,7 +5830,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
             out.restoreIndent();
         }
         out << eb;
-        
+
         //
         // Implementation of begin method
         //
@@ -5835,7 +5838,7 @@ Slice::Gen::HelperVisitor::writeOperation(const ClassDefPtr& p, const string& pa
         params.push_back(contextParam);
         params.push_back("boolean __explicitCtx");
         params.push_back("IceInternal.CallbackBase __cb");
-        
+
         out << sp;
         out << nl << "private Ice.AsyncResult begin_" << op->name();
         writeParamList(out, params);
@@ -6057,7 +6060,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam
             << typeSafeCallbackParam << epar << ';';
-            
+
         //
         // Generate the Callback Response interface if the operation has more that one
         // return parameter. Operations with just one return parameter use one of the
@@ -6075,26 +6078,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
                 out << eb;
             }
         }
-        
+
         //
         // Async methods that accept Java 8 lambda callbacks.
         //
         {
             out << sp;
-            out << nl << "public Ice.AsyncResult begin_" << p->name(); 
+            out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, false, false, true));
             out << ';';
-            
+
             out << sp;
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, false, true, true));
             out << ';';
-            
+
             out << sp;
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true, false, true));
             out << ';';
-            
+
             out << sp;
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true, true, true));
@@ -6136,7 +6139,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeDocCommentAMI(out, p, InParam, contextDoc, callbackDoc);
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam << callbackParam
             << epar << ';';
-            
+
         //
         // Async methods that accept Java 8 lambda callbacks.
         //
@@ -6145,17 +6148,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package));
             out << ';';
-            
+
             out << sp;
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, false, true));
             out << ';';
-            
+
             out << sp;
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true));
             out << ';';
-            
+
             out << sp;
             out << nl << "public Ice.AsyncResult begin_" << p->name();
             writeParamList(out, getParamsAsyncLambda(p, package, true, true));
@@ -6700,11 +6703,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 outParams.push_back(*pli);
             }
         }
-        
+
         vector<string> params = getParamsAsyncCB(p, classPkg, false, true);
         vector<string> args = getInOutArgs(p, OutParam);
         ExceptionList throws = p->throws();
-        
+
         //
         // If the operation has more than one return parameter we generate a Callback
         // interface to use in the method signatures.
@@ -6714,17 +6717,17 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             open(getAbsolute(cl, "", "_Callback_", "_" + name), p->file());
 
             Output& out = output();
-            
+
             writeDocCommentOp(out, p);
             out << sp << nl << "public interface " << ("_Callback_" + cl->name()) << '_' << name
                 << " extends " << (throws.empty() ? "Ice.TwowayCallback" : "Ice.TwowayCallbackUE");
             out << sb;
             out << nl << "public void response" << spar << params << epar << ';';
             out << eb;
-            
+
             close();
         }
-        
+
         string classNameAsync = "Callback_" + cl->name();
         string absoluteAsync = getAbsolute(cl, "", "Callback_", "_" + name);
 
@@ -6746,7 +6749,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << sb;
             out << nl << cl->name() << "PrxHelper.__" << p->name() << "_completed(this, __result);";
             out << eb;
-            
+
             out << eb;
         }
         else
