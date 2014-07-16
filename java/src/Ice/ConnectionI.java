@@ -2419,7 +2419,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         // If all the messages were sent and we are in the closing state, we schedule
         // the close timeout to wait for the peer to close the connection.
         //
-        if(_state == StateClosing)
+        if(_state == StateClosing && _dispatchCount == 0)
         {
             setState(StateClosingPending);
             int op = _transceiver.closing(true, _exception);
