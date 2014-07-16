@@ -46,7 +46,7 @@ Building the demo
 
 4. Create the SQL tables using the script createTypes.sql:
 
-   $ mysql --user=USER --pass=PASSWORD library < createTypes.sql
+   $ mysql --user=USER --password=PASSWORD library < createTypes.sql
 
 5. Edit the JDBC properties in config.server to reflect your selected
    user name and password:
