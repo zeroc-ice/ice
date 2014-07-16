@@ -671,6 +671,8 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     string scoped = p->scoped();
     ClassList allBases = p->allBases();
     StringList ids;
+    ClassList bases = p->bases();
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
 
 #if defined(__IBMCPP__) && defined(NDEBUG)
     //
@@ -702,7 +704,13 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public static new readonly string[] ids__ = ";
+    if(p->isInterface() || hasBaseClass) {
+        _out << nl << "public static new readonly string[] ids__ = ";
+    }
+    else
+    {
+        _out << nl << "public static readonly string[] ids__ = ";
+    }
     _out << sb;
 
     {
@@ -718,12 +726,17 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     }
     _out << eb << ";";
 
+    string qualifier = "override ";
+    if(!p->isInterface() && !hasBaseClass) {
+        qualifier = "virtual ";
+    }
+
     _out << sp;
     if(!p->isInterface())
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override bool ice_isA(string s)";
+    _out << nl << "public " << qualifier << "bool ice_isA(string s)";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
@@ -733,17 +746,31 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override bool ice_isA(string s, Ice.Current current__)";
+    _out << nl << "public " << qualifier << "bool ice_isA(string s, Ice.Current current__)";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtilInternal.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
+    if(!p->isInterface() && !hasBaseClass) {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void ice_ping()";
+        _out << sb;
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void ice_ping(Ice.Current current__)";
+        _out << sb;
+        _out << eb;
+    }
+
     _out << sp;
     if(!p->isInterface())
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override string[] ice_ids()";
+    _out << nl << "public " << qualifier << "string[] ice_ids()";
     _out << sb;
     _out << nl << "return ids__;";
     _out << eb;
@@ -753,7 +780,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override string[] ice_ids(Ice.Current current__)";
+    _out << nl << "public " << qualifier << "string[] ice_ids(Ice.Current current__)";
     _out << sb;
     _out << nl << "return ids__;";
     _out << eb;
@@ -763,7 +790,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override string ice_id()";
+    _out << nl << "public " << qualifier << "string ice_id()";
     _out << sb;
     _out << nl << "return ids__[" << scopedPos << "];";
     _out << eb;
@@ -773,7 +800,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override string ice_id(Ice.Current current__)";
+    _out << nl << "public " << qualifier << "string ice_id(Ice.Current current__)";
     _out << sb;
     _out << nl << "return ids__[" << scopedPos << "];";
     _out << eb;
@@ -783,7 +810,13 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public static new string ice_staticId()";
+    if(p->isInterface() || hasBaseClass) {
+        _out << nl << "public static new string ice_staticId()";
+    }
+    else
+    {
+        _out << nl << "public static string ice_staticId()";
+    }
     _out << sb;
     _out << nl << "return ids__[" << scopedPos << "];";
     _out << eb;
@@ -794,6 +827,38 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     if(!p->isInterface() || ops.size() != 0)
     {
         _out << sp << nl << "#region Operation dispatch";
+    }
+
+    if(!p->isInterface() && !hasBaseClass) {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual Ice.DispatchStatus ice_dispatch(Ice.Request request, Ice.DispatchInterceptorAsyncCallback cb)";
+        _out << sb;
+        _out << nl << "IceInternal.Incoming inc = (IceInternal.Incoming)request;";
+        _out << nl << "if(cb != null)";
+        _out << sb;
+        _out << nl << "inc.push(cb);";
+        _out << eb;
+        _out << nl << "try";
+        _out << sb;
+        _out << nl << "inc.startOver();";
+        _out << nl << "return dispatch__(inc, inc.getCurrent());";
+        _out << eb;
+        _out << nl << "finally";
+        _out << sb;
+        _out << nl << "if(cb != null)";
+        _out << sb;
+        _out << nl << "inc.pop();";
+        _out << eb;
+        _out << eb;
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual Ice.DispatchStatus ice_dispatch(Ice.Request request)";
+        _out << sb;
+        _out << nl << "return ice_dispatch(request, null);";
+        _out << eb;
     }
 
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
@@ -832,7 +897,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
         }
 
-        _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
+        _out << nl << "Ice.ObjectImpl.checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
         if(!inParams.empty())
         {
             //
@@ -1021,7 +1086,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     }
 
     OperationList allOps = p->allOperations();
-    if(!allOps.empty())
+    if(!allOps.empty() || (!p->isInterface() && !hasBaseClass))
     {
         StringList allOpNames;
 #if defined(__IBMCPP__) && defined(NDEBUG)
@@ -1051,11 +1116,12 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << eb << ';';
 
+        _out << sp;
         if(!p->isInterface())
         {
             emitGeneratedCodeAttribute();
         }
-        _out << sp << nl << "public override Ice.DispatchStatus "
+        _out << nl << "public " << qualifier << "Ice.DispatchStatus "
              << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
         _out << nl << "int pos = _System.Array.BinarySearch(all__, current__.operation, "
@@ -1066,6 +1132,93 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << eb;
         _out << sp << nl << "switch(pos)";
         _out << sb;
+        int i = 0;
+        for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
+        {
+            string opName = *q;
+
+            _out << nl << "case " << i++ << ':';
+            _out << sb;
+            if(opName == "ice_id")
+            {
+                _out << nl << "return Ice.ObjectImpl.ice_id___(this, inS__, current__);";
+            }
+            else if(opName == "ice_ids")
+            {
+                _out << nl << "return Ice.ObjectImpl.ice_ids___(this, inS__, current__);";
+            }
+            else if(opName == "ice_isA")
+            {
+                _out << nl << "return Ice.ObjectImpl.ice_isA___(this, inS__, current__);";
+            }
+            else if(opName == "ice_ping")
+            {
+                _out << nl << "return Ice.ObjectImpl.ice_ping___(this, inS__, current__);";
+            }
+            else
+            {
+                //
+                // There's probably a better way to do this
+                //
+                for(OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
+                {
+                    if((*t)->name() == (*q))
+                    {
+                        ContainerPtr container = (*t)->container();
+                        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+                        assert(cl);
+                        if(cl->scoped() == p->scoped())
+                        {
+                            _out << nl << "return " << opName << "___(this, inS__, current__);";
+                        }
+                        else
+                        {
+                            string base = cl->scoped();
+                            if(cl->isInterface())
+                            {
+                                base += "Disp_";
+                            }
+                            _out << nl << "return " << fixId(base) << "." << opName << "___(this, inS__, current__);";
+                        }
+                        break;
+                    }
+                }
+            }
+            _out << eb;
+        }
+        _out << eb;
+        _out << sp << nl << "_System.Diagnostics.Debug.Assert(false);";
+        _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
+        _out << eb;
+    }
+    /*else if(!p->isInterface() && !hasBaseClass)
+    {
+        _out << sp << nl << "private static string[] all__ =";
+        _out << sb;
+        _out << nl << "\"ice_id\","
+        _out << nl << "\"ice_ids\","
+        _out << nl << "\"ice_isA\","
+        _out << nl << "\"ice_ping\","
+        _out << eb << ';';
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual Ice.DispatchStatus "
+             << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
+        _out << sb;
+        _out << nl << "int pos = System.Array.BinarySearch(all__, current__.operation);";
+        _out << nl << "if(pos < 0)";
+        _out << sb;
+        _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
+        _out << eb;
+        _out << sp << nl << "switch(pos)";
+        _out << sb;
+        _out << nl << "case 0:";
+        _out << sb;
+        _out << nl << "return ice_id___(this, inS__, current__);";
+        _out << eb;
+
+
         int i = 0;
         for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
         {
@@ -1124,7 +1277,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << sp << nl << "_System.Diagnostics.Debug.Assert(false);";
         _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
         _out << eb;
-    }
+    }*/
 
     if(!p->isInterface() || ops.size() != 0)
     {
@@ -1141,7 +1294,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
-    ClassList bases = p->bases();
     ClassDefPtr base;
     if(!bases.empty() && !bases.front()->isInterface())
     {
@@ -1150,6 +1302,20 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
     _out << sp << nl << "#region Marshaling support";
 
+    if(!p->isInterface() && !hasBaseClass)
+    {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void ice_preMarshal()";
+        _out << sb;
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void ice_postUnmarshal()";
+        _out << sb;
+        _out << eb;        
+    }
     
     if(preserved && !basePreserved)
     {
@@ -1159,7 +1325,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             emitGeneratedCodeAttribute();
         }
 
-        _out << nl << "public override void write__(IceInternal.BasicStream os__)";
+        _out << nl << "public " << qualifier << "void write__(IceInternal.BasicStream os__)";
         _out << sb;
         _out << nl << "os__.startWriteObject(slicedData__);";
         _out << nl << "writeImpl__(os__);";
@@ -1171,7 +1337,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public override void read__(IceInternal.BasicStream is__)";
+        _out << nl << "public " << qualifier << "void read__(IceInternal.BasicStream is__)";
         _out << sb;
         _out << nl << "is__.startReadObject();";
         _out << nl << "readImpl__(is__);";
@@ -1185,7 +1351,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             {
                 emitGeneratedCodeAttribute();
             }
-            _out << nl << "public override void write__(Ice.OutputStream outS__)";
+            _out << nl << "public " << qualifier << "void write__(Ice.OutputStream outS__)";
             _out << sb;
             _out << nl << "outS__.startObject(slicedData__);";
             _out << nl << "writeImpl__(outS__);";
@@ -1197,13 +1363,71 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
              {
                  emitGeneratedCodeAttribute();
              }
-             _out << nl << "public override void read__(Ice.InputStream inS__)";
+             _out << nl << "public " << qualifier << "void read__(Ice.InputStream inS__)";
              _out << sb;
              _out << nl << "inS__.startObject();";
              _out << nl << "readImpl__(inS__);";
              _out << nl << "slicedData__ = inS__.endObject(true);";
              _out << eb;
         }
+        else if (!p->isInterface() && !hasBaseClass)
+        {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public virtual void write__(Ice.OutputStream outS__)";
+            _out << sb;
+            _out << nl << "outS__.startObject(null);";
+            _out << nl << "writeImpl__(outS__);";
+            _out << nl << "outS__.endObject();";
+            _out << eb;
+
+             _out << sp;
+            emitGeneratedCodeAttribute();
+             _out << nl << "public virtual void read__(Ice.InputStream inS__)";
+             _out << sb;
+             _out << nl << "inS__.startObject();";
+             _out << nl << "readImpl__(inS__);";
+             _out << nl << "inS__.endObject(false);";
+             _out << eb;
+        }
+    }
+    else if (!p->isInterface() && !hasBaseClass)
+    {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void write__(IceInternal.BasicStream os__)";
+        _out << sb;
+        _out << nl << "os__.startWriteObject(null);";
+        _out << nl << "writeImpl__(os__);";
+        _out << nl << "os__.endWriteObject();";
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void read__(IceInternal.BasicStream is__)";
+        _out << sb;
+        _out << nl << "is__.startReadObject();";
+        _out << nl << "readImpl__(is__);";
+        _out << nl << "is__.endReadObject(false);";
+        _out << eb;
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public virtual void write__(Ice.OutputStream outS__)";
+        _out << sb;
+        _out << nl << "outS__.startObject(null);";
+        _out << nl << "writeImpl__(outS__);";
+        _out << nl << "outS__.endObject();";
+        _out << eb;
+
+         _out << sp;
+        emitGeneratedCodeAttribute();
+         _out << nl << "public virtual void read__(Ice.InputStream inS__)";
+         _out << sb;
+         _out << nl << "inS__.startObject();";
+         _out << nl << "readImpl__(inS__);";
+         _out << nl << "inS__.endObject(false);";
+         _out << eb;
     }
 
     _out << sp;
@@ -1211,7 +1435,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "protected override void writeImpl__(IceInternal.BasicStream os__)";
+    _out << nl << "protected " << qualifier << "void writeImpl__(IceInternal.BasicStream os__)";
     _out << sb;
     _out << nl << "os__.startWriteSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -1246,7 +1470,15 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << "class Patcher__ : IceInternal.Patcher";
         _out << sb;
-        _out << sp << nl << "internal Patcher__(string type, Ice.ObjectImpl instance";
+        if (p->isInterface())
+        {
+            _out << sp << nl << "internal Patcher__(string type, Ice.ObjectImpl instance";
+        }
+        else
+        {
+            _out << sp << nl << "internal Patcher__(string type, Ice.Object instance"; 
+        }
+
         if(allClassMembers.size() > 1)
         {
             _out << ", int member";
@@ -1334,7 +1566,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "protected override void readImpl__(IceInternal.BasicStream is__)";
+    _out << nl << "protected " << qualifier << "void readImpl__(IceInternal.BasicStream is__)";
     _out << sb;
     _out << nl << "is__.startReadSlice();";
     int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
@@ -1367,7 +1599,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "protected override void writeImpl__(Ice.OutputStream outS__)";
+        _out << nl << "protected " << qualifier << "void writeImpl__(Ice.OutputStream outS__)";
         _out << sb;
         _out << nl << "outS__.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -1393,7 +1625,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "protected override void readImpl__(Ice.InputStream inS__)";
+        _out << nl << "protected " << qualifier << "void readImpl__(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << "inS__.startSlice();";
         classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
@@ -1417,6 +1649,22 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << eb;
     }
+    else if (!p->isInterface() && !hasBaseClass)
+    {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "protected virtual void writeImpl__(Ice.OutputStream os__)";
+        _out << sb;
+        _out << nl << "throw new Ice.MarshalException(\"class was not generated with stream support\");";
+        _out << eb;
+
+                _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "protected virtual void readImpl__(Ice.InputStream is__)";
+        _out << sb;
+        _out << nl << "throw new Ice.MarshalException(\"class was not generated with stream support\");";
+        _out << eb;
+    }
 
     if(preserved && !basePreserved)
     {
@@ -1424,6 +1672,19 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     }
 
     _out << sp << nl << "#endregion"; // Marshalling support
+
+    if(!p->isInterface() && !hasBaseClass) {
+        _out << sp << nl << "#region ICloneable members";
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public object Clone()";
+        _out << sb;
+        _out << nl << "return MemberwiseClone();";
+        _out << eb;
+
+        _out << sp << nl << "#endregion"; // ICloneable members
+    }
 }
 
 string
@@ -2774,7 +3035,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(!p->isLocal())
             {
-                _out << " : Ice.ObjectImpl";
+                _out << " : Ice.Object";
                 baseWritten = true;
             }
         }

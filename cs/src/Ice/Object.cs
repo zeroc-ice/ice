@@ -351,7 +351,7 @@ namespace Ice
             {
                 if(cb != null)
                 {
-                        inc.pop();
+                    inc.pop();
                 }
             }
         }
@@ -464,7 +464,7 @@ namespace Ice
             return "???";
         }
 
-        protected static void checkMode__(OperationMode expected, OperationMode received)
+        public static void checkMode__(OperationMode expected, OperationMode received)
         {
             if(expected != received)
             {
