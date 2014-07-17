@@ -27,6 +27,10 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- The signatures of Ice::OutputStream startSize() and endSize() have
+  been modified. It is now necessary for the caller of startSize() to
+  save the returned position and pass it into endSize().
+
 - Added IceStormAdmin.Host and IceStormAdmin.Port properties. You can
   set these properties to connect to an IceStorm instance running on
   a given host and port.
@@ -168,6 +172,9 @@ C++ Changes
 
 C# Changes
 ==========
+
+- It is now possible for users to provide a base class for a Slice
+  generated class with .NET partial classes.
 
 - Fixed leak in C# transport. The leak occured for each Ice
   connection.

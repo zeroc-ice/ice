@@ -316,12 +316,12 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         _out << sb;
         if(builtin->kind() == Builtin::KindObjectProxy)
         {
-            _out << nl << "outS__.startSize();";
+            _out << nl << "int pos__ = outS__.startSize();";
         }
         writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         if(builtin->kind() == Builtin::KindObjectProxy)
         {
-            _out << nl << "outS__.endSize();";
+            _out << nl << "outS__.endSize(pos__);";
         }
         _out << eb;
         return;
@@ -366,9 +366,9 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             {
-                _out << nl << "outS__.startSize();";
+                _out << nl << "int pos__ = outS__.startSize();";
                 writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
-                _out << nl << "outS__.endSize();";
+                _out << nl << "outS__.endSize(pos__);";
                 break;
             }
             case Builtin::KindLocalObject:
@@ -389,9 +389,9 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
             }
             else
             {
-                _out << nl << "outS__.startSize();";
+                _out << nl << "int pos__ = outS__.startSize();";
                 writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
-                _out << nl << "outS__.endSize();";
+                _out << nl << "outS__.endSize(pos__);";
             }
         }
 
@@ -408,7 +408,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
 
         if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
         {
-            _out << nl << "outS__.startSize();";
+            _out << nl << "int pos__ = outS__.startSize();";
         }
         else
         {
@@ -420,7 +420,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
         {
-            _out << nl << "outS__.endSize();";
+            _out << nl << "outS__.endSize(pos__);";
         }
         _out << eb;
         return;
@@ -435,7 +435,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
 
         if(st->isVariableLength())
         {
-            _out << nl << "outS__.startSize();";
+            _out << nl << "int pos__ = outS__.startSize();";
         }
         else
         {
@@ -445,7 +445,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         if(st->isVariableLength())
         {
-            _out << nl << "outS__.endSize();";
+            _out << nl << "outS__.endSize(pos__);";
         }
         _out << eb;
         return;
@@ -468,9 +468,9 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
              << getOptionalFormat(member->type()) << "))";
         _out << sb;
-        _out << nl << "outS__.startSize();";
+        _out << nl << "int pos__ = outS__.startSize();";
         writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
-        _out << nl << "outS__.endSize();";
+        _out << nl << "outS__.endSize(pos__);";
         _out << eb;
         return;
     }
@@ -1314,9 +1314,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         emitGeneratedCodeAttribute();
         _out << nl << "public virtual void ice_postUnmarshal()";
         _out << sb;
-        _out << eb;        
+        _out << eb;
     }
-    
+
     if(preserved && !basePreserved)
     {
         _out << sp;
@@ -1476,7 +1476,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         else
         {
-            _out << sp << nl << "internal Patcher__(string type, Ice.Object instance"; 
+            _out << sp << nl << "internal Patcher__(string type, Ice.Object instance";
         }
 
         if(allClassMembers.size() > 1)
@@ -1560,7 +1560,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << eb;
     }
 
-   
+
     _out << sp;
     if(!p->isInterface())
     {
@@ -3902,7 +3902,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             _out << eb;
         }
-       
+
         if((!base || (base && !base->usesClasses(false))) && p->usesClasses(false))
         {
             _out << sp;
@@ -5153,7 +5153,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
                 {
                     const bool isClass = isClassType((*pli)->type());
-                    
+
                     if(!(*pli)->optional() && !isClass)
                     {
                         StructPtr st = StructPtr::dynamicCast((*pli)->type());
@@ -5176,9 +5176,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     string typeS = typeToString(ret, op->returnIsOptional());
                     const bool isClass = isClassType(ret);
-                    
+
                     _out << nl << typeS << " ret__;";
-                    
+
                     if(op->returnIsOptional())
                     {
                         BuiltinPtr b = BuiltinPtr::dynamicCast(ret);

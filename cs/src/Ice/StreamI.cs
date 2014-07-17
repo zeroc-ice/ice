@@ -521,14 +521,14 @@ namespace Ice
             _os.rewriteInt(sz, pos);
         }
 
-        public void startSize()
+        public int startSize()
         {
-            _os.startSize();
+            return _os.startSize();
         }
 
-        public void endSize()
+        public void endSize(int pos)
         {
-            _os.endSize();
+            _os.endSize(pos);
         }
 
         public byte[] finished()

@@ -51,10 +51,10 @@ enum OptionalFormat
     OptionalFormatF4 = 2,             // Fixed 4 bytes encoding
     OptionalFormatF8 = 3,             // Fixed 8 bytes encoding
     OptionalFormatSize = 4,           // "Size encoding" on 1 to 5 bytes, e.g. enum, class identifier
-    OptionalFormatVSize = 5,          // "Size encoding" on 1 to 5 bytes followed by data, e.g. string, fixed size 
+    OptionalFormatVSize = 5,          // "Size encoding" on 1 to 5 bytes followed by data, e.g. string, fixed size
                                       // struct, or containers whose size can be computed prior to marshaling
     OptionalFormatFSize = 6,          // Fixed size on 4 bytes followed by data, e.g. variable-size struct, container.
-    OptionalFormatClass = 7 
+    OptionalFormatClass = 7
 };
 
 
@@ -68,10 +68,10 @@ struct IsContainer
 {
     template<typename C>
     static char test(typename C::iterator*);
- 
+
     template<typename C>
     static long test(...);
- 
+
     static const bool value = sizeof(test<T>(0)) == sizeof(char);
 };
 
@@ -85,7 +85,7 @@ struct IsMap
 {
     template<typename C>
     static char test(typename C::mapped_type*);
- 
+
     template<typename C>
     static long test(...);
 
@@ -103,12 +103,12 @@ struct StreamableTraits
         (IsContainer<T>::value ? StreamHelperCategorySequence : StreamHelperCategoryUnknown);
 
     //
-    // When extracting a sequence<T> from a stream, we can ensure the 
+    // When extracting a sequence<T> from a stream, we can ensure the
     // stream has at least StreamableTraits<T>::minWireSize * size bytes
     // For containers, the minWireSize is 1 (just 1 byte for an empty container).
     //
     static const int minWireSize = 1;
-    
+
     //
     // Is this type encoded on a fixed number of bytes?
     // Used only for marshaling/unmarshaling optional data members and parameters.
@@ -118,7 +118,7 @@ struct StreamableTraits
 
 //
 // StreamableTraits specialization for array / range mapped sequences
-// The type can be a std::pair<T, T> or a 
+// The type can be a std::pair<T, T> or a
 // std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >
 //
 template<typename T, typename U>
@@ -254,7 +254,7 @@ struct StreamableTraits< ::IceInternal::Handle<T> >
 //
 
 // Base StreamHelper template; it must be specialized for each type
-template<typename T, StreamHelperCategory st> 
+template<typename T, StreamHelperCategory st>
 struct StreamHelper;
 
 
@@ -262,7 +262,7 @@ struct StreamHelper;
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryBuiltin>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         stream->write(v);
@@ -277,25 +277,25 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
 
 // "helpers" for the StreamHelper<T, StreamHelperCategoryStruct[Class]> below
 // We generate specializations, which can be instantiated explicitly and exported from DLLs
-// 
+//
 
-template<typename T, typename S> 
+template<typename T, typename S>
 struct StreamWriter;
 
-template<typename T, typename S> 
+template<typename T, typename S>
 struct StreamReader;
 
 // Helper for structs
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryStruct>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         StreamWriter<T, S>::write(stream, v);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         StreamReader<T, S>::read(stream, v);
@@ -307,13 +307,13 @@ struct StreamHelper<T, StreamHelperCategoryStruct>
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryStructClass>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         StreamWriter<T, S>::write(stream, v);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         v = new typename T::element_type;
@@ -335,7 +335,7 @@ struct StreamHelper<T, StreamHelperCategoryEnum>
         stream->writeEnum(static_cast<Int>(v), StreamableTraits<T>::maxValue);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         Int value = stream->readEnum(StreamableTraits<T>::maxValue);
@@ -351,7 +351,7 @@ struct StreamHelper<T, StreamHelperCategoryEnum>
 template<typename T>
 struct StreamHelper<T, StreamHelperCategorySequence>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         stream->writeSize(static_cast<Int>(v.size()));
@@ -361,7 +361,7 @@ struct StreamHelper<T, StreamHelperCategorySequence>
         }
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         Int sz = stream->readAndCheckSeqSize(StreamableTraits<typename T::value_type>::minWireSize);
@@ -377,13 +377,13 @@ struct StreamHelper<T, StreamHelperCategorySequence>
 template<typename T>
 struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const std::pair<const T*, const T*>& v)
     {
         stream->write(v.first, v.second);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, std::pair<const T*, const T*>& v)
     {
         stream->read(v);
@@ -394,7 +394,7 @@ struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
 template<typename T>
 struct StreamHelper<std::pair<T, T>, StreamHelperCategorySequence>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const std::pair<T, T>& v)
     {
         stream->writeSize(static_cast<Int>(IceUtilInternal::distance(v.first, v.second)));
@@ -404,7 +404,7 @@ struct StreamHelper<std::pair<T, T>, StreamHelperCategorySequence>
         }
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, std::pair<T, T>& v)
     {
         stream->read(v);
@@ -415,7 +415,7 @@ template<>
 struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
                                ::std::vector<bool>::const_iterator>, StreamHelperCategorySequence>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const std::pair< ::std::vector<bool>::const_iterator,
                                       ::std::vector<bool>::const_iterator>& v)
     {
@@ -433,7 +433,7 @@ struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
 template<typename T>
 struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >, StreamHelperCategorySequence>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >& v)
     {
         stream->read(v.second, v.first);
@@ -446,7 +446,7 @@ struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryDictionary>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         stream->writeSize(static_cast<Int>(v.size()));
@@ -457,7 +457,7 @@ struct StreamHelper<T, StreamHelperCategoryDictionary>
         }
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         Int sz = stream->readSize();
@@ -476,7 +476,7 @@ struct StreamHelper<T, StreamHelperCategoryDictionary>
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryUserException>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         stream->writeException(v);
@@ -525,7 +525,7 @@ struct StreamHelper<T, StreamHelperCategoryClass>
 //
 
 //
-// Extract / compute the optionalFormat 
+// Extract / compute the optionalFormat
 // This is used _only_ for the base StreamOptionalHelper below
 // /!\ Do not use in StreamOptionalHelper specializations, and do
 // not provide specialization not handled by the base StreamOptionalHelper
@@ -578,24 +578,24 @@ struct GetOptionalFormat<StreamHelperCategoryEnum, minWireSize, false>
 
 // Base helper: simply read/write the data
 template<typename T, StreamHelperCategory st, bool fixedLength>
-struct StreamOptionalHelper 
+struct StreamOptionalHelper
 {
     typedef StreamableTraits<T> Traits;
 
     // If this optionalFormat fails to compile, you must either define your specialization
     // for GetOptionalFormat (in which case the optional data will be marshaled/unmarshaled
-    // with straight calls to write/read on the stream), or define your own 
+    // with straight calls to write/read on the stream), or define your own
     // StreamOptionalHelper specialization (which gives you more control over marshaling)
-    // 
+    //
     static const OptionalFormat optionalFormat = GetOptionalFormat<st, Traits::minWireSize, fixedLength>::value;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         stream->write(v);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         stream->read(v);
@@ -608,14 +608,14 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
 {
     static const OptionalFormat optionalFormat = OptionalFormatVSize;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         stream->writeSize(StreamableTraits<T>::minWireSize);
         stream->write(v);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         stream->skipSize();
@@ -629,13 +629,12 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
 {
     static const OptionalFormat optionalFormat = OptionalFormatFSize;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
-        stream->write(static_cast<Int>(0));
-        typename S::size_type p = stream->pos();
+        int pos = stream->startSize();
         stream->write(v);
-        stream->rewrite(static_cast<Int>(stream->pos() - p), p - 4);
+        stream->endSize(pos);
     }
 
     template<class S> static inline void
@@ -646,7 +645,7 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
     }
 };
 
-// Class structs are encoded like structs 
+// Class structs are encoded like structs
 template<typename T, bool fixedLength>
 struct StreamOptionalHelper<T, StreamHelperCategoryStructClass, fixedLength> : StreamOptionalHelper<T, StreamHelperCategoryStruct, fixedLength>
 {
@@ -676,14 +675,14 @@ struct StreamOptionalContainerHelper<T, false, sz>
 {
     static const OptionalFormat optionalFormat = OptionalFormatFSize;
 
-    template<class S> static inline void 
-    write(S* stream, const T& v, Int) 
+    template<class S> static inline void
+    write(S* stream, const T& v, Int)
     {
         StreamOptionalHelper<T, StreamHelperCategoryStruct, false>::write(stream, v);
     }
 
-    template<class S> static inline void 
-    read(S* stream, T& v) 
+    template<class S> static inline void
+    read(S* stream, T& v)
     {
         StreamOptionalHelper<T, StreamHelperCategoryStruct, false>::read(stream, v);
     }
@@ -692,14 +691,14 @@ struct StreamOptionalContainerHelper<T, false, sz>
 //
 // Encode containers of fixed size elements with the VSize optional
 // type since we can figure out the size of the container before
-// encoding. 
+// encoding.
 //
 template<typename T, int sz>
 struct StreamOptionalContainerHelper<T, true, sz>
-{ 
+{
     static const OptionalFormat optionalFormat = OptionalFormatVSize;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v, Int n)
     {
         //
@@ -711,7 +710,7 @@ struct StreamOptionalContainerHelper<T, true, sz>
         stream->write(v);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         stream->skipSize();
@@ -727,16 +726,16 @@ struct StreamOptionalContainerHelper<T, true, sz>
 //
 template<typename T>
 struct StreamOptionalContainerHelper<T, true, 1>
-{ 
+{
     static const OptionalFormat optionalFormat = OptionalFormatVSize;
 
-    template<class S> static inline void 
-    write(S* stream, const T& v, Int) 
+    template<class S> static inline void
+    write(S* stream, const T& v, Int)
     {
         stream->write(v);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         stream->read(v);
@@ -759,13 +758,13 @@ struct StreamOptionalHelper<T, StreamHelperCategorySequence, false>
     // or variable size elements and their size.
     static const OptionalFormat optionalFormat = StreamOptionalContainerHelper<T, fixedLength, size>::optionalFormat;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         StreamOptionalContainerHelper<T, fixedLength, size>::write(stream, v, static_cast<Int>(v.size()));
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);
@@ -783,14 +782,14 @@ struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategoryS
     // or variable size elements and their size.
     static const OptionalFormat optionalFormat = StreamOptionalContainerHelper<P, fixedLength, size>::optionalFormat;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const P& v)
     {
         Int n = static_cast<Int>(v.second - v.first);
         StreamOptionalContainerHelper<P, fixedLength, size>::write(stream, v, n);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, P& v)
     {
         StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
@@ -808,14 +807,14 @@ struct StreamOptionalHelper<std::pair<T, T>, StreamHelperCategorySequence, false
     // or variable size elements and their size.
     static const OptionalFormat optionalFormat = StreamOptionalContainerHelper<P, fixedLength, size>::optionalFormat;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const P& v)
     {
         Int n = static_cast<Int>(v.second - v.first);
         StreamOptionalContainerHelper<P, fixedLength, size>::write(stream, v, n);
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, P& v)
     {
         StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
@@ -834,7 +833,7 @@ struct StreamOptionalHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T
     // or variable size elements and their size.
     static const OptionalFormat optionalFormat = StreamOptionalContainerHelper<P, fixedLength, size>::optionalFormat;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, P& v)
     {
         StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
@@ -860,13 +859,13 @@ struct StreamOptionalHelper<T, StreamHelperCategoryDictionary, false>
     // or variable size elements.
     static const OptionalFormat optionalFormat = StreamOptionalContainerHelper<T, fixedLength, size>::optionalFormat;
 
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const T& v)
     {
         StreamOptionalContainerHelper<T, fixedLength, size>::write(stream, v, static_cast<Int>(v.size()));
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, T& v)
     {
         StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);

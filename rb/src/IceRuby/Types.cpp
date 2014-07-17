@@ -997,10 +997,7 @@ IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*
     {
         if(_variableLength)
         {
-            // BUGFIX: #5481 startSize/endSize can't be nested
-            //os->startSize();
-            sizePos = os->pos();
-            os->write(Ice::Int(0));
+            sizePos = os->startSize();
         }
         else
         {
@@ -1023,8 +1020,7 @@ IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*
     if(optional && _variableLength)
     {
         assert(sizePos != -1);
-        //os->endSize();
-        os->rewrite(os->pos() - sizePos - 4, sizePos);
+        os->endSize(sizePos);
     }
 }
 
@@ -1164,10 +1160,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
     {
         if(elementType->variableLength())
         {
-            // BUGFIX: #5481 startSize/endSize can't be nested
-            //os->startSize();
-            sizePos = os->pos();
-            os->write(Ice::Int(0));
+            sizePos = os->startSize();
         }
         else if(elementType->wireSize() > 1)
         {
@@ -1230,8 +1223,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
     if(optional && elementType->variableLength())
     {
         assert(sizePos != -1);
-        //os->endSize();
-        os->rewrite(os->pos() - sizePos - 4, sizePos);
+        os->endSize(sizePos);
     }
 }
 
@@ -1738,10 +1730,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, Object
     {
         if(_variableLength)
         {
-            // BUGFIX: #5481 startSize/endSize can't be nested
-            //os->startSize();
-            sizePos = os->pos();
-            os->write(Ice::Int(0));
+            sizePos = os->startSize();
         }
         else
         {
@@ -1766,8 +1755,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, Object
     if(optional && _variableLength)
     {
         assert(sizePos != -1);
-        //os->endSize();
-        os->rewrite(os->pos() - sizePos - 4, sizePos);
+        os->endSize(sizePos);
     }
 }
 
@@ -2322,10 +2310,7 @@ IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*,
     int sizePos = -1;
     if(optional)
     {
-        // BUGFIX: #5481 startSize/endSize can't be nested
-        //os->startSize();
-        sizePos = os->pos();
-        os->write(Ice::Int(0));
+        sizePos = os->startSize();
     }
 
     if(NIL_P(p))
@@ -2341,8 +2326,7 @@ IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*,
     if(optional)
     {
         assert(sizePos != -1);
-        //os->endSize();
-        os->rewrite(os->pos() - sizePos - 4, sizePos);
+        os->endSize(sizePos);
     }
 }
 

@@ -33,7 +33,7 @@ class UserException;
 namespace IceInternal
 {
 
-template<typename T> inline void 
+template<typename T> inline void
 patchHandle(void* addr, const Ice::ObjectPtr& v)
 {
     IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
@@ -253,7 +253,7 @@ public:
             {
                 throwEncapsulationException(__FILE__, __LINE__);
             }
-            
+
             //
             // Ice version < 3.3 had a bug where user exceptions with
             // class members could be encoded with a trailing byte
@@ -399,17 +399,17 @@ public:
 
     Ice::Int readAndCheckSeqSize(int);
 
-    void startSize()
+    int startSize()
     {
-        _sizePos = static_cast<Ice::Int>(b.size());
+        int pos = static_cast<Ice::Int>(b.size());
         write(Ice::Int(0));
+        return pos;
     }
 
-    void endSize()
+    void endSize(int pos)
     {
-        assert(_sizePos >= 0);
-        rewrite(static_cast<Ice::Int>(b.size()) - _sizePos - 4, _sizePos);
-        _sizePos = -1;
+        assert(pos >= 0);
+        rewrite(static_cast<Ice::Int>(b.size()) - pos - 4, pos);
     }
 
     void writeBlob(const std::vector<Ice::Byte>&);
@@ -459,22 +459,22 @@ public:
         }
 
         if(writeOpt(tag, Ice::StreamOptionalHelper<T,
-                                                   Ice::StreamableTraits<T>::helper, 
+                                                   Ice::StreamableTraits<T>::helper,
                                                    Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
-            Ice::StreamOptionalHelper<T, 
-                                      Ice::StreamableTraits<T>::helper, 
+            Ice::StreamOptionalHelper<T,
+                                      Ice::StreamableTraits<T>::helper,
                                       Ice::StreamableTraits<T>::fixedLength>::write(this, *v);
         }
     }
     template<typename T> void read(Ice::Int tag, IceUtil::Optional<T>& v)
     {
-        if(readOpt(tag, Ice::StreamOptionalHelper<T, 
-                                                  Ice::StreamableTraits<T>::helper, 
+        if(readOpt(tag, Ice::StreamOptionalHelper<T,
+                                                  Ice::StreamableTraits<T>::helper,
                                                   Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
-            Ice::StreamOptionalHelper<T, 
+            Ice::StreamOptionalHelper<T,
                                       Ice::StreamableTraits<T>::helper,
                                       Ice::StreamableTraits<T>::fixedLength>::read(this, *v);
         }
@@ -486,7 +486,7 @@ public:
 
     //
     // Template functions for sequences and custom sequences
-    // 
+    //
     template<typename T> void write(const std::vector<T>& v)
     {
         if(v.empty())
@@ -726,7 +726,7 @@ public:
             v.clear();
         }
     }
-    
+
     // For custom strings, convert = false
     void read(const char*& vdata, size_t& vsize)
     {
@@ -737,7 +737,7 @@ public:
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            
+
             vdata = reinterpret_cast<const char*>(&*i);
             vsize = static_cast<size_t>(sz);
             i += sz;
@@ -766,7 +766,7 @@ public:
                 {
                     throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
                 }
-                
+
                 readConverted(holder, sz);
                 vdata = holder.data();
                 vsize = holder.size();
@@ -834,7 +834,7 @@ public:
     bool writeOptImpl(Ice::Int, Ice::OptionalFormat);
     void skipOpt(Ice::OptionalFormat);
     void skipOpts();
-    
+
     // Skip bytes from the stream
     void skip(size_type size)
     {
@@ -843,7 +843,7 @@ public:
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
         i += size;
-    }    
+    }
     void skipSize()
     {
         Ice::Byte b;
@@ -926,7 +926,7 @@ private:
         EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
             _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _servantFactoryManager(f), _typeIdIndex(0)
         {
-        } 
+        }
 
         std::string readTypeId(bool);
         Ice::ObjectPtr newInstance(const std::string&);
@@ -966,10 +966,10 @@ private:
     {
     public:
 
-        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) : 
+        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
             EncapsDecoder(stream, encaps, sliceObjects, f), _sliceType(NoSlice)
         {
-        } 
+        }
 
         virtual void read(PatchFunc, void*);
         virtual void throwException(const UserExceptionFactoryPtr&);
@@ -1002,7 +1002,7 @@ private:
         EncapsDecoder11(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
             EncapsDecoder(stream, encaps, sliceObjects, f), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
         {
-        } 
+        }
 
         virtual void read(PatchFunc, void*);
         virtual void throwException(const UserExceptionFactoryPtr&);
@@ -1093,7 +1093,7 @@ private:
 
         virtual void write(const Ice::ObjectPtr&) = 0;
         virtual void write(const Ice::UserException&) = 0;
-        
+
         virtual void startInstance(SliceType, const Ice::SlicedDataPtr&) = 0;
         virtual void endInstance() = 0;
         virtual void startSlice(const std::string&, int, bool) = 0;
@@ -1136,14 +1136,14 @@ private:
     {
     public:
 
-        EncapsEncoder10(BasicStream* stream, WriteEncaps* encaps) : 
+        EncapsEncoder10(BasicStream* stream, WriteEncaps* encaps) :
             EncapsEncoder(stream, encaps), _sliceType(NoSlice), _objectIdIndex(0)
         {
         }
 
         virtual void write(const Ice::ObjectPtr&);
         virtual void write(const Ice::UserException&);
-        
+
         virtual void startInstance(SliceType, const Ice::SlicedDataPtr&);
         virtual void endInstance();
         virtual void startSlice(const std::string&, int, bool);
@@ -1170,7 +1170,7 @@ private:
     {
     public:
 
-        EncapsEncoder11(BasicStream* stream, WriteEncaps* encaps) : 
+        EncapsEncoder11(BasicStream* stream, WriteEncaps* encaps) :
             EncapsEncoder(stream, encaps), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
         {
         }
@@ -1199,7 +1199,7 @@ private:
                     previous->next = this;
                 }
             }
-            
+
             ~InstanceData()
             {
                 if(next)
@@ -1207,7 +1207,7 @@ private:
                     delete next;
                 }
             }
-            
+
             // Instance attributes
             SliceType sliceType;
             bool firstSlice;
@@ -1318,8 +1318,6 @@ private:
 
     int _startSeq;
     int _minSeqSize;
-
-    int _sizePos;
 };
 
 } // End namespace IceInternal

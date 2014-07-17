@@ -62,7 +62,6 @@ public class BasicStream
         _unlimited = unlimited;
 
         _startSeq = -1;
-        _sizeStack = null;
     }
 
     //
@@ -154,10 +153,6 @@ public class BasicStream
         int tmpMinSeqSize = other._minSeqSize;
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
-
-        java.util.Deque<Integer> tmpSizeStack = other._sizeStack;
-        other._sizeStack = _sizeStack;
-        _sizeStack = tmpSizeStack;
     }
 
     public void
@@ -712,23 +707,19 @@ public class BasicStream
         return sz;
     }
 
-    public void
+    public int
     startSize()
     {
-        if(_sizeStack == null)
-        {
-            _sizeStack = new java.util.ArrayDeque<Integer>();
-        }
-        _sizeStack.push(_buf.b.position());
+        int pos = _buf.b.position();
         writeInt(0); // Placeholder for 32-bit size
+	return pos;
     }
 
     public void
-    endSize()
+    endSize(int pos)
     {
-        assert(!_sizeStack.isEmpty());
-        int sizePos = _sizeStack.pop();
-        rewriteInt(_buf.b.position() - sizePos - 4, sizePos);
+        assert(pos >= 0);
+        rewriteInt(_buf.b.position() - pos - 4, pos);
     }
 
     public void
@@ -1803,9 +1794,9 @@ public class BasicStream
     {
         if(writeOpt(tag, Ice.OptionalFormat.FSize))
         {
-            startSize();
+            int pos = startSize();
             writeStringSeq(v);
-            endSize();
+            endSize(pos);
         }
     }
 
@@ -1946,9 +1937,9 @@ public class BasicStream
     {
         if(writeOpt(tag, Ice.OptionalFormat.FSize))
         {
-            startSize();
+            int pos = startSize();
             writeProxy(v);
-            endSize();
+            endSize(pos);
         }
     }
 
@@ -2737,7 +2728,6 @@ public class BasicStream
     private Object _closure;
     private byte[] _stringBytes; // Reusable array for reading strings.
     private char[] _stringChars; // Reusable array for reading strings.
-    private java.util.Deque<Integer> _sizeStack;
 
     private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
 

@@ -1122,9 +1122,9 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
-                os.startSize();
+                int pos = os.startSize();
                 p1.get().ice_write(os);
-                os.endSize();
+                os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opVarStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1220,9 +1220,9 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
-                os.startSize();
+                int pos = os.startSize();
                 os.writeProxy(p1.get());
-                os.endSize();
+                os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opOneOptionalProxyReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1598,9 +1598,9 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
-                os.startSize();
+                int pos = os.startSize();
                 os.writeStringSeq(p1.get());
-                os.endSize();
+                os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opStringSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1910,9 +1910,9 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
-                os.startSize();
+                int pos = os.startSize();
                 VarStructSeqHelper.write(os, p1.get());
-                os.endSize();
+                os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opVarStructSeqReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -2066,9 +2066,9 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
-                os.startSize();
+                int pos = os.startSize();
                 StringIntDictHelper.write(os, p1.get());
-                os.endSize();
+                os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opStringIntDictReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -2117,7 +2117,7 @@ public class AllTests
                     }
                 });
             in.endEncapsulation();
-            test(a.value != null && a.value.requiredA == 56);        
+            test(a.value != null && a.value.requiredA == 56);
         }
         out.println("ok");
 
@@ -2250,16 +2250,16 @@ public class AllTests
             }
         }
         out.println("ok");
-        
+
         //
         // Use reflection to load TwowaysLambdaAMI as that is only supported with Java >= 1.8
-        // 
+        //
         try
         {
             Class<?> cls = IceInternal.Util.findClass("test.Ice.optional.lambda.AllTests", null);
             if(cls != null)
             {
-                java.lang.reflect.Method allTests = cls.getDeclaredMethod("allTests", 
+                java.lang.reflect.Method allTests = cls.getDeclaredMethod("allTests",
                     new Class<?>[]{test.Util.Application.class, java.io.PrintWriter.class});
                 allTests.invoke(null, app, out);
             }
@@ -2339,9 +2339,9 @@ public class AllTests
             out.writeString("test");
             out.writeOptional(1, Ice.OptionalFormat.FSize);
             String[] o = { "test1", "test2", "test3", "test4" };
-            out.startSize();
+            int pos = out.startSize();
             out.writeStringSeq(o);
-            out.endSize();
+            out.endSize(pos);
             A a = new A();
             a.setMc(18);
             out.writeOptional(1000, Ice.OptionalFormat.Class);

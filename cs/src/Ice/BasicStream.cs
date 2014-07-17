@@ -136,7 +136,6 @@ namespace IceInternal
             _unlimited = unlimited;
 
             _startSeq = -1;
-            _sizeStack = null;
         }
 
         //
@@ -222,10 +221,6 @@ namespace IceInternal
             int tmpMinSeqSize = other._minSeqSize;
             other._minSeqSize = _minSeqSize;
             _minSeqSize = tmpMinSeqSize;
-
-            Stack<int> tmpSizeStack = other._sizeStack;
-            other._sizeStack = _sizeStack;
-            _sizeStack = tmpSizeStack;
         }
 
         public void resetEncaps()
@@ -444,7 +439,7 @@ namespace IceInternal
         public void endReadEncaps()
         {
             Debug.Assert(_readEncapsStack != null);
-            
+
             if(!_readEncapsStack.encoding_1_0)
             {
                 skipOpts();
@@ -622,14 +617,14 @@ namespace IceInternal
             {
                 _writeEncapsStack.encoder.writePendingObjects();
             }
-            else if(_writeEncapsStack != null ? 
+            else if(_writeEncapsStack != null ?
                     _writeEncapsStack.encoding_1_0 : _encoding.Equals(Ice.Util.Encoding_1_0))
             {
                 //
                 // If using the 1.0 encoding and no objects were written, we
                 // still write an empty sequence for pending objects if
                 // requested (i.e.: if this is called).
-                // 
+                //
                 // This is required by the 1.0 encoding, even if no objects
                 // are written we do marshal an empty sequence if marshaled
                 // data types use classes.
@@ -731,21 +726,17 @@ namespace IceInternal
             return sz;
         }
 
-        public void startSize()
+        public int startSize()
         {
-            if(_sizeStack == null)
-            {
-                _sizeStack = new Stack<int>();
-            }
-            _sizeStack.Push(_buf.b.position());
+            int pos = _buf.b.position();
             writeInt(0); // Placeholder for 32-bit size
+            return pos;
         }
 
-        public void endSize()
+        public void endSize(int pos)
         {
-            Debug.Assert(_sizeStack.Count > 0);
-            int sizePos = _sizeStack.Pop();
-            rewriteInt(_buf.b.position() - sizePos - 4, sizePos);
+            Debug.Assert(pos >= 0);
+            rewriteInt(_buf.b.position() - pos - 4, pos);
         }
 
         public void writeBlob(byte[] v)
@@ -2755,9 +2746,9 @@ namespace IceInternal
         {
             if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.FSize))
             {
-                startSize();
+                int pos = startSize();
                 writeStringSeq(count, v.Value);
-                endSize();
+                endSize(pos);
             }
         }
 
@@ -2765,9 +2756,9 @@ namespace IceInternal
         {
             if(writeOpt(tag, Ice.OptionalFormat.FSize))
             {
-                startSize();
+                int pos = startSize();
                 writeStringSeq(v);
-                endSize();
+                endSize(pos);
             }
         }
 
@@ -2775,9 +2766,9 @@ namespace IceInternal
         {
             if(writeOpt(tag, Ice.OptionalFormat.FSize))
             {
-                startSize();
+                int pos = startSize();
                 writeStringSeq(count, v);
-                endSize();
+                endSize(pos);
             }
         }
 
@@ -2955,9 +2946,9 @@ namespace IceInternal
         {
             if(writeOpt(tag, Ice.OptionalFormat.FSize))
             {
-                startSize();
+                int pos = startSize();
                 writeProxy(v);
-                endSize();
+                endSize(pos);
             }
         }
 
@@ -3127,7 +3118,7 @@ namespace IceInternal
                 {
                     tag = readSize();
                 }
-                
+
                 if(tag > readTag)
                 {
                     int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
@@ -3229,7 +3220,7 @@ namespace IceInternal
                 {
                     return false; // End of encapsulation also indicates end of optionals.
                 }
-                
+
                 int v = readByte();
                 if(v == OPTIONAL_END_MARKER)
                 {
@@ -3586,7 +3577,6 @@ namespace IceInternal
         private Buffer _buf;
         private object _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
-        private Stack<int> _sizeStack;
 
         private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
 
@@ -3601,7 +3591,7 @@ namespace IceInternal
                 _typeIdIndex = 0;
                 _unmarshaledMap = new Dictionary<int, Ice.Object>();
             }
-            
+
             internal abstract void readObject(IPatcher patcher);
             internal abstract void throwException(UserExceptionFactory factory);
 
@@ -3979,7 +3969,7 @@ namespace IceInternal
                 //
                 // For objects, first read the type ID bool which indicates
                 // whether or not the type ID is encoded as a string or as an
-                // index. For exceptions, the type ID is always encoded as a 
+                // index. For exceptions, the type ID is always encoded as a
                 // string.
                 //
                 if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
@@ -4237,7 +4227,7 @@ namespace IceInternal
                     startSlice();
                 }
             }
-            
+
             internal override void startInstance(SliceType sliceType)
             {
                 Debug.Assert(_current.sliceType == sliceType);
@@ -4346,7 +4336,7 @@ namespace IceInternal
                     for(int i = 0; i < indirectionTable.Length; ++i)
                     {
                         indirectionTable[i] = readInstance(_stream.readSize(), null);
-                    }        
+                    }
 
                     //
                     // Sanity checks. If there are optional members, it's possible
@@ -4410,7 +4400,7 @@ namespace IceInternal
                     if(_current.sliceType == SliceType.ObjectSlice)
                     {
                         throw new Ice.NoObjectFactoryException(
-                            "compact format prevents slicing (the sender should use the sliced format instead)", 
+                            "compact format prevents slicing (the sender should use the sliced format instead)",
                             _current.typeId);
                     }
                     else
@@ -4470,7 +4460,7 @@ namespace IceInternal
                     for(int i = 0; i < indirectionTable.Length; ++i)
                     {
                         indirectionTable[i] = readInstance(_stream.readSize(), null);
-                    }        
+                    }
                     _current.indirectionTables.Add(indirectionTable);
                 }
                 else
@@ -4543,7 +4533,7 @@ namespace IceInternal
                             }
                             catch(System.Exception ex)
                             {
-                                throw new Ice.MarshalException("exception in CompactIdResolver for ID " + 
+                                throw new Ice.MarshalException("exception in CompactIdResolver for ID " +
                                                                _current.compactId, ex);
                             }
                         }
@@ -4754,7 +4744,7 @@ namespace IceInternal
                     return -1;
                 }
             }
-            
+
             protected readonly BasicStream _stream;
             protected readonly WriteEncaps _encaps;
 
@@ -4795,7 +4785,7 @@ namespace IceInternal
                 //
                 // User exception with the 1.0 encoding start with a bool
                 // flag that indicates whether or not the exception uses
-                // classes. 
+                // classes.
                 //
                 // This allows reading the pending objects even if some part of
                 // the exception was sliced.
@@ -4976,7 +4966,7 @@ namespace IceInternal
                     //
                     // If writting an object within a slice and using the sliced
                     // format, write an index from the object indirection table.
-                    // 
+                    //
                     int index;
                     if(!_current.indirectionMap.TryGetValue(v, out index))
                     {
@@ -5023,7 +5013,7 @@ namespace IceInternal
             internal override void endInstance()
             {
                 _current = _current.previous;
-            } 
+            }
 
             internal override void startSlice(string typeId, int compactId, bool last)
             {
@@ -5054,7 +5044,7 @@ namespace IceInternal
                     //
                     // Encode the type ID (only in the first slice for the compact
                     // encoding).
-                    // 
+                    //
                     if(_encaps.format == Ice.FormatType.SlicedFormat || _current.firstSlice)
                     {
                         if(compactId >= 0)
@@ -5240,7 +5230,7 @@ namespace IceInternal
 
                 _stream.writeSize(1); // Object instance marker.
                 v.write__(_stream);
-            } 
+            }
 
             private sealed class InstanceData
             {

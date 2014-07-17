@@ -149,7 +149,7 @@ public:
                 read(value);
                 return value;
             }
-            else 
+            else
             {
                 Int value;
                 read(value);
@@ -200,7 +200,7 @@ public:
     virtual void read(const char*&, size_t&, std::string&) = 0;
     virtual void read(::std::vector< ::std::string>&, bool) = 0; // Overload required for additional bool argument.
     virtual void read(::std::wstring&) = 0;
-    
+
     //
     // std::vector<bool> is a special C++ type, so we give it its own read function
     //
@@ -221,7 +221,7 @@ public:
         read(p);
     }
 
-    virtual bool readOptional(Int, OptionalFormat) = 0; 
+    virtual bool readOptional(Int, OptionalFormat) = 0;
 
     template<typename T> inline void read(T& v)
     {
@@ -230,8 +230,8 @@ public:
 
     template<typename T> inline void read(Int tag, IceUtil::Optional<T>& v)
     {
-        if(readOptional(tag, StreamOptionalHelper<T, 
-                                                  StreamableTraits<T>::helper, 
+        if(readOptional(tag, StreamOptionalHelper<T,
+                                                  StreamableTraits<T>::helper,
                                                   StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
@@ -282,7 +282,7 @@ public:
             {
                 write(static_cast<Short>(v));
             }
-            else 
+            else
             {
                 write(v);
             }
@@ -348,8 +348,8 @@ public:
 
     virtual bool writeOptional(Int, OptionalFormat) = 0;
 
-    virtual void startSize() = 0;
-    virtual void endSize() = 0;
+    virtual int startSize() = 0;
+    virtual void endSize(int pos) = 0;
 
     template<typename T> inline void write(const T& v)
     {
@@ -361,7 +361,7 @@ public:
         if(v)
         {
             writeOptional(tag, StreamOptionalHelper<T,
-                                                    StreamableTraits<T>::helper, 
+                                                    StreamableTraits<T>::helper,
                                                     StreamableTraits<T>::fixedLength>::optionalFormat);
             StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::write(this, *v);
         }
@@ -369,7 +369,7 @@ public:
 
     //
     // Template functions for sequences and custom sequences
-    // 
+    //
     template<typename T> void write(const T* begin, const T* end)
     {
         writeSize(static_cast<Int>(end - begin));

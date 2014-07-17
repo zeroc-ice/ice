@@ -433,7 +433,7 @@ public class AllTests : TestCommon.TestApp
         Test.Recursive outer = new Test.Recursive();
         outer.value = recursive1;
         initial.pingPong(outer);
-        
+
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");
@@ -520,7 +520,7 @@ public class AllTests : TestCommon.TestApp
 
             f.af = new Test.A();
             f.ae = (Test.A)f.af;
-            
+
             Test.F rf = (Test.F)initial.pingPong(f);
             test(rf.ae == rf.af.Value);
 
@@ -1132,9 +1132,9 @@ public class AllTests : TestCommon.TestApp
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
-            os.startSize();
+            int pos = os.startSize();
             p1.Value.ice_write(os);
-            os.endSize();
+            os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opVarStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1243,9 +1243,9 @@ public class AllTests : TestCommon.TestApp
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
-            os.startSize();
+            int pos = os.startSize();
             os.writeProxy(p1.Value);
-            os.endSize();
+            os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opOneOptionalProxy", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1630,9 +1630,9 @@ public class AllTests : TestCommon.TestApp
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
-            os.startSize();
+            int pos = os.startSize();
             os.writeStringSeq(p1.Value);
-            os.endSize();
+            os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opStringSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1899,9 +1899,9 @@ public class AllTests : TestCommon.TestApp
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
-            os.startSize();
+            int pos = os.startSize();
             Test.VarStructSeqHelper.write(os, p1.Value);
-            os.endSize();
+            os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opVarStructSeq", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -2052,9 +2052,9 @@ public class AllTests : TestCommon.TestApp
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
-            os.startSize();
+            int pos = os.startSize();
             Test.StringIntDictHelper.write(os, p1.Value);
-            os.endSize();
+            os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opStringIntDict", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -2377,9 +2377,9 @@ public class AllTests : TestCommon.TestApp
             @out.writeString(s);
             @out.writeOptional(1, Ice.OptionalFormat.FSize);
             string[] o = { "test1", "test2", "test3", "test4" };
-            @out.startSize();
+            int pos = @out.startSize();
             @out.writeStringSeq(o);
-            @out.endSize();
+            @out.endSize(pos);
             Test.A a = new Test.A();
             a.mc = 18;
             @out.writeOptional(1000, Ice.OptionalFormat.Class);

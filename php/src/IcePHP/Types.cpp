@@ -1357,11 +1357,12 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
     assert(Z_TYPE_P(zv) == IS_OBJECT); // validate() should have caught this.
     assert(Z_OBJCE_P(zv) == zce); // validate() should have caught this.
 
+    int sizePos = -1;
     if(optional)
     {
         if(_variableLength)
         {
-            os->startSize();
+            sizePos = os->startSize();
         }
         else
         {
@@ -1392,7 +1393,7 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
 
     if(optional && _variableLength)
     {
-        os->endSize();
+        os->endSize(sizePos);
     }
 }
 
@@ -1527,11 +1528,12 @@ IcePHP::SequenceInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMa
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
+    int sizePos = -1;
     if(optional)
     {
         if(elementType->variableLength())
         {
-            os->startSize();
+            sizePos = os->startSize();
         }
         else if(elementType->wireSize() > 1)
         {
@@ -1573,7 +1575,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMa
 
     if(optional && elementType->variableLength())
     {
-        os->endSize();
+        os->endSize(sizePos);
     }
 }
 
@@ -2086,11 +2088,12 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
+    int sizePos = -1;
     if(optional)
     {
         if(_variableLength)
         {
-            os->startSize();
+            sizePos = os->startSize();
         }
         else
         {
@@ -2215,7 +2218,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
 
     if(optional && _variableLength)
     {
-        os->endSize();
+        os->endSize(sizePos);
     }
 }
 
@@ -2768,9 +2771,10 @@ IcePHP::ProxyInfo::optionalFormat() const
 void
 IcePHP::ProxyInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional TSRMLS_DC)
 {
+    int sizePos = -1;
     if(optional)
     {
-        os->startSize();
+        sizePos = os->startSize();
     }
 
     if(Z_TYPE_P(zv) == IS_NULL)
@@ -2796,7 +2800,7 @@ IcePHP::ProxyInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*,
 
     if(optional)
     {
-        os->endSize();
+        os->endSize(sizePos);
     }
 }
 

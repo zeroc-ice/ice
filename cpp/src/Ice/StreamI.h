@@ -69,7 +69,7 @@ public:
 
     virtual void skip(Int);
     virtual void skipSize();
-    
+
     virtual void read(bool&);
     virtual void read(Byte&);
     virtual void read(Short&);
@@ -103,7 +103,7 @@ public:
 private:
 
     void initialize(IceInternal::Instance*, const std::pair<const Byte*, const Byte*>&, const EncodingVersion&, bool);
-    
+
     const CommunicatorPtr _communicator;
     IceInternal::BasicStream* _is;
     std::vector< ReadObjectCallbackPtr > _callbacks;
@@ -127,7 +127,7 @@ public:
     virtual void writeObject(const ObjectPtr&);
     virtual void writeException(const UserException&);
     virtual void writeProxy(const ObjectPrx&);
-        
+
     virtual void writeSize(Int);
 
     virtual void write(bool);
@@ -182,8 +182,8 @@ public:
     virtual size_type pos();
     virtual void rewrite(Int, size_type);
 
-    virtual void startSize();
-    virtual void endSize();
+    virtual int startSize();
+    virtual void endSize(int pos);
 
 private:
 

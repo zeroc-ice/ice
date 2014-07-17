@@ -544,16 +544,18 @@ namespace Ice
         void rewrite(int sz, int pos);
 
         /// <summary>
-        /// Records the current position and allocates four bytes for a fixed-length (32-bit)
+        /// Returns the current position and allocates four bytes for a fixed-length (32-bit)
         /// size value.
         /// </summary>
-        void startSize();
+        /// <returns>The current position.</returns>
+        int startSize();
 
         /// <summary>
         /// Computes the amount of data written since the previous call to startSize and
         /// writes that value at the saved position.
         /// </summary>
-        void endSize();
+        /// <param name="pos">The saved position at which to write the size.</param>
+        void endSize(int pos);
 
         /// <summary>
         /// Indicates that the marshaling of a request or reply is finished.

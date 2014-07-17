@@ -288,16 +288,20 @@ public interface OutputStream
     void rewrite(int sz, int pos);
 
     /**
-     * Records the current position and allocates four bytes for a fixed-length (32-bit)
+     * Returns the current position and allocates four bytes for a fixed-length (32-bit)
      * size value.
+     *
+     * @return The current position.
      **/
-    void startSize();
+    int startSize();
 
     /**
      * Computes the amount of data written since the previous call to startSize and
      * writes that value at the saved position.
+     *
+     * @param The saved position.
      **/
-    void endSize();
+    void endSize(int pos);
 
     /**
      * Indicates that marshaling of a request or reply is finished.

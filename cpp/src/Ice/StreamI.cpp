@@ -75,7 +75,7 @@ UserExceptionReader::__read(BasicStream* is)
 //
 // InputStreamI
 //
-InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data, 
+InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data,
                            bool copyData) :
     _communicator(communicator),
     _closure(0)
@@ -129,7 +129,7 @@ InputStreamI::readProxy()
     return v;
 }
 
-namespace 
+namespace
 {
 
 void
@@ -391,7 +391,7 @@ InputStreamI::closure() const
 }
 
 void
-InputStreamI::initialize(Instance* instance, const pair<const Byte*, const Byte*>& buf, const EncodingVersion& v, 
+InputStreamI::initialize(Instance* instance, const pair<const Byte*, const Byte*>& buf, const EncodingVersion& v,
                          bool copyData)
 {
     if(copyData)
@@ -555,7 +555,7 @@ OutputStreamI::write(const wstring& v)
     _os->write(v);
 }
 
-void 
+void
 OutputStreamI::write(const vector<bool>& v)
 {
     _os->write(v);
@@ -698,7 +698,7 @@ void
 OutputStreamI::reset(bool clearBuffer)
 {
     _os->clear();
-    
+
     if(clearBuffer)
     {
         _os->b.clear();
@@ -707,7 +707,7 @@ OutputStreamI::reset(bool clearBuffer)
     {
         _os->b.reset();
     }
-    
+
     _os->i = _os->b.begin();
 }
 
@@ -723,16 +723,16 @@ OutputStreamI::rewrite(Int sz, size_type p)
     _os->rewrite(sz, p);
 }
 
-void
+int
 OutputStreamI::startSize()
 {
-    _os->startSize();
+    return _os->startSize();
 }
 
 void
-OutputStreamI::endSize()
+OutputStreamI::endSize(int pos)
 {
-    _os->endSize();
+    _os->endSize(pos);
 }
 
 //

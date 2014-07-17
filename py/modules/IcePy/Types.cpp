@@ -1266,15 +1266,12 @@ IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMa
 {
     assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
 
-    Ice::OutputStream::size_type sizePos = 0;
+    int sizePos = 0;
     if(optional)
     {
         if(_variableLength)
         {
-            // BUGFIX: #5481 startSize/endSize can't be nested
-            //os->startSize();
-            sizePos = os->pos();
-            os->write(Ice::Int(0));
+            sizePos = os->startSize();
         }
         else
         {
@@ -1304,8 +1301,7 @@ IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMa
 
     if(optional && _variableLength)
     {
-        //os->endSize();
-        os->rewrite(static_cast<int>(os->pos() - sizePos - 4), sizePos);
+        os->endSize(sizePos);
     }
 }
 
@@ -1441,15 +1437,12 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
 {
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
 
-    Ice::OutputStream::size_type sizePos = 0;
+    int sizePos = 0;
     if(optional)
     {
         if(elementType->variableLength())
         {
-            // BUGFIX: #5481 startSize/endSize can't be nested
-            //os->startSize();
-            sizePos = os->pos();
-            os->write(Ice::Int(0));
+            sizePos = os->startSize();
         }
         else if(elementType->wireSize() > 1)
         {
@@ -1533,8 +1526,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
 
     if(optional && elementType->variableLength())
     {
-        //os->endSize();
-        os->rewrite(static_cast<int>(os->pos() - sizePos - 4), sizePos);
+        os->endSize(sizePos);
     }
 }
 
@@ -2524,15 +2516,12 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
 
     const Ice::Int sz = p == Py_None ? 0 : static_cast<Ice::Int>(PyDict_Size(p));
 
-    Ice::OutputStream::size_type sizePos = 0;
+    int sizePos = 0;
     if(optional)
     {
         if(_variableLength)
         {
-            // BUGFIX: #5481 startSize/endSize can't be nested
-            //os->startSize();
-            sizePos = os->pos();
-            os->write(Ice::Int(0));
+            sizePos = os->startSize();
         }
         else
         {
@@ -2571,8 +2560,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
 
     if(optional && _variableLength)
     {
-        //os->endSize();
-        os->rewrite(static_cast<int>(os->pos() - sizePos - 4), sizePos);
+        os->endSize(sizePos);
     }
 }
 
@@ -3007,13 +2995,10 @@ IcePy::ProxyInfo::optionalFormat() const
 void
 IcePy::ProxyInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional, const Ice::StringSeq*)
 {
-    Ice::OutputStream::size_type sizePos = 0;
+    int sizePos = 0;
     if(optional)
     {
-        // BUGFIX: #5481 startSize/endSize can't be nested
-        //os->startSize();
-        sizePos = os->pos();
-        os->write(Ice::Int(0));
+        sizePos = os->startSize();
     }
 
     if(p == Py_None)
@@ -3031,8 +3016,7 @@ IcePy::ProxyInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
 
     if(optional)
     {
-        //os->endSize();
-        os->rewrite(static_cast<int>(os->pos() - sizePos - 4), sizePos);
+        os->endSize(sizePos);
     }
 }
 

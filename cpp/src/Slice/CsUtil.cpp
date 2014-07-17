@@ -870,9 +870,9 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
             out << nl << "if(" << param << ".HasValue && " << stream << ".writeOpt(" << tag
                 << ", Ice.OptionalFormat.FSize))";
             out << sb;
-            out << nl << stream << ".startSize();";
+            out << nl << "int pos__ = " << stream << ".startSize();";
             writeMarshalUnmarshalCode(out, type, param + ".Value", marshal, streamingAPI);
-            out << nl << stream << ".endSize();";
+            out << nl << stream << ".endSize(pos__);";
             out << eb;
         }
         else
@@ -918,7 +918,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
             out << sb;
             if(st->isVariableLength())
             {
-                out << nl << stream << ".startSize();";
+                out << nl << "int pos__ = " << stream << ".startSize();";
             }
             else
             {
@@ -927,7 +927,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
             writeMarshalUnmarshalCode(out, type, param + ".Value", marshal, streamingAPI);
             if(st->isVariableLength())
             {
-                out << nl << stream << ".endSize();";
+                out << nl << stream << ".endSize(pos__);";
             }
             out << eb;
         }
@@ -1011,7 +1011,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
-            out << nl << stream << ".startSize();";
+            out << nl << "int pos__ = " << stream << ".startSize();";
         }
         else
         {
@@ -1022,7 +1022,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         writeMarshalUnmarshalCode(out, type, param + ".Value", marshal, streamingAPI);
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
-            out << nl << stream << ".endSize();";
+            out << nl << stream << ".endSize(pos__);";
         }
         out << eb;
     }
@@ -1432,7 +1432,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else
         {
             out << sb;
-            out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize(" 
+            out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize("
                 << static_cast<unsigned>(type->minWireSize()) << ");";
             out << nl << param << " = new ";
             if(isArray)
@@ -1575,7 +1575,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else
         {
             out << sb;
-            out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize(" 
+            out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize("
                 << static_cast<unsigned>(type->minWireSize()) << ");";
             if(isArray)
             {
@@ -1692,7 +1692,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else
         {
             out << sb;
-            out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize(" << 
+            out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize(" <<
                 static_cast<unsigned>(type->minWireSize()) << ");";
             if(isArray)
             {
@@ -1954,9 +1954,9 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "if(" << param << ".HasValue && " << stream << ".writeOpt(" << tag << ", "
                     << getOptionalFormat(seq) << "))";
                 out << sb;
-                out << nl << stream << ".startSize();";
+                out << nl << "int pos__ = " << stream << ".startSize();";
                 writeSequenceMarshalUnmarshalCode(out, seq, param + ".Value", marshal, streamingAPI, true);
-                out << nl << stream << ".endSize();";
+                out << nl << stream << ".endSize(pos__);";
                 out << eb;
             }
             else
@@ -1994,7 +1994,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             if(st->isVariableLength())
             {
-                out << nl << stream << ".startSize();";
+                out << nl << "int pos__ = " << stream << ".startSize();";
             }
             else if(st->minWireSize() > 1)
             {
@@ -2004,7 +2004,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             writeSequenceMarshalUnmarshalCode(out, seq, param + ".Value", marshal, streamingAPI, true);
             if(st->isVariableLength())
             {
-                out << nl << stream << ".endSize();";
+                out << nl << stream << ".endSize(pos__);";
             }
             out << eb;
         }
@@ -2041,9 +2041,9 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         out << nl << "if(" << param << ".HasValue && " << stream << ".writeOpt(" << tag << ", "
             << getOptionalFormat(seq) << "))";
         out << sb;
-        out << nl << stream << ".startSize();";
+        out << nl << "int pos__ = " << stream << ".startSize();";
         writeSequenceMarshalUnmarshalCode(out, seq, param + ".Value", marshal, streamingAPI, true);
-        out << nl << stream << ".endSize();";
+        out << nl << stream << ".endSize(pos__);";
         out << eb;
     }
     else

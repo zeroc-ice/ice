@@ -264,16 +264,16 @@ public class OutputStreamI implements OutputStream
         _os.rewriteInt(sz, pos);
     }
 
-    public void
+    public int
     startSize()
     {
-        _os.startSize();
+        return _os.startSize();
     }
 
     public void
-    endSize()
+    endSize(int pos)
     {
-        _os.endSize();
+        _os.endSize(pos);
     }
 
     public byte[]
