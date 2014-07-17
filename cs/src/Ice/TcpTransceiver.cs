@@ -500,7 +500,7 @@ namespace IceInternal
             {
                 if(buf.size() - buf.b.position() < _maxSendPacketSize)
                 {
-                    buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
+                    buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
                 }
 #if !ICE_SOCKET_ASYNC_API
                 _writeResult = null;

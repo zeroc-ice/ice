@@ -561,8 +561,7 @@ namespace IceWS
             {
                 if(_writeBuffer.b.hasRemaining())
                 {
-                    _delegate.startWrite(_writeBuffer, callback, state, out completed);
-                    return false;
+                    return _delegate.startWrite(_writeBuffer, callback, state, out completed);
                 }
                 else
                 {
