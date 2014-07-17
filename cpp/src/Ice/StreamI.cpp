@@ -359,6 +359,12 @@ InputStreamI::readPendingObjects()
     _is->readPendingObjects();
 }
 
+InputStream::size_type
+InputStreamI::pos()
+{
+    return _is->i - _is->b.begin();
+}
+
 void
 InputStreamI::rewind()
 {
@@ -714,7 +720,7 @@ OutputStreamI::reset(bool clearBuffer)
 OutputStream::size_type
 OutputStreamI::pos()
 {
-    return _os->pos();
+    return _os->b.size();
 }
 
 void

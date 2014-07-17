@@ -65,6 +65,7 @@ public:
 
     virtual void readPendingObjects();
 
+    virtual size_type pos();
     virtual void rewind();
 
     virtual void skip(Int);

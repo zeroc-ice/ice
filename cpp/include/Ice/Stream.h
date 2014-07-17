@@ -104,6 +104,8 @@ class ICE_API InputStream : public ::IceUtil::Shared
 {
 public:
 
+    typedef size_t size_type;
+
     virtual CommunicatorPtr communicator() const = 0;
 
     virtual void sliceObjects(bool) = 0;
@@ -183,6 +185,7 @@ public:
 
     virtual void readPendingObjects() = 0;
 
+    virtual size_type pos() = 0;
     virtual void rewind() = 0;
 
     virtual void skip(Int) = 0;

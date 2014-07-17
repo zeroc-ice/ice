@@ -854,10 +854,6 @@ public:
         }
     }
 
-    size_type pos()
-    {
-        return b.size();
-    }
     void rewrite(Ice::Int value, size_type p)
     {
         write(value, b.begin() + p);
