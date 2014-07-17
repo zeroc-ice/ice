@@ -35,32 +35,6 @@ public class Client
 
             public void run()
             {
-#if COMPACT
-                _m.Lock();
-                try
-                {
-                    while(!_terminated)
-                    {
-                        _m.TimedWait(_timeout);
-                        if(!_terminated)
-                        {
-                            try
-                            {
-                                _session.refresh();
-                            }
-                            catch(Ice.Exception ex)
-                            {
-                                _logger.warning("SessionRefreshThread: " + ex);
-                                _terminated = true;
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    _m.Unlock();
-                }
-#else
                 lock(this)
                 {
                     while(!_terminated)
@@ -80,38 +54,21 @@ public class Client
                         }
                     }
                 }
-#endif
             }
 
             public void terminate()
             {
-#if COMPACT
-                _m.Lock();
-                try
-                {
-                    _terminated = true;
-                    _m.Notify();
-                }
-                finally
-                {
-                    _m.Unlock();
-                }
-#else
                 lock(this)
                 {
                     _terminated = true;
                     Monitor.Pulse(this);
                 }
-#endif
             }
 
             private Ice.Logger _logger;
             private SessionPrx _session;
             private int _timeout;
             private bool _terminated;
-#if COMPACT
-            private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
-#endif
         }
 
         public override int run(string[] args)

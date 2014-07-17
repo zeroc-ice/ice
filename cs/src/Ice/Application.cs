@@ -285,19 +285,14 @@ namespace Ice
         {
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
-                mutex__.Lock();
-                try
+                lock(mutex__)
                 {
                     if(_callback == _holdCallback)
                     {
                         released__ = true;
-                        mutex__.Notify();
+                        System.Threading.Monitor.Pulse(mutex__);
                     }
                     _callback = _destroyCallback;
-                }
-                finally
-                {
-                    mutex__.Unlock();
                 }
             }
             else
@@ -314,19 +309,14 @@ namespace Ice
         {
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
-                mutex__.Lock();
-                try
+                lock(mutex__)
                 {
                     if(_callback == _holdCallback)
                     {
                         released__ = true;
-                        mutex__.Notify();
+                        System.Threading.Monitor.Pulse(mutex__);
                     }
                     _callback = _shutdownCallback;
-                }
-                finally
-                {
-                    mutex__.Unlock();
                 }
             }
             else
@@ -343,19 +333,14 @@ namespace Ice
         {
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
-                mutex__.Lock();
-                try
+                lock(mutex__)
                 {
                     if(_callback == _holdCallback)
                     {
                         released__ = true;
-                        mutex__.Notify();
+                        System.Threading.Monitor.Pulse(mutex__);
                     }
                     _callback = null;
-                }
-                finally
-                {
-                    mutex__.Unlock();
                 }
             }
             else
@@ -373,19 +358,14 @@ namespace Ice
         {
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
-                mutex__.Lock();
-                try
+                lock(mutex__)
                 {
                     if(_callback == _holdCallback)
                     {
                         released__ = true;
-                        mutex__.Notify();
+                        System.Threading.Monitor.Pulse(mutex__);
                     }
                     _callback = _userCallback;
-                }
-                finally
-                {
-                    mutex__.Unlock();
                 }
             }
             else
@@ -402,8 +382,7 @@ namespace Ice
         {
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
-                mutex__.Lock();
-                try
+                lock(mutex__)
                 {
                     if(_callback != _holdCallback)
                     {
@@ -412,10 +391,6 @@ namespace Ice
                         _callback = _holdCallback;
                     }
                     // else, we were already holding signals
-                }
-                finally
-                {
-                    mutex__.Unlock();
                 }
             }
             else
@@ -433,27 +408,22 @@ namespace Ice
         {
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
-                mutex__.Lock();
-                try
+                lock(mutex__)
                 {
                     if(_callback == _holdCallback)
                     {
                         //
                         // Note that it's very possible no signal is held;
                         // in this case the callback is just replaced and
-                        // setting released__ to true and signalling mutex__
-                        // do no harm.
+                        // setting released__ to true and signalling this
+                        // will do no harm.
                         //
 
                         released__ = true;
                         _callback = _previousCallback;
-                        mutex__.Notify();
+                        System.Threading.Monitor.Pulse(mutex__);
                     }
                     // Else nothing to release.
-                }
-                finally
-                {
-                    mutex__.Unlock();
                 }
             }
             else
@@ -470,14 +440,9 @@ namespace Ice
         /// <returns>True if a signal caused the communicator to shut down; false otherwise.</returns>
         public static bool interrupted()
         {
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 return interrupted__;
-            }
-            finally
-            {
-                mutex__.Unlock();
             }
         }
 
@@ -531,12 +496,11 @@ namespace Ice
                 ignoreInterrupt();
             }
 
-            mutex__.Lock();
-            try
+            lock(this)
             {
                 while(callbackInProgress__)
                 {
-                    mutex__.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
                 if(destroyed__)
                 {
@@ -552,10 +516,6 @@ namespace Ice
                     //
                 }
                 _application = null;
-            }
-            finally
-            {
-                mutex__.Unlock();
             }
 
             if(communicator__ != null)
@@ -587,14 +547,9 @@ namespace Ice
         {
             Callback callback;
 
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 callback = _callback;
-            }
-            finally
-            {
-                mutex__.Unlock();
             }
 
             if(callback != null)
@@ -616,12 +571,11 @@ namespace Ice
         private static void holdInterruptCallback(int sig)
         {
             Callback callback = null;
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 while(!released__)
                 {
-                    mutex__.Wait();
+                    System.Threading.Monitor.Wait(mutex__);
                 }
 
                 if(destroyed__)
@@ -633,10 +587,6 @@ namespace Ice
                 }
 
                 callback = _callback;
-            }
-            finally
-            {
-                mutex__.Unlock();
             }
 
             if(callback != null)
@@ -650,8 +600,7 @@ namespace Ice
         //
         private static void destroyOnInterruptCallback(int sig)
         {
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 if(destroyed__)
                 {
@@ -670,10 +619,6 @@ namespace Ice
                 interrupted__ = true;
                 destroyed__ = true;
             }
-            finally
-            {
-                mutex__.Unlock();
-            }
 
             try
             {
@@ -685,22 +630,16 @@ namespace Ice
                 Util.getProcessLogger().error("(while destroying in response to signal " + sig + "):\n" + ex);
             }
 
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 callbackInProgress__ = false;
-                mutex__.Notify();
-            }
-            finally
-            {
-                mutex__.Unlock();
+                System.Threading.Monitor.Pulse(mutex__);
             }
         }
 
         private static void shutdownOnInterruptCallback(int sig)
         {
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 if(destroyed__)
                 {
@@ -718,10 +657,6 @@ namespace Ice
                 callbackInProgress__ = true;
                 interrupted__ = true;
             }
-            finally
-            {
-                mutex__.Unlock();
-            }
 
             try
             {
@@ -733,22 +668,16 @@ namespace Ice
                 Util.getProcessLogger().error("(while shutting down in response to signal " + sig + "):\n" + ex);
             }
 
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 callbackInProgress__ = false;
-                mutex__.Notify();
-            }
-            finally
-            {
-                mutex__.Unlock();
+                System.Threading.Monitor.Pulse(mutex__);
             }
         }
 
         private static void userCallbackOnInterruptCallback(int sig)
         {
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 if(destroyed__)
                 {
@@ -763,10 +692,6 @@ namespace Ice
                 callbackInProgress__ = true;
                 interrupted__ = true;
             }
-            finally
-            {
-                mutex__.Unlock();
-            }
 
             try
             {
@@ -778,20 +703,14 @@ namespace Ice
                 Util.getProcessLogger().error("(while interrupting in response to signal " + sig + "):\n" + ex);
             }
 
-            mutex__.Lock();
-            try
+            lock(mutex__)
             {
                 callbackInProgress__ = false;
-                mutex__.Notify();
-            }
-            finally
-            {
-                mutex__.Unlock();
+                System.Threading.Monitor.Pulse(mutex__);
             }
         }
 
-        protected static readonly IceUtilInternal.Monitor mutex__ = new IceUtilInternal.Monitor();
-
+        protected static object mutex__ = new object();
         protected static bool callbackInProgress__ = false;
         protected static bool destroyed__ = false;
         protected static bool interrupted__ = false;
@@ -903,15 +822,10 @@ namespace Ice
 
             public void destroy()
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     _destroyed = true;
-                    _m.Notify();
-                }
-                finally
-                {
-                    _m.Unlock();
+                    System.Threading.Monitor.Pulse(this);
                 }
 
                 if(_thread != null)
@@ -923,15 +837,10 @@ namespace Ice
 
             private void callback(int sig)
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     _signals.Add(sig);
-                    _m.Notify();
-                }
-                finally
-                {
-                    _m.Unlock();
+                    System.Threading.Monitor.Pulse(this);
                 }
             }
 
@@ -942,12 +851,11 @@ namespace Ice
                     List<int> signals = null;
                     bool destroyed = false;
 
-                    _m.Lock();
-                    try
+                    lock(this)
                     {
                         if(!_destroyed && _signals.Count == 0)
                         {
-                            _m.Wait();
+                            System.Threading.Monitor.Wait(this);
                         }
 
                         if(_signals.Count > 0)
@@ -957,10 +865,6 @@ namespace Ice
                         }
 
                         destroyed = _destroyed;
-                    }
-                    finally
-                    {
-                        _m.Unlock();
                     }
 
                     if(signals != null)
@@ -980,7 +884,6 @@ namespace Ice
 
             private SignalHandler _handler;
             private bool _destroyed;
-            private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
             private Thread _thread;
             private List<int> _signals = new List<int>();
         }

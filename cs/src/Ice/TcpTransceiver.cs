@@ -11,9 +11,9 @@
 // .NET and Silverlight use the new socket asynchronous APIs whereas
 // the compact framework and mono still use the old Begin/End APIs.
 //
-#if !COMPACT && !__MonoCS__ && !UNITY
-#define ICE_SOCKET_ASYNC_API
-#endif
+// #if !COMPACT && !__MonoCS__ && !UNITY
+// #define ICE_SOCKET_ASYNC_API
+// #endif
 
 namespace IceInternal
 {
@@ -146,7 +146,17 @@ namespace IceInternal
 
         public int write(Buffer buf)
         {
-#if COMPACT || SILVERLIGHT
+            int packetSize = buf.b.remaining();
+            if(packetSize == 0)
+            {
+                return SocketOperation.None;
+            }
+
+#if COMPACT || SILVERLIGHT || true
+            if(_writeResult != null)
+            {
+                return SocketOperation.None;    
+            }
             //
             // Silverlight and the Compact .NET Frameworks don't support the use of synchronous socket
             // operations on a non-blocking socket. Returning SocketOperation.Write here forces the caller
@@ -223,6 +233,12 @@ namespace IceInternal
 
         public int read(Buffer buf, ref bool hasMoreData)
         {
+            int remaining = buf.b.remaining();
+            if(remaining == 0)
+            {
+                return SocketOperation.None;
+            }
+
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
@@ -230,13 +246,7 @@ namespace IceInternal
             //
             return SocketOperation.Read;
 #else
-            int remaining = buf.b.remaining();
             int position = buf.b.position();
-            if(remaining == 0)
-            {
-                return SocketOperation.None;
-            }
-
             while(buf.b.hasRemaining())
             {
                 try

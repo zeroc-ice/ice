@@ -193,18 +193,13 @@ public abstract class Application : Ice.Application
             throw new SessionNotExistException();
         }
 
-        mutex__.Lock();
-        try
+        lock(mutex__)
         {
             if(_adapter == null)
             {
                 _adapter = communicator().createObjectAdapterWithRouter("", _router);
                 _adapter.activate();
             }
-        }
-        finally
-        {
-            mutex__.Unlock();
         }
         return _adapter;
     }
@@ -222,8 +217,7 @@ public abstract class Application : Ice.Application
         public void
         run()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(!_done)
                 {
@@ -246,31 +240,22 @@ public abstract class Application : Ice.Application
 
                     if(!_done)
                     {
-                        _m.TimedWait((int)_period);
+                        System.Threading.Monitor.Wait(this, (int)_period);
                     }
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         public void
         done()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(!_done)
                 {
                     _done = true;
-                    _m.NotifyAll();
+                    System.Threading.Monitor.PulseAll(this);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -278,7 +263,6 @@ public abstract class Application : Ice.Application
         private Glacier2.RouterPrx _router;
         private long _period;
         private bool _done = false;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     private class ConnectionCallbackI : Ice.ConnectionCallback
@@ -466,12 +450,11 @@ public abstract class Application : Ice.Application
             ignoreInterrupt();
         }
 
-        mutex__.Lock();
-        try
+        lock(mutex__)
         {
             while(callbackInProgress__)
             {
-                mutex__.Wait();
+                System.Threading.Monitor.Wait(mutex__);
             }
 
             if(destroyed__)
@@ -487,10 +470,6 @@ public abstract class Application : Ice.Application
                 // any remaining callback won't do anything
                 //
             }
-        }
-        finally
-        {
-            mutex__.Unlock();
         }
 
         if(ping != null)

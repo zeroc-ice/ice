@@ -20,7 +20,7 @@ namespace IceInternal
 
     internal struct ThreadPoolMessage
     {
-        public ThreadPoolMessage(IceUtilInternal.Monitor mutex)
+        public ThreadPoolMessage(object mutex)
         {
             _mutex = mutex;
             _finish = false;
@@ -67,20 +67,15 @@ namespace IceInternal
                 // of the event handler. We need to lock the event handler here to call
                 // finishMessage.
                 //
-                _mutex.Lock();
-                try
+                lock(_mutex)
                 {
                     current.finishMessage(false);
                     Debug.Assert(!current.completedSynchronously);
                 }
-                finally
-                {
-                    _mutex.Unlock();
-                }
             }
         }
 
-        private IceUtilInternal.Monitor _mutex;
+        private object _mutex;
         private bool _finish;
         private bool _finishWithIO;
     }
@@ -253,32 +248,22 @@ namespace IceInternal
 
         public void destroy()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                _m.NotifyAll();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.PulseAll(this);
             }
         }
 
         public void updateObservers()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 foreach(WorkerThread t in _threads)
                 {
                     t.updateObserver();
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -294,8 +279,7 @@ namespace IceInternal
 
         public void update(EventHandler handler, int remove, int add)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
 
@@ -316,23 +300,19 @@ namespace IceInternal
                 if((add & SocketOperation.Read) != 0 && (handler._pending & SocketOperation.Read) == 0)
                 {
                     handler._pending |= SocketOperation.Read;
-                    executeNonBlocking(delegate()
-                                       {
-                                           messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Read));
-                                       });
+                    executeNonBlocking(() =>
+                        {
+                            messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Read));
+                        });
                 }
                 else if((add & SocketOperation.Write) != 0 && (handler._pending & SocketOperation.Write) == 0)
                 {
                     handler._pending |= SocketOperation.Write;
-                    executeNonBlocking(delegate()
-                                       {
-                                           messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Write));
-                                       });
+                    executeNonBlocking(() =>
+                        {
+                            messageCallback(new ThreadPoolCurrent(this, handler, SocketOperation.Write));
+                        });
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -343,8 +323,7 @@ namespace IceInternal
 
         public void finish(EventHandler handler)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
 
@@ -354,21 +333,17 @@ namespace IceInternal
                 if(handler._pending == 0)
                 {
                     handler._registered = SocketOperation.None;
-                    executeNonBlocking(delegate()
-                                       {
-                                           ThreadPoolCurrent current =
-                                               new ThreadPoolCurrent(this, handler, SocketOperation.None);
-                                           handler.finished(ref current);
-                                       });
+                    executeNonBlocking(() =>
+                       {
+                           ThreadPoolCurrent current =
+                               new ThreadPoolCurrent(this, handler, SocketOperation.None);
+                           handler.finished(ref current);
+                       });
                 }
                 else
                 {
                     handler._finish = true;
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -405,13 +380,12 @@ namespace IceInternal
         public void dispatch(System.Action call, Ice.Connection con)
 #endif
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
                 if(_workItems.Count == 0)
                 {
-                    _m.Notify();
+                    System.Threading.Monitor.Pulse(this);
                 }
 
                 _workItems.Enqueue(() => 
@@ -458,23 +432,14 @@ namespace IceInternal
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void executeNonBlocking(ThreadPoolWorkItem workItem)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
                 _instance.asyncIOThread().queue(workItem);
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -508,8 +473,7 @@ namespace IceInternal
             ThreadPoolWorkItem workItem = null;
             while(true)
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     if(workItem != null)
                     {
@@ -532,7 +496,7 @@ namespace IceInternal
 
                         if(_threadIdleTime > 0)
                         {
-                            if(!_m.TimedWait(_threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
+                            if(!System.Threading.Monitor.Wait(this, _threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
                             {
                                 if(_destroyed)
                                 {
@@ -555,29 +519,29 @@ namespace IceInternal
                                     }
 
                                     _threads.Remove(thread);
-                                    _instance.asyncIOThread().queue(delegate()
-                                                                    {
-                                                                        thread.join();
-                                                                    });
+                                    _instance.asyncIOThread().queue(() =>
+                                        {
+                                            thread.join();
+                                        });
                                     return;
                                 }
                                 else
                                 {
                                     Debug.Assert(_serverIdleTime > 0 && _inUse == 0 && _threads.Count == 1);
-                                    if(!_m.TimedWait(_serverIdleTime * 1000)  && _workItems.Count == 0)
+                                    if(!System.Threading.Monitor.Wait(this, _serverIdleTime * 1000)  && _workItems.Count == 0)
                                     {
                                         if(!_destroyed)
                                         {
-                                            _workItems.Enqueue(delegate()
-                                                               {
-                                                                   try
-                                                                   {
-                                                                       _instance.objectAdapterFactory().shutdown();
-                                                                   }
-                                                                   catch(Ice.CommunicatorDestroyedException)
-                                                                   {
-                                                                   }
-                                                               });
+                                            _workItems.Enqueue(() =>
+                                               {
+                                                   try
+                                                   {
+                                                       _instance.objectAdapterFactory().shutdown();
+                                                   }
+                                                   catch(Ice.CommunicatorDestroyedException)
+                                                   {
+                                                   }
+                                               });
                                         }
                                     }
                                 }
@@ -585,7 +549,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            _m.Wait();
+                            System.Threading.Monitor.Wait(this);
                         }
                     }
 
@@ -603,10 +567,6 @@ namespace IceInternal
                             + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
                         _instance.initializationData().logger.warning(s);
                     }
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
 
                 try
@@ -701,10 +661,10 @@ namespace IceInternal
                 else
                 {
                     ThreadPoolCurrent c = current;
-                    executeNonBlocking(delegate()
-                                       {
-                                           messageCallback(c);
-                                       });
+                    executeNonBlocking(() =>
+                       {
+                           messageCallback(c);
+                       });
                 }
             }
             else
@@ -906,8 +866,6 @@ namespace IceInternal
         private int _inUse; // Number of threads that are currently in use.
 
         private Queue<ThreadPoolWorkItem> _workItems;
-
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
 }

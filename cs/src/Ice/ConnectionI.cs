@@ -43,8 +43,7 @@ namespace Ice
         {
             try
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     //
                     // The connection might already be closed if the communicator was destroyed.
@@ -68,7 +67,7 @@ namespace Ice
                         //
                         while(_state <= StateNotValidated)
                         {
-                            _m.Wait();
+                            System.Threading.Monitor.Wait(this);
                         }
 
                         if(_state >= StateClosing)
@@ -82,10 +81,6 @@ namespace Ice
                     // We start out in holding state.
                     //
                     setState(StateHolding);
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
             }
             catch(LocalException ex)
@@ -111,8 +106,7 @@ namespace Ice
 
         public void activate()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state <= StateNotValidated)
                 {
@@ -125,16 +119,11 @@ namespace Ice
                 }
                 setState(StateActive);
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void hold()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state <= StateNotValidated)
                 {
@@ -142,10 +131,6 @@ namespace Ice
                 }
 
                 setState(StateHolding);
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -155,8 +140,7 @@ namespace Ice
 
         public void destroy(int reason)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 switch(reason)
                 {
@@ -173,16 +157,11 @@ namespace Ice
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void close(bool force)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(force)
                 {
@@ -199,28 +178,19 @@ namespace Ice
                     //
                     while(_requests.Count != 0 || _asyncRequests.Count != 0)
                     {
-                        _m.Wait();
+                        System.Threading.Monitor.Wait(this);
                     }
 
                     setState(StateClosing, new CloseConnectionException());
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public bool isActiveOrHolding()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 return _state > StateNotValidated && _state < StateClosing;
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -231,7 +201,7 @@ namespace Ice
             // threads operating in this connection object, connection
             // destruction is considered as not yet finished.
             //
-            if(!_m.TryLock())
+            if(!System.Threading.Monitor.TryEnter(this))
             {
                 return false;
             }
@@ -248,14 +218,13 @@ namespace Ice
             }
             finally
             {
-                _m.Unlock();
+                System.Threading.Monitor.Exit(this);
             }
         }
 
         public void throwException()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_exception != null)
                 {
@@ -263,32 +232,22 @@ namespace Ice
                     throw _exception;
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void waitUntilHolding()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(_state < StateHolding || _dispatchCount > 0)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         public void waitUntilFinished()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 //
                 // We wait indefinitely until the connection is finished and all
@@ -298,7 +257,7 @@ namespace Ice
                 //
                 while(_state < StateFinished || _dispatchCount > 0)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
 
                 Debug.Assert(_state == StateFinished);
@@ -308,16 +267,11 @@ namespace Ice
                 //
                 _adapter = null;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void updateObserver()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state < StateNotValidated || _state > StateClosed)
                 {
@@ -339,16 +293,11 @@ namespace Ice
                     _readStreamPos = -1;
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void monitor(long now, IceInternal.ACMConfig acm)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state != StateActive)
                 {
@@ -411,18 +360,13 @@ namespace Ice
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public bool sendRequest(IceInternal.Outgoing og, bool compress, bool response)
         {
             IceInternal.BasicStream os = og.ostr();
 
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_exception != null)
                 {
@@ -492,10 +436,6 @@ namespace Ice
 
                 return sent;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public bool sendAsyncRequest(IceInternal.OutgoingAsync og, bool compress, bool response,
@@ -503,8 +443,7 @@ namespace Ice
         {
             IceInternal.BasicStream os = og.ostr__;
 
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_exception != null)
                 {
@@ -571,23 +510,18 @@ namespace Ice
                 }
                 return sent;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void prepareBatchRequest(IceInternal.BasicStream os)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 //
                 // Wait if flushing is currently in progress.
                 //
                 while(_batchStreamInUse && _exception == null)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
 
                 if(_exception != null)
@@ -632,18 +566,13 @@ namespace Ice
                 // finishBatchRequest() or abortBatchRequest() is called.
                 //
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void finishBatchRequest(IceInternal.BasicStream os, bool compress)
         {
             try
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     //
                     // Get the batch stream back.
@@ -758,11 +687,7 @@ namespace Ice
                     //
                     Debug.Assert(_batchStreamInUse);
                     _batchStreamInUse = false;
-                    _m.NotifyAll();
-                }
-                finally
-                {
-                    _m.Unlock();
+                    System.Threading.Monitor.PulseAll(this);
                 }
             }
             catch(LocalException)
@@ -774,8 +699,7 @@ namespace Ice
 
         public void abortBatchRequest()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
                 _batchRequestNum = 0;
@@ -784,11 +708,7 @@ namespace Ice
 
                 Debug.Assert(_batchStreamInUse);
                 _batchStreamInUse = false;
-                _m.NotifyAll();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.PulseAll(this);
             }
         }
 
@@ -842,12 +762,11 @@ namespace Ice
 
         public bool flushBatchRequests(IceInternal.BatchOutgoing @out)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(_batchStreamInUse && _exception == null)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
 
                 if(_exception != null)
@@ -898,20 +817,15 @@ namespace Ice
 
                 return sent;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public bool flushAsyncBatchRequests(IceInternal.BatchOutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(_batchStreamInUse && _exception == null)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
 
                 if(_exception != null)
@@ -962,16 +876,11 @@ namespace Ice
                 _batchMarker = 0;
                 return sent;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void setCallback(ConnectionCallback callback)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state > StateClosing)
                 {
@@ -979,16 +888,11 @@ namespace Ice
                 }
                 _callback = callback;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void setACM(Optional<int> timeout, Optional<ACMClose> close, Optional<ACMHeartbeat> heartbeat)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_monitor != null)
                 {
@@ -1012,29 +916,19 @@ namespace Ice
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public ACM getACM()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 return _monitor != null ? _monitor.getACM() : new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         public void requestTimedOut(IceInternal.OutgoingMessageCallback @out)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 LinkedListNode<OutgoingMessage> p;
                 for(p = _sendStreams.First; p != null; p = p.Next)
@@ -1075,16 +969,11 @@ namespace Ice
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void asyncRequestTimedOut(IceInternal.OutgoingAsyncMessageCallback outAsync)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 LinkedListNode<OutgoingMessage> p;
                 for(p = _sendStreams.First; p != null; p = p.Next)
@@ -1125,16 +1014,11 @@ namespace Ice
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(_state > StateNotValidated);
 
@@ -1146,7 +1030,7 @@ namespace Ice
                         {
                             reap();
                         }
-                        _m.NotifyAll();
+                        System.Threading.Monitor.PulseAll(this);
                     }
 
                     if(_state >= StateClosed)
@@ -1167,16 +1051,11 @@ namespace Ice
                     setState(StateClosed, ex);
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void sendNoResponse()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(_state > StateNotValidated);
 
@@ -1188,7 +1067,7 @@ namespace Ice
                         {
                             reap();
                         }
-                        _m.NotifyAll();
+                        System.Threading.Monitor.PulseAll(this);
                     }
 
                     if(_state >= StateClosed)
@@ -1207,10 +1086,6 @@ namespace Ice
                     setState(StateClosed, ex);
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public IceInternal.EndpointI endpoint()
@@ -1225,8 +1100,7 @@ namespace Ice
 
         public void setAdapter(ObjectAdapter adapter)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state <= StateNotValidated || _state >= StateClosing)
                 {
@@ -1253,22 +1127,13 @@ namespace Ice
                 // registered, even if we add or remove an object adapter.
                 //
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public ObjectAdapter getAdapter()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 return _adapter;
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -1365,9 +1230,8 @@ namespace Ice
             Queue<OutgoingMessage> sentCBs = null;
             MessageInfo info = new MessageInfo();
 
-            IceInternal.ThreadPoolMessage msg = new IceInternal.ThreadPoolMessage(_m);
-            _m.Lock();
-            try
+            IceInternal.ThreadPoolMessage msg = new IceInternal.ThreadPoolMessage(this);
+            lock(this)
             {
                 if(!msg.startIOScope(ref current))
                 {
@@ -1629,10 +1493,6 @@ namespace Ice
                         msg.destroy(ref c);
                     }, this);
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         private void dispatch(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
@@ -1712,8 +1572,7 @@ namespace Ice
             //
             if(count > 0)
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     _dispatchCount -= count;
                     if(_dispatchCount == 0)
@@ -1739,27 +1598,18 @@ namespace Ice
                         {
                             reap();
                         }
-                        _m.NotifyAll();
+                        System.Threading.Monitor.PulseAll(this);
                     }
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
             }
         }
 
         public override void finished(ref IceInternal.ThreadPoolCurrent current)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(_state == StateClosed);
                 unscheduleTimeout(IceInternal.SocketOperation.Read | IceInternal.SocketOperation.Write);
-            }
-            finally
-            {
-                _m.Unlock();
             }
 
             //
@@ -1867,18 +1717,13 @@ namespace Ice
             // This must be done last as this will cause waitUntilFinished() to return (and communicator
             // objects such as the timer might be destroyed too).
             //
-            _m.Lock();
-            try
+            lock(this)
             {
                 setState(StateFinished);
                 if(_dispatchCount == 0)
                 {
                     reap();
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -1889,8 +1734,7 @@ namespace Ice
 
         public void timedOut()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state <= StateNotValidated)
                 {
@@ -1904,10 +1748,6 @@ namespace Ice
                 {
                     setState(StateClosed, new CloseTimeoutException());
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -1923,18 +1763,13 @@ namespace Ice
 
         public ConnectionInfo getInfo()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_state >= StateClosed)
                 {
                     throw _exception;
                 }
                 return initConnectionInfo();
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -1945,14 +1780,9 @@ namespace Ice
 
         public void exception(LocalException ex)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 setState(StateClosed, ex);
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -1963,8 +1793,7 @@ namespace Ice
             // called in case of a fatal exception we decrement _dispatchCount here.
             //
 
-            _m.Lock();
-            try
+            lock(this)
             {
                 setState(StateClosed, ex);
 
@@ -1978,13 +1807,9 @@ namespace Ice
                         {
                             reap();
                         }
-                        _m.NotifyAll();
+                        System.Threading.Monitor.PulseAll(this);
                     }
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -2308,7 +2133,7 @@ namespace Ice
             }
             _state = state;
 
-            _m.NotifyAll();
+            System.Threading.Monitor.PulseAll(this);
 
             if(_state == StateClosing && _dispatchCount == 0)
             {
@@ -2891,7 +2716,7 @@ namespace Ice
                         {
                             _requests.Remove(info.requestId);
                             og.finished(info.stream);
-                            _m.NotifyAll(); // Notify threads blocked in close(false)
+                            System.Threading.Monitor.PulseAll(this); // Notify threads blocked in close(false)
                         }
                         else if(_asyncRequests.TryGetValue(info.requestId, out info.outAsync))
                         {
@@ -2914,7 +2739,7 @@ namespace Ice
                             {
                                 ++_dispatchCount;
                             }
-                            _m.NotifyAll(); // Notify threads blocked in close(false)
+                            System.Threading.Monitor.PulseAll(this); // Notify threads blocked in close(false)
                         }
                         break;
                     }
@@ -3378,7 +3203,5 @@ namespace Ice
             ConnectionState.ConnectionStateClosed,       // StateClosed
             ConnectionState.ConnectionStateClosed,       // StateFinished
         };
-
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }

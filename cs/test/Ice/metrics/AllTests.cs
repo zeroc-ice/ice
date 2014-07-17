@@ -54,15 +54,10 @@ public class AllTests : TestCommon.TestApp
 
         public void response()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 _wait = false;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
@@ -73,23 +68,17 @@ public class AllTests : TestCommon.TestApp
 
         public void waitForResponse()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(_wait)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
                 _wait = true;
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         private bool _wait;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     };
 
     static private Dictionary<string, string>
@@ -143,18 +132,16 @@ public class AllTests : TestCommon.TestApp
         {
             _updated = false;
             _serverProps = serverProps;
-            _monitor = new IceUtilInternal.Monitor();
         }
         
         public void
         waitForUpdate()
         {
-            _monitor.Lock();
-            try
+            lock(this)
             {
                 while(!_updated)
                 {
-                    _monitor.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
                 // Ensure that the previous updates were committed, the setProperties call returns before 
                 // notifying the callbacks so to ensure all the update callbacks have be notified we call
@@ -163,30 +150,20 @@ public class AllTests : TestCommon.TestApp
                 _serverProps.setProperties(new Dictionary<string, string>()); 
                 _updated = false;
             }
-            finally
-            {
-                _monitor.Unlock();
-            }
         }
             
         public void
         updated(Dictionary<string, string> dict)
         {
-            _monitor.Lock();
-            try
+            lock(this)
             {
                 _updated = true;
-                _monitor.Notify();
-            }
-            finally
-            {
-                _monitor.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
         
         private bool _updated;
         private Ice.PropertiesAdminPrx _serverProps;
-        private IceUtilInternal.Monitor _monitor;
     };
     
     static void

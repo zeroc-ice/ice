@@ -58,7 +58,6 @@ SRCS		= Acceptor.cs \
 		  LoggerPlugin.cs \
 		  MetricsAdminI.cs \
 		  MetricsObserverI.cs \
-		  Monitor.cs \
 		  Network.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \

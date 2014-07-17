@@ -33,8 +33,7 @@ public class SessionHelper
         public void
         run()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(true)
                 {
@@ -58,11 +57,11 @@ public class SessionHelper
                     if(!_done)
                     {
 #if COMPACT || SILVERLIGHT
-                        _m.TimedWait(_period);
+                        System.Threading.Monitor.Wait(this, _period);
 #else
                         try
                         {
-                            _m.TimedWait(_period);
+                            System.Threading.Monitor.Wait(this, _period);
                         }
                         catch(ThreadInterruptedException)
                         {
@@ -76,27 +75,18 @@ public class SessionHelper
                     }
                 }
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         public void
         done()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(!_done)
                 {
                     _done = true;
-                    _m.Notify();
+                    System.Threading.Monitor.Pulse(this);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -104,8 +94,6 @@ public class SessionHelper
         private Glacier2.RouterPrx _router;
         private int _period;
         private bool _done = false;
-
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     private class ConnectionCallbackI : Ice.ConnectionCallback

@@ -651,14 +651,19 @@ namespace IceInternal
                 if(group.AddressFamily == AddressFamily.InterNetwork)
                 {
                     MulticastOption option;
+#if COMPACT
+                    option = new MulticastOption(group);
+#else
                     if(index == -1)
                     {
                         option = new MulticastOption(group);
                     }
+
                     else
                     {
                         option = new MulticastOption(group, index);
                     }
+#endif
                     s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
                 }
                 else
@@ -724,6 +729,7 @@ namespace IceInternal
 
         public static void doListen(Socket socket, int backlog)
         {
+
         repeatListen:
 
             try
@@ -1333,6 +1339,7 @@ namespace IceInternal
             {
             }
 
+//#if !COMPACT && !SILVERLIGHT && !UNITY
 #if !COMPACT && !SILVERLIGHT && !UNITY
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
             try

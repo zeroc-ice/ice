@@ -1,0 +1,2 @@
+Directory("\Windows"):-Directory("Start Menu")
+Directory("\Windows\Start Menu"):-File("bidir.lnk","\Windows\bidir.lnk")

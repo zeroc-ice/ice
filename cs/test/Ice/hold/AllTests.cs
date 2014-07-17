@@ -78,39 +78,28 @@ public class AllTests : TestCommon.TestApp
         public void
         sent(bool sync)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 _sent = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
     
         public void
         waitForSent()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(!_sent)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         private bool _sent = false;
         private Condition _condition;
         private int _expected;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
 #if SILVERLIGHT

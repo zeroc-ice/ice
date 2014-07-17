@@ -38,8 +38,7 @@ class ServiceManagerI : ServiceManagerDisp_
     public override void startService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
-        _m.Lock();
-        try
+        lock(this)
         {
             //
             // Search would be more efficient if services were contained in
@@ -66,10 +65,6 @@ class ServiceManagerI : ServiceManagerDisp_
             }
             _pendingStatusChanges = true;
         }
-        finally
-        {
-            _m.Unlock();
-        }
 
         bool started = false;
         try
@@ -83,8 +78,7 @@ class ServiceManagerI : ServiceManagerDisp_
             _logger.warning("ServiceManager: exception while starting service " + info.name + ":\n" + e.ToString());
         }
 
-        _m.Lock();
-        try
+        lock(this)
         {
             int i;
             for(i = 0; i < _services.Count; ++i)
@@ -109,19 +103,14 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
             }
             _pendingStatusChanges = false;
-            _m.NotifyAll();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.PulseAll(this);
         }
     }
 
     public override void stopService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
-        _m.Lock();
-        try
+        lock(this)
         {
             //
             // Search would be more efficient if services were contained in
@@ -148,10 +137,6 @@ class ServiceManagerI : ServiceManagerDisp_
             }
             _pendingStatusChanges = true;
         }
-        finally
-        {
-            _m.Unlock();
-        }
 
         bool stopped = false;
         try
@@ -164,8 +149,7 @@ class ServiceManagerI : ServiceManagerDisp_
             _logger.warning("ServiceManager: exception while stopping service " + info.name + "\n" + e.ToString());
         }
 
-        _m.Lock();
-        try
+        lock(this)
         {
             int i;
             for(i = 0; i < _services.Count; ++i)
@@ -190,11 +174,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
             }
             _pendingStatusChanges = false;
-            _m.NotifyAll();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.PulseAll(this);
         }
     }
 
@@ -206,8 +186,7 @@ class ServiceManagerI : ServiceManagerDisp_
         // Null observers and duplicate registrations are ignored
         //
 
-        _m.Lock();
-        try
+        lock(this)
         {
             if(observer != null)
             {
@@ -234,10 +213,6 @@ class ServiceManagerI : ServiceManagerDisp_
                     }
                 }
             }
-        }
-        finally
-        {
-            _m.Unlock();
         }
 
         if(activeServices.Count > 0)
@@ -471,8 +446,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
     private void startService(string service, string entryPoint, string[] args)
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             //
             // Extract the assembly name and the class name.
@@ -788,23 +762,18 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
         }
-        finally
-        {
-            _m.Unlock();
-        }
     }
 
     private void stopAll()
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             //
             // First wait for any active startService/stopService calls to complete.
             //
             while(_pendingStatusChanges)
             {
-                _m.Wait();
+                System.Threading.Monitor.Wait(this);
             }
 
             //
@@ -860,10 +829,6 @@ class ServiceManagerI : ServiceManagerDisp_
             _services.Clear();
             servicesStopped(stoppedServices, _observers.Keys);
         }
-        finally
-        {
-            _m.Unlock();
-        }
     }
 
     private void servicesStarted(List<String> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
@@ -909,18 +874,13 @@ class ServiceManagerI : ServiceManagerDisp_
         }
         catch(Ice.LocalException ex)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 ServiceObserverPrx observer = ServiceObserverPrxHelper.uncheckedCast(result.getProxy());
                 if(_observers.Remove(observer))
                 {
                     observerRemoved(observer, ex);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
     }
@@ -1082,7 +1042,6 @@ class ServiceManagerI : ServiceManagerDisp_
     private bool _pendingStatusChanges = false;
     private Dictionary<ServiceObserverPrx, bool> _observers = new  Dictionary<ServiceObserverPrx, bool>();
     private int _traceServiceObserver = 0;
-    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }
 
 }

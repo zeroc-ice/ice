@@ -34,8 +34,7 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
 
     override public Dictionary<string, string> getChanges(Ice.Current current)
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             //
             // The client calls PropertiesAdmin::setProperties() and then invokes
@@ -46,16 +45,12 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
             //
             while(!_called)
             {
-                _m.Wait();
+                System.Threading.Monitor.Wait(this);
             }
             
             _called = false;
             
             return _changes;
-        }
-        finally
-        {
-            _m.Unlock();
         }
     }
 
@@ -80,23 +75,17 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminU
 
     public void updated(Dictionary<string, string> changes)
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             _changes = changes;
             _called = true;
-            _m.Notify();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.Pulse(this);
         }
     }
 
     private Ice.Communicator _communicator;
     private Dictionary<string, string> _changes;
     private bool _called;
-    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }
 
 public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_

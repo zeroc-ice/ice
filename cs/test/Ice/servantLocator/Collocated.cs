@@ -41,7 +41,16 @@ public class Collocated
 
     public static int Main(string[] args)
     {
+        Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+        //
+        // When using Ice for .NET Compact Framework, we need to specify
+        // the assembly so that Ice can locate classes and exceptions.
+        //
+        data.properties = Ice.Util.createProperties();
+        data.properties.setProperty("Ice.FactoryAssemblies", "collocated");
+#endif
         App app = new App();
-        return app.main(args);
+        return app.main(args, data);
     }
 }

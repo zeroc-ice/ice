@@ -121,8 +121,7 @@ namespace IceInternal
                 }
             }
 
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
 
@@ -144,26 +143,17 @@ namespace IceInternal
                 }
 
                 _queue.AddLast(entry);
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         public void destroy()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
@@ -182,12 +172,11 @@ namespace IceInternal
                 ResolveEntry r;
                 Ice.Instrumentation.ThreadObserver threadObserver;
 
-                _m.Lock();
-                try
+                lock(this)
                 {
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        _m.Wait();
+                        System.Threading.Monitor.Wait(this);
                     }
 
                     if(_destroyed)
@@ -198,10 +187,6 @@ namespace IceInternal
                     r = _queue.First.Value;
                     _queue.RemoveFirst();
                     threadObserver = _observer;
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
 
                 try
@@ -269,8 +254,7 @@ namespace IceInternal
         public void
         updateObserver()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
                 if(obsv != null)
@@ -285,10 +269,6 @@ namespace IceInternal
                     }
                 }
             } 
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         private class ResolveEntry
@@ -359,8 +339,6 @@ namespace IceInternal
         }
 
         private HelperThread _thread;
-
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }
 #endif

@@ -25,35 +25,24 @@ public class AllTests
     {
         public override void reply(Ice.Current current)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 ++_replies;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         public void reset()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                  _replies = 0;
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         public bool waitReply(int expectedReplies, long timeout)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
                 while(_replies < expectedReplies)
@@ -61,7 +50,7 @@ public class AllTests
                     int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
                     if(delay > 0)
                     {
-                        _m.TimedWait(delay);
+                        System.Threading.Monitor.Wait(this, delay);
                     }
                     else
                     {
@@ -70,14 +59,9 @@ public class AllTests
                 }
                 return _replies == expectedReplies;
             }
-            finally
-            {
-                _m.Unlock();
-            }
         }
 
         private int _replies = 0;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     public static void allTests(Ice.Communicator communicator)

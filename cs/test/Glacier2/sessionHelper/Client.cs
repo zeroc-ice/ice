@@ -66,14 +66,9 @@ public class Client
                 catch(Glacier2.PermissionDeniedException)
                 {
                     Console.Out.WriteLine("ok");
-                    me.lck.Lock();
-                    try
+                    lock(me)
                     {
                         wakeUp();
-                    }
-                    finally
-                    {
-                        me.lck.Unlock();
                     }
                 }
                 catch(System.Exception)
@@ -95,14 +90,9 @@ public class Client
             connected(Glacier2.SessionHelper session)
             {
                 Console.Out.WriteLine("ok");
-                me.lck.Lock();
-                try
+                lock(me)
                 {
                     wakeUp();
-                }
-                finally
-                {
-                    me.lck.Unlock();
                 }
             }
 
@@ -110,14 +100,9 @@ public class Client
             disconnected(Glacier2.SessionHelper session)
             {
                 Console.Out.WriteLine("ok");
-                me.lck.Lock();
-                try
+                lock(me)
                 {
                     wakeUp();
-                }
-                finally
-                {
-                    me.lck.Unlock();
                 }
             }
 
@@ -159,14 +144,9 @@ public class Client
                 catch(Ice.ConnectionRefusedException)
                 {
                     Console.Out.WriteLine("ok");
-                    me.lck.Lock();
-                    try
+                    lock(me)
                     {
                         wakeUp();
-                    }
-                    finally
-                    {
-                        me.lck.Unlock();
                     }
                 }
                 catch(System.Exception)
@@ -194,8 +174,7 @@ public class Client
             //
             // Test to create a session with wrong userid/password
             //
-            lck.Lock();
-            try
+            lock(this)
             {
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
@@ -208,12 +187,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    lck.Wait();
+                    System.Threading.Monitor.Wait(this);
                     break;
 #else
                     try
                     {
-                        lck.Wait();
+                        System.Threading.Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -222,14 +201,9 @@ public class Client
 #endif
                 }
             }
-            finally
-            {
-                lck.Unlock();
-            }
 
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback2());
-            lck.Lock();
-            try
+            lock(this)
             {
                 Console.Out.Write("testing SessionHelper connect... ");
                 Console.Out.Flush();
@@ -241,12 +215,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    lck.Wait();
+                    System.Threading.Monitor.Wait(this);
                     break;
 #else
                     try
                     {
-                        lck.Wait();
+                        System.Threading.Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -309,12 +283,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    lck.Wait();
+                    System.Threading.Monitor.Wait(this);
                     break;
 #else
                     try
                     {
-                        lck.Wait();
+                        System.Threading.Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -390,14 +364,9 @@ public class Client
                     Console.Out.WriteLine("ok");
                 }
             }
-            finally
-            {
-                lck.Unlock();
-            }
 
             _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback3());
-            lck.Lock();
-            try
+            lock(this)
             {
                 Console.Out.Write("testing SessionHelper connect after router shutdown... ");
                 Console.Out.Flush();
@@ -410,12 +379,12 @@ public class Client
                 while(true)
                 {
 #if COMPACT
-                    lck.Wait();
+                    System.Threading.Monitor.Wait(this);
                     break;
 #else
                     try
                     {
-                        lck.Wait();
+                        System.Threading.Monitor.Wait(this);
                         break;
                     }
                     catch(ThreadInterruptedException)
@@ -439,10 +408,6 @@ public class Client
                 _session.destroy();
                 Console.Out.WriteLine("ok");
             }
-            finally
-            {
-                lck.Unlock();
-            }
 
             return 0;
         }
@@ -450,7 +415,7 @@ public class Client
         public static void
         wakeUp()
         {
-            me.lck.Notify();
+            System.Threading.Monitor.Pulse(me);
         }
 
         private static void
@@ -463,7 +428,6 @@ public class Client
         }
 
         public static App me;
-        public IceUtilInternal.Monitor lck = new IceUtilInternal.Monitor();
         private Ice.InitializationData _initData;
         private Glacier2.SessionHelper _session;
         private Glacier2.SessionFactoryHelper _factory;

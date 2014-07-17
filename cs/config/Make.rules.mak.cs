@@ -190,11 +190,13 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"  
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.0\System.Runtime.Serialization.dll"
 !elseif "$(COMPACT)" == "yes"
-NETCF_HOME		= $(PROGRAMFILES)\Microsoft.NET\SDK\CompactFramework\v3.5\WindowsCE
+NETCF_HOME		= $(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\WindowsEmbeddedCompact\v3.9
 NETCF_REFS		= "/r:$(NETCF_HOME)\mscorlib.dll" \
 			  "/r:$(NETCF_HOME)\System.dll" \
 			  "/r:$(NETCF_HOME)\System.Runtime.Serialization.dll"
 MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
+# For testing COMPACT with  regular .NET.
+#MCSFLAGS 		= $(MCSFLAGS) -define:COMPACT
 !elseif "$(UNITY)" == "yes"
 #
 # You can compile against the WebPlayer assemblies by enabling the MCSFLAGS line below.

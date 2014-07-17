@@ -22,34 +22,24 @@ class CallbackSenderI : CallbackSenderDisp_
 
     public void destroy()
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             System.Console.Out.WriteLine("destroying callback sender");
             _destroy = true;
             
-            _m.Notify();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.Pulse(this);
         }
     }
 
     public override void addClient(Ice.Identity ident, Ice.Current current)
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             System.Console.Out.WriteLine("adding client `" + _communicator.identityToString(ident) + "'");
 
             Ice.ObjectPrx @base = current.con.createProxy(ident);
             CallbackReceiverPrx client = CallbackReceiverPrxHelper.uncheckedCast(@base);
             _clients.Add(client);
-        }
-        finally
-        {
-            _m.Unlock();
         }
     }
 
@@ -59,20 +49,15 @@ class CallbackSenderI : CallbackSenderDisp_
         while(true)
         {
             ArrayList clients;
-            _m.Lock();
-            try
+            lock(this)
             {
-                _m.TimedWait(2000);
+                System.Threading.Monitor.Wait(this, 2000);
                 if(_destroy)
                 {
                     break;
                 }
 
                 clients = new ArrayList(_clients);
-            }
-            finally
-            {
-                _m.Unlock();
             }
 
             if(clients.Count > 0)
@@ -88,14 +73,9 @@ class CallbackSenderI : CallbackSenderDisp_
                     {
                         Console.Error.WriteLine("removing client `" +
                                                 _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
-                        _m.Lock();
-                        try
+                        lock(this)
                         {
                             _clients.Remove(c);
-                        }
-                        finally
-                        {
-                            _m.Unlock();
                         }
                     }
                 }
@@ -106,5 +86,4 @@ class CallbackSenderI : CallbackSenderDisp_
     private Ice.Communicator _communicator;
     private bool _destroy;
     private ArrayList _clients;
-    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }

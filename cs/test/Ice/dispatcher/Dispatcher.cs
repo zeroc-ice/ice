@@ -40,12 +40,11 @@ public class Dispatcher
 #else
             System.Action call = null;
 #endif
-            _m.Lock();
-            try
+            lock(_m)
             {
                 if(!_terminated && _calls.Count == 0)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(_m);
                 }
 
                 if(_calls.Count > 0)
@@ -57,10 +56,6 @@ public class Dispatcher
                     // Terminate only once all calls are dispatched.
                     return;
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
 
             if(call != null)
@@ -84,32 +79,22 @@ public class Dispatcher
     public void dispatch(System.Action call, Ice.Connection con)
 #endif
     {
-        _m.Lock();
-        try
+        lock(_m)
         {
             _calls.Enqueue(call);
             if(_calls.Count == 1)
             {
-                _m.Notify();
+                System.Threading.Monitor.Pulse(_m);
             }
-        }
-        finally
-        {
-            _m.Unlock();
         }
     }
 
     static public void terminate()
     {
-        _m.Lock();
-        try
+        lock(_m)
         {
             _instance._terminated = true;
-            _m.Notify();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.Pulse(_m);
         }
 
         _instance._thread.Join();
@@ -129,5 +114,5 @@ public class Dispatcher
 #endif
     Thread _thread;
     bool _terminated = false;
-    private static readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+    private static readonly object _m = new object();
 }

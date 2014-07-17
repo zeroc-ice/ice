@@ -30,8 +30,7 @@ namespace IceInternal
     {
         public void destroy()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_instance == null)
                 {
@@ -39,14 +38,10 @@ namespace IceInternal
                 }
 
                 _instance = null;
-                _m.Notify();
+                System.Threading.Monitor.Pulse(this);
             
                 _tokens.Clear();
                 _tasks.Clear();
-            }
-            finally
-            {
-                _m.Unlock();
             }
 
             _thread.Join();
@@ -54,8 +49,7 @@ namespace IceInternal
 
         public void schedule(TimerTask task, long delay)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_instance == null)
                 {
@@ -85,19 +79,14 @@ namespace IceInternal
             
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    _m.Notify();
+                    System.Threading.Monitor.Pulse(this);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         public void scheduleRepeated(TimerTask task, long period)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_instance == null)
                 {
@@ -127,19 +116,14 @@ namespace IceInternal
 
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    _m.Notify();
+                    System.Threading.Monitor.Pulse(this);
                 }
-            }
-            finally
-            {
-                _m.Unlock();
             }
         } 
         
         public bool cancel(TimerTask task)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_instance == null)
                 {
@@ -154,10 +138,6 @@ namespace IceInternal
                 _tasks.Remove(task);
                 _tokens.Remove(token);
                 return true;
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -211,8 +191,7 @@ namespace IceInternal
             Token token = null;
             while(true)
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     if(_instance != null)
                     {
@@ -248,7 +227,7 @@ namespace IceInternal
                     if(_tokens.Count == 0)
                     {
                         _wakeUpTime = System.Int64.MaxValue;
-                        _m.Wait();
+                        System.Threading.Monitor.Wait(this);
                     }
             
                     if(_instance == null)
@@ -284,17 +263,13 @@ namespace IceInternal
                         }
                     
                         _wakeUpTime = first.scheduledTime;
-                        _m.TimedWait((int)(first.scheduledTime - now));
+                        System.Threading.Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
                 
                     if(_instance == null)
                     {
                         break;
                     }
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
 
                 if(token != null)
@@ -305,18 +280,13 @@ namespace IceInternal
                     }
                     catch(System.Exception ex)
                     {
-                        _m.Lock();
-                        try
+                        lock(this)
                         {
                             if(_instance != null)
                             {
                                 string s = "unexpected exception from task run method in timer thread:\n" + ex;
                                 _instance.initializationData().logger.error(s);
                             }
-                        }
-                        finally
-                        {
-                            _m.Unlock();
                         }
                     } 
                 }
@@ -397,8 +367,6 @@ namespace IceInternal
         private long _wakeUpTime = System.Int64.MaxValue;
         private int _tokenId = 0;
         private Thread _thread;
-
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }
 
 }

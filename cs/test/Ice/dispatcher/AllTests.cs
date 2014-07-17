@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,18 +38,13 @@ public class AllTests : TestCommon.TestApp
 
         public void check()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 while(!_called)
                 {
-                    _m.Wait();
+                    System.Threading.Monitor.Wait(this);
                 }
                 _called = false;
-            }
-            finally
-            {
-                _m.Unlock();
             }
         }
 
@@ -83,21 +79,15 @@ public class AllTests : TestCommon.TestApp
 
         public void called()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_called);
                 _called = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         private bool _called;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
 #if SILVERLIGHT

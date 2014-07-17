@@ -134,7 +134,15 @@ namespace IceInternal
 
         public int write(Buffer buf)
         {
+            if(!buf.b.hasRemaining())
+            {
+                return SocketOperation.None;
+            }
 #if COMPACT || SILVERLIGHT
+            if(_writeResult != null)
+            {
+                return SocketOperation.None;    
+            }
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
             // operations on a non-blocking socket. Returning SocketOperation.Write here forces the
@@ -142,11 +150,6 @@ namespace IceInternal
             //
             return SocketOperation.Write;
 #else
-            if(!buf.b.hasRemaining())
-            {
-                return SocketOperation.None;
-            }
-
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null && _state >= StateConnected);
 
@@ -214,6 +217,10 @@ namespace IceInternal
 
         public int read(Buffer buf, ref bool hasMoreData)
         {
+            if(!buf.b.hasRemaining())
+            {
+                return SocketOperation.None;
+            }
 #if COMPACT || SILVERLIGHT
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
@@ -222,11 +229,6 @@ namespace IceInternal
             //
             return SocketOperation.Read;
 #else
-            if(!buf.b.hasRemaining())
-            {
-                return SocketOperation.None;
-            }
-
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null);
 

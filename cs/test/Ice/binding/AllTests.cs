@@ -30,38 +30,28 @@ public class AllTests : TestCommon.TestApp
 {
     private static string getAdapterNameWithAMI(TestIntfPrx testIntf)
     {
-        IceUtilInternal.Monitor m = new IceUtilInternal.Monitor();
+        object m = new object();
         string result = null;
         testIntf.begin_getAdapterName().whenCompleted(
             (string name) =>
             {
-                m.Lock();
-                try
+                lock(m)
                 {
                     result = name;
-                    m.Notify();
-                }
-                finally
-                {
-                    m.Unlock();
+                    System.Threading.Monitor.Pulse(m);
                 }
             },
             (Ice.Exception ex) =>
             {
                 test(false);
             });
-        m.Lock();
-        try
+        lock(m)
         {
             while(result == null)
             {
-                m.Wait();
+                System.Threading.Monitor.Wait(m);
             }
             return result;
-        }
-        finally
-        {
-            m.Unlock();
         }
     }
 

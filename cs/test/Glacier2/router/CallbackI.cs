@@ -45,16 +45,11 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public override void
     callback(Ice.Current current)
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             Debug.Assert(!_callback);
             _callback = true;
-            _m.Notify();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.Pulse(this);
         }
     }
 
@@ -71,22 +66,16 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public void
     callbackOK()
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             while(!_callback)
             {
-                _m.Wait();
+                System.Threading.Monitor.Wait(this);
             }
             
             _callback = false;
         }
-        finally
-        {
-            _m.Unlock();
-        }
     }
 
     private bool _callback;
-    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }

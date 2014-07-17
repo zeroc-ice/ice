@@ -110,8 +110,7 @@ namespace IceInternal
                     }
 
                     bool timedOut = false;
-                    _m.Lock();
-                    try
+                    lock(this)
                     {
                         //
                         // If the handler says it's not finished, we wait until we're done.
@@ -124,7 +123,7 @@ namespace IceInternal
                             long deadline = now + invocationTimeout;
                             while((_state == StateInProgress || !_sent) && _state != StateFailed && !timedOut)
                             {
-                                _m.TimedWait((int)(deadline - now));
+                                System.Threading.Monitor.Wait(this, (int)(deadline - now));
                                 
                                 if((_state == StateInProgress || !_sent) && _state != StateFailed)
                                 {
@@ -137,13 +136,9 @@ namespace IceInternal
                         {
                             while((_state == StateInProgress || !_sent) && _state != StateFailed)
                             {
-                                _m.Wait();
+                                System.Threading.Monitor.Wait(this);
                             }
                         }
-                    }
-                    finally
-                    {
-                        _m.Unlock();
                     }
 
                     if(timedOut)
@@ -155,17 +150,12 @@ namespace IceInternal
                         // the timeout if there was a failure shortly before requestTimedOut got called. 
                         // In this case, the exception should be set on the Outgoing.
                         //
-                        _m.Lock();
-                        try
+                        lock(this)
                         {
                             while(_exception == null)
                             {
-                                _m.Wait();
+                                System.Threading.Monitor.Wait(this);
                             }
-                        }
-                        finally
-                        {
-                            _m.Unlock();
                         }
                     }
 
@@ -240,8 +230,7 @@ namespace IceInternal
 
         public void sent()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_proxy.reference__().getMode() != Reference.Mode.ModeTwoway)
                 {
@@ -253,18 +242,13 @@ namespace IceInternal
                     _state = StateOK;
                 }
                 _sent = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         public void finished(BasicStream istr)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(_proxy.reference__().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
 
@@ -409,18 +393,13 @@ namespace IceInternal
                     }
                 }
 
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         public void finished(Ice.Exception ex)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 //Debug.Assert(_state <= StateInProgress);
                 if(_state > StateInProgress)
@@ -434,7 +413,7 @@ namespace IceInternal
                     //
                     Debug.Assert(_state != StateFailed);
                     _sent = true;
-                    _m.Notify();
+                    System.Threading.Monitor.Pulse(this);
                     return;
                 }
                 
@@ -446,11 +425,7 @@ namespace IceInternal
                 }
                 _state = StateFailed;
                 _exception = ex;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
@@ -672,8 +647,6 @@ namespace IceInternal
         private InvocationObserver _observer;
         private ChildInvocationObserver _childObserver;
 
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
-
         private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
 
         public Outgoing next; // For use by Ice.ObjectPrxHelperBase
@@ -708,21 +681,16 @@ namespace IceInternal
                 {
                     return;
                 }
-                _m.Lock();
-                try
+                lock(this)
                 {
                     while(_exception == null && !_sent)
                     {
-                        _m.Wait();
+                        System.Threading.Monitor.Wait(this);
                     }
                     if(_exception != null)
                     {
                         throw _exception;
                     }
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
                 return;
             }
@@ -737,8 +705,7 @@ namespace IceInternal
                 }
 
                 bool timedOut = false;
-                _m.Lock();
-                try
+                lock(this)
                 {
                     int timeout = _proxy.reference__().getInvocationTimeout();
                     if(timeout > 0)
@@ -747,7 +714,7 @@ namespace IceInternal
                         long deadline = now + timeout;
                         while(_exception == null && !_sent && !timedOut)
                         {
-                            _m.TimedWait((int)(deadline - now));
+                            System.Threading.Monitor.Wait(this, (int)(deadline - now));
                             if(_exception == null && !_sent)
                             {
                                 now = Time.currentMonotonicTimeMillis();
@@ -759,30 +726,21 @@ namespace IceInternal
                     {
                         while(_exception == null && !_sent)
                         {
-                            _m.Wait();
+                            System.Threading.Monitor.Wait(this);
                         }
                     }
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
                 
                 if(timedOut)
                 {
                     handler.requestTimedOut(this);
 
-                    _m.Lock();
-                    try
+                    lock(this)
                     {
                         while(_exception == null)
                         {
-                            _m.Wait();
+                            System.Threading.Monitor.Wait(this);
                         }
-                    }
-                    finally
-                    {
-                        _m.Unlock();
                     }
                 }
                 
@@ -824,8 +782,7 @@ namespace IceInternal
 
         public void sent()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 if(_childObserver != null)
                 {
@@ -833,30 +790,22 @@ namespace IceInternal
                     _childObserver = null;
                 }
                 _sent = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         public void finished(Ice.Exception ex)
         {
-            _m.Lock();
-            if(_childObserver != null)
+            lock(this)
             {
-                _childObserver.failed(ex.ice_name());
-                _childObserver.detach();
-            }
-            try
-            {
+                if(_childObserver != null)
+                {
+                    _childObserver.failed(ex.ice_name());
+                    _childObserver.detach();
+                }
+            
                 _exception = ex;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
@@ -898,7 +847,5 @@ namespace IceInternal
 
         private InvocationObserver _observer;
         private Observer _childObserver;
-
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }

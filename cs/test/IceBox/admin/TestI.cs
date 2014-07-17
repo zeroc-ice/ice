@@ -27,17 +27,12 @@ public class TestFacetI : TestFacetDisp_, Ice.PropertiesAdminUpdateCallback
         // updated() method is called. We block here to ensure that updated()
         // gets called before we return the most recent set of changes.
         //
-        _m.Lock();
-        try
+        lock(this)
         {
             while(!_called)
             {
-                _m.Wait();
+                System.Threading.Monitor.Wait(this);
             }
-        }
-        finally
-        {
-            _m.Unlock();
         }
         _called = false;
 
@@ -46,20 +41,14 @@ public class TestFacetI : TestFacetDisp_, Ice.PropertiesAdminUpdateCallback
 
     public void updated(Dictionary<string, string> changes)
     {
-        _m.Lock();
-        try
+        lock(this)
         {
             _changes = changes;
             _called = true;
-            _m.Notify();
-        }
-        finally
-        {
-            _m.Unlock();
+            System.Threading.Monitor.Pulse(this);
         }
     }
 
     private Dictionary<string, string> _changes;
     private bool _called;
-    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }

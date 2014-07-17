@@ -52,7 +52,7 @@ public class Collocated
             // When using Ice for .NET Compact Framework, we need to specify
             // the assembly so that Ice can locate classes and exceptions.
             //
-            initData.properties.setProperty("Ice.FactoryAssemblies", "client");
+            initData.properties.setProperty("Ice.FactoryAssemblies", "collocated");
 #endif
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);

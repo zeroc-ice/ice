@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -95,7 +94,7 @@ namespace client
                 },
                 (Ice.Exception ex) =>
                 {
-                    exception(ref haveResponse);
+                    exception(ref haveResponse, ex);
                 }
             ).whenSent(
                 (bool sentSynchronously) =>
@@ -116,7 +115,7 @@ namespace client
                 },
                 (Ice.Exception ex) =>
                 {
-                    exception(ref haveResponse);
+                    exception(ref haveResponse, ex);
                 }
             ).whenSent(
                 (bool sentSynchronously) =>

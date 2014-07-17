@@ -42,8 +42,7 @@ namespace IceInternal
         public void
         updateObserver()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
                 if(obsv != null)
@@ -57,40 +56,26 @@ namespace IceInternal
                         _observer.attach();
                     }
                 }
-            } 
-            finally
-            {
-                _m.Unlock();
             }
         }
 
         public void queue(ThreadPoolWorkItem callback)
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
                 _queue.AddLast(callback);
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
         public void destroy()
         {
-            _m.Lock();
-            try
+            lock(this)
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                _m.Notify();
-            }
-            finally
-            {
-                _m.Unlock();
+                System.Threading.Monitor.Pulse(this);
             }
         }
 
@@ -108,8 +93,7 @@ namespace IceInternal
             bool inUse = false;
             while(true)
             {
-                _m.Lock();
-                try
+                lock(this)
                 {
                     if(_observer != null && inUse)
                     {
@@ -125,7 +109,7 @@ namespace IceInternal
 
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        _m.Wait();
+                        System.Threading.Monitor.Wait(this);
                     }
 
                     LinkedList<ThreadPoolWorkItem> tmp = queue;
@@ -138,10 +122,6 @@ namespace IceInternal
                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
                         inUse = true;
                     }
-                }
-                finally
-                {
-                    _m.Unlock();
                 }
 
                 foreach(ThreadPoolWorkItem cb in queue)
@@ -224,6 +204,5 @@ namespace IceInternal
         }
 
         private HelperThread _thread;
-        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }
