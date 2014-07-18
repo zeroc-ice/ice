@@ -40,6 +40,7 @@ demos = [
     "Ice/throughput",
     "Ice/value",
     "Ice/optional",
+    "Ice/context",
     "IceBox/hello",
     "IceStorm/clock",
     "IceGrid/simple",

@@ -27,6 +27,7 @@ demos = [
     "Ice/async",
     "Ice/bidir",
     "Ice/callback",
+    "Ice/context",
     "Ice/converter",
     "Ice/hello",
     "Ice/latency",
