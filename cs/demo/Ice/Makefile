@@ -26,7 +26,8 @@ SUBDIRS		= bidir \
 		  serialize \
 		  plugin \
 		  properties \
-		  optional
+		  optional \
+		  context
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

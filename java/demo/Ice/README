@@ -24,6 +24,10 @@ Demos in this directory:
   call back into an object provided by the client as part of that
   invocation.
 
+- context
+
+  This demo shows how to use Ice request contexts.
+
 - hello
 
   This demo illustrates how to invoke ordinary (twoway) operations, as

@@ -28,7 +28,8 @@ SUBDIRS		= minimal \
 		  plugin \
 		  interleaved \
 		  properties \
-		  optional
+		  optional \
+		  context
 
 
 !if "$(HAS_MFC)" == "yes"

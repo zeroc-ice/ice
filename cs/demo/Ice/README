@@ -23,6 +23,10 @@ Demos in this directory:
 
   A simple graphical client that uses Ice for .NET Compact Framework.
 
+- context
+
+  This demo shows how to use Ice request contexts.
+
 - hello
 
   This demo illustrates how to invoke ordinary (twoway) operations, as
