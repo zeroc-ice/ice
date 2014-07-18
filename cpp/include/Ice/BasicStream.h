@@ -84,6 +84,7 @@ public:
         }
 
         b.resize(sz);
+        i = b.end();
     }
 
     void startWriteObject(const Ice::SlicedDataPtr& data)
@@ -852,6 +853,11 @@ public:
         {
             skip(4);
         }
+    }
+
+    int pos()
+    {
+        return i - b.begin();
     }
 
     void rewrite(Ice::Int value, size_type p)

@@ -53,7 +53,7 @@ public:
             //
             // Return unused bytes
             //
-            _stream.b.resize(firstUnused - _stream.b.begin());
+            _stream.resize(firstUnused - _stream.b.begin());
         }
 
         //
@@ -1364,7 +1364,7 @@ IceInternal::BasicStream::writeConverted(const char* vdata, size_t vsize)
         Byte* lastByte = _stringConverter->toUTF8(vdata, vdata + vsize, buffer);
         if(lastByte != b.end())
         {
-            b.resize(lastByte - b.begin());
+            resize(lastByte - b.begin());
         }
         size_t lastIndex = b.size();
 
@@ -1479,7 +1479,7 @@ IceInternal::BasicStream::write(const wstring& v)
         Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
         if(lastByte != b.end())
         {
-            b.resize(lastByte - b.begin());
+            resize(lastByte - b.begin());
         }
         size_t lastIndex = b.size();
 
