@@ -855,7 +855,7 @@ public:
         }
     }
 
-    int pos()
+    size_type pos()
     {
         return i - b.begin();
     }
