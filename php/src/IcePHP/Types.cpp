@@ -1357,7 +1357,7 @@ IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*
     assert(Z_TYPE_P(zv) == IS_OBJECT); // validate() should have caught this.
     assert(Z_OBJCE_P(zv) == zce); // validate() should have caught this.
 
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
@@ -1528,7 +1528,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMa
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(elementType->variableLength())
@@ -2088,7 +2088,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
         sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
     }
 
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
@@ -2771,7 +2771,7 @@ IcePHP::ProxyInfo::optionalFormat() const
 void
 IcePHP::ProxyInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional TSRMLS_DC)
 {
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         sizePos = os->startSize();

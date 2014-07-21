@@ -992,7 +992,7 @@ IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*
 {
     assert(callRuby(rb_obj_is_kind_of, p, rubyClass) == Qtrue); // validate() should have caught this.
 
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = -1;
     if(optional)
     {
         if(_variableLength)
@@ -1019,7 +1019,6 @@ IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*
 
     if(optional && _variableLength)
     {
-        assert(sizePos != -1);
         os->endSize(sizePos);
     }
 }
@@ -1155,7 +1154,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
 
     volatile VALUE arr = Qnil;
 
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = -1;
     if(optional)
     {
         if(elementType->variableLength())
@@ -1222,7 +1221,6 @@ IceRuby::SequenceInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMa
 
     if(optional && elementType->variableLength())
     {
-        assert(sizePos != -1);
         os->endSize(sizePos);
     }
 }
@@ -1725,7 +1723,7 @@ IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, Object
         sz = RHASH_SIZE(hash);
     }
 
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
@@ -1754,7 +1752,6 @@ IceRuby::DictionaryInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, Object
 
     if(optional && _variableLength)
     {
-        assert(sizePos != -1);
         os->endSize(sizePos);
     }
 }
@@ -2307,7 +2304,7 @@ IceRuby::ProxyInfo::optionalFormat() const
 void
 IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional)
 {
-    int sizePos = -1;
+    Ice::OutputStream::size_type sizePos = -1;
     if(optional)
     {
         sizePos = os->startSize();
@@ -2325,7 +2322,6 @@ IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*,
 
     if(optional)
     {
-        assert(sizePos != -1);
         os->endSize(sizePos);
     }
 }

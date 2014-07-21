@@ -1266,7 +1266,7 @@ IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMa
 {
     assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
 
-    int sizePos = 0;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
@@ -1437,7 +1437,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
 {
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
 
-    int sizePos = 0;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(elementType->variableLength())
@@ -2516,7 +2516,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
 
     const Ice::Int sz = p == Py_None ? 0 : static_cast<Ice::Int>(PyDict_Size(p));
 
-    int sizePos = 0;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         if(_variableLength)
@@ -2995,7 +2995,7 @@ IcePy::ProxyInfo::optionalFormat() const
 void
 IcePy::ProxyInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional, const Ice::StringSeq*)
 {
-    int sizePos = 0;
+    Ice::OutputStream::size_type sizePos = 0;
     if(optional)
     {
         sizePos = os->startSize();

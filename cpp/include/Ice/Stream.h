@@ -351,8 +351,8 @@ public:
 
     virtual bool writeOptional(Int, OptionalFormat) = 0;
 
-    virtual int startSize() = 0;
-    virtual void endSize(int pos) = 0;
+    virtual size_type startSize() = 0;
+    virtual void endSize(size_type pos) = 0;
 
     template<typename T> inline void write(const T& v)
     {

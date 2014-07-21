@@ -183,8 +183,8 @@ public:
     virtual size_type pos();
     virtual void rewrite(Int, size_type);
 
-    virtual int startSize();
-    virtual void endSize(int pos);
+    virtual size_type startSize();
+    virtual void endSize(size_type pos);
 
 private:
 

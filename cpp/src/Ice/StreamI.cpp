@@ -729,14 +729,14 @@ OutputStreamI::rewrite(Int sz, size_type p)
     _os->rewrite(sz, p);
 }
 
-int
+OutputStream::size_type
 OutputStreamI::startSize()
 {
     return _os->startSize();
 }
 
 void
-OutputStreamI::endSize(int pos)
+OutputStreamI::endSize(OutputStream::size_type pos)
 {
     _os->endSize(pos);
 }
