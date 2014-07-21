@@ -568,6 +568,13 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
 IceInternal::SocketOperation
 IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
 {
+    //
+    // Note: we don't set the hasMoreData flag in this implementation.
+    // We assume that SecureTransport doesn't read more SSL records
+    // than necessary to fill the requested data and that the sender
+    // sends Ice messages in individual SSL records.
+    // 
+
     if(_state == StateProxyConnectRequestPending)
     {
         //

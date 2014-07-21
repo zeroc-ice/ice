@@ -25,6 +25,12 @@ public final class ThreadPoolCurrent
     public int operation;
     public BasicStream stream; // A per-thread stream to be used by event handlers for optimization.
 
+    public boolean 
+    ioReady()
+    {
+        return (_handler._registered & operation) > 0;
+    }
+
     public void
     ioCompleted()
     {

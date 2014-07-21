@@ -69,6 +69,7 @@ protected:
     SocketOperation _registered;
 
     friend class ThreadPool;
+    friend class ThreadPoolCurrent;
     friend class Selector;
 };
 

@@ -188,6 +188,11 @@ public:
     {
         _threadPool->finishMessage(const_cast<ThreadPoolCurrent&>(*this));
     }
+#else
+    bool ioReady()
+    {
+        return _handler->_registered & operation;
+    }
 #endif
 
     void dispatchFromThisThread(const DispatchWorkItemPtr& workItem)
@@ -276,7 +281,7 @@ public:
 
         operator bool()
         {
-            return true;
+            return _message._current.ioReady(); // Ensure the handler is still interested in the operation.
         }
 
         void completed()

@@ -1168,6 +1168,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 return;
             }
 
+            if(!current.ioReady())
+            {
+                return;
+            }
+
             int readyOp = current.operation;
             try
             {
