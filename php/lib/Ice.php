@@ -147,7 +147,7 @@ $Ice_sliceChecksums = array();
 // Include certain generated files.
 //
 require_once 'Ice/BuiltinSequences.php';
-require_once 'Ice/Endpoint.php';
+require_once 'Ice/Connection.php';
 require_once 'Ice/EndpointTypes.php';
 require_once 'Ice/LocalException.php';
 require_once 'Ice/Locator.php';

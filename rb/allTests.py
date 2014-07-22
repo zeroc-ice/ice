@@ -44,7 +44,8 @@ tests = [
     ("Ice/slicing/objects", ["core"]),
     ("Ice/defaultValue", ["core"]),
     ("Ice/optional", ["core"]),
-    ("Ice/enums", ["core"])
+    ("Ice/enums", ["core"]),
+    ("Ice/acm", ["core"])
     ]
 
 if __name__ == "__main__":

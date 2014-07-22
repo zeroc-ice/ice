@@ -195,6 +195,9 @@ public:
 
     virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
+    Ice::Int valueForEnumerator(PyObject*) const;
+    PyObject* enumeratorForValue(Ice::Int) const;
+
     const std::string id;
     const PyObjectHandle pythonType;
     const Ice::Int maxValue;
@@ -243,6 +246,8 @@ public:
     virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
+
+    static PyObject* instantiate(PyObject*);
 
     const std::string id;
     const DataMemberList members;

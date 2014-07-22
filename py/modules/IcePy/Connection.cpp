@@ -18,6 +18,7 @@
 #include <Operation.h>
 #include <Proxy.h>
 #include <Thread.h>
+#include <Types.h>
 #include <Util.h>
 #include <Ice/ConnectionAsync.h>
 
@@ -34,6 +35,78 @@ struct ConnectionObject
     PyObject_HEAD
     Ice::ConnectionPtr* connection;
     Ice::CommunicatorPtr* communicator;
+};
+
+class ConnectionCallbackI : public Ice::ConnectionCallback
+{
+public:
+
+    ConnectionCallbackI(PyObject* cb, PyObject* con) :
+        _cb(cb), _con(con)
+    {
+        Py_INCREF(cb);
+        Py_INCREF(con);
+    }
+
+    virtual ~ConnectionCallbackI()
+    {
+        AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+        Py_DECREF(_cb);
+        Py_DECREF(_con);
+    }
+
+    virtual void heartbeat(const Ice::ConnectionPtr& con)
+    {
+        invoke("heartbeat", con);
+    }
+
+    virtual void closed(const Ice::ConnectionPtr& con)
+    {
+        invoke("closed", con);
+    }
+
+private:
+
+    void invoke(const string& methodName, const Ice::ConnectionPtr& con)
+    {
+        AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+        ConnectionObject* c = reinterpret_cast<ConnectionObject*>(_con);
+        assert(con == *(c->connection));
+
+        if(!PyObject_HasAttrString(_cb, STRCAST(methodName.c_str())))
+        {
+            ostringstream ostr;
+            ostr << "connection callback object does not define " << methodName << "()";
+            string str = ostr.str();
+            PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+        }
+        else
+        {
+            PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), _con);
+            PyObjectHandle method = PyObject_GetAttrString(_cb, STRCAST(methodName.c_str()));
+            assert(method.get());
+            PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), 0);
+            if(PyErr_Occurred())
+            {
+                PyException ex; // Retrieve it before another Python API call clears it.
+
+                //
+                // A callback that calls sys.exit() will raise the SystemExit exception.
+                // This is normally caught by the interpreter, causing it to exit.
+                // However, we have no way to pass this exception to the interpreter,
+                // so we act on it directly.
+                //
+                ex.checkSystemExit();
+
+                ex.raise();
+            }
+        }
+    }
+
+    PyObject* _cb;
+    PyObject* _con;
 };
 
 }
@@ -364,6 +437,182 @@ connectionEndFlushBatchRequests(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+connectionSetCallback(ConnectionObject* self, PyObject* args)
+{
+    assert(self->connection);
+
+    PyObject* callbackType = lookupType("Ice.ConnectionCallback");
+    PyObject* cb;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &cb))
+    {
+        return 0;
+    }
+
+    Ice::ConnectionCallbackPtr wrapper = new ConnectionCallbackI(cb, reinterpret_cast<PyObject*>(self));
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
+        (*self->connection)->setCallback(wrapper);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionSetACM(ConnectionObject* self, PyObject* args)
+{
+    assert(self->connection);
+
+    IceUtil::Optional<Ice::Int> timeout;
+    IceUtil::Optional<Ice::ACMClose> close;
+    IceUtil::Optional<Ice::ACMHeartbeat> heartbeat;
+
+    PyObject* acmCloseType = lookupType("Ice.ACMClose");
+    PyObject* acmHeartbeatType = lookupType("Ice.ACMHeartbeat");
+    PyObject* t;
+    PyObject* c;
+    PyObject* h;
+    if(!PyArg_ParseTuple(args, STRCAST("OOO"), &t, &c, &h))
+    {
+        return 0;
+    }
+
+    if(t != Unset)
+    {
+        timeout = static_cast<Ice::Int>(PyLong_AsLong(t));
+        if(PyErr_Occurred())
+        {
+            return 0;
+        }
+    }
+
+    if(c != Unset)
+    {
+        if(PyObject_IsInstance(c, acmCloseType) == 0)
+        {
+            PyErr_Format(PyExc_TypeError, "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
+            return 0;
+        }
+        PyObjectHandle v = PyObject_GetAttrString(c, STRCAST("_value"));
+        assert(v.get());
+        close = static_cast<Ice::ACMClose>(PyLong_AsLong(v.get()));
+    }
+
+    if(h != Unset)
+    {
+        if(PyObject_IsInstance(h, acmHeartbeatType) == 0)
+        {
+            PyErr_Format(PyExc_TypeError,
+                         "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
+            return 0;
+        }
+        PyObjectHandle v = PyObject_GetAttrString(h, STRCAST("_value"));
+        assert(v.get());
+        heartbeat = static_cast<Ice::ACMHeartbeat>(PyLong_AsLong(v.get()));
+    }
+
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
+        (*self->connection)->setACM(timeout, close, heartbeat);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionGetACM(ConnectionObject* self)
+{
+    assert(self->connection);
+
+    PyObject* acmType = lookupType("Ice.ACM");
+    PyObject* acmCloseType = lookupType("Ice._t_ACMClose");
+    PyObject* acmHeartbeatType = lookupType("Ice._t_ACMHeartbeat");
+    Ice::ACM acm;
+
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
+        acm = (*self->connection)->getACM();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObjectHandle r = StructInfo::instantiate(acmType);
+    if(!r.get())
+    {
+        return 0;
+    }
+
+    PyObjectHandle timeout = PyLong_FromLong(acm.timeout);
+    if(!timeout.get())
+    {
+        assert(PyErr_Occurred());
+        return 0;
+    }
+
+    if(PyObject_SetAttrString(r.get(), STRCAST("timeout"), timeout.get()) < 0)
+    {
+        assert(PyErr_Occurred());
+        return 0;
+    }
+
+    EnumInfoPtr acmCloseEnum = EnumInfoPtr::dynamicCast(getType(acmCloseType));
+    assert(acmCloseEnum);
+    PyObjectHandle close = acmCloseEnum->enumeratorForValue(static_cast<Ice::Int>(acm.close));
+    if(!close.get())
+    {
+        PyErr_Format(PyExc_ValueError, "unexpected value for 'close' member of Ice.ACM");
+        return 0;
+    }
+    if(PyObject_SetAttrString(r.get(), STRCAST("close"), close.get()) < 0)
+    {
+        assert(PyErr_Occurred());
+        return 0;
+    }
+
+    EnumInfoPtr acmHeartbeatEnum = EnumInfoPtr::dynamicCast(getType(acmHeartbeatType));
+    assert(acmHeartbeatEnum);
+    PyObjectHandle heartbeat = acmHeartbeatEnum->enumeratorForValue(static_cast<Ice::Int>(acm.heartbeat));
+    if(!heartbeat.get())
+    {
+        PyErr_Format(PyExc_ValueError, "unexpected value for 'heartbeat' member of Ice.ACM");
+        return 0;
+    }
+    if(PyObject_SetAttrString(r.get(), STRCAST("heartbeat"), heartbeat.get()) < 0)
+    {
+        assert(PyErr_Occurred());
+        return 0;
+    }
+
+    return r.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 connectionType(ConnectionObject* self)
 {
     assert(self->connection);
@@ -477,6 +726,12 @@ static PyMethodDef ConnectionMethods[] =
         METH_VARARGS | METH_KEYWORDS, PyDoc_STR(STRCAST("begin_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
     { STRCAST("end_flushBatchRequests"), reinterpret_cast<PyCFunction>(connectionEndFlushBatchRequests), METH_VARARGS,
         PyDoc_STR(STRCAST("end_flushBatchRequests(Ice.AsyncResult) -> None")) },
+    { STRCAST("setCallback"), reinterpret_cast<PyCFunction>(connectionSetCallback), METH_VARARGS,
+        PyDoc_STR(STRCAST("setCallback(Ice.ConnectionCallback) -> None")) },
+    { STRCAST("setACM"), reinterpret_cast<PyCFunction>(connectionSetACM), METH_VARARGS,
+        PyDoc_STR(STRCAST("setACM(int, Ice.ACMClose, Ice.ACMHeartbeat) -> None")) },
+    { STRCAST("getACM"), reinterpret_cast<PyCFunction>(connectionGetACM), METH_NOARGS,
+        PyDoc_STR(STRCAST("getACM() -> Ice.ACM")) },
     { STRCAST("type"), reinterpret_cast<PyCFunction>(connectionType), METH_NOARGS,
         PyDoc_STR(STRCAST("type() -> string")) },
     { STRCAST("timeout"), reinterpret_cast<PyCFunction>(connectionTimeout), METH_NOARGS,

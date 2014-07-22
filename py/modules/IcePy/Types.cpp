@@ -1033,30 +1033,13 @@ IcePy::EnumInfo::optionalFormat() const
 void
 IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional, const Ice::StringSeq*)
 {
-    assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
-
     //
     // Validate value.
     //
-    PyObjectHandle v = PyObject_GetAttrString(p, STRCAST("_value"));
-    if(!v.get())
+    const Ice::Int val = valueForEnumerator(p);
+    if(val < 0)
     {
         assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
-#if PY_VERSION_HEX >= 0x03000000
-    if(!PyLong_Check(v.get()))
-#else
-    if(!PyInt_Check(v.get()))
-#endif
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
-        throw AbortMarshaling();
-    }
-    const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(v.get()));
-    if(enumerators.find(val) == enumerators.end())
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("illegal value %d for enum %s"), val, id.c_str());
         throw AbortMarshaling();
     }
 
@@ -1069,8 +1052,8 @@ IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbac
 {
     Ice::Int val = is->readEnum(maxValue);
 
-    EnumeratorMap::const_iterator p = enumerators.find(val);
-    if(p == enumerators.end())
+    PyObjectHandle p = enumeratorForValue(val);
+    if(!p.get())
     {
         ostringstream ostr;
         ostr << "enumerator " << val << " is out of range for enum " << id;
@@ -1078,9 +1061,7 @@ IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbac
         throw AbortMarshaling();
     }
 
-    PyObject* pyval = p->second.get();
-    assert(pyval);
-    cb->unmarshaled(pyval, target, closure);
+    cb->unmarshaled(p.get(), target, closure);
 }
 
 void
@@ -1098,6 +1079,49 @@ IcePy::EnumInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjec
     }
     assert(checkString(p.get()));
     out << getString(p.get());
+}
+
+Ice::Int
+IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
+{
+    assert(PyObject_IsInstance(p, pythonType.get()) == 1);
+
+    PyObjectHandle v = PyObject_GetAttrString(p, STRCAST("_value"));
+    if(!v.get())
+    {
+        assert(PyErr_Occurred());
+        return -1;
+    }
+#if PY_VERSION_HEX >= 0x03000000
+    if(!PyLong_Check(v.get()))
+#else
+    if(!PyInt_Check(v.get()))
+#endif
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
+        return -1;
+    }
+    const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(v.get()));
+    if(enumerators.find(val) == enumerators.end())
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("illegal value %d for enum %s"), val, id.c_str());
+        return -1;
+    }
+
+    return val;
+}
+
+PyObject*
+IcePy::EnumInfo::enumeratorForValue(Ice::Int v) const
+{
+    EnumeratorMap::const_iterator p = enumerators.find(v);
+    if(p == enumerators.end())
+    {
+        return 0;
+    }
+    PyObject* r = p->second.get();
+    Py_INCREF(r);
+    return r;
 }
 
 //
@@ -1309,9 +1333,7 @@ void
 IcePy::StructInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
                              void* closure, bool optional, const Ice::StringSeq*)
 {
-    PyObjectHandle args = PyTuple_New(0);
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType.get());
-    PyObjectHandle p = type->tp_new(type, args.get(), 0);
+    PyObjectHandle p = instantiate(pythonType.get());
     if(!p.get())
     {
         assert(PyErr_Occurred());
@@ -1374,6 +1396,14 @@ IcePy::StructInfo::destroy()
         (*p)->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
+}
+
+PyObject*
+IcePy::StructInfo::instantiate(PyObject* pythonType)
+{
+    PyObjectHandle args = PyTuple_New(0);
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
+    return type->tp_new(type, args.get(), 0);
 }
 
 //

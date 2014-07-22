@@ -41,6 +41,7 @@ tests = [
     ("Ice/enums", ["core"]),
     ("Ice/ini", ["once"]),
     ("Ice/scope", ["once"]),
+    ("Ice/acm", ["once"]),
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),
     ("Slice/macros", ["once"]),

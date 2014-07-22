@@ -41,7 +41,10 @@ IcePy::LoggerWrapper::print(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("print"), STRCAST("s"), message.c_str());
+    //
+    // Method must be named "_print".
+    //
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("_print"), STRCAST("s"), message.c_str());
     if(!tmp.get())
     {
         throwPythonException();

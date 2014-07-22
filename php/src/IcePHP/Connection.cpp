@@ -9,6 +9,7 @@
 
 #include <Connection.h>
 #include <Endpoint.h>
+#include <Types.h>
 #include <Util.h>
 
 using namespace std;
@@ -128,6 +129,97 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
     try
     {
         _this->flushBatchRequests();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Connection, setACM)
+{
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    zval* t;
+    zval* c;
+    zval* h;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("zzz"), &t, &c, &h TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    IceUtil::Optional<Ice::Int> timeout;
+    IceUtil::Optional<Ice::ACMClose> close;
+    IceUtil::Optional<Ice::ACMHeartbeat> heartbeat;
+
+    if(!isUnset(t TSRMLS_CC))
+    {
+        if(Z_TYPE_P(t) != IS_LONG)
+        {
+            invalidArgument("value for 'timeout' argument must be Unset or an integer");
+            RETURN_NULL();
+        }
+        timeout = static_cast<Ice::Int>(Z_LVAL_P(t));
+    }
+
+    if(!isUnset(c TSRMLS_CC))
+    {
+        if(Z_TYPE_P(c) != IS_LONG)
+        {
+            invalidArgument("value for 'close' argument must be Unset or an enumerator of ACMClose");
+            RETURN_NULL();
+        }
+        close = static_cast<Ice::ACMClose>(Z_LVAL_P(c));
+    }
+
+    if(!isUnset(h TSRMLS_CC))
+    {
+        if(Z_TYPE_P(h) != IS_LONG)
+        {
+            invalidArgument("value for 'heartbeat' argument must be Unset or an enumerator of ACMHeartbeat");
+            RETURN_NULL();
+        }
+        heartbeat = static_cast<Ice::ACMHeartbeat>(Z_LVAL_P(h));
+    }
+
+    try
+    {
+        _this->setACM(timeout, close, heartbeat);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Connection, getACM)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        Ice::ACM acm = _this->getACM();
+
+        zend_class_entry* acmClass = idToClass("::Ice::ACM" TSRMLS_CC);
+
+        if(object_init_ex(return_value, const_cast<zend_class_entry*>(acmClass)) != SUCCESS)
+        {
+            runtimeError("unable to initialize object of type %s" TSRMLS_CC, acmClass->name);
+            RETURN_NULL();
+        }
+
+        add_property_long(return_value, STRCAST("timeout"), static_cast<long>(acm.timeout));
+        add_property_long(return_value, STRCAST("close"), static_cast<long>(acm.close));
+        add_property_long(return_value, STRCAST("heartbeat"), static_cast<long>(acm.heartbeat));
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -290,6 +382,8 @@ static zend_function_entry _connectionClassMethods[] =
     ZEND_ME(Ice_Connection, close, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, getEndpoint, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, flushBatchRequests, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setACM, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getACM, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, type, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, timeout, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Connection, toString, NULL, ZEND_ACC_PUBLIC)
