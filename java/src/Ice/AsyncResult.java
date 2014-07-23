@@ -517,6 +517,7 @@ public class AsyncResult
     protected IceInternal.BasicStream _os;
 
     protected IceInternal.RequestHandler _timeoutRequestHandler;
+    protected java.util.concurrent.Future<?> _future;
 
     protected static final byte OK = 0x1;
     protected static final byte Done = 0x2;

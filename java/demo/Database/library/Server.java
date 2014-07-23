@@ -64,7 +64,7 @@ class Server extends Ice.Application
 
         try
         {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName(properties.getProperty("JDBC.DriverClassName")).newInstance();
         }
         catch(Exception e)
         {
@@ -92,9 +92,10 @@ class Server extends Ice.Application
 
         long timeout = properties.getPropertyAsIntWithDefault("SessionTimeout", 30);
 
-        ReapThread reaper = new ReapThread(logger, timeout);
-        reaper.start();
-
+        java.util.concurrent.ScheduledExecutorService executor = java.util.concurrent.Executors.newScheduledThreadPool(1);
+        ReapTask reaper = new ReapTask(logger, timeout);
+        executor.scheduleAtFixedRate(reaper, timeout/2, timeout/2, java.util.concurrent.TimeUnit.SECONDS);
+        
         //
         // Create an object adapter
         //
@@ -116,14 +117,8 @@ class Server extends Ice.Application
         communicator().waitForShutdown();
         defaultInterrupt();
 
+        executor.shutdown();
         reaper.terminate();
-        try
-        {
-            reaper.join();
-        }
-        catch(InterruptedException e)
-        {
-        }
 
         pool.destroy();
 

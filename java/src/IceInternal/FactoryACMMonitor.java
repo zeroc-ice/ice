@@ -74,7 +74,9 @@ class FactoryACMMonitor implements ACMMonitor
             if(_connections.isEmpty())
             {
                 _connections.add(connection);
-                _instance.timer().scheduleRepeated(this, _config.timeout / 2);
+                assert _future == null;
+                _future = _instance.timer().scheduleAtFixedRate(this, _config.timeout / 2, _config.timeout / 2,
+                    java.util.concurrent.TimeUnit.MILLISECONDS);
             }
             else
             {
@@ -148,7 +150,7 @@ class FactoryACMMonitor implements ACMMonitor
     }
 
     public void
-    runTimerTask()
+    run()
     {
         synchronized(this)
         {
@@ -172,7 +174,8 @@ class FactoryACMMonitor implements ACMMonitor
 
             if(_connections.isEmpty())
             {
-                _instance.timer().cancel(this);
+                _future.cancel(false);
+                _future = null;
                 return;
             }
         }
@@ -212,5 +215,6 @@ class FactoryACMMonitor implements ACMMonitor
     private java.util.Set<Ice.ConnectionI> _connections = new java.util.HashSet<Ice.ConnectionI>();
     private java.util.List<Change> _changes = new java.util.ArrayList<Change>();
     private java.util.List<Ice.ConnectionI> _reapedConnections = new java.util.ArrayList<Ice.ConnectionI>();
+    private java.util.concurrent.Future<?> _future;
 };
 

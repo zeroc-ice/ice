@@ -6,7 +6,18 @@ SessionFactory.Endpoints=tcp -h localhost -p 10000:ssl -h localhost -p 10001
 # JDBC configuration.
 JDBC.Username=USER
 JDBC.Password=PASSWORD
+
+#
+# For mysql use the following configuration.
+#
 JDBC.Url=jdbc:mysql://localhost/library
+JDBC.DriverClassName=com.mysql.jdbc.Driver
+
+#
+# For MariaDB use the following configuration.
+#
+#JDBC.Url=jdbc:mariadb://localhost/library
+#JDBC.DriverClassName=org.mariadb.jdbc.Driver
 
 # The number of connections in the JDBC connection pool. This number
 # should be at least as big as the number of the threads in the server

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, TimerTask
+public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, Runnable
 {
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb)
     {
@@ -134,7 +134,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 }
                 if(_timeoutRequestHandler != null)
                 {
-                    _instance.timer().cancel(this);
+                    _future.cancel(false);
+                    _future = null;
                     _timeoutRequestHandler = null;
                 }
                 _state |= Done | OK;
@@ -165,7 +166,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             }
             if(_timeoutRequestHandler != null)
             {
-                _instance.timer().cancel(this);
+                _future.cancel(false);
+                _future = null;
                 _timeoutRequestHandler = null;
             }
         }
@@ -223,7 +225,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
 
                 if(_timeoutRequestHandler != null)
                 {
-                    _instance.timer().cancel(this);
+                    _future.cancel(false);
+                    _future = null;
                     _timeoutRequestHandler = null;
                 }
 
@@ -412,7 +415,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                             int invocationTimeout = _handler.getReference().getInvocationTimeout();
                             if(invocationTimeout > 0)
                             {
-                                _instance.timer().schedule(this, invocationTimeout);
+                                _future = _instance.timer().schedule(this, invocationTimeout,
+                                    java.util.concurrent.TimeUnit.MILLISECONDS);
                                 _timeoutRequestHandler = _handler;
                             }
                         }
@@ -474,7 +478,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     }
 
     public void 
-    runTimerTask()
+    run()
     {
         __runTimerTask();
     }

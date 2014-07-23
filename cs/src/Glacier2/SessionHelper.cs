@@ -20,80 +20,35 @@ namespace Glacier2
 /// </summary>
 public class SessionHelper
 {
-    private class SessionRefreshThread
+    private class SessionRefreshTask : IceInternal.TimerTask
     {
-        public SessionRefreshThread(SessionHelper session, Glacier2.RouterPrx router, int period)
+        public SessionRefreshTask(SessionHelper session, Glacier2.RouterPrx router)
         {
             _session = session;
             _router = router;
-            _period = period;
-            _done = false;
         }
 
         public void
-        run()
+        runTimerTask()
         {
-            lock(this)
+            try
             {
-                while(true)
-                {
-                    try
+                _router.begin_refreshSession().whenCompleted(
+                    (Ice.Exception ex) => 
                     {
-                        _router.begin_refreshSession().whenCompleted(
-                                            (Ice.Exception ex) => 
-                                                        {
-                                                            this.done();
-                                                            _session.destroy();
-                                                        });
-                    }
-                    catch(Ice.CommunicatorDestroyedException)
-                    {
-                        //
-                        // AMI requests can raise CommunicatorDestroyedException directly.
-                        //
-                        break;
-                    }
-
-                    if(!_done)
-                    {
-#if COMPACT || SILVERLIGHT
-                        System.Threading.Monitor.Wait(this, _period);
-#else
-                        try
-                        {
-                            System.Threading.Monitor.Wait(this, _period);
-                        }
-                        catch(ThreadInterruptedException)
-                        {
-                        }
-#endif
-                    }
-
-                    if(_done)
-                    {
-                        break;
-                    }
-                }
+                        _session.destroy();
+                    });
             }
-        }
-
-        public void
-        done()
-        {
-            lock(this)
+            catch(Ice.CommunicatorDestroyedException)
             {
-                if(!_done)
-                {
-                    _done = true;
-                    System.Threading.Monitor.Pulse(this);
-                }
+                //
+                // AMI requests can raise CommunicatorDestroyedException directly.
+                //
             }
         }
 
         private SessionHelper _session;
         private Glacier2.RouterPrx _router;
-        private int _period;
-        private bool _done = false;
     }
 
     private class ConnectionCallbackI : Ice.ConnectionCallback
@@ -300,10 +255,10 @@ public class SessionHelper
     {
         lock(this)
         {
-            connectImpl(delegate(RouterPrx router)
-                            {
-                                return router.createSessionFromSecureConnection(context);
-                            });
+            connectImpl((RouterPrx router) =>
+                {
+                    return router.createSessionFromSecureConnection(context);
+                });
         }
     }
 
@@ -321,10 +276,10 @@ public class SessionHelper
     {
         lock(this)
         {
-            connectImpl(delegate(RouterPrx router)
-                            {
-                                return router.createSession(username, password, context);
-                            });
+            connectImpl((RouterPrx router) =>
+                {
+                    return router.createSession(username, password, context);
+                });
         }
     }
 
@@ -369,7 +324,6 @@ public class SessionHelper
             _session = session;
             _connected = true;
 
-            Debug.Assert(_sessionRefresh == null);
             if(acmTimeout > 0)
             {
                 Ice.Connection connection = _router.ice_getCachedConnection();
@@ -379,23 +333,22 @@ public class SessionHelper
             }
             else if(sessionTimeout > 0)
             {
-                _sessionRefresh = new SessionRefreshThread(this, _router, (int)(sessionTimeout * 1000)/2);
-                _refreshThread = new Thread(new ThreadStart(_sessionRefresh.run));
-                _refreshThread.Start();
+                IceInternal.Timer timer = IceInternal.Util.getInstance(communicator()).timer();
+                timer.scheduleRepeated(new SessionRefreshTask(this, _router), (sessionTimeout * 1000)/2);
             }
         }
 
-        dispatchCallback(delegate()
-                         {
-                             try
-                             {
-                                 _callback.connected(this);
-                             }
-                             catch(Glacier2.SessionNotExistException)
-                             {
-                                 destroy();
-                             }
-                         }, conn);
+        dispatchCallback(() =>
+            {
+                try
+                {
+                    _callback.connected(this);
+                }
+                catch(Glacier2.SessionNotExistException)
+                {
+                    destroy();
+                }
+            }, conn);
     }
 
     private void
@@ -403,7 +356,6 @@ public class SessionHelper
     {
         Glacier2.RouterPrx router;
         Ice.Communicator communicator;
-        SessionRefreshThread sessionRefresh;
         lock(this)
         {
             Debug.Assert(_destroy);
@@ -417,9 +369,6 @@ public class SessionHelper
             communicator = _communicator;
 
             Debug.Assert(communicator != null);
-
-            sessionRefresh = _sessionRefresh;
-            _sessionRefresh = null;
         }
 
         try
@@ -446,28 +395,6 @@ public class SessionHelper
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
 
-        if(sessionRefresh != null)
-        {
-            sessionRefresh.done();
-            while(true)
-            {
-#if COMPACT || SILVERLIGHT
-                _refreshThread.Join();
-                break;
-#else
-                try
-                {
-                    _refreshThread.Join();
-                    break;
-                }
-                catch(ThreadInterruptedException)
-                {
-                }
-#endif
-            }
-            _refreshThread = null;
-        }
-
 
         try
         {
@@ -478,10 +405,10 @@ public class SessionHelper
         }
 
         // Notify the callback that the session is gone.
-        dispatchCallback(delegate()
-                         {
-                             _callback.disconnected(this);
-                         }, null);
+        dispatchCallback(() =>
+            {
+                _callback.disconnected(this);
+            }, null);
     }
 
     delegate Glacier2.SessionPrx ConnectStrategy(Glacier2.RouterPrx router);
@@ -499,9 +426,9 @@ public class SessionHelper
         {
             _destroy = true;
             new Thread(
-                new ThreadStart(delegate()
+                new ThreadStart(() =>
                     {
-                        dispatchCallback(delegate()
+                        dispatchCallback(() =>
                             {
                                 _callback.connectFailed(this, ex);
                             }, 
@@ -510,14 +437,14 @@ public class SessionHelper
             return;
         }
 
-        new Thread(new ThreadStart(delegate()
+        new Thread(new ThreadStart(() =>
         {
                 try
                 {
-                    dispatchCallbackAndWait(delegate()
-                                            {
-                                                _callback.createdCommunicator(this);
-                                            });
+                    dispatchCallbackAndWait(() =>
+                        {
+                            _callback.createdCommunicator(this);
+                        });
 
                     Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
                         _communicator.getDefaultRouter());
@@ -533,10 +460,10 @@ public class SessionHelper
                     catch(Exception)
                     {
                     }
-                    dispatchCallback(delegate()
-                                     {
-                                         _callback.connectFailed(this, ex);
-                                     }, null);
+                    dispatchCallback(() =>
+                        {
+                            _callback.connectFailed(this, ex);
+                        }, null);
                 }
         })).Start();
     }
@@ -570,11 +497,11 @@ public class SessionHelper
         if(_initData.dispatcher != null)
         {
             EventWaitHandle h = new ManualResetEvent(false);
-            _initData.dispatcher(delegate()
-                                 {
-                                     callback();
-                                     h.Set();
-                                 }, null);
+            _initData.dispatcher(() =>
+                {
+                    callback();
+                    h.Set();
+                }, null);
             h.WaitOne();
         }
         else
@@ -591,8 +518,6 @@ public class SessionHelper
     private bool _connected = false;
     private string _category;
 
-    private SessionRefreshThread _sessionRefresh;
-    private Thread _refreshThread;
     private readonly SessionCallback _callback;
     private bool _destroy = false;
 }

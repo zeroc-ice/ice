@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-class ReapThread extends Thread
+class ReapTask implements Runnable
 {
     static class SessionProxyPair
     {
@@ -32,7 +32,7 @@ class ReapThread extends Thread
         SessionI session;
     }
 
-    ReapThread(Ice.Logger logger, long timeout)
+    ReapTask(Ice.Logger logger, long timeout)
     {
         _logger = logger;
         _timeout = timeout;
@@ -41,50 +41,36 @@ class ReapThread extends Thread
     synchronized public void
     run()
     {
-        while(!_terminated)
+        java.util.Iterator<SessionProxyPair> p = _sessions.iterator();
+        while(p.hasNext())
         {
+            SessionProxyPair s = p.next();
             try
             {
-                wait((_timeout / 2) * 1000);
-            }
-            catch(InterruptedException e)
-            {
-            }
-
-            if(!_terminated)
-            {
-                java.util.Iterator<SessionProxyPair> p = _sessions.iterator();
-                while(p.hasNext())
+                //
+                // Session destruction may take time in a
+                // real-world example. Therefore the current time
+                // is computed for each iteration.
+                //
+                if((System.currentTimeMillis() - s.session.timestamp()) > _timeout * 1000)
                 {
-                    SessionProxyPair s = p.next();
-                    try
+                    _logger.trace("ReapTask", "The session " +
+                                  s.proxy.ice_getCommunicator().identityToString(s.proxy.ice_getIdentity()) +
+                                  " has timed out.");
+                    if(s.proxy != null)
                     {
-                        //
-                        // Session destruction may take time in a
-                        // real-world example. Therefore the current time
-                        // is computed for each iteration.
-                        //
-                        if((System.currentTimeMillis() - s.session.timestamp()) > _timeout * 1000)
-                        {
-                            _logger.trace("ReapThread", "The session " +
-                                          s.proxy.ice_getCommunicator().identityToString(s.proxy.ice_getIdentity()) +
-                                          " has timed out.");
-                            if(s.proxy != null)
-                            {
-                                s.proxy.destroy();
-                            }
-                            else
-                            {
-                                s.glacier2proxy.destroy();
-                            }
-                            p.remove();
-                        }
+                        s.proxy.destroy();
                     }
-                    catch(Ice.ObjectNotExistException e)
+                    else
                     {
-                        p.remove();
+                        s.glacier2proxy.destroy();
                     }
+                    p.remove();
                 }
+            }
+            catch(Ice.ObjectNotExistException e)
+            {
+                p.remove();
             }
         }
     }
@@ -92,9 +78,6 @@ class ReapThread extends Thread
     synchronized public void
     terminate()
     {
-        _terminated = true;
-        notify();
-
         // Destroy each of the sessions, releasing any resources they
         // may hold. This calls directly on the session, not via the
         // proxy since terminate() is called after the communicator is
@@ -119,8 +102,7 @@ class ReapThread extends Thread
         _sessions.add(new SessionProxyPair(proxy, session));
     }
 
-    private final long _timeout; // Seconds.
+    private final long _timeout;
     private Ice.Logger _logger;
-    private boolean _terminated = false;
     private java.util.List<SessionProxyPair> _sessions = new java.util.LinkedList<SessionProxyPair>();
 }

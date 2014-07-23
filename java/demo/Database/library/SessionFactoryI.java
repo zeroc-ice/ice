@@ -33,7 +33,7 @@ class SessionFactoryI extends _SessionFactoryDisp
         return _timeout;
     }
 
-    SessionFactoryI(Ice.Logger logger, ReapThread reaper, long timeout)
+    SessionFactoryI(Ice.Logger logger, ReapTask reaper, long timeout)
     {
         _logger = logger;
         _reaper = reaper;
@@ -41,6 +41,6 @@ class SessionFactoryI extends _SessionFactoryDisp
     }
 
     private Ice.Logger _logger;
-    private ReapThread _reaper;
+    private ReapTask _reaper;
     private long _timeout;
 }

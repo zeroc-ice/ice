@@ -14,82 +14,6 @@ package Glacier2;
  */
 public class SessionHelper
 {
-    private class SessionRefreshThread extends Thread
-    {
-        SessionRefreshThread(Glacier2.RouterPrx router, long period)
-        {
-            _router = router;
-            _period = period;
-            _done = false;
-        }
-
-        synchronized public void
-        run()
-        {
-            while(true)
-            {
-                try
-                {
-                    _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
-                    {
-                        public void response()
-                        {
-                        }
-
-                        public void exception(Ice.LocalException ex)
-                        {
-                            done();
-                            SessionHelper.this.destroy();
-                        }
-
-                        public void exception(Ice.UserException ex)
-                        {
-                            done();
-                            SessionHelper.this.destroy();
-                        }
-                    });
-                }
-                catch(Ice.CommunicatorDestroyedException ex)
-                {
-                    //
-                    // AMI requests can raise CommunicatorDestroyedException directly.
-                    //
-                    break;
-                }
-
-                if(!_done)
-                {
-                    try
-                    {
-                        wait(_period);
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
-                }
-
-                if(_done)
-                {
-                    break;
-                }
-            }
-        }
-
-        synchronized public void
-        done()
-        {
-            if(!_done)
-            {
-                _done = true;
-                notify();
-            }
-        }
-
-        private final Glacier2.RouterPrx _router;
-        private final long _period;
-        private boolean _done = false;
-    }
-
     private class ConnectionCallbackI implements Ice.ConnectionCallback
     {
         public ConnectionCallbackI(SessionHelper sessionHelper)
@@ -381,7 +305,6 @@ public class SessionHelper
             _session = session;
             _connected = true;
 
-            assert _refreshThread == null;
             if(acmTimeout > 0)
             {
                 Ice.Connection connection = _router.ice_getCachedConnection();
@@ -393,8 +316,38 @@ public class SessionHelper
             }
             else if(sessionTimeout > 0)
             {
-                _refreshThread = new SessionRefreshThread(_router, (sessionTimeout * 1000)/2);
-                _refreshThread.start();
+                java.util.concurrent.ScheduledExecutorService timer =
+                    IceInternal.Util.getInstance(_communicator).timer();
+                //
+                // We don't need to cancel the task as the communicator is destroyed at the end and
+                // ContinueExistingPeriodicTasksAfterShutdownPolicy is false.
+                //
+                timer.scheduleAtFixedRate(new Runnable()
+                    {
+                        public void run()
+                        {
+                            _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
+                            {
+                                public void response()
+                                {
+                                }
+
+                                public void exception(Ice.LocalException ex)
+                                {
+                                    SessionHelper.this.destroy();
+                                }
+
+                                public void exception(Ice.UserException ex)
+                                {
+                                    SessionHelper.this.destroy();
+                                }
+                            });
+                            //
+                            // AMI requests can raise CommunicatorDestroyedException directly. We let this
+                            // out of the task and terminate the timer.
+                            //
+                        }
+                    }, sessionTimeout / 2, sessionTimeout / 2, java.util.concurrent.TimeUnit.SECONDS);
             }
 
             _shutdownHook = new Thread("Shutdown hook")
@@ -445,7 +398,6 @@ public class SessionHelper
         assert _destroy;
         Glacier2.RouterPrx router = null;
         Ice.Communicator communicator = null;
-        SessionRefreshThread refreshThread = null;
         synchronized(this)
         {
             if(_router == null)
@@ -455,9 +407,6 @@ public class SessionHelper
 
             router = _router;
             _router = null;
-
-            refreshThread = _refreshThread;
-            _refreshThread = null;
 
             communicator = _communicator;
             _communicator = null;
@@ -487,22 +436,6 @@ public class SessionHelper
             // Not expected.
             //
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
-        }
-
-        if(refreshThread != null)
-        {
-            refreshThread.done();
-            while(true)
-            {
-                try
-                {
-                    refreshThread.join();
-                    break;
-                }
-                catch(InterruptedException e)
-                {
-                }
-            }
         }
 
         try
@@ -639,7 +572,6 @@ public class SessionHelper
     private Glacier2.SessionPrx _session;
     private String _category;
 
-    private SessionRefreshThread _refreshThread;
     private final SessionCallback _callback;
     private boolean _destroy = false;
     private boolean _connected = false;

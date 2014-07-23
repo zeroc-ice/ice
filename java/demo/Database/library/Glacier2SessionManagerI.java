@@ -27,12 +27,12 @@ class Glacier2SessionManagerI extends Glacier2._SessionManagerDisp
         return proxy;
     }
 
-    Glacier2SessionManagerI(Ice.Logger logger, ReapThread reaper)
+    Glacier2SessionManagerI(Ice.Logger logger, ReapTask reaper)
     {
         _logger = logger;
         _reaper = reaper;
     }
 
     private Ice.Logger _logger;
-    private ReapThread _reaper;
+    private ReapTask _reaper;
 }

@@ -261,9 +261,41 @@ public class SessionKeeper
             }
             else
             {
-                _thread = new Pinger(_session, sessionTimeout * 1000 / 2);
-                _thread.setDaemon(true);
-                _thread.start();
+                _keepAliveFuture = _coordinator.getExecutor().scheduleAtFixedRate(new Runnable() {
+                    private void error(final Exception e)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                sessionLost("Failed to contact the IceGrid registry: " + e.toString());
+                            }
+                        });
+                    }
+
+                    public void run()
+                    {
+                        _session.begin_keepAlive(new Callback_AdminSession_keepAlive()
+                            {
+                                public void
+                                response()
+                                {
+                                }
+
+                                public void
+                                exception(Ice.LocalException ex)
+                                {
+                                    error(ex);
+                                }
+
+                                public void
+                                exception(Ice.UserException ex)
+                                {
+                                    error(ex);
+                                }
+                            });
+                    }
+                }, sessionTimeout / 2, sessionTimeout / 2, java.util.concurrent.TimeUnit.SECONDS);
             }
 
             try
@@ -396,9 +428,10 @@ public class SessionKeeper
 
         void close(boolean destroySession)
         {
-            if(_thread != null)
+            if(_keepAliveFuture != null)
             {
-                _thread.done();
+                _keepAliveFuture.cancel(false);
+                _keepAliveFuture = null;
             }
 
             if(_adapter != null)
@@ -538,7 +571,7 @@ public class SessionKeeper
         private final AdminSessionPrx _session;
         private final boolean _routed;
 
-        private Pinger _thread;
+        private java.util.concurrent.Future<?> _keepAliveFuture;
 
         private Ice.ObjectAdapter _adapter;
         private AdminPrx _admin;
@@ -4426,94 +4459,6 @@ public class SessionKeeper
         private KeyStorePanel _identityCertificatesPanel;
         private KeyStorePanel _serverCertificatesPanel;
         private KeyStorePanel _authorityCertificatesPanel;
-    }
-
-    //
-    // We create a brand new Pinger thread for each session
-    //
-    class Pinger extends Thread
-    {
-        Pinger(AdminSessionPrx session, long period)
-        {
-            super("Pinger");
-
-            _session = session;
-            _period = period;
-
-            if(_period <= 0)
-            {
-                _period = 5000;
-            }
-        }
-
-        public void run()
-        {
-            boolean done = false;
-
-            do
-            {
-                synchronized(this)
-                {
-                    done = _done;
-                }
-
-                if(!done)
-                {
-                    try
-                    {
-                        _session.keepAlive();
-                    }
-                    catch(final Exception e)
-                    {
-                        synchronized(this)
-                        {
-                            done = _done;
-                            _done = true;
-                        }
-
-                        if(!done)
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                                {
-                                    public void run()
-                                    {
-                                        sessionLost("Failed to contact the IceGrid registry: " + e.toString());
-                                    }
-                                });
-                        }
-                    }
-                }
-
-                synchronized(this)
-                {
-                    if(!_done)
-                    {
-                        try
-                        {
-                            wait(_period);
-                        }
-                        catch(InterruptedException e)
-                        {
-                            // Ignored
-                        }
-                    }
-                    done = _done;
-                }
-            } while(!done);
-        }
-
-        public synchronized void done()
-        {
-            if(!_done)
-            {
-                _done = true;
-                notify();
-            }
-        }
-
-        private AdminSessionPrx _session;
-        private long _period;
-        private boolean _done = false;
     }
 
     SessionKeeper(Coordinator coordinator)

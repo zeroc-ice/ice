@@ -114,8 +114,9 @@ public abstract class Application : Ice.Application
     /// <summary>
     /// Called when the session refresh thread detects that the session has been
     /// destroyed. A subclass can override this method to take action after the
-    /// loss of connectivity with the Glacier2 router. This method is always
-    /// called from the session refresh thread.
+    /// loss of connectivity with the Glacier2 router. This method is called
+    /// according to the Ice invocation dipsatch rules (in other words, it
+    /// uses the same rules as an servant upcall or AMI callback).
     /// </summary>
     public virtual void
     sessionDestroyed()
@@ -204,65 +205,40 @@ public abstract class Application : Ice.Application
         return _adapter;
     }
 
-    private class SessionPingThread
+    private class SessionRefreshTask : IceInternal.TimerTask
     {
-        public SessionPingThread(Application app, Glacier2.RouterPrx router, long period)
+        public SessionRefreshTask(Application app, Glacier2.RouterPrx router)
         {
             _app = app;
             _router = router;
-            _period = period;
-            _done = false;
         }
 
         public void
-        run()
+        runTimerTask()
         {
-            lock(this)
+            try
             {
-                while(!_done)
-                {
-                    try
-                    {
-                        _router.begin_refreshSession().whenCompleted(
-                                                    (Ice.Exception ex) => 
-                                                        {
-                                                            this.done();
-                                                            _app.sessionDestroyed();
-                                                        });
-                    }
-                    catch(Ice.CommunicatorDestroyedException)
+                _router.begin_refreshSession().whenCompleted(
+                    (Ice.Exception ex) => 
                     {
                         //
-                        // AMI requests can raise CommunicatorDestroyedException directly.
+                        // Here the session has been destroyed. Notify the
+                        // application that the session has been destroyed.
                         //
-                        break;
-                    }
-
-                    if(!_done)
-                    {
-                        System.Threading.Monitor.Wait(this, (int)_period);
-                    }
-                }
+                        _app.sessionDestroyed();
+                    });
             }
-        }
-
-        public void
-        done()
-        {
-            lock(this)
+            catch(Ice.CommunicatorDestroyedException)
             {
-                if(!_done)
-                {
-                    _done = true;
-                    System.Threading.Monitor.PulseAll(this);
-                }
+                //
+                // AMI requests can raise CommunicatorDestroyedException
+                // directly.
+                //
             }
         }
 
         private Application _app;
         private Glacier2.RouterPrx _router;
-        private long _period;
-        private bool _done = false;
     }
 
     private class ConnectionCallbackI : Ice.ConnectionCallback
@@ -326,8 +302,6 @@ public abstract class Application : Ice.Application
         bool restart = false;
         status = 0;
 
-        SessionPingThread ping = null;
-        Thread pingThread = null;
         try
         {
             communicator__ = Ice.Util.initialize(ref args, initData);
@@ -384,9 +358,8 @@ public abstract class Application : Ice.Application
                         long timeout = _router.getSessionTimeout();
                         if(timeout > 0)
                         {
-                            ping = new SessionPingThread(this, _router, (timeout * 1000) / 2);
-                            pingThread = new Thread(new ThreadStart(ping.run));
-                            pingThread.Start();
+                            IceInternal.Timer timer = IceInternal.Util.getInstance(communicator()).timer();
+                            timer.scheduleRepeated(new SessionRefreshTask(this, _router), (timeout * 1000) / 2);
                         }
                     }
                     _category = _router.getCategoryForClient();
@@ -470,29 +443,6 @@ public abstract class Application : Ice.Application
                 // any remaining callback won't do anything
                 //
             }
-        }
-
-        if(ping != null)
-        {
-            ping.done();
-            ping = null;
-            while(true)
-            {
-#if COMPACT
-                pingThread.Join();
-                break;
-#else
-                try
-                {
-                    pingThread.Join();
-                    break;
-                }
-                catch(ThreadInterruptedException)
-                {
-                }
-#endif
-            }
-            pingThread = null;
         }
 
         if(_createdSession && _router != null)

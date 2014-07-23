@@ -11,7 +11,7 @@ import Demo.*;
 
 class SessionFactoryI extends _SessionFactoryDisp
 {
-    SessionFactoryI(ReapThread reaper)
+    SessionFactoryI(ReapTask reaper)
     {
         _reaper = reaper;
     }
@@ -32,5 +32,5 @@ class SessionFactoryI extends _SessionFactoryDisp
         c.adapter.getCommunicator().shutdown();
     }
 
-    private ReapThread _reaper;
+    private ReapTask _reaper;
 }

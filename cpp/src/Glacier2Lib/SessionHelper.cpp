@@ -54,27 +54,6 @@ private:
     const Glacier2::SessionCallbackPtr _callback;
 };
 
-class SessionRefreshThread : public IceUtil::Thread
-{
-
-public:
-    
-    SessionRefreshThread(const Glacier2::SessionHelperPtr&, const Glacier2::RouterPrx&, Ice::Long);
-    virtual void run();
-    void done();
-    void success();
-    void failure(const Ice::Exception&);
-    
-private:
-    
-    const Glacier2::SessionHelperPtr _session;
-    const Glacier2::RouterPrx _router;
-    Ice::Long _period;
-    bool _done;
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-};
-typedef IceUtil::Handle<SessionRefreshThread> SessionRefreshThreadPtr;
-
 class SessionHelperI : public Glacier2::SessionHelper
 {
     
@@ -115,7 +94,6 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     Glacier2::RouterPrx _router;
     Glacier2::SessionPrx _session;
-    SessionRefreshThreadPtr _refreshThread;
     std::string _category;
     bool _connected;
     bool _destroy;
@@ -124,64 +102,44 @@ private:
 };
 typedef IceUtil::Handle<SessionHelperI> SessionHelperIPtr;
 
-SessionRefreshThread::SessionRefreshThread(const Glacier2::SessionHelperPtr& session, 
-                                           const Glacier2::RouterPrx& router, Ice::Long period) :
-    _session(session),
-    _router(router),
-    _period(period),
-    _done(false)
+class SessionRefreshTask : public IceUtil::TimerTask
 {
-}
+public:
 
-void
-SessionRefreshThread::run()
-{
-    Glacier2::Callback_Router_refreshSessionPtr cb = 
-        Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshThread::failure);
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    while(true)
+    SessionRefreshTask(const Glacier2::SessionHelperPtr& session, const Glacier2::RouterPrx& router) :
+        _session(session),
+        _router(router),
+        _callback(Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshTask::exception))
+    {
+    }
+
+    virtual void
+    runTimerTask()
     {
         try
         {
-            _router->begin_refreshSession(cb);
+            _router->begin_refreshSession(_callback);
         }
         catch(const Ice::CommunicatorDestroyedException&)
         {
             //
             // AMI requests can raise CommunicatorDestroyedException directly.
             //
-            break;
-        }
-
-        if(!_done)
-        {
-            _monitor.timedWait(IceUtil::Time::seconds(_period));
-        }
-
-        if(_done)
-        {
-            break;
         }
     }
-}
 
-void
-SessionRefreshThread::done()
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    if(!_done)
+    void
+    exception(const Ice::Exception&)
     {
-        _done = true;
-        _monitor.notify();
+        _session->destroy();
     }
-}
 
-void
-SessionRefreshThread::failure(const Ice::Exception&)
-{
-    done();
-    _session->destroy();
-}
+private:
+
+    const Glacier2::SessionHelperPtr _session;
+    const Glacier2::RouterPrx _router;
+    const Glacier2::Callback_Router_refreshSessionPtr _callback;
+};
 
 class DestroyInternal : public IceUtil::Thread
 {
@@ -407,16 +365,12 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
     assert(_destroy);
     Ice::CommunicatorPtr communicator;
     Glacier2::RouterPrx router;
-    SessionRefreshThreadPtr refreshThread;
     {
         IceUtil::Mutex::Lock sync(_mutex);
         router = _router;
         _router = 0;
         _connected = false;
 
-        refreshThread = _refreshThread;
-        _refreshThread = 0;
-        
         communicator = _communicator;
     }
     
@@ -449,13 +403,6 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
                 warn << "SessionHelper: unexpected exception when destroying the session:\n" << ex;
             }
         }
-    }
-    
-    if(refreshThread)
-    {
-        refreshThread->done();
-        refreshThread->getThreadControl().join();
-        refreshThread = 0;
     }
     
     if(communicator)
@@ -745,8 +692,6 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
         _session = session;
         _connected = true;
 
-        assert(!_refreshThread);
-        
         if(acmTimeout > 0)
         {
             Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
@@ -756,8 +701,13 @@ SessionHelperI::connected(const Glacier2::RouterPrx& router, const Glacier2::Ses
         }
         else if(sessionTimeout > 0)
         {
-            _refreshThread = new SessionRefreshThread(this, _router, (sessionTimeout)/2);
-            _refreshThread->start();
+            //
+            // Create a ping timer task. The task itself doesn't need to be
+            // canceled as the communicator is destroyed at the end.
+            //
+            IceUtil::TimerPtr timer = IceInternal::getInstanceTimer(communicator());
+            timer->scheduleRepeated(new SessionRefreshTask(this, _router),
+                IceUtil::Time::seconds(sessionTimeout/2));
         }
     }
     dispatchCallback(new Connected(_callback, this), conn);

@@ -28,7 +28,7 @@ import Voip._SessionDisp;
 
 public class Server extends Ice.Application
 {
-    private final ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
+    private final ScheduledThreadPoolExecutor _executor = new ScheduledThreadPoolExecutor(1);
 
     class SessionI extends _SessionDisp
     {
@@ -42,7 +42,7 @@ public class Server extends Ice.Application
 
         public void simulateCall(int delay, Current current)
         {
-            timer.schedule(new Runnable()
+            _executor.schedule(new Runnable()
             {
                 public void run()
                 {
@@ -107,7 +107,7 @@ public class Server extends Ice.Application
             final long sessionTimeout = 1202;
             final SessionI session = new SessionI();
             final SessionPrx proxy = SessionPrxHelper.uncheckedCast(current.adapter.addWithUUID(session));
-            timer.scheduleWithFixedDelay(new Runnable()
+            _executor.scheduleWithFixedDelay(new Runnable()
                 {
                     public void run()
                     {
@@ -124,7 +124,13 @@ public class Server extends Ice.Application
             return proxy;
         }
     };
-        
+
+    Server()
+    {
+        // We want the executor to shutdown even if there are scheduled tasks.
+        _executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+    }
+
     public int
     run(String[] args)
     {
@@ -139,6 +145,7 @@ public class Server extends Ice.Application
         adapter.add(new SessionManagerI(), communicator().stringToIdentity("VoipSessionManager"));
         adapter.activate();
         communicator().waitForShutdown();
+        _executor.shutdown();
         return 0;
     }
 

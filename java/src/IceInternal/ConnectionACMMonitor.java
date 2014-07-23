@@ -11,7 +11,8 @@ package IceInternal;
 
 class ConnectionACMMonitor implements ACMMonitor
 {
-    ConnectionACMMonitor(FactoryACMMonitor parent, Timer timer, ACMConfig config)
+    ConnectionACMMonitor(FactoryACMMonitor parent, java.util.concurrent.ScheduledExecutorService timer,
+        ACMConfig config)
     {
         _parent = parent;
         _timer = timer;
@@ -42,7 +43,8 @@ class ConnectionACMMonitor implements ACMMonitor
         _connection = connection;
         if(_config.timeout > 0)
         {
-            _timer.scheduleRepeated(this, _config.timeout / 2);
+            _future = _timer.scheduleAtFixedRate(this, _config.timeout / 2, _config.timeout / 2,
+                java.util.concurrent.TimeUnit.MILLISECONDS);
         }
     }
 
@@ -53,7 +55,8 @@ class ConnectionACMMonitor implements ACMMonitor
         _connection = null;
         if(_config.timeout > 0)
         {
-            _timer.cancel(this);
+            _future.cancel(false);
+            _future = null;
         }
     }
     
@@ -80,7 +83,7 @@ class ConnectionACMMonitor implements ACMMonitor
     }
     
     public void
-    runTimerTask()
+    run()
     {
         Ice.ConnectionI connection;
         synchronized(this)
@@ -103,7 +106,8 @@ class ConnectionACMMonitor implements ACMMonitor
     }
 
     final private FactoryACMMonitor _parent;
-    final private Timer _timer;
+    final private java.util.concurrent.ScheduledExecutorService _timer;
+    private java.util.concurrent.Future<?> _future;
     final private ACMConfig _config;
 
     private Ice.ConnectionI _connection;

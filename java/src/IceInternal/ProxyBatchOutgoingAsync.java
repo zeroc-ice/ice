@@ -44,7 +44,8 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
                         int invocationTimeout = handler.getReference().getInvocationTimeout();
                         if(invocationTimeout > 0)
                         {
-                            _instance.timer().schedule(this, invocationTimeout);
+                            _future = _instance.timer().schedule(this, invocationTimeout,
+                                java.util.concurrent.TimeUnit.MILLISECONDS);
                             _timeoutRequestHandler = handler;
                         }
                     }

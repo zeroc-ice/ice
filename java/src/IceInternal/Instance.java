@@ -216,7 +216,7 @@ public final class Instance
         return _retryQueue;
     }
 
-    synchronized public Timer
+    synchronized public java.util.concurrent.ScheduledExecutorService
     timer()
     {
         if(_state == StateDestroyed)
@@ -896,11 +896,33 @@ public final class Instance
         //
         try
         {
-            _timer = new Timer(this);
-            if(initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
-            {
-                _timer.setPriority(Util.getThreadPriorityProperty(initializationData().properties, "Ice"));
-            }
+            java.util.concurrent.ScheduledThreadPoolExecutor executor =
+                new java.util.concurrent.ScheduledThreadPoolExecutor(1,
+                    new java.util.concurrent.ThreadFactory()
+                    {
+                        public Thread newThread(Runnable r)
+                        {
+                            Thread t = new Thread(r);
+                            if(initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
+                            {
+                                final int priority = Util.getThreadPriorityProperty(
+                                    initializationData().properties, "Ice");
+                                t.setPriority(priority);
+                            } 
+
+                            String threadName = initializationData().properties.getProperty("Ice.ProgramName");
+                            if(threadName.length() > 0)
+                            {
+                                threadName += "-";
+                            }
+                            t.setName(threadName + "Ice.Timer");
+
+                            return t;
+                        }
+                    });
+            executor.setRemoveOnCancelPolicy(true);
+            executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+            _timer = executor;
         }
         catch(RuntimeException ex)
         {
@@ -1048,7 +1070,14 @@ public final class Instance
 
             if(_timer != null)
             {
-                _timer._destroy();
+                // Shutdown the executor. It isn't necessary to call
+                // awaitTermination since the threads are not daemon and
+                // therefore the VM will block until all threads have
+                // terminated.
+                _timer.shutdown();
+                // Once we support interrupt we can use shutdownNow.
+                //_timer.shutdownNow();
+                
                 _timer = null;
             }
 
@@ -1238,7 +1267,7 @@ public final class Instance
     private ThreadPool _serverThreadPool;
     private EndpointHostResolver _endpointHostResolver;
     private RetryQueue _retryQueue;
-    private Timer _timer;
+    private java.util.concurrent.ScheduledExecutorService _timer;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
 
