@@ -169,6 +169,8 @@ C++ Changes
   which allow to convert between narrow and wide strings, stringToWstring
   and wstringToString have been deprecated.
 
+- Added ice_staticId() to the ProxyHandle template.
+
 
 C# Changes
 ==========
@@ -188,6 +190,22 @@ Python Changes
 
 - Fixed a bug in the Slice-to-Python translator that eliminates the
   use of implicit relative imports for nested Slice modules.
+
+- Added ice_staticId() to generated proxy classes.
+  
+
+Ruby Changes
+============
+
+- Added ice_staticId() to generated proxy classes.
+  
+
+PHP Changes
+===========
+
+- Added ice_staticId() to generated proxy helper classes.
+
+- Added ObjectPrxHelper class.
 
 
 ======================================================================
