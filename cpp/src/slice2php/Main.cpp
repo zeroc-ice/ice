@@ -186,7 +186,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp << nl << "if(!interface_exists('" << escapeName(abs) << "'))";
         _out << sb;
         _out << nl << "interface " << name;
-        if(!bases.empty())
+        if(bases.empty())
+        {
+            if(!p->isLocal())
+            {
+                _out << " extends " << scopedToName("::Ice::Object", _ns);
+            }
+        }
+        else
         {
             _out << " extends ";
             for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
@@ -213,6 +220,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << ");";
         }
+
         _out << eb;
     }
     else

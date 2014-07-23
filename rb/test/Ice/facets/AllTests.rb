@@ -43,12 +43,44 @@ def allTests(communicator)
     test(db)
     puts "ok"
 
+    print "testing unchecked cast... "
+    STDOUT.flush
+    obj = Ice::ObjectPrx::uncheckedCast(db)
+    test(obj.ice_getFacet() == "")
+    obj = Ice::ObjectPrx::uncheckedCast(db, "facetABCD")
+    test(obj.ice_getFacet() == "facetABCD")
+    obj2 = Ice::ObjectPrx::uncheckedCast(obj)
+    test(obj2.ice_getFacet() == "facetABCD")
+    obj3 = Ice::ObjectPrx::uncheckedCast(obj, "")
+    test(obj3.ice_getFacet() == "")
+    d = Test::DPrx::uncheckedCast(db)
+    test(d.ice_getFacet() == "")
+    df = Test::DPrx::uncheckedCast(db, "facetABCD")
+    test(df.ice_getFacet() == "facetABCD")
+    df2 = Test::DPrx::uncheckedCast(df)
+    test(df2.ice_getFacet() == "facetABCD")
+    df3 = Test::DPrx::uncheckedCast(df, "")
+    test(df3.ice_getFacet() == "")
+    puts "ok"
+
     print "testing checked cast... "
     STDOUT.flush
+    obj = Ice::ObjectPrx::checkedCast(db)
+    test(obj.ice_getFacet() == "")
+    obj = Ice::ObjectPrx::checkedCast(db, "facetABCD")
+    test(obj.ice_getFacet() == "facetABCD")
+    obj2 = Ice::ObjectPrx::checkedCast(obj)
+    test(obj2.ice_getFacet() == "facetABCD")
+    obj3 = Ice::ObjectPrx::checkedCast(obj, "")
+    test(obj3.ice_getFacet() == "")
     d = Test::DPrx::checkedCast(db)
-    test(d)
-    test(d == db)
-    test(Test::DPrx::checkedCast(d, "bogus") == nil)
+    test(d.ice_getFacet() == "")
+    df = Test::DPrx::checkedCast(db, "facetABCD")
+    test(df.ice_getFacet() == "facetABCD")
+    df2 = Test::DPrx::checkedCast(df)
+    test(df2.ice_getFacet() == "facetABCD")
+    df3 = Test::DPrx::checkedCast(df, "")
+    test(df3.ice_getFacet() == "")
     puts "ok"
 
     print "testing non-facets A, B, C, and D... "

@@ -35,7 +35,9 @@ def twoways(communicator, p)
     #
     # Proxy ice_staticId
     #
-    test(Test::MyDerivedClassPrx::ice_staticId() == Test::MyDerivedClass::ice_staticId())  
+    test(Test::MyClassPrx::ice_staticId() == Test::MyClass::ice_staticId())
+    test(Test::MyDerivedClassPrx::ice_staticId() == Test::MyDerivedClass::ice_staticId())
+    test(Ice::ObjectPrx::ice_staticId() == Ice::Object::ice_staticId())
 
     #
     # opVoid

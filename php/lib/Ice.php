@@ -87,6 +87,24 @@ abstract class Ice_ObjectImpl implements Ice_Object
     }
 }
 
+class Ice_ObjectPrxHelper
+{
+    public static function checkedCast($proxy, $facetOrCtx=null, $ctx=null)
+    {
+        return $proxy->ice_checkedCast('::Ice::Object', $facetOrCtx, $ctx);
+    }
+
+    public static function uncheckedCast($proxy, $facet=null)
+    {
+        return $proxy->ice_uncheckedCast('::Ice::Object', $facet);
+    }
+
+    public static function ice_staticId()
+    {
+        return '::Ice::Object';
+    }
+}
+
 $Ice__t_Object = IcePHP_defineClass('::Ice::Object', "Ice_Object", -1, true, false, null, null, null);
 $Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Object);
 $Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "Ice_LocalObject", -1, true, false, null, null, null);

@@ -2294,6 +2294,15 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
     }
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceStaticId(PyObject* /*self*/)
+{
+    return createString(Ice::Object::ice_staticId());
+}
+
 static PyMethodDef ProxyMethods[] =
 {
     { STRCAST("ice_getCommunicator"), reinterpret_cast<PyCFunction>(proxyIceGetCommunicator), METH_NOARGS,
@@ -2440,6 +2449,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("checkedCast(proxy) -> proxy")) },
     { STRCAST("uncheckedCast"), reinterpret_cast<PyCFunction>(proxyUncheckedCast), METH_VARARGS | METH_STATIC,
         PyDoc_STR(STRCAST("uncheckedCast(proxy) -> proxy")) },
+    { STRCAST("ice_staticId"), reinterpret_cast<PyCFunction>(proxyIceStaticId), METH_NOARGS | METH_STATIC,
+        PyDoc_STR(STRCAST("ice_staticId() -> string")) },
     { 0, 0 } /* sentinel */
 };
 

@@ -31,6 +31,8 @@ function test($b)
 
 function allTests($communicator)
 {
+    global $NS;
+
     echo "testing stringToProxy... ";
     flush();
     $ref = "d:default -p 12010";
@@ -38,12 +40,47 @@ function allTests($communicator)
     test($db != null);
     echo "ok\n";
 
+    $objectHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
+    $dHelper = $NS ? "Test\\DPrxHelper" : "Test_DPrxHelper";
+
+    echo "testing unchecked cast... ";
+    flush();
+    $prx = $objectHelper::uncheckedCast($db);
+    test($prx->ice_getFacet() == "");
+    $prx = $objectHelper::uncheckedCast($db, "facetABCD");
+    test($prx->ice_getFacet() == "facetABCD");
+    $prx2 = $objectHelper::uncheckedCast($prx);
+    test($prx2->ice_getFacet() == "facetABCD");
+    $prx3 = $objectHelper::uncheckedCast($prx, "");
+    test($prx3->ice_getFacet() == "");
+    $d = $dHelper::uncheckedCast($db);
+    test($d->ice_getFacet() == "");
+    $df = $dHelper::uncheckedCast($db, "facetABCD");
+    test($df->ice_getFacet() == "facetABCD");
+    $df2 = $dHelper::uncheckedCast($df);
+    test($df2->ice_getFacet() == "facetABCD");
+    $df3 = $dHelper::uncheckedCast($df, "");
+    test($df3->ice_getFacet() == "");
+    echo "ok\n";
+
     echo "testing checked cast... ";
     flush();
-    $d = $db->ice_checkedCast("::Test::D");
-    test($d != null);
-    test($d == $db);
-    test($db->ice_checkedCast("::Test::D", "bogus") == null);
+    $prx = $objectHelper::checkedCast($db);
+    test($prx->ice_getFacet() == "");
+    $prx = $objectHelper::checkedCast($db, "facetABCD");
+    test($prx->ice_getFacet() == "facetABCD");
+    $prx2 = $objectHelper::checkedCast($prx);
+    test($prx2->ice_getFacet() == "facetABCD");
+    $prx3 = $objectHelper::checkedCast($prx, "");
+    test($prx3->ice_getFacet() == "");
+    $d = $dHelper::checkedCast($db);
+    test($d->ice_getFacet() == "");
+    $df = $dHelper::checkedCast($db, "facetABCD");
+    test($df->ice_getFacet() == "facetABCD");
+    $df2 = $dHelper::checkedCast($df);
+    test($df2->ice_getFacet() == "facetABCD");
+    $df3 = $dHelper::checkedCast($df, "");
+    test($df3->ice_getFacet() == "");
     echo "ok\n";
 
     echo "testing non-facets A, B, C, and D... ";

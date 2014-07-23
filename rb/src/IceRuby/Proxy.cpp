@@ -18,7 +18,6 @@
 #include <Ice/Proxy.h>
 #include <Ice/Router.h>
 
-
 using namespace std;
 using namespace IceRuby;
 
@@ -1198,6 +1197,18 @@ IceRuby_ObjectPrx_ice_uncheckedCast(VALUE self, VALUE obj, VALUE facet)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_staticId(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        return createString(Ice::Object::ice_staticId());
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE self)
 {
     ICE_RUBY_TRY
@@ -1288,6 +1299,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_singleton_method(_proxyClass, "uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_uncheckedCast), -1);
     rb_define_singleton_method(_proxyClass, "ice_checkedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_checkedCast), 4);
     rb_define_singleton_method(_proxyClass, "ice_uncheckedCast", CAST_METHOD(IceRuby_ObjectPrx_ice_uncheckedCast), 2);
+    rb_define_singleton_method(_proxyClass, "ice_staticId", CAST_METHOD(IceRuby_ObjectPrx_ice_staticId), 0);
     rb_define_singleton_method(_proxyClass, "new", CAST_METHOD(IceRuby_ObjectPrx_new), -1);
 }
 
