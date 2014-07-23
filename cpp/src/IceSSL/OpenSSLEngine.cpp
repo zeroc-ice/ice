@@ -694,7 +694,7 @@ OpenSSLEngine::initialize()
         // Determine whether a certificate is required from the peer.
         //
         {
-            int sslVerifyMode;
+	    int sslVerifyMode = SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
             switch(getVerifyPeer())
             {
                 case 0:

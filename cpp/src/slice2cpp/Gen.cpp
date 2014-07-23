@@ -1974,96 +1974,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         H << epar << ">& __response, "
           << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception, "
-          << "const ::IceInternal::Function<void (bool)>& __sent" << epar;
-        H << sb;
-        H << nl << "class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC";
-        H << sb;
-        H.dec();
-        H << nl << "public:";
-        H.inc();
-        H << sp << nl << "Cpp11CB" << spar << "const ::std::function<void " << spar;
-        if(!retInS.empty())
-        {
-            H << retInS;
-        }
-        H << outDecls;
-        H << epar << ">& responseFunc, "
-          << "const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, "
-          << "const ::std::function<void (bool)>& sentFunc" << epar << " :";
-        H.inc();
-        H << nl << "::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),";
-        H << nl << "_response(responseFunc)";
-        H.dec();
-        H << sb;
-        H << nl << "CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);";
-        H << eb;
-        
-        //
-        // completed.
-        //
-        H << sp << nl << "virtual void __completed(const ::Ice::AsyncResultPtr& __result) const";
-        H << sb;
-        H << nl << clScope << clName << "Prx __proxy = " << clScope << clName 
-          << "Prx::uncheckedCast(__result->getProxy());";
-        writeAllocateCode(H, outParams, p, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
-        H << nl << "try";
-        H << sb;
-        H << nl;
-        if(!usePrivateEnd(p))
-        {
-            if(ret)
-            {
-                H << retEndArg << " = ";
-            }
-            H << "__proxy->end_" << p->name() << spar << outEndArgs << "__result" << epar << ';';
-        }
-        else
-        {
-            H << "__proxy->___end_" << p->name() << spar << outEndArgs;
-            if(ret)
-            {
-                H << retEndArg;
-            }
-            H << "__result" << epar << ';';
-        }
-        writeEndCode(H, outParams, p);
-        H << eb;
-        H << nl << "catch(::Ice::Exception& ex)";
-        H << sb;
-        H << nl << "Cpp11FnCallbackNC::__exception(__result, ex);";
-        H << nl << "return;";
-        H << eb;
-        H << nl << "if(_response != nullptr)";
-        H << sb;
-        H << nl << "_response" << spar;
-        if(ret)
-        {
-            H << "__ret";
-        }
-        H << outParamNamesAMI;
-        H << epar << ';';
-        H << eb;
-        H << eb;
-        
-        H.dec();
-        H << nl << nl << "private:";
-        H.inc();
-        H << nl;
-        H << nl << "::std::function<void " << spar;
+          << "const ::IceInternal::Function<void (bool)>& __sent" << epar << ";";
 
-        if(!retInS.empty())
-        {
-            H << retInS;
-        }
-        H << outDecls;
-
-        H << epar << "> _response;";
-        
-        H << eb << ';';
-        
-        H << nl << "return begin_" << name << spar << argsAMI << "__ctx" << "new Cpp11CB(__response, __exception, __sent)" 
-          << epar << ';';
-        H << eb;
         H << nl;
         H.dec();
         H << nl << "public:";
@@ -2295,6 +2207,140 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "return __result;";
     C << eb;
+
+    if(p->returnsData())
+    {
+        C << nl << nl << "#ifdef ICE_CPP11";
+
+        //
+        // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+        // lack of variadic templates.
+        //
+        if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
+        {
+            
+            C << nl << "#if !defined(_MSC_VER) || _MSC_VER > 1700";
+            
+            C << nl << "//";
+            C << nl << "// COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with";
+            C << nl << "// std::function due to lack of variadic templates.";
+            C << nl << "//";
+        }
+      
+        C << sp << nl << "::Ice::AsyncResultPtr" << nl 
+          << "IceProxy" << scope << "__begin_" <<  name << spar << paramsDeclAMI
+          << "const ::Ice::Context* __ctx" << "const ::IceInternal::Function<void " << spar;
+        
+        if(!retInS.empty())
+        {
+            C << retInS;
+        }
+        C << outDecls;
+        
+        C << epar << ">& __response, "
+          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception, "
+          << "const ::IceInternal::Function<void (bool)>& __sent" << epar;
+        
+        C << sb;
+        C << nl << "class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC";
+        C << sb;
+        C.dec();
+        C << nl << "public:";
+        C.inc();
+        C << sp << nl << "Cpp11CB" << spar << "const ::std::function<void " << spar;
+        if(!retInS.empty())
+        {
+            C << retInS;
+        }
+        C << outDecls;
+        C << epar << ">& responseFunc, "
+          << "const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, "
+          << "const ::std::function<void (bool)>& sentFunc" << epar << " :";
+        C.inc();
+        C << nl << "::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),";
+        C << nl << "_response(responseFunc)";
+        C.dec();
+        C << sb;
+        C << nl << "CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);";
+        C << eb;
+        
+        //
+        // completed.
+        //
+        C << sp << nl << "virtual void __completed(const ::Ice::AsyncResultPtr& __result) const";
+        C << sb;
+        C << nl << clScope << clName << "Prx __proxy = " << clScope << clName 
+          << "Prx::uncheckedCast(__result->getProxy());";
+        writeAllocateCode(C, outParams, p, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
+        C << nl << "try";
+        C << sb;
+        C << nl;
+        if(!usePrivateEnd(p))
+        {
+            if(ret)
+            {
+                C << retEndArg << " = ";
+            }
+            C << "__proxy->end_" << p->name() << spar << outEndArgs << "__result" << epar << ';';
+        }
+        else
+        {
+            C << "__proxy->___end_" << p->name() << spar << outEndArgs;
+            if(ret)
+            {
+                C << retEndArg;
+            }
+            C << "__result" << epar << ';';
+        }
+        writeEndCode(C, outParams, p);
+        C << eb;
+        C << nl << "catch(::Ice::Exception& ex)";
+        C << sb;
+        C << nl << "Cpp11FnCallbackNC::__exception(__result, ex);";
+        C << nl << "return;";
+        C << eb;
+        C << nl << "if(_response != nullptr)";
+        C << sb;
+        C << nl << "_response" << spar;
+        if(ret)
+        {
+            C << "__ret";
+        }
+        C << outParamNamesAMI;
+        C << epar << ';';
+        C << eb;
+        C << eb;
+        
+        C.dec();
+        C << nl << nl << "private:";
+        C.inc();
+        C << nl;
+        C << nl << "::std::function<void " << spar;
+        
+        if(!retInS.empty())
+        {
+            C << retInS;
+        }
+        C << outDecls;
+        
+        C << epar << "> _response;";
+        
+        C << eb << ';';
+        
+        C << nl << "return begin_" << name << spar << argsAMI << "__ctx" << "new Cpp11CB(__response, __exception, __sent)" 
+          << epar << ';';
+        C << eb;
+
+        //
+        // COMPILERFIX VC compilers up to VC110 don't support more than 10 parameters with std::function due to
+        // lack of variadic templates.
+        //
+        if(outDecls.size() > 10 || (outDecls.size() > 9 && !retInS.empty()))
+        {
+            C << nl << "#endif";
+        }
+        C << nl << "#endif"; // ICE_CPP11
+    }
 
     C << sp << nl << retS << nl << "IceProxy" << scope << "end_" << name << spar << outParamsDeclAMI
       << "const ::Ice::AsyncResultPtr& __result" << epar;
