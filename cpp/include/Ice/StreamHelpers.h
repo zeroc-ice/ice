@@ -632,7 +632,7 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
     template<class S> static inline void
     write(S* stream, const T& v)
     {
-        int pos = stream->startSize();
+        size_t pos = stream->startSize();
         stream->write(v);
         stream->endSize(pos);
     }
