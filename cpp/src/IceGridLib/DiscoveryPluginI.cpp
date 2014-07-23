@@ -31,7 +31,7 @@ public:
 
     Request(LocatorI* locator) : _locator(locator)
     {
-    } 
+    }
 
     virtual void invoke(const Ice::LocatorPrx&) = 0;
     virtual void response(const Ice::ObjectPrx&) = 0;
@@ -50,7 +50,7 @@ public:
     LocatorI(const LookupPrx&, const Ice::PropertiesPtr&);
     void setLookupReply(const LookupReplyPrx&);
 
-    virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&, 
+    virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&,
                                       const Ice::Current&) const;
 
     virtual void findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr&, const string&,
@@ -65,7 +65,7 @@ private:
 
     virtual void runTimerTask();
     void queueRequest(const RequestPtr&);
-    
+
     const LookupPrx _lookup;
     const IceUtil::Time _timeout;
     const int _retryCount;
@@ -108,7 +108,7 @@ public:
     virtual void invoke(const Ice::LocatorPrx&);
     virtual void response(const Ice::ObjectPrx&);
 
-    void 
+    void
     exception(const Ice::Exception&)
     {
         _locator->invoke(_locatorPrx, this); // Retry with new locator proxy
@@ -132,7 +132,7 @@ public:
     virtual void invoke(const Ice::LocatorPrx&);
     virtual void response(const Ice::ObjectPrx&);
 
-    void 
+    void
     exception(const Ice::Exception&)
     {
         _locator->invoke(_locatorPrx, this); // Retry with new locator proxy.
@@ -296,7 +296,7 @@ LocatorI::setLookupReply(const LookupReplyPrx& lookupReply)
     _lookupReply = lookupReply;
 }
 
-void 
+void
 LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& amdCB,
                                const Ice::Identity& id,
                                const Ice::Current&) const
@@ -304,7 +304,7 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& amdCB,
     const_cast<LocatorI*>(this)->invoke(0, new ObjectRequest(const_cast<LocatorI*>(this), id, amdCB));
 }
 
-void 
+void
 LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
                                 const string& adapterId,
                                 const Ice::Current&) const
@@ -346,15 +346,18 @@ LocatorI::foundLocator(const LocatorPrx& locator)
     //
     if(_locator && locator->ice_getIdentity().category != _locator->ice_getIdentity().category)
     {
-        _warned = true; // Only warn once.
+        if(!_warned)
+        {
+            _warned = true; // Only warn once.
 
-        Ice::Warning out(locator->ice_getCommunicator()->getLogger());
-        out << "received IceGrid locator with different instance name:\n";
-        out << "using = `" << _locator->ice_getIdentity().category << "'\n";
-        out << "received = `" << locator->ice_getIdentity().category << "'\n";
-        out << "This is typically the case if multiple IceGrid registries with different ";
-        out << "instance names are deployed and the property `IceGridDiscovery.InstanceName' ";
-        out << "is not set.";
+            Ice::Warning out(locator->ice_getCommunicator()->getLogger());
+            out << "received IceGrid locator with different instance name:\n";
+            out << "using = `" << _locator->ice_getIdentity().category << "'\n";
+            out << "received = `" << locator->ice_getIdentity().category << "'\n";
+            out << "This is typically the case if multiple IceGrid registries with different ";
+            out << "instance names are deployed and the property `IceGridDiscovery.InstanceName' ";
+            out << "is not set.";
+        }
         return;
     }
 
@@ -404,7 +407,7 @@ LocatorI::foundLocator(const LocatorPrx& locator)
 
     //
     // Send pending requests if any.
-    // 
+    //
     for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
     {
         (*p)->invoke(_locator);
@@ -434,7 +437,7 @@ LocatorI::runTimerTask()
     Lock sync(*this);
     if(--_pendingRetryCount > 0)
     {
-        _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request. 
+        _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
         _timer->schedule(this, _timeout);
     }
     else

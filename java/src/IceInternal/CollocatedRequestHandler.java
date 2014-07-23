@@ -15,7 +15,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 {
     class InvokeAll extends DispatchWorkItem
     {
-        public 
+        public
         InvokeAll(OutgoingMessageCallback out, BasicStream os, int requestId, int invokeNum, boolean batch)
         {
             _out = out;
@@ -33,7 +33,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 invokeAll(_os, _requestId, _invokeNum, _batch);
             }
         }
-    
+
         private final OutgoingMessageCallback _out;
         private final BasicStream _os;
         private final int _requestId;
@@ -43,13 +43,13 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
     class InvokeAllAsync extends DispatchWorkItem
     {
-        public InvokeAllAsync(OutgoingAsyncMessageCallback outAsync, BasicStream os, int requestId, int invokeNum, 
+        public InvokeAllAsync(OutgoingAsyncMessageCallback outAsync, BasicStream os, int requestId, int invokeNum,
                               boolean batch)
         {
             _outAsync = outAsync;
-            _os = os; 
-            _requestId = requestId; 
-            _invokeNum = invokeNum; 
+            _os = os;
+            _requestId = requestId;
+            _invokeNum = invokeNum;
             _batch = batch;
         }
 
@@ -61,7 +61,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 invokeAll(_os, _requestId, _invokeNum, _batch);
             }
         }
-        
+
         private final OutgoingAsyncMessageCallback _outAsync;
         private final BasicStream _os;
         private final int _requestId;
@@ -72,11 +72,10 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     private void
     fillInValue(BasicStream os, int pos, int value)
     {
-        os.pos(pos);
-        os.writeInt(value);
+        os.rewriteInt(pos, value);
     }
-    
-    public 
+
+    public
     CollocatedRequestHandler(Reference ref, Ice.ObjectAdapter adapter)
     {
         _reference = ref;
@@ -133,7 +132,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             synchronized(this)
             {
                 _batchStream.swap(os);
-            
+
                 if(_batchAutoFlush & (_batchStream.size() > _reference.getInstance().messageSizeMax()))
                 {
                     //
@@ -166,7 +165,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                     //
                     _batchRequestNum = 0;
                     _batchMarker = 0;
-            
+
                     //
                     // Check again if the last request doesn't exceed what we can send with the auto flush
                     //
@@ -182,7 +181,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                     _batchStream.writeBlob(Protocol.requestBatchHdr);
                     _batchStream.writeBlob(lastRequest);
                 }
-        
+
                 //
                 // Increment the number of requests in the batch.
                 //
@@ -219,14 +218,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         out.invokeCollocated(this);
         return !_response && _reference.getInvocationTimeout() == 0;
     }
-    
+
     public int
     sendAsyncRequest(OutgoingAsyncMessageCallback outAsync)
     {
         return outAsync.__invokeCollocated(this);
     }
-    
-    synchronized public void 
+
+    synchronized public void
     requestTimedOut(OutgoingMessageCallback out)
     {
         Integer requestId = _sendRequests.get(out);
@@ -367,19 +366,19 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 {
                 }
             }
-                
+
             invokeNum = _batchRequestNum;
-                
+
             if(_batchRequestNum > 0)
             {
                 if(_reference.getInvocationTimeout() > 0)
                 {
                     _sendRequests.put(out, 0);
                 }
-                
+
                 assert(!_batchStream.isEmpty());
                 _batchStream.swap(out.os());
-            
+
                 //
                 // Reset the batch stream.
                 //
@@ -390,7 +389,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 _batchMarker = 0;
             }
         }
-        
+
         out.attachCollocatedObserver(_adapter, 0);
 
         if(invokeNum > 0)
@@ -431,7 +430,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                 {
                 }
             }
-            
+
             invokeNum = _batchRequestNum;
             if(_batchRequestNum > 0)
             {
@@ -442,7 +441,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 
                 assert(!_batchStream.isEmpty());
                 _batchStream.swap(outAsync.__getOs());
-            
+
                 //
                 // Reset the batch stream.
                 //
@@ -455,7 +454,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
 
         outAsync.__attachCollocatedObserver(_adapter, 0);
-    
+
         if(invokeNum > 0)
         {
             _adapter.getThreadPool().dispatch(new InvokeAllAsync(outAsync, outAsync.__getOs(), 0, invokeNum, true));
@@ -471,7 +470,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
-    public void 
+    public void
     sendResponse(int requestId, BasicStream os, byte status)
     {
         OutgoingAsync outAsync = null;
@@ -515,8 +514,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     {
         _adapter.decDirectCount();
     }
-    
-    public void 
+
+    public void
     invokeException(int requestId, Ice.LocalException ex, int invokeNum)
     {
         if(requestId > 0)
@@ -553,7 +552,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     {
         return null;
     }
-    
+
     boolean
     sent(OutgoingMessageCallback out)
     {
@@ -570,7 +569,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         out.sent();
         return true;
     }
-    
+
     boolean
     sentAsync(OutgoingAsyncMessageCallback outAsync)
     {
@@ -590,7 +589,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
         return true;
     }
-    
+
     void
     invokeAll(BasicStream os, int requestId, int invokeNum, boolean batch)
     {
@@ -602,7 +601,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         {
             os.pos(Protocol.requestHdr.length);
         }
-        
+
         if(_traceLevels.protocol >= 1)
         {
             fillInValue(os, 10, os.size());
@@ -621,7 +620,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         try
         {
             while(invokeNum > 0)
-            {        
+            {
                 try
                 {
                     _adapter.incDirectCount();
@@ -632,7 +631,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                     return;
                 }
 
-                Incoming in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0, 
+                Incoming in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
                                            requestId);
                 try
                 {
@@ -716,10 +715,10 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
     private boolean _batchAutoFlush;
 
     private int _requestId;
-    
-    private java.util.Map<OutgoingMessageCallback, Integer> _sendRequests = 
+
+    private java.util.Map<OutgoingMessageCallback, Integer> _sendRequests =
         new java.util.HashMap<OutgoingMessageCallback, Integer>();
-    private java.util.Map<OutgoingAsyncMessageCallback, Integer> _sendAsyncRequests = 
+    private java.util.Map<OutgoingAsyncMessageCallback, Integer> _sendAsyncRequests =
         new java.util.HashMap<OutgoingAsyncMessageCallback, Integer>();
 
     private java.util.Map<Integer, Outgoing> _requests = new java.util.HashMap<Integer, Outgoing>();

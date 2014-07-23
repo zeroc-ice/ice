@@ -26,7 +26,7 @@
     <!-- This target cannot depend on init because the tasks may not be compiled yet -->
     <target name="tasks" depends="config-init" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}/ant"/>
-        <javac srcdir="${src.dir}/ant" destdir="${lib.dir}/ant" source="1.6" target="1.6" includes="**" 
+        <javac srcdir="${src.dir}/ant" destdir="${lib.dir}/ant" source="1.6" target="1.6" includes="**"
                deprecation="on">
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -81,7 +81,7 @@
             </fileset>
             <fileset dir="${slice.dir}/IceDiscovery">
                 <include name="IceDiscovery.ice" />
-            </fileset>    
+            </fileset>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
                 <include name="Connection.ice" />
@@ -168,6 +168,7 @@
             <fileset dir="${slice.dir}/IceGrid">
                 <include name="Admin.ice" />
                 <include name="Descriptor.ice" />
+                <include name="Discovery.ice" />
                 <include name="Exception.ice" />
                 <include name="FileParser.ice"/>
                 <include name="Observer.ice" />
@@ -264,7 +265,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceDiscovery/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
             <include name="IceDiscovery/**"/>
             <compilerarg value="${javac.lint}"/>
@@ -324,7 +325,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Glacier2/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
             <include name="Glacier2/**"/>
             <compilerarg value="${javac.lint}"/>
@@ -352,7 +353,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceBox/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
             <include name="IceBox/**"/>
             <compilerarg value="${javac.lint}"/>
@@ -380,7 +381,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceStorm/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
             <include name="IceStorm/**"/>
             <compilerarg value="${javac.lint}"/>
@@ -408,7 +409,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceGrid/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
             <include name="IceGrid/**"/>
             <compilerarg value="${javac.lint}"/>
@@ -436,7 +437,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IcePatch2/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}"
                deprecation="on">
             <include name="IcePatch2/**"/>
             <compilerarg value="${javac.lint}"/>
@@ -584,7 +585,7 @@
             </fileset>
         </slice2java>
 
-        <slice2java checksum="test.Ice.checksum.Test.SliceChecksums" outputdir="${generated.test.dir}" 
+        <slice2java checksum="test.Ice.checksum.Test.SliceChecksums" outputdir="${generated.test.dir}"
                     dependencyfile="${generated.test.dir}/.depend.Test">
             <includepath>
                 <pathelement path="${slice.dir}" />
@@ -607,7 +608,7 @@
             </fileset>
         </slice2java>
 
-        <slice2java checksum="test.Ice.checksum.server.Test.SliceChecksums" outputdir="${generated.test.dir}" 
+        <slice2java checksum="test.Ice.checksum.server.Test.SliceChecksums" outputdir="${generated.test.dir}"
                     dependencyfile="${generated.test.dir}/.depend.Test">
             <includepath>
                 <pathelement path="${slice.dir}" />
@@ -619,7 +620,7 @@
         </slice2java>
     </target>
 
-    <target name="test-compile" depends="ice-compile, freeze-compile, glacier2-compile, icebox-compile, 
+    <target name="test-compile" depends="ice-compile, freeze-compile, glacier2-compile, icebox-compile,
                                          icestorm-compile,
                                          icegrid-compile,
                                          icediscovery-compile, test-generate">
@@ -635,7 +636,7 @@
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
         </depend>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}" 
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}"
                deprecation="on" fork="true" memoryinitialsize="256m" memorymaximumsize="512m">
             <exclude name="${generated.test.dir}/**"/>
             <classpath>
@@ -656,9 +657,9 @@
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
-    
+
     <target name="test-compile-lambda" depends="test-generate, test-compile" if="lambda-support">
-        <javac srcdir="test" destdir="${lib.dir}" debug="${debug}" 
+        <javac srcdir="test" destdir="${lib.dir}" debug="${debug}"
                deprecation="on" fork="true" memoryinitialsize="256m" memorymaximumsize="512m">
             <classpath>
                 <path refid="ice.classpath"/>
@@ -667,7 +668,7 @@
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
-    
+
     <target name="test-plugins-jar" depends="test-compile,freeze-jar">
         <jar jarfile="${lib.dir}/IceTestPlugins.jar" basedir="${lib.dir}">
             <include name="test/Ice/plugin/plugins/**"/>
@@ -695,9 +696,9 @@
         <jar jarfile="${lib.dir}/IceAndroidTest.jar" basedir="${lib.dir}">
             <include name="test/Ice/**"/>
             <include name="test/Util/**"/>
-            <!-- 
+            <!--
                 Don't include some tests that aren't supported in Android, see comments
-                in test/android/src/com/zeroc/testsuite/TestApp.java for details on 
+                in test/android/src/com/zeroc/testsuite/TestApp.java for details on
                 non supported tests.
             -->
             <exclude name="test/Ice/background/**"/>
@@ -758,9 +759,9 @@
         </and>
     </condition>
 
-    <target name="icegridadmin-plain-jar" 
-            depends="icegridadmin-compile, icegridadmin-compile-javafx, ice-jar, icebox-jar, 
-                     glacier2-jar, icestorm-jar, icegrid-jar" 
+    <target name="icegridadmin-plain-jar"
+            depends="icegridadmin-compile, icegridadmin-compile-javafx, ice-jar, icebox-jar,
+                     glacier2-jar, icestorm-jar, icegrid-jar"
             if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
@@ -775,11 +776,11 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" 
-            depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, icegridadmin-compile, 
+    <target name="icegridadmin-pro-jar"
+            depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, icegridadmin-compile,
                      icegridadmin-compile-javafx"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
-    
+
 	<condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar,annotation.jar,jndi.jar">
             <!-- Library jar files for IBM J9 (from SuSE Linux i586) -->
             <and>
@@ -796,7 +797,7 @@
                 <equals arg1="${os.arch}" arg2="amd64"/>
             </and>
         </condition>
-    
+
         <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
             <and>
                 <isset property="javafx-available"/>
@@ -807,7 +808,7 @@
         <condition property="library.jarfiles" value="rt.jar,jsse.jar">
             <not><isset property="library.jarfiles"/></not>
         </condition>
-            
+
         <pathconvert property="library.jars">
            <filelist dir="${java.home}/lib" files="${library.jarfiles}"/>
            <mapper>
@@ -853,8 +854,8 @@
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
         </manifest>
-        <jar jarfile="${lib.dir}/${icegridgui.jar.name}" 
-             manifest="${lib.dir}/icegridgui.mf" 
+        <jar jarfile="${lib.dir}/${icegridgui.jar.name}"
+             manifest="${lib.dir}/icegridgui.mf"
              basedir="${lib.dir}/tmp" update="true">
             <include name="**"/>
         </jar>
@@ -873,8 +874,8 @@
         <delete file="${lib.dir}/${icegridgui.jar.name}"/>
         <delete dir="${lib.dir}/tmp/META-INF"/>
 
-        <fx:application id="IceGridGUI" name="IceGrid Admin" 
-            mainClass="IceGridGUI.Main" 
+        <fx:application id="IceGridGUI" name="IceGrid Admin"
+            mainClass="IceGridGUI.Main"
             fallbackClass="IceGridGUI.Fallback"
             toolkit="swing"/>
 
@@ -884,7 +885,7 @@
         <fx:jar destfile="${lib.dir}/dist/${icegridgui.jar.name}">
             <!-- Details about application -->
             <fx:application refid="IceGridGUI"/>
-     
+
             <!-- Define what auxilary resources are needed -->
             <fx:resources refid="IceGridGUI.resources"/>
 
@@ -907,10 +908,10 @@
         <copy file="${lib.dir}/dist/${icegridgui.jar.name}" todir="${lib.dir}"/>
         <delete dir="${lib.dir}/tmp"/>
         <delete dir="${lib.dir}/dist"/>
-        
-        <!-- Update Jar manifest to use our MainProxy class instead of 
+
+        <!-- Update Jar manifest to use our MainProxy class instead of
             com.javafx.main.Main -->
-            
+
         <jar file="${lib.dir}/${icegridgui.jar.name}" update="yes">
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
@@ -927,7 +928,7 @@
         </and>
     </condition>
 
-    <target name="icegridadmin-bundle" depends="icegridadmin-pro-jar, icegridadmin-javafx-jar" 
+    <target name="icegridadmin-bundle" depends="icegridadmin-pro-jar, icegridadmin-javafx-jar"
             if="build-icegridadmin-bundle">
         <!-- AppBundleTask available at http://java.net/projects/appbundler -->
         <taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask"/>
@@ -949,12 +950,12 @@
         </bundleapp>
     </target>
 
-    <target name="compile" depends="ice-compile, icebox-compile, glacier2-compile, icestorm-compile, icegrid-compile, 
+    <target name="compile" depends="ice-compile, icebox-compile, glacier2-compile, icestorm-compile, icegrid-compile,
                                     icediscovery-compile, freeze-compile, icepatch2-compile, icegridadmin-compile"/>
 
-    <target name="dist-jar" 
+    <target name="dist-jar"
             depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar,
-                     icegrid-jar, freeze-jar, icepatch2-jar, 
+                     icegrid-jar, freeze-jar, icepatch2-jar,
                      icediscovery-jar, icegridadmin-plain-jar,
                      icegridadmin-pro-jar,
                      icegridadmin-javafx-jar, icegridadmin-bundle"/>
@@ -1014,7 +1015,7 @@
         <copy file="${lib.dir}/${ant-ice.jar.name}" todir="${DESTDIR}${install_libdir}"/>
     </target>
 
-    <target name="install" depends="dist-jar, install-common, install-jar, install-tasks, 
+    <target name="install" depends="dist-jar, install-common, install-jar, install-tasks,
                                     install-slice, install-icegridgui-bundle">
     </target>
 

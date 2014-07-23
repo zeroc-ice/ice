@@ -24,12 +24,12 @@ class LookupI extends _LookupDisp
             _nRetry = retryCount;
         }
 
-        public T 
+        public T
         getId()
         {
             return _id;
         }
-        
+
         public boolean
         addCallback(AmdCB cb)
         {
@@ -62,7 +62,7 @@ class LookupI extends _LookupDisp
         {
             return _proxies.size() == 0 && --_nRetry >= 0;
         }
-        
+
         public boolean
         response(Ice.ObjectPrx proxy, boolean isReplicaGroup)
         {
@@ -111,14 +111,14 @@ class LookupI extends _LookupDisp
             }
             sendResponse(result.ice_endpoints(endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
         }
-        
-        public void 
+
+        public void
         runTimerTask()
         {
             adapterRequestTimedOut(this);
         }
 
-        private void 
+        private void
         sendResponse(Ice.ObjectPrx proxy)
         {
             for(Ice.AMD_Locator_findAdapterById cb : _callbacks)
@@ -127,7 +127,7 @@ class LookupI extends _LookupDisp
             }
             _callbacks.clear();
         }
-        
+
         private List<Ice.ObjectPrx> _proxies = new ArrayList<Ice.ObjectPrx>();
         private long _start;
         private long _latency;
@@ -135,19 +135,19 @@ class LookupI extends _LookupDisp
 
     private class ObjectRequest extends Request<Ice.Identity, Ice.AMD_Locator_findObjectById>
     {
-        public 
+        public
         ObjectRequest(Ice.Identity id, int retryCount)
         {
             super(id, retryCount);
         }
 
-        public void 
+        public void
         response(Ice.ObjectPrx proxy)
         {
             finished(proxy);
         }
-        
-        public void 
+
+        public void
         finished(Ice.ObjectPrx proxy)
         {
             for(Ice.AMD_Locator_findObjectById cb : _callbacks)
@@ -164,7 +164,7 @@ class LookupI extends _LookupDisp
     };
 
     public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Properties properties)
-    { 
+    {
         _registry = registry;
         _lookup = lookup;
         _timeout = properties.getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300);
@@ -174,20 +174,20 @@ class LookupI extends _LookupDisp
         _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
     }
 
-    void 
+    void
     setLookupReply(LookupReplyPrx lookupReply)
     {
         _lookupReply = lookupReply;
     }
 
-    public void 
+    public void
     findObjectById(String domainId, Ice.Identity id, IceDiscovery.LookupReplyPrx reply, Ice.Current c)
     {
         if(!domainId.equals(_domainId))
         {
             return; // Ignore.
         }
-        
+
         Ice.ObjectPrx proxy = _registry.findObject(id);
         if(proxy != null)
         {
@@ -198,14 +198,14 @@ class LookupI extends _LookupDisp
         }
     }
 
-    public void 
+    public void
     findAdapterById(String domainId, String adapterId, IceDiscovery.LookupReplyPrx reply, Ice.Current c)
     {
         if(!domainId.equals(_domainId))
         {
             return; // Ignore.
         }
-        
+
         Ice.BooleanHolder isReplicaGroup = new Ice.BooleanHolder();
         Ice.ObjectPrx proxy = _registry.findAdapter(adapterId, isReplicaGroup);
         if(proxy != null)
@@ -217,7 +217,7 @@ class LookupI extends _LookupDisp
         }
     }
 
-    synchronized void 
+    synchronized void
     findObject(Ice.AMD_Locator_findObjectById cb, Ice.Identity id)
     {
         ObjectRequest request = _objectRequests.get(id);
@@ -226,15 +226,15 @@ class LookupI extends _LookupDisp
             request = new ObjectRequest(id, _retryCount);
             _objectRequests.put(id, request);
         }
-        
+
         if(request.addCallback(cb))
         {
             _lookup.begin_findObjectById(_domainId, id, _lookupReply);
             _timer.schedule(request, _timeout);
         }
     }
-    
-    synchronized void  
+
+    synchronized void
     findAdapter(Ice.AMD_Locator_findAdapterById cb, String adapterId)
     {
         AdapterRequest request = _adapterRequests.get(adapterId);
@@ -243,7 +243,7 @@ class LookupI extends _LookupDisp
             request = new AdapterRequest(adapterId, _retryCount);
             _adapterRequests.put(adapterId, request);
         }
-        
+
         if(request.addCallback(cb))
         {
             _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
@@ -259,7 +259,7 @@ class LookupI extends _LookupDisp
         {
             return;
         }
-        
+
         request.response(proxy);
         _timer.cancel(request);
         _objectRequests.remove(id);
@@ -273,7 +273,7 @@ class LookupI extends _LookupDisp
         {
             return;
         }
-        
+
         if(request.response(proxy, isReplicaGroup))
         {
             _timer.cancel(request);
@@ -289,7 +289,7 @@ class LookupI extends _LookupDisp
         {
             return;
         }
-        
+
         if(request.retry())
         {
             _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
@@ -310,7 +310,7 @@ class LookupI extends _LookupDisp
         {
             return;
         }
-        
+
         if(request.retry())
         {
             _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);

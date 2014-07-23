@@ -21,11 +21,10 @@ namespace IceInternal
         private void
         fillInValue(BasicStream os, int pos, int value)
         {
-            os.pos(pos);
-            os.writeInt(value);
+            os.rewriteInt(pos, value);
         }
 
-        public 
+        public
         CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
         {
             _reference = @ref;
@@ -112,7 +111,7 @@ namespace IceInternal
                         //
                         // Check again if the last request doesn't exceed what we can send with the auto flush
                         //
-                        if(Protocol.requestBatchHdr.Length + lastRequest.Length > 
+                        if(Protocol.requestBatchHdr.Length + lastRequest.Length >
                            _reference.getInstance().messageSizeMax())
                         {
                             Ex.throwMemoryLimitException(Protocol.requestBatchHdr.Length + lastRequest.Length,
@@ -152,7 +151,7 @@ namespace IceInternal
                 _batchStream.swap(dummy);
                 _batchRequestNum = 0;
                 _batchMarker = 0;
-                
+
                 Debug.Assert(_batchStreamInUse);
                 _batchStreamInUse = false;
                 Monitor.PulseAll(this);
@@ -172,7 +171,7 @@ namespace IceInternal
             return outAsync.invokeCollocated__(this, out sentCallback);
         }
 
-        public void 
+        public void
         requestTimedOut(OutgoingMessageCallback @out)
         {
             lock(this)
@@ -204,7 +203,7 @@ namespace IceInternal
             }
         }
 
-        public void 
+        public void
         asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
         {
             lock(this)
@@ -281,7 +280,7 @@ namespace IceInternal
                         invokeAll(@out.ostr(), requestId, 1, false);
                     }, null);
             }
-            else // Optimization: directly call invokeAll if there's no dispatcher. 
+            else // Optimization: directly call invokeAll if there's no dispatcher.
             {
                 @out.sent();
                 invokeAll(@out.ostr(), requestId, 1, false);
@@ -380,7 +379,7 @@ namespace IceInternal
                             invokeAll(@out.ostr(), 0, invokeNum, true);
                         }, null);
                 }
-                else // Optimization: directly call invokeAll if there's no dispatcher. 
+                else // Optimization: directly call invokeAll if there's no dispatcher.
                 {
                     @out.sent();
                     invokeAll(@out.ostr(), 0, invokeNum, true);
@@ -447,7 +446,7 @@ namespace IceInternal
             }
         }
 
-        public void 
+        public void
         sendResponse(int requestId, BasicStream os, byte status)
         {
             OutgoingAsync outAsync = null;
@@ -492,7 +491,7 @@ namespace IceInternal
             _adapter.decDirectCount();
         }
 
-        public void 
+        public void
         invokeException(int requestId, Ice.LocalException ex, int invokeNum)
         {
             if(requestId > 0)
@@ -602,7 +601,7 @@ namespace IceInternal
             try
             {
                 while(invokeNum > 0)
-                {        
+                {
                     try
                     {
                         _adapter.incDirectCount();
@@ -613,7 +612,7 @@ namespace IceInternal
                         return;
                     }
 
-                    Incoming @in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0, 
+                    Incoming @in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
                                                requestId);
                     try
                     {
@@ -675,9 +674,9 @@ namespace IceInternal
 
         private int _requestId;
 
-        private Dictionary<OutgoingMessageCallback, int> _sendRequests = 
+        private Dictionary<OutgoingMessageCallback, int> _sendRequests =
             new Dictionary<OutgoingMessageCallback, int>();
-        private Dictionary<OutgoingAsyncMessageCallback, int> _sendAsyncRequests = 
+        private Dictionary<OutgoingAsyncMessageCallback, int> _sendAsyncRequests =
             new Dictionary<OutgoingAsyncMessageCallback, int>();
 
         private Dictionary<int, Outgoing> _requests = new Dictionary<int, Outgoing>();

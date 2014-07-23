@@ -45,7 +45,7 @@ public class AllTests
         test(obj != null);
         test(obj.equals(base));
         out.println("ok");
-        
+
         out.print("pinging server... ");
         out.flush();
         obj.ice_ping();
@@ -60,10 +60,24 @@ public class AllTests
         test(finder.getLocator() != null);
         out.println("ok");
 
+        out.print("testing discovery... ");
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");
+
+            Ice.Communicator comm =  Ice.Util.initialize(initData);
+            test(comm.getDefaultLocator() != null);
+            comm.stringToProxy("test @ TestAdapter").ice_ping();
+            comm.destroy();
+        }
+        out.println("ok");
+
         out.print("shutting down server... ");
         out.flush();
         obj.shutdown();
-        out.println("ok");       
+        out.println("ok");
     }
 
     public static void
@@ -86,7 +100,7 @@ public class AllTests
         test(obj2 != null);
         test(obj2.equals(base2));
         out.println("ok");
-        
+
         out.print("pinging server... ");
         out.flush();
         obj.ice_ping();
@@ -133,7 +147,7 @@ public class AllTests
             test(ex.kindOfObject.equals("object"));
             test(ex.id.equals("unknown/unknown"));
         }
-        out.println("ok");       
+        out.println("ok");
 
         out.print("testing reference with unknown adapter... ");
         out.flush();
@@ -147,7 +161,7 @@ public class AllTests
             test(ex.kindOfObject.equals("object adapter"));
             test(ex.id.equals("TestAdapterUnknown"));
         }
-        out.println("ok");       
+        out.println("ok");
 
         IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
             communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
@@ -208,7 +222,7 @@ public class AllTests
         catch(Ice.NoEndpointException ex)
         {
         }
-        
+
         try
         {
             admin.enableServer("server", true);

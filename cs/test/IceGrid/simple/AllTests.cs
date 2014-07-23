@@ -42,7 +42,7 @@ public class AllTests
         test(obj != null);
         test(obj.Equals(@base));
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("pinging server... ");
         Console.Out.Flush();
         obj.ice_ping();
@@ -56,7 +56,21 @@ public class AllTests
             communicator.getDefaultLocator().ice_identity(finderId));
         test(finder.getLocator() != null);
         Console.Out.WriteLine("ok");
-        
+
+        Console.Out.Write("testing discovery... ");
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties =communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");
+
+            Ice.Communicator comm =  Ice.Util.initialize(initData);
+            test(comm.getDefaultLocator() != null);
+            comm.stringToProxy("test @ TestAdapter").ice_ping();
+            comm.destroy();
+        }
+        Console.Out.WriteLine("ok");
+
         System.Console.Out.Write("shutting down server... ");
         System.Console.Out.Flush();
         obj.shutdown();
@@ -83,7 +97,7 @@ public class AllTests
         test(obj2 != null);
         test(obj2.Equals(@base2));
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("pinging server... ");
         Console.Out.Flush();
         obj.ice_ping();
@@ -130,7 +144,7 @@ public class AllTests
             test(ex.kindOfObject.Equals("object"));
             test(ex.id.Equals("unknown/unknown"));
         }
-        Console.Out.WriteLine("ok");    
+        Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing reference with unknown adapter... ");
         Console.Out.Flush();
@@ -144,7 +158,7 @@ public class AllTests
             test(ex.kindOfObject.Equals("object adapter"));
             test(ex.id.Equals("TestAdapterUnknown"));
         }
-        Console.Out.WriteLine("ok");    
+        Console.Out.WriteLine("ok");
 
         IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
             communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
@@ -159,8 +173,8 @@ public class AllTests
             test(false);
         }
 
-        session.ice_getConnection().setACM(registry.getACMTimeout(), 
-                                           Ice.Util.None, 
+        session.ice_getConnection().setACM(registry.getACMTimeout(),
+                                           Ice.Util.None,
                                            Ice.ACMHeartbeat.HeartbeatAlways);
 
         IceGrid.AdminPrx admin = session.getAdmin();
@@ -202,7 +216,7 @@ public class AllTests
         catch(Ice.NoEndpointException)
         {
         }
-        
+
         try
         {
             admin.enableServer("server", true);
@@ -233,7 +247,7 @@ public class AllTests
             test(false);
         }
         Console.Out.WriteLine("ok");
-        
+
         try
         {
             admin.stopServer("server");
