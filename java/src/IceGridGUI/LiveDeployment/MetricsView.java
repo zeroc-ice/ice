@@ -99,7 +99,7 @@ class MetricsView extends TreeNode
                                         // If the metrics view is selected when enabled success, 
                                         // we must start the refresh thread to pull updates.
                                         //
-                                        MetricsViewEditor.startRefreshThread(MetricsView.this);
+                                        MetricsViewEditor.startRefresh(MetricsView.this);
                                     }
                                 }
                             });
@@ -107,7 +107,7 @@ class MetricsView extends TreeNode
 
                         public void exception(final Ice.LocalException e)
                         {
-                            MetricsViewEditor.stopRefreshThread();
+                            MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
                                     public void run()
@@ -133,7 +133,7 @@ class MetricsView extends TreeNode
 
                         public void exception(final Ice.UserException e)
                         {
-                            MetricsViewEditor.stopRefreshThread();
+                            MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
                                     public void run()
@@ -168,7 +168,7 @@ class MetricsView extends TreeNode
                                         // If the metrics view is selected when disabled success, 
                                         // we stop the refresh.
                                         //
-                                        MetricsViewEditor.stopRefreshThread();
+                                        MetricsViewEditor.stopRefresh();
                                     }
                                 }
                             });
@@ -176,7 +176,7 @@ class MetricsView extends TreeNode
 
                         public void exception(final Ice.LocalException e)
                         {
-                            MetricsViewEditor.stopRefreshThread();
+                            MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
                                     public void run()
@@ -202,7 +202,7 @@ class MetricsView extends TreeNode
 
                         public void exception(final Ice.UserException e)
                         {
-                            MetricsViewEditor.stopRefreshThread();
+                            MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
                                     public void run()
@@ -288,7 +288,7 @@ class MetricsView extends TreeNode
 
                     public void exception(final Ice.LocalException e)
                     {
-                        MetricsViewEditor.stopRefreshThread();
+                        MetricsViewEditor.stopRefresh();
                         SwingUtilities.invokeLater(new Runnable()
                             {
                                 public void run()
@@ -318,7 +318,7 @@ class MetricsView extends TreeNode
 
                     public void exception(final Ice.UserException e)
                     {
-                        MetricsViewEditor.stopRefreshThread();
+                        MetricsViewEditor.stopRefresh();
                         SwingUtilities.invokeLater(new Runnable()
                             {
                                 public void run()
@@ -340,7 +340,7 @@ class MetricsView extends TreeNode
             }
             catch(Ice.LocalException e)
             {
-                _editor.stopRefreshThread();
+                _editor.stopRefresh();
                 JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
                                               JOptionPane.ERROR_MESSAGE);
             }

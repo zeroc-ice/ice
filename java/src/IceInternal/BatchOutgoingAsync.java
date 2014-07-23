@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, TimerTask
+public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, Runnable
 {
     public BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
     {
@@ -43,7 +43,8 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
             }
             if(_timeoutRequestHandler != null)
             {
-                _instance.timer().cancel(this);
+                _future.cancel(false);
+                _future = null;
                 _timeoutRequestHandler = null;
             }
             _monitor.notifyAll();
@@ -70,7 +71,8 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
             }
             if(_timeoutRequestHandler != null)
             {
-                _instance.timer().cancel(this);
+                _future.cancel(false);
+                _future = null;
                 _timeoutRequestHandler = null;
             }
         }
@@ -92,7 +94,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     }
 
     public void 
-    runTimerTask()
+    run()
     {
         __runTimerTask();
     }

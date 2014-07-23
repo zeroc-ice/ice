@@ -19,10 +19,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         void connectionStartFailed(ConnectionI connection, Ice.LocalException ex);
     }
 
-    private class TimeoutCallback implements IceInternal.TimerTask
+    private class TimeoutCallback implements Runnable
     {
         public void
-        runTimerTask()
+        run()
         {
             timedOut();
         }
@@ -1772,9 +1772,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _traceLevels = instance.traceLevels(); // Cached for better performance.
         _timer = instance.timer();
         _writeTimeout = new TimeoutCallback();
-        _writeTimeoutScheduled = false;
+        _writeTimeoutFuture = null;
         _readTimeout = new TimeoutCallback();
-        _readTimeoutScheduled = false;
+        _readTimeoutFuture = null;
         _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         _cacheBuffers = instance.cacheMessageBuffers();
@@ -2874,21 +2874,21 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if((status & IceInternal.SocketOperation.Read) != 0)
             {
-                if(_readTimeoutScheduled)
+                if(_readTimeoutFuture != null)
                 {
-                    _timer.cancel(_readTimeout);
+                    _readTimeoutFuture.cancel(false);
                 }
-                _timer.schedule(_readTimeout, timeout);
-                _readTimeoutScheduled = true;
+                _readTimeoutFuture = _timer.schedule(_readTimeout, timeout,
+                    java.util.concurrent.TimeUnit.MILLISECONDS);
             }
             if((status & (IceInternal.SocketOperation.Write | IceInternal.SocketOperation.Connect)) != 0)
             {
-                if(_writeTimeoutScheduled)
+                if(_writeTimeoutFuture != null)
                 {
-                    _timer.cancel(_writeTimeout);
+                    _writeTimeoutFuture.cancel(false);
                 }
-                _timer.schedule(_writeTimeout, timeout);
-                _writeTimeoutScheduled = true;
+                _writeTimeoutFuture = _timer.schedule(_writeTimeout, timeout,
+                    java.util.concurrent.TimeUnit.MILLISECONDS);
             }
         }
         catch(Throwable ex)
@@ -2900,16 +2900,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     unscheduleTimeout(int status)
     {
-        if((status & IceInternal.SocketOperation.Read) != 0 && _readTimeoutScheduled)
+        if((status & IceInternal.SocketOperation.Read) != 0 && _readTimeoutFuture != null)
         {
-            _timer.cancel(_readTimeout);
-            _readTimeoutScheduled = false;
+            _readTimeoutFuture.cancel(false);
+            _readTimeoutFuture = null;
         }
         if((status & (IceInternal.SocketOperation.Write | IceInternal.SocketOperation.Connect)) != 0 &&
-           _writeTimeoutScheduled)
+           _writeTimeoutFuture != null)
         {
-            _timer.cancel(_writeTimeout);
-            _writeTimeoutScheduled = false;
+            _writeTimeoutFuture.cancel(false);
+            _writeTimeoutFuture = null;
         }
     }
 
@@ -3159,11 +3159,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private final IceInternal.TraceLevels _traceLevels;
     private final IceInternal.ThreadPool _threadPool;
 
-    private final IceInternal.Timer _timer;
-    private final IceInternal.TimerTask _writeTimeout;
-    private boolean _writeTimeoutScheduled;
-    private final IceInternal.TimerTask _readTimeout;
-    private boolean _readTimeoutScheduled;
+    private final java.util.concurrent.ScheduledExecutorService _timer;
+    private final Runnable _writeTimeout;
+    private java.util.concurrent.Future<?> _writeTimeoutFuture;
+    private final Runnable _readTimeout;
+    private java.util.concurrent.Future<?> _readTimeoutFuture;
 
     private StartCallback _startCallback = null;
 

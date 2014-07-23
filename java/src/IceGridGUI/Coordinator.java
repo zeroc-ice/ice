@@ -3150,6 +3150,20 @@ public class Coordinator
         _liveDeploymentPane = new LiveDeploymentPane(_liveDeploymentRoot);
         _mainPane = new MainPane(this);
         _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
+
+        java.util.concurrent.ScheduledThreadPoolExecutor executor =
+            new java.util.concurrent.ScheduledThreadPoolExecutor(1,
+                new java.util.concurrent.ThreadFactory()
+                {
+                    public Thread newThread(Runnable r)
+                    {
+                        Thread t = new Thread(r);
+                        t.setName("Pinger");
+                        return t;
+                    }
+                });
+        executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        _executor = executor;
     }
 
     public IGraphView createGraphView()
@@ -3349,6 +3363,10 @@ public class Coordinator
         destroyIceGridAdmin();
         destroyCommunicator();
         destroyWizardCommunicator();
+
+        _executor.shutdown();
+        _executor = null;
+
         Runtime.getRuntime().removeShutdownHook(_shutdownHook);
         _mainFrame.dispose();
         Runtime.getRuntime().exit(status);
@@ -3648,6 +3666,11 @@ public class Coordinator
         return _graphViews.toArray(new IGraphView[_graphViews.size()]);
     }
 
+    public java.util.concurrent.ScheduledExecutorService getExecutor()
+    {
+        return _executor;
+    }
+    
     //
     // May run in any thread
     //
@@ -3895,6 +3918,8 @@ public class Coordinator
     private X509Certificate _trasientCert;
 
     private java.util.List<IGraphView> _graphViews = new java.util.ArrayList<IGraphView>();
+
+    private java.util.concurrent.ScheduledExecutorService _executor;
 
     static private final int HISTORY_MAX_SIZE = 20;
 }

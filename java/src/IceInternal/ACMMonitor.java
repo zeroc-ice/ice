@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public interface ACMMonitor extends TimerTask
+public interface ACMMonitor extends Runnable
 {
     void add(Ice.ConnectionI con);
     void remove(Ice.ConnectionI con);

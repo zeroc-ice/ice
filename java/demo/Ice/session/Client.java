@@ -28,55 +28,6 @@ public class Client extends Ice.Application
         }
     }
 
-    static private class SessionRefreshThread extends Thread
-    {
-        SessionRefreshThread(Ice.Logger logger, long timeout, SessionPrx session)
-        {
-            _logger = logger;
-            _session = session;
-            _timeout = timeout;
-        }
-
-        synchronized public void
-        run()
-        {
-            while(!_terminated)
-            {
-                try
-                {
-                    wait(_timeout);
-                }
-                catch(InterruptedException e)
-                {
-                }
-                if(!_terminated)
-                {
-                    try
-                    {
-                        _session.refresh();
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        _logger.warning("SessionRefreshThread: " + ex);
-                        _terminated = true;
-                    }
-                }
-            }
-        }
-
-        synchronized private void
-        terminate()
-        {
-            _terminated = true;
-            notify();
-        }
-
-        final private Ice.Logger _logger;
-        final private SessionPrx _session;
-        final private long _timeout;
-        private boolean _terminated = false;
-    }
-
     private static void
     menu()
     {
@@ -135,8 +86,24 @@ public class Client extends Ice.Application
         synchronized(this)
         {
             _session = factory.create(name);
-            _refresh = new SessionRefreshThread(communicator().getLogger(), 5000, _session);
-            _refresh.start();
+            _executor.scheduleAtFixedRate(new Runnable()
+            {
+                public void
+                run()
+                {
+                    try
+                    {
+                        _session.refresh();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        communicator().getLogger().warning("SessionRefreshThread: " + ex);
+                        // Exceptions thrown from the executor task supress subsequent execution
+                        // of the task.
+                        throw ex;
+                    }
+                }
+            }, 5, 5, java.util.concurrent.TimeUnit.SECONDS);
         }
             
         java.util.ArrayList<HelloPrx> hellos = new java.util.ArrayList<HelloPrx>();
@@ -235,22 +202,10 @@ public class Client extends Ice.Application
     cleanup(boolean destroy)
     {
         //
-        // The refresher thread must be terminated before destroy is
+        // The refresher task must be terminated before destroy is
         // called, otherwise it might get ObjectNotExistException.
         //
-        if(_refresh != null)
-        {
-            _refresh.terminate();
-            try
-            {
-                _refresh.join();
-            }
-            catch(InterruptedException e)
-            {
-            }
-            _refresh = null;
-        }
-        
+        _executor.shutdown();       
         if(destroy && _session != null)
         {
             _session.destroy();
@@ -266,6 +221,6 @@ public class Client extends Ice.Application
         System.exit(status);
     }
 
-    private SessionRefreshThread _refresh = null;
+    private java.util.concurrent.ScheduledExecutorService _executor = java.util.concurrent.Executors.newScheduledThreadPool(1);
     private SessionPrx _session = null;
 }

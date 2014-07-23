@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-class RetryTask implements TimerTask
+class RetryTask implements Runnable
 {
     RetryTask(RetryQueue queue, OutgoingAsync outAsync)
     {
@@ -18,7 +18,7 @@ class RetryTask implements TimerTask
     }
 
     public void
-    runTimerTask()
+    run()
     {
         if(_queue.remove(this))
         {
@@ -36,9 +36,16 @@ class RetryTask implements TimerTask
     public void
     destroy()
     {
+        _future.cancel(false);
         _outAsync.__invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+    }
+
+    public void setFuture(java.util.concurrent.Future<?> future)
+    {
+        _future = future;
     }
 
     private final RetryQueue _queue;
     private final OutgoingAsync _outAsync;
+    private java.util.concurrent.Future<?> _future;
 }

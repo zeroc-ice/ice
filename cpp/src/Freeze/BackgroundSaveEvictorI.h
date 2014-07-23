@@ -60,34 +60,6 @@ namespace Freeze
 
 class BackgroundSaveEvictorI;
 
-//
-// The WatchDogThread is used by the saving thread to ensure the
-// streaming of some object does not take more than timeout ms.
-// We only measure the time necessary to acquire the lock on the
-// object (servant), not the streaming itself.
-//
-
-class WatchDogThread : public IceUtil::Thread, private IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-    
-    WatchDogThread(long, BackgroundSaveEvictorI&);
-    
-    void run();
-
-    void activate();
-    void deactivate();
-    void terminate();
-    
-private:
-    const IceUtil::Time _timeout;
-    BackgroundSaveEvictorI& _evictor;
-    bool _done;
-    bool _active;
-};
-
-typedef IceUtil::Handle<WatchDogThread> WatchDogThreadPtr;
-
 struct BackgroundSaveEvictorElement;
 typedef IceUtil::Handle<BackgroundSaveEvictorElement> BackgroundSaveEvictorElementPtr;
 
@@ -199,7 +171,8 @@ private:
     std::deque<BackgroundSaveEvictorElementPtr> _modifiedQueue;
 
     bool _savingThreadDone;
-    WatchDogThreadPtr _watchDogThread;
+    long _streamTimeout;
+    IceUtil::TimerPtr _timer;
     
     //
     // Threads that have requested a "saveNow" and are waiting for

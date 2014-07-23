@@ -11,19 +11,14 @@ class BetResolver
 {
     BetResolver()
     {
-        //
-        // We create a little pool of timers
-        //
-        for(int i = 0; i < _timers.length; ++i)
-        {
-            _timers[i] = new java.util.Timer();
-        }
+        // We want the executor to shutdown even if there are scheduled tasks.
+        _executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
     }
 
     void
     add(final CasinoStore.PersistentBetPrx bet, long closeTime)
     {
-        java.util.TimerTask task = new java.util.TimerTask()
+        Runnable task = new Runnable()
             {
                 public void
                 run()
@@ -46,38 +41,32 @@ class BetResolver
                     }
                     finally
                     {
-                        synchronized(BetResolver.this)
-                        {
-                            _betCount--;
-                        }
+                        _betCount.decrementAndGet();
                     }
                 }
             };
 
-        _timers[_random.nextInt(_timers.length)].schedule(task, new java.util.Date(closeTime));
+        // closeTime is milliseconds from the epoch. Convert to relative time.
+        long now = new java.util.Date().getTime();
+        _executor.schedule(task, closeTime - now, java.util.concurrent.TimeUnit.MILLISECONDS);
 
-        synchronized(this)
-        {
-            _betCount++;
-        }
-    }
+        _betCount.incrementAndGet();
+   }
 
     void
     cancel()
     {
-        for(java.util.Timer timer : _timers)
-        {
-            timer.cancel();
-        }
+        _executor.shutdown();
     }
 
-    synchronized int
+    int
     getBetCount()
     {
-        return _betCount;
+        return _betCount.get();
     }
 
-    private java.util.Timer[] _timers = new java.util.Timer[3];
+    private java.util.concurrent.ScheduledThreadPoolExecutor _executor =
+        new java.util.concurrent.ScheduledThreadPoolExecutor(3);
     private java.util.Random _random = new java.util.Random();
-    private int _betCount = 0;
+    private java.util.concurrent.atomic.AtomicInteger _betCount = new java.util.concurrent.atomic.AtomicInteger();
 }

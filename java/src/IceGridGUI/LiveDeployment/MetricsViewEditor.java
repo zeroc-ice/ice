@@ -89,54 +89,6 @@ import IceGridGUI.*;
 
 public class MetricsViewEditor extends Editor implements MetricsFieldContext
 {
-    private static class RefreshThread extends Thread
-    {
-        RefreshThread(long period, MetricsView node)
-        {
-            _period = period;
-            _node = node;
-            _done = false;
-        }
-
-        synchronized public void
-        run()
-        {
-            while(true)
-            {
-                _node.fetchMetricsView();
-                if(!_done)
-                {
-                    try
-                    {
-                        wait(_period * 1000);
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
-                }
-
-                if(_done)
-                {
-                    break;
-                }
-            }
-        }
-
-        synchronized public void
-        done()
-        {
-            if(!_done)
-            {
-                _done = true;
-                notify();
-            }
-        }
-
-        private final long _period;
-        private final MetricsView _node;
-        private boolean _done = false;
-    }
-
     //
     // This class allow to render a button in JTable cell.
     //
@@ -242,7 +194,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             //
             // Stop the refresh thread.
             //
-            MetricsViewEditor.stopRefreshThread();
+            MetricsViewEditor.stopRefresh();
 
             //
             // If selected node is a MetricsView and it is enabled; start the refresh thread.
@@ -250,7 +202,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             if(e.isAddedPath() && e.getPath().getLastPathComponent() instanceof MetricsView && 
                ((MetricsView )e.getPath().getLastPathComponent()).isEnabled())
             {
-                MetricsViewEditor.startRefreshThread((MetricsView)e.getPath().getLastPathComponent());
+                MetricsViewEditor.startRefresh((MetricsView)e.getPath().getLastPathComponent());
             }
             
             if(e.isAddedPath())
@@ -311,19 +263,25 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         return _refreshPeriod;
     }
 
-    synchronized static void startRefreshThread(MetricsView node)
+    synchronized static void startRefresh(final MetricsView node)
     {
-        assert(_refreshThread == null);
-        _refreshThread = new RefreshThread(_refreshPeriod, node);
-        _refreshThread.start();
+        assert(_refreshFuture == null);
+        _refreshFuture = node.getCoordinator().getExecutor().scheduleAtFixedRate(new Runnable()
+        {
+            public void run()
+            {
+                node.fetchMetricsView();
+            }
+            
+        }, _refreshPeriod, _refreshPeriod, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
-    synchronized static void stopRefreshThread()
+    synchronized static void stopRefresh()
     {
-        if(_refreshThread != null)
+        if(_refreshFuture != null)
         {
-            _refreshThread.done();
-            _refreshThread = null;
+            _refreshFuture.cancel(false);
+            _refreshFuture = null;
         }
     }
     
@@ -1107,7 +1065,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         Map<Integer, MetricsField> _fields = new HashMap<Integer, MetricsField>();
     }
 
-    private static RefreshThread _refreshThread;
+    private static java.util.concurrent.Future<?> _refreshFuture;
     private Map<String, JTable> _tables = new HashMap<String, JTable>();
     
 

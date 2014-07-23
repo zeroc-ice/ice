@@ -131,95 +131,6 @@ import java.util.prefs.BackingStoreException;
 
 public class GraphView extends JFrame implements MetricsFieldContext, Coordinator.IGraphView
 {
-    class WorkQueue extends Thread
-    {
-        private class WorkItem
-        {
-            public WorkItem(Runnable runnable, boolean javafx)
-            {
-                this.runnable = runnable;
-                this.javafx = javafx;
-            }
-
-            Runnable runnable;
-            boolean javafx;
-        }
-
-        public void run()
-        {
-            while(true)
-            {
-                WorkItem item = null;
-                synchronized(this)
-                {
-                    while(_queue.isEmpty())
-                    {
-                        try
-                        {
-                            wait();
-                        }
-                        catch(java.lang.InterruptedException ex)
-                        {
-                        }
-                    }
-                    assert !_queue.isEmpty();
-                    item = _queue.remove(0);
-                }
-
-                final java.util.concurrent.Semaphore sem = new java.util.concurrent.Semaphore(0);                
-                final Runnable r = item.runnable;
-                if(item.javafx)
-                {
-                    Platform.runLater(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                try
-                                {
-                                    r.run();
-                                }
-                                finally
-                                {
-                                    sem.release();
-                                }
-                            }
-                        });
-                }
-                else
-                {
-                    SwingUtilities.invokeLater(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                try
-                                {
-                                    r.run();
-                                }
-                                finally
-                                {
-                                    sem.release();
-                                }
-                            }
-                        });
-                }
-                sem.acquireUninterruptibly();
-            }
-        }
-
-        synchronized public void enqueue(Runnable runnable, boolean javafx)
-        {
-            if(_queue.isEmpty())
-            {
-                notify();
-            }
-            _queue.add(new WorkItem(runnable, javafx));
-        }
-
-        private java.util.List<WorkItem> _queue = new java.util.LinkedList<WorkItem>();
-    }
-
     class TimeFormatter extends StringConverter<java.lang.Number>
     {
         TimeFormatter(String format)
@@ -318,99 +229,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         }
     }
 
-    private class RefreshThread extends Thread
-    {
-        RefreshThread(int period)
-        {
-            _period = period;
-            _done = false;
-        }
-
-        synchronized void setRefreshPeriod(int period)
-        {
-            _period = period;
-            notify();
-        }
-
-        synchronized public void
-        run()
-        {
-            while(true)
-            {
-                java.util.Set<MetricsViewInfo> metrics = null;
-                synchronized(GraphView.this)
-                {
-                    metrics = new  java.util.HashSet<MetricsViewInfo>(_series.keySet());
-                }
-
-                for(final MetricsViewInfo m : metrics)
-                {
-                    IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
-                        {
-                            public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
-                                                 long timestamp)
-                            {
-                                addData(m, data, timestamp);
-                            }
-
-                            public void exception(final Ice.LocalException e)
-                            {
-                                addData(m, null, 0);
-                            }
-
-                            public void exception(final Ice.UserException e)
-                            {
-                                addData(m, null, 0);
-                            }
-                        };
-                    try
-                    {
-                        m.admin.begin_getMetricsView(m.view, cb);
-                    }
-                    catch(Ice.LocalException e)
-                    {
-                        addData(m, null, 0);
-                    }
-                }
-                if(!_done)
-                {
-                    try
-                    {
-                        wait(_period * 1000);
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
-                }
-
-                if(_done)
-                {
-                    break;
-                }
-            }
-        }
-
-        synchronized public void
-        done()
-        {
-            if(!_done)
-            {
-                _done = true;
-                notify();
-            }
-        }
-
-        private int _period;
-        private boolean _done = false;
-    }
-
     public GraphView(Coordinator coordinator, String title)
     {
         _coordinator = coordinator;
-        _queue = new WorkQueue();
-        _queue.setDaemon(true);
-        _queue.start();
-
         setTitle(title);
 
         _preferences = Preferences.userNodeForPackage(getClass());
@@ -575,7 +396,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                     _series.remove(row.info);
                                     if(_series.size() == 0)
                                     {
-                                        stopRefreshThread();
+                                        stopRefresh();
                                     }
                                 }
                             }
@@ -585,7 +406,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     //
                     // Remove series from the chart, in JavaFx thread.
                     //
-                    _queue.enqueue(new Runnable()
+                    enqueueJFX(new Runnable()
                         {
                             @Override
                             public void run()
@@ -616,7 +437,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                     }
                                 }
                             }
-                        }, true);
+                        });
                 }
             };
         delete.setEnabled(false);
@@ -716,7 +537,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // initialize the scene in JavaFX thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
@@ -773,7 +594,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             });
                     fxPanel.setScene(scene);
                 }
-            }, true);
+            });
 
         pack();
         if(!loadPreferences())
@@ -842,7 +663,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // Remove series from the chart, in JavaFx thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
@@ -874,7 +695,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         }
                     }
                 }
-            }, true);
+            });
     }
 
     private boolean showInfo()
@@ -985,7 +806,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     public void close()
     {
         storePreferences();
-        stopRefreshThread();
+        stopRefresh();
         setVisible(false);
         _coordinator.removeGraphView(GraphView.this);
         dispose();
@@ -996,7 +817,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // Must run in JavaFX thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
@@ -1059,7 +880,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                 //
                                                 // Must run in Swing thread.
                                                 //
-                                                _queue.enqueue(new Runnable()
+                                                enqueueSwing(new Runnable()
                                                     {
                                                         public void run()
                                                         {
@@ -1070,7 +891,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                                 _legendTable.setRowSelectionInterval(i, i);
                                                             }
                                                         }
-                                                    }, false);
+                                                    });
                                             }
                                         }
                                     });
@@ -1078,22 +899,22 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                 //
                                 // Add the serie to the legend, must run in Swing thread.
                                 //
-                                _queue.enqueue(new Runnable()
+                                enqueueSwing(new Runnable()
                                     {
                                         public void run()
                                         {
                                             _legendModel.addRow(row);
                                         }
-                                    }, false);
+                                    });
                             } 
                         }
                     }
                     if(_chart.getData().size() > 0)
                     {
-                        startRefreshThread();
+                        startRefresh();
                     }
                 }
-            }, true);
+            });
     }
 
     //
@@ -1141,7 +962,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         //
                         // Must run in Swing thread.
                         //
-                        _queue.enqueue(new Runnable()
+                        enqueueSwing(new Runnable()
                             {
                                 public void run()
                                 {
@@ -1152,7 +973,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                         _legendTable.setRowSelectionInterval(i, i);
                                     }
                                 }
-                            }, false);
+                            });
                     }
                 }
             });
@@ -1165,7 +986,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // Update the graph series in JavaFX thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
@@ -1268,7 +1089,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     //
                     // Fire an event on the legend model to update all cells.
                     //
-                    _queue.enqueue(new Runnable()
+                    enqueueSwing(new Runnable()
                         {
                             public void run()
                             {
@@ -1277,9 +1098,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                                 TableModelEvent.ALL_COLUMNS, 
                                                                 TableModelEvent.UPDATE));
                             }
-                        }, false);
+                        });
                 }
-            }, true);
+            });
     }
 
     int seriesSize(MetricsRow row)
@@ -1327,21 +1148,60 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         }
     }
 
-    synchronized private void startRefreshThread()
+    synchronized private void startRefresh()
     {
-        if(_refreshThread == null)
+        if(_refreshFuture == null)
         {
-            _refreshThread = new RefreshThread(getRefreshPeriod());
-            _refreshThread.start();
+            _refreshFuture = _coordinator.getExecutor().scheduleAtFixedRate(new Runnable()
+            {
+                public void run()
+                {
+                    java.util.Set<MetricsViewInfo> metrics = null;
+                    synchronized(GraphView.this)
+                    {
+                        metrics = new  java.util.HashSet<MetricsViewInfo>(_series.keySet());
+                    }
+
+                    for(final MetricsViewInfo m : metrics)
+                    {
+                        IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
+                            {
+                                public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
+                                                     long timestamp)
+                                {
+                                    addData(m, data, timestamp);
+                                }
+
+                                public void exception(final Ice.LocalException e)
+                                {
+                                    addData(m, null, 0);
+                                }
+
+                                public void exception(final Ice.UserException e)
+                                {
+                                    addData(m, null, 0);
+                                }
+                            };
+                        try
+                        {
+                            m.admin.begin_getMetricsView(m.view, cb);
+                        }
+                        catch(Ice.LocalException e)
+                        {
+                            addData(m, null, 0);
+                        }
+                    }
+                }
+            }, _refreshPeriod, _refreshPeriod, java.util.concurrent.TimeUnit.SECONDS);
         }
     }
 
-    synchronized private void stopRefreshThread()
+    synchronized private void stopRefresh()
     {
-        if(_refreshThread != null)
+        if(_refreshFuture != null)
         {
-            _refreshThread.done();
-            _refreshThread = null;
+            _refreshFuture.cancel(false);
+            _refreshFuture = null;
         }
     }
 
@@ -1358,10 +1218,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         }
 
         _refreshPeriod = refreshPeriod;
-        if(_refreshThread != null)
+        if(_refreshFuture != null)
         {
-            _refreshThread.setRefreshPeriod(_refreshPeriod);
+           _refreshFuture.cancel(false);
+            _refreshFuture = null;
+
+            startRefresh();
         }
+
     }
 
     synchronized String getDateFormat()
@@ -1376,14 +1240,14 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // Update the horizontal axis label, in JavaFx thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
                 {
                     _xAxis.setLabel("Time (" + getDateFormat() + ")");
                 }
-            }, true);
+            });
     }
 
     synchronized private void setMaximumSamples(final int samples)
@@ -1399,7 +1263,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             //
             // If maximum samples change, we remove older samples.
             //
-            _queue.enqueue(new Runnable()
+            enqueueJFX(new Runnable()
                 {
                     @Override
                     public void run()
@@ -1410,7 +1274,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                             adjustSize(row);
                         }
                     }
-                }, true);
+                });
         }
         else
         {
@@ -1617,7 +1481,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 if(_columnNames[columnIndex].equals("Show"))
                 {
                     row.visible = ((Boolean)value).booleanValue();
-                    _queue.enqueue(new Runnable()
+                    enqueueJFX(new Runnable()
                         {
                             @Override
                             public void run()
@@ -1627,7 +1491,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                     setNodesVisible(getSeriesClass(row.series.get(i)), row.visible);
                                 }
                             }
-                        }, true);
+                        });
                 }
                 else if(_columnNames[columnIndex].equals("Scale"))
                 {
@@ -1720,7 +1584,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // Must run in JavaFX thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
@@ -1730,7 +1594,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         i.setYValue(i.getYValue().doubleValue() * s2 / s1);
                     }
                 }
-            }, true);
+            });
     }
 
     void
@@ -1739,7 +1603,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         // Must run in JavaFX thread.
         //
-        _queue.enqueue(new Runnable()
+        enqueueJFX(new Runnable()
             {
                 @Override
                 public void run()
@@ -1751,7 +1615,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                         setNodesStyle(styleClass);
                     }
                 }
-            }, true);
+            });
     }
 
     //
@@ -1822,6 +1686,56 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         sb.append(", white;");
         sb.append("-fx-stroke-width: 3;");
         _styles.put(seriesClass, sb.toString()); 
+    }
+
+    private void enqueueJFX(final Runnable runnable) {
+        _queue.submit(new Runnable()
+        {
+            public void run()
+            {
+                Platform.runLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                runnable.run();
+                            }
+                            finally
+                            {
+                                _sem.release();
+                            }
+                        }
+                    });
+                _sem.acquireUninterruptibly();
+            }
+        });
+    }
+
+    private void enqueueSwing(final Runnable runnable) {
+        _queue.submit(new Runnable()
+        {
+            public void run()
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                runnable.run();
+                            }
+                            finally
+                            {
+                                _sem.release();
+                            }
+                        }
+                    });
+                _sem.acquireUninterruptibly();
+            }
+        });
     }
 
     static class DecimalRenderer extends DefaultListCellRenderer
@@ -1953,7 +1867,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     }
 
     private final Coordinator _coordinator;
-    private RefreshThread _refreshThread;
+    private java.util.concurrent.Future<?> _refreshFuture;
 
     private final static int _minRefreshPeriod = 1;         //     1 seconds
     private final static int _maxRefreshPeriod = 60 * 60;   //  3600 seconds = 1 hour.
@@ -2043,7 +1957,19 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                   10000000.0d,
                                                   100000000.0d,
                                                   1000000000.0d};
-    private final WorkQueue _queue;
+    
+    private final java.util.concurrent.Semaphore _sem = new java.util.concurrent.Semaphore(0);                
+    private final java.util.concurrent.ExecutorService _queue = java.util.concurrent.Executors.newSingleThreadExecutor(
+        new java.util.concurrent.ThreadFactory()
+        {
+            public Thread newThread(Runnable r)
+            {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                t.setName("GraphView-Thread");
+                return t;
+            }
+        });
     private final Preferences _preferences;
 
     private final static DataFormat LocalObjectMimeType = new DataFormat("application/x-java-jvm-local-objectref");

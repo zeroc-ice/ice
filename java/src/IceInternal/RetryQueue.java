@@ -20,7 +20,7 @@ public class RetryQueue
     add(OutgoingAsync outAsync, int interval)
     {
         RetryTask task = new RetryTask(this, outAsync);
-        _instance.timer().schedule(task, interval);
+        task.setFuture(_instance.timer().schedule(task, interval, java.util.concurrent.TimeUnit.MILLISECONDS));
         _requests.add(task);
     }
 
@@ -29,7 +29,6 @@ public class RetryQueue
     {
         for(RetryTask task : _requests)
         {
-            _instance.timer().cancel(task);
             task.destroy();
         }
         _requests.clear();

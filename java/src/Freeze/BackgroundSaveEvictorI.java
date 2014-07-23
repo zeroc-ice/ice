@@ -43,89 +43,6 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     //
     static final byte dead = 4;
 
-    //
-    // The WatchDogThread is used by the saving thread to ensure the
-    // streaming of some object does not take more than timeout ms.
-    // We only measure the time necessary to acquire the lock on the
-    // object (servant), not the streaming itself.
-    //
-    class WatchDogThread extends Thread
-    {
-        WatchDogThread(long timeout, String name)
-        {
-            super(name);
-            _timeout = timeout;
-            assert timeout > 0;
-        }
-
-        public synchronized void
-        run()
-        {
-            while(!_done)
-            {
-                long startTime = 0;
-
-                try
-                {
-                    if(_active)
-                    {
-                        startTime = IceInternal.Time.currentMonotonicTimeMillis();
-                        wait(_timeout);
-                    }
-                    else
-                    {
-                        wait();
-                    }
-                }
-                catch(InterruptedException e)
-                {
-                    //
-                    // Ignore
-                    //
-                }
-
-                if(!_done && _active && startTime > 0)
-                {
-                    //
-                    // Did we timeout?
-                    //
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - startTime >= _timeout)
-                    {
-                        _communicator.getLogger().error(_errorPrefix +
-                                                        "Fatal error: streaming watch dog thread timed out");
-
-                        Util.handleFatalError(BackgroundSaveEvictorI.this, _communicator, null);
-                    }
-                }
-            }
-        }
-
-        synchronized void
-        activate()
-        {
-            _active = true;
-            notify();
-        }
-
-        synchronized void
-        deactivate()
-        {
-            _active = false;
-            notify();
-        }
-
-        synchronized void
-        terminate()
-        {
-            _done = true;
-            notify();
-        }
-
-        private final long _timeout;
-        private boolean _done = false;
-        private boolean _active = false;
-    }
-
     BackgroundSaveEvictorI(Ice.ObjectAdapter adapter, String envName, String filename,
                            ServantInitializer initializer, Index[] indices, boolean createDb)
     {
@@ -162,6 +79,16 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
 
         //
+        // By default, no stream timeout
+        //
+        _streamTimeout =
+            _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".StreamTimeout", 0) * 1000;
+        if(_streamTimeout > 0)
+        {
+            _timer = IceInternal.Util.getInstance(_communicator).timer();
+        }
+
+        //
         // Start threads
         //
         String savingThreadName;
@@ -175,21 +102,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         {
             savingThreadName = "";
         }
-        String watchDogThreadName = savingThreadName + "FreezeEvictorWatchDogThread(" + envName + '.' + _filename + ")";
         savingThreadName += "FreezeEvictorThread(" + envName + '.' + _filename + ")";
-
-        //
-        // By default, no stream timeout
-        //
-        long streamTimeout =
-            _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".StreamTimeout", 0) * 1000;
-
-        if(streamTimeout > 0)
-        {
-            _watchDogThread = new WatchDogThread(streamTimeout, watchDogThreadName);
-            _watchDogThread.start();
-        }
-
         _thread = new Thread(this, savingThreadName);
         _thread.start();
     }
@@ -936,19 +849,6 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 {
                 }
 
-                if(_watchDogThread != null)
-                {
-                    _watchDogThread.terminate();
-
-                    try
-                    {
-                        _watchDogThread.join();
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
-                }
-
                 closeDbEnv();
             }
             finally
@@ -1084,15 +984,31 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             // Lock servant and then facet so that user can safely lock
                             // servant and call various Evictor operations
                             //
-                            if(_watchDogThread != null)
+                            java.util.concurrent.Future<?> future = null;
+                            if(_timer != null)
                             {
-                                _watchDogThread.activate();
+                                //
+                                // The timer is used to ensure the streaming of some object does not take more than
+                                // timeout ms. We only measure the time necessary to acquire the lock on the object
+                                // (servant), not the streaming itself.
+                                //
+                                future = _timer.schedule(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            _communicator.getLogger().error(_errorPrefix +
+                                                "Fatal error: streaming watch dog timed out");
+
+                                            Util.handleFatalError(BackgroundSaveEvictorI.this, _communicator, null);
+                                        }
+                                    }, _streamTimeout, java.util.concurrent.TimeUnit.MILLISECONDS); 
                             }
                             synchronized(servant)
                             {
-                                if(_watchDogThread != null)
+                                if(future != null)
                                 {
-                                    _watchDogThread.deactivate();
+                                    future.cancel(false);
+                                    future = null;
                                 }
 
                                 synchronized(element)
@@ -1526,7 +1442,8 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     private java.util.List<EvictorElement> _modifiedQueue = new java.util.ArrayList<EvictorElement>();
 
     private boolean _savingThreadDone = false;
-    private WatchDogThread _watchDogThread = null;
+    private java.util.concurrent.ScheduledExecutorService _timer;
+    private long _streamTimeout;
 
     //
     // Threads that have requested a "saveNow" and are waiting for

@@ -16,54 +16,69 @@ import java.util.HashMap;
 
 class LookupI extends _LookupDisp
 {
-    abstract private class Request<T, AmdCB> implements IceInternal.TimerTask
+    abstract private class Request<T, AmdCB> implements Runnable
     {
-        public Request(T id, int retryCount)
+        Request(T id, int retryCount)
         {
             _id = id;
             _nRetry = retryCount;
         }
 
-        public T
+        T 
         getId()
         {
             return _id;
         }
-
-        public boolean
+        
+        boolean
         addCallback(AmdCB cb)
         {
             _callbacks.add(cb);
             return _callbacks.size() == 1;
         }
 
-        public boolean
+        boolean
         retry()
         {
             return --_nRetry >= 0;
         }
 
+        void
+        scheduleTimer(long timeout)
+        {
+            _future = _timer.schedule(this, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }
+
+        void
+        cancelTimer()
+        {
+            assert _future != null;
+            _future.cancel(false);
+            _future = null;
+        }
+
         protected int _nRetry;
         protected List<AmdCB> _callbacks = new ArrayList<AmdCB>();
         private T _id;
+        protected java.util.concurrent.Future<?> _future;
     };
 
     private class AdapterRequest extends Request<String, Ice.AMD_Locator_findAdapterById>
     {
-        public AdapterRequest(String id, int retryCount)
+        AdapterRequest(String id, int retryCount)
         {
             super(id, retryCount);
             _start = System.nanoTime();
             _latency = 0;
         }
 
-        public boolean
+        boolean
         retry()
         {
             return _proxies.size() == 0 && --_nRetry >= 0;
         }
-
-        public boolean
+        
+        boolean
         response(Ice.ObjectPrx proxy, boolean isReplicaGroup)
         {
             if(isReplicaGroup)
@@ -76,8 +91,8 @@ class LookupI extends _LookupDisp
                     {
                         _latency = 1; // 1ms
                     }
-                    _timer.cancel(this);
-                    _timer.schedule(this, _latency);
+                    cancelTimer();
+                    scheduleTimer(_latency);
                 }
                 return false;
             }
@@ -85,7 +100,7 @@ class LookupI extends _LookupDisp
             return true;
         }
 
-        public void
+        void
         finished(Ice.ObjectPrx proxy)
         {
             if(proxy != null || _proxies.isEmpty())
@@ -111,9 +126,9 @@ class LookupI extends _LookupDisp
             }
             sendResponse(result.ice_endpoints(endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
         }
-
-        public void
-        runTimerTask()
+        
+        public void 
+        run()
         {
             adapterRequestTimedOut(this);
         }
@@ -135,19 +150,18 @@ class LookupI extends _LookupDisp
 
     private class ObjectRequest extends Request<Ice.Identity, Ice.AMD_Locator_findObjectById>
     {
-        public
         ObjectRequest(Ice.Identity id, int retryCount)
         {
             super(id, retryCount);
         }
 
-        public void
+        void 
         response(Ice.ObjectPrx proxy)
         {
             finished(proxy);
         }
-
-        public void
+        
+        void 
         finished(Ice.ObjectPrx proxy)
         {
             for(Ice.AMD_Locator_findObjectById cb : _callbacks)
@@ -157,7 +171,8 @@ class LookupI extends _LookupDisp
             _callbacks.clear();
         }
 
-        public void runTimerTask()
+        public void
+        run()
         {
             objectRequestTimedOut(this);
         }
@@ -230,7 +245,7 @@ class LookupI extends _LookupDisp
         if(request.addCallback(cb))
         {
             _lookup.begin_findObjectById(_domainId, id, _lookupReply);
-            _timer.schedule(request, _timeout);
+            request.scheduleTimer(_timeout);
         }
     }
 
@@ -247,7 +262,7 @@ class LookupI extends _LookupDisp
         if(request.addCallback(cb))
         {
             _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
-            _timer.schedule(request, _timeout);
+            request.scheduleTimer(_timeout);
         }
     }
 
@@ -261,7 +276,7 @@ class LookupI extends _LookupDisp
         }
 
         request.response(proxy);
-        _timer.cancel(request);
+        request.cancelTimer();
         _objectRequests.remove(id);
     }
 
@@ -276,7 +291,7 @@ class LookupI extends _LookupDisp
 
         if(request.response(proxy, isReplicaGroup))
         {
-            _timer.cancel(request);
+            request.cancelTimer();
             _adapterRequests.remove(adapterId);
         }
     }
@@ -293,7 +308,7 @@ class LookupI extends _LookupDisp
         if(request.retry())
         {
             _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
-            _timer.schedule(request, _timeout);
+            request.scheduleTimer(_timeout);
         }
         else
         {
@@ -314,7 +329,7 @@ class LookupI extends _LookupDisp
         if(request.retry())
         {
             _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
-            _timer.schedule(request, _timeout);
+            request.scheduleTimer(_timeout);
         }
         else
         {
@@ -331,7 +346,7 @@ class LookupI extends _LookupDisp
     private final int _latencyMultiplier;
     private final String _domainId;
 
-    private final IceInternal.Timer _timer;
+    private final java.util.concurrent.ScheduledExecutorService _timer;
 
     private Map<Ice.Identity, ObjectRequest> _objectRequests = new HashMap<Ice.Identity, ObjectRequest>();
     private Map<String, AdapterRequest> _adapterRequests = new HashMap<String, AdapterRequest>();

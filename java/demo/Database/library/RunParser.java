@@ -19,71 +19,21 @@ class RunParser
         public LibraryPrx getLibrary();
         public void destroy();
         public void refresh();
+        public long getTimeout();
     }
 
-    static private class SessionRefreshThread extends Thread
-    {
-        SessionRefreshThread(Ice.Logger logger, long timeout, SessionAdapter session)
-        {
-            _logger = logger;
-            _session = session;
-            _timeout = timeout; // seconds.
-        }
-
-        synchronized public void
-        run()
-        {
-            while(!_terminated)
-            {
-                try
-                {
-                    wait(_timeout * 1000);
-                }
-                catch(InterruptedException e)
-                {
-                }
-                if(!_terminated)
-                {
-                    try
-                    {
-                        _session.refresh();
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        _logger.warning("SessionRefreshThread: " + ex);
-                        _terminated = true;
-                    }
-                }
-            }
-        }
-
-        synchronized private void
-        terminate()
-        {
-            _terminated = true;
-            notify();
-        }
-
-        final private Ice.Logger _logger;
-        final private SessionAdapter _session;
-        final private long _timeout;
-        private boolean _terminated = false;
-    }
-
-    static int
-    runParser(String appName, String[] args, Ice.Communicator communicator)
-    {
+    static SessionAdapter
+    createSession(String appName, Ice.Communicator communicator) {
         SessionAdapter session;
         final Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(communicator.getDefaultRouter());
-        long timeout;
         if(router != null)
         {
             Glacier2.SessionPrx glacier2session = null;
+            long timeout;
             java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
             while(true)
             {
                 System.out.println("This demo accepts any user-id / password combination.");
-
                 try
                 {
                     String id;
@@ -116,6 +66,7 @@ class RunParser
                     ex.printStackTrace();
                 }
             }
+            final long to = timeout;
             final Glacier2SessionPrx sess = Glacier2SessionPrxHelper.uncheckedCast(glacier2session);
             session = new SessionAdapter()
             {
@@ -145,6 +96,11 @@ class RunParser
                 {
                     sess.refresh();
                 }
+
+                public long getTimeout()
+                {
+                    return to;
+                }
             };
         }
         else
@@ -154,10 +110,11 @@ class RunParser
             if(factory == null)
             {
                 System.err.println(appName + ": invalid object reference");
-                return 1;
+                return null;
             }
 
             final SessionPrx sess = factory.create();
+            final long timeout = factory.getSessionTimeout()/2;
             session = new SessionAdapter()
             {
                 public LibraryPrx getLibrary()
@@ -174,11 +131,44 @@ class RunParser
                 {
                     sess.refresh();
                 }
+
+                 public long getTimeout()
+                 {
+                    return timeout;
+                }
             };
-            timeout = factory.getSessionTimeout()/2;
         }
-        SessionRefreshThread refresh = new SessionRefreshThread(communicator.getLogger(), timeout, session);
-        refresh.start();
+        return session;
+    }
+
+    static int
+    runParser(String appName, String[] args, final Ice.Communicator communicator)
+    {
+        final SessionAdapter session = createSession(appName, communicator);
+        if(session == null)
+        {
+            return 1;
+        }
+
+        java.util.concurrent.ScheduledExecutorService executor = java.util.concurrent.Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(new Runnable()
+            {
+                public void
+                run()
+                {
+                    try
+                    {
+                        session.refresh();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        communicator.getLogger().warning("SessionRefreshThread: " + ex);
+                        // Exceptions thrown from the executor task supress subsequent execution
+                        // of the task.
+                        throw ex;
+                    }
+                }
+            }, session.getTimeout(), session.getTimeout(), java.util.concurrent.TimeUnit.SECONDS);
 
         LibraryPrx library = session.getLibrary();
 
@@ -196,19 +186,7 @@ class RunParser
             rc = parser.parse();
         }
 
-        if(refresh != null)
-        {
-            refresh.terminate();
-            try
-            {
-                refresh.join();
-            }
-            catch(InterruptedException e)
-            {
-            }
-            refresh = null;
-        }
-
+        executor.shutdown();
         session.destroy();
 
         return rc;

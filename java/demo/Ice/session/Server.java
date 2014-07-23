@@ -21,21 +21,17 @@ public class Server extends Ice.Application
         }
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
-        ReapThread reaper = new ReapThread();
-        reaper.start();
+
+        java.util.concurrent.ScheduledExecutorService executor = java.util.concurrent.Executors.newScheduledThreadPool(1);
+        ReapTask reaper = new ReapTask();
+        executor.scheduleAtFixedRate(reaper, 1, 1, java.util.concurrent.TimeUnit.SECONDS);
 
         adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
         adapter.activate();
         communicator().waitForShutdown();
 
+        executor.shutdown();
         reaper.terminate();
-        try
-        {
-            reaper.join();
-        }
-        catch(InterruptedException e)
-        {
-        }
 
         return 0;
     }
