@@ -205,6 +205,8 @@ PHP Changes
 
 - Added ice_staticId() to generated proxy helper classes.
 
+- Generated interfaces now extend the Object base interface.
+
 - Added ObjectPrxHelper class.
 
 
