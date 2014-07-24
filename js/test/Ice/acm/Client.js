@@ -381,7 +381,7 @@
         {
             var self = this;
             var p = new Ice.Promise().succeed();
-            for(var i = 0; i < 10; ++i)
+            for(var i = 0; i < 12; ++i)
             {
                 p = p.then(function()
                            {

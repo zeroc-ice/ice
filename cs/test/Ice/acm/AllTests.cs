@@ -459,7 +459,7 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            for(int i = 0; i < 10; i++)
+            for(int i = 0; i < 12; i++)
             {
                 proxy.ice_ping();
                 Thread.Sleep(200);

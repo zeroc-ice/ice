@@ -478,10 +478,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         virtual void runTestCase(const RemoteObjectAdapterPrx& adapter, const TestIntfPrx& proxy)
         {
-            for(int i = 0; i < 20; ++i)
+            for(int i = 0; i < 12; ++i)
             {
                 proxy->ice_ping();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
             }
 
             Lock sync(*this);
