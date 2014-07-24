@@ -125,7 +125,7 @@ USE_READLINE		?= no
 # environment variables, change the following setting to reflect the
 # installation location.
 #
-THIRDPARTY_HOME	?= "C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty"
+THIRDPARTY_HOME	?= C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
 
 #
 # Default Mutex protocol: one of PrioNone or PrioInherit.

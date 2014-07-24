@@ -34,12 +34,9 @@ string
 IceUtilInternal::int64ToString(Int64 val)
 {
     char buf[64];
-#ifdef _WIN32
-#   if defined(_MSC_VER)
+
+#if defined(_WIN32)
     sprintf_s(buf, sizeof(buf), "%I64d", val);
-#   else
-    sprintf(buf, "%I64d", val);
-#   endif
 #elif defined(ICE_64)
     sprintf(buf, "%ld", val); // Avoids a format warning from GCC.
 #else

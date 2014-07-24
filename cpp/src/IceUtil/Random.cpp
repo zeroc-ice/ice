@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #  define _CRT_RAND_S
 #endif
 
@@ -151,7 +151,7 @@ unsigned int
 IceUtilInternal::random(int limit)
 {
     unsigned int r;
-#if defined(_MSC_VER)
+#ifdef _WIN32
     errno_t err = rand_s(&r);
     if(err != 0)
     {

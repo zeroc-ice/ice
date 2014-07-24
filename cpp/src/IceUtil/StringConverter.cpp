@@ -1,3 +1,16 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#if defined(__MINGW32__) && !defined(_WIN32_WINNT)
+   // Windows Vista and up for WC_ERR_INVALID_CHARS
+   #define _WIN32_WINNT 0x0600
+#endif
 
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/MutexPtrLock.h>

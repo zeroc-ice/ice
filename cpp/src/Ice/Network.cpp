@@ -22,10 +22,7 @@
 // some definitions.
 //
 #if defined(__MINGW32__)
-#   define _WIN32_WINNT 0x0501
-#   ifndef IPV6_V6ONLY
-#       define IPV6_V6ONLY 27
-#   endif
+#define _WIN32_WINNT 0x0600
 #endif
 
 #include <IceUtil/DisableWarnings.h>
@@ -55,6 +52,17 @@
 #  include <ifaddrs.h>
 #elif defined(__sun)
 #  include <sys/sockio.h>
+#endif
+
+#if defined(__MINGW32__)
+#   ifndef IPV6_V6ONLY
+#       define IPV6_V6ONLY 27
+#   endif
+
+extern "C"
+{
+    WINSOCK_API_LINKAGE int WSAAPI inet_pton(INT, PCTSTR, PVOID);
+}
 #endif
 
 using namespace std;
