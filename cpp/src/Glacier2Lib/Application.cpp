@@ -30,9 +30,9 @@ public:
     
     SessionRefreshTask(Glacier2::Application* app, const Glacier2::RouterPrx& router) :
         _app(app),
-        _router(router),
-        _callback(Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshTask::exception))
+        _router(router)
     {
+        _callback = Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshTask::exception);
     }
 
     void
