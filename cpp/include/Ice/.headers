@@ -95,5 +95,6 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Stream.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamHelpers.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ThreadPoolF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UserExceptionFactory.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Version.h \
