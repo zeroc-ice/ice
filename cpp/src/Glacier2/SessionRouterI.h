@@ -110,7 +110,7 @@ public:
                                const Ice::Current&);
     virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
                                                          const Ice::Current&);
-    virtual void refreshSession(const Ice::Current&);
+    virtual void refreshSession_async(const AMD_Router_refreshSessionPtr&, const Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
     virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
@@ -133,7 +133,6 @@ private:
 
     RouterIPtr getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;    
 
-    void sessionPingException(const Ice::Exception&, const ::Ice::ConnectionPtr&);
     void sessionDestroyException(const Ice::Exception&);
 
     bool startCreateSession(const CreateSessionPtr&, const Ice::ConnectionPtr&);
@@ -179,7 +178,6 @@ private:
 
     std::map<Ice::ConnectionPtr, CreateSessionPtr> _pending;
     
-    Ice::Callback_Object_ice_pingPtr _sessionPingCallback;
     Callback_Session_destroyPtr _sessionDestroyCallback;
     
     bool _destroy;

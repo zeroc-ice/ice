@@ -83,7 +83,6 @@ public:
     virtual void 
     closed(const Ice::ConnectionPtr&)
     {
-        cout << "session destroyed" << endl;
         _app->sessionDestroyed();
     }
     

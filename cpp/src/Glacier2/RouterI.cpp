@@ -179,7 +179,7 @@ Glacier2::RouterI::createSessionFromSecureConnection_async(const AMD_Router_crea
 }
 
 void
-Glacier2::RouterI::refreshSession(const Current&)
+Glacier2::RouterI::refreshSession_async(const AMD_Router_refreshSessionPtr&, const ::Ice::Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }
