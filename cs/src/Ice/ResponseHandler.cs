@@ -16,6 +16,7 @@ namespace IceInternal
     {
         void sendResponse(int requestId, BasicStream os, byte status);
         void sendNoResponse();
+        bool systemException(int requestId, Ice.SystemException ex);
         void invokeException(int requestId, Ice.LocalException ex, int invokeNum);
     };
 }

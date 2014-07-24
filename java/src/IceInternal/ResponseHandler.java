@@ -13,5 +13,6 @@ public interface ResponseHandler
 {
     void sendResponse(int requestId, BasicStream os, byte status);
     void sendNoResponse();
+    boolean systemException(int requestId, Ice.SystemException ex);
     void invokeException(int requestId, Ice.LocalException ex, int invokeNum);
 };

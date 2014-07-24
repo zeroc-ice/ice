@@ -54,7 +54,7 @@ class MyObjectI extends _MyObjectDisp
     public int 
     badSystemAdd(int x, int y, Ice.Current current)
     {
-        throw new Ice.InitializationException("testing");
+        throw new MySystemException();
     } 
 
 
@@ -176,7 +176,7 @@ class MyObjectI extends _MyObjectDisp
                     catch(InterruptedException e)
                     {
                     }
-                    cb.ice_exception(new Ice.InitializationException("testing"));
+                    cb.ice_exception(new MySystemException());
                 }
             };
         

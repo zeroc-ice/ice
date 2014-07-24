@@ -1394,6 +1394,12 @@ Ice::ConnectionI::sendNoResponse()
     }
 }
 
+bool
+Ice::ConnectionI::systemException(Int, const SystemException&)
+{
+    return false; // System exceptions aren't marshalled.
+}
+
 EndpointIPtr
 Ice::ConnectionI::endpoint() const
 {

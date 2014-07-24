@@ -91,8 +91,13 @@ public class Client
                 prx.badSystemAdd(33, 12);
                 test(false);
             }
-            catch(Ice.UnknownLocalException)
+            catch(Ice.UnknownException)
             {
+                test(!prx.ice_isCollocationOptimized());
+            }
+            catch(MySystemException)
+            {
+                test(prx.ice_isCollocationOptimized());
             }
             catch(Exception)
             {
@@ -171,14 +176,22 @@ public class Client
                 prx.amdBadSystemAdd(33, 12);
                 test(false);
             }
-            catch(Ice.UnknownLocalException)
+            catch(Ice.UnknownException)
             {
                 test(!prx.ice_isCollocationOptimized());
+            }
+            catch(MySystemException)
+            {
+                test(prx.ice_isCollocationOptimized());
+            }
+            catch(Exception)
+            {
+                test(false);
             }
             test(interceptor.getLastOperation().Equals("amdBadSystemAdd"));
             test(interceptor.getLastStatus().Equals(Ice.DispatchStatus.DispatchAsync));
             test(interceptor.getActualStatus() == Ice.DispatchStatus.DispatchAsync);
-            test(interceptor.getException() is Ice.InitializationException);
+            test(interceptor.getException() is MySystemException);
             Console.WriteLine("ok");
             return 0;
         }
@@ -195,30 +208,41 @@ public class Client
 
             Ice.Object servant = new MyObjectI();
             InterceptorI interceptor = new InterceptorI(servant);
+            AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
 
             Test.MyObjectPrx prx = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
-
-            oa.activate();
+            Test.MyObjectPrx prxForAMD = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
 
             Console.WriteLine("Collocation optimization on");
             int rs = run(prx, interceptor);
-            if(rs == 0)
+            if(rs != 0)
             {
-                Console.WriteLine("Collocation optimization off");
-                interceptor.clear();
-                prx = Test.MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
-                rs = run(prx, interceptor);
-
-                if(rs == 0)
-                {
-                    Console.WriteLine("Now with AMD");
-                    AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
-                    prx = Test.MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
-
-                    rs = runAmd(prx, amdInterceptor);
-                }
+                return rs;
             }
+
+            Console.WriteLine("Now with AMD");
+            rs = runAmd(prxForAMD, amdInterceptor);
+            if(rs != 0)
+            {
+                return rs;
+            }
+
+            oa.activate(); // Only necessary for non-collocation optimized tests
+
+            Console.WriteLine("Collocation optimization off");
+            interceptor.clear();
+            prx = Test.MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
+            rs = run(prx, interceptor);
+            if(rs != 0)
+            {
+                return rs;
+            }
+
+            Console.WriteLine("Now with AMD");
+            amdInterceptor.clear();
+            prxForAMD = Test.MyObjectPrxHelper.uncheckedCast(prxForAMD.ice_collocationOptimized(false));
+            rs = runAmd(prxForAMD, amdInterceptor);
+
             return rs;
         }
     }

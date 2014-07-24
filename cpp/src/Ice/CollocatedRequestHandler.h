@@ -56,6 +56,7 @@ public:
 
     virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte);
     virtual void sendNoResponse();
+    virtual bool systemException(Ice::Int, const Ice::SystemException&);
     virtual void invokeException(Ice::Int, const Ice::LocalException&, int);
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.

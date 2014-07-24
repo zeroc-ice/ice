@@ -30,6 +30,7 @@ public:
     
     virtual void sendResponse(Ice::Int, BasicStream*, Ice::Byte) = 0;
     virtual void sendNoResponse() = 0;
+    virtual bool systemException(Ice::Int, const Ice::SystemException&) = 0;
     virtual void invokeException(Ice::Int, const Ice::LocalException&, int) = 0;
 };
 

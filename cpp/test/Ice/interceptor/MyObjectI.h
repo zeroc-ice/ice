@@ -12,6 +12,19 @@
 
 #include <Test.h>
 
+class MySystemException : public Ice::SystemException
+{
+public:
+  
+    MySystemException(const char*, int);
+
+    virtual ~MySystemException() throw();
+
+    virtual std::string ice_name() const;
+    virtual MySystemException* ice_clone() const;
+    virtual void ice_throw() const;
+};
+
 class MyObjectI : public Test::MyObject
 {
 public:

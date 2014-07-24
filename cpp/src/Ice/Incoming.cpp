@@ -260,14 +260,9 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
 
     if(const SystemException* ex = dynamic_cast<const SystemException*>(&exc))
     {
-        //
-        // Only rethrow the system exception if it's a collocated
-        // call. For now, on-the-wire system exceptions aren't
-        // supported.
-        //
-        if(!_current.con)
+        if(_responseHandler->systemException(_current.requestId, *ex))
         {
-            ex->ice_throw();
+            return;
         }
     }
 

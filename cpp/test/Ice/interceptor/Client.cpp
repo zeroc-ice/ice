@@ -95,30 +95,41 @@ Client::run(int, char*[])
     
     Ice::ObjectPtr servant = new MyObjectI;
     InterceptorIPtr interceptor = new InterceptorI(servant);
+    AMDInterceptorIPtr amdInterceptor = new AMDInterceptorI(servant);
     
     Test::MyObjectPrx prx = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(interceptor));
+    Test::MyObjectPrx prxForAMD = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(amdInterceptor));
     
-    oa->activate();
-       
     cout << "Collocation optimization on" << endl;
     int rs = run(prx, interceptor);
-    if(rs == 0)
+    if(rs != 0)
     {
-        cout << "Collocation optimization off" << endl;
-        interceptor->clear();
-        prx = Test::MyObjectPrx::uncheckedCast(prx->ice_collocationOptimized(false));
-        rs = run(prx, interceptor);
-        
-        if(rs == 0)
-        {
-            cout << "Now with AMD" << endl;
-            AMDInterceptorIPtr amdInterceptor = new AMDInterceptorI(servant);
-            prx = Test::MyObjectPrx::uncheckedCast(oa->addWithUUID(amdInterceptor));
-            prx = Test::MyObjectPrx::uncheckedCast(prx->ice_collocationOptimized(false));
-            
-            rs = runAmd(prx, amdInterceptor);
-        }
+        return rs;
     }
+
+    cout << "Now with AMD" << endl;
+    rs = runAmd(prxForAMD, amdInterceptor);
+    if(rs != 0)
+    {
+        return rs;
+    }
+
+    oa->activate(); // Only necessary for non-collocation optimized tests
+       
+    cout << "Collocation optimization off" << endl;
+    interceptor->clear();
+    prx = Test::MyObjectPrx::uncheckedCast(prx->ice_collocationOptimized(false));
+    rs = run(prx, interceptor);
+    if(rs != 0)
+    {
+        return rs;
+    }
+        
+    cout << "Now with AMD" << endl;
+    amdInterceptor->clear();
+    prxForAMD = Test::MyObjectPrx::uncheckedCast(prxForAMD->ice_collocationOptimized(false));
+    rs = runAmd(prxForAMD, amdInterceptor);
+
     return rs;
 }
 
@@ -180,8 +191,13 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
         prx->badSystemAdd(33, 12);
         test(false);
     }
-    catch(const Ice::UnknownLocalException&)
+    catch(const Ice::UnknownException&)
     {
+        test(!prx->ice_isCollocationOptimized());
+    }
+    catch(const MySystemException&)
+    {
+        test(prx->ice_isCollocationOptimized());
     }
     catch(...)
     {
@@ -189,14 +205,13 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     }
     test(interceptor->getLastOperation() == "badSystemAdd");
     cout << "ok" << endl;
-    if(!prx->ice_isCollocationOptimized())
-    {
-        cout << "testing simple AMD... " << flush;
-        test(prx->amdAdd(33, 12) == 45);
-        test(interceptor->getLastOperation() == "amdAdd");
-        test(interceptor->getLastStatus() == Ice::DispatchAsync);
-        cout << "ok" << endl;
-    }
+
+    cout << "testing simple AMD... " << flush;
+    test(prx->amdAdd(33, 12) == 45);
+    test(interceptor->getLastOperation() == "amdAdd");
+    test(interceptor->getLastStatus() == Ice::DispatchAsync);
+    cout << "ok" << endl;
+
     return 0;
 }
 
@@ -253,14 +268,18 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
         prx->amdBadSystemAdd(33, 12);
         test(false);
     }
-    catch(const Ice::UnknownLocalException&)
+    catch(const Ice::UnknownException&)
     {
         test(!prx->ice_isCollocationOptimized());
+    }
+    catch(const MySystemException&)
+    {
+        test(prx->ice_isCollocationOptimized());
     }
     test(interceptor->getLastOperation() == "amdBadSystemAdd");
     test(interceptor->getLastStatus() == Ice::DispatchAsync);
     test(interceptor->getActualStatus() == Ice::DispatchAsync);
-    test(dynamic_cast<Ice::InitializationException*>(interceptor->getException()) != 0);
+    test(dynamic_cast<MySystemException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
     return 0;
 }

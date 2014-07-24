@@ -1087,6 +1087,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    public boolean 
+    systemException(int requestId, Ice.SystemException ex)
+    {
+        return false; // System exceptions aren't marshalled.
+    }
+        
     public IceInternal.EndpointI
     endpoint()
     {

@@ -10,6 +10,20 @@
 using System;
 using System.Threading;
 
+class MySystemException : Ice.SystemException
+{
+    public 
+    MySystemException()
+    {
+    }
+
+    override public string 
+    ice_name()
+    {
+        return "MySystemException";
+    }
+};
+ 
 class MyObjectI : Test.MyObjectDisp_
 {
     protected static void
@@ -55,7 +69,7 @@ class MyObjectI : Test.MyObjectDisp_
     public override int 
     badSystemAdd(int x, int y, Ice.Current current)
     {
-        throw new Ice.InitializationException("testing");
+        throw new MySystemException();
     } 
 
 
@@ -126,7 +140,7 @@ class MyObjectI : Test.MyObjectDisp_
         Thread thread = new Thread(delegate()
                                    {
                                        Thread.Sleep(10);
-                                       cb.ice_exception(new Ice.InitializationException("testing"));
+                                       cb.ice_exception(new MySystemException());
                                    });
         
         thread.IsBackground = true;

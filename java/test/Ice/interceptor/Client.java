@@ -90,8 +90,13 @@ public class Client extends test.Util.Application
             prx.badSystemAdd(33, 12);
             test(false);
         }
-        catch(Ice.UnknownLocalException e)
+        catch(Ice.UnknownException e)
         {
+            test(!prx.ice_isCollocationOptimized());
+        }
+        catch(MySystemException e)
+        {
+            test(prx.ice_isCollocationOptimized());
         }
         catch(Throwable ex)
         {
@@ -100,22 +105,21 @@ public class Client extends test.Util.Application
         test(interceptor.getLastOperation().equals("badSystemAdd"));
         test(interceptor.getLastStatus() == null);
         out.println("ok");
-        if(!prx.ice_isCollocationOptimized())
-        {
-            out.print("testing simple AMD... ");
-            out.flush();
-            test(prx.amdAdd(33, 12) == 45);
-            test(interceptor.getLastOperation().equals("amdAdd"));
-            test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
-            out.println("ok");
-        }
+
+        out.print("testing simple AMD... ");
+        out.flush();
+        test(prx.amdAdd(33, 12) == 45);
+        test(interceptor.getLastOperation().equals("amdAdd"));
+        test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
+        out.println("ok");
+
         return 0;
     }
     
     private int
     runAmd(MyObjectPrx prx, AMDInterceptorI interceptor, PrintWriter out)
     {
-                out.print("testing simple interceptor... ");
+        out.print("testing simple interceptor... ");
         out.flush();
         test(interceptor.getLastOperation() == null);
         test(interceptor.getLastStatus() == null);
@@ -171,14 +175,22 @@ public class Client extends test.Util.Application
             prx.amdBadSystemAdd(33, 12);
             test(false);
         }
-        catch(Ice.UnknownLocalException e)
+        catch(Ice.UnknownException e)
         {
             test(!prx.ice_isCollocationOptimized());
+        }
+        catch(MySystemException e)
+        {
+            test(prx.ice_isCollocationOptimized());
+        }
+        catch(Throwable ex)
+        {
+            test(false);
         }
         test(interceptor.getLastOperation().equals("amdBadSystemAdd"));
         test(interceptor.getLastStatus().equals(Ice.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus() == null);
-        test(interceptor.getException() instanceof Ice.InitializationException);
+        test(interceptor.getException() instanceof MySystemException);
         out.println("ok");
         return 0;
     }
@@ -195,31 +207,42 @@ public class Client extends test.Util.Application
 
         Ice.Object servant = new MyObjectI();
         InterceptorI interceptor = new InterceptorI(servant);
+        AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
         
         MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
+        MyObjectPrx prxForAMD = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
         
-        oa.activate();
-       
         PrintWriter out = getWriter();
-                out.println("Collocation optimization on");
+        out.println("Collocation optimization on");
         int rs = run(prx, interceptor);
-        if(rs == 0)
+        if(rs != 0)
         {
-            out.println("Collocation optimization off");
-            interceptor.clear();
-            prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
-            rs = run(prx, interceptor);
-
-            if(rs == 0)
-            {
-                out.println("Now with AMD");
-                AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
-                prx = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
-                prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
-
-                rs = runAmd(prx, amdInterceptor, out);
-            }
+            return rs;
         }
+
+        out.println("Now with AMD");
+        rs = runAmd(prxForAMD, amdInterceptor, out);
+        if(rs != 0)
+        {
+            return rs;
+        }
+
+        oa.activate(); // Only necessary for non-collocation optimized tests
+
+        out.println("Collocation optimization off");
+        interceptor.clear();
+        prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
+        rs = run(prx, interceptor);
+        if(rs != 0)
+        {
+            return rs;
+        }
+        
+        out.println("Now with AMD");
+        amdInterceptor.clear();
+        prxForAMD = MyObjectPrxHelper.uncheckedCast(prxForAMD.ice_collocationOptimized(false));
+        rs = runAmd(prxForAMD, amdInterceptor, out);
+
         return rs;
     }
 

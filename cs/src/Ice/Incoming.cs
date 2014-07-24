@@ -497,14 +497,9 @@ namespace IceInternal
             {
                 if(ex is Ice.SystemException)
                 {
-                    //
-                    // Only rethrow the system exception if it's a collocated
-                    // call. For now, on-the-wire system exceptions aren't
-                    // supported.
-                    //
-                    if(current_.con == null)
+                    if(responseHandler_.systemException(current_.requestId, (Ice.SystemException)ex))
                     {
-                        throw ex;
+                        return;
                     }
                 }
 

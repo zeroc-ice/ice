@@ -540,6 +540,14 @@ CollocatedRequestHandler::sendNoResponse()
     _adapter->decDirectCount();
 }
 
+bool
+CollocatedRequestHandler::systemException(Int requestId, const SystemException& ex)
+{
+    handleException(requestId, ex);
+    _adapter->decDirectCount();
+    return true;
+}
+
 void 
 CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int invokeNum)
 {
@@ -633,15 +641,7 @@ CollocatedRequestHandler::invokeAll(BasicStream* os, Int requestId, Int invokeNu
             }
 
             Incoming in(_reference->getInstance().get(), this, 0, _adapter, _response, 0, requestId);
-            try
-            {
-                in.invoke(servantManager, os);
-            }
-            catch(const SystemException& ex)
-            {
-                handleException(requestId, ex);
-                _adapter->decDirectCount();
-            }
+            in.invoke(servantManager, os);
             --invokeNum;
         }
     }

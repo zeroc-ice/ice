@@ -1088,6 +1088,11 @@ namespace Ice
             }
         }
 
+        public bool systemException(int requestId, Ice.SystemException ex)
+        {
+            return false; // System exceptions aren't marshalled.
+        }
+        
         public IceInternal.EndpointI endpoint()
         {
             return _endpoint; // No mutex protection necessary, _endpoint is immutable.

@@ -485,14 +485,9 @@ public class IncomingBase
         {
             if(ex instanceof Ice.SystemException)
             {
-                //
-                // Only rethrow the system exception if it's a collocated
-                // call. For now, on-the-wire system exceptions aren't
-                // supported.
-                //
-                if(_current.con == null)
+                if(_responseHandler.systemException(_current.requestId, (Ice.SystemException)ex))
                 {
-                    throw ex;
+                    return;
                 }
             }
 

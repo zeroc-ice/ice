@@ -195,6 +195,7 @@ public:
 
     virtual void sendResponse(Int, IceInternal::BasicStream*, Byte);
     virtual void sendNoResponse();
+    virtual bool systemException(Int, const SystemException&);
 
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;

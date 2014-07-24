@@ -491,6 +491,14 @@ namespace IceInternal
             _adapter.decDirectCount();
         }
 
+        public bool
+        systemException(int requestId, Ice.SystemException ex)
+        {
+            handleException(requestId, ex);
+            _adapter.decDirectCount();
+            return true;
+        }
+        
         public void
         invokeException(int requestId, Ice.LocalException ex, int invokeNum)
         {
@@ -614,15 +622,7 @@ namespace IceInternal
 
                     Incoming @in = new Incoming(_reference.getInstance(), this, null, _adapter, _response, (byte)0,
                                                requestId);
-                    try
-                    {
-                        @in.invoke(servantManager, os);
-                    }
-                    catch(Ice.SystemException ex)
-                    {
-                        handleException(requestId, ex);
-                        _adapter.decDirectCount();
-                    }
+                    @in.invoke(servantManager, os);
                     --invokeNum;
                 }
             }

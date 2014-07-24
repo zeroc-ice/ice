@@ -15,6 +15,33 @@
 using namespace IceUtil; 
 using namespace std;
 
+MySystemException::MySystemException(const char* file, int line) :
+    Ice::SystemException(file, line)
+{
+}
+
+MySystemException::~MySystemException() throw()
+{
+}
+
+string
+MySystemException::ice_name() const
+{
+    return "MySystemException";
+}
+
+MySystemException*
+MySystemException::ice_clone() const
+{
+    return new MySystemException(*this);
+}
+
+void
+MySystemException::ice_throw() const
+{
+    throw *this;
+}
+
 int 
 MyObjectI::add(int x, int y, const Ice::Current&)
 {
@@ -48,10 +75,7 @@ MyObjectI::notExistAdd(int, int, const Ice::Current&)
 int 
 MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 {
-    throw Ice::InitializationException(__FILE__, __LINE__, "testing");
-#ifdef __SUNPRO_CC
-    return 0;
-#endif
+    throw MySystemException(__FILE__, __LINE__);
 }
     
 
@@ -186,7 +210,7 @@ MyObjectI::amdBadSystemAdd_async(const Test::AMD_MyObject_amdBadSystemAddPtr& cb
         void run()
         {
             ThreadControl::sleep(Time::milliSeconds(10));
-            _cb->ice_exception(Ice::InitializationException(__FILE__, __LINE__, "just testing"));
+            _cb->ice_exception(MySystemException(__FILE__, __LINE__));
         }
     private:
         Test::AMD_MyObject_amdBadSystemAddPtr _cb;
