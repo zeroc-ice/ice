@@ -2294,7 +2294,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         writeEndCode(C, outParams, p);
         C << eb;
-        C << nl << "catch(::Ice::Exception& ex)";
+        C << nl << "catch(const ::Ice::Exception& ex)";
         C << sb;
         C << nl << "Cpp11FnCallbackNC::__exception(__result, ex);";
         C << nl << "return;";
@@ -4325,7 +4325,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         }
         writeEndCode(H, outParams, p);
         H << eb;
-        H << nl << "catch(::Ice::Exception& ex)";
+        H << nl << "catch(const ::Ice::Exception& ex)";
         H << sb;
 
         H << nl << "" << baseD << "::__exception(__result, ex);";

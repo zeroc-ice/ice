@@ -166,19 +166,16 @@ public:
 
     virtual void flushBatchRequests(); // From Connection.
     
-#ifdef ICE_CPP11
-    virtual ::Ice::AsyncResultPtr begin_flushBatchRequests(
-                            const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception, 
-                            const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
-    {
-        return __begin_flushBatchRequests(new Cpp11FnCallbackNC_Connection_flushBatchRequests(exception, sent), 0);
-    }
-#endif
-
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
     virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr&,
-                                                    const LocalObjectPtr& = 0);
+                                                    const LocalObjectPtr& = 0);    
+#ifdef ICE_CPP11
+    virtual AsyncResultPtr begin_flushBatchRequests(
+        const ::IceInternal::Function<void (const ::Ice::Exception&)>&, 
+        const ::IceInternal::Function<void (bool)>& = ::IceInternal::Function<void (bool)>());
+#endif
+
     virtual void end_flushBatchRequests(const AsyncResultPtr&);
 
     bool flushBatchRequests(IceInternal::BatchOutgoing*);

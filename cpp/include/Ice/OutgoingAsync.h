@@ -536,44 +536,6 @@ public:
     }
 };
 
-class Cpp11AsyncCallback : public GenericCallbackBase
-{
-public:
-
-    Cpp11AsyncCallback(const ::std::function<void (const ::Ice::AsyncResultPtr&)>& completed,
-                       const ::std::function<void (const ::Ice::AsyncResultPtr&)>& sent) :
-        _completed(completed), 
-        _sent(sent)
-    {
-        checkCallback(true, completed != nullptr);
-    }
-
-    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
-    {
-        _completed(result);
-    }
-
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr&)
-    {
-        return this; // Nothing to do, the cookie is not type-safe.
-    }
-
-    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
-    {
-        if(_sent != nullptr)
-        {
-            _sent(result);
-        }
-    }
-    
-    virtual bool __hasSentCallback() const
-    {
-        return _sent != nullptr;
-    }
-    
-    ::std::function< void (const ::Ice::AsyncResultPtr&)> _completed;
-    ::std::function< void (const ::Ice::AsyncResultPtr&)> _sent;
-};
 #endif
 
 }
@@ -585,28 +547,26 @@ typedef IceUtil::Handle< ::IceInternal::GenericCallbackBase> CallbackPtr;
 
 template<class T> CallbackPtr
 newCallback(const IceUtil::Handle<T>& instance,
-            void (T::*cb)(const ::Ice::AsyncResultPtr&),
-            void (T::*sentcb)(const ::Ice::AsyncResultPtr&) = 0)
+            void (T::*cb)(const AsyncResultPtr&),
+            void (T::*sentcb)(const AsyncResultPtr&) = 0)
 {
     return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
 }
 
 template<class T> CallbackPtr
 newCallback(T* instance,
-            void (T::*cb)(const ::Ice::AsyncResultPtr&),
-            void (T::*sentcb)(const ::Ice::AsyncResultPtr&) = 0)
+            void (T::*cb)(const AsyncResultPtr&),
+            void (T::*sentcb)(const AsyncResultPtr&) = 0)
 {
     return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
 }
 
 #ifdef ICE_CPP11
-inline CallbackPtr
-newCallback(const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed,
-            const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = 
-                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
-{
-    return new ::IceInternal::Cpp11AsyncCallback(completed, sent);
-}
+
+ICE_API CallbackPtr
+newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>&,
+            const ::IceInternal::Function<void (const AsyncResultPtr&)>& = 
+               ::IceInternal::Function<void (const AsyncResultPtr&)>());
 #endif
 
 //

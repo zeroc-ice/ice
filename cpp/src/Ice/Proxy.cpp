@@ -71,6 +71,53 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
 }
 
 #ifdef ICE_CPP11
+
+IceInternal::Cpp11FnCallbackNC::Cpp11FnCallbackNC(const ::std::function<void (const ::Ice::Exception&)>& excb,
+                                                  const ::std::function<void (bool)>& sentcb) :
+    _exception(excb),
+    _sent(sentcb)
+{
+}
+
+IceInternal::CallbackBasePtr 
+IceInternal::Cpp11FnCallbackNC::__verify(::Ice::LocalObjectPtr&)
+{
+    return this;
+}
+
+void 
+IceInternal::Cpp11FnCallbackNC::__sent(const ::Ice::AsyncResultPtr& result) const
+{
+    if(_sent != nullptr)
+    {
+        _sent(result->sentSynchronously());
+    }
+}
+
+bool 
+IceInternal::Cpp11FnCallbackNC::__hasSentCallback() const
+{
+    return _sent != nullptr;
+}
+
+void 
+IceInternal::Cpp11FnCallbackNC::__exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const
+{
+    if(_exception != nullptr)
+    {
+        _exception(ex);
+    }
+}
+
+IceInternal::Cpp11FnOnewayCallbackNC::Cpp11FnOnewayCallbackNC(const ::std::function<void ()>& cb,
+                                                              const ::std::function<void (const ::Ice::Exception&)>& excb,
+                                                              const ::std::function<void (bool)>& sentcb) :
+    Cpp11FnCallbackNC(excb, sentcb),
+    _cb(cb)
+{
+    CallbackBase::checkCallback(true, cb || excb != nullptr);
+}
+    
 void
 IceInternal::Cpp11FnOnewayCallbackNC::__completed(const ::Ice::AsyncResultPtr& result) const
 {
@@ -181,6 +228,252 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
     }
     return __result;
 }
+
+#ifdef ICE_CPP11
+
+Ice::AsyncResultPtr 
+IceProxy::Ice::Object::__begin_ice_isA(
+    const ::std::string& typeId, 
+    const ::Ice::Context* ctx,
+    const ::IceInternal::Function<void (bool)>& response, 
+    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+    const ::IceInternal::Function<void (bool)>& sent)
+{
+    class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+    {
+    public:
+        
+        Cpp11CB(const ::std::function<void (bool)>& responseFunc, 
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+                const ::std::function<void (bool)>& sentFunc) :
+            ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
+            _response(responseFunc)
+        {
+            CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
+        }
+        
+        virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+        {
+            ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
+            bool __ret;
+            try
+            {
+                __ret = __proxy->end_ice_isA(__result);
+            }
+            catch(const ::Ice::Exception& ex)
+            {
+                Cpp11FnCallbackNC::__exception(__result, ex);
+                return;
+            }
+            if(_response != nullptr)
+            {
+                _response(__ret);
+            }
+        }
+        
+    private:
+        
+        ::std::function<void (bool)> _response;
+    };
+
+    return begin_ice_isA(typeId, ctx, new Cpp11CB(response, exception, sent), 0);
+}
+
+Ice::AsyncResultPtr 
+IceProxy::Ice::Object::__begin_ice_id(
+    const ::Ice::Context* ctx,
+    const ::IceInternal::Function<void (const ::std::string&)>& response, 
+    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+    const ::IceInternal::Function<void (bool)>& sent)
+{
+    class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+    {
+    public:
+        
+        Cpp11CB(const ::std::function<void (const ::std::string&)>& responseFunc, 
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+                const ::std::function<void (bool)>& sentFunc) :
+            ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
+            _response(responseFunc)
+        {
+            CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
+        }
+        
+        virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+        {
+            ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
+            ::std::string __ret;
+            try
+            {
+                __ret = __proxy->end_ice_id(__result);
+            }
+            catch(const ::Ice::Exception& ex)
+            {
+                Cpp11FnCallbackNC::__exception(__result, ex);
+                return;
+            }
+            if(_response != nullptr)
+            {
+                _response(__ret);
+            }
+        }
+        
+    private:
+        
+        ::std::function<void (const ::std::string&)> _response;
+    };
+    return begin_ice_id(ctx, new Cpp11CB(response, exception, sent), 0);
+}
+   
+Ice::AsyncResultPtr 
+IceProxy::Ice::Object::__begin_ice_ids(
+    const ::Ice::Context* ctx,
+    const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response,
+    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+    const ::IceInternal::Function<void (bool)>& sent)
+{
+    class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+    {
+    public:
+        
+        Cpp11CB(const ::std::function<void (const ::std::vector< ::std::string>&)>& responseFunc, 
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+                const ::std::function<void (bool)>& sentFunc) :
+            ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
+            _response(responseFunc)
+        {
+            CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
+        }
+        
+        virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+        {
+            ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
+            ::std::vector< ::std::string> __ret;
+            try
+            {
+                __ret = __proxy->end_ice_ids(__result);
+            }
+            catch(const ::Ice::Exception& ex)
+            {
+                Cpp11FnCallbackNC::__exception(__result, ex);
+                return;
+            }
+            if(_response != nullptr)
+            {
+                _response(__ret);
+            }
+        }
+        
+    private:
+        
+        ::std::function<void (const ::std::vector< ::std::string>&)> _response;
+    };
+    return begin_ice_ids(ctx, new Cpp11CB(response, exception, sent), 0);
+}
+
+Ice::AsyncResultPtr 
+IceProxy::Ice::Object::__begin_ice_invoke(
+    const ::std::string& operation, 
+    ::Ice::OperationMode mode, 
+    const ::std::vector< ::Ice::Byte>& inParams,
+    const ::Ice::Context* ctx,
+    const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
+    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+    const ::IceInternal::Function<void (bool)>& sent)
+{
+    class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+    {
+    public:
+        
+        Cpp11CB(const ::std::function<void (bool, const ::std::vector< ::Ice::Byte>&)>& responseFunc, 
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+                const ::std::function<void (bool)>& sentFunc) :
+            ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
+            _response(responseFunc)
+        {
+            CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
+        }
+        
+        virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+        {
+            ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
+            bool __ret;
+            ::std::vector< ::Ice::Byte> p1;
+            try
+            {
+                __ret = __proxy->end_ice_invoke(p1, __result);
+            }
+            catch(const ::Ice::Exception& ex)
+            {
+                Cpp11FnCallbackNC::__exception(__result, ex);
+                return;
+            }
+            if(_response != nullptr)
+            {
+                _response(__ret, p1);
+            }
+        }
+        
+    private:
+        
+        ::std::function<void (bool, const ::std::vector< ::Ice::Byte>&)> _response;
+    };
+    
+    return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
+}
+    
+Ice::AsyncResultPtr 
+IceProxy::Ice::Object::__begin_ice_invoke(
+    const ::std::string& operation,
+    ::Ice::OperationMode mode, 
+    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+    const ::Ice::Context* ctx,
+    const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>& response,
+    const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+    const ::IceInternal::Function<void (bool)>& sent)
+{
+    class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+    {
+    public:
+        
+        Cpp11CB(const ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*, 
+                                            const ::Ice::Byte*>&)>& responseFunc,
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+                const ::std::function<void (bool)>& sentFunc) :
+            ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
+            _response(responseFunc)
+        {
+            CallbackBase::checkCallback(true, _response || _exception != nullptr);
+        }
+        
+        virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+        {
+            bool __ret;
+            ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> p1;
+            try
+            {
+                __ret = __result->getProxy()->___end_ice_invoke(p1, __result);
+            }
+            catch(const ::Ice::Exception& ex)
+            {
+                Cpp11FnCallbackNC::__exception(__result, ex);
+                return;
+            }
+            if(_response != nullptr)
+            {
+                _response(__ret, p1);
+            }
+        }
+        
+    private:
+        
+        ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)> _response;
+    };
+    return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
+}
+
+#endif
+
 
 bool
 IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& __result)

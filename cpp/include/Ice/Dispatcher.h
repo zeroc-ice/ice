@@ -41,39 +41,11 @@ public:
 
 typedef IceUtil::Handle<Dispatcher> DispatcherPtr;
 
-}
-
 #ifdef ICE_CPP11
-namespace IceInternal
-{
-class ICE_API Cpp11Dispatcher : public ::Ice::Dispatcher
-{
-public:
-    
-    Cpp11Dispatcher(const ::std::function<void (const ::Ice::DispatcherCallPtr&, const ::Ice::ConnectionPtr)>& cb) :
-        _cb(cb)
-    {
-    }
-    
-    virtual void dispatch(const ::Ice::DispatcherCallPtr& call, const ::Ice::ConnectionPtr& conn);
-    
-private:
-    
-    const ::std::function<void (const ::Ice::DispatcherCallPtr&, const ::Ice::ConnectionPtr)> _cb;
-};
-
-}
-
-namespace Ice
-{
-
-inline DispatcherPtr
-newDispatcher(const ::std::function<void (const ::Ice::DispatcherCallPtr&, const ::Ice::ConnectionPtr)>& cb)
-{
-    return new ::IceInternal::Cpp11Dispatcher(cb);
-}
-
-}
-
+ICE_API DispatcherPtr
+newDispatcher(const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)>&);
 #endif
+
+}
+
 #endif

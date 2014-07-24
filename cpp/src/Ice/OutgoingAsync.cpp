@@ -1183,6 +1183,54 @@ public:
 //
 CallbackBasePtr IceInternal::__dummyCallback = new DummyCallback;
 
+#ifdef ICE_CPP11
+
+Ice::CallbackPtr
+Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& completed,
+                 const ::IceInternal::Function<void (const AsyncResultPtr&)>& sent)
+{
+    class Cpp11CB : public GenericCallbackBase
+    {
+    public:
+        Cpp11CB(const ::std::function<void (const AsyncResultPtr&)>& completed,
+                const ::std::function<void (const AsyncResultPtr&)>& sent) :
+            _completed(completed), 
+            _sent(sent)
+        {
+            checkCallback(true, completed != nullptr);
+        }
+        
+        virtual void __completed(const AsyncResultPtr& result) const
+        {
+            _completed(result);
+        }
+        
+        virtual CallbackBasePtr __verify(LocalObjectPtr&)
+        {
+            return this; // Nothing to do, the cookie is not type-safe.
+        }
+        
+        virtual void __sent(const AsyncResultPtr& result) const
+        {
+            if(_sent != nullptr)
+            {
+                _sent(result);
+             }
+        }
+    
+        virtual bool __hasSentCallback() const
+        {
+            return _sent != nullptr;
+        }
+        
+        ::std::function< void (const AsyncResultPtr&)> _completed;
+        ::std::function< void (const AsyncResultPtr&)> _sent;
+    };
+    
+    return new Cpp11CB(completed, sent);
+}
+#endif
+
 void
 Ice::AMICallbackBase::__exception(const ::Ice::Exception& ex)
 {
@@ -1197,4 +1245,5 @@ Ice::AMICallbackBase::__sent(bool sentSynchronously)
         dynamic_cast<AMISentCallback*>(this)->ice_sent();
     }
 }
+
 

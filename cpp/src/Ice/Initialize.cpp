@@ -368,9 +368,27 @@ IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 }
 
 #ifdef ICE_CPP11
-void
-IceInternal::Cpp11Dispatcher::dispatch(const ::Ice::DispatcherCallPtr& call, const ::Ice::ConnectionPtr& conn)
+Ice::DispatcherPtr
+Ice::newDispatcher(const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)>& cb)
 {
-    _cb(call, conn);
+    class Cpp11Dispatcher : public Dispatcher
+    {
+    public:
+        
+        Cpp11Dispatcher(const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)>& cb) :
+            _cb(cb)
+        {
+        }
+        
+        virtual void dispatch(const DispatcherCallPtr& call, const ConnectionPtr& conn)
+        {
+            _cb(call, conn);
+        }
+        
+    private:
+        const ::std::function<void (const DispatcherCallPtr&, const ConnectionPtr)> _cb;
+    };
+
+    return new Cpp11Dispatcher(cb);
 }
 #endif
