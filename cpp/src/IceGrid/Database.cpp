@@ -1246,7 +1246,7 @@ Database::getAdapterInfo(const string& id)
         Lock sync(*this); // Make sure this isn't call during an update.
         return _adapterCache.get(id)->getAdapterInfo();
     }
-    catch(AdapterNotExistException&)
+    catch(const AdapterNotExistException&)
     {
     }
 
@@ -1302,7 +1302,7 @@ Database::getFilteredAdapterInfo(const string& id, const Ice::ConnectionPtr& con
         }
         return infos;
     }
-    catch(AdapterNotExistException&)
+    catch(const AdapterNotExistException&)
     {
     }
 
@@ -1346,7 +1346,7 @@ Database::getAdapterServer(const string& id) const
             return adapter->getServerId();
         }
     }
-    catch(AdapterNotExistException&)
+    catch(const AdapterNotExistException&)
     {
     }
     return "";
@@ -1360,7 +1360,7 @@ Database::getAdapterApplication(const string& id) const
         Lock sync(*this); // Make sure this isn't call during an update.
         return _adapterCache.get(id)->getApplication();
     }
-    catch(AdapterNotExistException&)
+    catch(const AdapterNotExistException&)
     {
     }
     return "";
@@ -1378,7 +1378,7 @@ Database::getAdapterNode(const string& id) const
             return adapter->getNodeName();
         }
     }
-    catch(AdapterNotExistException&)
+    catch(const AdapterNotExistException&)
     {
     }
     return "";
@@ -1715,7 +1715,7 @@ Database::getObjectProxy(const Ice::Identity& id)
         //
         return _objectCache.get(id)->getProxy();
     }
-    catch(ObjectNotRegisteredException&)
+    catch(const ObjectNotRegisteredException&)
     {
     }
 
@@ -1810,7 +1810,7 @@ Database::getObjectInfo(const Ice::Identity& id)
         ObjectEntryPtr object = _objectCache.get(id);
         return object->getObjectInfo();
     }
-    catch(ObjectNotRegisteredException&)
+    catch(const ObjectNotRegisteredException&)
     {
     }
 

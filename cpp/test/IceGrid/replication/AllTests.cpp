@@ -131,7 +131,7 @@ waitForNodeState(const IceGrid::AdminPrx& admin, const std::string& node, bool u
             cerr << "state: " << up << endl;
         }
     }
-    catch(NodeNotExistException&)
+    catch(const NodeNotExistException&)
     {
         if(up)
         {
@@ -158,7 +158,7 @@ instantiateServer(const AdminPrx& admin, const string& templ, const map<string, 
     {
         admin->updateApplication(update);
     }
-    catch(DeploymentException& ex)
+    catch(const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -199,7 +199,7 @@ removeServer(const AdminPrx& admin, const string& id)
     {
         admin->updateApplication(update);
     }
-    catch(DeploymentException& ex)
+    catch(const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -469,7 +469,7 @@ allTests(const Ice::CommunicatorPtr& comm)
             masterMapper->getUserAccount("unknown");
             test(false);
         }
-        catch(UserAccountNotFoundException&)
+        catch(const UserAccountNotFoundException&)
         {
         }
         try
@@ -477,7 +477,7 @@ allTests(const Ice::CommunicatorPtr& comm)
             slave1Mapper->getUserAccount("unknown");
             test(false);
         }
-        catch(UserAccountNotFoundException&)
+        catch(const UserAccountNotFoundException&)
         {
         }
         

@@ -93,7 +93,7 @@ removeServer(const AdminPrx& admin, const string& id)
     {
         admin->updateApplication(update);
     }
-    catch(DeploymentException& ex)
+    catch(const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
         test(false);

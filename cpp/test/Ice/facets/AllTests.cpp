@@ -54,7 +54,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter->addFacet(obj, communicator->stringToIdentity("d"), "facetABCD");
         test(false);
     }
-    catch(Ice::AlreadyRegisteredException&)
+    catch(const Ice::AlreadyRegisteredException&)
     {
     }
     adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
@@ -63,7 +63,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter->removeFacet(communicator->stringToIdentity("d"), "facetABCD");
         test(false);
     }
-    catch(Ice::NotRegisteredException&)
+    catch(const Ice::NotRegisteredException&)
     {
     }
     cout << "ok" << endl;
@@ -86,7 +86,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter->removeAllFacets(communicator->stringToIdentity("id1"));
         test(false);
     }
-    catch(Ice::NotRegisteredException&)
+    catch(const Ice::NotRegisteredException&)
     {
     }
     fm = adapter->removeAllFacets(communicator->stringToIdentity("id2"));

@@ -89,7 +89,7 @@ public:
         catch(const Ice::ConnectFailedException&)
         {
         }
-        catch(Ice::Exception& ex)
+        catch(const Ice::Exception& ex)
         {
             cout << ex << endl;
             test(false);

@@ -470,7 +470,7 @@ AdminSessionI::destroyImpl(bool shutdown)
     {
         _database->unlock(this);
     }
-    catch(AccessDeniedException&)
+    catch(const AccessDeniedException&)
     {
     }
 

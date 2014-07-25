@@ -266,7 +266,7 @@ ServerEntry::waitForSyncNoThrow(int timeout)
     {
         waitImpl(timeout);
     }
-    catch(SynchronizationException&)
+    catch(const SynchronizationException&)
     {
         assert(timeout >= 0);
     }
@@ -604,7 +604,7 @@ ServerEntry::syncImpl()
         {
             _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout);
         }
-        catch(NodeNotExistException&)
+        catch(const NodeNotExistException&)
         {
             exception(NodeUnreachableException(destroy.node, "node is not active"));
         }    
@@ -615,7 +615,7 @@ ServerEntry::syncImpl()
         {
             _cache.getNodeCache().get(load.node)->loadServer(this, load, session, timeout, noRestart);
         }
-        catch(NodeNotExistException&)
+        catch(const NodeNotExistException&)
         {
             exception(NodeUnreachableException(load.node, "node is not active"));
         }
@@ -782,7 +782,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
         {
             _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy, timeout);
         }
-        catch(NodeNotExistException&)
+        catch(const NodeNotExistException&)
         {
             exception(NodeUnreachableException(destroy.node, "node is not active"));
         }    
@@ -793,7 +793,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
         {
             _cache.getNodeCache().get(load.node)->loadServer(this, load, session, timeout, noRestart);
         }
-        catch(NodeNotExistException&)
+        catch(const NodeNotExistException&)
         {
             exception(NodeUnreachableException(load.node, "node is not active"));
         }
@@ -836,7 +836,7 @@ ServerEntry::destroyCallback()
         {
             _cache.getNodeCache().get(load.node)->loadServer(this, load, session, -1, noRestart);
         }
-        catch(NodeNotExistException&)
+        catch(const NodeNotExistException&)
         {
             exception(NodeUnreachableException(load.node, "node is not active"));
         }
@@ -888,7 +888,7 @@ ServerEntry::exception(const Ice::Exception& ex)
         {
             _cache.getNodeCache().get(load.node)->loadServer(this, load, session, timeout, noRestart);
         }
-        catch(NodeNotExistException&)
+        catch(const NodeNotExistException&)
         {
             exception(NodeUnreachableException(load.node, "node is not active"));
         }
@@ -942,7 +942,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     {
         node = _cache.getNodeCache().get(info.node);
     }
-    catch(NodeNotExistException&)
+    catch(const NodeNotExistException&)
     {
         throw NodeUnreachableException(info.node, "node is not active");
     }

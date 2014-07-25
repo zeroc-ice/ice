@@ -2328,7 +2328,8 @@ namespace Ice
             }
         }
 
-        public int handleException__(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, bool sent, ref int cnt)
+        public int handleException__(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, bool sent,
+                                     ref int cnt)
         {
             setRequestHandler__(handler, null); // Clear the request handler
 

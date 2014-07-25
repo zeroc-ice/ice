@@ -714,7 +714,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session1->allocateObjectByType("::TestServer1");
             test(false);
         }
-        catch(AllocationException&)
+        catch(const AllocationException&)
         {
         }
         try
@@ -722,7 +722,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session1->allocateObjectByType("::TestServer2");
             test(false);
         }
-        catch(AllocationException&)
+        catch(const AllocationException&)
         {
         }
         test(session2->allocateObjectByType("::TestServer1"));
@@ -731,7 +731,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session2->allocateObjectByType("::TestServer1");
             test(false);
         }
-        catch(AllocationException&)
+        catch(const AllocationException&)
         {
         }
         try
@@ -739,7 +739,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session2->allocateObjectByType("::TestServer2");
             test(false);
         }
-        catch(AllocationException&)
+        catch(const AllocationException&)
         {
         }
         session2->releaseObject(allocatable3);
@@ -785,7 +785,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session2->allocateObjectByType("::TestMultipleByServer");
             test(false);
         }
-        catch(AllocationException&)
+        catch(const AllocationException&)
         {
         }
         test(session1->allocateObjectByType("::TestMultipleByServer"));
@@ -797,7 +797,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session1->allocateObjectByType("::TestMultipleByServer");
             test(false);
         }
-        catch(AllocationException&)
+        catch(const AllocationException&)
         {
         }
         test(session2->allocateObjectByType("::TestMultipleByServer"));
@@ -813,7 +813,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session1->allocateObjectByType("::TestMultipleServer");
             test(false);
         }
-        catch(AllocationTimeoutException&)
+        catch(const AllocationTimeoutException&)
         {
         }
         try
@@ -821,7 +821,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             session2->allocateObjectByType("::TestMultipleServer");
             test(false);
         }
-        catch(AllocationTimeoutException&)
+        catch(const AllocationTimeoutException&)
         {
         }       
         session1->releaseObject(obj1->ice_getIdentity());

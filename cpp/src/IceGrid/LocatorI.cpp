@@ -113,7 +113,7 @@ public:
         {
             ex.ice_throw();
         }
-        catch(Ice::AdapterNotFoundException&)
+        catch(const Ice::AdapterNotFoundException&)
         {
             //
             // We couldn't find the adapter, we ignore and return the

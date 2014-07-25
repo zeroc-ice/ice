@@ -1650,7 +1650,7 @@ IceInternal::BasicStream::writeEnum(Int v, Int maxValue)
 }
 
 void
-IceInternal::BasicStream::writeException(const Ice::UserException& e)
+IceInternal::BasicStream::writeException(const UserException& e)
 {
     initWriteEncaps();
     _currentWriteEncaps->encoder->write(e);

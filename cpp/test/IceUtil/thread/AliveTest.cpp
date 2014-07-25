@@ -62,7 +62,7 @@ public:
            _childCreated.signal();
            _parentReady.waitForSignal();
         }
-        catch(IceUtil::ThreadLockedException &)
+        catch(const IceUtil::ThreadLockedException&)
         {
         }
     }

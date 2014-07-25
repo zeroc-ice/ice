@@ -1233,7 +1233,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(admin->getServerState("Server") == Active);
                 break;
             }
-            catch(DeploymentException&)
+            catch(const DeploymentException&)
             {
                 IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
             }

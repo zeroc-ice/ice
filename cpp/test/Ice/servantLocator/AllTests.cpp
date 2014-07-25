@@ -347,7 +347,7 @@ allTests(const CommunicatorPtr& communicator)
         obj->ice_ping();
         test(false);
     }
-    catch(Ice::ObjectNotExistException&)
+    catch(const Ice::ObjectNotExistException&)
     {
         cout << "ok" << endl;
     }

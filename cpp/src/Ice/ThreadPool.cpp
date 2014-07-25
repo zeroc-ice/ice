@@ -699,7 +699,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             {
                 current._handler->message(current);
             }
-            catch(ThreadPoolDestroyedException&)
+            catch(const ThreadPoolDestroyedException&)
             {
                 return;
             }
@@ -721,7 +721,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             {
                 _selector.select(handlers, _serverIdleTime);
             }
-            catch(SelectorTimeoutException&)
+            catch(const SelectorTimeoutException&)
             {
                 Lock sync(*this);
                 if(!_destroyed && _inUse == 0)
@@ -954,7 +954,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             assert(current._handler);
             current._handler->message(current);
         }
-        catch(ThreadPoolDestroyedException&)
+        catch(const ThreadPoolDestroyedException&)
         {
             return;
         }
