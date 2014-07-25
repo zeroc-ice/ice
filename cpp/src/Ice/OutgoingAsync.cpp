@@ -111,7 +111,7 @@ Ice::AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
     {
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__);
     }
-    const_cast<CallbackBasePtr&>(_callback) = _callback->__verify(const_cast<LocalObjectPtr&>(_cookie));
+    const_cast<CallbackBasePtr&>(_callback) = _callback->__verify(_cookie);
 }
 
 Ice::AsyncResult::~AsyncResult()
@@ -1150,7 +1150,7 @@ public:
          assert(false);
     }
 
-    virtual CallbackBasePtr __verify(Ice::LocalObjectPtr&)
+    virtual CallbackBasePtr __verify(const Ice::LocalObjectPtr&)
     {
         //
         // Called by the AsyncResult constructor to verify the delegate. The dummy
@@ -1205,7 +1205,7 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
             _completed(result);
         }
         
-        virtual CallbackBasePtr __verify(LocalObjectPtr&)
+        virtual CallbackBasePtr __verify(const LocalObjectPtr&)
         {
             return this; // Nothing to do, the cookie is not type-safe.
         }

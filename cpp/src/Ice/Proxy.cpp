@@ -80,7 +80,7 @@ IceInternal::Cpp11FnCallbackNC::Cpp11FnCallbackNC(const ::std::function<void (co
 }
 
 IceInternal::CallbackBasePtr 
-IceInternal::Cpp11FnCallbackNC::__verify(::Ice::LocalObjectPtr&)
+IceInternal::Cpp11FnCallbackNC::__verify(const ::Ice::LocalObjectPtr&)
 {
     return this;
 }

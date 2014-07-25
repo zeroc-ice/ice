@@ -161,7 +161,7 @@ public:
     Cpp11FnCallbackNC(const ::std::function<void (const ::Ice::Exception&)>&,
                       const ::std::function<void (bool)>&);
 
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr&);
+    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr&);
 
     virtual void __sent(const ::Ice::AsyncResultPtr&) const;
  
@@ -1300,7 +1300,7 @@ public:
     {
     }
 
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr& cookie)
+    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr& cookie)
     {
         if(cookie != 0) // Makes sure begin_ was called without a cookie
         {
@@ -1354,7 +1354,7 @@ public:
     {
     }
 
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr& cookie)
+    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr& cookie)
     {
         if(cookie && !CT::dynamicCast(cookie))
         {

@@ -397,7 +397,7 @@ public:
     }
 
     virtual void __completed(const ::Ice::AsyncResultPtr&) const = 0;
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr&) = 0;
+    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr&) = 0;
     virtual void __sent(const ::Ice::AsyncResultPtr&) const = 0;
     virtual bool __hasSentCallback() const = 0;
 };
@@ -434,7 +434,7 @@ public:
         (callback.get()->*completed)(result);
     }
 
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr&)
+    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr&)
     {
         return this; // Nothing to do, the cookie is not type-safe.
     }
