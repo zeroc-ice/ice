@@ -3229,6 +3229,12 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
+
+    if(p->isInterface() && !p->isLocal())
+    {
+        out << sp << nl << "public static final String ice_staticId = \"" << p->scoped() << "\";";
+    }
+
     out << sp << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))

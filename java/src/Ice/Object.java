@@ -160,4 +160,6 @@ public interface Object
    
     void __write(OutputStream __outS);
     void __read(InputStream __inS);
+
+    public static final String ice_staticId = "::Ice::Object";
 }

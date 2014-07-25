@@ -86,7 +86,8 @@ class Twoways
         test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
 
 	test(MyDerivedClassPrxHelper.ice_staticId().equals(MyDerivedClass.ice_staticId()));
-	test(Ice.ObjectPrxHelper.ice_staticId().equals(Ice.ObjectImpl.ice_staticId()));
+	test(Ice.ObjectPrxHelper.ice_staticId().equals(Ice.Object.ice_staticId));
+	test(Ice.LocatorPrxHelper.ice_staticId().equals(Ice.Locator.ice_staticId));
 
         {
             String[] ids = p.ice_ids();

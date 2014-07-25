@@ -98,22 +98,6 @@
             </fileset>
         </slice2java>
 
-        <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-            <includepath>
-                <pathelement path="${slice.dir}" />
-            </includepath>
-            <fileset dir="${slice.dir}/Freeze" includes="CatalogData.ice"/>
-            <dict name="Freeze.Catalog" key="string" value="Freeze::CatalogData"/>
-        </slice2freezej>
-
-        <slice2freezej ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-            <includepath>
-                <pathelement path="${slice.dir}" />
-            </includepath>
-            <fileset dir="${slice.dir}/Ice" includes="BuiltinSequences.ice"/>
-            <dict name="Freeze.CatalogIndexList" key="string" value="Ice::StringSeq"/>
-        </slice2freezej>
-
         <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.IceSSL">
             <includepath>
                 <pathelement path="${slice.dir}" />
@@ -287,7 +271,28 @@
         </jar>
     </target>
 
-    <target name="freeze-compile" depends="ice-compile" unless="ice.bin.dist">
+    <target name="freeze-generate" depends="tasks, task-init" unless="ice.bin.dist">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+
+        <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Freeze" includes="CatalogData.ice"/>
+            <dict name="Freeze.Catalog" key="string" value="Freeze::CatalogData"/>
+        </slice2freezej>
+
+        <slice2freezej ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="BuiltinSequences.ice"/>
+            <dict name="Freeze.CatalogIndexList" key="string" value="Ice::StringSeq"/>
+        </slice2freezej>
+    </target>
+
+    <target name="freeze-compile" depends="freeze-generate, ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Freeze/**"/>
