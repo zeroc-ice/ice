@@ -50,4 +50,4 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
-#include .depend
+include .depend

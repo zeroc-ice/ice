@@ -12,6 +12,11 @@ top_srcdir	= ..
 include $(top_srcdir)/config/Make.rules
 
 #
+# Disable parallel builds
+#
+.NOTPARALLEL:
+
+#
 # IMPORTANT: If you add or remove Slice files, you also need to check Ice.rb!
 #
 ICE_SRCS	= Ice/LocalException.rb \

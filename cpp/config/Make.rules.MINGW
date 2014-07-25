@@ -18,7 +18,7 @@ ifeq ($(CXX),)
    CXX          = c++
 endif
 
-CXXFLAGS       	= $(CXXARCHFLAGS) -fexceptions -mthreads -Wall -Werror -DWIN32_LEAN_AND_MEAN
+CXXFLAGS       	= $(CXXARCHFLAGS) -mthreads -fvisibility=hidden -fvisibility-inlines-hidden -Wall -Werror -DWIN32_LEAN_AND_MEAN
 LDFLAGS         = -Wl,-no-undefined 
 
 ifeq ($(CXX), i686-pc-mingw32-c++)
