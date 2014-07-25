@@ -282,7 +282,8 @@ private:
 
 };
 
-ReplicaSessionManager::ReplicaSessionManager(const Ice::CommunicatorPtr& communicator) : SessionManager(communicator) 
+ReplicaSessionManager::ReplicaSessionManager(const Ice::CommunicatorPtr& communicator, const string& instanceName) :
+    SessionManager(communicator, instanceName) 
 {
 }
 
@@ -309,6 +310,7 @@ ReplicaSessionManager::create(const string& name,
     }    
 
     _thread->tryCreateSession();
+    _thread->waitTryCreateSession();
 }
 
 void
@@ -330,6 +332,7 @@ ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 
     _thread->setRegistry(replica);
     _thread->tryCreateSession();
+    _thread->waitTryCreateSession();
 }
 
 NodePrxSeq
@@ -412,7 +415,7 @@ IceGrid::InternalRegistryPrx
 ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 {
     vector<Ice::AsyncResultPtr> results;
-    vector<QueryPrx> queryObjects = findAllQueryObjects();
+    vector<QueryPrx> queryObjects = findAllQueryObjects(true);
     for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
     {
         results.push_back((*q)->begin_findObjectById(id));
@@ -489,7 +492,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
         if(!session)
         {
             vector<Ice::AsyncResultPtr> results;
-            vector<QueryPrx> queryObjects = findAllQueryObjects();
+            vector<QueryPrx> queryObjects = findAllQueryObjects(false);
             for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
             {
                 results.push_back((*q)->begin_findObjectById(registry->ice_getIdentity()));

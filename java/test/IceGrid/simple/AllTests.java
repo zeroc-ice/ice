@@ -61,16 +61,81 @@ public class AllTests
         out.println("ok");
 
         out.print("testing discovery... ");
+        out.flush();
         {
+            // Add test well-known object
+            IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
+                communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
+            test(registry != null);
+            
+            try
+            {
+                IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
+                session.getAdmin().addObjectWithType(base, "::Test");
+                session.destroy();
+            }
+            catch(Ice.UserException ex)
+            {
+                test(false);
+            }
+
+            //
+            // Ensure the IceGrid discovery locator can discover the
+            // registries and make sure locator requests are forwarded.
+            //
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:IceGrid.DiscoveryPluginFactoryI");
+            initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
+            initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
+        
+            Ice.Communicator com =  Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            com.stringToProxy("test @ TestAdapter").ice_ping();
+            com.stringToProxy("test").ice_ping();
 
-            Ice.Communicator comm =  Ice.Util.initialize(initData);
-            test(comm.getDefaultLocator() != null);
-            comm.stringToProxy("test @ TestAdapter").ice_ping();
-            comm.destroy();
+            test(com.getDefaultLocator().getRegistry() != null);
+            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
+            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
+
+            Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+            adapter.activate();
+            adapter.deactivate();
+            com.destroy();
+
+            //
+            // Now, ensure that the IceGrid discovery locator correctly
+            // handles failure to find a locator.
+            // 
+            initData.properties.setProperty("IceGridDiscovery.InstanceName", "unknown");
+            initData.properties.setProperty("IceGridDiscovery.RetryCount", "1");
+            initData.properties.setProperty("IceGridDiscovery.Timeout", "100");
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+            }
+            try
+            {
+                com.stringToProxy("test").ice_ping();
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+            }
+            test(com.getDefaultLocator().getRegistry() == null);
+            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() == null);
+            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() == null);
+
+            adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+            adapter.activate();
+            adapter.deactivate();
+
+            com.destroy();
         }
         out.println("ok");
 

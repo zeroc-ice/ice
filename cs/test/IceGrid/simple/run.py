@@ -20,6 +20,9 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
+# Test IceGrid discovery with multiple replicas
+IceGridAdmin.nreplicas=2
+
 #
 # Test client/server without on demand activation.
 #

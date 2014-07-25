@@ -331,6 +331,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             return false;
         }
 
+        communicator()->setDefaultLocator(_registry->getLocator());
+        
         //
         // Set the default locator property to point to the collocated
         // locator (this property is passed by the activator to each
@@ -339,16 +341,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         //
         if(properties->getProperty("Ice.Default.Locator").empty())
         {
-            Identity locatorId;
-            locatorId.category = properties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
-            locatorId.name = "Locator";
-            string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
-            string locPrx = "\"" + communicator()->identityToString(locatorId) + "\" :" + endpoints;
-            communicator()->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(communicator()->stringToProxy(locPrx)));
-            properties->setProperty("Ice.Default.Locator", locPrx);
+            properties->setProperty("Ice.Default.Locator", communicator()->getDefaultLocator()->ice_toString());
         }
     }
-    else if(properties->getProperty("Ice.Default.Locator").empty())
+    else if(!communicator()->getDefaultLocator())
     {
         error("property `Ice.Default.Locator' is not set");
         return false;
@@ -485,9 +481,21 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // The IceGrid instance name.
     //
-    const string instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
+    string instanceName = properties->getProperty("IceGrid.InstanceName");
+    if(instanceName.empty())
+    {
+        instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
+    }
+    if(instanceName.empty())
+    {
+        instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
+    }
+    if(instanceName.empty())
+    {
+        instanceName = "IceGrid";
+    }
 
-    _sessions.reset(new NodeSessionManager(communicator()));
+    _sessions.reset(new NodeSessionManager(communicator(), instanceName));
 
     //
     // Create the server factory. The server factory creates persistent objects
@@ -496,7 +504,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     Identity id = communicator()->stringToIdentity(instanceName + "/Node-" + name);
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
-    _node = new NodeI(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper);
+    _node = new NodeI(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     _adapter->addServantLocator(new DefaultServantLocator(new NodeServerAdminRouter(_node)), 
@@ -516,7 +524,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             communicator()->getDefaultLocator()->ice_timeout(1000)->ice_ping();
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::Exception& ex)
         {
             Warning out(communicator()->getLogger());
             out << "couldn't reach the IceGrid registry (this is expected ";

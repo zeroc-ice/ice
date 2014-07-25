@@ -63,7 +63,7 @@ public:
     typedef IceUtil::Handle<Update> UpdatePtr;
 
     NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const IceUtil::TimerPtr&, 
-          const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
+          const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&, const std::string&);
     virtual ~NodeI();
 
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
@@ -119,6 +119,7 @@ public:
     FileCachePtr getFileCache() const;
     NodePrx getProxy() const;
     const PropertyDescriptorSeq& getPropertiesOverride() const;
+    const std::string& getInstanceName() const;
 
     std::string getOutputDir() const;
     bool getRedirectErrToOut() const;

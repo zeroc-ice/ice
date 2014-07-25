@@ -205,7 +205,6 @@ RegistryI::RegistryI(const CommunicatorPtr& communicator,
     _nowarn(nowarn),
     _readonly(readonly),
     _initFromReplica(initFromReplica),
-    _session(communicator),
     _platform("IceGrid.Registry", communicator, traceLevels)
 {
 }
@@ -337,36 +336,38 @@ RegistryI::startImpl()
 
     properties->setProperty("Ice.ACM.Server.Close", "3"); // Close on invocation and idle.
     
-    if(!_master && properties->getProperty("Ice.Default.Locator").empty() && 
-       properties->getProperty("Ice.Default.Locator").empty())
+    if(!_master && !_communicator->getDefaultLocator())
     {
         Error out(_communicator->getLogger());
         out << "property `Ice.Default.Locator' is not set";
         return false;
     }
+    else if(_master)
+    {
+        _communicator->setDefaultLocator(0); // Clear the default locator in case it's set.
+    }
 
     //
     // Get the instance name
     //
-    if(_master)
+    _instanceName = properties->getProperty("IceGrid.InstanceName");    
+    if(_instanceName.empty())
     {
-        _instanceName = properties->getProperty("IceGrid.InstanceName");    
-        if(_instanceName.empty())
-        {
-            if(_communicator->getDefaultLocator())
-            {
-                _instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
-            }
-            else
-            {
-                _instanceName = "IceGrid";
-            }
-        }
+        _instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
     }
-    else
+    if(_instanceName.empty() && _communicator->getDefaultLocator())
     {
         _instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
     }
+    if(_instanceName.empty())
+    {
+        _instanceName = "IceGrid";
+    }
+
+    //
+    // Create the replica session manager
+    //
+    _session.reset(new ReplicaSessionManager(_communicator, _instanceName));
 
     //
     // Create the registry database.
@@ -485,7 +486,7 @@ RegistryI::startImpl()
         if(!proxy)
         {
             id.name = "InternalRegistry-" + (_initFromReplica.empty() ? "Master" : _initFromReplica);
-            proxy = _session.findInternalRegistryForReplica(id);
+            proxy = _session->findInternalRegistryForReplica(id);
         }
 
         if(!proxy)
@@ -550,8 +551,8 @@ RegistryI::startImpl()
     else
     {
         InternalReplicaInfoPtr info = _platform.getInternalReplicaInfo();
-        _session.create(_replicaName, info, _database, _wellKnownObjects, internalRegistry);
-        registerNodes(internalRegistry, _session.getNodes(nodes));
+        _session->create(_replicaName, info, _database, _wellKnownObjects, internalRegistry);
+        registerNodes(internalRegistry, _session->getNodes(nodes));
     }
 
     _serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
@@ -600,7 +601,7 @@ RegistryI::startImpl()
     }
     else
     {
-        _session.registerAllWellKnownObjects();
+        _session->registerAllWellKnownObjects();
     }
 
     //
@@ -685,7 +686,7 @@ RegistryI::setupLocatorRegistry()
     Identity locatorRegId;
     locatorRegId.category = _instanceName;
     locatorRegId.name = "LocatorRegistry-" + _replicaName;
-    ObjectPrx obj = _serverAdapter->add(new LocatorRegistryI(_database, dynReg, _master, _session), locatorRegId);
+    ObjectPrx obj = _serverAdapter->add(new LocatorRegistryI(_database, dynReg, _master, *_session), locatorRegId);
     return LocatorRegistryPrx::uncheckedCast(obj);
 }
 
@@ -738,7 +739,7 @@ RegistryI::setupInternalRegistry()
     internalRegistryId.category = _instanceName;
     internalRegistryId.name = "InternalRegistry-" + _replicaName;
     assert(_reaper);
-    ObjectPtr internalRegistry = new InternalRegistryI(this, _database, _reaper, _wellKnownObjects, _session);
+    ObjectPtr internalRegistry = new InternalRegistryI(this, _database, _reaper, _wellKnownObjects, *_session);
     Ice::ObjectPrx proxy = _registryAdapter->add(internalRegistry, internalRegistryId);
     _wellKnownObjects->add(proxy, InternalRegistry::ice_staticId());
 
@@ -903,8 +904,11 @@ RegistryI::setupAdminSessionFactory(const Ice::ObjectPtr& router, const IceGrid:
 void
 RegistryI::stop()
 {
-    _session.destroy();
-    
+    if(_session.get())
+    {
+        _session->destroy();
+    }
+
     //
     // We destroy the topics before to shutdown the communicator to
     // ensure that there will be no more invocations on IceStorm once
@@ -1231,6 +1235,12 @@ Ice::ObjectPrx
 RegistryI::createAdminCallbackProxy(const Identity& id) const
 {
     return _serverAdapter->createProxy(id);
+}
+
+Ice::LocatorPrx 
+RegistryI::getLocator()
+{
+    return _wellKnownObjects->getLocator();
 }
 
 Glacier2::PermissionsVerifierPrx

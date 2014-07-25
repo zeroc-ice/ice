@@ -16,14 +16,12 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx& registry,
+NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx& registry, 
                                                        const NodeIPtr& node,
-                                                       const vector<QueryPrx>& queryObjects) : 
-    SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger),
-    _node(node),
-    _queryObjects(queryObjects)
+                                                       NodeSessionManager& manager) : 
+    SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger), _node(node), _manager(manager)
 {
-    assert(registry && node && !_queryObjects.empty());
+    assert(registry && node);
     string name = registry->ice_getIdentity().name;
     const string prefix("InternalRegistry-");
     string::size_type pos = name.find(prefix);
@@ -66,7 +64,8 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
         if(!session)
         {
             vector<Ice::AsyncResultPtr> results;
-            for(vector<QueryPrx>::const_iterator q = _queryObjects.begin(); q != _queryObjects.end(); ++q)
+            vector<QueryPrx> queryObjects = _manager.getQueryObjects();
+            for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
             {
                 results.push_back((*q)->begin_findObjectById(registry->ice_getIdentity()));
             }
@@ -227,8 +226,8 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     }
 }
 
-NodeSessionManager::NodeSessionManager(const Ice::CommunicatorPtr& communicator) : 
-    SessionManager(communicator),
+NodeSessionManager::NodeSessionManager(const Ice::CommunicatorPtr& communicator, const string& instanceName) : 
+    SessionManager(communicator, instanceName),
     _destroyed(false),
     _activated(false)
 {
@@ -251,7 +250,8 @@ NodeSessionManager::create(const NodeIPtr& node)
     // with replicas (see createdSession below) and this must be done 
     // before the node is activated.
     //
-    _thread->tryCreateSession(true, IceUtil::Time::seconds(3));
+    _thread->tryCreateSession();
+    _thread->waitTryCreateSession(IceUtil::Time::seconds(3));
 }
 
 void
@@ -273,6 +273,7 @@ NodeSessionManager::create(const InternalRegistryPrx& replica)
     if(thread)
     {
         thread->tryCreateSession();
+        thread->waitTryCreateSession();
     }
 }
 
@@ -370,7 +371,7 @@ NodeSessionManager::replicaInit(const InternalRegistryPrxSeq& replicas)
     for(InternalRegistryPrxSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
         _replicas.insert((*p)->ice_getIdentity());
-        addReplicaSession(*p)->tryCreateSession(false);
+        addReplicaSession(*p)->tryCreateSession();
     }
 }
 
@@ -383,7 +384,7 @@ NodeSessionManager::replicaAdded(const InternalRegistryPrx& replica)
         return;
     }
     _replicas.insert(replica->ice_getIdentity());
-    addReplicaSession(replica)->tryCreateSession(false);
+    addReplicaSession(replica)->tryCreateSession();
 }
 
 void
@@ -408,7 +409,6 @@ NodeSessionKeepAliveThreadPtr
 NodeSessionManager::addReplicaSession(const InternalRegistryPrx& replica)
 {
     assert(!_destroyed);
-
     NodeSessionMap::const_iterator p = _sessions.find(replica->ice_getIdentity());
     NodeSessionKeepAliveThreadPtr thread;
     if(p != _sessions.end())
@@ -418,7 +418,7 @@ NodeSessionManager::addReplicaSession(const InternalRegistryPrx& replica)
     }
     else
     {
-        thread = new NodeSessionKeepAliveThread(replica, _node, _queryObjects);
+        thread = new NodeSessionKeepAliveThread(replica, _node, *this);
         _sessions.insert(make_pair(replica->ice_getIdentity(), thread));
         thread->start();
     }
@@ -535,7 +535,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     {
         vector<Ice::AsyncResultPtr> results1;
         vector<Ice::AsyncResultPtr> results2;
-        vector<QueryPrx> queryObjects = findAllQueryObjects();
+        vector<QueryPrx> queryObjects = findAllQueryObjects(false);
 
         //
         // Below we try to retrieve internal registry proxies either
@@ -576,7 +576,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
             }
             catch(const Ice::LocalException&)
             {
-                // IGNORE
+                // Ignore.
             }
         }
         for(vector<Ice::AsyncResultPtr>::const_iterator p = results2.begin(); p != results2.end(); ++p)
@@ -609,7 +609,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
             }
             catch(const Ice::LocalException&)
             {
-                // IGNORE
+                // Ignore
             }
         }
 
@@ -639,9 +639,17 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
                 if((*p)->ice_getIdentity() != _master->ice_getIdentity())
                 {
                     _replicas.insert((*p)->ice_getIdentity());
-                    NodeSessionKeepAliveThreadPtr session = addReplicaSession(*p);
-                    session->tryCreateSession(false);
-                    sessions.push_back(session);
+
+                    if(_sessions.find((*p)->ice_getIdentity()) == _sessions.end())
+                    {
+                        NodeSessionKeepAliveThreadPtr session = addReplicaSession(*p);
+                        session->tryCreateSession();
+                        sessions.push_back(session);
+                    }
+                    else
+                    {
+                        addReplicaSession(*p); // Update the session
+                    }
                 }
             }
         }
@@ -664,7 +672,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
         {
             break;
         }
-        (*p)->tryCreateSession(true, timeout);
+        (*p)->waitTryCreateSession(timeout);
     }
 }
 

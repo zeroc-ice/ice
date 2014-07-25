@@ -25,11 +25,13 @@ namespace IceGrid
 class NodeI;
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
+class NodeSessionManager;
+
 class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx>
 {
 public:
 
-    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, const std::vector<QueryPrx>&);
+    NodeSessionKeepAliveThread(const InternalRegistryPrx&, const NodeIPtr&, NodeSessionManager&);
 
     virtual NodeSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
     virtual void destroySession(const NodeSessionPrx&);
@@ -43,7 +45,7 @@ protected:
 
     const NodeIPtr _node;
     const std::string _name;
-    const std::vector<QueryPrx> _queryObjects;
+    NodeSessionManager& _manager;
 };
 typedef IceUtil::Handle<NodeSessionKeepAliveThread> NodeSessionKeepAliveThreadPtr;
 
@@ -51,7 +53,7 @@ class NodeSessionManager : public SessionManager
 {
 public:
 
-    NodeSessionManager(const Ice::CommunicatorPtr&);
+    NodeSessionManager(const Ice::CommunicatorPtr&, const std::string&);
     
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
@@ -65,6 +67,7 @@ public:
     void replicaRemoved(const InternalRegistryPrx&);
 
     NodeSessionPrx getMasterNodeSession() const { return _thread->getSession(); }
+    std::vector<IceGrid::QueryPrx> getQueryObjects() { return findAllQueryObjects(true); }
 
 private:
 
@@ -84,9 +87,7 @@ private:
     {
     public:
 
-        Thread(NodeSessionManager& manager) : 
-            NodeSessionKeepAliveThread(manager._master, manager._node, manager._queryObjects),
-            _manager(manager)
+        Thread(NodeSessionManager& manager) : NodeSessionKeepAliveThread(manager._master, manager._node, manager)
         {
         }
 
@@ -113,10 +114,6 @@ private:
             _manager.reapReplicas();
             return alive;
         }
-
-    private:
-        
-        NodeSessionManager& _manager;
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
     friend class Thread;

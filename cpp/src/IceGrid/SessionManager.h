@@ -192,8 +192,8 @@ public:
         return _state != Destroyed;
     }
 
-    virtual void
-    tryCreateSession(bool waitForTry = true, const IceUtil::Time& timeout = IceUtil::Time())
+    void
+    tryCreateSession()
     {
         {
             Lock sync(*this);
@@ -212,23 +212,24 @@ public:
             }
             notifyAll();
         }
+    }
 
-        if(waitForTry)
+    void
+    waitTryCreateSession(const IceUtil::Time& timeout = IceUtil::Time())
+    {
+        Lock sync(*this);
+        // Wait until the action is executed and the state changes.
+        while(_nextAction == Connect || _nextAction == KeepAlive || _state == InProgress)
         {
-            Lock sync(*this);
-            // Wait until the action is executed and the state changes.
-            while(_nextAction == Connect || _nextAction == KeepAlive || _state == InProgress)
+            if(timeout == IceUtil::Time())
             {
-                if(timeout == IceUtil::Time())
+                wait();
+            }
+            else
+            {
+                if(!timedWait(timeout))
                 {
-                    wait();
-                }
-                else
-                {
-                    if(!timedWait(timeout))
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
         }
@@ -320,16 +321,17 @@ class SessionManager : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionManager(const Ice::CommunicatorPtr&);
+    SessionManager(const Ice::CommunicatorPtr&, const std::string&);
     virtual ~SessionManager();
 
     virtual bool isDestroyed() = 0;
 
 protected:
 
-    std::vector<IceGrid::QueryPrx> findAllQueryObjects();
+    std::vector<IceGrid::QueryPrx> findAllQueryObjects(bool);
 
     Ice::CommunicatorPtr _communicator;
+    std::string _instanceName;
     InternalRegistryPrx _master;
     std::vector<IceGrid::QueryPrx> _queryObjects;
 };

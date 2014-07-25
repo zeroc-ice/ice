@@ -540,7 +540,11 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     // Do not make locator calls from within sync.
     //
     LocatorRegistryPrx locatorRegistry = _locator->getRegistry();
-    
+    if(!locatorRegistry)
+    {
+        return 0;
+    }
+
     {
         IceUtil::Mutex::Lock sync(*this);
 

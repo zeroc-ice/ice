@@ -3174,9 +3174,20 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
         {
             if(getProperty(p->second, "Ice.Default.Locator").empty())
             {
-                p->second.push_back(
-                    createProperty("Ice.Default.Locator",
-                                   _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
+                Ice::PropertiesPtr properties = _node->getCommunicator()->getProperties();
+
+                string locator = properties->getProperty("Ice.Default.Locator");
+                if(!locator.empty())
+                {
+                    p->second.push_back(createProperty("Ice.Default.Locator", locator));
+                }
+
+                string discoveryPlugin = properties->getProperty("Ice.Plugin.IceGridDiscovery");
+                if(!discoveryPlugin.empty())
+                {
+                    p->second.push_back(createProperty("Ice.Plugin.IceGridDiscovery", discoveryPlugin));
+                    p->second.push_back(createProperty("IceGridDiscovery.InstanceName", _node->getInstanceName()));
+                }
             }
             
             if(!overrides.empty())

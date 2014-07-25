@@ -79,6 +79,8 @@ public:
 
     const Ice::ObjectAdapterPtr& getRegistryAdapter() { return _registryAdapter; }
 
+    Ice::LocatorPrx getLocator();
+
 private:
 
     Ice::LocatorRegistryPrx setupLocatorRegistry(); 
@@ -117,7 +119,7 @@ private:
     IceUtil::TimerPtr _timer;
     SessionServantManagerPtr _servantManager;
     int _sessionTimeout;
-    ReplicaSessionManager _session;
+    IceUtil::UniquePtr<ReplicaSessionManager> _session;
     mutable PlatformInfo _platform;
         
     Glacier2::PermissionsVerifierPrx _nullPermissionsVerifier;

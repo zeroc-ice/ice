@@ -15,8 +15,8 @@ TARGETS		= $(assembliesdir)\$(LIBNAME)
 POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= AssemblyInfo.cs \
-			DiscoveryPluginI.cs \
-			DiscoveryPluginFactoryI.cs
+		  DiscoveryPluginI.cs \
+		  DiscoveryPluginFactoryI.cs
 
 GEN_SRCS	= $(GDIR)\Admin.cs \
 		  $(GDIR)\Observer.cs \

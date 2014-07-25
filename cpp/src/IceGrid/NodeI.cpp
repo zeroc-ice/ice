@@ -299,7 +299,8 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
              const TraceLevelsPtr& traceLevels,
              const NodePrx& proxy,
              const string& name,
-             const UserAccountMapperPrx& mapper) :
+             const UserAccountMapperPrx& mapper,
+             const string& instanceName) :
     _communicator(adapter->getCommunicator()),
     _adapter(adapter),
     _sessions(sessions),
@@ -311,6 +312,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _redirectErrToOut(false),
     _allowEndpointsOverride(false),
     _waitTime(0),
+    _instanceName(instanceName),
     _userAccountMapper(mapper),
     _platform("IceGrid.Node", _communicator, _traceLevels),
     _fileCache(new FileCache(_communicator)),
@@ -322,7 +324,6 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     const_cast<string&>(_dataDir) = _platform.getDataDir();
     const_cast<string&>(_serversDir) = _dataDir + "/servers";
     const_cast<string&>(_tmpDir) = _dataDir + "/tmp";
-    const_cast<string&>(_instanceName) = _communicator->getDefaultLocator()->ice_getIdentity().category;
     const_cast<Ice::Int&>(_waitTime) = props->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
     const_cast<string&>(_outputDir) = props->getProperty("IceGrid.Node.Output");
     const_cast<bool&>(_redirectErrToOut) = props->getPropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
@@ -901,6 +902,12 @@ const PropertyDescriptorSeq&
 NodeI::getPropertiesOverride() const
 {
     return _propertiesOverride;
+}
+
+const string&
+NodeI::getInstanceName() const
+{
+    return _instanceName;
 }
 
 string

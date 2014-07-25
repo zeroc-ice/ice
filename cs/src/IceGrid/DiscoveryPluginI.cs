@@ -14,35 +14,96 @@ namespace IceGrid
     using System.Diagnostics;
     using System.Text;
 
-
-    abstract class Request
+    internal class Request
     {
-        protected Request(LocatorI locator)
+        public Request(LocatorI locator, 
+                       string operation, 
+                       Ice.OperationMode mode, 
+                       byte[] inParams,
+                       Dictionary<string, string> context,
+                       Ice.AMD_Object_ice_invoke amdCB)
         {
-            locator_ = locator;
+            _locator = locator;
+            _operation = operation;
+            _mode = mode;
+            _inParams = inParams;
+            _context = context;
+            _amdCB = amdCB;
         }
-        abstract public void
-        invoke(Ice.LocatorPrx locatorPrx);
 
-        abstract public void
-        response(Ice.ObjectPrx objectPrx);
+        public void
+        invoke(Ice.LocatorPrx l)
+        {
+            _locatorPrx = l;
+            Request self = this;
+            l.begin_ice_invoke(_operation, _mode, _inParams, _context).whenCompleted(
+                (bool ok, byte[] outParams) =>
+                {
+                    _amdCB.ice_response(ok, outParams);
+                },
+                (Ice.Exception ex) =>
+                {
+                    _locator.invoke(_locatorPrx, self); // Retry with new locator proxy
+                });
+        }
 
-        protected LocatorI locator_;
-        protected Ice.LocatorPrx locatorPrx_;
+        private readonly LocatorI _locator;
+        private readonly string _operation;
+        private readonly Ice.OperationMode _mode;
+        private readonly Dictionary<string, string> _context;
+        private readonly byte[] _inParams;
+        private readonly Ice.AMD_Object_ice_invoke _amdCB;
+
+        private Ice.LocatorPrx _locatorPrx;
     }
 
-    class LocatorI : Ice.LocatorDisp_, IceInternal.TimerTask
+    internal class VoidLocatorI : LocatorDisp_
+    {
+        public override void 
+        findObjectById_async(Ice.AMD_Locator_findObjectById amdCB, Ice.Identity id, Ice.Current current)
+        {
+            amdCB.ice_response(null);
+        }
+        
+        public override void 
+        findAdapterById_async(Ice.AMD_Locator_findAdapterById amdCB, String id, Ice.Current current)
+        {
+            amdCB.ice_response(null);
+        }
+        
+        public override Ice.LocatorRegistryPrx 
+        getRegistry(Ice.Current current)
+        {
+            return null;
+        }
+        
+        public override IceGrid.RegistryPrx 
+        getLocalRegistry(Ice.Current current)
+        {
+            return null;
+        }
+        
+        public override IceGrid.QueryPrx 
+        getLocalQuery(Ice.Current current)
+        {
+            return null;
+        }
+    };
+
+    internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
     {
         public
-        LocatorI(LookupPrx lookup, Ice.Properties properties)
+        LocatorI(LookupPrx lookup, Ice.Properties properties, string instanceName, IceGrid.LocatorPrx voidLocator)
         {
             _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault("IceGridDiscovery.Timeout", 300);
             _retryCount = properties.getPropertyAsIntWithDefault("IceGridDiscovery.RetryCount", 3);
+            _retryDelay = properties.getPropertyAsIntWithDefault("IceGridDiscovery.RetryDelay", 2000);
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
-            _instanceName = properties.getProperty("IceGridDiscovery.InstanceName");
+            _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
+            _voidLocator = voidLocator;
             _pendingRetryCount = 0;
         }
 
@@ -53,39 +114,11 @@ namespace IceGrid
         }
 
         public override void
-        findObjectById_async(Ice.AMD_Locator_findObjectById amdCB, Ice.Identity id, Ice.Current curr)
+        ice_invoke_async(Ice.AMD_Object_ice_invoke amdCB, byte[] inParams, Ice.Current current)
         {
             lock(this)
             {
-                ((LocatorI)this).invoke(null, new ObjectRequest((LocatorI)this, id, amdCB));
-            }
-        }
-
-        public override void
-        findAdapterById_async(Ice.AMD_Locator_findAdapterById amdCB, string adapterId, Ice.Current curr)
-        {
-            lock(this)
-            {
-                ((LocatorI)this).invoke(null, new AdapterRequest((LocatorI)this, adapterId, amdCB));
-            }
-        }
-
-        public override Ice.LocatorRegistryPrx
-        getRegistry(Ice.Current current)
-        {
-            lock(this)
-            {
-                Ice.LocatorPrx locator;
-                if(_locator != null)
-                {
-                    ((LocatorI)this).queueRequest(null); // Search for locator if not already doing so.
-                    while(_pendingRetryCount > 0)
-                    {
-                        System.Threading.Monitor.Wait(this);
-                    }
-                }
-                locator = _locator;
-                return locator != null ? locator.getRegistry() : null;
+                invoke(null, new Request(this, current.operation, current.mode, inParams, current.ctx, amdCB));
             }
         }
 
@@ -94,10 +127,12 @@ namespace IceGrid
         {
             lock(this)
             {
-                if(locator == null)
+                if(locator == null ||
+                   (_instanceName.Length > 0 && !locator.ice_getIdentity().category.Equals(_instanceName)))
                 {
                     return;
                 }
+
                 //
                 // If we already have a locator assigned, ensure the given locator
                 // has the same identity, otherwise ignore it.
@@ -141,7 +176,7 @@ namespace IceGrid
                         bool found = false;
                         foreach(Ice.Endpoint q in newEndpoints)
                         {
-                            if (p.Equals(q))
+                            if(p.Equals(q))
                             {
                                 found = true;
                                 break;
@@ -159,7 +194,7 @@ namespace IceGrid
                     _locator = locator;
                     if(_instanceName.Length == 0)
                     {
-                        _instanceName = _locator.ice_getIdentity().category;
+                        _instanceName = _locator.ice_getIdentity().category; // Stick to the first locator
                     }
                 }
 
@@ -171,7 +206,6 @@ namespace IceGrid
                     req.invoke(_locator);
                 }
                 _pendingRequests.Clear();
-                System.Threading.Monitor.PulseAll(this);
             }
         }
 
@@ -180,14 +214,26 @@ namespace IceGrid
         {
             lock(this)
             {
-                if(_locator != null && _locator.Equals(locator))
+                if(_locator != null && _locator != locator)
                 {
                     request.invoke(_locator);
+                }
+                else if(IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+                {
+                    request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
                 }
                 else
                 {
                     _locator = null;
-                    queueRequest(request);
+
+                    _pendingRequests.Add(request);
+
+                    if(_pendingRetryCount == 0) // No request in progress
+                    {
+                        _pendingRetryCount = _retryCount;
+                        _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                        _timer.schedule(this, _timeout);
+                    }
                 }
             }
         }
@@ -207,27 +253,11 @@ namespace IceGrid
                     Debug.Assert(_pendingRequests.Count > 0, "Pending requests is not empty");
                     foreach(Request req in _pendingRequests)
                     {
-                        req.response(null);
+                        req.invoke(_voidLocator);
                     }
                     _pendingRequests.Clear();
-                    System.Threading.Monitor.PulseAll(this);
+                    _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
                 }
-            }
-        }
-
-        private void
-        queueRequest(Request request)
-        {
-            if(request != null)
-            {
-                _pendingRequests.Add(request);
-            }
-
-            if(_pendingRetryCount == 0) // No request in progress
-            {
-                _pendingRetryCount = _retryCount;
-                _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request
-                _timer.schedule(this, _timeout);
             }
         }
 
@@ -235,16 +265,20 @@ namespace IceGrid
         private int _timeout;
         private IceInternal.Timer _timer;
         private int _retryCount;
+        private int _retryDelay;
 
         private string _instanceName;
         private bool _warned;
         private LookupReplyPrx _lookupReply;
         private Ice.LocatorPrx _locator;
+        private IceGrid.LocatorPrx _voidLocator;
+
         private int _pendingRetryCount;
         private List<Request> _pendingRequests = new List<Request>();
-    }
+        private long _nextRetry;
+    };
 
-    class LookupReplyI : LookupReplyDisp_
+    internal class LookupReplyI : LookupReplyDisp_
     {
         public LookupReplyI(LocatorI locator)
         {
@@ -258,68 +292,6 @@ namespace IceGrid
         }
 
         private LocatorI _locator;
-    }
-
-    class ObjectRequest : Request
-    {
-        public
-        ObjectRequest(LocatorI locator, Ice.Identity id, Ice.AMD_Locator_findObjectById amdCB) : base(locator)
-        {
-            _id = id;
-            _amdCB = amdCB;
-        }
-
-        override public void
-        invoke(Ice.LocatorPrx l)
-        {
-            l.begin_findObjectById(_id).whenCompleted(this.response, this.exception);
-        }
-
-        override public void
-        response(Ice.ObjectPrx prx)
-        {
-            _amdCB.ice_response(prx);
-        }
-
-        public void
-        exception(Ice.Exception ex)
-        {
-            locator_.invoke(locatorPrx_, this);
-        }
-
-        private Ice.Identity _id;
-        private Ice.AMD_Locator_findObjectById _amdCB;
-    }
-
-    class AdapterRequest : Request
-    {
-        public
-        AdapterRequest(LocatorI locator, string adapterId, Ice.AMD_Locator_findAdapterById amdCB) : base(locator)
-        {
-            _adapterId = adapterId;
-            _amdCB = amdCB;
-        }
-
-        override public void
-        invoke(Ice.LocatorPrx l)
-        {
-            l.begin_findAdapterById(_adapterId).whenCompleted(this.response, this.exception);
-        }
-
-        override public void
-        response(Ice.ObjectPrx prx)
-        {
-            _amdCB.ice_response(prx);
-        }
-
-        public void
-        exception(Ice.Exception ex)
-        {
-            locator_.invoke(locatorPrx_, this); // Retry with new locator proxy.
-        }
-
-        private string _adapterId;
-        private Ice.AMD_Locator_findAdapterById _amdCB;
     }
 
     class DiscoveryPluginI : Ice.Plugin
@@ -390,7 +362,7 @@ namespace IceGrid
             }
 
             Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceGridDiscovery/Lookup -d:" + lookupEndpoints);
-            lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
+            lookupPrx = lookupPrx.ice_collocationOptimized(false); // No colloc optimization for the multicast proxy!
             try
             {
                 lookupPrx.ice_getConnection(); // Ensure we can establish a connection to the multicast proxy
@@ -402,10 +374,18 @@ namespace IceGrid
                 s.Append("proxy = ");
                 s.Append(lookupPrx.ToString());
                 s.Append("\n");
+                s.Append(ex);
                 throw new Ice.PluginInitializationException(s.ToString());
             }
 
-            LocatorI locator = new LocatorI(LookupPrxHelper.uncheckedCast(lookupPrx), properties);
+            LocatorPrx voidLo = LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
+        
+            string instanceName = properties.getProperty("IceGridDiscovery.InstanceName");
+            Ice.Identity id = new Ice.Identity();
+            id.name = "Locator";
+            id.category = instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString();
+
+            LocatorI locator = new LocatorI(LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
             _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(locator)));
 
             Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(locator)).ice_datagram();

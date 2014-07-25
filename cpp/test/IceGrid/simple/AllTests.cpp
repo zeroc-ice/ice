@@ -50,14 +50,72 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing discovery... " << flush;
     {
+        // Add test well-known object
+        IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
+            communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
+        test(registry);
+
+        IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+        session->getAdmin()->addObjectWithType(base, "::Test");
+        session->destroy();
+
+        //
+        // Ensure the IceGrid discovery locator can discover the
+        // registries and make sure locator requests are forwarded.
+        //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Default.Locator", "");
         initData.properties->setProperty("Ice.Plugin.IceGridDiscovery", "IceGrid:createIceGridDiscovery");
+        initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
+        initData.properties->setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
         Ice::CommunicatorPtr com = Ice::initialize(initData);
         test(com->getDefaultLocator());
         com->stringToProxy("test @ TestAdapter")->ice_ping();
+        com->stringToProxy("test")->ice_ping();
+
+        test(com->getDefaultLocator()->getRegistry());
+        test(IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalRegistry());
+        test(IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalQuery());
+
+        Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
+        adapter->activate();
+        adapter->deactivate();
+
+        com->destroy();
+
+        //
+        // Now, ensure that the IceGrid discovery locator correctly
+        // handles failure to find a locator.
+        // 
+        initData.properties->setProperty("IceGridDiscovery.InstanceName", "unknown");
+        initData.properties->setProperty("IceGridDiscovery.RetryCount", "1");
+        initData.properties->setProperty("IceGridDiscovery.Timeout", "100");
+        com = Ice::initialize(initData);
+        test(com->getDefaultLocator());
+        try
+        {
+            com->stringToProxy("test @ TestAdapter")->ice_ping();
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+        try
+        {
+            com->stringToProxy("test")->ice_ping();
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+        test(!com->getDefaultLocator()->getRegistry());
+        test(!IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalRegistry());
+        test(!IceGrid::LocatorPrx::uncheckedCast(com->getDefaultLocator())->getLocalQuery());
+
+        adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
+        adapter->activate();
+        adapter->deactivate();
+
         com->destroy();
     }
     cout << "ok" << endl;

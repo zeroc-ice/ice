@@ -69,7 +69,7 @@ public:
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
 
-    ReplicaSessionManager(const Ice::CommunicatorPtr&);
+    ReplicaSessionManager(const Ice::CommunicatorPtr&, const std::string&);
     void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&, 
                 const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);

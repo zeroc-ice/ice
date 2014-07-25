@@ -372,6 +372,10 @@ public final class LocatorInfo
         // Do not make locator calls from within sync.
         //
         Ice.LocatorRegistryPrx locatorRegistry = (Ice.LocatorRegistryPrx)_locator.getRegistry();
+        if(locatorRegistry == null)
+        {
+            return null;
+        }
 
         synchronized(this)
         {
