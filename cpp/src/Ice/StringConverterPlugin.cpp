@@ -21,10 +21,6 @@
 #  include <IceUtil/IconvStringConverter.h>
 #endif
 
-#ifdef __MINGW32__
-#  include <limits.h>
-#endif
-
 using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace std;

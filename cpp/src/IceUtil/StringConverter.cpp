@@ -7,11 +7,6 @@
 //
 // **********************************************************************
 
-#if defined(__MINGW32__) && !defined(_WIN32_WINNT)
-   // Windows Vista and up for WC_ERR_INVALID_CHARS
-   #define _WIN32_WINNT 0x0600
-#endif
-
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>

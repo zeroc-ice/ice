@@ -7,14 +7,6 @@
 //
 // **********************************************************************
 
-//
-// The following is required for MinGW to bring in
-// some definitions.
-//
-#if defined(__MINGW32__)
-#   define _WIN32_WINNT 0x0501
-#endif
-
 #include <Ice/ThreadPool.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/EventHandler.h>

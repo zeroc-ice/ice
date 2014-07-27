@@ -81,12 +81,17 @@ ifeq ($(UNAME),Darwin)
 endif
 
 ifneq ($(findstring MINGW,$(UNAME)),)
-    UNAME	:= MINGW
+    UNAME	                := MINGW
+    lp64suffix                  := /x64
+    COMPILER_MACHINE := $(shell $(CXX) -dumpmachine)
+    ifeq ($(COMPILER_MACHINE),x86_64-w64-mingw32)
+        LP64                    := yes
+    endif 
 endif
 
 ifeq ($(LP64),yes)
 	libsubdir		:= lib$(lp64suffix)
-    binsubdir		:= bin$(lp64binsuffix)
+        binsubdir		:= bin$(lp64binsuffix)
 else
 	libsubdir		:= lib
 	binsubdir		:= bin

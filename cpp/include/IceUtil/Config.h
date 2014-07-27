@@ -94,6 +94,15 @@
 #   define ICE_HAS_WIN32_CONDVAR 
 #endif
 
+#ifdef __MINGW32__
+#   ifdef _WIN32_WINNT
+#        if (_WIN32_WINNT < 0x600)
+#            error "Ice MinGW build requires _WIN32_WINNT >= 0x600"
+#        endif
+#   else
+#        define _WIN32_WINNT 0x600
+#   endif
+#endif
 
 //
 // Support for thread-safe function local static initialization 
@@ -161,6 +170,12 @@
 #   endif
 
 #   include <windows.h>
+
+#   if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x600)
+#      ifndef ICE_HAS_WIN32_CONDVAR
+#          define ICE_HAS_WIN32_CONDVAR
+#      endif
+#   endif   
 #endif
 
 //
@@ -204,31 +219,22 @@ private:
 };
 
 //
-// Int64 typedef
+// Int64 typedef and ICE_INT64 macro for Int64 literal values
 //
-#ifdef _MSC_VER
+// Note that on Windows, long is always 32-bit
 //
-// With Visual C++, long is always 32-bit
-//
+#if defined(_WIN32) && defined(_MSC_VER)
 typedef __int64 Int64;
-#elif defined(ICE_64)
+#    define ICE_INT64(n) n##i64
+#elif defined(ICE_64) && !defined(_WIN32)
 typedef long Int64;
+#    define ICE_INT64(n) n##L
 #else
 typedef long long Int64;
+#    define ICE_INT64(n) n##LL
 #endif
 
 }
-
-//
-// ICE_INT64: macro for Int64 literal values
-//
-#if defined(_MSC_VER)
-#   define ICE_INT64(n) n##i64
-#elif defined(ICE_64)
-#   define ICE_INT64(n) n##L
-#else
-#   define ICE_INT64(n) n##LL
-#endif
 
 //
 // The Ice version.
