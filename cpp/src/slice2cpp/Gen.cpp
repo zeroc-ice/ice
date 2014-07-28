@@ -516,7 +516,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     //
     // We need to delay generating the template after the proxy
-    // definition, because __completed calls the begin_ method in the
+    // definition, because completed calls the begin_ method in the
     // proxy.
     //
     AsyncCallbackTemplateVisitor asyncCallbackTemplateVisitor(H, C, _dllExport);
@@ -1779,7 +1779,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // pointers would be invalid once end_ returns, we still want to allow using this
     // alternate mapping with AMI response callbacks (to allow zero-copy for instance).
     // For this purpose, we generate a special ___end method which is used by the 
-    // __completed implementation of the generated Callback_Inft_opName operation 
+    // completed implementation of the generated Callback_Inft_opName operation 
     // delegate.
     //
     bool generatePrivateEnd = retS != retSEndAMI || outParamsDeclAMI != outParamsDeclEndAMI;
@@ -2267,7 +2267,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         // completed.
         //
-        C << sp << nl << "virtual void __completed(const ::Ice::AsyncResultPtr& __result) const";
+        C << sp << nl << "virtual void completed(const ::Ice::AsyncResultPtr& __result) const";
         C << sb;
         C << nl << clScope << clName << "Prx __proxy = " << clScope << clName 
           << "Prx::uncheckedCast(__result->getProxy());";
@@ -2296,7 +2296,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << nl << "catch(const ::Ice::Exception& ex)";
         C << sb;
-        C << nl << "Cpp11FnCallbackNC::__exception(__result, ex);";
+        C << nl << "Cpp11FnCallbackNC::exception(__result, ex);";
         C << nl << "return;";
         C << eb;
         C << nl << "if(_response != nullptr)";
@@ -2327,8 +2327,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         
         C << eb << ';';
         
-        C << nl << "return begin_" << name << spar << argsAMI << "__ctx" << "new Cpp11CB(__response, __exception, __sent)" 
-          << epar << ';';
+        C << nl << "return begin_" << name << spar << argsAMI << "__ctx" 
+          << "new Cpp11CB(__response, __exception, __sent)" << epar << ';';
         C << eb;
 
         //
@@ -4283,7 +4283,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
     H.inc();
     if(p->returnsData())
     {
-        H << nl << ": " << inheritD + "(obj, cb != 0, excb, sentcb), response(cb)";
+        H << nl << ": " << inheritD + "(obj, cb != 0, excb, sentcb), _response(cb)";
     }
     else
     {
@@ -4298,7 +4298,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         //
         // completed.
         //
-        H << sp << nl << "virtual void __completed(const ::Ice::AsyncResultPtr& __result) const";
+        H << sp << nl << "virtual void completed(const ::Ice::AsyncResultPtr& __result) const";
         H << sb;
         H << nl << clScope << clName << "Prx __proxy = " << clScope << clName
           << "Prx::uncheckedCast(__result->getProxy());";
@@ -4328,12 +4328,12 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << nl << "catch(const ::Ice::Exception& ex)";
         H << sb;
 
-        H << nl << "" << baseD << "::__exception(__result, ex);";
+        H << nl << "" << baseD << "::exception(__result, ex);";
         H << nl << "return;";
         H << eb;
-        H << nl << "if(response)";
+        H << nl << "if(_response)";
         H << sb;
-        H << nl << "(" << baseD << "::callback.get()->*response)" << spar;
+        H << nl << "(" << baseD << "::_callback.get()->*_response)" << spar;
         if(ret)
         {
             H << "__ret";
@@ -4346,8 +4346,8 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << epar << ';';
         H << eb;
         H << eb;
-        
-        H << sp << nl << "Response response;";
+        H << sp << nl << "private:";
+        H << sp << nl << "Response _response;";
     }
     H << eb << ';';
 

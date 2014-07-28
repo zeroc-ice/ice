@@ -241,7 +241,7 @@ Ice::CommunicatorI::begin_flushBatchRequests(
         }
         
         virtual void
-        __completed(const AsyncResultPtr& __result) const
+        completed(const AsyncResultPtr& __result) const
         {
             CommunicatorPtr __com = __result->getCommunicator();
             assert(__com);
@@ -252,7 +252,7 @@ Ice::CommunicatorI::begin_flushBatchRequests(
             }
             catch(const Exception& ex)
             {
-                IceInternal::Cpp11FnCallbackNC::__exception(__result, ex);
+                IceInternal::Cpp11FnCallbackNC::exception(__result, ex);
             }
         }
     };

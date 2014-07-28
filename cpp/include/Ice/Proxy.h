@@ -161,15 +161,15 @@ public:
     Cpp11FnCallbackNC(const ::std::function<void (const ::Ice::Exception&)>&,
                       const ::std::function<void (bool)>&);
 
-    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr&);
+    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&);
 
-    virtual void __sent(const ::Ice::AsyncResultPtr&) const;
+    virtual void sent(const ::Ice::AsyncResultPtr&) const;
  
-    virtual bool __hasSentCallback() const;
+    virtual bool hasSentCallback() const;
 
 protected:
 
-    void __exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const;
+    void exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const;
 
     ::std::function<void (const ::Ice::Exception&)> _exception;
     ::std::function<void (bool)> _sent;
@@ -184,7 +184,7 @@ public:
                             const ::std::function<void (bool)>&);
 
     virtual void
-    __completed(const ::Ice::AsyncResultPtr&) const;
+    completed(const ::Ice::AsyncResultPtr&) const;
     
 private:
     
@@ -1296,11 +1296,11 @@ public:
     typedef void (T::*Exception)(const ::Ice::Exception&);
     typedef void (T::*Sent)(bool);
 
-    CallbackNC(const TPtr& instance, Exception excb, Sent sentcb) : callback(instance), exception(excb), sent(sentcb)
+    CallbackNC(const TPtr& instance, Exception excb, Sent sentcb) : _callback(instance), _exception(excb), _sent(sentcb)
     {
     }
 
-    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr& cookie)
+    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr& cookie)
     {
         if(cookie != 0) // Makes sure begin_ was called without a cookie
         {
@@ -1309,32 +1309,35 @@ public:
         return this;
     }
 
-    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
+    virtual void sent(const ::Ice::AsyncResultPtr& result) const
     {
-        if(sent)
+        if(_sent)
         {
-            (callback.get()->*sent)(result->sentSynchronously());
+            (_callback.get()->*_sent)(result->sentSynchronously());
         }
     }
 
-    virtual bool __hasSentCallback() const
+    virtual bool hasSentCallback() const
     {
-        return sent != 0;
+        return _sent != 0;
     }
-
-    TPtr callback;
-    Exception exception;
-    Sent sent;
 
 protected:
 
-    void __exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const
+    void exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const
     {
-        if(exception)
+        if(_exception)
         {
-            (callback.get()->*exception)(ex);
+            (_callback.get()->*_exception)(ex);
         }
     }
+
+    TPtr _callback;
+
+private:
+
+    Exception _exception;
+    Sent _sent;
 };
 
 template<class T, typename CT>
@@ -1350,11 +1353,11 @@ public:
     typedef void (T::*Exception)(const ::Ice::Exception&, const CT&);
     typedef void (T::*Sent)(bool, const CT&);
 
-    Callback(const TPtr& instance, Exception excb, Sent sentcb) : callback(instance), exception(excb), sent(sentcb)
+    Callback(const TPtr& instance, Exception excb, Sent sentcb) : _callback(instance), _exception(excb), _sent(sentcb)
     {
     }
 
-    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr& cookie)
+    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr& cookie)
     {
         if(cookie && !CT::dynamicCast(cookie))
         {
@@ -1363,32 +1366,35 @@ public:
         return this;
     }
 
-    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
+    virtual void sent(const ::Ice::AsyncResultPtr& result) const
     {
-        if(sent)
+        if(_sent)
         {
-            (callback.get()->*sent)(result->sentSynchronously(), CT::dynamicCast(result->getCookie()));
+            (_callback.get()->*_sent)(result->sentSynchronously(), CT::dynamicCast(result->getCookie()));
         }
     }
 
-    virtual bool __hasSentCallback() const
+    virtual bool hasSentCallback() const
     {
-        return sent != 0;
+        return _sent != 0;
     }
-
-    TPtr callback;
-    Exception exception;
-    Sent sent;
 
 protected:
 
-    void __exception(const ::Ice::AsyncResultPtr& result, const ::Ice::Exception& ex) const
+    void exception(const ::Ice::AsyncResultPtr& result, const ::Ice::Exception& ex) const
     {
-        if(exception)
+        if(_exception)
         {
-            (callback.get()->*exception)(ex, CT::dynamicCast(result->getCookie()));
+            (_callback.get()->*_exception)(ex, CT::dynamicCast(result->getCookie()));
         }
     }
+
+    TPtr _callback;
+
+private:
+
+    Exception _exception;
+    Sent _sent;
 };
 
 //
@@ -1443,12 +1449,12 @@ public:
     typedef void (T::*Response)();
 
     OnewayCallbackNC(const TPtr& instance, Response cb, Exception excb, Sent sentcb) : 
-        CallbackNC<T>(instance, excb, sentcb), response(cb)
+        CallbackNC<T>(instance, excb, sentcb), _response(cb)
     {
         CallbackBase::checkCallback(instance, cb != 0 || excb != 0);
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& result) const
     {
         try
         {
@@ -1456,16 +1462,18 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            CallbackNC<T>::__exception(result, ex);
+            CallbackNC<T>::exception(result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (CallbackNC<T>::callback.get()->*response)();
+            (CallbackNC<T>::_callback.get()->*_response)();
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T, typename CT>
@@ -1480,12 +1488,12 @@ public:
     typedef void (T::*Response)(const CT&);
 
     OnewayCallback(const TPtr& instance, Response cb, Exception excb, Sent sentcb) : 
-        Callback<T, CT>(instance, excb, sentcb),  response(cb)
+        Callback<T, CT>(instance, excb, sentcb), _response(cb)
     {
         CallbackBase::checkCallback(instance, cb != 0 || excb != 0);
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& result) const
     {
         try
         {
@@ -1493,16 +1501,18 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            Callback<T, CT>::__exception(result, ex);
+            Callback<T, CT>::exception(result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (Callback<T, CT>::callback.get()->*response)(CT::dynamicCast(result->getCookie()));
+            (Callback<T, CT>::_callback.get()->*_response)(CT::dynamicCast(result->getCookie()));
         }
     }
 
-    Response response;
+private:
+    
+    Response _response;
 };
 
 }
@@ -1522,11 +1532,11 @@ public:
     typedef void (T::*Response)(bool);
 
     CallbackNC_Object_ice_isA(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), response(cb)
+        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), _response(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         bool __ret;
         try
@@ -1535,16 +1545,18 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+            ::IceInternal::CallbackNC<T>::exception(__result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
+            (::IceInternal::CallbackNC<T>::_callback.get()->*_response)(__ret);
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T, typename CT>
@@ -1559,11 +1571,11 @@ public:
     typedef void (T::*Response)(bool, const CT&);
 
     Callback_Object_ice_isA(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), response(cb)
+        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), _response(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         bool __ret;
         try
@@ -1572,16 +1584,19 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+            ::IceInternal::Callback<T, CT>::exception(__result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
+            (::IceInternal::Callback<T, CT>::_callback.get()->*_response)(__ret,
+                                                                          CT::dynamicCast(__result->getCookie()));
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T>
@@ -1630,11 +1645,11 @@ public:
     typedef void (T::*Response)(const ::std::vector< ::std::string>&);
 
     CallbackNC_Object_ice_ids(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), response(cb)
+        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), _response(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         ::std::vector< ::std::string> __ret;
         try 
@@ -1643,16 +1658,18 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+            ::IceInternal::CallbackNC<T>::exception(__result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
+            (::IceInternal::CallbackNC<T>::_callback.get()->*_response)(__ret);
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T, typename CT>
@@ -1667,11 +1684,11 @@ public:
     typedef void (T::*Response)(const ::std::vector< ::std::string>&, const CT&);
 
     Callback_Object_ice_ids(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), response(cb)
+        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), _response(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         ::std::vector< ::std::string> __ret;
         try 
@@ -1680,16 +1697,19 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+            ::IceInternal::Callback<T, CT>::exception(__result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
+            (::IceInternal::Callback<T, CT>::_callback.get()->*_response)(__ret, 
+                                                                          CT::dynamicCast(__result->getCookie()));
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T>
@@ -1704,11 +1724,11 @@ public:
     typedef void (T::*Response)(const ::std::string&);
 
     CallbackNC_Object_ice_id(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), response(cb)
+        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), _response(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         ::std::string __ret;
         try
@@ -1717,16 +1737,18 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+            ::IceInternal::CallbackNC<T>::exception(__result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
+            (::IceInternal::CallbackNC<T>::_callback.get()->*_response)(__ret);
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T, typename CT>
@@ -1741,11 +1763,11 @@ public:
     typedef void (T::*Response)(const ::std::string&, const CT&);
 
     Callback_Object_ice_id(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), response(cb)
+        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), _response(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         ::std::string __ret;
         try
@@ -1754,16 +1776,19 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+            ::IceInternal::Callback<T, CT>::exception(__result, ex);
             return;
         }
-        if(response)
+        if(_response)
         {
-            (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
+            (::IceInternal::Callback<T, CT>::_callback.get()->*_response)(__ret,
+                                                                          CT::dynamicCast(__result->getCookie()));
         }
     }
 
-    Response response;
+private:
+
+    Response _response;
 };
 
 template<class T>
@@ -1779,18 +1804,18 @@ public:
     typedef void (T::*ResponseArray)(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
 
     CallbackNC_Object_ice_invoke(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), response(cb), responseArray(0)
+        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), _response(cb), _responseArray(0)
     {
     }
 
     CallbackNC_Object_ice_invoke(const TPtr& instance, ResponseArray cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), response(0), responseArray(cb)
+        ::IceInternal::TwowayCallbackNC<T>(instance, cb != 0, excb, sentcb), _response(0), _responseArray(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
-        if(response)
+        if(_response)
         {
             bool __ok;
             std::vector< ::Ice::Byte> outParams;
@@ -1800,10 +1825,10 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-                ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+                ::IceInternal::CallbackNC<T>::exception(__result, ex);
                 return;
             }
-            (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ok, outParams);
+            (::IceInternal::CallbackNC<T>::_callback.get()->*_response)(__ok, outParams);
         }
         else
         {
@@ -1815,18 +1840,20 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-                ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+                ::IceInternal::CallbackNC<T>::exception(__result, ex);
                 return;
             }
-            if(responseArray)
+            if(_responseArray)
             {
-                (::IceInternal::CallbackNC<T>::callback.get()->*responseArray)(__ok, outParams);
+                (::IceInternal::CallbackNC<T>::_callback.get()->*_responseArray)(__ok, outParams);
             }
         }
     }
 
-    Response response;
-    ResponseArray responseArray;
+private:
+
+    Response _response;
+    ResponseArray _responseArray;
 };
 
 template<class T, typename CT>
@@ -1842,18 +1869,18 @@ public:
     typedef void (T::*ResponseArray)(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const CT&);
 
     Callback_Object_ice_invoke(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), response(cb), responseArray(0)
+        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), _response(cb), _responseArray(0)
     {
     }
 
     Callback_Object_ice_invoke(const TPtr& instance, ResponseArray cb, Exception excb, Sent sentcb) :
-        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), response(0), responseArray(cb)
+        ::IceInternal::TwowayCallback<T, CT>(instance, cb != 0, excb, sentcb), _response(0), _responseArray(cb)
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
-        if(response)
+        if(_response)
         {
             bool __ok;
             std::vector< ::Ice::Byte> outParams;
@@ -1863,12 +1890,12 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-                ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+                ::IceInternal::Callback<T, CT>::exception(__result, ex);
                 return;
             }
-            (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ok, 
-                                                                        outParams, 
-                                                                        CT::dynamicCast(__result->getCookie()));
+            (::IceInternal::Callback<T, CT>::_callback.get()->*_response)(__ok, 
+                                                                          outParams, 
+                                                                          CT::dynamicCast(__result->getCookie()));
         }
         else
         {
@@ -1880,21 +1907,23 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-                ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+                ::IceInternal::Callback<T, CT>::exception(__result, ex);
                 return;
             }
-            if(responseArray)
+            if(_responseArray)
             {
-                (::IceInternal::Callback<T, CT>::callback.get()->*responseArray)(__ok,
-                                                                                 outParams, 
-                                                                                 CT::dynamicCast(
-                                                                                     __result->getCookie()));
+                (::IceInternal::Callback<T, CT>::_callback.get()->*_responseArray)(__ok,
+                                                                                   outParams, 
+                                                                                   CT::dynamicCast(
+                                                                                       __result->getCookie()));
             }
         }
     }
 
-    Response response;
-    ResponseArray responseArray;
+private:
+
+    Response _response;
+    ResponseArray _responseArray;
 };
 
 template<class T>

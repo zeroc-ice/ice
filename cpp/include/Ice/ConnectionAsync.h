@@ -32,7 +32,7 @@ public:
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         ::Ice::ConnectionPtr __con = __result->getConnection();
         assert(__con);
@@ -43,7 +43,7 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+            ::IceInternal::CallbackNC<T>::exception(__result, ex);
         }
     }
 };
@@ -79,7 +79,7 @@ public:
     {
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& __result) const
     {
         ::Ice::ConnectionPtr __con = __result->getConnection();
         assert(__con);
@@ -90,7 +90,7 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-            ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+            ::IceInternal::Callback<T, CT>::exception(__result, ex);
         }
     }
 };

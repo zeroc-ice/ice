@@ -1002,7 +1002,7 @@ Ice::ConnectionI::begin_flushBatchRequests(
         }
         
         virtual void
-        __completed(const AsyncResultPtr& __result) const
+        completed(const AsyncResultPtr& __result) const
         {
             ConnectionPtr __con = __result->getConnection();
             assert(__con);
@@ -1013,7 +1013,7 @@ Ice::ConnectionI::begin_flushBatchRequests(
             }
             catch(const Exception& ex)
             {
-                IceInternal::Cpp11FnCallbackNC::__exception(__result, ex);
+                IceInternal::Cpp11FnCallbackNC::exception(__result, ex);
             }
         }
     };

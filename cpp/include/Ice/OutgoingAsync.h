@@ -396,10 +396,10 @@ public:
         }
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr&) const = 0;
-    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr&) = 0;
-    virtual void __sent(const ::Ice::AsyncResultPtr&) const = 0;
-    virtual bool __hasSentCallback() const = 0;
+    virtual void completed(const ::Ice::AsyncResultPtr&) const = 0;
+    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&) = 0;
+    virtual void sent(const ::Ice::AsyncResultPtr&) const = 0;
+    virtual bool hasSentCallback() const = 0;
 };
 
 //
@@ -424,37 +424,39 @@ public:
     typedef void (T::*Callback)(const ::Ice::AsyncResultPtr&);
 
     AsyncCallback(const TPtr& instance, Callback cb, Callback sentcb = 0) :
-        callback(instance), completed(cb), sent(sentcb)
+        _callback(instance), _completed(cb), _sent(sentcb)
     {
         checkCallback(instance, cb != 0);
     }
 
-    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
+    virtual void completed(const ::Ice::AsyncResultPtr& result) const
     {
-        (callback.get()->*completed)(result);
+        (_callback.get()->*_completed)(result);
     }
 
-    virtual CallbackBasePtr __verify(const ::Ice::LocalObjectPtr&)
+    virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&)
     {
         return this; // Nothing to do, the cookie is not type-safe.
     }
 
-    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
+    virtual void sent(const ::Ice::AsyncResultPtr& result) const
     {
-        if(sent)
+        if(_sent)
         {
-            (callback.get()->*sent)(result);
+            (_callback.get()->*_sent)(result);
         }
     }
 
-    virtual bool __hasSentCallback() const
+    virtual bool hasSentCallback() const
     {
-        return sent != 0;
+        return _sent != 0;
     }
 
-    TPtr callback;
-    Callback completed;
-    Callback sent;
+private:
+
+    TPtr _callback;
+    Callback _completed;
+    Callback _sent;
 };
 
 #ifdef ICE_CPP11

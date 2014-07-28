@@ -111,7 +111,7 @@ Ice::AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
     {
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__);
     }
-    const_cast<CallbackBasePtr&>(_callback) = _callback->__verify(_cookie);
+    const_cast<CallbackBasePtr&>(_callback) = _callback->verify(_cookie);
 }
 
 Ice::AsyncResult::~AsyncResult()
@@ -216,7 +216,7 @@ Ice::AsyncResult::__invokeSent()
         try
         {
             AsyncResultPtr self(this);
-            _callback->__sent(self);
+            _callback->sent(self);
         }
         catch(const std::exception& ex)
         {
@@ -296,7 +296,7 @@ Ice::AsyncResult::__invokeCompleted()
         try
         {
             AsyncResultPtr self(this);
-            _callback->__completed(self);
+            _callback->completed(self);
         }
         catch(const std::exception& ex)
         {
@@ -538,7 +538,7 @@ IceInternal::OutgoingAsync::__sent()
     if(_proxy->__reference()->getMode() != Reference::ModeTwoway)
     {
         _childObserver.detach();
-        if(!_callback || !_callback->__hasSentCallback())
+        if(!_callback || !_callback->hasSentCallback())
         {
             _observer.detach();
         }
@@ -551,7 +551,7 @@ IceInternal::OutgoingAsync::__sent()
         //_os.resize(0); // Don't clear the buffer now, it's needed for collocation optimization.
     }
     _monitor.notifyAll();
-    return !alreadySent && _callback && _callback->__hasSentCallback();
+    return !alreadySent && _callback && _callback->hasSentCallback();
 }
 
 void
@@ -873,7 +873,7 @@ IceInternal::BatchOutgoingAsync::__sent()
         _timeoutRequestHandler = 0;
     }
     _monitor.notifyAll();
-    if(!_callback || !_callback->__hasSentCallback())
+    if(!_callback || !_callback->hasSentCallback())
     {
         _observer.detach();
         return false;
@@ -1105,7 +1105,7 @@ IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
         _monitor.notifyAll();
     }
 
-    if(!_callback || !_callback->__hasSentCallback())
+    if(!_callback || !_callback->hasSentCallback())
     {
         _observer.detach();
     }
@@ -1145,12 +1145,12 @@ public:
     {
     }
 
-    virtual void __completed(const Ice::AsyncResultPtr&) const
+    virtual void completed(const Ice::AsyncResultPtr&) const
     {
          assert(false);
     }
 
-    virtual CallbackBasePtr __verify(const Ice::LocalObjectPtr&)
+    virtual CallbackBasePtr verify(const Ice::LocalObjectPtr&)
     {
         //
         // Called by the AsyncResult constructor to verify the delegate. The dummy
@@ -1161,12 +1161,12 @@ public:
         return 0;
     }
 
-    virtual void __sent(const AsyncResultPtr&) const
+    virtual void sent(const AsyncResultPtr&) const
     {
          assert(false);
     }
 
-    virtual bool __hasSentCallback() const
+    virtual bool hasSentCallback() const
     {
         assert(false);
         return false;
@@ -1200,17 +1200,17 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
             checkCallback(true, completed != nullptr);
         }
         
-        virtual void __completed(const AsyncResultPtr& result) const
+        virtual void completed(const AsyncResultPtr& result) const
         {
             _completed(result);
         }
         
-        virtual CallbackBasePtr __verify(const LocalObjectPtr&)
+        virtual CallbackBasePtr verify(const LocalObjectPtr&)
         {
             return this; // Nothing to do, the cookie is not type-safe.
         }
         
-        virtual void __sent(const AsyncResultPtr& result) const
+        virtual void sent(const AsyncResultPtr& result) const
         {
             if(_sent != nullptr)
             {
@@ -1218,7 +1218,7 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
              }
         }
     
-        virtual bool __hasSentCallback() const
+        virtual bool hasSentCallback() const
         {
             return _sent != nullptr;
         }
