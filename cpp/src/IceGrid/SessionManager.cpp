@@ -34,13 +34,19 @@ vector<QueryPrx>
 SessionManager::findAllQueryObjects(bool cached)
 {
     vector<QueryPrx> queryObjects;
+    Ice::LocatorPrx locator;
     {
         Lock sync(*this);
+        if(!_communicator)
+        {
+            return queryObjects;
+        }
         if(cached && !_queryObjects.empty())
         {
             return _queryObjects;
         }
         queryObjects = _queryObjects;
+        locator = _communicator->getDefaultLocator();
     }
 
     if(!cached)
@@ -62,38 +68,34 @@ SessionManager::findAllQueryObjects(bool cached)
         queryObjects.clear();
     }
 
-    if(queryObjects.empty())
+    if(queryObjects.empty() && locator)
     {
-        Ice::LocatorPrx locator = _communicator->getDefaultLocator();
-        if(locator)
+        Ice::Identity id;
+        id.category = _instanceName;
+        id.name = "Query";
+        QueryPrx query = QueryPrx::uncheckedCast(locator->ice_identity(id));
+        Ice::EndpointSeq endpoints = query->ice_getEndpoints();
+        if(endpoints.empty())
         {
-            Ice::Identity id;
-            id.category = _instanceName;
-            id.name = "Query";
-            QueryPrx query = QueryPrx::uncheckedCast(locator->ice_identity(id));
-            Ice::EndpointSeq endpoints = query->ice_getEndpoints();
-            if(endpoints.empty())
+            try
             {
-                try
+                Ice::ObjectPrx r = locator->findObjectById(id);
+                if(r)
                 {
-                    Ice::ObjectPrx r = locator->findObjectById(id);
-                    if(r)
-                    {
-                        endpoints = r->ice_getEndpoints();
-                    }
-                }
-                catch(const Ice::Exception&)
-                {
-                        // Ignore.
+                    endpoints = r->ice_getEndpoints();
                 }
             }
-            
-            for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            catch(const Ice::Exception&)
             {
-                Ice::EndpointSeq singleEndpoint;
-                singleEndpoint.push_back(*p);
-                queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
+                // Ignore.
             }
+        }
+        
+        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        {
+            Ice::EndpointSeq singleEndpoint;
+            singleEndpoint.push_back(*p);
+            queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
         }
     }
 
