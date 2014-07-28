@@ -18,7 +18,7 @@ namespace Ice
 //
 // This enumeration describes the possible formats for classes and exceptions.
 //
-enum ICE_API FormatType
+enum FormatType
 {
     //
     // Indicates that no preference was specified.

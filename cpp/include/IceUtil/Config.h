@@ -114,10 +114,9 @@
 
 //
 // Compiler extensions to export and import symbols: see the documentation 
-// for Visual C++, Solaris Studio and HP aC++.
+// for Visual Studio, Solaris Studio and GCC.
 //
-#if (defined(_MSC_VER) && !defined(ICE_STATIC_LIBS)) || \
-    (defined(__HP_aCC) && defined(__HP_WINDLL))
+#if defined(_WIN32) && !defined(ICE_STATIC_LIBS)
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 //

@@ -11,7 +11,7 @@
 #define ICE_RUBY_UTIL_H
 
 #include <Config.h>
-#include <Ice/Current.h>
+#include <Ice/Ice.h>
 
 namespace IceRuby
 {
