@@ -50,7 +50,7 @@ Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& con
         ident.name = "dummy";
         ident.category.resize(20);
         char buf[20];
-        IceUtilInternal::generateRandom(buf, static_cast<int>(sizeof(buf)));
+        IceUtilInternal::generateRandom(buf, sizeof(buf));
         for(unsigned int i = 0; i < sizeof(buf); ++i)
         {
             const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255

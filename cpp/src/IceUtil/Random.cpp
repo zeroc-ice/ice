@@ -93,12 +93,34 @@ Init init;
 #endif
 
 void
-IceUtilInternal::generateRandom(char* buffer, int size)
+IceUtilInternal::generateRandom(char* buffer, size_t size)
 {
 #ifdef _WIN32
-    for(int i = 0; i < size; ++i)
+    int i = 0;
+    const size_t randSize = sizeof(unsigned int);
+    
+    while(size - i >= randSize)
     {
-        buffer[i] = random(256);
+        unsigned int r = 0;
+        errno_t err = rand_s(&r);
+        if(err != 0)
+        {
+            throw SyscallException(__FILE__, __LINE__, errno);
+        }
+        memcpy(buffer + i, &r, randSize);   
+        i += randSize;
+    }
+
+    if(size - i > 0)
+    {
+        assert(size - i < randSize);
+        unsigned int r = 0;
+        errno_t err = rand_s(&r);
+        if(err != 0)
+        {
+            throw SyscallException(__FILE__, __LINE__, errno);
+        }
+        memcpy(buffer + i, &r, size - i);   
     }
 #else
     //
@@ -110,7 +132,6 @@ IceUtilInternal::generateRandom(char* buffer, int size)
         fd = open("/dev/urandom", O_RDONLY);
         if(fd == -1)
         {
-            assert(0);
             throw SyscallException(__FILE__, __LINE__, errno);
         }
     }
@@ -121,16 +142,13 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     //
     int reads = 0;
     size_t index = 0;    
-    while(reads <= 20 && index != static_cast<size_t>(size))
+    while(reads <= 20 && index != size)
     {
-        ssize_t bytesRead = read(fd, buffer + index, static_cast<size_t>(size) - index);
+        ssize_t bytesRead = read(fd, buffer + index, size - index);
         
         if(bytesRead == -1 && errno != EINTR)
         {
-            SyscallException ex(__FILE__, __LINE__, errno);
-            cerr << "Reading /dev/urandom failed:\n" << ex << endl;
-            assert(0);
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, errno);
         }
         else
         {
@@ -139,9 +157,8 @@ IceUtilInternal::generateRandom(char* buffer, int size)
         }
     }
         
-    if(index != static_cast<size_t>(size))
+    if(index != size)
     {
-        assert(0);
         throw SyscallException(__FILE__, __LINE__, 0);
     }
 #endif
@@ -155,13 +172,10 @@ IceUtilInternal::random(int limit)
     errno_t err = rand_s(&r);
     if(err != 0)
     {
-        SyscallException ex(__FILE__, __LINE__, errno);
-        cerr << "rand_s failed:\n" << ex << endl;
-        assert(0);
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, errno);
     }
 #else
-    generateRandom(reinterpret_cast<char*>(&r), static_cast<unsigned int>(sizeof(unsigned int)));
+    generateRandom(reinterpret_cast<char*>(&r), sizeof(unsigned int));
 #endif
     if(limit > 0)
     {

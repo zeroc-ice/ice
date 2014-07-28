@@ -102,20 +102,6 @@ directory and apply the patch as shown below:
   > patch -p0 < ..\mcpp\patch.mcpp.2.7.2
 
 
-OpenSSL
--------
-
-The file openssl/patch.mingw in this archive contains a fix for the
-OpenSSL build system with MinGW that adds a "_mingw" prefix to the
-DLLs.
-
-After extracting the OpenSSL source distribution, change to the
-top-level directory and apply the patch as shown below:
-
-  > cd openssl-1.0.1e
-  > patch -p1 < ..\openssl\patch.mingw
-
-
 ======================================================================
 2. Packages
 ======================================================================
@@ -146,29 +132,6 @@ OpenSSL
 
 After extracting the OpenSSL source archive, refer to the file
 INSTALL.W32 or INSTALL.W64 for build instructions.
-
-- MinGW
-
-If you have not applied the patch for OpenSSL, refer to the "Patches"
-section above before continuing.
-
-1) Open a Windows command prompt
-
-2) Add MinGW from the Ruby Development Kit to your PATH:
-
-   > C:\RubyDevKit-4.5.2\devkitvars.bat
-
-3) Run the OpenSSL configure script:
-
-   > cd openssl-1.0.1e
-   > perl Configure mingw shared
-
-4) Run make
-
-   > make
-
-This will create libeay32_mingw.dll and libssl32_mingw.dll in the root
-source directory.
 
 
 bzip2

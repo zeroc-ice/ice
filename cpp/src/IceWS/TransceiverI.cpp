@@ -238,7 +238,7 @@ IceWS::TransceiverI::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& h
                 // encoded with Base64.
                 //
                 vector<unsigned char> key(16);
-                IceUtilInternal::generateRandom(reinterpret_cast<char*>(&key[0]), static_cast<int>(key.size()));
+                IceUtilInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
                 _key = IceInternal::Base64::encode(key);
                 out << _key << "\r\n\r\n"; // EOM
 
