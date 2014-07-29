@@ -242,9 +242,9 @@ namespace IceInternal
 
         public Ice.ConnectionI getConnection(bool waitInit)
         {
-            if(waitInit)
+            lock(this)
             {
-                lock(this)
+                if(waitInit)
                 {
                     //
                     // Wait for the connection establishment to complete or fail.
@@ -254,16 +254,16 @@ namespace IceInternal
                         System.Threading.Monitor.Wait(this);
                     }
                 }
-            }
-
-            if(_exception != null)
-            {
-                throw _exception;
-            }
-            else
-            {
-                Debug.Assert(!waitInit || _initialized);
-                return _connection;
+                
+                if(_exception != null)
+                {
+                    throw _exception;
+                }
+                else
+                {
+                    Debug.Assert(!waitInit || _initialized);
+                    return _connection;
+                }
             }
         }
 

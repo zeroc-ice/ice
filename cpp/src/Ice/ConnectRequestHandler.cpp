@@ -289,9 +289,9 @@ ConnectRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPt
 Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection(bool waitInit)
 {
+    Lock sync(*this);
     if(waitInit)
     {
-        Lock sync(*this);
         if(_exception.get())
         {
             throw RetryException(*_exception.get());
