@@ -1145,12 +1145,14 @@ public:
     {
     }
 
-    virtual void completed(const Ice::AsyncResultPtr&) const
+    virtual void 
+    completed(const Ice::AsyncResultPtr&) const
     {
          assert(false);
     }
 
-    virtual CallbackBasePtr verify(const Ice::LocalObjectPtr&)
+    virtual CallbackBasePtr 
+    verify(const Ice::LocalObjectPtr&)
     {
         //
         // Called by the AsyncResult constructor to verify the delegate. The dummy
@@ -1161,12 +1163,14 @@ public:
         return 0;
     }
 
-    virtual void sent(const AsyncResultPtr&) const
+    virtual void 
+    sent(const AsyncResultPtr&) const
     {
          assert(false);
     }
 
-    virtual bool hasSentCallback() const
+    virtual bool 
+    hasSentCallback() const
     {
         assert(false);
         return false;
@@ -1192,6 +1196,7 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
     class Cpp11CB : public GenericCallbackBase
     {
     public:
+
         Cpp11CB(const ::std::function<void (const AsyncResultPtr&)>& completed,
                 const ::std::function<void (const AsyncResultPtr&)>& sent) :
             _completed(completed), 
@@ -1200,17 +1205,20 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
             checkCallback(true, completed != nullptr);
         }
         
-        virtual void completed(const AsyncResultPtr& result) const
+        virtual void 
+        completed(const AsyncResultPtr& result) const
         {
             _completed(result);
         }
         
-        virtual CallbackBasePtr verify(const LocalObjectPtr&)
+        virtual CallbackBasePtr 
+        verify(const LocalObjectPtr&)
         {
             return this; // Nothing to do, the cookie is not type-safe.
         }
         
-        virtual void sent(const AsyncResultPtr& result) const
+        virtual void 
+        sent(const AsyncResultPtr& result) const
         {
             if(_sent != nullptr)
             {
@@ -1218,11 +1226,14 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
              }
         }
     
-        virtual bool hasSentCallback() const
+        virtual bool 
+        hasSentCallback() const
         {
             return _sent != nullptr;
         }
         
+    private:
+
         ::std::function< void (const AsyncResultPtr&)> _completed;
         ::std::function< void (const AsyncResultPtr&)> _sent;
     };
@@ -1230,6 +1241,19 @@ Ice::newCallback(const ::IceInternal::Function<void (const AsyncResultPtr&)>& co
     return new Cpp11CB(completed, sent);
 }
 #endif
+
+void
+IceInternal::CallbackBase::checkCallback(bool obj, bool cb)
+{
+    if(!obj)
+    {
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback object cannot be null");
+    }
+    if(!cb)
+    {
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback cannot be null");
+    }
+}
 
 void
 Ice::AMICallbackBase::__exception(const ::Ice::Exception& ex)

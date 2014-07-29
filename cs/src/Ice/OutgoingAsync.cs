@@ -510,11 +510,6 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.InvocationObserver getObserver__()
-        {
-            return observer_;
-        }
-
         public void invokeSentAsync__(Ice.AsyncCallback callback)
         {
             //

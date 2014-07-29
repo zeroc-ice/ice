@@ -356,11 +356,6 @@ public class AsyncResult
         }
     }
 
-    public Ice.Instrumentation.InvocationObserver __getObserver()
-    {
-        return _observer;
-    }
-    
     public final void __invokeSentAsync()
     {
         //

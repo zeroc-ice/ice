@@ -135,11 +135,6 @@ public:
                                                                                      IceInternal::headerSize - 4)));
     }
 
-    IceInternal::InvocationObserver& __getObserver()
-    {
-        return _observer;
-    }
-
 protected:
 
     static void __check(const AsyncResultPtr&, const ::std::string&);
@@ -384,17 +379,7 @@ class ICE_API CallbackBase : public IceUtil::Shared
 {
 public:
 
-    void checkCallback(bool obj, bool cb)
-    {
-        if(!obj)
-        {
-            throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback object cannot be null");
-        }
-        if(!cb)
-        {
-            throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback cannot be null");
-        }
-    }
+    void checkCallback(bool, bool);
 
     virtual void completed(const ::Ice::AsyncResultPtr&) const = 0;
     virtual CallbackBasePtr verify(const ::Ice::LocalObjectPtr&) = 0;
