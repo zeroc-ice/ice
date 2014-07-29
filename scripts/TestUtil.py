@@ -972,7 +972,7 @@ def getCommandLine(exe, config, options = ""):
     elif config.lang == "py":
         output.write(sys.executable + ' "%s" ' % exe)
     elif config.lang == "php" and config.type == "client":
-        output.write(phpCmd + " -c tmp.ini -f \""+ exe +"\" -- ")
+        output.write(phpCmd + " -n -c tmp.ini -f \""+ exe +"\" -- ")
     elif config.lang == "js":
         output.write('node "%s" ' % exe)
     elif config.lang == "cpp" and config.valgrind:
