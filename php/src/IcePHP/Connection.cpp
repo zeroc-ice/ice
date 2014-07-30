@@ -158,7 +158,7 @@ ZEND_METHOD(Ice_Connection, setACM)
     {
         if(Z_TYPE_P(t) != IS_LONG)
         {
-            invalidArgument("value for 'timeout' argument must be Unset or an integer");
+            invalidArgument("value for 'timeout' argument must be Unset or an integer" TSRMLS_CC);
             RETURN_NULL();
         }
         timeout = static_cast<Ice::Int>(Z_LVAL_P(t));
@@ -168,7 +168,7 @@ ZEND_METHOD(Ice_Connection, setACM)
     {
         if(Z_TYPE_P(c) != IS_LONG)
         {
-            invalidArgument("value for 'close' argument must be Unset or an enumerator of ACMClose");
+            invalidArgument("value for 'close' argument must be Unset or an enumerator of ACMClose" TSRMLS_CC);
             RETURN_NULL();
         }
         close = static_cast<Ice::ACMClose>(Z_LVAL_P(c));
@@ -178,7 +178,7 @@ ZEND_METHOD(Ice_Connection, setACM)
     {
         if(Z_TYPE_P(h) != IS_LONG)
         {
-            invalidArgument("value for 'heartbeat' argument must be Unset or an enumerator of ACMHeartbeat");
+            invalidArgument("value for 'heartbeat' argument must be Unset or an enumerator of ACMHeartbeat" TSRMLS_CC);
             RETURN_NULL();
         }
         heartbeat = static_cast<Ice::ACMHeartbeat>(Z_LVAL_P(h));
