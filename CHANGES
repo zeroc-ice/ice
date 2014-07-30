@@ -141,6 +141,7 @@ General Changes
   to classes. It also supports the use of compact type IDs for
   classes.
 
+
 C++ Changes
 ===========
 
@@ -174,6 +175,11 @@ C++ Changes
 
 C# Changes
 ==========
+
+- Most Slice data types now support .NET serialization, which allows
+  Ice exceptions to cross AppDomain boundaries. The only limitation is
+  that data members whose types are proxies cannot be serialized;
+  these members will be set to null after deserialization.
 
 - It is now possible for users to provide a base class for a Slice
   generated class with .NET partial classes.

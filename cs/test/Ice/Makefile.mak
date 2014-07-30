@@ -48,7 +48,8 @@ SUBDIRS         = application \
 		  admin \
 		  optional \
 		  metrics \
-		  enums
+		  enums \
+		  serialize
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -404,6 +404,34 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
     return false;
 }
 
+bool
+Slice::CsGenerator::isSerializable(const TypePtr& type)
+{
+    //
+    // A proxy cannot be serialized because a communicator is required during deserialization.
+    //
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    if((builtin && builtin->kind() == Builtin::KindObjectProxy) || proxy)
+    {
+        return false;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        return isSerializable(seq->type());
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        return isSerializable(d->keyType()) && isSerializable(d->valueType());
+    }
+
+    return true;
+}
+
 void
 Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                                               const TypePtr& type,
@@ -2060,6 +2088,249 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         out << sb;
         out << nl << param << " = new Ice.Optional<" << seqS << ">();";
         out << eb;
+    }
+}
+
+void
+Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
+                                                  const TypePtr& type,
+                                                  const string& param,
+                                                  bool optional,
+                                                  int tag,
+                                                  bool serialize)
+{
+    if(!isSerializable(type))
+    {
+        return;
+    }
+
+    if(optional)
+    {
+        const string typeName = typeToString(type, true);
+        if(serialize)
+        {
+            out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+        }
+        else
+        {
+            out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+                << "));";
+        }
+        return;
+    }
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindByte:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetByte(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindBool:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetBoolean(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetInt16(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetInt32(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetInt64(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetSingle(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetDouble(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindString:
+            {
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << " == null ? \"\" : " << param
+                        << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << "info__.GetString(\"" << param << "\");";
+                }
+                break;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindLocalObject:
+            {
+                const string typeName = typeToString(type, false);
+                if(serialize)
+                {
+                    out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+                }
+                else
+                {
+                    out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof("
+                        << typeName << "));";
+                }
+                break;
+            }
+            case Builtin::KindObjectProxy:
+            {
+                //
+                // Proxies cannot be serialized.
+                //
+                break;
+            }
+        }
+        return;
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if(prx)
+    {
+        //
+        // Proxies cannot be serialized.
+        //
+        return;
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        const string typeName = typeToString(type, false);
+        if(serialize)
+        {
+            out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+        }
+        else
+        {
+            out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+                << "));";
+        }
+        return;
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        const string typeName = typeToString(type, false);
+        if(serialize)
+        {
+            out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+        }
+        else
+        {
+            out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+                << "));";
+        }
+        return;
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        const string typeName = typeToString(type, false);
+        if(serialize)
+        {
+            out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+        }
+        else
+        {
+            out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+                << "));";
+        }
+        return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        const string typeName = typeToString(type, false);
+        if(serialize)
+        {
+            out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+        }
+        else
+        {
+            out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+                << "));";
+        }
+        return;
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    assert(d);
+    const string typeName = typeToString(type, false);
+    if(serialize)
+    {
+        out << nl << "info__.AddValue(\"" << param << "\", " << param << ", typeof(" << typeName << "));";
+    }
+    else
+    {
+        out << nl << param << " = (" << typeName << ")info__.GetValue(\"" << param << "\", typeof(" << typeName
+            << "));";
     }
 }
 

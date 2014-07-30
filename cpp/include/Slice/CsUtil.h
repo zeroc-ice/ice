@@ -39,6 +39,7 @@ protected:
     static std::string getStaticId(const TypePtr&);
     static std::string typeToString(const TypePtr&, bool = false);
     static bool isValueType(const TypePtr&);
+    static bool isSerializable(const TypePtr&);
 
     //
     // Generate code to marshal or unmarshal a type
@@ -50,6 +51,8 @@ protected:
                                            bool, bool, bool);
     void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
                                                    int, bool, bool);
+
+    void writeSerializeDeserializeCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool, int, bool);
 
 private:
 

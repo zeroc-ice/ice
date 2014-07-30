@@ -12,6 +12,7 @@ using System.Collections.Generic;
 
 namespace Ice
 {
+    [Serializable]
     public abstract class CollectionBase<T> : System.Collections.IList
     {
         protected List<T> list_;

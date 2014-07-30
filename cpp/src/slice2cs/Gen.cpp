@@ -3018,6 +3018,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         emitComVisibleAttribute();
         emitPartialTypeAttributes();
+        _out << nl << "[_System.Serializable]";
         if(p->allOperations().size() > 0) // See bug 4747
         {
             _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1012\")]";
@@ -3029,56 +3030,43 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << "partial class " << fixId(name);
 
-        bool baseWritten = false;
-
+        StringList baseNames;
         if(!hasBaseClass)
         {
             if(!p->isLocal())
             {
-                _out << " : Ice.Object";
-                baseWritten = true;
+                baseNames.push_back("Ice.Object");
             }
         }
         else
         {
-            _out << " : " << fixId(bases.front()->scoped());
-            baseWritten = true;
+            baseNames.push_back(fixId(bases.front()->scoped()));
             bases.pop_front();
         }
         if(p->isAbstract() && !p->isLocal())
         {
-            if(baseWritten)
-            {
-                _out << ", ";
-            }
-            else
-            {
-                _out << " : ";
-                baseWritten = true;
-            }
-
-            if(!p->isLocal())
-            {
-                _out << name << "Operations_, ";
-                _out << name << "OperationsNC_";
-            }
+            baseNames.push_back(name + "Operations_");
+            baseNames.push_back(name + "OperationsNC_");
         }
 
         for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             if((*q)->isAbstract())
             {
-                if(baseWritten)
+                baseNames.push_back(fixId((*q)->scoped()));
+            }
+        }
+
+        if(!baseNames.empty())
+        {
+            _out << " : ";
+            for(StringList::iterator q = baseNames.begin(); q != baseNames.end(); ++q)
+            {
+                if(q != baseNames.begin())
                 {
                     _out << ", ";
                 }
-                else
-                {
-                    _out << " : ";
-                    baseWritten = true;
-                }
-
-                _out << fixId((*q)->scoped());
+                _out << *q;
             }
         }
     }
@@ -3381,6 +3369,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     emitAttributes(p);
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
+    if(isSerializable(p->type()))
+    {
+        _out << nl << "[_System.Serializable]";
+    }
     _out << nl << "public class " << name
          << " : Ice.CollectionBase<" << s << ">, _System.ICloneable";
     _out << sb;
@@ -3462,6 +3454,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Suppress FxCop diagnostic about a missing constructor MyException(String).
     //
     _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1032\")]";
+    _out << nl << "[_System.Serializable]";
     emitPartialTypeAttributes();
     _out << nl << "public partial class " << name << " : ";
     if(base)
@@ -3558,6 +3551,18 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if(hasDefaultValues)
     {
         _out << nl << "initDM__();";
+    }
+    _out << eb;
+
+    _out << sp;
+    emitGeneratedCodeAttribute();
+    _out << nl << "public " << name << "(_System.Runtime.Serialization.SerializationInfo info__, "
+         << "_System.Runtime.Serialization.StreamingContext context__) : base(info__, context__)";
+    _out << sb;
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string name = fixId((*q)->name(), DotNet::Exception, false);
+        writeSerializeDeserializeCode(_out, (*q)->type(), name, (*q)->optional(), (*q)->tag(), false);
     }
     _out << eb;
 
@@ -3664,6 +3669,22 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     writeMemberEquals(dataMembers, DotNet::Exception);
     _out << nl << "return true;";
     _out << eb;
+
+    if(!dataMembers.empty())
+    {
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public override void GetObjectData(_System.Runtime.Serialization.SerializationInfo info__, "
+             << "_System.Runtime.Serialization.StreamingContext context__)";
+        _out << sb;
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            string name = fixId((*q)->name(), DotNet::Exception, false);
+            writeSerializeDeserializeCode(_out, (*q)->type(), name, (*q)->optional(), (*q)->tag(), true);
+        }
+        _out << sp << nl << "base.GetObjectData(info__, context__);";
+        _out << eb;
+    }
 
     _out << sp << nl << "#endregion"; // Object members
 
@@ -3962,6 +3983,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
+    _out << nl << "[_System.Serializable]";
     if(isValueType(p))
     {
         _out << nl << "public partial struct " << name;
@@ -4268,6 +4290,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     emitAttributes(p);
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
+    if(isSerializable(p->keyType()) && isSerializable(p->valueType()))
+    {
+        _out << nl << "[_System.Serializable]";
+    }
     _out << nl << "public class " << name
          << " : Ice.DictionaryBase<" << ks << ", " << vs << ">, _System.ICloneable";
     _out << sb;
@@ -4431,6 +4457,11 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     else
     {
         dataMemberName = propertyName;
+    }
+
+    if(!isSerializable(p->type()))
+    {
+        _out << nl << "[_System.NonSerialized]";
     }
 
     if(isProperty)

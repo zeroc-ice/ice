@@ -12,6 +12,7 @@ using System.Collections.Generic;
 
 namespace Ice
 {
+    [Serializable]
     public abstract class DictionaryBase<KT, VT> : System.Collections.IDictionary
     {
         protected Dictionary<KT, VT> dict_;
