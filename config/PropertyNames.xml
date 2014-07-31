@@ -421,6 +421,7 @@ generated from the section label.
         <property name="Lookup"/>
         <property name="Timeout"/>
         <property name="RetryCount"/>
+        <property name="RetryDelay"/>
         <property name="Address"/>
         <property name="Port"/>
         <property name="Interface"/>

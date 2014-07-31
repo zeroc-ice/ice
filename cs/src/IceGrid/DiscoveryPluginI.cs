@@ -361,7 +361,7 @@ namespace IceGrid
                 lookupEndpoints = s.ToString();
             }
 
-            Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceGridDiscovery/Lookup -d:" + lookupEndpoints);
+            Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
             lookupPrx = lookupPrx.ice_collocationOptimized(false); // No colloc optimization for the multicast proxy!
             try
             {

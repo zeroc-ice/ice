@@ -641,7 +641,7 @@ RegistryI::startImpl()
 
         try
         {
-            Ice::Identity lookupId = _communicator->stringToIdentity("IceGridDiscovery/Lookup");
+            Ice::Identity lookupId = _communicator->stringToIdentity("IceGrid/Lookup");
             discoveryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Discovery");
             discoveryAdapter->add(new LookupI(_instanceName, _wellKnownObjects), lookupId);
         }

@@ -574,7 +574,7 @@ Client::run(StringSeq& originalArgs)
                     lookupEndpoints = os.str();
                 }
                 
-                ObjectPrx prx = communicator()->stringToProxy("IceGridDiscovery/Lookup -d:" + lookupEndpoints);
+                ObjectPrx prx = communicator()->stringToProxy("IceGrid/Lookup -d:" + lookupEndpoints);
                 LookupPrx lookupPrx = LookupPrx::uncheckedCast(prx->ice_collocationOptimized(false));
 
                 if(properties->getProperty("IceGridAdmin.Discovery.Reply.Endpoints").empty())
