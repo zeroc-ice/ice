@@ -166,35 +166,42 @@ Init init;
 
 }
 
-namespace IceInternal
+namespace IceInternal // Required because ObserverUpdaterI is a friend of Instance
 {
 
 class ObserverUpdaterI : public Ice::Instrumentation::ObserverUpdater
 {
 public:
 
-    ObserverUpdaterI(InstancePtr instance) : _instance(instance)
-    {
-    }
+    ObserverUpdaterI(const InstancePtr&);
 
-    void updateConnectionObservers()
-    {
-        _instance->updateConnectionObservers();
-    }
-
-    void updateThreadObservers()
-    {
-        _instance->updateThreadObservers();
-    }
+    virtual void updateConnectionObservers();
+    virtual void updateThreadObservers();
 
 private:
 
-    InstancePtr _instance;
+    const InstancePtr _instance;
 };
 
 }
 
 IceUtil::Shared* IceInternal::upCast(Instance* p) { return p; }
+
+IceInternal::ObserverUpdaterI::ObserverUpdaterI(const InstancePtr& instance) : _instance(instance)
+{
+}
+
+void
+IceInternal::ObserverUpdaterI::updateConnectionObservers()
+{
+    _instance->updateConnectionObservers();
+}
+
+void
+IceInternal::ObserverUpdaterI::updateThreadObservers()
+{
+    _instance->updateThreadObservers();
+}
 
 bool
 IceInternal::Instance::destroyed() const
@@ -1460,11 +1467,15 @@ IceInternal::Instance::destroy()
         _metricsAdmin->destroy();
         _metricsAdmin = 0;
 
-        // Break cyclic reference counts. Don't clear _observer, it's immutable.
-        CommunicatorObserverIPtr observer = CommunicatorObserverIPtr::dynamicCast(_observer);
-        if(observer)
+        if(_observer)
         {
-            observer->destroy(); 
+            // Break cyclic reference counts. Don't clear _observer, it's immutable.
+            CommunicatorObserverIPtr observer = CommunicatorObserverIPtr::dynamicCast(_observer);
+            if(observer)
+            {
+                observer->destroy(); 
+            }
+            _observer->setObserverUpdater(0); // Break cyclic reference count.
         }
     }
 

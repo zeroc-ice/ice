@@ -769,20 +769,28 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     public void 
     setObserverUpdater(final Ice.Instrumentation.ObserverUpdater updater)
     {
-        _connections.setUpdater(new Runnable() {
-                public void 
-                run()
-                {
-                    updater.updateConnectionObservers();
-                }
-            });
-        _threads.setUpdater(new Runnable() { 
-                public void
-                run()
-                {
-                    updater.updateThreadObservers();
-                }
-            });
+        if(updater == null)
+        {
+            _connections.setUpdater(null);
+            _threads.setUpdater(null);
+        }
+        else
+        {
+            _connections.setUpdater(new Runnable() {
+                    public void 
+                    run()
+                    {
+                        updater.updateConnectionObservers();
+                    }
+                });
+            _threads.setUpdater(new Runnable() { 
+                    public void
+                    run()
+                    {
+                        updater.updateThreadObservers();
+                    }
+                });
+        }
 
         if(_delegate != null)
         {

@@ -1188,8 +1188,16 @@ namespace IceInternal
     
         public void setObserverUpdater(Ice.Instrumentation.ObserverUpdater updater)
         {
-            _connections.setUpdater(updater.updateConnectionObservers);
-            _threads.setUpdater(updater.updateThreadObservers);
+            if(updater == null)
+            {
+                _connections.setUpdater(null);
+                _threads.setUpdater(null);
+            }
+            else
+            {
+                _connections.setUpdater(updater.updateConnectionObservers);
+                _threads.setUpdater(updater.updateThreadObservers);
+            }
             if(_delegate != null)
             {
                 _delegate.setObserverUpdater(updater);

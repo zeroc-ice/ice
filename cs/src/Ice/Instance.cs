@@ -1070,6 +1070,11 @@ namespace IceInternal
             {
                 _retryQueue.destroy();
             }
+        
+            if(_observer != null)
+            {
+                _observer.setObserverUpdater(null);
+            }
 
             ThreadPool serverThreadPool = null;
             ThreadPool clientThreadPool = null;

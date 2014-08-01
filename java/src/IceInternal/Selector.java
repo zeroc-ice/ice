@@ -343,7 +343,6 @@ public final class Selector
 
     private java.util.Set<java.nio.channels.SelectionKey> _keys;
     private java.util.HashSet<EventHandler> _changes = new java.util.HashSet<EventHandler>();
-    private java.util.HashSet<EventHandler> _pendingHandlers = new java.util.HashSet<EventHandler>();
     private boolean _selecting;
     private boolean _interrupted;
     private int _spuriousWakeUp;
