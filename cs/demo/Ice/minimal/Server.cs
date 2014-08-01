@@ -13,12 +13,13 @@ public class Server
     {
         try
         {
-            Ice.Communicator communicator = Ice.Util.initialize(ref args);
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
-            adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
-            adapter.activate();
-            communicator.waitForShutdown();
-            communicator.destroy();
+            using(Ice.Communicator communicator = Ice.Util.initialize(ref args))
+            {
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
+                adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
+                adapter.activate();
+                communicator.waitForShutdown();
+            }
             return 0;
         }
         catch(System.Exception ex)

@@ -46,6 +46,7 @@ module Ice
  * @see ObjectFactory
  *
  **/
+["clr:implements:_System.IDisposable"]
 local interface Communicator
 {
     /**

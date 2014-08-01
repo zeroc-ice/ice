@@ -2584,10 +2584,20 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     {
                         continue;
                     }
+                    static const string clrImplementsPrefix = prefix + "implements:";
+                    if(s.find(clrImplementsPrefix) == 0)
+                    {
+                        continue;
+                    }
                 }
                 else if(ClassDefPtr::dynamicCast(cont))
                 {
                     if(s.substr(prefix.size()) == "property")
+                    {
+                        continue;
+                    }
+                    static const string clrImplementsPrefix = prefix + "implements:";
+                    if(s.find(clrImplementsPrefix) == 0)
                     {
                         continue;
                     }

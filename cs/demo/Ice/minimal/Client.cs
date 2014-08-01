@@ -15,10 +15,11 @@ public class Client
     {
         try
         {
-            Ice.Communicator communicator = Ice.Util.initialize(ref args);
-            HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
-            hello.sayHello();
-            communicator.destroy();
+            using(Ice.Communicator communicator = Ice.Util.initialize(ref args))
+            {
+                HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
+                hello.sayHello();
+            }
             return 0;
         }
         catch(System.Exception ex)

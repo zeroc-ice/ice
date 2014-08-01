@@ -7,11 +7,12 @@
 //
 // **********************************************************************
 
+using System;
 using System.Collections.Generic;
 
 namespace Ice
 {
-        
+
     sealed class CommunicatorI : Communicator
     {
         public void destroy()
@@ -23,7 +24,7 @@ namespace Ice
         {
             instance_.objectAdapterFactory().shutdown();
         }
-        
+
         public void waitForShutdown()
         {
             instance_.objectAdapterFactory().waitForShutdown();
@@ -33,12 +34,12 @@ namespace Ice
         {
             return instance_.objectAdapterFactory().isShutdown();
         }
-        
+
         public Ice.ObjectPrx stringToProxy(string s)
         {
             return instance_.proxyFactory().stringToProxy(s);
         }
-        
+
         public string proxyToString(Ice.ObjectPrx proxy)
         {
             return instance_.proxyFactory().proxyToString(proxy);
@@ -48,12 +49,12 @@ namespace Ice
         {
             return instance_.proxyFactory().propertyToProxy(s);
         }
-        
+
         public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
         {
             return instance_.proxyFactory().proxyToProperty(proxy, prefix);
         }
-        
+
         public Ice.Identity stringToIdentity(string s)
         {
             return instance_.stringToIdentity(s);
@@ -68,7 +69,7 @@ namespace Ice
         {
             return instance_.objectAdapterFactory().createObjectAdapter(name, null);
         }
-        
+
         public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
         {
             if(name.Length == 0)
@@ -79,7 +80,7 @@ namespace Ice
             getProperties().setProperty(name + ".Endpoints", endpoints);
             return instance_.objectAdapterFactory().createObjectAdapter(name, null);
         }
-        
+
         public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
         {
             if(name.Length == 0)
@@ -98,22 +99,22 @@ namespace Ice
 
             return instance_.objectAdapterFactory().createObjectAdapter(name, router);
         }
-        
+
         public void addObjectFactory(ObjectFactory factory, string id)
         {
             instance_.servantFactoryManager().add(factory, id);
         }
-        
+
         public ObjectFactory findObjectFactory(string id)
         {
             return instance_.servantFactoryManager().find(id);
         }
-        
+
         public Properties getProperties()
         {
             return instance_.initializationData().properties;
         }
-        
+
         public Logger getLogger()
         {
             return instance_.initializationData().logger;
@@ -143,7 +144,7 @@ namespace Ice
         {
             instance_.setDefaultLocator(locator);
         }
-        
+
         public ImplicitContext getImplicitContext()
         {
             return instance_.getImplicitContext();
@@ -203,37 +204,37 @@ namespace Ice
             IceInternal.OutgoingAsyncBase.check__(outAsync, this, __flushBatchRequests_name);
             outAsync.wait__();
         }
-        
-        public Ice.ObjectPrx 
-        getAdmin()
+
+        public Ice.ObjectPrx getAdmin()
         {
             return instance_.getAdmin();
         }
-        
-        public void 
-        addAdminFacet(Ice.Object servant, string facet)
+
+        public void addAdminFacet(Ice.Object servant, string facet)
         {
             instance_.addAdminFacet(servant, facet);
         }
-        
-        public Ice.Object 
-        removeAdminFacet(string facet)
+
+        public Ice.Object removeAdminFacet(string facet)
         {
             return instance_.removeAdminFacet(facet);
         }
 
-        public Ice.Object
-        findAdminFacet(string facet)
+        public Ice.Object findAdminFacet(string facet)
         {
             return instance_.findAdminFacet(facet);
         }
 
+        public void Dispose()
+        {
+            destroy();
+        }
 
         internal CommunicatorI(InitializationData initData)
         {
             instance_ = new IceInternal.Instance(this, initData);
         }
-        
+
         /*
         ~CommunicatorI()
         {
@@ -268,7 +269,7 @@ namespace Ice
                 throw;
             }
         }
-        
+
         //
         // For use by Util.getInstance()
         //
@@ -276,7 +277,7 @@ namespace Ice
         {
             return instance_;
         }
-        
+
         private IceInternal.Instance instance_;
     }
 

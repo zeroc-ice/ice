@@ -2991,6 +2991,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
     }
 
+    StringList baseNames;
+
     _out << sp;
     emitAttributes(p);
     if(p->isInterface())
@@ -3000,18 +3002,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "public partial interface " << fixId(name);
         if(!p->isLocal())
         {
-            _out << " : Ice.Object, ";
-            _out << name << "Operations_, " << name << "OperationsNC_";
+            baseNames.push_back("Ice.Object");
+            baseNames.push_back(name + "Operations_");
+            baseNames.push_back(name + "OperationsNC_");
         }
-        ClassList::const_iterator q = bases.begin();
-        if(p->isLocal() && q != bases.end())
+        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            _out << " : " << fixId((*q++)->scoped());
-        }
-        while(q != bases.end())
-        {
-            _out << ", " << fixId((*q)->scoped());
-            q++;
+            baseNames.push_back(fixId((*q)->scoped()));
         }
     }
     else
@@ -3030,7 +3027,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << "partial class " << fixId(name);
 
-        StringList baseNames;
         if(!hasBaseClass)
         {
             if(!p->isLocal())
@@ -3056,18 +3052,31 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 baseNames.push_back(fixId((*q)->scoped()));
             }
         }
+    }
 
-        if(!baseNames.empty())
+    //
+    // Check for clr:implements metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string prefix = "clr:implements:";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(prefix) == 0)
         {
-            _out << " : ";
-            for(StringList::iterator q = baseNames.begin(); q != baseNames.end(); ++q)
+            baseNames.push_back(q->substr(prefix.size()));
+        }
+    }
+
+    if(!baseNames.empty())
+    {
+        _out << " : ";
+        for(StringList::const_iterator q = baseNames.begin(); q != baseNames.end(); ++q)
+        {
+            if(q != baseNames.begin())
             {
-                if(q != baseNames.begin())
-                {
-                    _out << ", ";
-                }
-                _out << *q;
+                _out << ", ";
             }
+            _out << *q;
         }
     }
 
@@ -3984,14 +3993,40 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitAttributes(p);
     emitPartialTypeAttributes();
     _out << nl << "[_System.Serializable]";
-    if(isValueType(p))
+    _out << nl << "public partial " << (isValueType(p) ? "struct" : "class") << ' ' << name;
+
+    StringList baseNames;
+    if(!isValueType(p))
     {
-        _out << nl << "public partial struct " << name;
+        baseNames.push_back("_System.ICloneable");
     }
-    else
+
+    //
+    // Check for clr:implements metadata.
+    //
+    const StringList metaData = p->getMetaData();
+    static const string prefix = "clr:implements:";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
-        _out << nl << "public partial class " << name << " : _System.ICloneable";
+        if(q->find(prefix) == 0)
+        {
+            baseNames.push_back(q->substr(prefix.size()));
+        }
     }
+
+    if(!baseNames.empty())
+    {
+        _out << " : ";
+        for(StringList::const_iterator q = baseNames.begin(); q != baseNames.end(); ++q)
+        {
+            if(q != baseNames.begin())
+            {
+                _out << ", ";
+            }
+            _out << *q;
+        }
+    }
+
     _out << sb;
 
     _out << sp << nl << "#region Slice data members";
