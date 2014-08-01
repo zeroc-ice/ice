@@ -44,122 +44,49 @@ class ClearMembers : public GCVisitor
 {
 public:
     
-    virtual bool visit(GCObject* obj)
-    {
-        return true;
-    }
+    virtual bool visit(GCObject*);
 };
 ClearMembers clearMembers;
 
 class DecreaseRefCounts : public GCVisitor
 {
-    GCCountMap& _counts;
-    
 public:
     
-    DecreaseRefCounts(GCCountMap& counts) : _counts(counts)
-    {
-    }
+    DecreaseRefCounts(GCCountMap&);
 
-    virtual bool 
-    visit(GCObject* obj)
-    {
-        //
-        // Visit the object only once when the object is inserted for
-        // the first time in the counts map. After, we just decrement
-        // its reference count. Decrementing the reference counts of
-        // reachable objects will indicate when a cycle is
-        // collectable. Collectable objects are those with a reference
-        // count of zero and for which there's no "reachable" parent
-        // object (objects with a reference count > 0).
-        //
-        GCCountMap::iterator p = _counts.find(obj);
-        if(p == _counts.end())
-        {
-            _counts.insert(make_pair(obj, obj->__getRefUnsafe() - 1));
-            if(obj->__hasFlag(GCObject::Collectable))
-            {
-                obj->__gcVisitMembers(*this);
-            }
-        }
-        else
-        {
-            --p->second;
-        }
-        return false;
-    }
+    virtual bool visit(GCObject*);
+
+private:
+
+    GCCountMap& _counts;
 };
-        
+
 class RestoreRefCountsIfReachable : public GCVisitor
 {
-    GCCountMap& _counts;
-    bool _reachable;
-
 public:
         
-    RestoreRefCountsIfReachable(GCCountMap& counts) : _counts(counts), _reachable(false)
-    {
-    }
-    
-    virtual bool visit(GCObject* obj)
-    {
-        GCCountMap::iterator p = _counts.find(obj);
-        if(p == _counts.end())
-        {
-            //
-            // If the object has been removed from the counts map,
-            // it's reachable.
-            //
-            return false;
-        } 
-        else if(_reachable)
-        {
-            //
-            // If parent object is reachable, this object is also
-            // reachable. Remove it from the counts map and also make
-            // reachable children.
-            //
-            _counts.erase(p);
-            obj->__gcVisitMembers(*this);
-        }
-        else if(p->second == 0)
-        {
-            //
-            // If the object is collectable, set its count to -1 to
-            // indicate that it was already visited prevent it from
-            // being visited again.
-            //
-            p->second = -1;
-            obj->__gcVisitMembers(*this);
-        }
-        else if(p->second > 0)
-        {
-            //
-            // Object isn't collectable, remove it from the counts map
-            // and visit its sub-graph to remove children wobjects from
-            // the counts map since they are also reachable.
-            //
-            _counts.erase(p); 
-            
-            _reachable = true;
-            obj->__gcVisitMembers(*this);
-            _reachable = false;
-        }
-        return false;
-    }
+    RestoreRefCountsIfReachable(GCCountMap&);
+
+    virtual bool visit(GCObject*);
+
+private:
+
+    GCCountMap& _counts;
+    bool _reachable;
 };
 
-
-//
-// Set the collectable flag on the object graph. While setting the
-// flag, we also check if the object graph has cycles and mark all the
-// objects which are part of a cycle with the CycleMember flag.
-//
-// We use the path-based strong component algorithm to detect the
-// strong compoments of the graph.
-//
 class MarkCollectable : public GCVisitor
 {
+public:
+
+    MarkCollectable();
+
+    virtual bool visit(GCObject*);
+
+    void visitNeighbor(GCObject*);
+
+private:
+
     int _counter;
     map<GCObject*, int> _numbers;
     stack<GCObject*> _p;
@@ -167,99 +94,203 @@ class MarkCollectable : public GCVisitor
 
     class VisitNeighbors : public IceInternal::GCVisitor
     {
-        MarkCollectable* _visitor;
-
     public:
 
-        void
-        setVisitor(MarkCollectable* visitor)
-        {
-            _visitor = visitor;
-        }
+        void setVisitor(MarkCollectable*);
+        virtual bool visit(GCObject*);
 
-        virtual bool 
-        visit(GCObject* obj)
-        {
-            _visitor->visitNeighbor(obj);
-            return false;
-        }
+    private:
+
+        MarkCollectable* _visitor;
     };
     VisitNeighbors _neighborsVisitor;
-
-public:
-
-    MarkCollectable() : _counter(0)
-    {
-        _neighborsVisitor.setVisitor(this);
-    }
-
-    virtual bool 
-    visit(GCObject* obj)
-    {
-        if(obj->__hasFlag(GCObject::Collectable))
-        {
-            return false;
-        }
-        obj->__setFlag(GCObject::Collectable);
-        
-        _numbers[obj] = ++_counter;
-        _p.push(obj);
-        _s.push(obj);
-
-        obj->__gcVisitMembers(_neighborsVisitor);
-
-        if(_p.top() == obj)
-        {
-            GCObject* o;
-            do
-            {
-                o = _s.top();
-                _s.pop();
-                o->__setFlag(GCObject::CycleMember);
-            }
-            while(o != obj);
-            _p.pop();
-        }
-        return false;
-    }
-
-    void
-    visitNeighbor(GCObject* obj)
-    {
-        map<GCObject*, int>::const_iterator p = _numbers.find(obj);
-        if(p == _numbers.end())
-        {
-            visit(obj);
-        }
-        else if(!obj->__hasFlag(GCObject::CycleMember))
-        {
-            while(_numbers[_p.top()] > p->second)
-            {
-                _p.pop();
-            }
-        }
-    }
 };
 
-//
-// Clear the collectable flag on the object graph.
-//
 class ClearCollectable : public GCVisitor
 {
 public:
     
-    virtual bool 
-    visit(GCObject* obj)
-    {
-        if(obj->__hasFlag(GCObject::Collectable))
-        {
-            obj->__clearFlag(GCObject::Collectable | GCObject::CycleMember);
-            obj->__gcVisitMembers(*this);
-        }
-        return false;
-    }
+    virtual bool visit(GCObject*);
 };
 
+}
+
+bool
+ClearMembers::visit(GCObject* obj)
+{
+    return true;
+}
+
+DecreaseRefCounts::DecreaseRefCounts(GCCountMap& counts) : _counts(counts)
+{
+}
+
+bool 
+DecreaseRefCounts::visit(GCObject* obj)
+{
+    //
+    // Visit the object only once when the object is inserted for
+    // the first time in the counts map. After, we just decrement
+    // its reference count. Decrementing the reference counts of
+    // reachable objects will indicate when a cycle is
+    // collectable. Collectable objects are those with a reference
+    // count of zero and for which there's no "reachable" parent
+    // object (objects with a reference count > 0).
+    //
+    GCCountMap::iterator p = _counts.find(obj);
+    if(p == _counts.end())
+    {
+        _counts.insert(make_pair(obj, obj->__getRefUnsafe() - 1));
+        if(obj->__hasFlag(GCObject::Collectable))
+        {
+            obj->__gcVisitMembers(*this);
+        }
+    }
+    else
+    {
+        --p->second;
+    }
+    return false;
+}
+
+RestoreRefCountsIfReachable::RestoreRefCountsIfReachable(GCCountMap& counts) : _counts(counts), _reachable(false)
+{
+}
+
+bool 
+RestoreRefCountsIfReachable::visit(GCObject* obj)
+{
+    GCCountMap::iterator p = _counts.find(obj);
+    if(p == _counts.end())
+    {
+        //
+        // If the object has been removed from the counts map,
+        // it's reachable.
+        //
+        return false;
+    } 
+    else if(_reachable)
+    {
+        //
+        // If parent object is reachable, this object is also
+        // reachable. Remove it from the counts map and also make
+        // reachable children.
+        //
+        _counts.erase(p);
+        obj->__gcVisitMembers(*this);
+    }
+    else if(p->second == 0)
+    {
+        //
+        // If the object is collectable, set its count to -1 to
+        // indicate that it was already visited prevent it from
+        // being visited again.
+        //
+        p->second = -1;
+        obj->__gcVisitMembers(*this);
+    }
+    else if(p->second > 0)
+    {
+        //
+        // Object isn't collectable, remove it from the counts map
+        // and visit its sub-graph to remove children wobjects from
+        // the counts map since they are also reachable.
+        //
+        _counts.erase(p); 
+            
+        _reachable = true;
+        obj->__gcVisitMembers(*this);
+        _reachable = false;
+    }
+    return false;
+}
+
+MarkCollectable::MarkCollectable() : _counter(0)
+{
+    _neighborsVisitor.setVisitor(this);
+}
+
+bool 
+MarkCollectable::visit(GCObject* obj)
+{
+    //
+    // Set the collectable flag on the object graph. While setting the
+    // flag, we also check if the object graph has cycles and mark all the
+    // objects which are part of a cycle with the CycleMember flag.
+    //
+    // We use the path-based strong component algorithm to detect the
+    // strong components of the graph.
+    //
+
+    if(obj->__hasFlag(GCObject::Collectable))
+    {
+        return false;
+    }
+    obj->__setFlag(GCObject::Collectable);
+        
+    _numbers[obj] = ++_counter;
+    _p.push(obj);
+    _s.push(obj);
+
+    obj->__gcVisitMembers(_neighborsVisitor);
+
+    if(_p.top() == obj)
+    {
+        GCObject* o;
+        do
+        {
+            o = _s.top();
+            _s.pop();
+            o->__setFlag(GCObject::CycleMember);
+        }
+        while(o != obj);
+        _p.pop();
+    }
+    return false;
+}
+
+void
+MarkCollectable::visitNeighbor(GCObject* obj)
+{
+    map<GCObject*, int>::const_iterator p = _numbers.find(obj);
+    if(p == _numbers.end())
+    {
+        visit(obj);
+    }
+    else if(!obj->__hasFlag(GCObject::CycleMember))
+    {
+        while(_numbers[_p.top()] > p->second)
+        {
+            _p.pop();
+        }
+    }
+}
+
+void
+MarkCollectable::VisitNeighbors::setVisitor(MarkCollectable* visitor)
+{
+    _visitor = visitor;
+}
+
+bool 
+MarkCollectable::VisitNeighbors::visit(GCObject* obj)
+{
+    _visitor->visitNeighbor(obj);
+    return false;
+}
+
+bool 
+ClearCollectable::visit(GCObject* obj)
+{
+    //
+    // Clear the collectable flag on the object graph.
+    //
+    if(obj->__hasFlag(GCObject::Collectable))
+    {
+        obj->__clearFlag(GCObject::Collectable | GCObject::CycleMember);
+        obj->__gcVisitMembers(*this);
+    }
+    return false;
 }
 
 //
