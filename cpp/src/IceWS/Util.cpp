@@ -9,6 +9,7 @@
 
 #include <IceUtil/Config.h>
 #include <IceWS/Util.h>
+#include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
 

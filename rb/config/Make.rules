@@ -89,6 +89,10 @@ else
 	endif
 
 	RUBY_LIBS		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(LIBRUBYARG)")')
+        ifneq ($(findstring MINGW, $(shell uname)),)
+                RUBY_BIN_DIR    = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(bindir)")')
+                RUBY_LIBS       := -L$(RUBY_BIN_DIR) $(RUBY_LIBS)
+        endif
 endif
 
 #

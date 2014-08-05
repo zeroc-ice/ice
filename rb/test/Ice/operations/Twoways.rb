@@ -156,9 +156,11 @@ def twoways(communicator, p)
 
     rso, bso = p.opByteS(bsi1, bsi2)
     test(bso.length == 4)
-    test(bso == "\x22\x12\x11\x01")
+    test(bso.unpack("C*").reverse() == bsi1)
+    arr = bsi1.dup().concat(bsi2)
     test(rso.length == 8)
-    test(rso == "\x01\x11\x12\x22\xf1\xf2\xf3\xf4")
+    test(rso.unpack("C*") == arr)
+
     #
     # opBoolS
     #
@@ -252,18 +254,18 @@ def twoways(communicator, p)
     rso, bso = p.opByteSS(bsi1, bsi2)
     test(bso.length == 2)
     test(bso[0].length == 1)
-    test(bso[0] == "\xff")
+    test(bso[0].unpack("C*") == [0xff])
     test(bso[1].length == 3)
-    test(bso[1] == "\x01\x11\x12")
+    test(bso[1].unpack("C*") == [0x01, 0x11, 0x12])
     test(rso.length == 4)
     test(rso[0].length == 3)
-    test(rso[0] == "\x01\x11\x12")
+    test(rso[0].unpack("C*") == [0x01, 0x11, 0x12])
     test(rso[1].length == 1)
-    test(rso[1] == "\xff")
+    test(rso[1].unpack("C*") == [0xff])
     test(rso[2].length == 1)
-    test(rso[2] == "\x0e")
+    test(rso[2].unpack("C*") == [0x0e])
     test(rso[3].length == 2)
-    test(rso[3] == "\xf2\xf1")
+    test(rso[3].unpack("C*") == [0xf2, 0xf1])
 
     #
     # opFloatDoubleSS
