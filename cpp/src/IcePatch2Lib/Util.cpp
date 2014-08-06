@@ -19,9 +19,10 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/SHA1.h>
+
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/Util.h>
-#include <openssl/sha.h>
 #include <bzlib.h>
 #include <iomanip>
 
@@ -789,8 +790,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
             ByteSeq bytesSHA(20);
             if(!bytes.empty())
             {
-                SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
-                     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+                IceUtil::sha1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), bytesSHA);
             }
             else
             {
@@ -850,19 +850,19 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                 return false;
             }
 
-            ByteSeq bytesSHA(20);
+            ByteSeq bytesSHA;
 
             if(relPath.size() + buf.st_size == 0)
             {
+                bytesSHA.resize(20);
                 fill(bytesSHA.begin(), bytesSHA.end(), 0);
             }
             else
             {
-                SHA_CTX ctx;
-                SHA1_Init(&ctx);
+                IceUtil::SHA1 hasher;
                 if(relPath.size() != 0)
                 {
-                    SHA1_Update(&ctx, reinterpret_cast<const void*>(relPath.c_str()), relPath.size());
+                    hasher.update(reinterpret_cast<const IceUtil::Byte*>(relPath.c_str()), relPath.size());
                 }
 
                 if(buf.st_size != 0)
@@ -939,7 +939,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                             }
                         }
 
-                        SHA1_Update(&ctx, reinterpret_cast<const void*>(&bytes[0]), bytes.size());
+                        hasher.update(reinterpret_cast<IceUtil::Byte*>(&bytes[0]), bytes.size());
                     }
 
                     IceUtilInternal::close(fd);
@@ -970,8 +970,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         info.size = static_cast<Int>(bufBZ2.st_size);
                     }
                 }
-
-                SHA1_Final(reinterpret_cast<unsigned char*>(&bytesSHA[0]), &ctx);
+                hasher.finalize(bytesSHA);
             }
 
             info.checksum.swap(bytesSHA);
@@ -1186,8 +1185,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
         
         if(!allChecksums1.empty())
         {
-            SHA1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(),
-                 reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
+            IceUtil::sha1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(), tree1.checksum);
         }
         else
         {
@@ -1199,8 +1197,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
 
     if(!allChecksums0.empty())
     {
-        SHA1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(),
-             reinterpret_cast<unsigned char*>(&tree0.checksum[0]));
+        IceUtil::sha1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(), tree0.checksum);
     }
     else
     {

@@ -30,8 +30,9 @@ ServerI::noCert(const Ice::Current& c)
         IceSSL::NativeConnectionInfoPtr info = IceSSL::NativeConnectionInfoPtr::dynamicCast(c.con->getInfo());
         test(info->nativeCerts.size() == 0);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
 }

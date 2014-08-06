@@ -553,6 +553,7 @@ generated from the section label.
         <property name="Alias" />
         <property name="CertAuthDir" />
         <property name="CertAuthFile" />
+        <property name="CertStore" />
         <property name="CertFile" />
         <property name="CertVerifier" />
         <property name="CheckCertName" />

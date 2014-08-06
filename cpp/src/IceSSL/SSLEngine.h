@@ -15,15 +15,30 @@
 #include <IceSSL/SSLEngineF.h>
 #include <IceSSL/TrustManagerF.h>
 
-#include <IceUtil/ScopedArray.h>
-#include <IceUtil/UniquePtr.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Network.h>
 
-#ifdef ICE_USE_SECURE_TRANSPORT
+#if defined(ICE_USE_SECURE_TRANSPORT)
 #   include <Security/Security.h>
+#elif defined(ICE_USE_SCHANNEL)
+
+//
+// SECURITY_WIN32 or SECURITY_KERNEL, must be defined before including security.h
+// indicating who is compiling the code.
+//
+#  ifdef SECURITY_WIN32
+#    undef SECURITY_WIN32
+#  endif
+#  ifdef SECURITY_KERNEL
+#    undef SECURITY_KERNEL
+#  endif
+#  define SECURITY_WIN32 1
+#  include <security.h>
+#  include <sspi.h>
+#  include <schannel.h>
+#  undef SECURITY_WIN32
 #endif
 
 namespace IceSSL
@@ -57,8 +72,7 @@ public:
     //
     // Verify peer certificate
     //
-    virtual void verifyPeer(SOCKET, const std::string&, const NativeConnectionInfoPtr&);
-
+    void verifyPeer(SOCKET, const std::string&, const NativeConnectionInfoPtr&);
 
     CertificateVerifierPtr getCertificateVerifier() const;
     PasswordPromptPtr getPasswordPrompt() const;
@@ -87,7 +101,7 @@ private:
     std::string _securityTraceCategory;
 };
 
-#ifdef ICE_USE_SECURE_TRANSPORT
+#if defined(ICE_USE_SECURE_TRANSPORT)
 
 class SecureTransportEngine : public SSLEngine
 {
@@ -102,36 +116,131 @@ public:
     SSLContextRef newContext(bool);
     CFArrayRef getCertificateAuthorities() const;
     std::string getCipherName(SSLCipherSuite) const;
-    SecCertificateRef getCertificate() const;
-    SecKeychainRef getKeychain() const;
     
 private:
     
-    void parseCiphers(const std::string& ciphers);
+    void parseCiphers(const std::string&);
     
     bool _initialized;
-    SSLContextRef _ctx;
-    CFArrayRef _certificateAuthorities;
-    SecCertificateRef _cert;
-    SecKeyRef _key;
-    SecIdentityRef _identity;
-    SecKeychainRef _keychain;
+    CFArrayRef _certificateAuthorities;    
+    CFMutableArrayRef _chain;
     
     SSLProtocol _protocolVersionMax;
     SSLProtocol _protocolVersionMin;
     
     std::string _defaultDir;
-    
-   
-    IceUtil::UniquePtr< IceUtil::ScopedArray<char> > _dhParams;
-    size_t _dhParamsLength;
+       
+    std::vector<char> _dhParams;
     
     std::vector<SSLCipherSuite> _ciphers;
-    bool _allCiphers;
     IceUtil::Mutex _mutex;
 };
 
-#else
+#elif defined(ICE_USE_SCHANNEL)
+
+
+#ifdef __MINGW32__
+
+//
+// Add some definitions missing from MinGW headers.
+//
+
+#   ifndef CERT_TRUST_IS_EXPLICIT_DISTRUST
+#      define CERT_TRUST_IS_EXPLICIT_DISTRUST 0x04000000
+#   endif
+
+#   ifndef CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT
+#      define CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT 0x08000000
+#   endif
+
+#   ifndef SECBUFFER_ALERT
+#      define SECBUFFER_ALERT 17
+#   endif
+
+#   ifndef SCH_SEND_ROOT_CERT
+#      define SCH_SEND_ROOT_CERT 0x00040000
+#   endif
+
+#   ifndef SP_PROT_TLS1_1_SERVER
+#      define SP_PROT_TLS1_1_SERVER 0x00000100
+#   endif
+
+#   ifndef SP_PROT_TLS1_1_CLIENT
+#      define SP_PROT_TLS1_1_CLIENT 0x00000200
+#   endif
+
+#   ifndef SP_PROT_TLS1_2_SERVER
+#      define SP_PROT_TLS1_2_SERVER 0x00000400
+#   endif
+
+#   ifndef SP_PROT_TLS1_2_CLIENT
+#      define SP_PROT_TLS1_2_CLIENT 0x00000800
+#   endif
+
+//
+// CERT_CHAIN_ENGINE_CONFIG struct in mingw headers doesn't include
+// new members added in Windows 7, we add our ouwn definition and 
+// then cast it to CERT_CHAIN_ENGINE_CONFIG this works because the 
+// linked libraries include the new version.
+//
+struct CertChainEngineConfig
+{
+    DWORD cbSize;
+    HCERTSTORE hRestrictedRoot;
+    HCERTSTORE hRestrictedTrust;
+    HCERTSTORE hRestrictedOther;
+    DWORD cAdditionalStore;
+    HCERTSTORE *rghAdditionalStore;
+    DWORD dwFlags;
+    DWORD dwUrlRetrievalTimeout;
+    DWORD MaximumCachedCertificates;
+    DWORD CycleDetectionModulus;
+    HCERTSTORE hExclusiveRoot;
+    HCERTSTORE hExclusiveTrustedPeople;
+};
+
+#endif
+class SChannelEngine : public SSLEngine
+{
+public:
+    
+    SChannelEngine(const Ice::CommunicatorPtr&);
+    
+    //
+    // Setup the engine.
+    //
+    virtual void initialize();
+    
+    virtual bool initialized() const;
+
+    //
+    // Destroy the engine.
+    //
+    virtual void destroy();
+    
+    std::string getCipherName(ALG_ID) const;
+
+    CredHandle newCredentialsHandle(bool);
+
+    HCERTCHAINENGINE chainEngine() const;
+
+private:
+
+    void parseCiphers(const std::string&);
+    
+    bool _initialized;
+    std::vector<PCCERT_CONTEXT> _certs;
+    DWORD _protocols;
+    IceUtil::Mutex _mutex;
+
+    std::vector<HCERTSTORE> _stores;
+
+    HCERTSTORE _rootStore;
+
+    HCERTCHAINENGINE _chainEngine;
+    std::vector<ALG_ID> _ciphers;
+};
+#else // OpenSSL
 class OpenSSLEngine : public SSLEngine
 {
 public:
@@ -142,12 +251,11 @@ public:
     virtual void initialize();
     virtual bool initialized() const;
     virtual void destroy();
-    virtual void verifyPeer(SSL*, SOCKET, const std::string&, const NativeConnectionInfoPtr&);
     
     int verifyCallback(int , SSL*, X509_STORE_CTX*);
-#  ifndef OPENSSL_NO_DH
+#   ifndef OPENSSL_NO_DH
     DH* dhParams(int);
-#  endif
+#   endif
     SSL_CTX* context() const;
     void context(SSL_CTX*);
     std::string sslErrors() const;
@@ -165,9 +273,9 @@ private:
     SSL_CTX* _ctx;
     std::string _defaultDir;
 
-#  ifndef OPENSSL_NO_DH
+#   ifndef OPENSSL_NO_DH
     DHParamsPtr _dhParams;
-#  endif
+#   endif
     IceUtil::Mutex _mutex;
 };
 #endif

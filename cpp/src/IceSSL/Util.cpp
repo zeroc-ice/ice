@@ -13,18 +13,14 @@
 #endif
 
 #include <IceSSL/Util.h>
-#include <IceUtil/ScopedArray.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/StringUtil.h>
 
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/Object.h>
 
 #ifdef ICE_USE_OPENSSL
-#   ifdef _WIN32
-#      include <direct.h>
-#      include <sys/types.h>
-#   endif
 #   include <openssl/err.h>
 #endif
 
@@ -32,6 +28,27 @@ using namespace std;
 using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
+
+void
+IceSSL::readFile(const string& file, vector<char>& buffer)
+{
+    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
+    if(!is.good())
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
+    }
+    
+    is.seekg(0, is.end);
+    buffer.resize(static_cast<int>(is.tellg()));
+    is.seekg(0, is.beg);
+    
+    is.read(&buffer[0], buffer.size());
+    
+    if(!is.good())
+    {
+        throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
+    }
+}
 
 #ifdef ICE_USE_OPENSSL
 namespace
@@ -178,8 +195,6 @@ convertDH(unsigned char* p, int plen, unsigned char* g, int glen)
 
     return dh;
 }
-
-IceUtil::Shared* IceSSL::upCast(IceSSL::DHParams* p) { return p; }
 
 IceSSL::DHParams::DHParams() :
     _dh512(0), _dh1024(0), _dh2048(0), _dh4096(0)
@@ -370,35 +385,12 @@ IceSSL::fromCFString(CFStringRef v)
     if(v)
     {
         CFIndex size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(v), kCFStringEncodingUTF8);
-        IceUtil::ScopedArray<char> buffer(new char[size + 1]);
-        CFStringGetCString(v, buffer.get(), size + 1, kCFStringEncodingUTF8);
-        s.assign(buffer.get());
+        vector<char> buffer;
+        buffer.resize(size + 1);
+        CFStringGetCString(v, &buffer[0], buffer.size(), kCFStringEncodingUTF8);
+        s.assign(&buffer[0]);
     }
     return s;
-}
-
-int
-IceSSL::readFile(const string& file, ScopedArray<char>& buffer)
-{
-    IceUtilInternal::ifstream is(file);
-    
-    if(!is.good())
-    {
-        throw CertificateReadException(__FILE__, __LINE__, "error opening file " + file);
-    }
-    
-    is.seekg (0, is.end);
-    streampos length = is.tellg();
-    is.seekg (0, is.beg);
-    
-    buffer.reset(new char[length]);
-    is.read(buffer.get(), length);
-    
-    if(!is.good())
-    {
-        throw CertificateReadException(__FILE__, __LINE__, "error reading file " + file);
-    }
-    return length;
 }
 
 CFDictionaryRef
@@ -519,10 +511,8 @@ copyMatching(SecKeychainRef keychain, CFDataRef hash, CFTypeRef type)
     
     if(err != noErr && err != errSecItemNotFound)
     {
-        ostringstream os;
-        os << "Error searching for keychain items\n" << errorToString(err);
-        CertificateReadException ex(__FILE__, __LINE__, os.str());
-        throw ex;
+        throw CertificateReadException(__FILE__, __LINE__, 
+                                       "Error searching for keychain items\n" + errorToString(err));
     }
     
     return item;
@@ -561,8 +551,7 @@ addToKeychain(SecKeychainRef keychain, SecKeychainItemRef item, CFDataRef hash, 
             ostringstream os;
             os << "Failure adding " << (type == kSecClassKey ? "key" : "certificate") 
                << " to keychain\n" << errorToString(err);
-            CertificateReadException ex(__FILE__, __LINE__, os.str());
-            throw ex;
+            throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
         newItem = (SecKeychainItemRef)CFArrayGetValueAtIndex(added, 0);
         CFRetain(newItem);
@@ -579,73 +568,105 @@ addToKeychain(SecKeychainRef keychain, SecKeychainItemRef item, CFDataRef hash, 
 // the list of items, the caller must release it.
 //
 void
-loadKeychainItems(CFArrayRef* items, CFTypeRef type, const string& file, const string& passphrase,
-                  const PasswordPromptPtr& prompt, int passwordRetryMax)
+loadKeychainItems(CFArrayRef* items, CFTypeRef type, const string& file, SecExternalFormat* format, 
+                  SecKeychainRef keychain, const string& passphrase, const PasswordPromptPtr& prompt,
+                  int passwordRetryMax)
 {
     assert(type == kSecClassCertificate || type == kSecClassKey);
-    ScopedArray<char> buffer;
-    int length = readFile(file, buffer);
+    vector<char> buffer;
+    readFile(file, buffer);
+    
     CFDataRef data = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, 
-                                                 (const UInt8*)buffer.get(), 
-                                                 length, 
+                                                 reinterpret_cast<const UInt8*>(&buffer[0]), 
+                                                 buffer.size(),
                                                  kCFAllocatorNull);
     
-
-    SecExternalFormat format = kSecFormatUnknown;
-    SecExternalItemType itemType = type == kSecClassKey ? kSecItemTypePrivateKey : kSecItemTypeCertificate;
+    SecExternalItemType itemType = kSecItemTypeUnknown;
     
     SecItemImportExportKeyParameters params;
     memset(&params, 0, sizeof(params));
     params.version =  SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-    if(type == kSecClassKey)
+    
     {
-        params.flags |= kSecKeyNoAccessControl;
+        const void* values[] = {kSecACLAuthorizationAny};
+        params.keyUsage = CFArrayCreate(0, values, 1, 0);
+    }
+    
+    params.flags |= kSecKeyNoAccessControl;
+
+    OSStatus err = noErr;
+    int count = 0;
+    
+    while(true)
+    {
+        if(!passphrase.empty())
+        {
+            assert(!params.passphrase);
+            params.passphrase = toCFString(passphrase);
+        }
+        err = SecItemImport(data, 0, format, &itemType, 0, &params, *format == kSecFormatPKCS12 ? keychain : 0, 
+                            items);
+        if(params.passphrase)
+        {
+            CFRelease(params.passphrase);
+            params.passphrase = 0;
+        }
+        
+        if(err == noErr)
+        {
+            break;
+        }
         
         //
-        // If the application doesn't provide an password prompt configure
-        // the default OS X password prompt.
+        // Try PKCS12 format.
         //
-        if(!prompt)
+        if(err == errSecUnknownFormat && *format != kSecFormatPKCS12)
+        {
+            *format = kSecFormatPKCS12;
+            itemType = kSecItemTypeAggregate;
+            continue;
+        }
+        
+        //
+        // Error
+        //
+        if(!passphrase.empty() || (err != errSecPassphraseRequired && 
+                                   err != errSecInvalidData &&
+                                   err != errSecPkcs12VerifyFailure))
+        {
+            break;
+        }
+        
+        if(prompt && count < passwordRetryMax)
+        {
+            params.passphrase = toCFString(prompt->getPassword());
+        }
+        //
+        // Configure the default OS X password prompt if passphrase is required
+        // and the user doesn't provide a passphrase or password prompt.
+        //
+        else if(!prompt && !(params.flags & kSecKeySecurePassphrase))
         {
             params.flags |= kSecKeySecurePassphrase;
             ostringstream os;
             os << "Enter the password for\n" << file;
-            
             params.alertPrompt = toCFString(os.str());
+            continue;
         }
-    }
-    
-    if(!passphrase.empty())
-    {
-        params.passphrase = toCFString(passphrase);
-    }
-    OSStatus err = SecItemImport(data, 0, &format, &itemType, 0, &params, 0, items);
-    if(params.passphrase)
-    {
-        CFRelease(params.passphrase);
-    }
-    
-    if(prompt && err == errSecPassphraseRequired)
-    {
-        for(int i = 0; i < passwordRetryMax; ++i)
+        //
+        // Password retry.
+        //
+        if(++count >= passwordRetryMax)
         {
-            params.passphrase = toCFString(prompt->getPassword());
-            err = SecItemImport(data, 0, &format, &itemType, 0, &params, 0, items);
-            if(params.passphrase)
-            {
-                CFRelease(params.passphrase);
-            }
-            
-            if(err != errSecPassphraseRequired && err != errSecInvalidData)
-            {
-                break;
-            }
+            break;
         }
     }
+    
     if(params.alertPrompt)
     {
         CFRelease(params.alertPrompt);
     }
+    
     CFRelease(data);
     
     if(err != noErr)
@@ -653,8 +674,7 @@ loadKeychainItems(CFArrayRef* items, CFTypeRef type, const string& file, const s
         ostringstream os;
         os << "Error reading " << (type == kSecClassCertificate ? "certificate " : "private key ")
            << "from file: `" << file << "'\n" << errorToString(err);
-        CertificateReadException ex(__FILE__, __LINE__, os.str());
-        throw ex;
+        throw CertificateReadException(__FILE__, __LINE__, os.str());
     }
 }
 
@@ -671,10 +691,7 @@ IceSSL::keyLabel(SecCertificateRef cert)
     OSStatus err = SecCertificateCopyCommonName(cert, &commonName);
     if(err != noErr)
     {
-        ostringstream os;
-        os << "certificate error:\n" << errorToString(err);
-        CertificateReadException ex(__FILE__, __LINE__, os.str());
-        throw ex;
+        throw CertificateReadException(__FILE__, __LINE__, "certificate error:\n" + errorToString(err));
     }
     string label = fromCFString(commonName);
     CFRelease(commonName);
@@ -693,73 +710,80 @@ IceSSL::loadPrivateKey(SecKeyRef* key, const string& label, CFDataRef hash, SecK
     CFArrayRef items = 0;
     try
     {
-        loadKeychainItems(&items, kSecClassKey, file, passphrase, prompt, passwordRetryMax);
-        if(items && CFArrayGetCount(items) > 0)
+        SecExternalFormat format = kSecFormatUnknown;
+        loadKeychainItems(&items, kSecClassKey, file, &format, keychain, passphrase, prompt, passwordRetryMax);
+        if(items)
         {
-            SecKeychainItemRef item = (SecKeychainItemRef)CFArrayGetValueAtIndex(items, 0);
-            assert(SecKeyGetTypeID() == CFGetTypeID(item));
-            CFRetain(item);
-            *key = (SecKeyRef)item;
-            
-            CFRelease(items);
-            items = 0;
-            
-            if(keychain)
+            int count = CFArrayGetCount(items);
+            for(int i = 0; i < count; ++i)
             {
-                SecKeychainItemRef newItem = addToKeychain(keychain, item, hash, kSecClassKey);
-                assert(newItem);
-                CFRelease(*key);
-                *key = (SecKeyRef)newItem;
-                if(hash)
+                SecKeychainItemRef item = (SecKeychainItemRef)CFArrayGetValueAtIndex(items, 0);
+                if(SecKeyGetTypeID() == CFGetTypeID(item))
                 {
-                    //
-                    // Create the association between the private  key and the certificate, 
-                    // kSecKeyLabel attribute should match the subject key identifier.
-                    //
-                    SecKeychainAttribute attr;
-                    attr.tag = kSecKeyLabel;
-                    attr.data = (void*)CFDataGetBytePtr(hash);
-                    attr.length = CFDataGetLength(hash);
+                    CFRetain(item);
+                    *key = (SecKeyRef)item;
                     
-                    SecKeychainAttributeList attrs;
-                    attrs.attr = &attr;
-                    attrs.count = 1;
+                    CFRelease(items);
+                    items = 0;
                     
-                    SecKeychainItemModifyAttributesAndData(newItem, &attrs, 0, 0);
-                }
-                
-                if(!label.empty())
-                {
-                    //
-                    // kSecKeyPrintName attribute correspond to the keychain display
-                    // name.
-                    //
-                    SecKeychainAttribute att;
-                    att.tag = kSecKeyPrintName;
-                    att.data = (void*)label.c_str();
-                    att.length = label.size();
-                    
-                    SecKeychainAttributeList attrs;
-                    attrs.attr = &att;
-                    attrs.count = 1;
-                    
-                    SecKeychainItemModifyAttributesAndData(newItem, &attrs, 0, 0);
+                    if(keychain)
+                    {
+                        SecKeychainItemRef newItem = addToKeychain(keychain, item, hash, kSecClassKey);
+                        assert(newItem);
+                        CFRelease(*key);
+                        *key = (SecKeyRef)newItem;
+                        if(hash)
+                        {
+                            //
+                            // Create the association between the private  key and the certificate, 
+                            // kSecKeyLabel attribute should match the subject key identifier.
+                            //
+                            SecKeychainAttribute attr;
+                            attr.tag = kSecKeyLabel;
+                            attr.data = (void*)CFDataGetBytePtr(hash);
+                            attr.length = CFDataGetLength(hash);
+                            
+                            SecKeychainAttributeList attrs;
+                            attrs.attr = &attr;
+                            attrs.count = 1;
+                            
+                            SecKeychainItemModifyAttributesAndData(newItem, &attrs, 0, 0);
+                        }
+                        
+                        if(!label.empty())
+                        {
+                            //
+                            // kSecKeyPrintName attribute correspond to the keychain display
+                            // name.
+                            //
+                            SecKeychainAttribute att;
+                            att.tag = kSecKeyPrintName;
+                            att.data = (void*)label.c_str();
+                            att.length = label.size();
+                            
+                            SecKeychainAttributeList attrs;
+                            attrs.attr = &att;
+                            attrs.count = 1;
+                            
+                            SecKeychainItemModifyAttributesAndData(newItem, &attrs, 0, 0);
+                        }
+                    }
+                    break;
                 }
             }
         }
+        
+        if(!*key)
+        {
+            throw CertificateReadException(__FILE__, __LINE__, 
+                                            "Certificate error:\n error importing certificate from " + file);
+        }
     }
     catch(...)
-    {
-        if(hash)
-        {
-            CFRelease(hash);
-            hash = 0;
-        }
-        
+    {        
         if(items)
         {
             CFRelease(items);
-            items = 0;
         }
         
         if(*key)
@@ -773,6 +797,8 @@ IceSSL::loadPrivateKey(SecKeyRef* key, const string& label, CFDataRef hash, SecK
 }
 
 //
+// Imports a certificate and private key and optionally add then to a keychain.
+//
 void
 IceSSL::loadCertificate(SecCertificateRef* cert, CFDataRef* hash, SecKeyRef* key, SecKeychainRef keychain, 
                         const string& file, const string& passphrase, const PasswordPromptPtr& prompt,
@@ -780,42 +806,93 @@ IceSSL::loadCertificate(SecCertificateRef* cert, CFDataRef* hash, SecKeyRef* key
 {
     assert(cert);
     CFArrayRef items = 0;
+    SecIdentityRef identity = 0;
+    
     try
     {
-        loadKeychainItems(&items, kSecClassCertificate, file, passphrase, prompt, passwordRetryMax);
-        if(items && CFArrayGetCount(items) > 0)
+        SecExternalFormat format = kSecFormatUnknown;
+        loadKeychainItems(&items, kSecClassCertificate, file, &format, keychain, passphrase, prompt, passwordRetryMax);
+        
+        if(items)
         {
-            SecKeychainItemRef item = (SecKeychainItemRef)CFArrayGetValueAtIndex(items, 0);
-            assert(SecCertificateGetTypeID() == CFGetTypeID(item));
-            CFRetain(item);
-            *cert = (SecCertificateRef)item;
+            int count = CFArrayGetCount(items);
             
-            CFRelease(items);
-            items = 0;
-            
-            //
-            // Copy the public key hash, that is used when added the private key
-            // to create an association between the certificate and the corresponding
-            // private key.
-            //
-            if(hash)
+            for(int i = 0; i < count; ++i)
             {
-                *hash = getSubjectKeyIdentifier(*cert);
-                
-                if(keychain)
+                SecKeychainItemRef item = (SecKeychainItemRef)CFArrayGetValueAtIndex(items, i);
+                if(format == kSecFormatPKCS12)
                 {
-                    SecKeychainItemRef newItem = addToKeychain(keychain, item, *hash, kSecClassCertificate);
-                    assert(newItem);
-                    CFRelease(*cert);
-                    *cert = (SecCertificateRef)newItem;
-
+                    OSStatus err = noErr;
+                    if(SecIdentityGetTypeID() == CFGetTypeID(item))
+                    {
+                        if((err = SecIdentityCopyCertificate((SecIdentityRef)item, cert)) != noErr)
+                        {
+                            throw CertificateReadException(__FILE__, __LINE__, "Certificate error:\n" + 
+                                                        errorToString(err));
+                        }
+                        
+                        if((err = SecIdentityCopyPrivateKey((SecIdentityRef)item, key)) != noErr)
+                        {
+                            throw CertificateReadException(__FILE__, __LINE__, "Certificate error:\n" + 
+                                                        errorToString(err));
+                        }
+                        break;
+                    }
+                    else if(SecCertificateGetTypeID() == CFGetTypeID(item))
+                    {
+                        CFRetain(item);
+                        *cert = (SecCertificateRef)item;
+                        
+                        if((err = SecIdentityCreateWithCertificate(keychain, *cert, &identity)) != noErr)
+                        {
+                            throw CertificateReadException(__FILE__, __LINE__, "Certificate error:\n" + 
+                                                        errorToString(err));
+                        }
+                        if((err = SecIdentityCopyPrivateKey(identity, key)) != noErr)
+                        {
+                            throw CertificateReadException(__FILE__, __LINE__, "Certificate error:\n" + 
+                                                        errorToString(err));
+                        }
+                        
+                        CFRelease(identity);
+                        identity = 0;
+                        break;
+                    }
+                }
+                else if(SecCertificateGetTypeID() == CFGetTypeID(item))
+                {
+                    CFRetain(item);
+                    *cert = (SecCertificateRef)item;
+                    
+                    //
+                    // Copy the public key hash, that is used when added the private key
+                    // to create an association between the certificate and the corresponding
+                    // private key.
+                    //
+                    if(hash)
+                    {
+                        *hash = getSubjectKeyIdentifier(*cert);
+                        
+                        if(keychain)
+                        {
+                            SecKeychainItemRef newItem = addToKeychain(keychain, item, *hash, kSecClassCertificate);
+                            assert(newItem);
+                            CFRelease(*cert);
+                            *cert = (SecCertificateRef)newItem;
+                        }
+                    }
+                    break;
                 }
             }
             
-            if(key)
-            {
-                loadPrivateKey(key, keyLabel(*cert), hash ? *hash : 0, keychain, file, passphrase, prompt, passwordRetryMax);
-            }
+            CFRelease(items);
+            items = 0;
+        }
+        
+        if(!*cert)
+        {
+            throw CertificateReadException(__FILE__, __LINE__, 
+                                            "Certificate error:\n error importing certificate from " + file);
         }
     }
     catch(...)
@@ -826,7 +903,7 @@ IceSSL::loadCertificate(SecCertificateRef* cert, CFDataRef* hash, SecKeyRef* key
             *cert = 0;
         }
         
-        if(*hash)
+        if(hash && *hash)
         {
             CFRelease(*hash);
             *hash = 0;
@@ -835,7 +912,11 @@ IceSSL::loadCertificate(SecCertificateRef* cert, CFDataRef* hash, SecKeyRef* key
         if(items)
         {
             CFRelease(items);
-            items = 0;
+        }
+        
+        if(identity)
+        {
+            CFRelease(identity);
         }
         
         if(key && *key)
@@ -853,7 +934,8 @@ IceSSL::loadCACertificates(const string& file, const string& passphrase, const P
                            int passwordRetryMax)
 {
     CFArrayRef items = 0;
-    loadKeychainItems(&items, kSecClassCertificate, file, passphrase, prompt, passwordRetryMax);
+    SecExternalFormat format = kSecFormatUnknown;
+    loadKeychainItems(&items, kSecClassCertificate, file, &format, 0, passphrase, prompt, passwordRetryMax);
     CFMutableArrayRef certificateAuthorities = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
     if(items)
     {
@@ -869,8 +951,7 @@ IceSSL::loadCACertificates(const string& file, const string& passphrase, const P
     }
     return certificateAuthorities;
 }
-
-#endif // End ICE_USE_OPENSSL
+#endif
 
 bool
 IceSSL::checkPath(string& path, const string& defaultDir, bool dir)

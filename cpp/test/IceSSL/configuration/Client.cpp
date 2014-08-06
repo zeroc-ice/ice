@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceSSL/IceSSL.h>
 
 using namespace std;
 
@@ -20,9 +21,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         return 1;
     }
 
-    void allTests(const Ice::CommunicatorPtr&, const string&);
+    void allTests(const Ice::CommunicatorPtr&, const string&, bool, bool);
 
-    allTests(communicator, argv[1]);
+    cerr << "testing with PKCS12 certificates..." << endl;
+    allTests(communicator, argv[1], true, false);
+    cerr << "testing with PEM certificates..." << endl;
+    allTests(communicator, argv[1], false, true);
 
     return EXIT_SUCCESS;
 }

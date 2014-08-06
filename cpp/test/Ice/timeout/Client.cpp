@@ -50,7 +50,7 @@ main(int argc, char* argv[])
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        initData.properties->setProperty("Ice.MessageSizeMax", "10000");
+        initData.properties->setProperty("Ice.MessageSizeMax", "20000");
 
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);

@@ -42,10 +42,12 @@ public:
 
 private:
 
-#ifdef ICE_USE_OPENSSL
-    OpenSSLEnginePtr _engine;
-#else
+#if defined(ICE_USE_SECURE_TRANSPORT)
     SecureTransportEnginePtr _engine;
+#elif defined(ICE_USE_SCHANNEL)
+    SChannelEnginePtr _engine;
+#else
+    OpenSSLEnginePtr _engine;
 #endif
 };
 

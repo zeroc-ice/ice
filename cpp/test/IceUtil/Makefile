@@ -19,7 +19,8 @@ SUBDIRS		= condvar \
                   ctrlCHandler \
 		  timer \
 		  priority \
-		  fileLock
+		  fileLock \
+		  sha1
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

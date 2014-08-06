@@ -18,6 +18,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Base64.h>
 #include <IceUtil/Random.h>
+#include <IceUtil/SHA1.h>
 #include <IceUtil/StringUtil.h>
   
 #include <IceUtil/DisableWarnings.h>
@@ -589,9 +590,16 @@ IceWS::TransceiverI::read(Buffer& buf, bool& hasMoreData)
     }
     while(postRead(buf));
 
-    hasMoreData = _readI < _readBuffer.i;
-
-    s = buf.i == buf.b.end() ? SocketOperationNone : SocketOperationRead;
+    if(buf.i == buf.b.end())
+    {
+        hasMoreData |= _readI < _readBuffer.i;
+        s = SocketOperationNone;
+    }
+    else
+    {
+        hasMoreData = false;
+        s = SocketOperationRead;
+    }
 
     if(((_state == StateClosingRequestPending && !_closingInitiator) ||
         (_state == StateClosingResponsePending && _closingInitiator) ||
@@ -723,18 +731,18 @@ IceWS::TransceiverI::startRead(Buffer& buf)
 }
 
 void
-IceWS::TransceiverI::finishRead(Buffer& buf)
+IceWS::TransceiverI::finishRead(Buffer& buf, bool& hasMoreData)
 {
     _readPending = false;
     if(_state < StateOpened)
     {
         if(_state < StateConnected)
         {
-            _delegate->finishRead(buf);
+            _delegate->finishRead(buf, hasMoreData);
         }
         else
         {
-            _delegate->finishRead(_readBuffer);
+            _delegate->finishRead(_readBuffer, hasMoreData);
         }
         return;
     }
@@ -745,11 +753,11 @@ IceWS::TransceiverI::finishRead(Buffer& buf)
     }
     else if(_readState == ReadStatePayload)
     {
-        _delegate->finishRead(buf);
+        _delegate->finishRead(buf, hasMoreData);
     }
     else
     {
-        _delegate->finishRead(_readBuffer);
+        _delegate->finishRead(_readBuffer, hasMoreData);
     }
     postRead(buf);
 }
@@ -807,7 +815,9 @@ IceWS::TransceiverI::TransceiverI(const InstancePtr& instance, const Transceiver
     _writeBuffer(0),
     _writeBufferSize(1024),
     _readPending(false),
-    _writePending(false)
+    _writePending(false),
+    _closingInitiator(false),
+    _closingReason(CLOSURE_NORMAL)
 {
     //
     // For client connections, the sent frame payload must be
@@ -841,7 +851,9 @@ IceWS::TransceiverI::TransceiverI(const InstancePtr& instance, const Transceiver
     _writeBuffer(0),
     _writeBufferSize(1024),
     _readPending(false),
-    _writePending(false)
+    _writePending(false),
+    _closingInitiator(false),
+    _closingReason(CLOSURE_NORMAL)
 {
     //
     // Write and read buffer size must be large enough to hold the frame header!
@@ -973,8 +985,8 @@ IceWS::TransceiverI::handleRequest(Buffer& responseBuffer)
     //
     out << "Sec-WebSocket-Accept: ";
     string input = key + _wsUUID;
-    vector<unsigned char> v(&input[0], &input[0] + input.size());
-    vector<unsigned char> hash = calcSHA1(v);
+    vector<unsigned char> hash;
+    IceUtil::sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
     out << IceInternal::Base64::encode(hash) << "\r\n" << "\r\n"; // EOM
 
     string str = out.str();
@@ -1071,8 +1083,8 @@ IceWS::TransceiverI::handleResponse()
         throw WebSocketException("missing value for Sec-WebSocket-Accept");
     }
     string input = _key + _wsUUID;
-    vector<unsigned char> v(&input[0], &input[0] + input.size());
-    vector<unsigned char> hash = calcSHA1(v);
+    vector<unsigned char> hash;
+    IceUtil::sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
     if(val != IceInternal::Base64::encode(hash))
     {
         throw WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");

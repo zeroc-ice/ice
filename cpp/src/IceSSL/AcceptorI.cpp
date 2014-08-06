@@ -9,8 +9,10 @@
 
 #include <IceSSL/AcceptorI.h>
 #include <IceSSL/Instance.h>
+
+#include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceSSL/TransceiverI.h>
+#include <IceSSL/SChannelTransceiverI.h>
 
 #include <IceSSL/Util.h>
 

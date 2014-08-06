@@ -1532,12 +1532,19 @@ Ice::ConnectionI::startAsync(SocketOperation operation)
         }
         else if(operation & SocketOperationRead)
         {
-            if(_observer && !_readHeader)
+            if(!_hasMoreData)
             {
-                _observer.startRead(_readStream);
+                if(_observer && !_readHeader)
+                {
+                    _observer.startRead(_readStream);
+                }
+                
+                _transceiver->startRead(_readStream);
             }
-
-            _transceiver->startRead(_readStream);
+            else
+            {
+                _transceiver->getNativeInfo()->completed(IceInternal::SocketOperationRead);
+            }
         }
     }
     catch(const Ice::LocalException& ex)
@@ -1563,10 +1570,13 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
         }
         else if(operation & SocketOperationRead)
         {
-            _transceiver->finishRead(_readStream);
-            if(_observer && !_readHeader)
+            if(!_hasMoreData)
             {
-                _observer.finishRead(_readStream);
+                _transceiver->finishRead(_readStream, _hasMoreData);
+                if(_observer && !_readHeader)
+                {
+                    _observer.finishRead(_readStream);
+                }
             }
         }
     }

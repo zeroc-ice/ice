@@ -40,14 +40,11 @@
 
 #include <fstream>
 
-#include <openssl/des.h> // For crypt() passwords
+#ifndef __APPLE__
+#   include <openssl/des.h> // For crypt() passwords
+#endif
 
 #include <sys/types.h>
-
-// Ignore OS X OpenSSL deprecation warnings
-#ifdef __APPLE__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -100,10 +97,10 @@ public:
         
         char buff[14];
         string salt = p->second.substr(0, 2);
-#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-        DES_fcrypt(password.c_str(), salt.c_str(), buff);
+#if defined(__APPLE__)
+        return p->second == crypt(password.c_str(), salt.c_str());
 #else
-        des_fcrypt(password.c_str(), salt.c_str(), buff);
+        DES_fcrypt(password.c_str(), salt.c_str(), buff);
 #endif
         return p->second == buff;
     }

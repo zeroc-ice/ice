@@ -25,8 +25,10 @@
 #   include <sys/socket.h>
 #endif
 
-#ifdef ICE_USE_SECURE_TRANSPORT
+#if defined(ICE_USE_SECURE_TRANSPORT)
 #   include <CoreFoundation/CFError.h>
+#elif defined(ICE_USE_SCHANNEL)
+#   include <wincrypt.h>
 #endif
 
 #ifndef ICE_SSL_API
@@ -38,6 +40,7 @@
 #endif
 
 #ifdef ICE_USE_OPENSSL
+
 //
 // Pointer to an opaque SSL session context object. ssl_ctx_st is the 
 // OpenSSL type that holds configuration settings for all SSL
@@ -64,16 +67,28 @@ typedef struct X509_name_st X509NAME;
 #elif defined(ICE_USE_SECURE_TRANSPORT)
 
 //
-// Pointer to an opanque certificate object.
+// Pointer to an opaque certificate object.
 //
 struct OpaqueSecCertificateRef;
 typedef struct OpaqueSecCertificateRef* X509CertificateRef;
 
 //
-// Pointer to an opaque connection objecct.
+// Pointer to an opaque key object.
 //
 struct OpaqueSecKeyRef;
 typedef struct OpaqueSecKeyRef* KeyRef;
+
+#elif defined(ICE_USE_SCHANNEL)
+
+//
+// Pointer to an opaque certificate object.
+//
+typedef CERT_SIGNED_CONTENT_INFO* X509CertificateRef;
+
+//
+// Pointer to an opaque key object.
+//
+typedef CERT_PUBLIC_KEY_INFO* KeyRef;
 
 #endif
 
@@ -157,15 +172,24 @@ class ICE_SSL_API PublicKey : public IceUtil::Shared
 public:
 
     ~PublicKey();
-
+    
+    //
+    // Retrieve the native public key value wrapped by this object.
+    //
+    // The returned reference is only valid for the lifetime of this
+    // object. With SecureTransport you can increment the reference
+    // count of the returned object with CFRetain.
+    //
     KeyRef key() const;
 
 private:
 
-    PublicKey(KeyRef);
+    PublicKey(const CertificatePtr&, KeyRef);
     friend class Certificate;
 
+    CertificatePtr _cert;
     KeyRef _key;
+    
 };
 typedef IceUtil::Handle<PublicKey> PublicKeyPtr;
 
@@ -191,6 +215,7 @@ public:
     //
     DistinguishedName(X509NAME*);
 #endif
+
     //
     // Create a DistinguishedName from a string encoded using
     // the rules in RFC2253.
@@ -236,7 +261,7 @@ private:
 };
 
 //
-// This convenience class is a wrapper around OpenSSL's X509 type.
+// This convenience class is a wrapper around a native certificate.
 // The interface is inspired by java.security.cert.X509Certificate.
 //
 class ICE_SSL_API Certificate : public IceUtil::Shared
@@ -244,8 +269,10 @@ class ICE_SSL_API Certificate : public IceUtil::Shared
 public:
 
     //
-    // Construct a certificate using a X509*. The Certificate assumes
-    // ownership of the X509* struct.
+    // Construct a certificate using a native certificate. 
+    //
+    // The Certificate class assumes ownership of the given native
+    // certificate.
     //
     Certificate(X509CertificateRef);
     ~Certificate();
@@ -258,11 +285,16 @@ public:
     static CertificatePtr load(const std::string&);
 
     //
-    // Decode a certificate from a string that uses the PEM encoding format.
-    // Raises CertificateEncodingException if an error occurs.
+    // Decode a certificate from a string that uses the PEM encoding
+    // format.  Raises CertificateEncodingException if an error
+    // occurs.
     //
     static CertificatePtr decode(const std::string&);
 
+    //
+    // Those operators compare the certificates for equality using the
+    // native certificate comparison method.
+    //
     bool operator==(const Certificate&) const;
     bool operator!=(const Certificate&) const;
 
@@ -282,11 +314,12 @@ public:
     // Verify that this certificate was signed by the given public
     // key. Returns true if signed, false otherwise.
     //
-    // This method was deprecated for consistency with some SSL engines
-    // that require a certificate and not just a public key to verify
-    // the certificate signature.
+    // This method was deprecated for consistency with some SSL
+    // engines that require a certificate and not just a public key to
+    // verify the certificate signature.
     //
-    ICE_DEPRECATED_API("is deprecated, use verify(const CertificatePtr&) instead") bool verify(const PublicKeyPtr&) const;
+    ICE_DEPRECATED_API("verify(const PublicKeyPtr&) is deprecated, use verify(const CertificatePtr&) instead") 
+    bool verify(const PublicKeyPtr&) const;
 #endif
     
     //
@@ -386,16 +419,24 @@ public:
     std::string toString() const;
 
     //
-    // Retrieve the X509 value wrapped by this object. The reference count
-    // of the X509 value is not incremented, therefore it is only valid
-    // for the lifetime of this object unless the caller increments its
-    // reference count explicitly using X509_dup.
+    // Retrieve the native X509 certificate value wrapped by this
+    // object. 
+    //
+    // The returned reference is only valid for the lifetime of this
+    // object. With SecureTransport you can increment the reference
+    // count of the returned object with CFRetain. With OpenSSL, you
+    // can increment it with X509_dup. With SChannel, the returned
+    // reference is a pointer to a struct.
     //
     X509CertificateRef getCert() const;
 
 private:
 
     X509CertificateRef _cert;
+
+#ifdef ICE_USE_SCHANNEL
+    CERT_INFO* _certInfo;
+#endif
 };
 
 //

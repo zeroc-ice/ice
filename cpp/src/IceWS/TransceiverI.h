@@ -45,7 +45,7 @@ public:
     virtual bool startWrite(IceInternal::Buffer&);
     virtual void finishWrite(IceInternal::Buffer&);
     virtual void startRead(IceInternal::Buffer&);
-    virtual void finishRead(IceInternal::Buffer&);
+    virtual void finishRead(IceInternal::Buffer&, bool&);
 #endif
     virtual std::string protocol() const;
     virtual std::string toString() const;
@@ -133,11 +133,11 @@ private:
     unsigned char _writeMask[4];
     size_t _writePayloadLength;
 
-    bool _closingInitiator;
-    int _closingReason;
-
     bool _readPending;
     bool _writePending;
+
+    bool _closingInitiator;
+    int _closingReason;
 
     std::vector<Ice::Byte> _pingPayload;
 };

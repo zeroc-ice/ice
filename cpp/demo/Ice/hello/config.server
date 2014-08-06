@@ -8,7 +8,7 @@ Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001:ws -p 10002:wss -p 10003
 #
 # Only listen on the localhost interface by default.
 #
-Ice.Default.Host=localhost
+Ice.Default.Host=192.168.50.2
 
 #
 # We need to disable VerifyPeer for secure WebSocket (WSS) and Windows Store App clients.
@@ -52,8 +52,8 @@ Ice.Warn.Connections=1
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
-IceSSL.CertFile=s_rsa1024_pub.pem
-IceSSL.KeyFile=s_rsa1024_priv.pem
+IceSSL.CertFile=s_rsa1024.pfx
+IceSSL.Password=password
 IceSSL.Keychain=server.keychain
 IceSSL.KeychainPassword=password
 

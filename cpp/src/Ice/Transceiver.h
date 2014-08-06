@@ -36,7 +36,7 @@ public:
     virtual bool startWrite(Buffer&) = 0;
     virtual void finishWrite(Buffer&) = 0;
     virtual void startRead(Buffer&) = 0;
-    virtual void finishRead(Buffer&) = 0;
+    virtual void finishRead(Buffer&, bool&) = 0;
 #endif
 
     virtual std::string protocol() const = 0;

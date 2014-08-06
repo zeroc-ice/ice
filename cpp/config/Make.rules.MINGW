@@ -72,7 +72,9 @@ installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
 CPPFLAGS		:= -I"$(THIRDPARTY_HOME)/include" $(CPPFLAGS) 
 LDPLATFORMFLAGS		:= -L"$(THIRDPARTY_HOME)/$(libsubdir)" $(LDFLAGS)
 
-OPENSSL_LIBS            = -leay32$(COMPSUFFIX) -lssleay32$(COMPSUFFIX) -lws2_32
+SSL_OS_LIBS            = -lsecur32 -lcrypt32 -lws2_32
+
+ICEWS_OS_LIBS          = -lws2_32
 
 ifeq ($(LP64),yes)
     MCPP_LIBS           = -L"$(THIRDPARTY_HOME)/lib/mingw$(lp64suffix)" -lmcpp

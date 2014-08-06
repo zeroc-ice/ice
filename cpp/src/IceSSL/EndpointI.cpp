@@ -10,7 +10,6 @@
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/AcceptorI.h>
 #include <IceSSL/ConnectorI.h>
-#include <IceSSL/TransceiverI.h>
 #include <IceSSL/Instance.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>

@@ -9,8 +9,10 @@
 
 #include <Ice/Config.h>
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 #  define ICE_USE_SECURE_TRANSPORT 1
+#elif defined(_WIN32)
+#  define ICE_USE_SCHANNEL 1
 #else
 #  define ICE_USE_OPENSSL 1
 #endif

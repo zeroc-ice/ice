@@ -76,5 +76,5 @@ endif
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = -lrt
+ICEUTIL_OS_LIBS         = -lrt -lcrypto
 ICE_OS_LIBS             =

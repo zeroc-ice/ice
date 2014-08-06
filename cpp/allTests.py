@@ -32,6 +32,7 @@ tests = [
     ("IceUtil/uuid", ["once", "noappverifier"]), # This test is very slow with appverifier.
     ("IceUtil/timer", ["once"]),
     ("IceUtil/fileLock", ["once"]),
+    ("IceUtil/sha1", ["once"]),
     ("Slice/errorDetection", ["once"]),
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),

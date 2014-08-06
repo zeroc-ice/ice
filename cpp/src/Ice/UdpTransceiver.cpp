@@ -668,7 +668,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::UdpTransceiver::finishRead(Buffer& buf)
+IceInternal::UdpTransceiver::finishRead(Buffer& buf, bool&)
 {
 #ifdef ICE_OS_WINRT
     IceUtil::Mutex::Lock lock(_mutex);

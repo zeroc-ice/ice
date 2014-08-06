@@ -464,7 +464,7 @@ IceInternal::TcpTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::TcpTransceiver::finishRead(Buffer& buf)
+IceInternal::TcpTransceiver::finishRead(Buffer& buf, bool&)
 {
     if(static_cast<int>(_read.count) == SOCKET_ERROR)
     {

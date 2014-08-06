@@ -35,7 +35,8 @@ OBJS		= ArgVector.obj \
 		  UUID.obj \
 		  Unicode.obj \
 		  MutexProtocol.obj \
-		  StringConverter.obj
+		  StringConverter.obj \
+		  SHA1.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

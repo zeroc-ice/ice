@@ -68,8 +68,6 @@ private:
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
     
-    void traceConnection();
-    
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
 

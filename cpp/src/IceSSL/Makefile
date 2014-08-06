@@ -24,14 +24,16 @@ OBJS		= AcceptorI.o \
 		  EndpointI.o \
 		  Instance.o \
 		  PluginI.o \
-		  TransceiverI.o \
+		  OpenSSLTransceiverI.o \
 		  SecureTransportTransceiverI.o \
 		  Util.o \
 		  RFC2253.o \
 		  TrustManager.o \
 		  SSLEngine.o \
 		  OpenSSLEngine.o \
-		  SecureTransportEngine.o
+		  SecureTransportEngine.o \
+		  SChannelEngine.o \
+		  SChannelTransceiverI.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

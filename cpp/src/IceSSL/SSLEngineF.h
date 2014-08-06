@@ -22,15 +22,19 @@ class SSLEngine;
 ICE_SSL_API IceUtil::Shared* upCast(IceSSL::SSLEngine*);
 typedef IceInternal::Handle<SSLEngine> SSLEnginePtr;
 
-#   ifdef ICE_USE_SECURE_TRANSPORT
+#if defined(ICE_USE_SECURE_TRANSPORT)
 class SecureTransportEngine;
 ICE_SSL_API IceUtil::Shared* upCast(IceSSL::SecureTransportEngine*);
 typedef IceInternal::Handle<SecureTransportEngine> SecureTransportEnginePtr;
-#   else
+#elif defined(ICE_USE_SCHANNEL)
+class SChannelEngine;
+ICE_SSL_API IceUtil::Shared* upCast(IceSSL::SChannelEngine*);
+typedef IceInternal::Handle<SChannelEngine> SChannelEnginePtr;
+#else // OpenSSL
 class OpenSSLEngine;
 ICE_SSL_API IceUtil::Shared* upCast(IceSSL::OpenSSLEngine*);
 typedef IceInternal::Handle<OpenSSLEngine> OpenSSLEnginePtr;
-#   endif
+#endif
 
 }
 

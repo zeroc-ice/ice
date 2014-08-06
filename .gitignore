@@ -4,6 +4,7 @@
 *.dll
 *.ilk
 *.so
+*.so.*
 *.sl
 *.dylib
 *.pyc
@@ -69,3 +70,7 @@ cpp/demo/Debug
 cpp/test/IceBox/configuration/build.txt
 
 js/lib
+
+# OS X Keychain
+
+*.keychain

@@ -9,7 +9,6 @@
 
 #include <IceSSL/PluginI.h>
 #include <IceSSL/Instance.h>
-#include <IceSSL/TransceiverI.h>
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/EndpointInfo.h>
@@ -41,10 +40,12 @@ createIceSSL(const CommunicatorPtr& communicator, const string& /*name*/, const 
 //
 IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
 {
-#ifdef ICE_USE_OPENSSL
-    _engine = new OpenSSLEngine(communicator);
-#else
+#if defined(ICE_USE_SECURE_TRANSPORT)
     _engine = new SecureTransportEngine(communicator);
+#elif defined(ICE_USE_SCHANNEL)
+    _engine = new SChannelEngine(communicator);
+#else
+    _engine = new OpenSSLEngine(communicator);
 #endif
     
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(communicator);

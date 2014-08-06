@@ -94,7 +94,7 @@ public:
             }
             _size = n;
         }
-
+        
         void reset()
         {
             assert(!_buf || _capacity > 0);

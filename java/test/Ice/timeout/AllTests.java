@@ -187,7 +187,8 @@ public class AllTests
         }
         out.println("ok");
 
-        byte[] seq = new byte[10000000];
+	// The sequence needs to be large enough to fill the write/recv buffers
+        byte[] seq = new byte[20000000];
 
         out.print("testing connection timeout... ");
         out.flush();

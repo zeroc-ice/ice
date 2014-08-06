@@ -67,6 +67,9 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
+        
+    openssl pkcs12 -in s_rsa_nopass_ca1_pub.pem -inkey s_rsa_nopass_ca1_priv.pem -export -out s_rsa_ca1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     #
     # Create a server certificate and key (with password).
@@ -79,7 +82,10 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_pass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem -key server
-
+        
+    openssl pkcs12 -in c_rsa_nopass_ca1_pub.pem -inkey c_rsa_nopass_ca1_priv.pem -export -out c_rsa_ca1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password -passin pass:password
+    
     #
     # Create an expired server certificate and key (no password).
     #
@@ -91,6 +97,9 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_exp_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem -enddate 051231000000Z
+        
+    openssl pkcs12 -in s_rsa_nopass_ca1_exp_pub.pem -inkey s_rsa_nopass_ca1_exp_priv.pem -export -out s_rsa_ca1_exp.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     #
     # Create a server certificate and key using "127.0.0.1" as the common name and without
@@ -106,6 +115,9 @@ if ! [ -f cakey1.pem ]; then
     openssl ca -config server_cn.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_cn1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
     rm -f server_cn.cnf
+    
+    openssl pkcs12 -in s_rsa_nopass_ca1_cn1_pub.pem -inkey s_rsa_nopass_ca1_cn1_priv.pem -export -out s_rsa_ca1_cn1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     #
     # Create a server certificate and key using "127.0.0.11" as the common name and without
@@ -122,6 +134,9 @@ if ! [ -f cakey1.pem ]; then
     openssl ca -config server_cn.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca1_cn2_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
     rm -f server_cn.cnf
+    
+    openssl pkcs12 -in s_rsa_nopass_ca1_cn2_pub.pem -inkey s_rsa_nopass_ca1_cn2_priv.pem -export -out s_rsa_ca1_cn2.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     #
     # Create a client certificate and key (no password).
@@ -135,6 +150,8 @@ if ! [ -f cakey1.pem ]; then
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_nopass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
 
+    openssl pkcs12 -in c_rsa_nopass_ca1_pub.pem -inkey c_rsa_nopass_ca1_priv.pem -export -out c_rsa_ca1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
     #
     # Create a client certificate and key (with password).
     #
@@ -146,6 +163,9 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_pass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem -key client
+        
+    openssl pkcs12 -in c_rsa_pass_ca1_pub.pem -inkey c_rsa_pass_ca1_priv.pem -export -out c_rsa_pass_ca1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:client -passin pass:client
 
     #
     # Create an expired client certificate and key (no password).
@@ -158,6 +178,9 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_nopass_ca1_exp_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem -enddate 051231000000Z
+        
+    openssl pkcs12 -in c_rsa_nopass_ca1_exp_pub.pem -inkey c_rsa_nopass_ca1_exp_priv.pem -export -out c_rsa_ca1_exp.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     #
     # Create a server certificate and key (no password) using a different CA.
@@ -170,7 +193,10 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_rsa_nopass_ca2_pub.pem \
         -cert cacert2.pem -keyfile cakey2.pem
-
+        
+    openssl pkcs12 -in s_rsa_nopass_ca2_pub.pem -inkey s_rsa_nopass_ca2_priv.pem -export -out s_rsa_nopass_ca2.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
+    
     #
     # Create a client certificate and key (no password) using a different CA.
     #
@@ -182,6 +208,9 @@ if ! [ -f cakey1.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_nopass_ca2_pub.pem \
         -cert cacert2.pem -keyfile cakey2.pem
+        
+    openssl pkcs12 -in c_rsa_nopass_ca2_pub.pem -inkey c_rsa_nopass_ca2_priv.pem -export -out c_rsa_ca2.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     rm -f dsaparam1024.pem
 fi
@@ -211,6 +240,9 @@ if ! [ -f dsaparam1024.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config server.cnf -batch -in $TMP/req.pem -out s_dsa_nopass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
+        
+    openssl pkcs12 -in s_dsa_nopass_ca1_pub.pem -inkey s_dsa_nopass_ca1_priv.pem -export -out s_dsa_ca1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 
     #
     # Create a client certificate and key (no password).
@@ -223,6 +255,9 @@ if ! [ -f dsaparam1024.pem ]; then
         -keyform PEM -out $TMP/req.pem
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_dsa_nopass_ca1_pub.pem \
         -cert cacert1.pem -keyfile cakey1.pem
+        
+    openssl pkcs12 -in c_dsa_nopass_ca1_pub.pem -inkey c_dsa_nopass_ca1_priv.pem -export -out c_dsa_ca1.pfx \
+        -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password
 fi
 
 #

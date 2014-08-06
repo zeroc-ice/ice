@@ -27,7 +27,7 @@ public:
     virtual bool startWrite(IceInternal::Buffer&);
     virtual void finishWrite(IceInternal::Buffer&);
     virtual void startRead(IceInternal::Buffer&);
-    virtual void finishRead(IceInternal::Buffer&);
+    virtual void finishRead(IceInternal::Buffer&, bool&);
 #endif
     virtual std::string protocol() const;
     virtual std::string toString() const;

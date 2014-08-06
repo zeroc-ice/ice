@@ -40,7 +40,7 @@ public class Client
             // We need to send messages large enough to cause the transport
             // buffers to fill up.
             //
-            initData.properties.setProperty("Ice.MessageSizeMax", "10000");
+            initData.properties.setProperty("Ice.MessageSizeMax", "20000");
 
             //
             // For this test, we want to disable retries.

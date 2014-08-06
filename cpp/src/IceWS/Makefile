@@ -38,7 +38,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_WS_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceWS --dll-export ICE_WS_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
+LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(ICEWS_OS_LIBS) $(CXXLIBS)
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)

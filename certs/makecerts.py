@@ -35,9 +35,10 @@ def prepareCAHome(dir, force):
     if not os.path.exists(dir):
         os.mkdir(dir)
 
-    f = open(os.path.join(dir, "serial"), "w")
-    f.write("01")
-    f.close()
+    if not os.path.exists(os.path.join(dir, "serial")):
+        f = open(os.path.join(dir, "serial"), "w")
+        f.write("01")
+        f.close()
 
     f = open(os.path.join(dir, "index.txt"), "w")
     f.truncate(0)

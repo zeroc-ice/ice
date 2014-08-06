@@ -8,17 +8,10 @@
 // **********************************************************************
 
 #include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/MutexPtrLock.h>
-
-#include <IceSSL/ConnectionInfo.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/SSLEngine.h>
-#include <IceSSL/Util.h>
-#include <Ice/Communicator.h>
+
 #include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
 #include <Ice/LocalException.h>
 
 #ifdef ICE_USE_SECURE_TRANSPORT
@@ -46,7 +39,7 @@ trustResultDescription(SecTrustResultType result)
         case kSecTrustResultRecoverableTrustFailure:
         case kSecTrustResultFatalTrustFailure:
         {
-            return "Trust denied; no simple fix is available";
+            return "Trust denied";
         }
         case kSecTrustResultOtherError:
         {
@@ -102,6 +95,76 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
     return transceiver->readRaw(reinterpret_cast<char*>(data), length);
 }
 
+void
+checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, const InstancePtr& instance)
+{
+    OSStatus err = noErr;        
+    SecTrustResultType trustResult = kSecTrustResultOtherError;
+    if(trust)
+    {                            
+        if((err = SecTrustSetAnchorCertificates(trust, engine->getCertificateAuthorities())))
+        {
+            throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+        }
+                            
+        //
+        // Disable network fetch, we don't want this to block.
+        //
+        if((err = SecTrustSetNetworkFetchAllowed(trust, false)))
+        {
+            throw ProtocolException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+        }
+                            
+        //
+        // Evaluate the trust
+        //
+        if((err = SecTrustEvaluate(trust, &trustResult)))
+        {
+            throw ProtocolException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
+        }
+    }
+
+    switch(trustResult)
+    {
+    case kSecTrustResultUnspecified:
+    case kSecTrustResultProceed:
+    {
+        //
+        // Trust verify success.
+        //
+        break;
+    }
+    case kSecTrustResultInvalid:
+    //case kSecTrustResultConfirm: // Used in old OS X versions
+    case kSecTrustResultDeny:
+    case kSecTrustResultRecoverableTrustFailure:
+    case kSecTrustResultFatalTrustFailure:
+    case kSecTrustResultOtherError:
+    {
+        if(engine->getVerifyPeer() == 0)
+        {
+            if(instance->traceLevel() >= 1)
+            {
+                ostringstream os;
+                os << "IceSSL: ignoring certificate verification failure\n" << trustResultDescription(trustResult);
+                instance->logger()->trace(instance->traceCategory(), os.str());
+            }
+            break;
+        }
+        else
+        {
+            ostringstream os;
+            os << "IceSSL: certificate verification failure\n" << trustResultDescription(trustResult);
+            string msg = os.str();
+            if(instance->traceLevel() >= 1)
+            {
+                instance->logger()->trace(instance->traceCategory(), msg);
+            }
+            throw ProtocolException(__FILE__, __LINE__, msg);
+        }
+    }
+    }
+}
 }
 
 IceInternal::NativeInfoPtr
@@ -194,26 +257,23 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
         assert(_state == StateConnected);
 
-        OSStatus err = noErr;
-        
+        OSStatus err = 0;        
         if(!_ssl)
         {
             //
             // Initialize SSL context
             //
             _ssl = _engine->newContext(_incoming);
-            if((err = SSLSetIOFuncs(_ssl, socketRead, socketWrite)) != noErr)
+            if((err = SSLSetIOFuncs(_ssl, socketRead, socketWrite)))
             {
-                ostringstream os;
-                os << "IceSSL: cannot set SSL IO functions\n" << errorToString(err);
-                throw PluginInitializationException(__FILE__, __LINE__, os.str());
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting IO functions failed\n" +
+                                        errorToString(err));
             }
             
-            if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))) != noErr)
+            if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))))
             {
-                ostringstream os;
-                os << "IceSSL: cannot set SSL connection\n" << errorToString(err);
-                throw PluginInitializationException(__FILE__, __LINE__, os.str());
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" + 
+                                        errorToString(err));
             }
         }
         
@@ -226,136 +286,41 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         while(state == kSSLHandshake || state == kSSLIdle)
         {
             err = SSLHandshake(_ssl);
-            if(err != noErr)
+            if(err == noErr)
             {
-                switch(err)
-                {
-                    case errSSLWouldBlock:
-                    {
-                        assert(_flags & SSLWantRead || _flags & SSLWantWrite);
-                        return _flags & SSLWantRead ? IceInternal::SocketOperationRead : IceInternal::SocketOperationWrite;
-                    }
-                    case errSSLPeerAuthCompleted:
-                    {
-                        assert(!_trust);
-                        err = SSLCopyPeerTrust(_ssl, &_trust);
-                        if(err != noErr)
-                        {
-                            break;
-                        }
-                        
-                        SecTrustResultType trustResult = kSecTrustResultOtherError;
-
-                        if(_trust)
-                        {
-                            err = SecTrustSetAnchorCertificates(_trust, _engine->getCertificateAuthorities());
-                            
-                            if(err != noErr)
-                            {
-                                ostringstream os;
-                                os << "SSL handsake failure:\n" << errorToString(err);
-                                throw SecurityException(__FILE__, __LINE__, os.str());
-                            }
-                            
-                            //
-                            // Disable network fetch, we don't want this to block.
-                            //
-                            err = SecTrustSetNetworkFetchAllowed(_trust, false);
-                            if(err != noErr)
-                            {
-                                ostringstream os;
-                                os << "SSL handsake failure:\n" << errorToString(err);
-                                throw SecurityException(__FILE__, __LINE__, os.str());
-                            }
-                            
-                            //
-                            // Evaluate the trust
-                            //
-                            err = SecTrustEvaluate(_trust, &trustResult);
-                            if(err != noErr)
-                            {
-                                ostringstream os;
-                                os << "SSL handsake failure:\n" << errorToString(err);
-                                throw SecurityException(__FILE__, __LINE__, os.str());;
-                            }
-                        }
-                        
-                        switch(trustResult)
-                        {
-                            case kSecTrustResultUnspecified:
-                            case kSecTrustResultProceed:
-                            {
-                                //
-                                // Trust verify success.
-                                //
-                                break;
-                            }
-                            case kSecTrustResultInvalid:
-                            //case kSecTrustResultConfirm: // Used in old OS X versions
-                            case kSecTrustResultDeny:
-                            case kSecTrustResultRecoverableTrustFailure:
-                            case kSecTrustResultFatalTrustFailure:
-                            case kSecTrustResultOtherError:
-                            {
-                                if(_engine->getVerifyPeer() == 0)
-                                {
-                                    if(_instance->traceLevel() >= 1)
-                                    {
-                                        ostringstream os;
-                                        os << "IceSSL: ignoring certificate verification failure\n" 
-                                           << trustResultDescription(trustResult);
-                                        _instance->logger()->trace(_instance->traceCategory(), os.str());
-                                    }
-                                    break;
-                                }
-                                else
-                                {
-                                    ostringstream os;
-                                    os << "IceSSL: certificate verification failure\n" 
-                                       << trustResultDescription(trustResult);
-                                    string msg = os.str();
-                                    if(_instance->traceLevel() >= 1)
-                                    {
-                                        _instance->logger()->trace(_instance->traceCategory(), msg);
-                                    }
-                                    throw ProtocolException(__FILE__, __LINE__, msg);
-                                }
-                            }
-                        }
-                        //
-                        // Call SSLHandshake to resume the handsake.
-                        //
-                        continue;
-                    }
-                    default:
-                    {
-                        break;
-                    }
-                }
-
-                if(err == errSSLClosedGraceful || err == errSSLClosedAbort)
-                {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
-                }
-                else
-                {
-                    IceInternal::Address remoteAddr;
-                    string desc = "<not available>";
-                    if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
-                    {
-                        desc = IceInternal::addrToString(remoteAddr);
-                    }
-                    ostringstream os;
-                    os << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                    << " connection:\nremote address = " << desc << "\n" 
-                    << errorToString(err);
-                    ProtocolException ex(__FILE__, __LINE__, os.str());
-                    throw ex;
-                }
+                break; // We're done!
             }
-            break;
+            else if(err == errSSLWouldBlock)
+            {
+                assert(_flags & SSLWantRead || _flags & SSLWantWrite);
+                return _flags & SSLWantRead ? IceInternal::SocketOperationRead : IceInternal::SocketOperationWrite;
+            }
+            else if(err == errSSLPeerAuthCompleted)
+            {
+                assert(!_trust);
+                err = SSLCopyPeerTrust(_ssl, &_trust);
+                if(err == noErr)
+                {
+                    checkTrustResult(_trust, _engine, _instance);
+                    continue; // Call SSLHandshake to resume the handsake.
+                }
+                // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
+            }
+            else if(err == errSSLClosedGraceful || err == errSSLClosedAbort)
+            {
+                throw ConnectionLostException(__FILE__, __LINE__, 0);
+            }
+
+            IceInternal::Address remoteAddr;
+            string desc = "<not available>";
+            if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
+            {
+                desc = IceInternal::addrToString(remoteAddr);
+            }
+            ostringstream os;
+            os << "IceSSL: ssl error occurred for new " << (_incoming ? "incoming" : "outgoing") << " connection:\n"
+               << "remote address = " << desc << "\n" << errorToString(err);
+            throw ProtocolException(__FILE__, __LINE__, os.str());
         }
         _engine->verifyPeer(_fd, _host, getNativeConnectionInfo());
         _state = StateHandshakeComplete;
@@ -474,22 +439,6 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
         return writeRaw(buf) ? IceInternal::SocketOperationNone : IceInternal::SocketOperationWrite;
     }
     
-    size_t processed = 0;
-
-    if(_buffered > 0)
-    {
-        //
-        // Required to flush SSL buffers
-        //
-        if(SSLWrite(_ssl, 0, 0, &processed) == errSSLWouldBlock)
-        {
-            return IceInternal::SocketOperationWrite;
-        }
-
-        buf.i += _buffered;
-        _buffered = 0;
-    }
-    
     if(buf.i == buf.b.end())
     {
         return  IceInternal::SocketOperationNone;
@@ -503,58 +452,71 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
     while(buf.i != buf.b.end())
     {
         assert(_fd != INVALID_SOCKET);
-        OSStatus ret = SSLWrite(_ssl, reinterpret_cast<const void*>(buf.i), packetSize, &processed);
-        if(ret != noErr)
+        size_t processed = 0;
+        OSStatus err = _buffered ? SSLWrite(_ssl, 0, 0, &processed) :
+                                   SSLWrite(_ssl, reinterpret_cast<const void*>(buf.i), packetSize, &processed);
+        
+        if(err)
         {
-            if(ret == errSSLWouldBlock)
+            if(err == errSSLWouldBlock)
             {
-                _buffered = processed;
+                if(_buffered == 0)
+                {
+                    _buffered = processed;
+                }
                 assert(_flags & SSLWantWrite);
                 return IceInternal::SocketOperationWrite;
             }
             
-            if(ret == errSSLClosedGraceful)
+            if(err == errSSLClosedGraceful)
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = 0;
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
             
             //
             // SSL protocol errors are defined in SecureTransport.h are in the range
             // -9800 to -9849
             //
-            if(ret <= -9800 && ret >= -9849)
+            if(err <= -9800 && err >= -9849)
             {
-                ProtocolException ex(__FILE__, __LINE__);
-                ostringstream os;
-                os << "SSL protocol error during read:\n" << errorToString(ret);
-                ex.reason = os.str();
-                throw ex;
+                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + errorToString(err));
             }
             
-            errno = ret;
+            errno = err;
             if(IceInternal::connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 
         if(_instance->traceLevel() >= 3)
         {
             Trace out(_instance->logger(), _instance->traceCategory());
-            out << "sent " << processed << " of " << packetSize << " bytes via " << protocol() << "\n" << toString();
+            out << "sent ";
+            if(_buffered)
+            {
+                out << _buffered << " of " << _buffered;
+            }
+            else
+            {
+                out << processed << " of " << packetSize;
+            }
+            out << " bytes via " << protocol() << "\n" << toString();
         }
 
-        buf.i += processed;
+        if(_buffered)
+        {
+            buf.i += _buffered;
+            _buffered = 0;
+        }
+        else
+        {
+            buf.i += processed;
+        }
 
         if(packetSize > buf.b.end() - buf.i)
         {
@@ -587,73 +549,65 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
     {
         return  IceInternal::SocketOperationNone;
     }
-    //
-    // It's impossible for packetSize to be more than an Int.
-    //
+
     size_t packetSize = buf.b.end() - buf.i;
-    size_t processed = 0;
-    
     packetSize = std::min(packetSize, _maxReceivePacketSize);
-    
+
     while(buf.i != buf.b.end())
     {
         assert(_fd != INVALID_SOCKET);
-        OSStatus ret = SSLRead(_ssl, reinterpret_cast<void*>(buf.i), packetSize, &processed);
-        if(ret != noErr)
+        size_t processed = 0;
+        OSStatus err = SSLRead(_ssl, reinterpret_cast<void*>(buf.i), packetSize, &processed);
+        
+        if(processed)
         {
-            if(ret == errSSLWouldBlock)
+            if(_instance->traceLevel() >= 3)
+            {
+                Trace out(_instance->logger(), _instance->traceCategory());
+                out << "received " << processed << " of " << packetSize << " bytes via " << protocol() << "\n" 
+                    << toString();
+            }
+        }
+        
+        if(err)
+        {
+            if(err == errSSLWouldBlock)
             {
                 buf.i += processed;
                 assert(_flags & SSLWantRead);
                 return IceInternal::SocketOperationRead;
             }
             
-            if(ret == errSSLClosedGraceful || ret == errSSLPeerBadRecordMac || ret == errSSLPeerDecryptionFail)
+            if(err == errSSLClosedGraceful || err == errSSLPeerBadRecordMac || err == errSSLPeerDecryptionFail)
             {
                 //
                 // Forcefully closing a connection can result in SSLRead reporting
                 // "decryption failed or bad record mac". We trap that error and
                 // treat it as the loss of a connection.
                 //
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = 0;
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
             
             //
             // SSL protocol errors are defined in SecureTransport.h are in the range
             // -9800 to -9849
             //
-            if(ret <= -9800 && ret >= -9849)
+            if(err <= -9800 && err >= -9849)
             {
-                ProtocolException ex(__FILE__, __LINE__);
-                ostringstream os;
-                os << "SSL protocol error during read:\n" << errorToString(ret);
-                ex.reason = os.str();
-                throw ex;
+                throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + errorToString(err));
             }
             
-            errno = ret;
+            errno = err;
             if(IceInternal::connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 
-        if(_instance->traceLevel() >= 3)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << processed << " of " << packetSize << " bytes via " << protocol() << "\n" 
-                << toString();
-        }
         buf.i += processed;
 
         if(packetSize > buf.b.end() - buf.i)
@@ -726,8 +680,8 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     }
     
     //
-    // Limit the size of packet passed to SSLWrite/SSLRead to avoid blocking and
-    // holding too much memory.
+    // Limit the size of packets passed to SSLWrite/SSLRead to avoid
+    // blocking and holding too much memory.
     //
     _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
     _maxReceivePacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
@@ -751,8 +705,8 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
     
     //
-    // Limit the size of packet passed to SSLWrite/SSLRead to avoid blocking and
-    // holding too much memory.
+    // Limit the size of packets passed to SSLWrite/SSLRead to avoid
+    // blocking and holding too much memory.
     //
     _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
     _maxReceivePacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
@@ -827,15 +781,11 @@ IceSSL::TransceiverI::writeRaw(IceInternal::Buffer& buf)
 
             if(IceInternal::connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 
@@ -867,9 +817,7 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
 
         if(ret == 0)
         {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw ConnectionLostException(__FILE__, __LINE__, 0);
         }
 
         if(ret == SOCKET_ERROR)
@@ -892,15 +840,11 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
 
             if(IceInternal::connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 
@@ -911,7 +855,10 @@ IceSSL::TransceiverI::readRaw(IceInternal::Buffer& buf)
         }
 
         buf.i += ret;
-        packetSize = buf.b.end() - buf.i;
+        if(packetSize > buf.b.end() - buf.i)
+        {
+            packetSize = buf.b.end() - buf.i;
+        }
     }
 
     return true;
@@ -1010,7 +957,10 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
         }
         
         i += ret;
-        packetSize = end - i;
+        if(packetSize > end - i)
+        {
+            packetSize = end - i;
+        }
     }
     
     *length = i - data;

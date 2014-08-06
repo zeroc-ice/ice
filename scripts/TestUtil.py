@@ -685,11 +685,11 @@ class InvalidSelectorString(Exception):
 
 sslConfigTree = {
         "cpp" : {
-            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL " +
+            "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --IceSSL.Password=password " +
             "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem --IceSSL.VerifyPeer=%(verifyPeer)s",
-            "client" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem",
-            "server" : " --IceSSL.CertFile=s_rsa1024_pub.pem --IceSSL.KeyFile=s_rsa1024_priv.pem",
-            "colloc" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem"
+            "client" : " --IceSSL.CertFile=c_rsa1024.pfx",
+            "server" : " --IceSSL.CertFile=s_rsa1024.pfx",
+            "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx"
             },
         "java" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory " +

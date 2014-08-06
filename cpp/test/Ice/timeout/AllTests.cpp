@@ -96,7 +96,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Expect ConnectTimeoutException.
         //
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(250));
-        to->holdAdapter(500);
+        to->holdAdapter(1000);
         to->ice_getConnection()->close(true); // Force a reconnect.
         try
         {
@@ -127,7 +127,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    ByteSeq seq(10000000);
+    // The sequence needs to be large enough to fill the write/recv buffers
+    ByteSeq seq(20000000);
 
     cout << "testing connection timeout... " << flush;
     {

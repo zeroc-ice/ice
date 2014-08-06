@@ -41,8 +41,8 @@ Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
 Ice.Plugin.IceSSL=IceSSL:createIceSSL
 IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
-IceSSL.CertFile=c_rsa1024_pub.pem
-IceSSL.KeyFile=c_rsa1024_priv.pem
+IceSSL.CertFile=c_rsa1024.pfx
+IceSSL.Password=password
 IceSSL.Keychain=client.keychain
 IceSSL.KeychainPassword=password
 

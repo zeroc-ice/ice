@@ -114,6 +114,6 @@ rpathlink                   = -L$(1)
 BASELIBS		    = -lIceUtil -lpthread
 LIBS			    = $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS		    = -lpthread -lrt
+ICEUTIL_OS_LIBS		    = -lpthread -lrt -lcrypto
 ICE_OS_LIBS		    = -ldl -lsocket
 

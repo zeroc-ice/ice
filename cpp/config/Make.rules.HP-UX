@@ -80,7 +80,7 @@ rpathlink               = -L$(1)
 BASELIBS		= -lIceUtil -lxnet -lpthread
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = -lpthread -lrt
+ICEUTIL_OS_LIBS         = -lpthread -lrt -lcrypto
 ICE_OS_LIBS             =
 
 lp64suffix              = /pa20_64

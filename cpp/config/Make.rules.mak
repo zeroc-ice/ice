@@ -166,7 +166,7 @@ LIBSUFFIX	= d
 RCFLAGS		= -D_DEBUG
 !endif
 
-OPENSSL_LIBS            = ssleay32.lib libeay32.lib
+SSL_OS_LIBS             = secur32.lib crypt32.lib
 EXPAT_LIBS              = libexpat.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"

@@ -35,7 +35,8 @@ OBJS		= ArgVector.o \
 		  Unicode.o \
 		  MutexProtocol.o \
 		  FileUtil.o \
-		  StringConverter.o
+		  StringConverter.o \
+		  SHA1.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

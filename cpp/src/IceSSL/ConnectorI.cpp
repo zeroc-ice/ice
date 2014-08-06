@@ -9,8 +9,11 @@
 
 #include <IceSSL/ConnectorI.h>
 #include <IceSSL/Instance.h>
+
+#include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/SecureTransportTransceiverI.h>
-#include <IceSSL/TransceiverI.h>
+#include <IceSSL/SChannelTransceiverI.h>
+
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>

@@ -75,6 +75,6 @@ installlib		= $(INSTALL) $(2)/$(3) $(1)
 BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS		=
+ICEUTIL_OS_LIBS		= -lcrypto
 ICE_OS_LIBS		=
 

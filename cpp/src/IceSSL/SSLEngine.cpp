@@ -148,11 +148,11 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
         vector<string> dnsNames;
         for(vector<pair<int, string> >::const_iterator p = subjectAltNames.begin(); p != subjectAltNames.end(); ++p)
         {
-            if(p->first == 7)
+            if(p->first == AltNAmeIP)
             {
                 ipAddresses.push_back(IceUtilInternal::toLower(p->second));
             }
-            else if(p->first == 2)
+            else if(p->first == AltNameDNS)
             {
                 dnsNames.push_back(IceUtilInternal::toLower(p->second));
             }
@@ -237,7 +237,7 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
             string msg = ostr.str();
             if(_securityTraceLevel >= 1)
             {
-                Trace out(getLogger(), _securityTraceCategory);
+                Trace out(_logger, _securityTraceCategory);
                 out << msg;
             }
             if(_checkCertName)
@@ -258,7 +258,7 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
         string msg = ostr.str();
         if(_securityTraceLevel >= 1)
         {
-            getLogger()->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+            _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
         }
         SecurityException ex(__FILE__, __LINE__);
         ex.reason = msg;
@@ -270,7 +270,7 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if(_securityTraceLevel >= 1)
         {
-            getLogger()->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+            _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
         }
         SecurityException ex(__FILE__, __LINE__);
         ex.reason = msg;
@@ -282,7 +282,7 @@ IceSSL::SSLEngine::verifyPeer(SOCKET fd, const string& address, const NativeConn
         string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
         if(_securityTraceLevel >= 1)
         {
-            getLogger()->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
+            _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
         }
         SecurityException ex(__FILE__, __LINE__);
         ex.reason = msg;
