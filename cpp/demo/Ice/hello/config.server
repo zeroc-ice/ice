@@ -8,7 +8,7 @@ Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001:ws -p 10002:wss -p 10003
 #
 # Only listen on the localhost interface by default.
 #
-Ice.Default.Host=192.168.50.2
+Ice.Default.Host=localhost
 
 #
 # We need to disable VerifyPeer for secure WebSocket (WSS) and Windows Store App clients.
