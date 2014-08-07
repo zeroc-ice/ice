@@ -43,7 +43,7 @@ public:
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&);
+    virtual void finishRead(Buffer&, bool&);
 
     virtual std::string protocol() const;
     virtual std::string toString() const;

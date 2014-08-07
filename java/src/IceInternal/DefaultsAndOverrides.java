@@ -14,11 +14,11 @@ public final class DefaultsAndOverrides
     DefaultsAndOverrides(Ice.Properties properties)
     {
         String value;
-        
+
         defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
         value = properties.getProperty("Ice.Default.Host");
-        if(value.length() != 0)
+        if(!value.isEmpty())
         {
             defaultHost = value;
         }
@@ -26,9 +26,24 @@ public final class DefaultsAndOverrides
         {
             defaultHost = null;
         }
-        
+
+        value = properties.getProperty("Ice.Default.SourceAddress");
+        if(!value.isEmpty())
+        {
+            defaultSourceAddress = Network.getNumericAddress(value);
+            if(defaultSourceAddress == null)
+            {
+                throw new Ice.InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" +
+                                                      value + "'");
+            }
+        }
+        else
+        {
+            defaultSourceAddress = null;
+        }
+
         value = properties.getProperty("Ice.Override.Timeout");
-        if(value.length() > 0)
+        if(!value.isEmpty())
         {
             overrideTimeout = true;
             overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
@@ -40,7 +55,7 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.ConnectTimeout");
-        if(value.length() > 0)
+        if(!value.isEmpty())
         {
             overrideConnectTimeout = true;
             overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
@@ -52,7 +67,7 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.CloseTimeout");
-        if(value.length() > 0)
+        if(!value.isEmpty())
         {
             overrideCloseTimeout = true;
             overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
@@ -64,7 +79,7 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.Compress");
-        if(value.length() > 0)
+        if(!value.isEmpty())
         {
             overrideCompress = true;
             boolean b = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
@@ -82,7 +97,7 @@ public final class DefaultsAndOverrides
         }
 
         value = properties.getProperty("Ice.Override.Secure");
-        if(value.length() > 0)
+        if(!value.isEmpty())
         {
             overrideSecure = true;
             overrideSecureValue = properties.getPropertyAsInt("Ice.Override.Secure") > 0;
@@ -117,16 +132,17 @@ public final class DefaultsAndOverrides
 
         defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 
-        value = properties.getPropertyWithDefault("Ice.Default.EncodingVersion", 
+        value = properties.getPropertyWithDefault("Ice.Default.EncodingVersion",
                                                   Ice.Util.encodingVersionToString(Protocol.currentEncoding));
         defaultEncoding = Ice.Util.stringToEncodingVersion(value);
-        Protocol.checkSupportedEncoding(defaultEncoding);        
+        Protocol.checkSupportedEncoding(defaultEncoding);
 
         boolean slicedFormat = properties.getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
         defaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
     }
 
     final public String defaultHost;
+    final public java.net.InetSocketAddress defaultSourceAddress;
     final public String defaultProtocol;
     final public boolean defaultCollocationOptimization;
     final public Ice.EndpointSelectionType defaultEndpointSelection;

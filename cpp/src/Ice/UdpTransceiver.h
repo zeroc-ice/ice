@@ -43,7 +43,7 @@ public:
 #elif defined(ICE_OS_WINRT)
     virtual void setCompletedHandler(SocketOperationCompletedHandler^);
 #endif
-    
+
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
@@ -64,7 +64,7 @@ public:
 
 private:
 
-    UdpTransceiver(const ProtocolInstancePtr&, const Address&, const std::string&, int);
+    UdpTransceiver(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int);
     UdpTransceiver(const ProtocolInstancePtr&, const std::string&, int, const std::string&, bool);
 
     virtual ~UdpTransceiver();

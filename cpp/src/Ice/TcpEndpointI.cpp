@@ -21,11 +21,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, Int ti,
-                                        const string& conId, bool co) :
-    IPEndpointI(instance, ho, po, conId),
-    _timeout(ti),
-    _compress(co)
+IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
+                                        const Address& sourceAddr, Int timeout, const string& connectionId,
+                                        bool compress) :
+    IPEndpointI(instance, host, port, sourceAddr, connectionId),
+    _timeout(timeout),
+    _compress(compress)
 {
 }
 
@@ -51,7 +52,7 @@ IceInternal::TcpEndpointI::getInfo() const
     class InfoI : public Ice::TCPEndpointInfo
     {
     public:
-        
+
         InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
         {
         }
@@ -61,13 +62,13 @@ IceInternal::TcpEndpointI::getInfo() const
         {
             return _endpoint->type();
         }
-        
+
         virtual bool
         datagram() const
         {
             return _endpoint->datagram();
         }
-        
+
         virtual bool
         secure() const
         {
@@ -75,7 +76,7 @@ IceInternal::TcpEndpointI::getInfo() const
         }
 
     private:
-        
+
         const EndpointIPtr _endpoint;
     };
 
@@ -99,7 +100,7 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
+        return new TcpEndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
     }
 }
 
@@ -118,7 +119,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
+        return new TcpEndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
     }
 }
 
@@ -323,16 +324,16 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
     }
 }
 
-ConnectorPtr 
+ConnectorPtr
 IceInternal::TcpEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
 {
-    return new TcpConnector(_instance, address, proxy, _timeout, _connectionId);
+    return new TcpConnector(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
 }
 
-IPEndpointIPtr 
+IPEndpointIPtr
 IceInternal::TcpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return new TcpEndpointI(_instance, host, port, _timeout, connectionId, _compress);
+    return new TcpEndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
 }
 
 IceInternal::TcpEndpointFactory::TcpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance)
@@ -375,7 +376,7 @@ IceInternal::TcpEndpointFactory::destroy()
     _instance = 0;
 }
 
-EndpointFactoryPtr 
+EndpointFactoryPtr
 IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new TcpEndpointFactory(instance);

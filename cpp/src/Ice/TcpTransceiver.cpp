@@ -334,7 +334,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, bool&)
         if(_instance->traceLevel() >= 3)
         {
             Trace out(_instance->logger(), _instance->traceCategory());
-            out << "received " << ret << " of " << packetSize << " bytes via " << _instance->protocol() << '\n' 
+            out << "received " << ret << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
                 << toString();
         }
 
@@ -352,7 +352,7 @@ IceInternal::TcpTransceiver::startWrite(Buffer& buf)
     if(_state == StateConnectPending)
     {
         Address addr = _proxy ? _proxy->getAddress() : _addr;
-        doConnectAsync(_fd, addr, _write);
+        doConnectAsync(_fd, addr, _sourceAddr, _write);
         return false;
     }
 
@@ -423,7 +423,7 @@ IceInternal::TcpTransceiver::finishWrite(Buffer& buf)
         }
         Trace out(_instance->logger(), _instance->traceCategory());
 
-        out << "sent " << _write.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n' 
+        out << "sent " << _write.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
             << toString();
     }
 
@@ -497,7 +497,7 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf, bool&)
             packetSize = _maxReceivePacketSize;
         }
         Trace out(_instance->logger(), _instance->traceCategory());
-        out << "received " << _read.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n' 
+        out << "received " << _read.count << " of " << packetSize << " bytes via " << _instance->protocol() << '\n'
             << toString();
     }
 
@@ -534,12 +534,14 @@ IceInternal::TcpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
     }
 }
 
-IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance, SOCKET fd, 
-                                            const NetworkProxyPtr& proxy, const Address& addr) :
+IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance, SOCKET fd,
+                                            const NetworkProxyPtr& proxy, const Address& addr,
+                                            const Address& sourceAddr) :
     NativeInfo(fd),
     _instance(instance),
     _proxy(proxy),
     _addr(addr),
+    _sourceAddr(sourceAddr),
     _state(StateNeedConnect)
 #ifdef ICE_USE_IOCP
     , _read(SocketOperationRead),
@@ -574,6 +576,7 @@ IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance,
     NativeInfo(fd),
     _instance(instance),
     _addr(Address()),
+    _sourceAddr(getInvalidAddress()),
     _state(StateConnected),
     _desc(fdToString(_fd))
 #ifdef ICE_USE_IOCP
@@ -617,7 +620,7 @@ IceInternal::TcpTransceiver::connect()
     try
     {
         Address addr = _proxy ? _proxy->getAddress() : _addr;
-        if(doConnect(_fd, addr))
+        if(doConnect(_fd, addr, _sourceAddr))
         {
             _state = StateConnected;
             _desc = fdToString(_fd, _proxy, _addr, true);

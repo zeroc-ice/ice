@@ -37,9 +37,10 @@ public class AllTests : TestCommon.TestApp
         Write("testing proxy endpoint information... ");
         Flush();
         {
-            Ice.ObjectPrx p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" +
-                                                          "udp -h udphost -p 10001 --interface eth0 --ttl 5:" +
-                                                          "opaque -e 1.8 -t 100 -v ABCD");
+            Ice.ObjectPrx p1 = communicator.stringToProxy(
+                            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
+                            "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
+                            "opaque -e 1.8 -t 100 -v ABCD");
 
             Ice.Endpoint[] endps = p1.ice_getEndpoints();
 
@@ -47,6 +48,7 @@ public class AllTests : TestCommon.TestApp
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endps[0].getInfo();
             test(ipEndpoint.host.Equals("tcphost"));
             test(ipEndpoint.port == 10000);
+            test(ipEndpoint.sourceAddress.Equals("10.10.10.10"));
             test(ipEndpoint.timeout == 1200);
             test(ipEndpoint.compress);
             test(!ipEndpoint.datagram());
@@ -75,6 +77,7 @@ public class AllTests : TestCommon.TestApp
             test(udpEndpoint.port == 10001);
             test(udpEndpoint.mcastInterface.Equals("eth0"));
             test(udpEndpoint.mcastTtl == 5);
+            test(udpEndpoint.sourceAddress.Equals("10.10.10.10"));
             test(udpEndpoint.timeout == -1);
             test(!udpEndpoint.compress);
             test(!udpEndpoint.secure());

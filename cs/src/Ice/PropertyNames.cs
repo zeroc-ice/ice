@@ -107,6 +107,7 @@ namespace IceInternal
              new Property(@"^Ice\.Default\.Router\.Context\.[^\s]+$", false, null),
              new Property(@"^Ice\.Default\.Router$", false, null),
              new Property(@"^Ice\.Default\.SlicedFormat$", false, null),
+             new Property(@"^Ice\.Default\.SourceAddress$", false, null),
              new Property(@"^Ice\.IPv4$", false, null),
              new Property(@"^Ice\.IPv6$", false, null),
              new Property(@"^Ice\.EventLog\.Source$", false, null),

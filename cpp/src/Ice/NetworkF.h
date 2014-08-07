@@ -17,6 +17,12 @@
 namespace IceInternal
 {
 
+#ifdef ICE_OS_WINRT
+struct ICE_API Address;
+#else
+union Address;
+#endif
+
 class NetworkProxy;
 ICE_API IceUtil::Shared* upCast(NetworkProxy*);
 typedef Handle<NetworkProxy> NetworkProxyPtr;

@@ -11,11 +11,11 @@ package IceInternal;
 
 final class UdpEndpointI extends IPEndpointI
 {
-    public UdpEndpointI(ProtocolInstance instance, String ho, int po, String mif, int mttl, boolean conn, String conId,
-                        boolean co)
+    public UdpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr,
+                        String mcastInterface, int mttl, boolean conn, String conId, boolean co)
     {
-        super(instance, ho, po, conId);
-        _mcastInterface = mif;
+        super(instance, ho, po, sourceAddr, conId);
+        _mcastInterface = mcastInterface;
         _mcastTtl = mttl;
         _connect = conn;
         _compress = co;
@@ -112,8 +112,8 @@ final class UdpEndpointI extends IPEndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
-                                    compress);
+            return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
+                                    _connectionId, compress);
         }
     }
 
@@ -334,16 +334,6 @@ final class UdpEndpointI extends IPEndpointI
                                                      endpoint + ":\n" + e.str);
             }
         }
-        else if(option.equals("--interface"))
-        {
-            if(argument == null)
-            {
-                throw new Ice.EndpointParseException("no argument provided for --interface option in endpoint "
-                                                     + endpoint);
-            }
-
-            _mcastInterface = argument;
-        }
         else if(option.equals("--ttl"))
         {
             if(argument == null)
@@ -366,6 +356,15 @@ final class UdpEndpointI extends IPEndpointI
                                                      endpoint);
             }
         }
+        else if(option.equals("--interface"))
+        {
+            if(argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for --interface option in endpoint " +
+                                                     endpoint);
+            }
+            _mcastInterface = argument;
+        }
         else
         {
             return false;
@@ -375,12 +374,13 @@ final class UdpEndpointI extends IPEndpointI
 
     protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
     {
-        return new UdpConnector(_instance, addr, _mcastInterface, _mcastTtl, _connectionId);
+        return new UdpConnector(_instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
     }
 
     protected IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
-        return new UdpEndpointI(_instance, host, port, _mcastInterface, _mcastTtl, _connect, connectionId, _compress);
+        return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface,_mcastTtl, _connect,
+                                connectionId, _compress);
     }
 
     private String _mcastInterface = "";

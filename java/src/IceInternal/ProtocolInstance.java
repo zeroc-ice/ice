@@ -67,6 +67,11 @@ public class ProtocolInstance
         return _instance.defaultsAndOverrides().defaultHost;
     }
 
+    public java.net.InetSocketAddress defaultSourceAddress()
+    {
+        return _instance.defaultsAndOverrides().defaultSourceAddress;
+    }
+
     public Ice.EncodingVersion defaultEncoding()
     {
         return _instance.defaultsAndOverrides().defaultEncoding;

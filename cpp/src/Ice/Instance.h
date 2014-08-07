@@ -98,7 +98,7 @@ public:
     {
         return _observer;
     }
-    
+
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {
         return _implicitContext;
@@ -109,10 +109,10 @@ public:
 
     IceUtil::StringConverterPtr getStringConverter() const { return _stringConverter; }
     void setStringConverter(const IceUtil::StringConverterPtr&);
-    
+
     IceUtil::WstringConverterPtr getWstringConverter() const { return _wstringConverter; }
     void setWstringConverter(const IceUtil::WstringConverterPtr&);
-    
+
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(const Ice::ThreadNotificationPtr&);
 
@@ -174,14 +174,14 @@ private:
 class ProcessI : public Ice::Process
 {
 public:
-    
+
     ProcessI(const Ice::CommunicatorPtr&);
-    
+
     virtual void shutdown(const Ice::Current&);
     virtual void writeMessage(const std::string&, Ice::Int, const Ice::Current&);
-    
+
 private:
-    
+
     const Ice::CommunicatorPtr _communicator;
 };
 

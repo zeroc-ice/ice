@@ -22,8 +22,8 @@ class UdpEndpointI : public IPEndpointI
 {
 public:
 
-    UdpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, const std::string&, Ice::Int, bool,
-                 const std::string&, bool);
+    UdpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, const Address&, const std::string&,
+                 Ice::Int, bool, const std::string&, bool);
     UdpEndpointI(const ProtocolInstancePtr&);
     UdpEndpointI(const ProtocolInstancePtr&, BasicStream*);
 
@@ -60,8 +60,8 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    const std::string _mcastInterface;
     const Ice::Int _mcastTtl;
+    const std::string _mcastInterface;
     const bool _connect;
     const bool _compress;
 };

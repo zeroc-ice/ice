@@ -36,12 +36,15 @@ using namespace IceInternal;
 void
 Ice::CommunicatorI::destroy()
 {
-    _instance->destroy();
+    if(_instance)
+    {
+        _instance->destroy();
+    }
 }
 
 void
 Ice::CommunicatorI::shutdown()
-{ 
+{
     _instance->objectAdapterFactory()->shutdown();
 }
 
@@ -223,7 +226,7 @@ Ice::CommunicatorI::begin_flushBatchRequests(const Callback_Communicator_flushBa
 }
 
 #ifdef ICE_CPP11
-AsyncResultPtr 
+AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequests(
     const IceInternal::Function<void (const Exception&)>& exception,
     const IceInternal::Function<void (bool)>& sent)
@@ -232,14 +235,14 @@ Ice::CommunicatorI::begin_flushBatchRequests(
     {
 
     public:
-    
+
         Cpp11CB(const IceInternal::Function<void (const Exception&)>& excb,
                 const IceInternal::Function<void (bool)>& sentcb) :
             IceInternal::Cpp11FnCallbackNC(excb, sentcb)
         {
             CallbackBase::checkCallback(true, excb != nullptr);
         }
-        
+
         virtual void
         completed(const AsyncResultPtr& __result) const
         {

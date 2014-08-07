@@ -19,11 +19,11 @@ namespace IceInternal
 
     sealed class UdpEndpointI : IPEndpointI
     {
-        public UdpEndpointI(ProtocolInstance instance, string ho, int po, string mif, int mttl, bool conn, string conId,
-                            bool co) :
-            base(instance, ho, po, conId)
+        public UdpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, string mcastInterface,
+                            int mttl, bool conn, string conId, bool co) :
+            base(instance, ho, po, sourceAddr, conId)
         {
-            _mcastInterface = mif;
+            _mcastInterface = mcastInterface;
             _mcastTtl = mttl;
             _connect = conn;
             _compress = co;
@@ -128,8 +128,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, host_, port_, _mcastInterface, _mcastTtl, _connect, connectionId_,
-                                        compress);
+                return new UdpEndpointI(instance_, host_, port_, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
+                                        connectionId_, compress);
             }
         }
 
@@ -353,17 +353,6 @@ namespace IceInternal
                     throw e;
                 }
             }
-            else if(option.Equals("--interface"))
-            {
-                if(argument == null)
-                {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "no argument provided for --interface option in endpoint " + endpoint;
-                    throw e;
-                }
-
-                _mcastInterface = argument;
-            }
             else if(option.Equals("--ttl"))
             {
                 if(argument == null)
@@ -391,6 +380,16 @@ namespace IceInternal
                     throw e;
                 }
             }
+            else if(option.Equals("--interface"))
+            {
+                if(argument == null)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "no argument provided for --interface option in endpoint " + endpoint;
+                    throw e;
+                }
+                _mcastInterface = argument;
+            }
             else
             {
                 return false;
@@ -401,13 +400,13 @@ namespace IceInternal
 
         protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
         {
-            return new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, connectionId_);
+            return new UdpConnector(instance_, addr, sourceAddr_, _mcastInterface, _mcastTtl, connectionId_);
         }
 
         protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
         {
-            return new UdpEndpointI(instance_, host, port, _mcastInterface, _mcastTtl, _connect, connectionId,
-                                    _compress);
+            return new UdpEndpointI(instance_, host, port, sourceAddr_, _mcastInterface, _mcastTtl, _connect,
+                                    connectionId, _compress);
         }
 
         private string _mcastInterface = "";

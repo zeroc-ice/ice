@@ -291,7 +291,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 if(_engine->securityTraceLevel() >= 1)
                 {
                     ostringstream ostr;
-                    ostr << "IceSSL: ignoring certificate verification failure:\n" 
+                    ostr << "IceSSL: ignoring certificate verification failure:\n"
                          << X509_verify_cert_error_string(result);
                     _instance->logger()->trace(_instance->traceCategory(), ostr.str());
                 }
@@ -440,6 +440,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
     {
         ERR_clear_error(); // Clear any spurious errors.
         assert(_fd != INVALID_SOCKET);
+
         int ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
         if(ret <= 0)
         {
@@ -536,7 +537,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
     // We assume that OpenSSL doesn't read more SSL records than
     // necessary to fill the requested data and that the sender sends
     // Ice messages in individual SSL records.
-    // 
+    //
 
     if(_state == StateProxyConnectRequestPending)
     {
@@ -721,13 +722,15 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const IceInternal::NetworkProxyPtr& proxy,
-                                   const string& host, const IceInternal::Address& addr) :
+                                   const string& host, const IceInternal::Address& addr,
+                                   const IceInternal::Address& sourceAddr) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
     _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
     _proxy(proxy),
     _host(host),
     _addr(addr),
+    _sourceAddr(sourceAddr),
     _incoming(false),
     _ssl(0),
     _state(StateNeedConnect)
@@ -736,7 +739,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
 
     IceInternal::Address connectAddr = proxy ? proxy->getAddress() : addr;
-    if(IceInternal::doConnect(_fd, connectAddr))
+    if(IceInternal::doConnect(_fd, connectAddr, _sourceAddr))
     {
         _state = StateConnected;
         _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
@@ -757,6 +760,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     _instance(instance),
     _engine(OpenSSLEnginePtr::dynamicCast(instance->engine())),
     _addr(IceInternal::Address()),
+    _sourceAddr(IceInternal::getInvalidAddress()),
     _adapterName(adapterName),
     _incoming(true),
     _ssl(0),

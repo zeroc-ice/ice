@@ -35,7 +35,7 @@ final class ConnectorI implements IceInternal.Connector
             IceInternal.Network.setBlock(fd, false);
             IceInternal.Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
             final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
-            IceInternal.Network.doConnect(fd, addr);
+            IceInternal.Network.doConnect(fd, addr, _sourceAddr);
             try
             {
                 javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false, _addr);
@@ -77,11 +77,12 @@ final class ConnectorI implements IceInternal.Connector
     // Only for use by EndpointI.
     //
     ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, IceInternal.NetworkProxy proxy,
-               int timeout, String connectionId)
+               java.net.InetSocketAddress sourceAddr, int timeout, String connectionId)
     {
         _instance = instance;
         _host = host;
         _addr = addr;
+        _sourceAddr = sourceAddr;
         _proxy = proxy;
         _timeout = timeout;
         _connectionId = connectionId;
@@ -89,6 +90,10 @@ final class ConnectorI implements IceInternal.Connector
         _hashCode = 5381;
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getPort());
+        if(_sourceAddr != null)
+        {
+            _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _sourceAddr.getAddress().getHostAddress());
+        }
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _timeout);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
@@ -116,6 +121,11 @@ final class ConnectorI implements IceInternal.Connector
             return false;
         }
 
+        if(IceInternal.Network.compareAddress(_sourceAddr, p._sourceAddr) != 0)
+        {
+            return false;
+        }
+
         return IceInternal.Network.compareAddress(_addr, p._addr) == 0;
     }
 
@@ -123,6 +133,7 @@ final class ConnectorI implements IceInternal.Connector
     private String _host;
     private java.net.InetSocketAddress _addr;
     private IceInternal.NetworkProxy _proxy;
+    private java.net.InetSocketAddress _sourceAddr;
     private int _timeout;
     private String _connectionId;
     private int _hashCode;

@@ -11,9 +11,10 @@ package IceInternal;
 
 final class TcpEndpointI extends IPEndpointI
 {
-    public TcpEndpointI(ProtocolInstance instance, String ho, int po, int ti, String conId, boolean co)
+    public TcpEndpointI(ProtocolInstance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti,
+                        String conId, boolean co)
     {
-        super(instance, ho, po, conId);
+        super(instance, ho, po, sourceAddr, conId);
         _timeout = ti;
         _compress = co;
     }
@@ -81,7 +82,7 @@ final class TcpEndpointI extends IPEndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
+            return new TcpEndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
         }
     }
 
@@ -107,7 +108,7 @@ final class TcpEndpointI extends IPEndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
+            return new TcpEndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
         }
     }
 
@@ -292,12 +293,12 @@ final class TcpEndpointI extends IPEndpointI
 
     protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
     {
-        return new TcpConnector(_instance, addr, proxy, _timeout, _connectionId);
+        return new TcpConnector(_instance, addr, proxy, _sourceAddr, _timeout, _connectionId);
     }
 
     protected IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
-        return new TcpEndpointI(_instance, host, port, _timeout, connectionId, _compress);
+        return new TcpEndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
     }
 
     private int _timeout;

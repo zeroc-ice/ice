@@ -21,9 +21,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, const string& conId, 
-                             bool co) :
-    IceInternal::IPEndpointI(instance, ho, po, conId),
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po,
+                             const IceInternal::Address& sourceAddr, Int ti, const string& conId, bool co) :
+    IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
     _instance(instance),
     _timeout(ti),
     _compress(co)
@@ -54,7 +54,7 @@ IceSSL::EndpointI::getInfo() const
     class InfoI : public EndpointInfo
     {
     public:
-        
+
         InfoI(const IceInternal::EndpointIPtr& endpoint) : _endpoint(endpoint)
         {
         }
@@ -64,13 +64,13 @@ IceSSL::EndpointI::getInfo() const
         {
             return _endpoint->type();
         }
-        
+
         virtual bool
         datagram() const
         {
             return _endpoint->datagram();
         }
-        
+
         virtual bool
         secure() const
         {
@@ -78,13 +78,13 @@ IceSSL::EndpointI::getInfo() const
         }
 
     private:
-        
+
         const IceInternal::EndpointIPtr _endpoint;
     };
 
     IPEndpointInfoPtr info = new InfoI(const_cast<EndpointI*>(this));
     fillEndpointInfo(info.get());
-    return info;    
+    return info;
 }
 
 Int
@@ -102,7 +102,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
+        return new EndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
     }
 }
 
@@ -121,7 +121,7 @@ IceSSL::EndpointI::compress(bool compress) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
+        return new EndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
     }
 }
 
@@ -148,7 +148,7 @@ IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapterName) const
 {
     AcceptorI* p = new AcceptorI(_instance, adapterName, _host, _port);
-    endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
+    endp = new EndpointI(_instance, _host, p->effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
     return p;
 }
 
@@ -228,7 +228,7 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
     {
         return false;
     }
- 
+
     if(_timeout < p->_timeout)
     {
         return true;
@@ -325,16 +325,16 @@ IceSSL::EndpointI::checkOption(const string& option, const string& argument, con
     }
 }
 
-IceInternal::ConnectorPtr 
+IceInternal::ConnectorPtr
 IceSSL::EndpointI::createConnector(const IceInternal::Address& address, const IceInternal::NetworkProxyPtr& proxy) const
 {
-    return new ConnectorI(_instance, _host, address, proxy, _timeout, _connectionId);
+    return new ConnectorI(_instance, _host, address, proxy, _sourceAddr, _timeout, _connectionId);
 }
 
-IceInternal::IPEndpointIPtr 
+IceInternal::IPEndpointIPtr
 IceSSL::EndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return new EndpointI(_instance, host, port, _timeout, connectionId, _compress);
+    return new EndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance)
@@ -377,7 +377,7 @@ IceSSL::EndpointFactoryI::destroy()
     _instance = 0;
 }
 
-IceInternal::EndpointFactoryPtr 
+IceInternal::EndpointFactoryPtr
 IceSSL::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {
     return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()));

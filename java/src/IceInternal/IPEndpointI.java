@@ -11,11 +11,13 @@ package IceInternal;
 
 public abstract class IPEndpointI extends EndpointI
 {
-    protected IPEndpointI(ProtocolInstance instance, String host, int port, String connectionId)
+    protected IPEndpointI(ProtocolInstance instance, String host, int port, java.net.InetSocketAddress sourceAddr,
+                          String connectionId)
     {
         _instance = instance;
         _host = host;
         _port = port;
+        _sourceAddr = sourceAddr;
         _connectionId = connectionId;
         _hashInitialized = false;
     }
@@ -25,6 +27,7 @@ public abstract class IPEndpointI extends EndpointI
         _instance = instance;
         _host = null;
         _port = 0;
+        _sourceAddr = null;
         _connectionId = "";
         _hashInitialized = false;
     }
@@ -34,6 +37,7 @@ public abstract class IPEndpointI extends EndpointI
         _instance = instance;
         _host = s.readString();
         _port = s.readInt();
+        _sourceAddr = null;
         _connectionId = "";
         _hashInitialized = false;
     }
@@ -130,7 +134,8 @@ public abstract class IPEndpointI extends EndpointI
             return false;
         }
         IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
-        return ipEndpointI.type() == type() && ipEndpointI._host.equals(_host) && ipEndpointI._port == _port;
+        return ipEndpointI.type() == type() && ipEndpointI._host.equals(_host) && ipEndpointI._port == _port &&
+            Network.compareAddress(ipEndpointI._sourceAddr, _sourceAddr) == 0;
     }
 
     public java.util.List<Connector> connectors(java.util.List<java.net.InetSocketAddress> addresses,
@@ -184,6 +189,11 @@ public abstract class IPEndpointI extends EndpointI
 
         s += " -p " + _port;
 
+        if(_sourceAddr != null)
+        {
+            s += " --sourceAddress " + _sourceAddr.getAddress().getHostAddress();
+        }
+
         return s;
     }
 
@@ -215,6 +225,12 @@ public abstract class IPEndpointI extends EndpointI
             return 1;
         }
 
+        int rc = Network.compareAddress(_sourceAddr, p._sourceAddr);
+        if(rc != 0)
+        {
+            return rc;
+        }
+
         return _connectionId.compareTo(p._connectionId);
     }
 
@@ -238,6 +254,10 @@ public abstract class IPEndpointI extends EndpointI
     {
         h = HashUtil.hashAdd(h, _host);
         h = HashUtil.hashAdd(h, _port);
+        if(_sourceAddr != null)
+        {
+            h = HashUtil.hashAdd(h, _sourceAddr.getAddress().getHostAddress());
+        }
         h = HashUtil.hashAdd(h, _connectionId);
         return h;
     }
@@ -246,6 +266,7 @@ public abstract class IPEndpointI extends EndpointI
     {
         info.host = _host;
         info.port = _port;
+        info.sourceAddress = _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress();
     }
 
     public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
@@ -272,53 +293,73 @@ public abstract class IPEndpointI extends EndpointI
         {
             _host = "";
         }
+
+        if(_sourceAddr == null)
+        {
+            if (!oaEndpoint)
+            {
+                _sourceAddr = _instance.defaultSourceAddress();
+            }
+        }
+        else if(oaEndpoint)
+        {
+            throw new Ice.EndpointParseException("`--sourceAddress' not valid for object adapter endpoint `" +
+                                                 toString() + "'");
+        }
     }
 
     protected boolean checkOption(String option, String argument, String endpoint)
     {
-        switch(option.charAt(1))
+        if(option.equals("-h"))
         {
-            case 'h':
+            if(argument == null)
             {
-                if(argument == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " + endpoint);
-                }
-                _host = argument;
-                return true;
+                throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " + endpoint);
+            }
+            _host = argument;
+        }
+        else if(option.equals("-p"))
+        {
+            if(argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " + endpoint);
             }
 
-            case 'p':
+            try
             {
-                if(argument == null)
-                {
-                    throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " + endpoint);
-                }
-
-                try
-                {
-                    _port = Integer.parseInt(argument);
-                }
-                catch(NumberFormatException ex)
-                {
-                    throw new Ice.EndpointParseException("invalid port value `" + argument +
-                                                         "' in endpoint " + endpoint);
-                }
-
-                if(_port < 0 || _port > 65535)
-                {
-                    throw new Ice.EndpointParseException("port value `" + argument +
-                                                         "' out of range in endpoint " + endpoint);
-                }
-
-                return true;
+                _port = Integer.parseInt(argument);
+            }
+            catch(NumberFormatException ex)
+            {
+                throw new Ice.EndpointParseException("invalid port value `" + argument +
+                                                     "' in endpoint " + endpoint);
             }
 
-            default:
+            if(_port < 0 || _port > 65535)
             {
-                return false;
+                throw new Ice.EndpointParseException("port value `" + argument +
+                                                     "' out of range in endpoint " + endpoint);
             }
         }
+        else if(option.equals("--sourceAddress"))
+        {
+            if(argument == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for --sourceAddress option in endpoint " +
+                                                     endpoint);
+            }
+            _sourceAddr = Network.getNumericAddress(argument);
+            if(_sourceAddr == null)
+            {
+                throw new Ice.EndpointParseException(
+                    "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
+            }
+        }
+        else
+        {
+            return false;
+        }
+        return true;
     }
 
     protected abstract Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy);
@@ -327,6 +368,7 @@ public abstract class IPEndpointI extends EndpointI
     protected ProtocolInstance _instance;
     protected String _host;
     protected int _port;
+    protected java.net.InetSocketAddress _sourceAddr;
     protected String _connectionId;
     private boolean _hashInitialized;
     private int _hashValue;

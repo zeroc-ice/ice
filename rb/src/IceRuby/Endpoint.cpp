@@ -136,6 +136,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         Ice::TCPEndpointInfoPtr tcp = Ice::TCPEndpointInfoPtr::dynamicCast(p);
         rb_ivar_set(info, rb_intern("@host"), createString(tcp->host));
         rb_ivar_set(info, rb_intern("@port"), INT2FIX(tcp->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(tcp->sourceAddress));
     }
     else if(Ice::UDPEndpointInfoPtr::dynamicCast(p))
     {
@@ -144,6 +145,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         Ice::UDPEndpointInfoPtr udp = Ice::UDPEndpointInfoPtr::dynamicCast(p);
         rb_ivar_set(info, rb_intern("@host"), createString(udp->host));
         rb_ivar_set(info, rb_intern("@port"), INT2FIX(udp->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(udp->sourceAddress));
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
         rb_ivar_set(info, rb_intern("@mcastTtl"), INT2FIX(udp->mcastTtl));
     }
@@ -164,6 +166,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         Ice::IPEndpointInfoPtr ip = Ice::IPEndpointInfoPtr::dynamicCast(p);
         rb_ivar_set(info, rb_intern("@host"), createString(ip->host));
         rb_ivar_set(info, rb_intern("@port"), INT2FIX(ip->port));
+        rb_ivar_set(info, rb_intern("@sourceAddress"), createString(ip->sourceAddress));
     }
     else
     {
@@ -271,6 +274,7 @@ IceRuby::initEndpoint(VALUE iceModule)
     //
     rb_define_attr(_ipEndpointInfoClass, "host", 1, 0);
     rb_define_attr(_ipEndpointInfoClass, "port", 1, 0);
+    rb_define_attr(_ipEndpointInfoClass, "sourceAddress", 1, 0);
 
     //
     // TCPEndpointInfo

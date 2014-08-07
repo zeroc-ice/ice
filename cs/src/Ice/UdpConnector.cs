@@ -18,7 +18,7 @@ namespace IceInternal
     {
         public Transceiver connect()
         {
-            return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
+            return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
         }
 
         public short type()
@@ -29,17 +29,22 @@ namespace IceInternal
         //
         // Only for use by UdpEndpointI
         //
-        internal UdpConnector(ProtocolInstance instance, EndPoint addr, string mcastInterface, int mcastTtl,
-                              string connectionId)
+        internal UdpConnector(ProtocolInstance instance, EndPoint addr, EndPoint sourceAddr, string mcastInterface,
+                              int mcastTtl, string connectionId)
         {
             _instance = instance;
             _addr = addr;
+            _sourceAddr = sourceAddr;
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
             _connectionId = connectionId;
 
             _hashCode = 5381;
             IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
+            if(sourceAddr != null)
+            {
+                IceInternal.HashUtil.hashAdd(ref _hashCode, _sourceAddr);
+            }
             IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastInterface);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastTtl);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
@@ -73,6 +78,11 @@ namespace IceInternal
                 return false;
             }
 
+            if(!Network.addressEquals(_sourceAddr, p._sourceAddr))
+            {
+                return false;
+            }
+
             return _addr.Equals(p._addr);
         }
 
@@ -88,6 +98,7 @@ namespace IceInternal
 
         private ProtocolInstance _instance;
         private EndPoint _addr;
+        private EndPoint _sourceAddr;
         private string _mcastInterface;
         private int _mcastTtl;
         private string _connectionId;

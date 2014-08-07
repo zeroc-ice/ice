@@ -290,7 +290,7 @@ namespace IceSSL
                     try
                     {
                         EndPoint addr = _proxy != null ? _proxy.getAddress() : _addr;
-                        _writeResult = IceInternal.Network.doConnectAsync(_fd, addr, callback, state);
+                        _writeResult = IceInternal.Network.doConnectAsync(_fd, addr, _sourceAddr, callback, state);
                         return _writeResult.CompletedSynchronously;
                     }
                     catch(Exception ex)
@@ -464,7 +464,8 @@ namespace IceSSL
         // Only for use by ConnectorI, AcceptorI.
         //
         internal TransceiverI(Instance instance, Socket fd, string host, bool connected,
-                              bool incoming, string adapterName, IPEndPoint addr, IceInternal.NetworkProxy proxy)
+                              bool incoming, string adapterName, IPEndPoint addr, IceInternal.NetworkProxy proxy,
+                              EndPoint sourceAddr)
         {
             _instance = instance;
             _fd = fd;
@@ -473,6 +474,7 @@ namespace IceSSL
             _adapterName = adapterName;
             _addr = addr;
             _proxy = proxy;
+            _sourceAddr = sourceAddr;
             _stream = null;
             _desc = connected ? IceInternal.Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
             _state = connected ? StateNeedAuthenticate : StateNeedConnect;
@@ -848,6 +850,7 @@ namespace IceSSL
         private string _adapterName;
         private IPEndPoint _addr;
         private IceInternal.NetworkProxy _proxy;
+        private EndPoint _sourceAddr;
         private SslStream _stream;
         private string _desc;
         private int _verifyPeer;

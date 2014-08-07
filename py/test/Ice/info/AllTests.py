@@ -17,8 +17,8 @@ def allTests(communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
-    p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" + \
-                                    "udp -h udphost -p 10001 --interface eth0 --ttl 5:" + \
+    p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" + \
+                                    "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" + \
                                     "opaque -e 1.8 -t 100 -v ABCD")
 
     endps = p1.ice_getEndpoints()
@@ -27,6 +27,7 @@ def allTests(communicator):
     test(isinstance(ipEndpoint, Ice.IPEndpointInfo))
     test(ipEndpoint.host == "tcphost")
     test(ipEndpoint.port == 10000)
+    test(ipEndpoint.sourceAddress == "10.10.10.10")
     test(ipEndpoint.timeout == 1200)
     test(ipEndpoint.compress)
     test(not ipEndpoint.datagram())
@@ -43,6 +44,7 @@ def allTests(communicator):
     test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
     test(udpEndpoint.host == "udphost")
     test(udpEndpoint.port == 10001)
+    test(udpEndpoint.sourceAddress == "10.10.10.10")
     test(udpEndpoint.mcastInterface == "eth0")
     test(udpEndpoint.mcastTtl == 5)
     test(udpEndpoint.timeout == -1)

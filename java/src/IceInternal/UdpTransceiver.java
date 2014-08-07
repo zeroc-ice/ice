@@ -181,7 +181,7 @@ final class UdpTransceiver implements Transceiver
             //
             // If we must connect, we connect to the first peer that sends us a packet.
             //
-            Network.doConnect(_fd, _peerAddr);
+            Network.doConnect(_fd, _peerAddr, null);
             _state = StateConnected;
 
             if(_instance.traceLevel() >= 1)
@@ -297,7 +297,8 @@ final class UdpTransceiver implements Transceiver
     // Only for use by UdpEndpoint
     //
     @SuppressWarnings("deprecation")
-    UdpTransceiver(ProtocolInstance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl)
+    UdpTransceiver(ProtocolInstance instance, java.net.InetSocketAddress addr, java.net.InetSocketAddress sourceAddr,
+                   String mcastInterface, int mcastTtl)
     {
         _instance = instance;
         _state = StateNeedConnect;
@@ -316,7 +317,7 @@ final class UdpTransceiver implements Transceiver
             {
                 configureMulticast(null, mcastInterface, mcastTtl);
             }
-            Network.doConnect(_fd, _addr);
+            Network.doConnect(_fd, _addr, sourceAddr);
             _state = StateConnected; // We're connected now
 
             if(_instance.traceLevel() >= 1)

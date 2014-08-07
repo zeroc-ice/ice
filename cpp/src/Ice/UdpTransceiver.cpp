@@ -56,7 +56,7 @@ IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
     }
 }
 #elif defined(ICE_OS_WINRT)
-void 
+void
 IceInternal::UdpTransceiver::setCompletedHandler(SocketOperationCompletedHandler^ handler)
 {
     _completedHandler = handler;
@@ -204,7 +204,7 @@ repeat:
         }
 
 #   ifdef _WIN32
-        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, 
+        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0,
                        &_peerAddr.sa, len);
 #   else
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0,
@@ -274,7 +274,7 @@ repeat:
         memset(&peerAddr.saStorage, 0, sizeof(sockaddr_storage));
         socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
-        ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0, 
+        ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0,
                        &peerAddr.sa, &len);
 
         if(ret != SOCKET_ERROR)
@@ -287,7 +287,7 @@ repeat:
     {
         if(recvTruncated())
         {
-            // The message was truncated and the whole buffer is filled. We ignore 
+            // The message was truncated and the whole buffer is filled. We ignore
             // this error here, it will be detected at the connection level when
             // the Ice message size is checked against the buffer size.
             ret = static_cast<ssize_t>(buf.b.size());
@@ -298,12 +298,12 @@ repeat:
             {
                 goto repeat;
             }
-            
+
             if(wouldBlock())
             {
                 return SocketOperationRead;
             }
-            
+
             if(connectionLost())
             {
                 ConnectionLostException ex(__FILE__, __LINE__);
@@ -318,7 +318,7 @@ repeat:
             }
         }
     }
-    
+
     if(_state == StateNeedConnect)
     {
         //
@@ -327,10 +327,10 @@ repeat:
         assert(_incoming); // Client connections should always be connected at this point.
 
 #   ifndef NDEBUG
-        bool connected = doConnect(_fd, _peerAddr);
+        bool connected = doConnect(_fd, _peerAddr, getInvalidAddress());
         assert(connected);
 #   else
-        doConnect(_fd, _peerAddr);
+        doConnect(_fd, _peerAddr, getInvalidAddress());
 #   endif
         _state = StateConnected;
 
@@ -459,7 +459,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                             // NOTE: unlike other methods, it's important to modify _write.count
                             // _before_ calling checkIfErrorOrCompleted since this isn't called
                             // with the connection mutex but from a Windows thread pool thread.
-                            // So we can't modify the _write structure after calling the 
+                            // So we can't modify the _write structure after calling the
                             // completed callback.
                             //
                             _write.count = operation->GetResults();
@@ -475,7 +475,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                             {
                                 checkConnectErrorCode(__FILE__, __LINE__, operation->ErrorCode.Value, _addr.host);
                             }
-                            else 
+                            else
                             {
                                 checkErrorCode(__FILE__, __LINE__, operation->ErrorCode.Value);
                             }
@@ -542,7 +542,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             ex.error = 0;
             throw ex;
         }
-        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa, 
+        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa,
                         len, &_write, NULL);
     }
 
@@ -626,8 +626,8 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     {
         memset(&_readAddr.saStorage, 0, sizeof(struct sockaddr_storage));
         _readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
-        
-        err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags, 
+
+        err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags,
                           &_readAddr.sa, &_readAddrLen, &_read, NULL);
     }
 
@@ -685,8 +685,9 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf, bool&)
     try
     {
         DataReader^ reader = args->GetDataReader();
-        ret = min(static_cast<int>(reader->UnconsumedBufferLength), static_cast<int>(buf.b.size())); // Truncate received data if too large.
-        
+        // Truncate received data if too large.
+        ret = min(static_cast<int>(reader->UnconsumedBufferLength), static_cast<int>(buf.b.size()));
+
         Array<unsigned char>^ data = ref new Array<unsigned char>(ret);
         reader->ReadBytes(data);
         memcpy(&*buf.i, data->Data, ret);
@@ -707,7 +708,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf, bool&)
 
         if(recvTruncated())
         {
-            // The message was truncated and the whole buffer is filled. We ignore 
+            // The message was truncated and the whole buffer is filled. We ignore
             // this error here, it will be detected at the connection level when
             // the Ice message size is checked against the buffer size.
             _read.count = static_cast<int>(buf.b.size());
@@ -728,7 +729,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf, bool&)
             }
         }
     }
-    
+
     if(_state == StateNotConnected)
     {
         _peerAddr = _readAddr;
@@ -826,7 +827,7 @@ IceInternal::UdpTransceiver::getInfo() const
     }
     else
     {
-        fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);   
+        fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     }
 
     if(isAddressValid(_mcastAddr))
@@ -849,7 +850,7 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
     }
 
     //
-    // The maximum packetSize is either the maximum allowable UDP packet size, or 
+    // The maximum packetSize is either the maximum allowable UDP packet size, or
     // the UDP send buffer size (which ever is smaller).
     //
     const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
@@ -866,12 +867,14 @@ IceInternal::UdpTransceiver::effectivePort() const
 }
 
 
-IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance, 
+IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             const Address& addr,
 #ifdef ICE_OS_WINRT
+                                            const Address&,
                                             const string&,
                                             int
 #else
+                                            const Address& sourceAddr,
                                             const string& mcastInterface,
                                             int mcastTtl
 #endif
@@ -881,7 +884,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
     _addr(addr),
     _state(StateNeedConnect)
 #if defined(ICE_USE_IOCP)
-    , _read(SocketOperationRead), 
+    , _read(SocketOperationRead),
     _write(SocketOperationWrite)
 #elif defined(ICE_OS_WINRT)
     , _readPending(false)
@@ -912,13 +915,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
     }
 
     //
-    // In general, connecting a datagram socket should be non-blocking as this just setups 
+    // In general, connecting a datagram socket should be non-blocking as this just setups
     // the default destination address for the socket. However, on some OS, connect sometime
     // returns EWOULDBLOCK. If that's the case, we keep the state as StateNeedConnect. This
     // will make sure the transceiver is notified when the socket is ready for sending (see
     // the initialize() implementation).
     //
-    if(doConnect(_fd, _addr))
+    if(doConnect(_fd, _addr, sourceAddr))
     {
         _state = StateConnected;
     }
@@ -934,7 +937,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 
 #ifdef ICE_USE_IOCP
     //
-    // On Windows when using IOCP, we must make sure that the socket is connected without 
+    // On Windows when using IOCP, we must make sure that the socket is connected without
     // blocking as there's no way to do a non-blocking datagram socket conection (ConnectEx
     // only supports connection oriented sockets). According to Microsoft documentation of
     // the connect() call, this should always be the case.
@@ -952,7 +955,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #ifdef ICE_OS_WINRT
     , _readPending(false)
 #elif defined(ICE_USE_IOCP)
-    , _read(SocketOperationRead), 
+    , _read(SocketOperationRead),
     _write(SocketOperationWrite)
 #endif
 {
@@ -989,7 +992,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
         //
         // Windows does not allow binding to the mcast address itself
         // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-        // bi-directional connection won't work because the source 
+        // bi-directional connection won't work because the source
         // address won't be the multicast address and the client will
         // therefore reject the datagram.
         //
@@ -1028,7 +1031,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "starting to receive " << _instance->protocol() << " packets\n" << toString();
 
-        vector<string> interfaces = 
+        vector<string> interfaces =
             getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
         if(!interfaces.empty())
         {
@@ -1153,7 +1156,7 @@ IceInternal::UdpTransceiver::checkIfErrorOrCompleted(SocketOperation op, IAsyncI
         {
             checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value, _addr.host);
         }
-        else 
+        else
         {
             checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
         }

@@ -58,16 +58,16 @@ public:
 
     OSStatus writeRaw(const char*, size_t*) const;
     OSStatus readRaw(char*, size_t*) const;
-    
+
 private:
 
     TransceiverI(const InstancePtr&, SOCKET, const IceInternal::NetworkProxyPtr&, const std::string&,
-                 const IceInternal::Address&);
+                 const IceInternal::Address&, const IceInternal::Address&);
     TransceiverI(const InstancePtr&, SOCKET, const std::string&);
     virtual ~TransceiverI();
 
     virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
-    
+
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
 
@@ -80,20 +80,21 @@ private:
     const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
     const IceInternal::Address _addr;
+    const IceInternal::Address _sourceAddr;
 
     const std::string _adapterName;
     const bool _incoming;
 
     SSLContextRef _ssl;
     SecTrustRef _trust;
-    
+
     size_t _buffered;
     enum SSLWantFlags
     {
         SSLWantRead = 0x1,
         SSLWantWrite = 0x2
     };
-    
+
     mutable Ice::Byte _flags;
 
     State _state;

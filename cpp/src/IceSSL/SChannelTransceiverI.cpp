@@ -967,7 +967,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buffer)
     if(_state == StateConnectPending)
     {
         IceInternal::Address addr = _proxy ? _proxy->getAddress() : _addr;
-        doConnectAsync(_fd, addr, _write);
+        doConnectAsync(_fd, addr, _sourceAddr, _write);
         return false;
     }
 
@@ -1176,13 +1176,15 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const IceInternal::NetworkProxyPtr& proxy,
-                                   const string& host, const IceInternal::Address& addr) :
+                                   const string& host, const IceInternal::Address& addr, 
+                                   const IceInternal::Address& sourceAddr) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
     _engine(SChannelEnginePtr::dynamicCast(instance->engine())),
     _proxy(proxy),
     _host(host),
     _addr(addr),
+    _sourceAddr(sourceAddr),
     _incoming(false),
     _state(StateNeedConnect),
     _writeBuffer(0),
@@ -1218,7 +1220,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
             
 #ifndef ICE_USE_IOCP
     IceInternal::Address connectAddr = proxy ? proxy->getAddress() : addr;
-    if(IceInternal::doConnect(_fd, connectAddr))
+    if(IceInternal::doConnect(_fd, connectAddr, _sourceAddr))
     {
         _state = StateConnected;
         _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);

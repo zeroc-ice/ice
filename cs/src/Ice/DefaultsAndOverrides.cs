@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Net;
 
 namespace IceInternal
 {
@@ -28,6 +29,21 @@ namespace IceInternal
             else
             {
                 defaultHost = null;
+            }
+
+            val = properties.getProperty("Ice.Default.SourceAddress");
+            if(val.Length > 0)
+            {
+                defaultSourceAddress = Network.getNumericAddress(val);
+                if(defaultSourceAddress == null)
+                {
+                    throw new Ice.InitializationException("invalid IP address set for Ice.Default.SourceAddress: `" +
+                                                          val + "'");
+                }
+            }
+            else
+            {
+                defaultSourceAddress = null;
             }
 
             val = properties.getProperty("Ice.Override.Timeout");
@@ -135,6 +151,7 @@ namespace IceInternal
         }
 
         public string defaultHost;
+        public EndPoint defaultSourceAddress;
         public string defaultProtocol;
         public bool defaultCollocationOptimization;
         public Ice.EndpointSelectionType defaultEndpointSelection;

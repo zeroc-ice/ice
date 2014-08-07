@@ -14,10 +14,9 @@ public class ContextI : ContextDisp_
     public override void call(Ice.Current current)
     {
         System.Console.Out.Write("Type = ");
-        string type = current.ctx["type"];
-        if(type != null)
+        if(current.ctx.ContainsKey("type"))
         {
-            System.Console.Out.Write(type);
+            System.Console.Out.Write(current.ctx["type"]);
         }
         else
         {

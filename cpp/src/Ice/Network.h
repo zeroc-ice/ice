@@ -19,7 +19,8 @@
 #include <Ice/NetworkF.h>
 #include <Ice/PropertiesF.h> // For setTcpBufSize
 #include <Ice/LoggerF.h> // For setTcpBufSize
-#include <Ice/Protocol.h> 
+#include <Ice/Protocol.h>
+#include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>
 
 #ifdef ICE_OS_WINRT
@@ -56,7 +57,7 @@ typedef int ssize_t;
 #   define ICE_USE_POLL 1
 #endif
 
-#if defined(_WIN32) || defined(__osf__) 
+#if defined(_WIN32) || defined(__osf__)
 typedef int socklen_t;
 #endif
 
@@ -99,12 +100,12 @@ typedef int socklen_t;
                                                 IN PVOID lpSendBuffer OPTIONAL, IN DWORD dwSendDataLength,
                                                 OUT LPDWORD lpdwBytesSent, IN LPOVERLAPPED lpOverlapped);
 
-    typedef BOOL (PASCAL FAR * LPFN_ACCEPTEX)(IN SOCKET sListenSocket, IN SOCKET sAcceptSocket, 
+    typedef BOOL (PASCAL FAR * LPFN_ACCEPTEX)(IN SOCKET sListenSocket, IN SOCKET sAcceptSocket,
                                               IN PVOID lpOutputBuffer, IN DWORD dwReceiveDataLength,
                                               IN DWORD dwLocalAddressLength, IN DWORD dwRemoteAddressLength,
                                               OUT LPDWORD lpdwBytesReceived, IN LPOVERLAPPED lpOverlapped);
 #endif
-    
+
 namespace IceInternal
 {
 
@@ -156,14 +157,14 @@ struct ICE_API AsyncInfo
     int count;
     int error;
 };
-  
+
 public delegate void SocketOperationCompletedHandler(int);
 #endif
 
 class ICE_API NativeInfo : virtual public IceUtil::Shared
 {
 public:
-    
+
     NativeInfo(SOCKET socketFd = INVALID_SOCKET) : _fd(socketFd)
     {
     }
@@ -267,7 +268,7 @@ typedef IceUtil::Handle<SOCKSNetworkProxy> SOCKSNetworkProxyPtr;
 
 ICE_API bool noMoreFds(int);
 ICE_API std::string errorToStringDNS(int);
-ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool, 
+ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool,
                                           bool);
 ICE_API ProtocolSupport getProtocolSupport(const Address&);
 ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool);
@@ -287,6 +288,7 @@ ICE_API void fdToAddressAndPort(SOCKET, std::string&, int&, std::string&, int&);
 ICE_API void addrToAddressAndPort(const Address&, std::string&, int&);
 ICE_API std::string addressesToString(const Address&, const Address&, bool);
 ICE_API bool isAddressValid(const Address&);
+ICE_API Address getInvalidAddress();
 
 ICE_API std::vector<std::string> getHostsForEndpointExpand(const std::string&, ProtocolSupport, bool);
 
@@ -324,20 +326,22 @@ ICE_API bool connectInProgress();
 ICE_API bool connectionLost();
 
 ICE_API void doListen(SOCKET, int);
-ICE_API bool doConnect(SOCKET, const Address&);
+ICE_API bool doConnect(SOCKET, const Address&, const Address&);
 ICE_API void doFinishConnect(SOCKET);
 ICE_API SOCKET doAccept(SOCKET);
 
 ICE_API void createPipe(SOCKET fds[2]);
 
 ICE_API int getSocketErrno();
+
+ICE_API Address getNumericAddress(const std::string&);
 #else
 ICE_API void checkConnectErrorCode(const char*, int, HRESULT, Windows::Networking::HostName^);
 ICE_API void checkErrorCode(const char*, int, HRESULT);
 #endif
 
 #if defined(ICE_USE_IOCP)
-ICE_API void doConnectAsync(SOCKET, const Address&, AsyncInfo&);
+ICE_API void doConnectAsync(SOCKET, const Address&, const Address&, AsyncInfo&);
 ICE_API void doFinishConnectAsync(SOCKET, AsyncInfo&);
 #endif
 }

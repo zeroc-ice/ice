@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
-#include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -36,7 +35,27 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
 
     string value;
-    
+
+#ifdef ICE_OS_WINRT
+    const_cast<Address&>(defaultSourceAddress) = getInvalidAddress();
+#else
+    value = properties->getProperty("Ice.Default.SourceAddress");
+    if(!value.empty())
+    {
+        const_cast<Address&>(defaultSourceAddress) = getNumericAddress(value);
+        if(!isAddressValid(defaultSourceAddress))
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'";
+            throw ex;
+        }
+    }
+    else
+    {
+        const_cast<Address&>(defaultSourceAddress) = getInvalidAddress();
+    }
+#endif
+
     value = properties->getProperty("Ice.Override.Timeout");
     if(!value.empty())
     {
@@ -79,7 +98,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     if(value == "Random")
     {
         defaultEndpointSelection = Random;
-    } 
+    }
     else if(value == "Ordered")
     {
         defaultEndpointSelection = Ordered;
@@ -91,10 +110,10 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ex;
     }
 
-    const_cast<int&>(defaultInvocationTimeout) = 
+    const_cast<int&>(defaultInvocationTimeout) =
         properties->getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
 
-    const_cast<int&>(defaultLocatorCacheTimeout) = 
+    const_cast<int&>(defaultLocatorCacheTimeout) =
         properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 
     const_cast<bool&>(defaultPreferSecure) =

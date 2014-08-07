@@ -30,7 +30,8 @@ IceInternal::TcpConnector::connect()
 
     try
     {
-        TransceiverPtr transceiver = new TcpTransceiver(_instance, createSocket(false, _addr), _proxy, _addr);
+        TransceiverPtr transceiver =
+            new TcpTransceiver(_instance, createSocket(false, _addr), _proxy, _addr, _sourceAddr);
         dynamic_cast<TcpTransceiver*>(transceiver.get())->connect();
         return transceiver;
     }
@@ -70,8 +71,13 @@ IceInternal::TcpConnector::operator==(const Connector& r) const
     {
         return false;
     }
-    
+
     if(_timeout != p->_timeout)
+    {
+        return false;
+    }
+
+    if(compareAddress(_sourceAddr, p->_sourceAddr) != 0)
     {
         return false;
     }
@@ -108,6 +114,16 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
         return false;
     }
 
+    int rc = compareAddress(_sourceAddr, p->_sourceAddr);
+    if(rc < 0)
+    {
+        return true;
+    }
+    else if(rc > 0)
+    {
+        return false;
+    }
+
     if(_connectionId < p->_connectionId)
     {
         return true;
@@ -119,11 +135,13 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) < 0;
 }
 
-IceInternal::TcpConnector::TcpConnector(const ProtocolInstancePtr& instance, const Address& addr, 
-                                        const NetworkProxyPtr& proxy, Ice::Int timeout, const string& connectionId) :
+IceInternal::TcpConnector::TcpConnector(const ProtocolInstancePtr& instance, const Address& addr,
+                                        const NetworkProxyPtr& proxy, const Address& sourceAddr,
+                                        Ice::Int timeout, const string& connectionId) :
     _instance(instance),
     _addr(addr),
     _proxy(proxy),
+    _sourceAddr(sourceAddr),
     _timeout(timeout),
     _connectionId(connectionId)
 {

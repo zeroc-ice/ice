@@ -45,7 +45,7 @@ IceSSL::ConnectorI::connect()
 
     try
     {
-        return new TransceiverI(_instance, IceInternal::createSocket(false, _addr), _proxy, _host, _addr);
+        return new TransceiverI(_instance, IceInternal::createSocket(false, _addr), _proxy, _host, _addr, _sourceAddr);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -89,6 +89,11 @@ IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
         return false;
     }
 
+    if(IceInternal::compareAddress(_sourceAddr, p->_sourceAddr) != 0)
+    {
+        return false;
+    }
+
     if(_connectionId != p->_connectionId)
     {
         return false;
@@ -121,6 +126,16 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
         return false;
     }
 
+    int rc = compareAddress(_sourceAddr, p->_sourceAddr);
+    if(rc < 0)
+    {
+        return true;
+    }
+    else if(rc > 0)
+    {
+        return false;
+    }
+
     if(_connectionId < p->_connectionId)
     {
         return true;
@@ -134,12 +149,13 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
 }
 
 IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, const IceInternal::Address& addr,
-                               const IceInternal::NetworkProxyPtr& proxy, Ice::Int timeout,
-                               const string& connectionId) :
+                               const IceInternal::NetworkProxyPtr& proxy, const IceInternal::Address& sourceAddr,
+                               Ice::Int timeout, const string& connectionId) :
     _instance(instance),
     _host(host),
     _addr(addr),
     _proxy(proxy),
+    _sourceAddr(sourceAddr),
     _timeout(timeout),
     _connectionId(connectionId)
 {

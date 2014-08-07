@@ -285,7 +285,7 @@ IceInternal::StreamTransceiver::startRead(Buffer& buf)
 }
 
 void
-IceInternal::StreamTransceiver::finishRead(Buffer& buf)
+IceInternal::StreamTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
 {
     if(_read.count == SOCKET_ERROR)
     {

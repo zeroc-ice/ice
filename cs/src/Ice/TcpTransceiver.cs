@@ -141,7 +141,7 @@ namespace IceInternal
             Debug.Assert(_readEventArgs != null && _writeEventArgs != null);
             _readEventArgs.Dispose();
             _writeEventArgs.Dispose();
-#endif            
+#endif
         }
 
         public int write(Buffer buf)
@@ -155,7 +155,7 @@ namespace IceInternal
 #if COMPACT || SILVERLIGHT || true
             if(_writeResult != null)
             {
-                return SocketOperation.None;    
+                return SocketOperation.None;
             }
             //
             // Silverlight and the Compact .NET Frameworks don't support the use of synchronous socket
@@ -449,7 +449,7 @@ namespace IceInternal
                         _writeEventArgs.UserToken = state;
                         return !_fd.ConnectAsync(_writeEventArgs);
 #else
-                        _writeResult = Network.doConnectAsync(_fd, addr, callback, state);
+                        _writeResult = Network.doConnectAsync(_fd, addr, _sourceAddr, callback, state);
                         return _writeResult.CompletedSynchronously;
 #endif
                     }
@@ -616,12 +616,14 @@ namespace IceInternal
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(ProtocolInstance instance, Socket fd, EndPoint addr, NetworkProxy proxy, bool connected)
+        internal TcpTransceiver(ProtocolInstance instance, Socket fd, EndPoint addr, NetworkProxy proxy,
+                                EndPoint sourceAddr, bool connected)
         {
             _instance = instance;
             _fd = fd;
             _addr = addr;
             _proxy = proxy;
+            _sourceAddr = sourceAddr;
 
             _state = connected ? StateConnected : StateNeedConnect;
             _desc = connected ? Network.fdToString(_fd, _proxy, _addr) : "<not connected>";
@@ -697,6 +699,7 @@ namespace IceInternal
         private Socket _fd;
         private EndPoint _addr;
         private NetworkProxy _proxy;
+        private EndPoint _sourceAddr;
         private string _desc;
         private int _state;
         private int _maxSendPacketSize;

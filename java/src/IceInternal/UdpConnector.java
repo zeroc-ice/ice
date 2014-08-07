@@ -13,7 +13,7 @@ final class UdpConnector implements Connector
 {
     public Transceiver connect()
     {
-        return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
+        return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
     }
 
     public java.nio.channels.SelectableChannel fd()
@@ -40,11 +40,12 @@ final class UdpConnector implements Connector
     //
     // Only for use by UdpEndpointI
     //
-    UdpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl,
-                 String connectionId)
+    UdpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, java.net.InetSocketAddress sourceAddr,
+                 String mcastInterface, int mcastTtl, String connectionId)
     {
         _instance = instance;
         _addr = addr;
+        _sourceAddr = sourceAddr;
         _mcastInterface = mcastInterface;
         _mcastTtl = mcastTtl;
         _connectionId = connectionId;
@@ -52,6 +53,10 @@ final class UdpConnector implements Connector
         _hashCode = 5381;
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getPort());
+        if(_sourceAddr != null)
+        {
+            _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _sourceAddr.getAddress().getHostAddress());
+        }
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _mcastInterface);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _mcastTtl);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
@@ -85,11 +90,17 @@ final class UdpConnector implements Connector
             return false;
         }
 
+        if(Network.compareAddress(_sourceAddr, p._sourceAddr) != 0)
+        {
+            return false;
+        }
+
         return Network.compareAddress(_addr, p._addr) == 0;
     }
 
     private ProtocolInstance _instance;
     private java.net.InetSocketAddress _addr;
+    private java.net.InetSocketAddress _sourceAddr;
     private String _mcastInterface;
     private int _mcastTtl;
     private String _connectionId;

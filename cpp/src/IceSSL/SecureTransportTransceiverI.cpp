@@ -98,15 +98,15 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
 void
 checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, const InstancePtr& instance)
 {
-    OSStatus err = noErr;        
+    OSStatus err = noErr;
     SecTrustResultType trustResult = kSecTrustResultOtherError;
     if(trust)
-    {                            
+    {
         if((err = SecTrustSetAnchorCertificates(trust, engine->getCertificateAuthorities())))
         {
             throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
         }
-                            
+
         //
         // Disable network fetch, we don't want this to block.
         //
@@ -114,7 +114,7 @@ checkTrustResult(SecTrustRef trust, const SecureTransportEnginePtr& engine, cons
         {
             throw ProtocolException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + errorToString(err));
         }
-                            
+
         //
         // Evaluate the trust
         //
@@ -257,7 +257,7 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
 
         assert(_state == StateConnected);
 
-        OSStatus err = 0;        
+        OSStatus err = 0;
         if(!_ssl)
         {
             //
@@ -269,17 +269,17 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: setting IO functions failed\n" +
                                         errorToString(err));
             }
-            
+
             if((err = SSLSetConnection(_ssl, reinterpret_cast<SSLConnectionRef>(this))))
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" + 
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: setting SSL connection failed\n" +
                                         errorToString(err));
             }
         }
-        
+
         SSLSessionState state;
         SSLGetSessionState(_ssl, &state);
-        
+
         //
         // SSL Handshake
         //
@@ -365,11 +365,11 @@ IceSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::B
         SSLProtocol protocol;
         SSLGetNegotiatedProtocolVersion(_ssl, &protocol);
         const string sslProtocolName = protocolName(protocol);
-        
+
         SSLCipherSuite cipher;
         SSLGetNegotiatedCipher(_ssl, &cipher);
         const string sslCipherName = _engine->getCipherName(cipher);
-        
+
         if(sslCipherName.empty())
         {
             out << "unknown cipher\n";
@@ -438,7 +438,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
         //
         return writeRaw(buf) ? IceInternal::SocketOperationNone : IceInternal::SocketOperationWrite;
     }
-    
+
     if(buf.i == buf.b.end())
     {
         return  IceInternal::SocketOperationNone;
@@ -455,7 +455,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
         size_t processed = 0;
         OSStatus err = _buffered ? SSLWrite(_ssl, 0, 0, &processed) :
                                    SSLWrite(_ssl, reinterpret_cast<const void*>(buf.i), packetSize, &processed);
-        
+
         if(err)
         {
             if(err == errSSLWouldBlock)
@@ -467,12 +467,12 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
                 assert(_flags & SSLWantWrite);
                 return IceInternal::SocketOperationWrite;
             }
-            
+
             if(err == errSSLClosedGraceful)
             {
                 throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
-            
+
             //
             // SSL protocol errors are defined in SecureTransport.h are in the range
             // -9800 to -9849
@@ -481,7 +481,7 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf)
             {
                 throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + errorToString(err));
             }
-            
+
             errno = err;
             if(IceInternal::connectionLost())
             {
@@ -535,7 +535,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
     // We assume that SecureTransport doesn't read more SSL records
     // than necessary to fill the requested data and that the sender
     // sends Ice messages in individual SSL records.
-    // 
+    //
 
     if(_state == StateProxyConnectRequestPending)
     {
@@ -558,17 +558,17 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
         assert(_fd != INVALID_SOCKET);
         size_t processed = 0;
         OSStatus err = SSLRead(_ssl, reinterpret_cast<void*>(buf.i), packetSize, &processed);
-        
+
         if(processed)
         {
             if(_instance->traceLevel() >= 3)
             {
                 Trace out(_instance->logger(), _instance->traceCategory());
-                out << "received " << processed << " of " << packetSize << " bytes via " << protocol() << "\n" 
+                out << "received " << processed << " of " << packetSize << " bytes via " << protocol() << "\n"
                     << toString();
             }
         }
-        
+
         if(err)
         {
             if(err == errSSLWouldBlock)
@@ -577,7 +577,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
                 assert(_flags & SSLWantRead);
                 return IceInternal::SocketOperationRead;
             }
-            
+
             if(err == errSSLClosedGraceful || err == errSSLPeerBadRecordMac || err == errSSLPeerDecryptionFail)
             {
                 //
@@ -587,7 +587,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
                 //
                 throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
-            
+
             //
             // SSL protocol errors are defined in SecureTransport.h are in the range
             // -9800 to -9849
@@ -596,7 +596,7 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, bool&)
             {
                 throw ProtocolException(__FILE__, __LINE__, "IceSSL: error during read:\n" + errorToString(err));
             }
-            
+
             errno = err;
             if(IceInternal::connectionLost())
             {
@@ -646,13 +646,15 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const IceInternal::NetworkProxyPtr& proxy,
-                                   const string& host, const IceInternal::Address& addr) :
+                                   const string& host, const IceInternal::Address& addr,
+                                   const IceInternal::Address& sourceAddr) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
     _engine(SecureTransportEnginePtr::dynamicCast(instance->engine())),
     _proxy(proxy),
     _host(host),
     _addr(addr),
+    _sourceAddr(sourceAddr),
     _incoming(false),
     _ssl(0),
     _trust(0),
@@ -662,9 +664,9 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     assert(_engine);
     IceInternal::setBlock(fd, false);
     IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
-    
+
     IceInternal::Address connectAddr = proxy ? proxy->getAddress() : addr;
-    if(IceInternal::doConnect(_fd, connectAddr))
+    if(IceInternal::doConnect(_fd, connectAddr, _sourceAddr))
     {
         _state = StateConnected;
         _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
@@ -678,7 +680,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     {
         _desc = IceInternal::fdToString(_fd, _proxy, _addr, true);
     }
-    
+
     //
     // Limit the size of packets passed to SSLWrite/SSLRead to avoid
     // blocking and holding too much memory.
@@ -692,6 +694,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     _instance(instance),
     _engine(SecureTransportEnginePtr::dynamicCast(instance->engine())),
     _addr(IceInternal::Address()),
+    _sourceAddr(IceInternal::getInvalidAddress()),
     _adapterName(adapterName),
     _incoming(true),
     _ssl(0),
@@ -703,7 +706,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     assert(_engine);
     IceInternal::setBlock(fd, false);
     IceInternal::setTcpBufSize(fd, _instance->properties(), _instance->logger());
-    
+
     //
     // Limit the size of packets passed to SSLWrite/SSLRead to avoid
     // blocking and holding too much memory.
@@ -729,12 +732,12 @@ IceSSL::TransceiverI::getNativeConnectionInfo() const
         {
             SecCertificateRef cert = SecTrustGetCertificateAtIndex(_trust, i);
             CFRetain(cert);
-            
+
             CertificatePtr certificate = new Certificate(cert);
             info->nativeCerts.push_back(certificate);
             info->certs.push_back(certificate->encode());
         }
-        
+
         SSLCipherSuite cipher;
         SSLGetNegotiatedCipher(_ssl, &cipher);
         info->cipher = _engine->getCipherName(cipher);
@@ -868,13 +871,13 @@ OSStatus
 IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
 {
     _flags &= ~SSLWantWrite;
-    
+
     assert(_fd != INVALID_SOCKET);
-    
+
     char* i = const_cast<char*>(data);
     int packetSize = *length;
     char* end = i + packetSize;
-    
+
     while(i != end)
     {
         ssize_t ret = ::send(_fd, const_cast<const char*>(i), packetSize, 0);
@@ -882,7 +885,7 @@ IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
         {
             return errSSLClosedGraceful;
         }
-        
+
         if(ret == SOCKET_ERROR)
         {
             if(IceInternal::interrupted())
@@ -895,7 +898,7 @@ IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
                 packetSize /= 2;
                 continue;
             }
-            
+
             if(IceInternal::wouldBlock())
             {
                 *length = i - data;
@@ -904,7 +907,7 @@ IceSSL::TransceiverI::writeRaw(const char* data, size_t* length) const
             }
             return errno;
         }
-        
+
         i += ret;
 
         if(packetSize > end - i)
@@ -933,7 +936,7 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
         {
             return errSSLClosedGraceful;
         }
-        
+
         if(ret == SOCKET_ERROR)
         {
             if(IceInternal::interrupted())
@@ -946,7 +949,7 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
                 packetSize /= 2;
                 continue;
             }
-            
+
             if(IceInternal::wouldBlock())
             {
                 *length = i - data;
@@ -955,14 +958,14 @@ IceSSL::TransceiverI::readRaw(char* data, size_t* length) const
             }
             return errno;
         }
-        
+
         i += ret;
         if(packetSize > end - i)
         {
             packetSize = end - i;
         }
     }
-    
+
     *length = i - data;
     return noErr;
 }

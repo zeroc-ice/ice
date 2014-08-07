@@ -37,7 +37,7 @@ public:
 #ifdef ICE_USE_IOCP
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
-    
+
     virtual SocketOperation initialize(Buffer&, Buffer&, bool&);
     virtual SocketOperation closing(bool, const Ice::LocalException&);
     virtual void close();
@@ -56,7 +56,7 @@ public:
 
 private:
 
-    TcpTransceiver(const ProtocolInstancePtr&, SOCKET, const NetworkProxyPtr&, const Address&);
+    TcpTransceiver(const ProtocolInstancePtr&, SOCKET, const NetworkProxyPtr&, const Address&, const Address&);
     TcpTransceiver(const ProtocolInstancePtr&, SOCKET);
     virtual ~TcpTransceiver();
 
@@ -68,7 +68,8 @@ private:
     const ProtocolInstancePtr _instance;
     const NetworkProxyPtr _proxy;
     const Address _addr;
-    
+    const Address _sourceAddr;
+
     State _state;
     std::string _desc;
 

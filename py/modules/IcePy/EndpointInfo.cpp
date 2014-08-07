@@ -154,6 +154,17 @@ ipEndpointInfoGetHost(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
+ipEndpointInfoGetSourceAddress(EndpointInfoObject* self)
+{
+    Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return createString(info->sourceAddress);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 ipEndpointInfoGetPort(EndpointInfoObject* self)
 {
     Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
@@ -237,6 +248,8 @@ static PyGetSetDef IPEndpointInfoGetters[] =
         PyDoc_STR(STRCAST("host name or IP address")), 0 },
     { STRCAST("port"), reinterpret_cast<getter>(ipEndpointInfoGetPort), 0,
         PyDoc_STR(STRCAST("TCP port number")), 0 },
+    { STRCAST("sourceAddress"), reinterpret_cast<getter>(ipEndpointInfoGetSourceAddress), 0,
+        PyDoc_STR(STRCAST("source IP address")), 0 },
     { 0, 0 } /* sentinel */
 };
 

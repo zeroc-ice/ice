@@ -31,24 +31,24 @@ namespace
 template<class T> class InfoI : public T
 {
 public:
-    
+
     InfoI(Ice::Short type, Ice::Int to, bool comp, const string& host, Ice::Int port) :
-        T(to, comp, host, port), _type(type)
+        T(to, comp, host, port, ""), _type(type)
     {
     }
-    
+
     virtual Ice::Short
     type() const
     {
         return _type;
     }
-    
+
     virtual bool
     datagram() const
     {
         return false;
     }
-    
+
     virtual bool
     secure() const
     {
@@ -56,7 +56,7 @@ public:
     }
 
 private:
-    
+
     Ice::Short _type;
 };
 
@@ -64,7 +64,7 @@ private:
 
 IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, Int ti,
                                               const string& conId, bool co) :
-    IPEndpointI(instance, ho, po, conId),
+    IPEndpointI(instance, ho, po, getInvalidAddress(), conId),
     _timeout(ti),
     _compress(co)
 {
@@ -341,14 +341,14 @@ IceInternal::StreamEndpointI::checkOption(const string& option, const string& ar
     }
 }
 
-ConnectorPtr 
+ConnectorPtr
 IceInternal::StreamEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
 {
     // TODO: Add support for network proxies?
     return new StreamConnector(_instance, address, _timeout, _connectionId);
 }
 
-IPEndpointIPtr 
+IPEndpointIPtr
 IceInternal::StreamEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
     return new StreamEndpointI(_instance, host, port, _timeout, connectionId, _compress);
@@ -394,7 +394,7 @@ IceInternal::StreamEndpointFactory::destroy()
     _instance = 0;
 }
 
-EndpointFactoryPtr 
+EndpointFactoryPtr
 IceInternal::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new StreamEndpointFactory(instance);

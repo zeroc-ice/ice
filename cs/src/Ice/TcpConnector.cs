@@ -40,7 +40,7 @@ namespace IceInternal
                 //
                 // Nonblocking connect is handled by the transceiver.
                 //
-                return new TcpTransceiver(_instance, fd, _addr, _proxy, false);
+                return new TcpTransceiver(_instance, fd, _addr, _proxy, _sourceAddr, false);
             }
             catch(Ice.LocalException ex)
             {
@@ -62,17 +62,22 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(ProtocolInstance instance, EndPoint addr, NetworkProxy proxy, int timeout,
-                              string connectionId)
+        internal TcpConnector(ProtocolInstance instance, EndPoint addr, NetworkProxy proxy, EndPoint sourceAddr,
+                              int timeout, string connectionId)
         {
             _instance = instance;
             _addr = addr;
             _proxy = proxy;
+            _sourceAddr = sourceAddr;
             _timeout = timeout;
             _connectionId = connectionId;
 
             _hashCode = 5381;
             IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
+            if(_sourceAddr != null)
+            {
+                IceInternal.HashUtil.hashAdd(ref _hashCode, _sourceAddr);
+            }
             IceInternal.HashUtil.hashAdd(ref _hashCode, _timeout);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
@@ -91,6 +96,11 @@ namespace IceInternal
 
             TcpConnector p = (TcpConnector)obj;
             if(_timeout != p._timeout)
+            {
+                return false;
+            }
+
+            if(!Network.addressEquals(_sourceAddr, p._sourceAddr))
             {
                 return false;
             }
@@ -116,6 +126,7 @@ namespace IceInternal
         private ProtocolInstance _instance;
         private EndPoint _addr;
         private NetworkProxy _proxy;
+        private EndPoint _sourceAddr;
         private int _timeout;
         private string _connectionId;
         private int _hashCode;

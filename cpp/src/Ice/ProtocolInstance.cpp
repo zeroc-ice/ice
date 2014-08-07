@@ -53,13 +53,19 @@ IceInternal::ProtocolInstance::protocolSupport() const
 {
     return _instance->protocolSupport();
 }
- 
-const string& 
+
+const string&
 IceInternal::ProtocolInstance::defaultHost() const
 {
     return _instance->defaultsAndOverrides()->defaultHost;
 }
-    
+
+const Address&
+IceInternal::ProtocolInstance::defaultSourceAddress() const
+{
+    return _instance->defaultsAndOverrides()->defaultSourceAddress;
+}
+
 const EncodingVersion&
 IceInternal::ProtocolInstance::defaultEncoding() const
 {
@@ -78,15 +84,15 @@ IceInternal::ProtocolInstance::messageSizeMax() const
     return _instance->messageSizeMax();
 }
 
-vector<ConnectorPtr> 
+vector<ConnectorPtr>
 IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSelectionType type,
                                        const IPEndpointIPtr& endpt) const
 {
     return _instance->endpointHostResolver()->resolve(host, port, type, endpt);
 }
 
-void 
-IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSelectionType type, 
+void
+IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSelectionType type,
                                        const IPEndpointIPtr& endpt, const EndpointI_connectorsPtr& cb) const
 {
     _instance->endpointHostResolver()->resolve(host, port, type, endpt, cb);

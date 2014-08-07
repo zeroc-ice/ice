@@ -750,10 +750,10 @@ namespace IceInternal
 #endif
 
 #if !SILVERLIGHT
-        public static bool doConnect(Socket fd, EndPoint addr)
+        public static bool doConnect(Socket fd, EndPoint addr, EndPoint sourceAddr)
         {
-        repeatConnect:
-            try
+            EndPoint bindAddr = sourceAddr;
+            if(bindAddr == null)
             {
                 //
                 // Even though we are on the client side, the call to Bind()
@@ -762,7 +762,13 @@ namespace IceInternal
                 // properties are null. The call to Bind() fixes this.
                 //
                 IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-                fd.Bind(new IPEndPoint(any, 0));
+                bindAddr = new IPEndPoint(any, 0);
+            }
+            doBind(fd, bindAddr);
+
+        repeatConnect:
+            try
+            {
                 IAsyncResult result = fd.BeginConnect(addr, null, null);
                 if(!result.CompletedSynchronously)
                 {
@@ -810,15 +816,15 @@ namespace IceInternal
             return true;
         }
 
-        public static IAsyncResult doConnectAsync(Socket fd, EndPoint addr, AsyncCallback callback, object state)
+        public static IAsyncResult doConnectAsync(Socket fd, EndPoint addr, EndPoint sourceAddr, AsyncCallback callback,
+                                                  object state)
         {
             //
             // NOTE: It's the caller's responsability to close the socket upon
             // failure to connect. The socket isn't closed by this method.
             //
-
-        repeatConnect:
-            try
+            EndPoint bindAddr = sourceAddr;
+            if(bindAddr == null)
             {
                 //
                 // Even though we are on the client side, the call to Bind()
@@ -827,7 +833,13 @@ namespace IceInternal
                 // properties are null. The call to Bind() fixes this.
                 //
                 IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-                fd.Bind(new IPEndPoint(any, 0));
+                bindAddr = new IPEndPoint(any, 0);
+            }
+            fd.Bind(bindAddr);
+
+        repeatConnect:
+            try
+            {
                 return fd.BeginConnect(addr,
                                        delegate(IAsyncResult result)
                                        {
@@ -1330,7 +1342,7 @@ namespace IceInternal
             // just return it. If it's an IP addess we search for an
             // interface which has this IP address. If it's a name we
             // search an interface with this name.
-            // 
+            //
             try
             {
                 return System.Int32.Parse(iface, CultureInfo.InvariantCulture);
@@ -1401,6 +1413,44 @@ namespace IceInternal
             }
 #endif
             return -1;
+        }
+
+        public static EndPoint
+        getNumericAddress(string sourceAddress)
+        {
+            EndPoint addr = null;
+            if(!String.IsNullOrEmpty(sourceAddress))
+            {
+                List<EndPoint> addrs = getAddresses(sourceAddress, 0, Network.EnableBoth,
+                                                    Ice.EndpointSelectionType.Ordered, false, false);
+                if(addrs.Count != 0)
+                {
+                    return addrs[0];
+                }
+            }
+            return addr;
+        }
+
+        public static bool
+        addressEquals(EndPoint addr1, EndPoint addr2)
+        {
+            if(addr1 == null)
+            {
+                if(addr2 == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if(addr2 == null)
+            {
+                return false;
+            }
+
+            return addr1.Equals(addr2);
         }
 
         public static string

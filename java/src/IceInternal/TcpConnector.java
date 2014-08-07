@@ -25,7 +25,7 @@ final class TcpConnector implements Connector
             Network.setBlock(fd, false);
             Network.setTcpBufSize(fd, _instance.properties(), _instance.logger());
             final java.net.InetSocketAddress addr = _proxy != null ? _proxy.getAddress() : _addr;
-            Network.doConnect(fd, addr);
+            Network.doConnect(fd, addr, _sourceAddr);
             return new TcpTransceiver(_instance, fd, _proxy, _addr);
         }
         catch(Ice.LocalException ex)
@@ -57,18 +57,23 @@ final class TcpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    TcpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, NetworkProxy proxy, int timeout,
-                 String connectionId)
+    TcpConnector(ProtocolInstance instance, java.net.InetSocketAddress addr, NetworkProxy proxy,
+                 java.net.InetSocketAddress sourceAddr, int timeout, String connectionId)
     {
         _instance = instance;
         _addr = addr;
         _proxy = proxy;
+        _sourceAddr = sourceAddr;
         _timeout = timeout;
         _connectionId = connectionId;
 
         _hashCode = 5381;
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getPort());
+        if(_sourceAddr != null)
+        {
+            _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _sourceAddr.getAddress().getHostAddress());
+        }
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _timeout);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
@@ -96,12 +101,18 @@ final class TcpConnector implements Connector
             return false;
         }
 
+        if(Network.compareAddress(_sourceAddr, p._sourceAddr) != 0)
+        {
+            return false;
+        }
+
         return Network.compareAddress(_addr, p._addr) == 0;
-    } 
+    }
 
     private ProtocolInstance _instance;
     private java.net.InetSocketAddress _addr;
     private NetworkProxy _proxy;
+    private java.net.InetSocketAddress _sourceAddr;
     private int _timeout;
     private String _connectionId = "";
     private int _hashCode;

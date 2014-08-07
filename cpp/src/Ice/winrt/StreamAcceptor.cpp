@@ -55,7 +55,7 @@ IceInternal::StreamAcceptor::close()
         assert(_accepted.empty());
         _completedHandler(SocketOperationRead);
         _acceptPending = false;
-    } 
+    }
     else if(!_accepted.empty())
     {
         for(deque<StreamSocket^>::const_iterator p = _accepted.begin(); p != _accepted.end(); ++p)
@@ -78,7 +78,7 @@ IceInternal::StreamAcceptor::listen()
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "accepting " << _instance->protocol() << " connections at " << toString();
 
-        vector<string> interfaces = 
+        vector<string> interfaces =
             getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
         if(!interfaces.empty())
         {
@@ -131,7 +131,7 @@ IceInternal::StreamAcceptor::accept()
         assert(_accepted.empty());
         throw SocketException(__FILE__, __LINE__);
     }
-    
+
     StreamSocket^ fd;
     {
         IceUtil::Mutex::Lock lock(_mutex);
@@ -173,13 +173,13 @@ IceInternal::StreamAcceptor::StreamAcceptor(const ProtocolInstancePtr& instance,
 {
     _fd = ref new StreamSocketListener();
 
-    safe_cast<StreamSocketListener^>(_fd)->ConnectionReceived += 
+    safe_cast<StreamSocketListener^>(_fd)->ConnectionReceived +=
         ref new TypedEventHandler<StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^>(
             [=](StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^ args)
                 {
                     queueAcceptedSocket(args->Socket);
                 });
-    
+
     if(_instance->traceLevel() >= 2)
     {
         Trace out(_instance->logger(), _instance->traceCategory());
@@ -210,7 +210,7 @@ IceInternal::StreamAcceptor::queueAcceptedSocket(StreamSocket^ socket)
     // in turn caused finishAccept() and accept() to be called by the
     // thread pool. If the acceptor isn't ready to accept the socket,
     // it is just queued, when startAccept is called it will be dequed.
-    //  
+    //
     if(_acceptPending)
     {
         _completedHandler(SocketOperationRead);

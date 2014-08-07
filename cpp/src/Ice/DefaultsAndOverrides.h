@@ -17,6 +17,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointTypes.h>
 #include <Ice/Format.h>
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
@@ -28,6 +29,7 @@ public:
     DefaultsAndOverrides(const ::Ice::PropertiesPtr&);
 
     std::string defaultHost;
+    Address defaultSourceAddress;
     std::string defaultProtocol;
     bool defaultCollocationOptimization;
     Ice::EndpointSelectionType defaultEndpointSelection;

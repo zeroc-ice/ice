@@ -11,9 +11,10 @@ package IceSSL;
 
 final class EndpointI extends IceInternal.IPEndpointI
 {
-    public EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co)
+    public EndpointI(Instance instance, String ho, int po, java.net.InetSocketAddress sourceAddr, int ti, String conId,
+                     boolean co)
     {
-        super(instance, ho, po, conId);
+        super(instance, ho, po, sourceAddr, conId);
         _instance = instance;
         _timeout = ti;
         _compress = co;
@@ -46,12 +47,12 @@ final class EndpointI extends IceInternal.IPEndpointI
                 {
                     return EndpointI.this.type();
                 }
-                
+
                 public boolean datagram()
                 {
                     return EndpointI.this.datagram();
                 }
-                
+
                 public boolean secure()
                 {
                     return EndpointI.this.secure();
@@ -84,7 +85,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
+            return new EndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
         }
     }
 
@@ -110,7 +111,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
+            return new EndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
         }
     }
 
@@ -153,7 +154,8 @@ final class EndpointI extends IceInternal.IPEndpointI
     public IceInternal.Acceptor acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
         AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
-        endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
+        endpoint.value =
+            new EndpointI(_instance, _host, p.effectivePort(), _sourceAddr, _timeout, _connectionId, _compress);
         return p;
     }
 
@@ -294,12 +296,12 @@ final class EndpointI extends IceInternal.IPEndpointI
 
     protected IceInternal.Connector createConnector(java.net.InetSocketAddress addr, IceInternal.NetworkProxy proxy)
     {
-        return new ConnectorI(_instance, _host, addr, proxy, _timeout, _connectionId);
+        return new ConnectorI(_instance, _host, addr, proxy, _sourceAddr, _timeout, _connectionId);
     }
 
     protected IceInternal.IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
-        return new EndpointI(_instance, host, port, _timeout, connectionId, _compress);
+        return new EndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
     }
 
     private Instance _instance;

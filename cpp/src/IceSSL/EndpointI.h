@@ -23,7 +23,8 @@ class EndpointI : public IceInternal::IPEndpointI
 {
 public:
 
-    EndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
+    EndpointI(const InstancePtr&, const std::string&, Ice::Int, const IceInternal::Address&, Ice::Int,
+              const std::string&, bool);
     EndpointI(const InstancePtr&);
     EndpointI(const InstancePtr&, IceInternal::BasicStream*);
 
@@ -52,7 +53,7 @@ protected:
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
     virtual bool checkOption(const std::string&, const std::string&, const std::string&);
 
-    virtual IceInternal::ConnectorPtr createConnector(const IceInternal::Address&, 
+    virtual IceInternal::ConnectorPtr createConnector(const IceInternal::Address&,
                                                       const IceInternal::NetworkProxyPtr&) const;
     virtual IceInternal::IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const;
 

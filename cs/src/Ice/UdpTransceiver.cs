@@ -40,6 +40,10 @@ namespace IceInternal
 #if ICE_SOCKET_ASYNC_API && !SILVERLIGHT
                 try
                 {
+                    if(_sourceAddr != null)
+                    {
+                        _fd.Bind(_sourceAddr);
+                    }
                     _fd.Connect(_addr);
                 }
                 catch(SocketException ex)
@@ -129,7 +133,7 @@ namespace IceInternal
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs.Dispose();
             _writeEventArgs.Dispose();
-#endif            
+#endif
         }
 
         public int write(Buffer buf)
@@ -141,7 +145,7 @@ namespace IceInternal
 #if COMPACT || SILVERLIGHT
             if(_writeResult != null)
             {
-                return SocketOperation.None;    
+                return SocketOperation.None;
             }
             //
             // Silverlight and the Compact .NET Framework don't support the use of synchronous socket
@@ -314,7 +318,7 @@ namespace IceInternal
                 //
                 // If we must connect, then we connect to the first peer that sends us a packet.
                 //
-                bool connected = Network.doConnect(_fd, _peerAddr);
+                bool connected = Network.doConnect(_fd, _peerAddr, null);
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
@@ -499,7 +503,7 @@ namespace IceInternal
 #if ICE_SOCKET_ASYNC_API
                 bool connected = !_fd.ConnectAsync(_readEventArgs);
 #else
-                bool connected = Network.doConnect(_fd, _peerAddr);
+                bool connected = Network.doConnect(_fd, _peerAddr, null);
 #endif
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
@@ -528,10 +532,14 @@ namespace IceInternal
                 Debug.Assert(_addr != null);
                 completed = false;
 #if ICE_SOCKET_ASYNC_API
+                if(_sourceAddr != null)
+                {
+                    _fd.Bind(_sourceAddr);
+                }
                 _writeEventArgs.UserToken = state;
                 return !_fd.ConnectAsync(_writeEventArgs);
 #else
-                _writeResult = Network.doConnectAsync(_fd, _addr, callback, state);
+                _writeResult = Network.doConnectAsync(_fd, _addr, _sourceAddr, callback, state);
                 return _writeResult.CompletedSynchronously;
 #endif
             }
@@ -776,10 +784,12 @@ namespace IceInternal
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, string mcastInterface, int mcastTtl)
+        internal UdpTransceiver(ProtocolInstance instance, EndPoint addr, EndPoint sourceAddr, string mcastInterface,
+                                int mcastTtl)
         {
             _instance = instance;
             _addr = addr;
+            _sourceAddr = sourceAddr;
 
 #if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
@@ -842,7 +852,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(ProtocolInstance instance, string host, int port, string mcastInterface, bool connect)
+        internal UdpTransceiver(ProtocolInstance instance, string host, int port, string iface, bool connect)
         {
             _instance = instance;
             _state = connect ? StateNeedConnect : StateNotConnected;
@@ -902,7 +912,7 @@ namespace IceInternal
                     {
                         _mcastAddr.Port = ((IPEndPoint)_addr).Port;
                     }
-                    Network.setMcastGroup(_fd, _mcastAddr.Address, mcastInterface);
+                    Network.setMcastGroup(_fd, _mcastAddr.Address, iface);
                 }
                 else
                 {
@@ -1068,6 +1078,7 @@ namespace IceInternal
         private int _sndSize;
         private Socket _fd;
         private EndPoint _addr;
+        private EndPoint _sourceAddr;
 #if !SILVERLIGHT
         private IPEndPoint _mcastAddr = null;
 #endif

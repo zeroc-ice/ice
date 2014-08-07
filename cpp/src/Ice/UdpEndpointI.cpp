@@ -22,11 +22,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, 
-                                        const string& mif, Int mttl, bool conn, const string& conId, bool co) :
-    IPEndpointI(instance, ho, po, conId),
-    _mcastInterface(mif),
+IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
+                                        const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
+                                        const string& conId, bool co) :
+    IPEndpointI(instance, host, port, sourceAddr, conId),
     _mcastTtl(mttl),
+    _mcastInterface(mcastInterface),
     _connect(conn),
     _compress(co)
 {
@@ -65,7 +66,7 @@ IceInternal::UdpEndpointI::getInfo() const
     class InfoI : public Ice::UDPEndpointInfo
     {
     public:
-        
+
         InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
         {
         }
@@ -75,13 +76,13 @@ IceInternal::UdpEndpointI::getInfo() const
         {
             return _endpoint->type();
         }
-        
+
         virtual bool
         datagram() const
         {
             return _endpoint->datagram();
         }
-        
+
         virtual bool
         secure() const
         {
@@ -89,7 +90,7 @@ IceInternal::UdpEndpointI::getInfo() const
         }
 
     private:
-        
+
         const EndpointIPtr _endpoint;
     };
 
@@ -125,7 +126,8 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId, compress);
+        return new UdpEndpointI(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
+                                _connectionId, compress);
     }
 }
 
@@ -325,8 +327,8 @@ IceInternal::UdpEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
     {
         udpInfo->timeout = -1;
         udpInfo->compress = _compress;
-        udpInfo->mcastInterface = _mcastInterface;
         udpInfo->mcastTtl = _mcastTtl;
+        udpInfo->mcastInterface = _mcastInterface;
     }
 }
 
@@ -415,16 +417,17 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     return true;
 }
 
-ConnectorPtr 
+ConnectorPtr
 IceInternal::UdpEndpointI::createConnector(const Address& address, const NetworkProxyPtr&) const
 {
-    return new UdpConnector(_instance, address, _mcastInterface, _mcastTtl, _connectionId);
+    return new UdpConnector(_instance, address, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
 }
 
-IPEndpointIPtr 
+IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return new UdpEndpointI(_instance, host, port, _mcastInterface, _mcastTtl, _connect, connectionId, _compress);
+    return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect, connectionId,
+                            _compress);
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance)
@@ -467,7 +470,7 @@ IceInternal::UdpEndpointFactory::destroy()
     _instance = 0;
 }
 
-EndpointFactoryPtr 
+EndpointFactoryPtr
 IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new UdpEndpointFactory(instance);

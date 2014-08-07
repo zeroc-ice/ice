@@ -17,8 +17,8 @@ namespace IceSSL
 
     sealed class EndpointI : IceInternal.IPEndpointI
     {
-        internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co) :
-            base(instance, ho, po, conId)
+        internal EndpointI(Instance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId, bool co) :
+            base(instance, ho, po, sourceAddr, conId)
         {
             _instance = instance;
             _timeout = ti;
@@ -98,7 +98,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(_instance, host_, port_, timeout, connectionId_, _compress);
+                return new EndpointI(_instance, host_, port_, sourceAddr_, timeout, connectionId_, _compress);
             }
         }
 
@@ -124,7 +124,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(_instance, host_, port_, _timeout, connectionId_, compress);
+                return new EndpointI(_instance, host_, port_, sourceAddr_, _timeout, connectionId_, compress);
             }
         }
 
@@ -167,7 +167,8 @@ namespace IceSSL
         public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
         {
             AcceptorI p = new AcceptorI(_instance, adapterName, host_, port_);
-            endpoint = new EndpointI(_instance, host_, p.effectivePort(), _timeout, connectionId_, _compress);
+            endpoint =
+                new EndpointI(_instance, host_, p.effectivePort(), sourceAddr_, _timeout, connectionId_, _compress);
             return p;
         }
 
@@ -311,12 +312,12 @@ namespace IceSSL
 
         protected override IceInternal.Connector createConnector(EndPoint addr, IceInternal.NetworkProxy proxy)
         {
-            return new ConnectorI(_instance, host_, addr, proxy, _timeout, connectionId_);
+            return new ConnectorI(_instance, host_, addr, proxy, sourceAddr_, _timeout, connectionId_);
         }
 
         protected override IceInternal.IPEndpointI createEndpoint(string host, int port, string connectionId)
         {
-            return new EndpointI(_instance, host, port, _timeout, connectionId, _compress);
+            return new EndpointI(_instance, host, port, sourceAddr_, _timeout, connectionId, _compress);
         }
 
         private Instance _instance;

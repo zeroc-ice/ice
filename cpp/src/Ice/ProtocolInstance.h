@@ -25,9 +25,9 @@ namespace IceInternal
 class ICE_API ProtocolInstance : public IceUtil::Shared
 {
 public:
-    
+
     ProtocolInstance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&);
-    
+
     int traceLevel() const
     {
         return _traceLevel;
@@ -61,12 +61,13 @@ public:
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;
+    const Address& defaultSourceAddress() const;
     const Ice::EncodingVersion& defaultEncoding() const;
     NetworkProxyPtr networkProxy() const;
     size_t messageSizeMax() const;
-    
+
     std::vector<ConnectorPtr> resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&) const;
-    void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&, 
+    void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,
                  const EndpointI_connectorsPtr&) const;
 
 private:

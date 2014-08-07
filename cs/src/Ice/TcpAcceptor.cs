@@ -110,7 +110,7 @@ namespace IceInternal
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TcpTransceiver(_instance, acceptFd, null, null, true);
+            return new TcpTransceiver(_instance, acceptFd, null, null, null, true);
         }
 
         public string protocol()

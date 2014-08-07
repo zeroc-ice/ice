@@ -22,7 +22,8 @@ class TcpEndpointI : public IPEndpointI
 {
 public:
 
-    TcpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
+    TcpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, const Address&, Ice::Int, const std::string&,
+                 bool);
     TcpEndpointI(const ProtocolInstancePtr&);
     TcpEndpointI(const ProtocolInstancePtr&, BasicStream*);
 
@@ -84,7 +85,7 @@ private:
 
     ProtocolInstancePtr _instance;
 };
-    
+
 }
 
 #endif

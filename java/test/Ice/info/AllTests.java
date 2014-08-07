@@ -31,10 +31,11 @@ public class AllTests
         out.print("testing proxy endpoint information... ");
         out.flush();
         {
-            Ice.ObjectPrx p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" +
-                                                          "udp -h udphost -p 10001 --interface eth0 --ttl 5:" +
-                                                          "opaque -e 1.8 -t 100 -v ABCD");
-            
+            Ice.ObjectPrx p1 = communicator.stringToProxy(
+                                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
+                                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
+                                "opaque -e 1.8 -t 100 -v ABCD");
+
             Ice.Endpoint[] endps = p1.ice_getEndpoints();
 
 
@@ -42,6 +43,7 @@ public class AllTests
             test(ipEndpoint.host.equals("tcphost"));
             test(ipEndpoint.port == 10000);
             test(ipEndpoint.timeout == 1200);
+            test(ipEndpoint.sourceAddress.equals("10.10.10.10"));
             test(ipEndpoint.compress);
             test(!ipEndpoint.datagram());
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
@@ -52,18 +54,19 @@ public class AllTests
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint instanceof IceSSL.EndpointInfo ||
                  ipEndpoint.type() == IceWS.WSEndpointType.value && ipEndpoint instanceof IceWS.EndpointInfo ||
                  ipEndpoint.type() == IceWS.WSSEndpointType.value && ipEndpoint instanceof IceWS.EndpointInfo);
-        
+
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.equals("udphost"));
             test(udpEndpoint.port == 10001);
             test(udpEndpoint.mcastInterface.equals("eth0"));
             test(udpEndpoint.mcastTtl == 5);
+            test(udpEndpoint.sourceAddress.equals("10.10.10.10"));
             test(udpEndpoint.timeout == -1);
             test(!udpEndpoint.compress);
             test(!udpEndpoint.secure());
             test(udpEndpoint.datagram());
             test(udpEndpoint.type() == Ice.UDPEndpointType.value);
-        
+
             Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
             test(opaqueEndpoint.rawEncoding.equals(new Ice.EncodingVersion((byte)1, (byte)8)));
         }
@@ -103,13 +106,13 @@ public class AllTests
             test(endpoints.length >= 1);
             publishedEndpoints = adapter.getPublishedEndpoints();
             test(publishedEndpoints.length == 1);
-        
+
             for(Ice.Endpoint endpoint : endpoints)
             {
                 ipEndpoint = (Ice.IPEndpointInfo)endpoint.getInfo();
                 test(ipEndpoint.port == 12020);
             }
-        
+
             ipEndpoint = (Ice.IPEndpointInfo)publishedEndpoints[0].getInfo();
             test(ipEndpoint.host.equals("127.0.0.1"));
             test(ipEndpoint.port == 12020);
@@ -153,7 +156,7 @@ public class AllTests
             test(info.remotePort == 12010);
             test(info.remoteAddress.equals(defaultHost));
             test(info.localAddress.equals(defaultHost));
-        
+
             java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
             test(ctx.get("adapterName").equals("TestAdapter"));

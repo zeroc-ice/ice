@@ -87,15 +87,16 @@ protected:
     virtual ConnectorPtr createConnector(const Address& address, const NetworkProxyPtr&) const = 0;
     virtual IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const = 0;
 
-    IPEndpointI(const ProtocolInstancePtr&, const std::string&, int, const std::string&);
+    IPEndpointI(const ProtocolInstancePtr&, const std::string&, int, const Address&, const std::string&);
     IPEndpointI(const ProtocolInstancePtr&);
     IPEndpointI(const ProtocolInstancePtr&, BasicStream*);
 
     const ProtocolInstancePtr _instance;
     const std::string _host;
     const int _port;
+    const Address _sourceAddr;
     const std::string _connectionId;
-    
+
 private:
 
     mutable bool _hashInitialized;

@@ -17,8 +17,9 @@ namespace IceInternal
 
     sealed class TcpEndpointI : IPEndpointI
     {
-        public TcpEndpointI(ProtocolInstance instance, string ho, int po, int ti, string conId, bool co) :
-            base(instance, ho, po, conId)
+        public TcpEndpointI(ProtocolInstance instance, string ho, int po, EndPoint sourceAddr, int ti, string conId,
+                            bool co) :
+            base(instance, ho, po, sourceAddr, conId)
         {
             _timeout = ti;
             _compress = co;
@@ -83,7 +84,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, host_, port_, timeout, connectionId_, _compress);
+                return new TcpEndpointI(instance_, host_, port_, sourceAddr_, timeout, connectionId_, _compress);
             }
         }
 
@@ -100,7 +101,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, host_, port_, _timeout, connectionId_, compress);
+                return new TcpEndpointI(instance_, host_, port_, sourceAddr_, _timeout, connectionId_, compress);
             }
         }
 
@@ -267,12 +268,12 @@ namespace IceInternal
 
         protected override Connector createConnector(EndPoint addr, NetworkProxy proxy)
         {
-            return new TcpConnector(instance_, addr, proxy, _timeout, connectionId_);
+            return new TcpConnector(instance_, addr, proxy, sourceAddr_, _timeout, connectionId_);
         }
 
         protected override IPEndpointI createEndpoint(string host, int port, string connectionId)
         {
-            return new TcpEndpointI(instance_, host, port, _timeout, connectionId, _compress);
+            return new TcpEndpointI(instance_, host, port, sourceAddr_, _timeout, connectionId, _compress);
         }
 
         private int _timeout;

@@ -9,7 +9,7 @@
 
 namespace IceInternal
 {
-
+    using System.Net;
     using System.Collections.Generic;
 
     public class ProtocolInstance
@@ -79,6 +79,11 @@ namespace IceInternal
         public string defaultHost()
         {
             return instance_.defaultsAndOverrides().defaultHost;
+        }
+
+        public EndPoint defaultSourceAddress()
+        {
+            return instance_.defaultsAndOverrides().defaultSourceAddress;
         }
 
         public Ice.EncodingVersion defaultEncoding()

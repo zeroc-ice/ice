@@ -16,6 +16,46 @@ public final class Network
     public final static int EnableIPv6 = 1;
     public final static int EnableBoth = 2;
 
+    private static java.util.regex.Pattern IPV4_PATTERN = null;
+    private static java.util.regex.Pattern IPV6_PATTERN = null;
+    private final static String ipv4Pattern =
+        "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
+    private final static String ipv6Pattern =
+        "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-" +
+        "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1" +
+        ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1," +
+        "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-" +
+        "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])" +
+        "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}" +
+        "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+
+    static
+    {
+        try
+        {
+            IPV4_PATTERN =
+                java.util.regex.Pattern.compile(ipv4Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+            IPV6_PATTERN =
+                java.util.regex.Pattern.compile(ipv6Pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+        }
+        catch (java.util.regex.PatternSyntaxException ex)
+        {
+            assert(false);
+        }
+    }
+
+    public static boolean
+    isNumericAddress(String ipAddress)
+    {
+        java.util.regex.Matcher ipv4 = IPV4_PATTERN.matcher(ipAddress);
+        if(ipv4.matches())
+        {
+            return true;
+        }
+        java.util.regex.Matcher ipv6 = IPV6_PATTERN.matcher(ipAddress);
+        return ipv6.matches();
+    }
+
     public static boolean
     connectionRefused(java.net.ConnectException ex)
     {
@@ -31,7 +71,7 @@ public final class Network
         if(msg != null)
         {
             msg = msg.toLowerCase();
-            
+
             final String[] msgs =
             {
                 "connection refused", // ECONNREFUSED
@@ -156,7 +196,7 @@ public final class Network
         }
         catch(java.lang.reflect.InvocationTargetException ex)
         {
-            throw new Ice.SocketException(ex);   
+            throw new Ice.SocketException(ex);
         }
         catch(NoSuchMethodException ex)
         {
@@ -305,8 +345,22 @@ public final class Network
     }
 
     public static boolean
-    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr)
+    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr,
+              java.net.InetSocketAddress sourceAddr)
     {
+        if(sourceAddr != null)
+        {
+            try
+            {
+                fd.bind(sourceAddr);
+            }
+            catch(java.io.IOException ex)
+            {
+                closeSocketNoThrow(fd);
+                throw new Ice.SocketException(ex);
+            }
+        }
+
         try
         {
             if(!fd.connect(addr))
@@ -368,7 +422,7 @@ public final class Network
             {
                 throw new Ice.ConnectFailedException();
             }
-            
+
             if(System.getProperty("os.name").equals("Linux"))
             {
                 //
@@ -401,8 +455,14 @@ public final class Network
     }
 
     public static void
-    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr)
+    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr,
+              java.net.InetSocketAddress sourceAddr)
     {
+        if(sourceAddr != null)
+        {
+            doBind(fd, sourceAddr);
+        }
+
         try
         {
             fd.connect(addr);
@@ -677,7 +737,7 @@ public final class Network
 
     public static java.net.InetSocketAddress
     getAddressForServer(String host, int port, int protocol, boolean preferIPv6)
-    {    
+    {
         if(host == null || host.length() == 0)
         {
             try
@@ -699,7 +759,7 @@ public final class Network
             catch(java.lang.SecurityException ex)
             {
                 throw new Ice.SocketException(ex);
-            } 
+            }
         }
         return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6).get(0);
     }
@@ -707,6 +767,22 @@ public final class Network
     public static int
     compareAddress(java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2)
     {
+        if(addr1 == null)
+        {
+            if(addr2 == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+        else if(addr2 == null)
+        {
+            return 1;
+        }
+
         if(addr1.getPort() < addr2.getPort())
         {
             return -1;
@@ -841,7 +917,7 @@ public final class Network
         {
             throw new Ice.SocketException(ex);
         }
-    
+
         //
         // No Inet4Address/Inet6Address available.
         //
@@ -938,7 +1014,7 @@ public final class Network
             for(java.net.InetAddress addr : addrs)
             {
                 //
-                // NOTE: We don't publish link-local IPv6 addresses as these addresses can only 
+                // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
                 // be accessed in general with a scope-id.
                 //
                 if(!addr.isLinkLocalAddress())
@@ -946,14 +1022,14 @@ public final class Network
                     hosts.add(addr.getHostAddress());
                 }
             }
-            
+
             if(includeLoopback || hosts.isEmpty())
             {
                 if(protocolSupport != EnableIPv6)
                 {
                     hosts.add("127.0.0.1");
                 }
-                
+
                 if(protocolSupport != EnableIPv4)
                 {
                     hosts.add("0:0:0:0:0:0:0:1");
@@ -962,7 +1038,7 @@ public final class Network
         }
         return hosts;
     }
-    
+
     public static void
     setTcpBufSize(java.nio.channels.SocketChannel socket, Ice.Properties properties, Ice.Logger logger)
     {
@@ -1203,7 +1279,7 @@ public final class Network
          {
              bytes = addr.getAddress();
          }
-         return bytes != null && 
+         return bytes != null &&
                ((bytes.length == 16 && protocol == EnableIPv6) ||
                 (bytes.length == 4 && protocol == EnableIPv4));
     }
@@ -1264,13 +1340,30 @@ public final class Network
         }
     }
 
+    public static java.net.InetSocketAddress
+    getNumericAddress(String address)
+    {
+        java.net.InetSocketAddress addr = null;
+        if(!address.isEmpty() && isNumericAddress(address))
+        {
+            try
+            {
+                addr = new java.net.InetSocketAddress(java.net.InetAddress.getByName(address), 0);
+            }
+            catch(java.net.UnknownHostException ex)
+            {
+            }
+        }
+        return addr;
+    }
+
     static class IPAddressComparator implements java.util.Comparator<java.net.InetSocketAddress>
     {
         IPAddressComparator(boolean ipv6)
         {
             _ipv6 = ipv6;
         }
-        
+
         public int
         compare(java.net.InetSocketAddress lhs, java.net.InetSocketAddress rhs)
         {

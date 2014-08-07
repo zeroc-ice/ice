@@ -113,18 +113,25 @@ local interface Endpoint
 local class IPEndpointInfo extends EndpointInfo
 {
     /**
-     * 
+     *
      * The host or address configured with the endpoint.
      *
      **/
     string host;
 
     /**
-     * 
+     *
      * The port number.
-     * 
+     *
      **/
     int port;
+
+    /**
+     *
+     * The source IP address.
+     *
+     */
+    string sourceAddress;
 };
 
 /**
@@ -148,11 +155,11 @@ local class TCPEndpointInfo extends IPEndpointInfo
 local class UDPEndpointInfo extends IPEndpointInfo
 {
     /**
-     * 
+     *
      * The multicast interface.
      *
      **/
-     string mcastInterface;
+    string mcastInterface;
 
     /**
      *
@@ -175,7 +182,7 @@ local class OpaqueEndpointInfo extends EndpointInfo
      *
      * The encoding version of the opaque endpoint (to decode or
      * encode the rawBytes).
-     * 
+     *
      **/
     Ice::EncodingVersion rawEncoding;
 

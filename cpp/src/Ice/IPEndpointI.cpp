@@ -74,7 +74,7 @@ IceInternal::IPEndpointInfoI::secure() const
     return _endpoint->secure();
 }
 
-Ice::EndpointInfoPtr 
+Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const
 {
     Ice::IPEndpointInfoPtr info = new IPEndpointInfoI(const_cast<IPEndpointI*>(this));
@@ -128,7 +128,7 @@ IceInternal::IPEndpointI::connectors(Ice::EndpointSelectionType selType) const
     return _instance->resolve(_host, _port, selType, const_cast<IPEndpointI*>(this));
 }
 
-const std::string& 
+const std::string&
 IceInternal::IPEndpointI::host() const
 {
     return _host;
@@ -219,6 +219,11 @@ IceInternal::IPEndpointI::options() const
 
     s << " -p " << _port;
 
+    if(isAddressValid(_sourceAddr))
+    {
+        s << " --sourceAddress " << inetAddrToString(_sourceAddr);
+    }
+
     return s.str();
 }
 
@@ -247,6 +252,11 @@ IceInternal::IPEndpointI::operator==(const LocalObject& r) const
     }
 
     if(_connectionId != p->_connectionId)
+    {
+        return false;
+    }
+
+    if(compareAddress(_sourceAddr, p->_sourceAddr) != 0)
     {
         return false;
     }
@@ -309,6 +319,16 @@ IceInternal::IPEndpointI::operator<(const LocalObject& r) const
         return false;
     }
 
+    int rc = compareAddress(_sourceAddr, p->_sourceAddr);
+    if(rc < 0)
+    {
+        return true;
+    }
+    else if(rc > 0)
+    {
+        return false;
+    }
+
     return false;
 }
 
@@ -336,6 +356,10 @@ IceInternal::IPEndpointI::hashInit(Ice::Int& h) const
     hashAdd(h, _host);
     hashAdd(h, _port);
     hashAdd(h, _connectionId);
+    if(isAddressValid(_sourceAddr))
+    {
+        hashAdd(h, inetAddrToString(_sourceAddr));
+    }
 }
 
 void
@@ -343,6 +367,7 @@ IceInternal::IPEndpointI::fillEndpointInfo(Ice::IPEndpointInfo* info) const
 {
     info->host = _host;
     info->port = _port;
+    info->sourceAddress = inetAddrToString(_sourceAddr);
 }
 
 void
@@ -367,14 +392,26 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
             throw ex;
         }
     }
+
+    if(isAddressValid(_sourceAddr))
+    {
+        if(oaEndpoint)
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "`--sourceAddress' not valid for object adapter endpoint `" + toString() + "'";
+            throw ex;
+        }
+    }
+    else if(!oaEndpoint)
+    {
+        const_cast<Address&>(_sourceAddr) = _instance->defaultSourceAddress();
+    }
 }
 
 bool
 IceInternal::IPEndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
-    switch(option[1])
-    {
-    case 'h':
+    if(option == "-h")
     {
         if(argument.empty())
         {
@@ -383,10 +420,8 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
             throw ex;
         }
         const_cast<string&>(_host) = argument;
-        return true;
     }
-
-    case 'p':
+    else if(option == "-p")
     {
         if(argument.empty())
         {
@@ -407,21 +442,38 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
             ex.str = "port value `" + argument + "' out of range in endpoint " + endpoint;
             throw ex;
         }
-        return true;
     }
-
-    default:
+    else if(option == "--sourceAddress")
+    {
+        if(argument.empty())
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for --sourceAddress option in endpoint " + endpoint;
+            throw ex;
+        }
+#ifndef ICE_OS_WINRT
+        const_cast<Address&>(_sourceAddr) = getNumericAddress(argument);
+        if(!isAddressValid(_sourceAddr))
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid IP address provided for --sourceAddress option in endpoint " + endpoint;
+            throw ex;
+        }
+#endif
+    }
+    else
     {
         return false;
     }
-    }
+    return true;
 }
 
-IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, const string& host, int port, 
-                                      const string& connectionId) :
+IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, const string& host, int port,
+                                      const Address& sourceAddr, const string& connectionId) :
     _instance(instance),
     _host(host),
     _port(port),
+    _sourceAddr(sourceAddr),
     _connectionId(connectionId),
     _hashInitialized(false)
 {
@@ -430,6 +482,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, const
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) :
     _instance(instance),
     _port(0),
+    _sourceAddr(getInvalidAddress()),
     _hashInitialized(false)
 {
 }
@@ -437,6 +490,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) :
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
     _instance(instance),
     _port(0),
+    _sourceAddr(getInvalidAddress()),
     _hashInitialized(false)
 {
     s->read(const_cast<string&>(_host), false);

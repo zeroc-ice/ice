@@ -18,11 +18,12 @@ namespace IceInternal
 
     public abstract class IPEndpointI : EndpointI
     {
-        public IPEndpointI(ProtocolInstance instance, string host, int port, string connectionId)
+        public IPEndpointI(ProtocolInstance instance, string host, int port, EndPoint sourceAddr, string connectionId)
         {
             instance_ = instance;
             host_ = host;
             port_ = port;
+            sourceAddr_ = sourceAddr;
             connectionId_ = connectionId;
             _hashInitialized = false;
         }
@@ -32,6 +33,7 @@ namespace IceInternal
             instance_ = instance;
             host_ = null;
             port_ = 0;
+            sourceAddr_ = null;
             connectionId_ = "";
             _hashInitialized = false;
         }
@@ -41,6 +43,7 @@ namespace IceInternal
             instance_ = instance;
             host_ = s.readString();
             port_ = s.readInt();
+            sourceAddr_ = null;
             connectionId_ = "";
             _hashInitialized = false;
         }
@@ -160,7 +163,8 @@ namespace IceInternal
                 return false;
             }
             IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
-            return ipEndpointI.type() == type() && ipEndpointI.host_.Equals(host_) && ipEndpointI.port_ == port_;
+            return ipEndpointI.type() == type() && ipEndpointI.host_.Equals(host_) && ipEndpointI.port_ == port_ &&
+                Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
         }
 
         public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)
@@ -200,6 +204,11 @@ namespace IceInternal
             }
 
             s += " -p " + port_;
+
+            if(sourceAddr_ != null)
+            {
+                s += " --sourceAddress " + Network.endpointAddressToString(sourceAddr_);
+            }
 
             return s;
         }
@@ -244,6 +253,13 @@ namespace IceInternal
                 return 1;
             }
 
+            int rc = string.Compare(Network.endpointAddressToString(sourceAddr_),
+                                    Network.endpointAddressToString(p.sourceAddr_), StringComparison.Ordinal);
+            if(rc != 0)
+            {
+                return rc;
+            }
+
             return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
         }
 
@@ -267,6 +283,10 @@ namespace IceInternal
         {
             HashUtil.hashAdd(ref h, host_);
             HashUtil.hashAdd(ref h, port_);
+            if(sourceAddr_ != null)
+            {
+                HashUtil.hashAdd(ref h, sourceAddr_);
+            }
             HashUtil.hashAdd(ref h, connectionId_);
         }
 
@@ -274,6 +294,7 @@ namespace IceInternal
         {
             info.host = host_;
             info.port = port_;
+            info.sourceAddress = Network.endpointAddressToString(sourceAddr_);
         }
 
         public void initWithOptions(List<string> args, bool oaEndpoint)
@@ -300,56 +321,76 @@ namespace IceInternal
             {
                 host_ = "";
             }
+
+            if(sourceAddr_ != null)
+            {
+                if(oaEndpoint)
+                {
+                    throw new Ice.EndpointParseException("`--sourceAddress' not valid for object adapter endpoint `" +
+                                                         ToString() + "'");
+                }
+            }
+            else if(!oaEndpoint)
+            {
+                sourceAddr_ = instance_.defaultSourceAddress();
+            }
         }
 
         protected override bool checkOption(string option, string argument, string endpoint)
         {
-            switch(option[1])
+            if(option.Equals("-h"))
             {
-                case 'h':
+                if(argument == null)
                 {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " +
-                                                             endpoint);
-                    }
-                    host_ = argument;
-                    return true;
+                    throw new Ice.EndpointParseException("no argument provided for -h option in endpoint " +
+                                                         endpoint);
+                }
+                host_ = argument;
+            }
+            else if(option.Equals("-p"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " +
+                                                         endpoint);
                 }
 
-                case 'p':
+                try
                 {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("no argument provided for -p option in endpoint " +
-                                                             endpoint);
-                    }
-
-                    try
-                    {
-                        port_ = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
-                    }
-                    catch(System.FormatException ex)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                        e.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
-                        throw e;
-                    }
-
-                    if(port_ < 0 || port_ > 65535)
-                    {
-                        throw new Ice.EndpointParseException("port value `" + argument +
-                                                             "' out of range in endpoint " + endpoint);
-                    }
-
-                    return true;
+                    port_ = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                }
+                catch(System.FormatException ex)
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                    e.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
+                    throw e;
                 }
 
-                default:
+                if(port_ < 0 || port_ > 65535)
                 {
-                    return false;
+                    throw new Ice.EndpointParseException("port value `" + argument +
+                                                         "' out of range in endpoint " + endpoint);
                 }
             }
+            else if(option.Equals("--sourceAddress"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for --sourceAddress option in endpoint " +
+                                                         endpoint);
+                }
+                sourceAddr_ = Network.getNumericAddress(argument);
+                if(sourceAddr_ == null)
+                {
+                    throw new Ice.EndpointParseException(
+                        "invalid IP address provided for --sourceAddress option in endpoint " + endpoint);
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
         }
 
         protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
@@ -358,6 +399,7 @@ namespace IceInternal
         protected ProtocolInstance instance_;
         protected string host_;
         protected int port_;
+        protected EndPoint sourceAddr_;
         protected string connectionId_;
         private bool _hashInitialized;
         private int _hashValue;

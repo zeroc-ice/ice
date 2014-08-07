@@ -77,7 +77,7 @@ public:
 private:
 
     TransceiverI(const InstancePtr&, SOCKET, const IceInternal::NetworkProxyPtr&, const std::string&,
-                 const IceInternal::Address&);
+                 const IceInternal::Address&, const IceInternal::Address&);
     TransceiverI(const InstancePtr&, SOCKET, const std::string&);
     virtual ~TransceiverI();
 
@@ -100,6 +100,7 @@ private:
     const IceInternal::NetworkProxyPtr _proxy;
     const std::string _host;
     const IceInternal::Address _addr;
+    const IceInternal::Address _sourceAddr;
 
     const std::string _adapterName;
     const bool _incoming;

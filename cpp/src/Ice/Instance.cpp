@@ -39,7 +39,7 @@
 #include <Ice/MetricsAdminI.h>
 #include <Ice/InstrumentationI.h>
 #include <Ice/ProtocolInstance.h>
- 
+
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -116,7 +116,7 @@ public:
     Init()
     {
         staticMutex = new IceUtil::Mutex;
-        
+
         //
         // Although probably not necessary here, we consistently lock
         // staticMutex before accessing instanceList
@@ -130,7 +130,7 @@ public:
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
             int notDestroyedCount = 0;
-        
+
             for(std::list<IceInternal::Instance*>::const_iterator p = instanceList->begin();
                 p != instanceList->end(); ++p)
             {
@@ -139,7 +139,7 @@ public:
                     notDestroyedCount++;
                 }
             }
-            
+
             if(notDestroyedCount > 0)
             {
                 cerr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
@@ -365,7 +365,7 @@ IceInternal::Instance::serverThreadPool(bool create)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    
+
     if(!_serverThreadPool && create) // Lazy initialization.
     {
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
@@ -384,7 +384,7 @@ IceInternal::Instance::endpointHostResolver()
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    
+
     assert(_endpointHostResolver);
     return _endpointHostResolver;
 }
@@ -476,8 +476,8 @@ Identity
 IceInternal::Instance::stringToIdentity(const string& s) const
 {
     //
-    // This method only accepts printable ascii. Since printable ascii is a subset 
-    // of all narrow string encodings, it is not necessary to convert the string 
+    // This method only accepts printable ascii. Since printable ascii is a subset
+    // of all narrow string encodings, it is not necessary to convert the string
     // from the native string encoding. Any characters other than printable-ASCII
     // will cause an IllegalArgumentException. Note that it can contain Unicode
     // encoded in the escaped form which is the reason why we call fromUTF8 after
@@ -638,7 +638,7 @@ IceInternal::Instance::getAdmin()
             // Add all facets to OA
             //
             FacetMap filteredFacets;
-            
+
             for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
             {
                 if(_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
@@ -648,7 +648,7 @@ IceInternal::Instance::getAdmin()
                 else
                 {
                     filteredFacets[p->first] = p->second;
-                } 
+                }
             }
             _adminFacets.swap(filteredFacets);
 
@@ -674,15 +674,15 @@ IceInternal::Instance::getAdmin()
                 _adminAdapter = 0;
                 throw;
             }
-            
+
             Ice::ObjectPrx admin = adapter->createProxy(_adminIdentity);
             if(defaultLocator != 0 && serverId != "")
-            {    
+            {
                 ProcessPrx process = ProcessPrx::uncheckedCast(admin->ice_facet("Process"));
                 try
                 {
                     //
-                    // Note that as soon as the process proxy is registered, the communicator might be 
+                    // Note that as soon as the process proxy is registered, the communicator might be
                     // shutdown by a remote client and admin facets might start receiving calls.
                     //
                     defaultLocator->getRegistry()->setServerProcessProxy(serverId, process);
@@ -696,7 +696,7 @@ IceInternal::Instance::getAdmin()
                         out << "the server is not known to the locator registry";
                     }
 
-                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" + 
+                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" +
                                                                       serverId + "'");
                 }
                 catch(const LocalException& ex)
@@ -709,13 +709,13 @@ IceInternal::Instance::getAdmin()
                     throw;
                 }
             }
-            
+
             if(_traceLevels->location >= 1)
             {
                 Trace out(_initData.logger, _traceLevels->locationCat);
                 out << "registered server `" + serverId + "' with the locator registry";
             }
-            
+
             return admin;
         }
         else
@@ -744,15 +744,15 @@ IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string
     }
     else
     {
-        _adminAdapter->addFacet(servant, _adminIdentity, facet);  
+        _adminAdapter->addFacet(servant, _adminIdentity, facet);
     }
-} 
+}
 
 Ice::ObjectPtr
 IceInternal::Instance::removeAdminFacet(const string& facet)
 {
     IceUtil::RecMutex::Lock sync(*this);
- 
+
     if(_state == StateDestroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -775,7 +775,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     }
     else
     {
-        result = _adminAdapter->removeFacet(_adminIdentity, facet);  
+        result = _adminAdapter->removeFacet(_adminIdentity, facet);
     }
 
     return result;
@@ -807,7 +807,7 @@ IceInternal::Instance::findAdminFacet(const string& facet)
     }
 
     return result;
-} 
+}
 
 void
 IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
@@ -822,7 +822,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrx& defaultLocator)
     _referenceFactory = _referenceFactory->setDefaultLocator(defaultLocator);
 }
 
-void 
+void
 IceInternal::Instance::setDefaultRouter(const Ice::RouterPrx& defaultRouter)
 {
     IceUtil::RecMutex::Lock sync(*this);
@@ -905,7 +905,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             {
                 _initData.properties = createProperties();
             }
-    
+
             if(!oneOffDone)
             {
                 //
@@ -913,7 +913,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 //
                 string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
                 string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
-                
+
                 if(stdOutFilename != "")
                 {
                     FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
@@ -925,7 +925,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                         throw ex;
                     }
                 }
-                
+
                 if(stdErrFilename != "")
                 {
                     FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
@@ -937,7 +937,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                         throw ex;
                     }
                 }
-    
+
                 if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
                 {
                     IceUtilInternal::nullHandleAbort = true;
@@ -951,7 +951,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 {
                     IceUtilInternal::printStackTraces = true;
                 }
-                
+
 #ifndef _WIN32
                 string newUser = _initData.properties->getProperty("Ice.ChangeUser");
                 if(!newUser.empty())
@@ -972,7 +972,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                             throw ex;
                         }
                     }
-                    
+
                     if(setgid(pw->pw_gid) == -1)
                     {
                         SyscallException ex(__FILE__, __LINE__);
@@ -986,7 +986,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                         ex.error = getSystemErrno();
                         throw ex;
                     }
-                    
+
                     if(setuid(pw->pw_uid) == -1)
                     {
                         SyscallException ex(__FILE__, __LINE__);
@@ -996,10 +996,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 }
 #endif
                 oneOffDone = true;
-            }   
-            
+            }
+
             if(instanceCount() == 1)
-            {                   
+            {
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
                 WORD version = MAKEWORD(1, 1);
                 WSADATA data;
@@ -1010,7 +1010,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     throw ex;
                 }
 #endif
-                
+
 #ifndef _WIN32
                 struct sigaction action;
                 action.sa_handler = SIG_IGN;
@@ -1033,7 +1033,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
             }
         }
-        
+
 
         if(!_initData.logger)
         {
@@ -1046,8 +1046,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
                 }
 
-                _initData.logger = 
-                    new SysLoggerI(_initData.properties->getProperty("Ice.ProgramName"), 
+                _initData.logger =
+                    new SysLoggerI(_initData.properties->getProperty("Ice.ProgramName"),
                                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
             else
@@ -1061,7 +1061,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 _initData.logger = getProcessLogger();
                 if(LoggerIPtr::dynamicCast(_initData.logger))
                 {
-                    _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), "", 
+                    _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), "",
                                                    logStdErrConvert, _stringConverter);
                 }
             }
@@ -1073,12 +1073,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         const ACMConfig defaultClientACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(false));
         const ACMConfig defaultServerACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(true));
-        
+
         const_cast<ACMConfig&>(_clientACM) = ACMConfig(_initData.properties,
                                                        _initData.logger,
                                                        "Ice.ACM.Client",
                                                        defaultClientACM);
-        
+
         const_cast<ACMConfig&>(_serverACM) = ACMConfig(_initData.properties,
                                                        _initData.logger,
                                                        "Ice.ACM.Server",
@@ -1108,7 +1108,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         // Client ACM enabled by default. Server ACM disabled by default.
         //
 #ifndef ICE_OS_WINRT
-        const_cast<ImplicitContextIPtr&>(_implicitContext) = 
+        const_cast<ImplicitContextIPtr&>(_implicitContext) =
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
 #endif
         _routerManager = new RouterManager;
@@ -1168,7 +1168,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         ProtocolInstancePtr tcpInstance = new ProtocolInstance(this, TCPEndpointType, "tcp");
         EndpointFactoryPtr tcpFactory = new StreamEndpointFactory(tcpInstance);
         _endpointFactoryManager->add(tcpFactory);
-        
+
         ProtocolInstancePtr sslInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl");
         EndpointFactoryPtr sslFactory = new StreamEndpointFactory(sslInstance);
         _endpointFactoryManager->add(sslFactory);
@@ -1186,7 +1186,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _servantFactoryManager = new ObjectFactoryManager();
 
         _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-        
+
         _retryQueue = new RetryQueue(this);
 
         if(_wstringConverter == 0)
@@ -1199,7 +1199,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         //
 
         StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
-        
+
         if(!facetSeq.empty())
         {
             _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
@@ -1276,7 +1276,7 @@ IceInternal::Instance::~Instance()
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
         WSACleanup();
 #endif
-        
+
 #ifndef _WIN32
         sigaction(SIGPIPE, &oldAction, 0);
 
@@ -1341,7 +1341,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
         out << "cannot create thread for endpoint host resolver:\n" << ex;
         throw;
     }
-    
+
     _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
     //
@@ -1360,7 +1360,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     {
         _referenceFactory = _referenceFactory->setDefaultLocator(locator);
     }
-   
+
     //
     // Show process id if requested (but only once).
     //
@@ -1372,7 +1372,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
         //
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
         printProcessId = !printProcessIdDone;
-        
+
         //
         // We anticipate: we want to print it once, and we don't care when.
         //
@@ -1404,7 +1404,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 
     //
     // This must be done last as this call creates the Ice.Admin object adapter
-    // and eventually register a process proxy with the Ice locator (allowing 
+    // and eventually register a process proxy with the Ice locator (allowing
     // remote clients to invoke on Ice.Admin facets as soon as it's registered).
     //
     if(_initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
@@ -1418,7 +1418,7 @@ IceInternal::Instance::destroy()
 {
     {
         IceUtil::RecMutex::Lock sync(*this);
-        
+
         //
         // If the _state is not StateActive then the instance is
         // either being destroyed, or has already been destroyed.
@@ -1439,7 +1439,7 @@ IceInternal::Instance::destroy()
 
     if(_objectAdapterFactory)
     {
-        _objectAdapterFactory->shutdown();      
+        _objectAdapterFactory->shutdown();
     }
 
     if(_outgoingConnectionFactory)
@@ -1473,7 +1473,7 @@ IceInternal::Instance::destroy()
             CommunicatorObserverIPtr observer = CommunicatorObserverIPtr::dynamicCast(_observer);
             if(observer)
             {
-                observer->destroy(); 
+                observer->destroy();
             }
             _observer->setObserverUpdater(0); // Break cyclic reference count.
         }
@@ -1494,7 +1494,7 @@ IceInternal::Instance::destroy()
             _serverThreadPool->destroy();
             std::swap(_serverThreadPool, serverThreadPool);
         }
-        
+
         if(_clientThreadPool)
         {
             _clientThreadPool->destroy();
@@ -1517,13 +1517,13 @@ IceInternal::Instance::destroy()
             _servantFactoryManager->destroy();
             _servantFactoryManager = 0;
         }
-        
+
         //_referenceFactory->destroy(); // No destroy function defined.
         _referenceFactory = 0;
-        
+
         // _proxyFactory->destroy(); // No destroy function defined.
         _proxyFactory = 0;
-        
+
         if(_routerManager)
         {
             _routerManager->destroy();
@@ -1575,7 +1575,7 @@ IceInternal::Instance::destroy()
         endpointHostResolver->getThreadControl().join();
     }
 #endif
-    
+
     if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
         set<string> unusedProperties = static_cast<PropertiesI*>(_initData.properties.get())->getUnusedProperties();
