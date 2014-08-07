@@ -1134,6 +1134,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
     IceInternal.BasicStream createReadStream(ByteBuffer buf)
     {
+        buf.rewind();
         return new IceInternal.BasicStream(IceInternal.Util.getInstance(_communicator), _encoding, buf);
     }
 

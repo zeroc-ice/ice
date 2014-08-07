@@ -389,14 +389,14 @@ public abstract class Index<K, V, I>
 
     ByteBuffer encodeKey(I k)
     {
-        IceInternal.BasicStream str = createWriteStream();
+        IceInternal.BasicStream str = _map.createWriteStream();
         encodeKey(k, str);
         return str.prepareWrite().b;
     }
 
     I decodeKey(ByteBuffer buf)
     {
-        return decodeKey(createReadStream(buf));
+        return decodeKey(_map.createReadStream(buf));
     }
 
     I decodeKey(com.sleepycat.db.DatabaseEntry entry)
@@ -404,32 +404,14 @@ public abstract class Index<K, V, I>
         ByteBuffer b = entry.getDataNIO();
         if(b != null)
         {
-            return decodeKey(createReadStream(b));
+            return decodeKey(_map.createReadStream(b));
         }
         else
         {
             byte[] arr = entry.getData();
             assert(arr != null && entry.getOffset() == 0 && entry.getSize() == arr.length);
-            return decodeKey(createReadStream(arr));
+            return decodeKey(_map.createReadStream(arr));
         }
-    }
-
-    IceInternal.BasicStream createWriteStream()
-    {
-        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_map.connection().getCommunicator()),
-                                           _map.connection().getEncoding(), true, false);
-    }
-
-    IceInternal.BasicStream createReadStream(byte[] arr)
-    {
-        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_map.connection().getCommunicator()),
-                                           _map.connection().getEncoding(), arr);
-    }
-
-    IceInternal.BasicStream createReadStream(ByteBuffer buf)
-    {
-        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_map.connection().getCommunicator()),
-                                           _map.connection().getEncoding(), buf);
     }
 
     com.sleepycat.db.SecondaryDatabase
