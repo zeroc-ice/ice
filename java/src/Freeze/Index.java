@@ -9,6 +9,8 @@
 
 package Freeze;
 
+import java.nio.ByteBuffer;
+
 public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 {
     //
@@ -26,11 +28,10 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
         Ice.EncodingVersion encoding = _store.encoding();
         ObjectRecord rec = ObjectStore.unmarshalValue(value, communicator, encoding, _store.keepStats());
 
-        byte[] secondaryKey = marshalKey(rec.servant);
+        ByteBuffer secondaryKey = marshalKey(rec.servant);
         if(secondaryKey != null)
         {
-            result.setData(secondaryKey);
-            result.setSize(secondaryKey.length);
+            result.setDataNIO(secondaryKey);
             return true;
         }
         else
@@ -61,10 +62,10 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
         _facet = facet;
     }
 
-    protected abstract byte[] marshalKey(Ice.Object servant);
+    protected abstract ByteBuffer marshalKey(Ice.Object servant);
 
     protected Ice.Identity[]
-    untypedFindFirst(byte[] k, int firstN)
+    untypedFindFirst(ByteBuffer k, int firstN)
     {
         EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
         deactivateController.lock();
@@ -208,13 +209,13 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
     }
 
     protected Ice.Identity[]
-    untypedFind(byte[] key)
+    untypedFind(ByteBuffer key)
     {
         return untypedFindFirst(key, 0);
     }
 
     protected int
-    untypedCount(byte[] k)
+    untypedCount(ByteBuffer k)
     {
         EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
         deactivateController.lock();

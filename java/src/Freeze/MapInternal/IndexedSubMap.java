@@ -13,6 +13,7 @@ import Freeze.ConnectionI;
 import Freeze.DatabaseException;
 import Freeze.Map;
 import Freeze.NavigableMap;
+import java.nio.ByteBuffer;
 
 //
 // Indexed submap of a Freeze Map or of another submap
@@ -138,8 +139,7 @@ class IndexedSubMap<K, V, I>
         next()
         {
             EntryI<K, V> entry = (EntryI<K, V>)_iterator.next();
-            return new Entry(_index.decodeKey(entry.getIndexBytes(), _map.connection().getCommunicator(),
-                                              _map.connection().getEncoding()));
+            return new Entry(_index.decodeKey(entry.getIndexBytes()));
         }
 
         public void
@@ -504,7 +504,7 @@ class IndexedSubMap<K, V, I>
     }
 
     private Entry
-    entrySearch(Search.Type type, byte[] key)
+    entrySearch(Search.Type type, ByteBuffer key)
     {
         if(type != Search.Type.FIRST && type != Search.Type.LAST && key == null)
         {
@@ -523,8 +523,7 @@ class IndexedSubMap<K, V, I>
         if(Search.search(type, _map.connection(), _index.dbName(), _index.db(), dbKey, null, _index, _view,
                          _index.traceLevels()))
         {
-            I k = _index.decodeKey(dbKey.getData(), _map.connection().getCommunicator(),
-                                   _map.connection().getEncoding());
+            I k = _index.decodeKey(dbKey);
             return new Entry(k);
         }
 
@@ -578,7 +577,7 @@ class IndexedSubMap<K, V, I>
         first()
         {
             Search.Type type;
-            byte[] key = null;
+            ByteBuffer key = null;
             if(_fromKey != null)
             {
                 type = _fromInclusive ? mapSearchType(Search.Type.CEILING) : mapSearchType(Search.Type.HIGHER);
@@ -595,7 +594,7 @@ class IndexedSubMap<K, V, I>
         last()
         {
             Search.Type type;
-            byte[] key = null;
+            ByteBuffer key = null;
             if(_toKey != null)
             {
                 type = _toInclusive ? mapSearchType(Search.Type.FLOOR) : mapSearchType(Search.Type.LOWER);
@@ -611,28 +610,28 @@ class IndexedSubMap<K, V, I>
         final Entry
         ceiling(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _index.encodeKey(key);
             return entrySearch(mapSearchType(Search.Type.CEILING), k);
         }
 
         final Entry
         floor(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _index.encodeKey(key);
             return entrySearch(mapSearchType(Search.Type.FLOOR), k);
         }
 
         final Entry
         higher(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _index.encodeKey(key);
             return entrySearch(mapSearchType(Search.Type.HIGHER), k);
         }
 
         final Entry
         lower(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _index.encodeKey(key);
             return entrySearch(mapSearchType(Search.Type.LOWER), k);
         }
 
@@ -680,9 +679,9 @@ class IndexedSubMap<K, V, I>
         //
 
         final public boolean
-        keyInRange(byte[] key)
+        keyInRange(ByteBuffer key)
         {
-            I k = _index.decodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            I k = _index.decodeKey(key);
             return inRange(k, true);
         }
 
@@ -699,24 +698,22 @@ class IndexedSubMap<K, V, I>
             return _comparator;
         }
 
-        final protected byte[]
+        final protected ByteBuffer
         fromKeyBytes()
         {
             if(_fromKey != null && _fromKeyBytes == null)
             {
-                _fromKeyBytes = _index.encodeKey(_fromKey, _map.connection().getCommunicator(),
-                                                 _map.connection().getEncoding());
+                _fromKeyBytes = _index.encodeKey(_fromKey);
             }
             return _fromKeyBytes;
         }
 
-        final protected byte[]
+        final protected ByteBuffer
         toKeyBytes()
         {
             if(_toKey != null && _toKeyBytes == null)
             {
-                _toKeyBytes = _index.encodeKey(_toKey, _map.connection().getCommunicator(),
-                                               _map.connection().getEncoding());
+                _toKeyBytes = _index.encodeKey(_toKey);
             }
             return _toKeyBytes;
         }
@@ -754,8 +751,8 @@ class IndexedSubMap<K, V, I>
         final boolean _fromInclusive;
         final I _toKey;
         final boolean _toInclusive;
-        private byte[] _fromKeyBytes;
-        private byte[] _toKeyBytes;
+        private ByteBuffer _fromKeyBytes;
+        private ByteBuffer _toKeyBytes;
     }
 
     private class AscendingView extends View

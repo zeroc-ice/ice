@@ -898,11 +898,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         //
         // encode
         //
-        out << sp << nl << "public byte[]" << nl << "encode" << keyValue << "(" << typeS
-            << " v, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
+        out << sp << nl << "public void" << nl << "encode" << keyValue << "(" << typeS
+            << " v, IceInternal.BasicStream __os)";
         out << sb;
-        out << nl << "IceInternal.BasicStream __os = "
-            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
         if(encaps)
         {
             out << nl << "__os.startWriteEncaps();";
@@ -917,20 +915,13 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         {
             out << nl << "__os.endWriteEncaps();";
         }
-        out << nl << "IceInternal.Buffer __buf = __os.prepareWrite();";
-        out << nl << "byte[] __r = new byte[__buf.size()];";
-        out << nl << "__buf.b.get(__r);";
-        out << nl << "return __r;";
         out << eb;
 
         //
         // decode
         //
-        out << sp << nl << "public " << typeS << nl << "decode" << keyValue
-            << "(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
+        out << sp << nl << "public " << typeS << nl << "decode" << keyValue << "(IceInternal.BasicStream __is)";
         out << sb;
-        out << nl << "IceInternal.BasicStream __is = "
-            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, b);";
         if(type->usesClasses())
         {
             out << nl << "__is.sliceObjects(false);";
@@ -1041,9 +1032,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         //
         // encodeKey
         //
-        out << sp << nl << "public byte[]";
-        out << nl << "encodeKey(" << indexKeyTypeS << " key, Ice.Communicator communicator, "
-            << "Ice.EncodingVersion encoding)";
+        out << sp << nl << "public void";
+        out << nl << "encodeKey(" << indexKeyTypeS << " key, IceInternal.BasicStream __os)";
         out << sb;
         if(dict.indices[i].member.empty())
         {
@@ -1056,7 +1046,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 keyS = "key.toLowerCase()";
             }
 
-            out << nl << "return encodeValue(" << keyS << ", communicator, encoding);";
+            out << nl << "encodeValue(" << keyS << ", __os);";
         }
         else
         {
@@ -1067,16 +1057,9 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 
             keyS = objectToVar(indexTypes[i], keyS);
 
-            out << nl << "IceInternal.BasicStream __os = "
-                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
             int iter = 0;
             writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, false, 0, keyS, true, iter, false);
             assert(!indexTypes[i]->usesClasses());
-
-            out << nl << "IceInternal.Buffer buf = __os.prepareWrite();";
-            out << nl << "byte[] r = new byte[buf.size()];";
-            out << nl << "buf.b.get(r);";
-            out << nl << "return r;";
         }
         out << eb;
 
@@ -1084,20 +1067,17 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         // decodeKey
         //
         out << sp << nl << "public " << indexKeyTypeS;
-        out << nl << "decodeKey(byte[] bytes, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
+        out << nl << "decodeKey(IceInternal.BasicStream __is)";
         out << sb;
         if(dict.indices[i].member.empty())
         {
             //
             // Decode the full value (with an encaps!)
             //
-            out << nl << "return decodeValue(bytes, communicator, encoding);";
+            out << nl << "return decodeValue(__is);";
         }
         else
         {
-            out << nl << "IceInternal.BasicStream __is = "
-                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, bytes);";
-
             int iter = 0;
             list<string> metaData;
             string patchParams;
@@ -1197,8 +1177,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         //
         if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
         {
-            out << sp << nl << "protected byte[]";
-            out << nl << "marshalKey(byte[] value)";
+            out << sp << nl << "protected java.nio.ByteBuffer";
+            out << nl << "marshalKey(java.nio.ByteBuffer value)";
             out << sb;
             out << nl << "return value;";
             out << eb;
@@ -1383,7 +1363,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     //
     string typeString = typeToString(type, TypeModeIn);
 
-    out << sp << nl << "protected byte[]" << nl
+    out << sp << nl << "protected java.nio.ByteBuffer" << nl
         << "marshalKey(Ice.Object __servant)";
     out << sb;
     out << nl << "if(__servant instanceof " << typeString << ")";
@@ -1399,7 +1379,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
 
     string valueS = index.caseSensitive ? "__key" : "__key.toLowerCase()";
 
-    out << sp << nl << "private byte[]" << nl
+    out << sp << nl << "private java.nio.ByteBuffer" << nl
         << "marshalKey(" << memberTypeString << " __key)";
     out << sb;
     out << nl << "IceInternal.BasicStream __os = "
@@ -1410,10 +1390,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     {
         out << nl << "__os.writePendingObjects();";
     }
-    out << nl << "IceInternal.Buffer __buf = __os.prepareWrite();";
-    out << nl << "byte[] __r = new byte[__buf.size()];";
-    out << nl << "__buf.b.get(__r);";
-    out << nl << "return __r;";
+    out << nl << "return __os.prepareWrite().b;";
     out << eb;
 
     out << eb;

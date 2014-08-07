@@ -12,6 +12,7 @@ package Freeze.MapInternal;
 import Freeze.ConnectionI;
 import Freeze.Map;
 import Freeze.NavigableMap;
+import java.nio.ByteBuffer;
 
 //
 // Submap of a Freeze Map or of another submap
@@ -404,7 +405,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         first()
         {
             Search.Type type;
-            byte[] key = null;
+            ByteBuffer key = null;
             if(_fromKey != null)
             {
                 type = _fromInclusive ? mapSearchType(Search.Type.CEILING) : mapSearchType(Search.Type.HIGHER);
@@ -421,7 +422,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         last()
         {
             Search.Type type;
-            byte[] key = null;
+            ByteBuffer key = null;
             if(_toKey != null)
             {
                 type = _toInclusive ? mapSearchType(Search.Type.FLOOR) : mapSearchType(Search.Type.LOWER);
@@ -437,28 +438,28 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         final EntryI<K, V>
         ceiling(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _map.encodeKey(key);
             return _map.entrySearch(mapSearchType(Search.Type.CEILING), k, true, this);
         }
 
         final EntryI<K, V>
         floor(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _map.encodeKey(key);
             return _map.entrySearch(mapSearchType(Search.Type.FLOOR), k, true, this);
         }
 
         final EntryI<K, V>
         higher(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _map.encodeKey(key);
             return _map.entrySearch(mapSearchType(Search.Type.HIGHER), k, true, this);
         }
 
         final EntryI<K, V>
         lower(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer k = _map.encodeKey(key);
             return _map.entrySearch(mapSearchType(Search.Type.LOWER), k, true, this);
         }
 
@@ -506,9 +507,9 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         //
 
         final public boolean
-        keyInRange(byte[] key)
+        keyInRange(ByteBuffer key)
         {
-            K k = _map.decodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            K k = _map.decodeKey(key);
             return inRange(k, true);
         }
 
@@ -525,24 +526,22 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
             return _comparator;
         }
 
-        final protected byte[]
+        final protected ByteBuffer
         fromKeyBytes()
         {
             if(_fromKey != null && _fromKeyBytes == null)
             {
-                _fromKeyBytes = _map.encodeKey(_fromKey, _map.connection().getCommunicator(),
-                                               _map.connection().getEncoding());
+                _fromKeyBytes = _map.encodeKey(_fromKey);
             }
             return _fromKeyBytes;
         }
 
-        final protected byte[]
+        final protected ByteBuffer
         toKeyBytes()
         {
             if(_toKey != null && _toKeyBytes == null)
             {
-                _toKeyBytes = _map.encodeKey(_toKey, _map.connection().getCommunicator(),
-                                             _map.connection().getEncoding());
+                _toKeyBytes = _map.encodeKey(_toKey);
             }
             return _toKeyBytes;
         }
@@ -580,8 +579,8 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         final boolean _fromInclusive;
         final K _toKey;
         final boolean _toInclusive;
-        private byte[] _fromKeyBytes;
-        private byte[] _toKeyBytes;
+        private ByteBuffer _fromKeyBytes;
+        private ByteBuffer _toKeyBytes;
     }
 
     private class AscendingView extends View

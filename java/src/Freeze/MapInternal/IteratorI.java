@@ -15,6 +15,7 @@ import Freeze.DatabaseException;
 import Freeze.DeadlockException;
 import Freeze.NotFoundException;
 import Freeze.Map;
+import java.nio.ByteBuffer;
 
 class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K, V>>
 {
@@ -280,7 +281,7 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
             //
             // Yes, update it directly
             //
-            byte[] v = _map.encodeValue(value, _map.connection().getCommunicator(), _map.connection().getEncoding());
+            ByteBuffer v = _map.encodeValue(value);
             com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(v);
 
             try
@@ -326,8 +327,7 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
                     throw ex;
                 }
 
-                byte[] v = _map.encodeValue(value, _map.connection().getCommunicator(), 
-                                            _map.connection().getEncoding());
+                ByteBuffer v = _map.encodeValue(value);
                 com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(v);
                 clone.putCurrent(dbValue);
             }

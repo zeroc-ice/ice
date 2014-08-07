@@ -23,12 +23,13 @@ import Freeze.MapIndex;
 import Freeze.NavigableMap;
 import Freeze.Transaction;
 import Freeze.Util;
+import java.nio.ByteBuffer;
 
 public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     implements Map<K, V>, KeyCodec<K>, IteratorModel<K, V>
 {
-    public abstract byte[] encodeValue(V o, Ice.Communicator communicator, Ice.EncodingVersion encoding);
-    public abstract V decodeValue(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding);
+    public abstract void encodeValue(V v, IceInternal.BasicStream str);
+    public abstract V decodeValue(IceInternal.BasicStream str);
 
     protected
     MapI(Connection connection, String dbName, String key, String value, boolean createDb,
@@ -37,7 +38,10 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         _connection = (ConnectionI)connection;
         _dbName = dbName;
         _comparator = (comparator == null) ? null : new Comparator(comparator);
+        _dbComparator = (comparator == null) ? null : new DbComparator(comparator);
 
+        _communicator = _connection.getCommunicator();
+        _encoding = _connection.getEncoding();
         _trace = new TraceLevels(_connection, dbName);
 
         init(null, dbName, key, value, createDb);
@@ -49,7 +53,10 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         _connection = (ConnectionI)connection;
         _dbName = dbName;
         _comparator = (comparator == null) ? null : new Comparator(comparator);
+        _dbComparator = (comparator == null) ? null : new DbComparator(comparator);
 
+        _communicator = _connection.getCommunicator();
+        _encoding = _connection.getEncoding();
         _trace = new TraceLevels(_connection, dbName);
     }
 
@@ -92,7 +99,8 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.MapInternal.MapI", "Removing all existing indices for \"" + dbName + "\"");
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Removing all existing indices for \"" + dbName +
+                                       "\"");
                 }
 
                 CatalogIndexList catalogIndexList = new CatalogIndexList(connection, Util.catalogIndexListName(), true);
@@ -122,7 +130,8 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.MapInternal.MapI", "Renaming \"" + dbName + "\" to \"" + oldDbName + "\"");
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Renaming \"" + dbName + "\" to \"" + oldDbName +
+                                       "\"");
                 }
 
                 connection.dbEnv().getEnv().renameDatabase(txn, dbName, null, oldDbName);
@@ -132,13 +141,13 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 oldDb = connection.dbEnv().getEnv().openDatabase(txn, oldDbName, null, oldDbConfig);
 
-                newDb = new MapDb(connection, dbName, key, value, map._comparator, indices, true);
+                newDb = new MapDb(connection, dbName, key, value, map._dbComparator, indices, true);
                 map.init(newDb, indices);
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.MapInternal.MapI", "Writing contents of \"" + oldDbName + "\" to fresh \"" +
-                                       dbName + "\"");
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Writing contents of \"" + oldDbName +
+                                       "\" to fresh \"" + dbName + "\"");
                 }
 
                 //
@@ -188,7 +197,8 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(trace.deadlockWarning)
                     {
-                        trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.recreate on Db \"" + dbName + "\"; retrying ...");
+                        trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.recreate on Db \"" + dbName +
+                                             "\"; retrying ...");
                     }
 
                     //
@@ -252,7 +262,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     protected void
     init(MapIndex[] indices, String dbName, String key, String value, boolean createDb)
     {
-        init(_connection.dbEnv().getSharedMapDb(dbName, key, value, _comparator, indices, createDb), indices);
+        init(_connection.dbEnv().getSharedMapDb(dbName, key, value, _dbComparator, indices, createDb), indices);
     }
 
     protected void
@@ -277,17 +287,13 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     public void
     fastPut(K key, V value)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
-        putImpl(dbKey, value);
+        putImpl(new com.sleepycat.db.DatabaseEntry(encodeKey(key)), value);
     }
 
     public boolean
     fastRemove(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
-        return removeImpl(dbKey);
+        return removeImpl(new com.sleepycat.db.DatabaseEntry(encodeKey(key)));
     }
 
     public void
@@ -455,60 +461,52 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     public java.util.Map.Entry<K, V>
     ceilingEntry(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        return entrySearch(Search.Type.CEILING, k, true);
+        return entrySearch(Search.Type.CEILING, encodeKey(key), true);
     }
 
     public java.util.Map.Entry<K, V>
     floorEntry(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        return entrySearch(Search.Type.FLOOR, k, true);
+        return entrySearch(Search.Type.FLOOR, encodeKey(key), true);
     }
 
     public java.util.Map.Entry<K, V>
     higherEntry(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        return entrySearch(Search.Type.HIGHER, k, true);
+        return entrySearch(Search.Type.HIGHER, encodeKey(key), true);
     }
 
     public java.util.Map.Entry<K, V>
     lowerEntry(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        return entrySearch(Search.Type.LOWER, k, true);
+        return entrySearch(Search.Type.LOWER, encodeKey(key), true);
     }
 
     public K
     ceilingKey(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.CEILING, k, false);
+        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.CEILING, encodeKey(key), false);
         return e != null ? e.getKey() : null;
     }
 
     public K
     floorKey(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.FLOOR, k, false);
+        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.FLOOR, encodeKey(key), false);
         return e != null ? e.getKey() : null;
     }
 
     public K
     higherKey(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.HIGHER, k, false);
+        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.HIGHER, encodeKey(key), false);
         return e != null ? e.getKey() : null;
     }
 
     public K
     lowerKey(K key)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.LOWER, k, false);
+        java.util.Map.Entry<K, V> e = entrySearch(Search.Type.LOWER, encodeKey(key), false);
         return e != null ? e.getKey() : null;
     }
 
@@ -789,9 +787,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             throw ex;
         }
 
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-
-        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
+        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(encodeKey(key));
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
         dbValue.setPartial(true);
 
@@ -839,29 +835,26 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         @SuppressWarnings("unchecked")
         K key = (K)o;
 
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
-        byte[] v = getImpl(dbKey);
+        ByteBuffer v = getImpl(new com.sleepycat.db.DatabaseEntry(encodeKey(key)));
         if(v == null)
         {
             return null;
         }
         else
         {
-            return decodeValue(v, _connection.getCommunicator(), _connection.getEncoding());
+            return decodeValue(v);
         }
     }
 
     public V
     put(K key, V value)
     {
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
-        byte[] v = getImpl(dbKey);
+        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(encodeKey(key));
+        ByteBuffer v = getImpl(dbKey);
         V old = null;
         if(v != null)
         {
-            old = decodeValue(v, _connection.getCommunicator(), _connection.getEncoding());
+            old = decodeValue(v);
         }
         putImpl(dbKey, value);
         return old;
@@ -873,13 +866,12 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         @SuppressWarnings("unchecked")
         K key = (K)o;
 
-        byte[] k = encodeKey(key, _connection.getCommunicator(), _connection.getEncoding());
-        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
-        byte[] v = getImpl(dbKey);
+        com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(encodeKey(key));
+        ByteBuffer v = getImpl(dbKey);
 
         if(v != null && removeImpl(dbKey))
         {
-            return decodeValue(v, _connection.getCommunicator(), _connection.getEncoding());
+            return decodeValue(v);
         }
         else
         {
@@ -999,9 +991,8 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                     EntryI<K, V> entry = (EntryI<K, V>)o;
                     V value = entry.getValue();
 
-                    byte[] v = getImpl(entry.getDbKey());
-                    return v != null && valEquals(decodeValue(v, _connection.getCommunicator(),
-                                                              _connection.getEncoding()), value);
+                    ByteBuffer v = getImpl(entry.getDbKey());
+                    return v != null && valEquals(decodeValue(v), value);
                 }
 
                 public boolean
@@ -1015,9 +1006,8 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                     EntryI<K, V> entry = (EntryI<K, V>)o;
                     V value = entry.getValue();
 
-                    byte[] v = getImpl(entry.getDbKey());
-                    if(v != null && valEquals(decodeValue(v, _connection.getCommunicator(), _connection.getEncoding()),
-                                              value))
+                    ByteBuffer v = getImpl(entry.getDbKey());
+                    if(v != null && valEquals(decodeValue(v), value))
                     {
                         return removeImpl(entry.getDbKey());
                     }
@@ -1078,6 +1068,75 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return nextEntry(cursor, null, false);
     }
 
+    ByteBuffer encodeKey(K k)
+    {
+        IceInternal.BasicStream str = createWriteStream();
+        encodeKey(k, str);
+        return str.prepareWrite().b;
+    }
+
+    K decodeKey(ByteBuffer buf)
+    {
+        return decodeKey(createReadStream(buf));
+    }
+
+    K decodeKey(com.sleepycat.db.DatabaseEntry entry)
+    {
+        ByteBuffer b = entry.getDataNIO();
+        if(b != null)
+        {
+            return decodeKey(createReadStream(b));
+        }
+        else
+        {
+            byte[] arr = entry.getData();
+            assert(arr != null && entry.getOffset() == 0 && entry.getSize() == arr.length);
+            return decodeKey(createReadStream(arr));
+        }
+    }
+
+    ByteBuffer encodeValue(V v)
+    {
+        IceInternal.BasicStream str = createWriteStream();
+        encodeValue(v, str);
+        return str.prepareWrite().b;
+    }
+
+    V decodeValue(ByteBuffer buf)
+    {
+        return decodeValue(createReadStream(buf));
+    }
+
+    V decodeValue(com.sleepycat.db.DatabaseEntry entry)
+    {
+        ByteBuffer b = entry.getDataNIO();
+        if(b != null)
+        {
+            return decodeValue(createReadStream(b));
+        }
+        else
+        {
+            byte[] arr = entry.getData();
+            assert(arr != null && entry.getOffset() == 0 && entry.getSize() == arr.length);
+            return decodeValue(createReadStream(arr));
+        }
+    }
+
+    IceInternal.BasicStream createWriteStream()
+    {
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_communicator), _encoding, true, false);
+    }
+
+    IceInternal.BasicStream createReadStream(byte[] arr)
+    {
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_communicator), _encoding, arr);
+    }
+
+    IceInternal.BasicStream createReadStream(ByteBuffer buf)
+    {
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_communicator), _encoding, buf);
+    }
+
     com.sleepycat.db.Database
     db()
     {
@@ -1132,7 +1191,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // Convenience method for use in this class.
     //
     private EntryI<K, V>
-    entrySearch(Search.Type type, byte[] key, boolean includeValue)
+    entrySearch(Search.Type type, ByteBuffer key, boolean includeValue)
     {
         return entrySearch(type, key, includeValue, null);
     }
@@ -1141,7 +1200,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // Also used by SubMap.
     //
     EntryI<K, V>
-    entrySearch(Search.Type type, byte[] key, boolean includeValue, Search.KeyValidator validator)
+    entrySearch(Search.Type type, ByteBuffer key, boolean includeValue, Search.KeyValidator validator)
     {
         if(type != Search.Type.FIRST && type != Search.Type.LAST && key == null)
         {
@@ -1160,7 +1219,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(Search.search(type, _connection, _dbName, _db.db(), dbKey, dbValue, _comparator, validator, _trace))
         {
-            return new EntryI<K, V>(this, null, dbKey, dbValue != null ? dbValue.getData() : null, null);
+            return new EntryI<K, V>(this, null, dbKey, dbValue != null ? UtilI.getBuffer(dbValue) : null, null);
         }
 
         return null;
@@ -1178,15 +1237,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry();
             com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
 
-            byte[] k = encodeKey(fromKey, _connection.getCommunicator(), _connection.getEncoding());
-            dbKey.setData(k);
+            ByteBuffer k = encodeKey(fromKey);
+            dbKey.setDataNIO(k);
             dbKey.setReuseBuffer(false);
 
             com.sleepycat.db.OperationStatus status = cursor.getSearchKeyRange(dbKey, dbValue, null);
 
             if(status == com.sleepycat.db.OperationStatus.SUCCESS && !fromInclusive)
             {
-                int cmp = _comparator.compare(dbKey.getData(), k);
+                int cmp = _comparator.compare(UtilI.getBuffer(dbKey), k);
                 assert(cmp >= 0);
                 if(cmp == 0)
                 {
@@ -1238,15 +1297,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(fromKey != null)
         {
-            byte[] k = encodeKey(fromKey, _connection.getCommunicator(), _connection.getEncoding());
-            dbKey.setData(k);
+            ByteBuffer k = encodeKey(fromKey);
+            dbKey.setDataNIO(k);
             dbKey.setReuseBuffer(false);
 
             status = cursor.getSearchKeyRange(dbKey, dbValue, null);
 
             if(status == com.sleepycat.db.OperationStatus.SUCCESS && !fromInclusive)
             {
-                int cmp = _comparator.compare(dbKey.getData(), k);
+                int cmp = _comparator.compare(UtilI.getBuffer(dbKey), k);
                 assert(cmp >= 0);
                 if(cmp == 0)
                 {
@@ -1295,7 +1354,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             throw ex;
         }
 
-        byte[] v = encodeValue(value, _connection.getCommunicator(), _connection.getEncoding());
+        ByteBuffer v = encodeValue(value);
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(v);
 
         if(_trace.level >= 2)
@@ -1398,7 +1457,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
-    private byte[]
+    private ByteBuffer
     getImpl(com.sleepycat.db.DatabaseEntry dbKey)
     {
         if(_db == null)
@@ -1422,7 +1481,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 com.sleepycat.db.OperationStatus rc = _db.db().get(_connection.dbTxn(), dbKey, dbValue, null);
                 if(rc == com.sleepycat.db.OperationStatus.SUCCESS)
                 {
-                    return dbValue.getData();
+                    return UtilI.getBuffer(dbValue);
                 }
                 else
                 {
@@ -1463,14 +1522,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         K key = null;
         if(fromKey != null || toKey != null)
         {
-            key = decodeKey(dbKey.getData(), _connection.getCommunicator(), _connection.getEncoding());
+            key = decodeKey(dbKey);
             if(!checkRange(key, fromKey, fromInclusive, toKey, toInclusive))
             {
                 return null;
             }
         }
 
-        return new EntryI<K, V>(this, key, dbKey, dbValue.getData(), null);
+        return new EntryI<K, V>(this, key, dbKey, UtilI.getBuffer(dbValue), null);
     }
 
     private boolean
@@ -1501,25 +1560,46 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return (v1 == null ? v2 == null : v1.equals(v2));
     }
 
-    private class Comparator implements java.util.Comparator<byte[]>
+    private class DbComparator implements java.util.Comparator<byte[]>
+    {
+        DbComparator(java.util.Comparator<K> comparator)
+        {
+            _comparator = comparator;
+        }
+
+        public java.util.Comparator<K> comparator()
+        {
+            return _comparator;
+        }
+
+        public int compare(byte[] d1, byte[] d2)
+        {
+            final ByteBuffer b1 = ByteBuffer.wrap(d1);
+            final ByteBuffer b2 = ByteBuffer.wrap(d2);
+            return _comparator.compare(decodeKey(b1), decodeKey(b2));
+        }
+
+        //
+        // The user-supplied comparator
+        //
+        private final java.util.Comparator<K> _comparator;
+    }
+
+    private class Comparator implements java.util.Comparator<ByteBuffer>
     {
         Comparator(java.util.Comparator<K> comparator)
         {
             _comparator = comparator;
         }
 
-        public java.util.Comparator<K>
-        comparator()
+        public java.util.Comparator<K> comparator()
         {
             return _comparator;
         }
 
-        public int
-        compare(byte[] d1, byte[] d2)
+        public int compare(ByteBuffer b1, ByteBuffer b2)
         {
-            Ice.Communicator communicator = _connection.getCommunicator();
-            Ice.EncodingVersion encoding = _connection.getEncoding();
-            return _comparator.compare(decodeKey(d1, communicator, encoding), decodeKey(d2, communicator, encoding));
+            return _comparator.compare(decodeKey(b1), decodeKey(b2));
         }
 
         //
@@ -1560,8 +1640,11 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
     private final ConnectionI _connection;
     private final Comparator _comparator;
+    private final DbComparator _dbComparator;
     private final String _dbName;
 
+    private final Ice.Communicator _communicator;
+    private final Ice.EncodingVersion _encoding;
     private final TraceLevels _trace;
     private java.util.Iterator _token;
     private MapDb _db;

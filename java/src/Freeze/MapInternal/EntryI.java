@@ -9,17 +9,17 @@
 
 package Freeze.MapInternal;
 
+import java.nio.ByteBuffer;
+
 class EntryI<K, V> implements java.util.Map.Entry<K, V>
 {
     public
-    EntryI(MapI<K, V> map, K key, com.sleepycat.db.DatabaseEntry dbKey, byte[] valueBytes, byte[] indexBytes)
+    EntryI(MapI<K, V> map, K key, com.sleepycat.db.DatabaseEntry dbKey, ByteBuffer valueBytes, ByteBuffer indexBytes)
     {
         _map = map;
         _dbKey = dbKey;
         _valueBytes = valueBytes;
         _indexBytes = indexBytes;
-        _communicator = map.connection().getCommunicator();
-        _encoding = map.connection().getEncoding();
         _key = key;
         _haveKey = key != null;
     }
@@ -30,7 +30,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         if(!_haveKey)
         {
             assert(_dbKey != null);
-            _key = _map.decodeKey(_dbKey.getData(), _communicator, _encoding);
+            _key = _map.decodeKey(_dbKey);
             _haveKey = true;
         }
         return _key;
@@ -42,7 +42,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         if(!_haveValue)
         {
             assert(_valueBytes != null);
-            _value = _map.decodeValue(_valueBytes, _communicator, _encoding);
+            _value = _map.decodeValue(_valueBytes);
             _haveValue = true;
             //
             // Not needed anymore
@@ -52,7 +52,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         return _value;
     }
 
-    public byte[]
+    public ByteBuffer
     getIndexBytes()
     {
         return _indexBytes;
@@ -120,11 +120,9 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
 
     private MapI<K, V> _map;
     private com.sleepycat.db.DatabaseEntry _dbKey;
-    private byte[] _valueBytes;
-    private byte[] _indexBytes;
+    private ByteBuffer _valueBytes;
+    private ByteBuffer _indexBytes;
 
-    private Ice.Communicator _communicator;
-    private Ice.EncodingVersion _encoding;
     private K _key;
     private boolean _haveKey = false;
     private V _value;

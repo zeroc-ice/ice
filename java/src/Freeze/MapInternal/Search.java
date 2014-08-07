@@ -12,6 +12,7 @@ package Freeze.MapInternal;
 import Freeze.ConnectionI;
 import Freeze.DatabaseException;
 import Freeze.DeadlockException;
+import java.nio.ByteBuffer;
 
 class Search
 {
@@ -47,13 +48,13 @@ class Search
 
     interface KeyValidator
     {
-        boolean keyInRange(byte[] key);
+        boolean keyInRange(ByteBuffer key);
     }
 
     static boolean
     search(Type type, ConnectionI connection, String dbName, com.sleepycat.db.Database db,
            com.sleepycat.db.DatabaseEntry key, com.sleepycat.db.DatabaseEntry value,
-           java.util.Comparator<byte[]> comparator, KeyValidator validator, TraceLevels trace)
+           java.util.Comparator<ByteBuffer> comparator, KeyValidator validator, TraceLevels trace)
     {
         if(type != Type.FIRST && type != Type.LAST && comparator == null)
         {
@@ -79,7 +80,7 @@ class Search
                 try
                 {
                     com.sleepycat.db.DatabaseEntry dbcKey =
-                        new com.sleepycat.db.DatabaseEntry(key != null ? key.getData() : null);
+                        new com.sleepycat.db.DatabaseEntry(key != null ? UtilI.getBuffer(key) : null);
                     dbcKey.setReuseBuffer(false);
 
                     dbc = db.openCursor(connection.dbTxn(), null);
@@ -116,7 +117,7 @@ class Search
                             // the target key. If the matching key is greater than the target key
                             // then we need to get the previous entry.
                             //
-                            int cmp = comparator.compare(dbcKey.getData(), key.getData());
+                            int cmp = comparator.compare(UtilI.getBuffer(dbcKey), UtilI.getBuffer(key));
                             assert(cmp >= 0);
                             if(cmp > 0)
                             {
@@ -143,7 +144,7 @@ class Search
                             // the target key. If the matching key is equal to the target key
                             // then we need to get the next entry.
                             //
-                            int cmp = comparator.compare(dbcKey.getData(), key.getData());
+                            int cmp = comparator.compare(UtilI.getBuffer(dbcKey), UtilI.getBuffer(key));
                             assert(cmp >= 0);
                             if(cmp == 0)
                             {
@@ -178,9 +179,9 @@ class Search
 
                     if(status == com.sleepycat.db.OperationStatus.SUCCESS)
                     {
-                        if(validator == null || validator.keyInRange(dbcKey.getData()))
+                        if(validator == null || validator.keyInRange(UtilI.getBuffer(dbcKey)))
                         {
-                            key.setData(dbcKey.getData());
+                            key.setDataNIO(UtilI.getBuffer(dbcKey));
                             return true;
                         }
                     }

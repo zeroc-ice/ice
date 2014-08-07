@@ -15,9 +15,10 @@ import Freeze.ConnectionI;
 import Freeze.Map;
 import Freeze.MapIndex;
 import Freeze.NavigableMap;
+import java.nio.ByteBuffer;
 
 public abstract class Index<K, V, I>
-    implements MapIndex, com.sleepycat.db.SecondaryKeyCreator, java.util.Comparator<byte[]>, KeyCodec<I>
+    implements MapIndex, KeyCodec<I>, com.sleepycat.db.SecondaryKeyCreator, java.util.Comparator<ByteBuffer>
 {
     protected
     Index(MapI<K, V> map, String name, java.util.Comparator<I> comparator)
@@ -59,7 +60,14 @@ public abstract class Index<K, V, I>
         config.setType(com.sleepycat.db.DatabaseType.BTREE);
         if(_comparator != null)
         {
-            config.setBtreeComparator(this);
+            java.util.Comparator<byte[]> c = new java.util.Comparator<byte[]>()
+            {
+                public int compare(byte[] a1, byte[] a2)
+                {
+                    return Index.this.compare(ByteBuffer.wrap(a1), ByteBuffer.wrap(a2));
+                }
+            };
+            config.setBtreeComparator(c);
         }
         config.setKeyCreator(this);
 
@@ -149,25 +157,20 @@ public abstract class Index<K, V, I>
         throws com.sleepycat.db.DatabaseException
     {
         Ice.Communicator communicator = _map.connection().getCommunicator();
-        byte[] secondaryKey = marshalKey(value.getData());
+        ByteBuffer secondaryKey = marshalKey(UtilI.getBuffer(value));
         assert(secondaryKey != null);
 
-        result.setData(secondaryKey);
-        result.setSize(secondaryKey.length);
+        result.setDataNIO(secondaryKey);
         return true;
     }
 
     //
-    // java.util.Comparator<byte[]> methods
+    // java.util.Comparator<ByteBuffer>.compare()
     //
-
-    public int
-    compare(byte[] k1, byte[] k2)
+    public int compare(ByteBuffer b1, ByteBuffer b2)
     {
         assert(_comparator != null);
-        Ice.Communicator communicator = _map.connection().getCommunicator();
-        Ice.EncodingVersion encoding = _map.connection().getEncoding();
-        return _comparator.compare(decodeKey(k1, communicator, encoding), decodeKey(k2, communicator, encoding));
+        return _comparator.compare(decodeKey(b1), decodeKey(b2));
     }
 
     private class FindModel implements IteratorModel<K, V>
@@ -230,7 +233,7 @@ public abstract class Index<K, V, I>
     public int
     count(I key)
     {
-        byte[] k = encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+        ByteBuffer k = encodeKey(key);
 
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
@@ -384,6 +387,51 @@ public abstract class Index<K, V, I>
         return new IndexedSubMap<K, V, I>(this, null, false, null, false);
     }
 
+    ByteBuffer encodeKey(I k)
+    {
+        IceInternal.BasicStream str = createWriteStream();
+        encodeKey(k, str);
+        return str.prepareWrite().b;
+    }
+
+    I decodeKey(ByteBuffer buf)
+    {
+        return decodeKey(createReadStream(buf));
+    }
+
+    I decodeKey(com.sleepycat.db.DatabaseEntry entry)
+    {
+        ByteBuffer b = entry.getDataNIO();
+        if(b != null)
+        {
+            return decodeKey(createReadStream(b));
+        }
+        else
+        {
+            byte[] arr = entry.getData();
+            assert(arr != null && entry.getOffset() == 0 && entry.getSize() == arr.length);
+            return decodeKey(createReadStream(arr));
+        }
+    }
+
+    IceInternal.BasicStream createWriteStream()
+    {
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_map.connection().getCommunicator()),
+                                           _map.connection().getEncoding(), true, false);
+    }
+
+    IceInternal.BasicStream createReadStream(byte[] arr)
+    {
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_map.connection().getCommunicator()),
+                                           _map.connection().getEncoding(), arr);
+    }
+
+    IceInternal.BasicStream createReadStream(ByteBuffer buf)
+    {
+        return new IceInternal.BasicStream(IceInternal.Util.getInstance(_map.connection().getCommunicator()),
+                                           _map.connection().getEncoding(), buf);
+    }
+
     com.sleepycat.db.SecondaryDatabase
     db()
     {
@@ -420,7 +468,7 @@ public abstract class Index<K, V, I>
         @SuppressWarnings("unchecked")
         I key = (I)o;
 
-        byte[] k = encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
+        ByteBuffer k = encodeKey(key);
 
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
@@ -475,7 +523,7 @@ public abstract class Index<K, V, I>
         com.sleepycat.db.SecondaryCursor c = (com.sleepycat.db.SecondaryCursor)cursor;
 
         assert(fromKey != null);
-        byte[] k = encodeKey(fromKey, _map.connection().getCommunicator(), _map.connection().getEncoding());
+        ByteBuffer k = encodeKey(fromKey);
 
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry();
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
@@ -483,7 +531,7 @@ public abstract class Index<K, V, I>
 
         if(c.getSearchKey(dbIKey, dbKey, dbValue, null) == com.sleepycat.db.OperationStatus.SUCCESS)
         {
-            return new EntryI<K, V>(_map, null, dbKey, dbValue.getData(), dbIKey.getData());
+            return new EntryI<K, V>(_map, null, dbKey, UtilI.getBuffer(dbValue), UtilI.getBuffer(dbIKey));
         }
 
         return null;
@@ -515,7 +563,7 @@ public abstract class Index<K, V, I>
 
         if(status == com.sleepycat.db.OperationStatus.SUCCESS)
         {
-            return new EntryI<K, V>(_map, null, dbKey, dbValue.getData(), dbIKey.getData());
+            return new EntryI<K, V>(_map, null, dbKey, UtilI.getBuffer(dbValue), UtilI.getBuffer(dbIKey));
         }
 
         return null;
@@ -538,15 +586,15 @@ public abstract class Index<K, V, I>
 
         if(fromKey != null)
         {
-            byte[] k = encodeKey(fromKey, _map.connection().getCommunicator(), _map.connection().getEncoding());
-            dbIKey.setData(k);
+            ByteBuffer k = encodeKey(fromKey);
+            dbIKey.setDataNIO(k);
             dbIKey.setReuseBuffer(false);
 
             status = c.getSearchKeyRange(dbIKey, dbKey, dbValue, null);
 
             if(status == com.sleepycat.db.OperationStatus.SUCCESS && !fromInclusive)
             {
-                int cmp = compare(dbIKey.getData(), k);
+                int cmp = compare(UtilI.getBuffer(dbIKey), k);
                 assert(cmp >= 0);
                 if(cmp == 0)
                 {
@@ -605,15 +653,15 @@ public abstract class Index<K, V, I>
 
         if(fromKey != null)
         {
-            byte[] k = encodeKey(fromKey, _map.connection().getCommunicator(), _map.connection().getEncoding());
-            dbIKey.setData(k);
+            ByteBuffer k = encodeKey(fromKey);
+            dbIKey.setDataNIO(k);
             dbIKey.setReuseBuffer(false);
 
             status = c.getSearchKeyRange(dbIKey, dbKey, dbValue, null);
 
             if(status == com.sleepycat.db.OperationStatus.SUCCESS && !fromInclusive)
             {
-                int cmp = compare(dbIKey.getData(), k);
+                int cmp = compare(UtilI.getBuffer(dbIKey), k);
                 assert(cmp >= 0);
                 if(cmp == 0)
                 {
@@ -658,12 +706,11 @@ public abstract class Index<K, V, I>
     //
     // marshalKey may be overridden by subclasses as an optimization.
     //
-    protected byte[]
-    marshalKey(byte[] value)
+    protected ByteBuffer
+    marshalKey(ByteBuffer value)
     {
-        V decodedValue = _map.decodeValue(value, _map.connection().getCommunicator(), _map.connection().getEncoding());
-        return encodeKey(extractKey(decodedValue), _map.connection().getCommunicator(), 
-                         _map.connection().getEncoding());
+        V decodedValue = _map.decodeValue(value);
+        return encodeKey(extractKey(decodedValue));
     }
 
     private EntryI<K, V>
@@ -673,14 +720,14 @@ public abstract class Index<K, V, I>
         I key = null;
         if(fromKey != null || toKey != null)
         {
-            key = decodeKey(dbIKey.getData(), _map.connection().getCommunicator(), _map.connection().getEncoding());
+            key = decodeKey(dbIKey);
             if(!checkRange(key, fromKey, fromInclusive, toKey, toInclusive))
             {
                 return null;
             }
         }
 
-        return new EntryI<K, V>(_map, null, dbKey, dbValue.getData(), dbIKey.getData());
+        return new EntryI<K, V>(_map, null, dbKey, UtilI.getBuffer(dbValue), UtilI.getBuffer(dbIKey));
     }
 
     private boolean
