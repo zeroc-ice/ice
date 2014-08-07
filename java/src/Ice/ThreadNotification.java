@@ -11,7 +11,7 @@ package Ice;
 
 /**
  * Interface for thread notification hooks. Applications can derive
- * a class tat implements the <code>start</code> and <code>stop</code>
+ * a class that implements the <code>start</code> and <code>stop</code>
  * methods to intercept creation and destruction of threads created
  * by the Ice run time.
  *

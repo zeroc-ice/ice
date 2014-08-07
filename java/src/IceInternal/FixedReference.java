@@ -210,78 +210,70 @@ public class FixedReference extends Reference
     }
 
     @Override
-    public Ice.ConnectionI
-    getConnection(Ice.BooleanHolder compress)
-    {
-        switch(getMode())
-        {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
-                if(_fixedConnection.endpoint().datagram())
-                {
-                    throw new Ice.NoEndpointException("");
-                }
-                break;
-            }
-
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
-                if(!_fixedConnection.endpoint().datagram())
-                {
-                    throw new Ice.NoEndpointException("");
-                }
-                break;
-            }
-        }
-
-        //
-        // If a secure connection is requested or secure overrides is set,
-        // check if the connection is secure.
-        //
-        boolean secure;
-        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideSecure)
-        {
-            secure = defaultsAndOverrides.overrideSecureValue;
-        }
-        else
-        {
-            secure = getSecure();
-        }
-        if(secure && !_fixedConnection.endpoint().secure())
-        {
-            throw new Ice.NoEndpointException("");
-        }
-
-        _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
-
-        if(defaultsAndOverrides.overrideCompress)
-        {
-            compress.value = defaultsAndOverrides.overrideCompressValue;
-        }
-        else if(_overrideCompress)
-        {
-            compress.value = _compress;
-        }
-        else
-        {
-            compress.value = _fixedConnection.endpoint().compress();
-        }
-        return _fixedConnection;
-    }
-
-    @Override
     public void
     getConnection(GetConnectionCallback callback)
     {
         try
         {
             Ice.BooleanHolder compress = new Ice.BooleanHolder();
-            Ice.ConnectionI connection = getConnection(compress);
-            callback.setConnection(connection, compress.value);
+            switch(getMode())
+            {
+                case Reference.ModeTwoway:
+                case Reference.ModeOneway:
+                case Reference.ModeBatchOneway:
+                {
+                    if(_fixedConnection.endpoint().datagram())
+                    {
+                        throw new Ice.NoEndpointException("");
+                    }
+                    break;
+                }
+
+                case Reference.ModeDatagram:
+                case Reference.ModeBatchDatagram:
+                {
+                    if(!_fixedConnection.endpoint().datagram())
+                    {
+                        throw new Ice.NoEndpointException("");
+                    }
+                    break;
+                }
+            }
+
+            //
+            // If a secure connection is requested or secure overrides is set,
+            // check if the connection is secure.
+            //
+            boolean secure;
+            DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideSecure)
+            {
+                secure = defaultsAndOverrides.overrideSecureValue;
+            }
+            else
+            {
+                secure = getSecure();
+            }
+            if(secure && !_fixedConnection.endpoint().secure())
+            {
+                throw new Ice.NoEndpointException("");
+            }
+
+            _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
+
+            if(defaultsAndOverrides.overrideCompress)
+            {
+                compress.value = defaultsAndOverrides.overrideCompressValue;
+            }
+            else if(_overrideCompress)
+            {
+                compress.value = _compress;
+            }
+            else
+            {
+                compress.value = _fixedConnection.endpoint().compress();
+            }
+            callback.setConnection(_fixedConnection, compress.value);
         }
         catch(Ice.LocalException ex)
         {

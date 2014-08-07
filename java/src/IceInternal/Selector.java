@@ -209,8 +209,11 @@ public final class Selector
             {
                 Thread.sleep(1);
             }
-            catch(java.lang.InterruptedException ex)
+            catch(InterruptedException ex)
             {
+                //
+                // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
+                //
             }
 
             if(++_spuriousWakeUp > 100)

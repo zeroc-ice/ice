@@ -88,6 +88,7 @@ public class AsyncResult
                 }
                 catch(InterruptedException ex)
                 {
+                    throw new Ice.OperationInterruptedException();
                 }
             }
         }
@@ -127,6 +128,7 @@ public class AsyncResult
                 }
                 catch(InterruptedException ex)
                 {
+                    throw new Ice.OperationInterruptedException();
                 }
             }
         }
@@ -217,6 +219,12 @@ public class AsyncResult
                 }
                 catch(InterruptedException ex)
                 {
+                    //
+                    // Remove the EndCalled flag since it should be possible to
+                    // call end_* again on the AsyncResult.
+                    //
+                    _state &= ~EndCalled;
+                    throw new Ice.OperationInterruptedException();
                 }
             }
             if(_exception != null)
@@ -485,7 +493,8 @@ public class AsyncResult
 
         if(handler != null)
         {
-            handler.asyncRequestTimedOut((IceInternal.OutgoingAsyncMessageCallback)this);
+            handler.asyncRequestCanceled((IceInternal.OutgoingAsyncMessageCallback)this,
+                            new Ice.InvocationTimeoutException());
         }
     }
 

@@ -25,7 +25,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         RequestHandler handler = null;
         try
         {
-            handler = _proxy.__getRequestHandler(true);
+            handler = _proxy.__getRequestHandler();
             int status = handler.sendAsyncRequest(this);
             if((status & AsyncStatus.Sent) > 0)
             {

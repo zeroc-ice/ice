@@ -9,28 +9,27 @@
 
 package IceInternal;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 public final class Instance
 {
     private class ObserverUpdaterI implements Ice.Instrumentation.ObserverUpdater
     {
-        ObserverUpdaterI(Instance instance)
-        {
-            _instance = instance;
-        }
-
-        @Override public void
+        @Override
+        public void
         updateConnectionObservers()
         {
-            _instance.updateConnectionObservers();
+            Instance.this.updateConnectionObservers();
         }
 
-        @Override public void
+        @Override
+        public void
         updateThreadObservers()
         {
-            _instance.updateThreadObservers();
+            Instance.this.updateThreadObservers();
         }
-
-        final private Instance _instance;
     }
 
     public Ice.InitializationData
@@ -603,6 +602,18 @@ public final class Instance
         return _useApplicationClassLoader;
     }
 
+    public boolean
+    queueRequests()
+    {
+        return _hasQueueExecutor;
+    }
+
+    public ExecutorService
+    getQueueExecutor()
+    {
+        return _queueExecutor;
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -735,7 +746,6 @@ public final class Instance
                 }
             }
 
-            _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
 
             _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
@@ -834,6 +844,22 @@ public final class Instance
             {
                 _observer = _initData.observer;
             }
+
+            if(_initData.properties.getPropertyAsInt("Ice.BackgroundIO") > 0)
+            {
+                _hasQueueExecutor = true;
+                _queueExecutor = Executors.newFixedThreadPool(1,
+                    Util.createThreadFactory(_initData.properties,
+                        Util.createThreadName(_initData.properties, "Ice.BackgroundIO")));
+                //
+                // If background IO is enabled message buffers cannot be cached.
+                //
+                _cacheMessageBuffers  = 0;
+            }
+            else
+            {
+                _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+            }
         }
         catch(Ice.LocalException ex)
         {
@@ -889,7 +915,7 @@ public final class Instance
         //
         if(_observer != null)
         {
-            _observer.setObserverUpdater(new ObserverUpdaterI(this));
+            _observer.setObserverUpdater(new ObserverUpdaterI());
         }
 
         //
@@ -899,29 +925,9 @@ public final class Instance
         {
             java.util.concurrent.ScheduledThreadPoolExecutor executor =
                 new java.util.concurrent.ScheduledThreadPoolExecutor(1,
-                    new java.util.concurrent.ThreadFactory()
-                    {
-                        @Override
-                        public Thread newThread(Runnable r)
-                        {
-                            Thread t = new Thread(r);
-                            if(initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
-                            {
-                                final int priority = Util.getThreadPriorityProperty(
-                                    initializationData().properties, "Ice");
-                                t.setPriority(priority);
-                            }
+                    Util.createThreadFactory(_initData.properties,
+                        Util.createThreadName(_initData.properties, "Ice.Timer")));
 
-                            String threadName = initializationData().properties.getProperty("Ice.ProgramName");
-                            if(threadName.length() > 0)
-                            {
-                                threadName += "-";
-                            }
-                            t.setName(threadName + "Ice.Timer");
-
-                            return t;
-                        }
-                    });
             executor.setRemoveOnCancelPolicy(true);
             executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
             _timer = executor;
@@ -1014,6 +1020,7 @@ public final class Instance
             _state = StateDestroyInProgress;
         }
 
+
         if(_objectAdapterFactory != null)
         {
             _objectAdapterFactory.shutdown();
@@ -1031,7 +1038,19 @@ public final class Instance
 
         if(_outgoingConnectionFactory != null)
         {
-            _outgoingConnectionFactory.waitUntilFinished();
+            try
+            {
+                _outgoingConnectionFactory.waitUntilFinished();
+            }
+            catch (InterruptedException e)
+            {
+                //
+                // Restore the interrupt, otherwise the instance will be
+                // left in an undefined state. The thread joins below will
+                // interrupt which is fine.
+                //
+                Thread.currentThread().interrupt();
+            }
         }
 
         if(_retryQueue != null)
@@ -1132,20 +1151,41 @@ public final class Instance
             _state = StateDestroyed;
         }
 
-        //
-        // Join with threads outside the synchronization.
-        //
-        if(clientThreadPool != null)
+        try
         {
-            clientThreadPool.joinWithAllThreads();
+            //
+            // Join with threads outside the synchronization.
+            //
+            if(clientThreadPool != null)
+            {
+                clientThreadPool.joinWithAllThreads();
+            }
+            if(serverThreadPool != null)
+            {
+                serverThreadPool.joinWithAllThreads();
+            }
+            if(endpointHostResolver != null)
+            {
+                endpointHostResolver.joinWithThread();
+            }
         }
-        if(serverThreadPool != null)
+        catch(InterruptedException ex)
         {
-            serverThreadPool.joinWithAllThreads();
+            throw new Ice.OperationInterruptedException();
         }
-        if(endpointHostResolver != null)
+
+        if(_queueExecutor != null)
         {
-            endpointHostResolver.joinWithThread();
+            _queueExecutor.shutdown();
+            try
+            {
+                _queueExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            }
+            catch (InterruptedException e)
+            {
+                throw new Ice.OperationInterruptedException();
+            }
+            _queueExecutor = null;
         }
 
         if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
@@ -1288,4 +1328,6 @@ public final class Instance
     final private boolean _useApplicationClassLoader;
 
     private static boolean _oneOffDone = false;
+    private boolean _hasQueueExecutor = false;
+    private ExecutorService _queueExecutor;
 }

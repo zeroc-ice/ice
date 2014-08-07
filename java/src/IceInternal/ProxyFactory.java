@@ -9,6 +9,8 @@
 
 package IceInternal;
 
+import Ice.OperationInterruptedException;
+
 public final class ProxyFactory
 {
     public Ice.ObjectPrx
@@ -207,6 +209,14 @@ public final class ProxyFactory
         // Don't retry invocation timeouts.
         //
         if(ex instanceof Ice.InvocationTimeoutException)
+        {
+            throw ex;
+        }
+
+        //
+        // Don't retry on OperationInterruptedException.
+        //
+        if(ex instanceof OperationInterruptedException)
         {
             throw ex;
         }

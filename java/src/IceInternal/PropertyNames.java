@@ -70,6 +70,7 @@ public final class PropertyNames
         new Property("Ice\\.Admin\\.Facets", false, null),
         new Property("Ice\\.Admin\\.InstanceName", false, null),
         new Property("Ice\\.Admin\\.ServerId", false, null),
+        new Property("Ice\\.BackgroundIO", false, null),
         new Property("Ice\\.BackgroundLocatorCacheUpdates", false, null),
         new Property("Ice\\.BatchAutoFlush", false, null),
         new Property("Ice\\.ChangeUser", false, null),

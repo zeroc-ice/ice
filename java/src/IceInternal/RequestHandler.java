@@ -22,10 +22,13 @@ public interface RequestHandler
     int sendAsyncRequest(OutgoingAsyncMessageCallback out)
         throws RetryException;
 
-    void requestTimedOut(OutgoingMessageCallback out);
-    void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync);
+    boolean requestCanceled(OutgoingMessageCallback out, Ice.LocalException ex);
+    boolean asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex);
 
     Reference getReference();
 
-    Ice.ConnectionI getConnection(boolean wait);
+    Ice.ConnectionI getConnection();
+    Ice.ConnectionI waitForConnection()
+        throws InterruptedException;
+
 }

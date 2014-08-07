@@ -86,7 +86,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
 
     @Override
     public void
-    __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection)
+    __dispatchInvocationCancel(final Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
     {
         threadPool.dispatch(
             new DispatchWorkItem(connection)
@@ -95,7 +95,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
                 public void
                 run()
                 {
-                    BatchOutgoingAsync.this.__finished(new Ice.InvocationTimeoutException());
+                    BatchOutgoingAsync.this.__finished(ex);
                 }
             });
     }

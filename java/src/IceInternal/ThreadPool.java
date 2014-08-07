@@ -57,7 +57,14 @@ public final class ThreadPool
         {
             // No call to ioCompleted, this shouldn't block (and we don't want to cause
             // a new thread to be started).
-            _thread.join();
+            try
+            {
+                _thread.join();
+            }
+            catch (InterruptedException e)
+            {
+                // Ignore.
+            }
         }
 
         private final EventHandlerThread _thread;
@@ -183,7 +190,7 @@ public final class ThreadPool
         _hasPriority = hasPriority;
         _priority = priority;
 
-        _workQueue = new ThreadPoolWorkQueue(this, _instance, _selector);
+        _workQueue = new ThreadPoolWorkQueue(_instance, this, _selector);
 
         _nextHandler = _handlers.iterator();
 
@@ -216,7 +223,14 @@ public final class ThreadPool
             _instance.initializationData().logger.error(s);
 
             destroy();
-            joinWithAllThreads();
+            try
+            {
+                joinWithAllThreads();
+            }
+            catch (InterruptedException e)
+            {
+                throw new Ice.OperationInterruptedException();
+            }
             throw ex;
         }
     }
@@ -350,6 +364,7 @@ public final class ThreadPool
 
     public void
     joinWithAllThreads()
+        throws InterruptedException
     {
         //
         // _threads is immutable after destroy() has been called,
@@ -361,6 +376,11 @@ public final class ThreadPool
         {
             thread.join();
         }
+
+        //
+        // TODO: MJN: InterruptedException leads to a leak as the
+        // work queue and selector are not destroyed?
+        //
 
         //
         // Destroy the selector
@@ -692,36 +712,50 @@ public final class ThreadPool
         //
         while(!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0))
         {
-            try
+            if(_threadIdleTime > 0)
             {
-                if(_threadIdleTime > 0)
+                long before = IceInternal.Time.currentMonotonicTimeMillis();
+                boolean interrupted = false;
+                try
                 {
-                    long before = IceInternal.Time.currentMonotonicTimeMillis();
+                    //
+                    // If the wait is interrupted then we'll let the thread die as if it timed out.
+                    //
                     wait(_threadIdleTime * 1000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
+                }
+                catch (InterruptedException e)
+                {
+                    interrupted = true;
+                }
+                if(interrupted || IceInternal.Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
+                {
+                    if(!_destroyed && (!_promote || _inUseIO == _sizeIO ||
+                                       (!_nextHandler.hasNext() && _inUseIO > 0)))
                     {
-                        if(!_destroyed && (!_promote || _inUseIO == _sizeIO ||
-                                           (!_nextHandler.hasNext() && _inUseIO > 0)))
+                        if(_instance.traceLevels().threadPool >= 1)
                         {
-                            if(_instance.traceLevels().threadPool >= 1)
-                            {
-                                String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
-                                _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
-                            }
-                            assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
-                            _threads.remove(current._thread);
-                            _workQueue.queue(new JoinThreadWorkItem(current._thread));
-                            return true;
+                            String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
+                            _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                         }
+                        assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
+                        _threads.remove(current._thread);
+                        _workQueue.queue(new JoinThreadWorkItem(current._thread));
+                        return true;
                     }
                 }
-                else
+            }
+            else
+            {
+                try
                 {
                     wait();
                 }
-            }
-            catch(InterruptedException ex)
-            {
+                catch (InterruptedException e)
+                {
+                    //
+                    // Eat the InterruptedException.
+                    //
+                }
             }
         }
         current._leader = true; // The current thread has become the leader.
@@ -777,18 +811,9 @@ public final class ThreadPool
 
         public void
         join()
+            throws InterruptedException
         {
-            while(true)
-            {
-                try
-                {
-                    _thread.join();
-                    break;
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
+            _thread.join();
         }
 
         public void

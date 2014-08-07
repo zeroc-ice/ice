@@ -198,7 +198,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
 
     @Override
     public void
-    __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection)
+    __dispatchInvocationCancel(final Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
     {
         threadPool.dispatch(
             new DispatchWorkItem(connection)
@@ -207,7 +207,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 public void
                 run()
                 {
-                    OutgoingAsync.this.__finished(new Ice.InvocationTimeoutException());
+                    OutgoingAsync.this.__finished(ex);
                 }
             });
     }
@@ -389,10 +389,10 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     {
         while(true)
         {
+            _handler = _proxy.__getRequestHandler();
             try
             {
                 _sent = false;
-                _handler = _proxy.__getRequestHandler(true);
                 int status = _handler.sendAsyncRequest(this);
                 if((status & AsyncStatus.Sent) > 0)
                 {
@@ -429,6 +429,15 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                         }
                     }
                 }
+                break;
+            }
+            catch(Ice.OperationInterruptedException ex)
+            {
+                //
+                // Clear the request handler, and cancel the outgoing request.
+                //
+                _proxy.__setRequestHandler(_handler, null);
+                _handler.asyncRequestCanceled(this, ex);
                 break;
             }
             catch(RetryException ex)

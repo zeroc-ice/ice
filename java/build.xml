@@ -492,6 +492,7 @@
                 <include name="test/Ice/info/Test.ice" />
                 <include name="test/Ice/inheritance/Test.ice" />
                 <include name="test/Ice/interceptor/Test.ice" />
+                <include name="test/Ice/interrupt/Test.ice" />
                 <include name="test/Ice/invoke/Test.ice" />
                 <include name="test/Ice/location/Test.ice" />
                 <include name="test/Ice/metrics/Test.ice" />
@@ -513,7 +514,7 @@
                 <include name="test/Ice/timeout/Test.ice" />
                 <include name="test/Ice/acm/Test.ice" />
                 <include name="test/Ice/throughput/Throughput.ice" />
-		<include name="test/Ice/threadPoolPriority/Test.ice" />
+		        <include name="test/Ice/threadPoolPriority/Test.ice" />
                 <include name="test/Ice/udp/Test.ice" />
                 <include name="test/Freeze/complex/Complex.ice" />
                 <include name="test/Glacier2/router/Callback.ice" />

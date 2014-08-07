@@ -40,6 +40,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
     public void
     waitUntilHolding()
+        throws InterruptedException
     {
         java.util.LinkedList<Ice.ConnectionI> connections;
 
@@ -51,13 +52,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             //
             while(_state < StateHolding)
             {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
+                wait();
             }
 
             //
@@ -78,6 +73,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
     public void
     waitUntilFinished()
+        throws InterruptedException
     {
         java.util.LinkedList<Ice.ConnectionI> connections = null;
 
@@ -89,13 +85,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             //
             while(_state != StateFinished)
             {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
+                wait();
             }
 
             //
@@ -114,7 +104,20 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         {
             for(Ice.ConnectionI connection : connections)
             {
-                connection.waitUntilFinished();
+                try
+                {
+                    connection.waitUntilFinished();
+                }
+                catch(InterruptedException e)
+                {
+                    //
+                    // Force close all of the connections.
+                    //
+                    for(Ice.ConnectionI c : connections)
+                    {
+                        c.close(true);
+                    }
+                }
             }
         }
 
@@ -375,7 +378,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 Ice.ConnectionI connection =
                     new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, _transceiver, null, _endpoint,
                                         _adapter);
-                connection.start(null);
+                connection.startAndWait();
                 _connections.add(connection);
             }
             else
@@ -424,6 +427,10 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             if(ex instanceof Ice.LocalException)
             {
                 throw (Ice.LocalException)ex;
+            }
+            else if(ex instanceof InterruptedException)
+            {
+                throw new Ice.OperationInterruptedException();
             }
             else
             {

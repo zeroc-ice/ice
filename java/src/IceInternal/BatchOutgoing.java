@@ -35,6 +35,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
 
     public void
     invoke()
+        throws InterruptedException
     {
         assert(_proxy != null || _connection != null);
 
@@ -49,13 +50,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
             {
                 while(_exception == null && !_sent)
                 {
-                    try
-                    {
-                        wait();
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
+                    wait();
                 }
                 if(_exception != null)
                 {
@@ -68,7 +63,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         RequestHandler handler = null;
         try
         {
-            handler = _proxy.__getRequestHandler(false);
+            handler = _proxy.__getRequestHandler();
             if(handler.sendRequest(this))
             {
                 return;
@@ -84,17 +79,11 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                     long deadline = now + timeout;
                     while(_exception == null && !_sent && !timedOut)
                     {
-                        try
+                        wait(deadline - now);
+                        if(_exception == null && !_sent)
                         {
-                            wait(deadline - now);
-                            if(_exception == null && !_sent)
-                            {
-                                now = Time.currentMonotonicTimeMillis();
-                                timedOut = now >= deadline;
-                            }
-                        }
-                        catch(InterruptedException ex)
-                        {
+                            now = Time.currentMonotonicTimeMillis();
+                            timedOut = now >= deadline;
                         }
                     }
                 }
@@ -102,31 +91,20 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                 {
                     while(_exception == null && !_sent)
                     {
-                        try
-                        {
-                            wait();
-                        }
-                        catch(InterruptedException ex)
-                        {
-                        }
+                        wait();
                     }
                 }
             }
 
             if(timedOut)
             {
-                handler.requestTimedOut(this);
-
-                synchronized(this)
+                if(handler.requestCanceled(this, new Ice.InvocationTimeoutException()))
                 {
-                    while(_exception == null)
+                    synchronized(this)
                     {
-                        try
+                        while(_exception == null)
                         {
                             wait();
-                        }
-                        catch(InterruptedException ex)
-                        {
                         }
                     }
                 }

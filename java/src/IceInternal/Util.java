@@ -9,8 +9,41 @@
 
 package IceInternal;
 
+import java.util.concurrent.ThreadFactory;
+
 public final class Util
 {
+    static String
+    createThreadName(final Ice.Properties properties, final String name) {
+        String threadName = properties.getProperty("Ice.ProgramName");
+        if(threadName.length() > 0)
+        {
+            threadName += "-";
+        }
+
+        threadName = threadName + name;
+        return threadName;
+    }
+
+    static ThreadFactory
+    createThreadFactory(final Ice.Properties properties, final String name) {
+        return new java.util.concurrent.ThreadFactory()
+        {
+            @Override
+            public Thread newThread(Runnable r)
+            {
+                Thread t = new Thread(r);
+                t.setName(name);
+
+                if(properties.getProperty("Ice.ThreadPriority").length() > 0)
+                {
+                    t.setPriority(Util.getThreadPriorityProperty(properties, "Ice"));
+                }
+                return t;
+            }
+        };
+    }
+
     public static Instance
     getInstance(Ice.Communicator communicator)
     {

@@ -49,6 +49,7 @@ tests = [
     ("Ice/custom", ["core"]),
     ("Ice/checksum", ["core"]),
     ("Ice/dispatcher", ["core"]),
+    ("Ice/interrupt", ["core"]),
     ("Ice/packagemd", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),

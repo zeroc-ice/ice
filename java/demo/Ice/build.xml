@@ -18,6 +18,7 @@
         <ant dir="callback"/>
         <ant dir="hello"/>
         <ant dir="invoke"/>
+        <ant dir="interrupt"/>
         <ant dir="latency"/>
         <ant dir="minimal"/>
         <ant dir="multicast"/>
@@ -40,6 +41,7 @@
         <ant dir="callback" target="clean"/>
         <ant dir="hello" target="clean"/>
         <ant dir="invoke" target="clean"/>
+        <ant dir="interrupt" target="clean"/>
         <ant dir="latency" target="clean"/>
         <ant dir="minimal" target="clean"/>
         <ant dir="multicast" target="clean"/>

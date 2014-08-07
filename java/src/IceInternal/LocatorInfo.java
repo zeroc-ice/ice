@@ -117,66 +117,6 @@ public final class LocatorInfo
             }
         }
 
-        synchronized EndpointI[]
-        getEndpoints(Reference ref, Reference wellKnownRef, int ttl, Ice.BooleanHolder cached)
-        {
-            if(!_response || _exception == null)
-            {
-                if(wellKnownRef != null) // This request is to resolve the endpoints of a cached well-known object ref
-                {
-                    _wellKnownRefs.add(wellKnownRef);
-                }
-                if(!_sent)
-                {
-                    _sent = true;
-                    send();
-                }
-
-                while(!_response && _exception == null)
-                {
-                    try
-                    {
-                        wait();
-                    }
-                    catch(java.lang.InterruptedException ex)
-                    {
-                    }
-                }
-            }
-
-            if(_exception != null)
-            {
-                _locatorInfo.getEndpointsException(ref, _exception); // This throws.
-            }
-
-            assert(_response);
-            EndpointI[] endpoints = null;
-            if(_proxy != null)
-            {
-                Reference r = ((Ice.ObjectPrxHelperBase)_proxy).__reference();
-                if(!r.isIndirect())
-                {
-                    endpoints = r.getEndpoints();
-                }
-                else if(ref.isWellKnown() && !r.isWellKnown())
-                {
-                    //
-                    // We're resolving the endpoints of a well-known object and the proxy returned
-                    // by the locator is an indirect proxy. We now need to resolve the endpoints
-                    // of this indirect proxy.
-                    //
-                    return _locatorInfo.getEndpoints(r, ref, ttl, cached);
-                }
-            }
-
-            cached.value = false;
-            if(_ref.getInstance().traceLevels().location >= 1)
-            {
-                _locatorInfo.getEndpointsTrace(ref, endpoints, false);
-            }
-            return endpoints == null ? new EndpointI[0] : endpoints;
-        }
-
         Request(LocatorInfo locatorInfo, Reference ref)
         {
             _locatorInfo = locatorInfo;
@@ -395,67 +335,6 @@ public final class LocatorInfo
             _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(locatorRegistry.ice_locator(null));
             return _locatorRegistry;
         }
-    }
-
-    public EndpointI[]
-    getEndpoints(Reference ref, int ttl, Ice.BooleanHolder cached)
-    {
-        return getEndpoints(ref, null, ttl, cached);
-    }
-
-    public EndpointI[]
-    getEndpoints(Reference ref, Reference wellKnownRef, int ttl, Ice.BooleanHolder cached)
-    {
-        assert(ref.isIndirect());
-        EndpointI[] endpoints = null;
-        cached.value = false;
-        if(!ref.isWellKnown())
-        {
-            endpoints = _table.getAdapterEndpoints(ref.getAdapterId(), ttl, cached);
-            if(!cached.value)
-            {
-                if(_background && endpoints != null)
-                {
-                    getAdapterRequest(ref).addCallback(ref, wellKnownRef, ttl, null);
-                }
-                else
-                {
-                    return getAdapterRequest(ref).getEndpoints(ref, wellKnownRef, ttl, cached);
-                }
-            }
-        }
-        else
-        {
-            Reference r = _table.getObjectReference(ref.getIdentity(), ttl, cached);
-            if(!cached.value)
-            {
-                if(_background && r != null)
-                {
-                    getObjectRequest(ref).addCallback(ref, null, ttl, null);
-                }
-                else
-                {
-                    return getObjectRequest(ref).getEndpoints(ref, null, ttl, cached);
-                }
-            }
-
-            if(!r.isIndirect())
-            {
-                endpoints = r.getEndpoints();
-            }
-            else if(!r.isWellKnown())
-            {
-                return getEndpoints(r, ref, ttl, cached);
-            }
-        }
-
-        assert(endpoints != null);
-        cached.value = true;
-        if(ref.getInstance().traceLevels().location >= 1)
-        {
-            getEndpointsTrace(ref, endpoints, true);
-        }
-        return endpoints;
     }
 
     public void

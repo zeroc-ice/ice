@@ -9,6 +9,8 @@
 
 package IceInternal;
 
+import java.io.IOException;
+
 public class BasicStream
 {
     public
@@ -941,15 +943,30 @@ public class BasicStream
         {
             return null;
         }
+        ObjectInputStream in = null;
         try
         {
             InputStreamWrapper w = new InputStreamWrapper(sz, this);
-            ObjectInputStream in = new ObjectInputStream(_instance, w);
+            in = new ObjectInputStream(_instance, w);
             return (java.io.Serializable)in.readObject();
         }
         catch(java.lang.Exception ex)
         {
             throw new Ice.MarshalException("cannot deserialize object", ex);
+        }
+        finally
+        {
+            if(in != null)
+            {
+                try
+                {
+                    in.close();
+                }
+                catch (IOException ex)
+                {
+                    throw new Ice.MarshalException("cannot deserialize object", ex);
+                }
+            }
         }
     }
 

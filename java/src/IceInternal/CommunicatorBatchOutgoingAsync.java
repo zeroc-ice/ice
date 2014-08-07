@@ -60,8 +60,10 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
                 return false;
             }
 
+            // TODO: MJN: This is missing a test.
+            @Override
             public void
-            __finished(Ice.LocalException ex, boolean sent)
+            __finished(Ice.Exception ex)
             {
                 if(_childObserver != null)
                 {

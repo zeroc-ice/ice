@@ -26,12 +26,7 @@ public final class ObjectAdapterFactory
                 return;
             }
 
-            _instance = null;
-            _communicator = null;
-
             adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
-
-            notifyAll();
         }
 
         //
@@ -42,7 +37,15 @@ public final class ObjectAdapterFactory
         {
             adapter.deactivate();
         }
+
+        synchronized(this)
+        {
+            _instance = null;
+            _communicator = null;
+            notifyAll();
+        }
     }
+
 
     public void
     waitForShutdown()
@@ -61,6 +64,7 @@ public final class ObjectAdapterFactory
                 }
                 catch(InterruptedException ex)
                 {
+                    throw new Ice.OperationInterruptedException();
                 }
             }
 

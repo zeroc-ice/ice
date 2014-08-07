@@ -154,7 +154,6 @@ final class TcpTransceiver implements Transceiver
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public int write(Buffer buf)
     {
         final int size = buf.b.limit();
@@ -240,7 +239,6 @@ final class TcpTransceiver implements Transceiver
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public int read(Buffer buf, Ice.BooleanHolder moreData)
     {
         int packetSize = buf.b.remaining();
@@ -254,8 +252,8 @@ final class TcpTransceiver implements Transceiver
             try
             {
                 assert(_fd != null);
-                int ret = _fd.read(buf.b);
 
+                int ret = _fd.read(buf.b);
                 if(ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
@@ -330,7 +328,6 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
-    @SuppressWarnings("deprecation")
     TcpTransceiver(ProtocolInstance instance, java.nio.channels.SocketChannel fd, NetworkProxy proxy,
                    java.net.InetSocketAddress addr)
     {
@@ -357,7 +354,6 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
-    @SuppressWarnings("deprecation")
     TcpTransceiver(ProtocolInstance instance, java.nio.channels.SocketChannel fd)
     {
         _instance = instance;

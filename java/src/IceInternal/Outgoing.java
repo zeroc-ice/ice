@@ -97,11 +97,43 @@ public final class Outgoing implements OutgoingMessageCallback
                 _exception = null;
                 _sent = false;
 
-                _handler = _proxy.__getRequestHandler(false);
-
-                if(_handler.sendRequest(this)) // Request sent and no response expected, we're done.
+                _handler = _proxy.__getRequestHandler();
+                try
                 {
-                    return true;
+                    if(_handler.sendRequest(this)) // Request sent and no response expected, we're done.
+                    {
+                        return true;
+                    }
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    if(_handler.requestCanceled(this, new Ice.OperationInterruptedException()))
+                    {
+                        //
+                        // Wait for the exception to propagate. It's possible the request handler ignores
+                        // the timeout if there was a failure shortly before requestTimedOut got called.
+                        // In this case, the exception should be set on the Outgoing.
+                        //
+                        synchronized(this)
+                        {
+                            boolean interrupted = false;
+                            while(_exception == null)
+                            {
+                                try
+                                {
+                                    wait();
+                                }
+                                catch(InterruptedException ex2)
+                                {
+                                    interrupted = true;
+                                }
+                            }
+                            if(interrupted)
+                            {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                    }
                 }
 
                 boolean timedOut = false;
@@ -124,6 +156,7 @@ public final class Outgoing implements OutgoingMessageCallback
                             }
                             catch(InterruptedException ex)
                             {
+                                throw new Ice.OperationInterruptedException();
                             }
                             if((_state == StateInProgress || !_sent) && _state != StateFailed)
                             {
@@ -142,6 +175,7 @@ public final class Outgoing implements OutgoingMessageCallback
                             }
                             catch(InterruptedException ex)
                             {
+                                throw new Ice.OperationInterruptedException();
                             }
                         }
                     }
@@ -149,23 +183,30 @@ public final class Outgoing implements OutgoingMessageCallback
 
                 if(timedOut)
                 {
-                    _handler.requestTimedOut(this);
-
-                    //
-                    // Wait for the exception to propagate. It's possible the request handler ignores
-                    // the timeout if there was a failure shortly before requestTimedOut got called.
-                    // In this case, the exception should be set on the Outgoing.
-                    //
-                    synchronized(this)
+                    if(_handler.requestCanceled(this, new Ice.InvocationTimeoutException()))
                     {
-                        while(_exception == null)
+                        //
+                        // Wait for the exception to propagate. It's possible the request handler ignores
+                        // the timeout if there was a failure shortly before requestTimedOut got called.
+                        // In this case, the exception should be set on the Outgoing.
+                        //
+                        synchronized(this)
                         {
-                            try
+                            boolean interrupted = false;
+                            while(_exception == null)
                             {
-                                wait();
+                                try
+                                {
+                                    wait();
+                                }
+                                catch(InterruptedException ex)
+                                {
+                                    interrupted = true;
+                                }
                             }
-                            catch(InterruptedException ex)
+                            if(interrupted)
                             {
+                                Thread.currentThread().interrupt();
                             }
                         }
                     }
@@ -203,6 +244,7 @@ public final class Outgoing implements OutgoingMessageCallback
                         }
                         catch(InterruptedException exi)
                         {
+                            throw new Ice.OperationInterruptedException();
                         }
                     }
                 }
@@ -584,7 +626,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 {
                     try
                     {
-                        _handler = _proxy.__getRequestHandler(true);
+                        _handler = _proxy.__getRequestHandler();
                         _handler.prepareBatchRequest(_os);
                         break;
                     }

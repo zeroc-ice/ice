@@ -43,7 +43,7 @@ public interface OutgoingAsyncMessageCallback
     void __finished(Ice.Exception ex);
 
     //
-    // Helper to dispatch invocation timeout.
+    // Helper to dispatch the cancellation exception.
     //
-    void __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection);
+    void __dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection);
 }

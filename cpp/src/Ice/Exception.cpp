@@ -459,6 +459,14 @@ Ice::DNSException::ice_print(ostream& out) const
 }
 
 void
+Ice::OperationInterruptedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\noperation interrupted";
+}
+
+
+void
 Ice::TimeoutException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -579,6 +579,16 @@ local exception DNSException
 
 /**
  *
+ * This exception indicates a request was interrupted.
+ *
+ **/
+["cpp:ice_print"]
+local exception OperationInterruptedException
+{
+};
+
+/**
+ *
  * This exception indicates a timeout condition.
  *
  **/

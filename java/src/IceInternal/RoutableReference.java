@@ -496,72 +496,6 @@ public class RoutableReference extends Reference
     }
 
     @Override
-    public Ice.ConnectionI
-    getConnection(Ice.BooleanHolder comp)
-    {
-        if(_routerInfo != null)
-        {
-            //
-            // If we route, we send everything to the router's client
-            // proxy endpoints.
-            //
-            EndpointI[] endpts = _routerInfo.getClientEndpoints();
-            if(endpts.length > 0)
-            {
-                applyOverrides(endpts);
-                return createConnection(endpts, comp);
-            }
-        }
-
-        if(_endpoints.length > 0)
-        {
-            return createConnection(_endpoints, comp);
-        }
-
-        while(true)
-        {
-            Ice.BooleanHolder cached = new Ice.BooleanHolder(false);
-            EndpointI[] endpts = null;
-            if(_locatorInfo != null)
-            {
-                endpts = _locatorInfo.getEndpoints(this, _locatorCacheTimeout, cached);
-                applyOverrides(endpts);
-            }
-
-            if(endpts == null || endpts.length == 0)
-            {
-                throw new Ice.NoEndpointException(toString());
-            }
-
-            try
-            {
-                return createConnection(endpts, comp);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                throw ex; // No need to retry if there's no endpoints.
-            }
-            catch(Ice.LocalException ex)
-            {
-                assert(_locatorInfo != null);
-                _locatorInfo.clearCache(this);
-                if(cached.value)
-                {
-                    TraceLevels traceLevels = getInstance().traceLevels();
-                    if(traceLevels.retry >= 2)
-                    {
-                        String s = "connection to cached endpoints failed\n" +
-                            "removing endpoints from cache and trying one more time\n" + ex;
-                        getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
-                    }
-                    continue; // Try again if the endpoints were cached.
-                }
-                throw ex;
-            }
-        }
-    }
-
-    @Override
     public void
     getConnection(final GetConnectionCallback callback)
     {
@@ -861,77 +795,6 @@ public class RoutableReference extends Reference
         return endpoints.toArray(new EndpointI[endpoints.size()]);
     }
 
-    protected Ice.ConnectionI
-    createConnection(EndpointI[] allEndpoints, Ice.BooleanHolder compress)
-    {
-        EndpointI[] endpoints = filterEndpoints(allEndpoints);
-        if(endpoints.length == 0)
-        {
-            throw new Ice.NoEndpointException(toString());
-        }
-
-        //
-        // Finally, create the connection.
-        //
-        OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-        Ice.ConnectionI connection = null;
-        if(getCacheConnection() || endpoints.length == 1)
-        {
-            //
-            // Get an existing connection or create one if there's no
-            // existing connection to one of the given endpoints.
-            //
-            connection = factory.create(endpoints, false, getEndpointSelection(), compress);
-        }
-        else
-        {
-            //
-            // Go through the list of endpoints and try to create the
-            // connection until it succeeds. This is different from just
-            // calling create() with the given endpoints since this might
-            // create a new connection even if there's an existing
-            // connection for one of the endpoints.
-            //
-
-            Ice.LocalException exception = null;
-            EndpointI[] endpoint = new EndpointI[1];
-            for(int i = 0; i < endpoints.length; ++i)
-            {
-                try
-                {
-                    endpoint[0] = endpoints[i];
-                    final boolean more = i != endpoints.length - 1;
-                    connection = factory.create(endpoint, more, getEndpointSelection(), compress);
-                    break;
-                }
-                catch(Ice.LocalException ex)
-                {
-                    exception = ex;
-                }
-            }
-
-            if(connection == null)
-            {
-                assert(exception != null);
-                throw exception;
-            }
-        }
-
-        assert(connection != null);
-
-        //
-        // If we have a router, set the object adapter for this router
-        // (if any) to the new connection, so that callbacks from the
-        // router can be received over this new connection.
-        //
-        if(_routerInfo != null && _routerInfo.getAdapter() != null)
-        {
-            connection.setAdapter(_routerInfo.getAdapter());
-        }
-
-        return connection;
-    }
-
     protected void
     createConnection(EndpointI[] allEndpoints, final GetConnectionCallback callback)
     {
@@ -993,7 +856,7 @@ public class RoutableReference extends Reference
                            new OutgoingConnectionFactory.CreateConnectionCallback()
                            {
                                @Override
-                            public void
+                               public void
                                setConnection(Ice.ConnectionI connection, boolean compress)
                                {
                                    //
@@ -1009,7 +872,7 @@ public class RoutableReference extends Reference
                                }
 
                                @Override
-                            public void
+                               public void
                                setException(final Ice.LocalException ex)
                                {
                                    if(_exception == null)

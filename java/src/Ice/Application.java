@@ -240,15 +240,21 @@ public abstract class Application
 
         synchronized(_mutex)
         {
+            boolean interrupted = false;
             while(_callbackInProgress)
             {
                 try
                 {
                     _mutex.wait();
                 }
-                catch(java.lang.InterruptedException ex)
+                catch(InterruptedException ex)
                 {
+                    interrupted = true;
                 }
+            }
+            if(interrupted)
+            {
+                Thread.currentThread().interrupt();
             }
 
             if(_destroyed)
@@ -504,7 +510,7 @@ public abstract class Application
             }
 
             //
-            // Note that we let the IllegalStateException propogate
+            // Note that we let the IllegalStateException propagate
             // out if necessary.
             //
             if(newHook != null)
@@ -590,6 +596,7 @@ public abstract class Application
                     }
                     catch(InterruptedException ex)
                     {
+                        break;
                     }
                 }
             }
@@ -625,6 +632,7 @@ public abstract class Application
                     }
                     catch(InterruptedException ex)
                     {
+                        break;
                     }
                 }
             }

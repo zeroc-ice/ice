@@ -58,7 +58,6 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public int write(Buffer buf)
     {
         //
@@ -135,7 +134,6 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public int read(Buffer buf, Ice.BooleanHolder moreData)
     {
         if(!buf.b.hasRemaining())
@@ -306,7 +304,6 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    @SuppressWarnings("deprecation")
     UdpTransceiver(ProtocolInstance instance, java.net.InetSocketAddress addr, java.net.InetSocketAddress sourceAddr,
                    String mcastInterface, int mcastTtl)
     {
@@ -346,7 +343,6 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    @SuppressWarnings("deprecation")
     UdpTransceiver(ProtocolInstance instance, String host, int port, String mcastInterface, boolean connect)
     {
         _instance = instance;

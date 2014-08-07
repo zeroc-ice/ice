@@ -412,7 +412,6 @@ public abstract class Reference implements Cloneable
     //
     public abstract java.util.Map<String, String> toProperty(String prefix);
 
-    public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
     public abstract void getConnection(GetConnectionCallback callback);
 
     @Override

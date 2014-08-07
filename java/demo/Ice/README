@@ -96,3 +96,8 @@ Demos in this directory:
 - optional
 
   This demo shows the use of the optional keyword.
+
+- interrupt
+
+  This demo shows to use Thread.interrupt to interrupt blocking client
+  side invocations, and forcably shutdown servers.

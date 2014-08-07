@@ -10,6 +10,7 @@
 package Ice;
 
 import Ice.Instrumentation.InvocationObserver;
+import IceInternal.QueueRequestHandler;
 
 /**
  * Base class for all proxies.
@@ -2391,8 +2392,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 IceInternal.RequestHandler handler = null;
                 try
                 {
-                    handler = __getRequestHandler(false);
-                    return handler.getConnection(true);
+                    handler = __getRequestHandler();
+                    try
+                    {
+                        return handler.waitForConnection();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        throw new Ice.OperationInterruptedException();
+                    }
                 }
                 catch(Ice.Exception ex)
                 {
@@ -2412,6 +2420,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                             }
                             catch(InterruptedException ex1)
                             {
+                                throw new Ice.OperationInterruptedException();
                             }
                         }
                     }
@@ -2460,7 +2469,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             try
             {
-                return handler.getConnection(false);
+                return handler.getConnection();
             }
             catch(LocalException ex)
             {
@@ -2477,7 +2486,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_flushBatchRequests()
     {
         IceInternal.BatchOutgoing __og = new IceInternal.BatchOutgoing(this, __ice_flushBatchRequests_name);
-        __og.invoke();
+        try
+        {
+            __og.invoke();
+        }
+        catch(InterruptedException ex)
+        {
+            throw new Ice.OperationInterruptedException();
+        }
     }
 
     /**
@@ -2746,7 +2762,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final IceInternal.RequestHandler
-    __getRequestHandler(boolean async)
+    __getRequestHandler()
     {
         if(_reference.getCacheConnection())
         {
@@ -2756,16 +2772,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 {
                     return _requestHandler;
                 }
-                // async = true to avoid blocking with the proxy mutex locked.
-                _requestHandler = createRequestHandler(true);
+                _requestHandler = createRequestHandler();
                 return _requestHandler;
             }
         }
 
-        final int mode = _reference.getMode();
-        return createRequestHandler(async ||
-                                    mode == IceInternal.Reference.ModeBatchOneway ||
-                                    mode == IceInternal.Reference.ModeBatchDatagram);
+        return createRequestHandler();
     }
 
     public void
@@ -2777,7 +2789,21 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             {
                 if(previous == _requestHandler)
                 {
-                    _requestHandler = handler;
+                    if(handler != null)
+                    {
+                        if(_reference.getInstance().queueRequests())
+                        {
+                            _requestHandler = new QueueRequestHandler(_reference.getInstance(), handler);
+                        }
+                        else
+                        {
+                            _requestHandler = handler;
+                        }
+                    }
+                    else
+                    {
+                        _requestHandler = null;
+                    }
                 }
                 else if(previous != null && _requestHandler != null)
                 {
@@ -2788,9 +2814,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                         // update the request handler. See bug ICE-5489 for reasons why
                         // this can be useful.
                         //
-                        if(previous.getConnection(false) == _requestHandler.getConnection(false))
+                        if(previous.getConnection() == _requestHandler.getConnection())
                         {
-                            _requestHandler = handler;
+                            if(handler != null)
+                            {
+                                if(_reference.getInstance().queueRequests())
+                                {
+                                    _requestHandler = new QueueRequestHandler(_reference.getInstance(), handler);
+                                }
+                                else
+                                {
+                                    _requestHandler = handler;
+                                }
+                            }
+                            else
+                            {
+                                _requestHandler = null;
+                            }
                         }
                     }
                     catch(Ice.Exception ex)
@@ -2803,7 +2843,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     private IceInternal.RequestHandler
-    createRequestHandler(boolean async)
+    createRequestHandler()
     {
         if(_reference.getCollocationOptimized())
         {
@@ -2814,14 +2854,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
 
-        if(async)
+        IceInternal.RequestHandler handler = (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
+        if(_reference.getInstance().queueRequests())
         {
-            return (new IceInternal.ConnectRequestHandler(_reference, this)).connect();
+            handler = new QueueRequestHandler(_reference.getInstance(), handler);
         }
-        else
-        {
-            return new IceInternal.ConnectionRequestHandler(_reference, this);
-        }
+        return handler;
     }
 
     //
