@@ -57,6 +57,11 @@ namespace IceSSL
         {
         }
 
+        public override void setCACertificates(X509Certificate2Collection certs)
+        {
+            _engine.setCACertificates(certs);
+        }
+
         public override void setCertificates(X509Certificate2Collection certs)
         {
             _engine.setCertificates(certs);

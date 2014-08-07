@@ -52,7 +52,7 @@ Ice.Plugin.IceDiscovery=IceDiscovery:IceDiscovery.PluginFactory
 #
 Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
-IceSSL.ImportCert.CurrentUser.Root=cacert.pem
+IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=c_rsa1024.pfx
 IceSSL.Password=password
 

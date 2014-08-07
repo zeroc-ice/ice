@@ -56,6 +56,19 @@ namespace IceSSL
         abstract public void initialize();
 
         /// <summary>
+        /// Specify the certificate authorities certificates to use 
+        /// when validating SSL peer certificates. This must be done
+        /// before the plug-in is initialized; therefore, the application 
+        /// must define the property Ice.InitPlugins=0, set the certificates, 
+        /// and finally invoke initializePlugins on the PluginManager.
+        /// When the application supplies its own certificate authorities 
+        /// certificates, the plug-in skips its normal property-based 
+        /// configuration.
+        /// </summary>
+        /// <param name="certs">The certificate authorities certificates to use.</param>
+        abstract public void setCACertificates(X509Certificate2Collection certs);
+
+        /// <summary>
         /// Specify the certificates to use for SSL connections. This
         /// must be done before the plug-in is initialized; therefore,
         /// the application must define the property Ice.InitPlugins=0,

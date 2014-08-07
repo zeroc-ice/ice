@@ -502,6 +502,27 @@ namespace IceSSL
             {
                 _verifyPeer = 0;
             }
+
+            X509Certificate2Collection caCerts = _instance.engine().caCerts();
+            if(caCerts != null)
+            {
+                _chainEngine = new X509Chain(_instance.engine().certStore() == "LocalMachine");
+                //
+                // We need to set this flag to be able to use a certificate authority from the extra
+                // store.
+                //
+                _chainEngine.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+
+                if(_instance.checkCRL() == 0)
+                {
+                    _chainEngine.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                }
+                
+                foreach(X509Certificate2 cert in caCerts)
+                {
+                    _chainEngine.ChainPolicy.ExtraStore.Add(cert);
+                }
+            }
         }
 
         private NativeConnectionInfo getNativeConnectionInfo()
@@ -681,9 +702,24 @@ namespace IceSSL
             }
         }
 
-        private bool validationCallback(object sender, X509Certificate certificate, X509Chain chain,
-                                        SslPolicyErrors sslPolicyErrors)
+        private bool validationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
+                                        SslPolicyErrors policyErrors)
         {
+
+            SslPolicyErrors sslPolicyErrors = policyErrors;
+            bool valid = false;
+            if(_chainEngine != null && certificate != null)
+            {
+                sslPolicyErrors = SslPolicyErrors.None;
+                valid = _chainEngine.Build(new X509Certificate2(certificate));
+                if(_chainEngine.ChainStatus.Length > 0)
+                {
+                    sslPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors;
+                }
+            }
+
+            X509Chain chain = _chainEngine == null ? chainEngine : _chainEngine; 
+
             //
             // The certificate chain is not available via SslStream, and it is destroyed
             // after this callback returns, so we keep a reference to each of the
@@ -748,13 +784,17 @@ namespace IceSSL
                     int errorCount = chain.ChainStatus.Length;
                     foreach(X509ChainStatus status in chain.ChainStatus)
                     {
-                        if((certificate.Subject == certificate.Issuer) &&
-                           (status.Status == X509ChainStatusFlags.UntrustedRoot))
+                        if(status.Status == X509ChainStatusFlags.UntrustedRoot && _chainEngine != null && valid)
                         {
                             //
-                            // Untrusted root for self-signed certificate is OK.
+                            // Untrusted root is OK when using our custom chain engine if 
+                            // the CA certificate is present in the chain policy extra store.
                             //
-                            --errorCount;
+                            X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                            if(_chainEngine.ChainPolicy.ExtraStore.Contains(e.Certificate))
+                            {
+                                --errorCount;
+                            }
                         }
                         else if(status.Status == X509ChainStatusFlags.Revoked)
                         {
@@ -862,6 +902,7 @@ namespace IceSSL
         private IceInternal.AsyncCallback _readCallback;
         private IceInternal.AsyncCallback _writeCallback;
         private X509Certificate2[] _chain;
+        private X509Chain _chainEngine;
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;

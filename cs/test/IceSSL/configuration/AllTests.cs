@@ -194,6 +194,45 @@ public class AllTests
                 store.Remove(caCert1);
                 comm.destroy();
             }
+
+            {
+                //
+                // Supply our own CA certificate.
+                //
+                X509Certificate2 cert = new X509Certificate2(defaultDir + "/cacert1.pem");
+                X509Certificate2Collection coll = new X509Certificate2Collection();
+                coll.Add(cert);
+                Ice.InitializationData initData = createClientProps(defaultProperties, testDir, defaultHost);
+                initData.properties.setProperty("Ice.InitPlugins", "0");
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                initData.properties.setProperty("IceSSL.Password", "password");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.PluginManager pm = comm.getPluginManager();
+                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                test(plugin != null);
+                plugin.setCACertificates(coll);
+                pm.initializePlugins();
+                Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
+                test(obj != null);
+                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
+                Dictionary<string, string> d = createServerProps(defaultProperties, testDir, defaultHost);
+                d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+                d["IceSSL.CertAuthFile"] = defaultDir + "/cacert1.pem";
+                d["IceSSL.Password"] = "password";
+                d["IceSSL.VerifyPeer"] = "2";
+                Test.ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
+            }
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing certificate verification... ");

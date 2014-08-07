@@ -56,6 +56,13 @@ namespace IceSSL
                 keySet = "DefaultKeySet";
             }
 
+            _certStore = properties.getPropertyWithDefault(prefix + "CertStore", "CurrentUser");
+            if(_certStore != "CurrentUser" && _certStore != "LocalMachine")
+            {
+                _logger.warning("Invalid IceSSL.CertStore value `" + _certStore + "' adjusted to `CurrentUser'");
+                _certStore = "CurrentUser";
+            }
+
             X509KeyStorageFlags keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
             if(keySet.Equals("UserKeySet"))
             {
@@ -272,7 +279,55 @@ namespace IceSSL
                 }
             }
 
+            if(_caCerts == null)
+            {
+                string certAuthFile = properties.getProperty(prefix + "CertAuthFile");
+                if(certAuthFile.Length > 0)
+                {
+                    if(!checkPath(ref certAuthFile))
+                    {
+                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                        e.reason = "IceSSL: CA certificate file not found: " + certAuthFile;
+                        throw e;
+                    }
+
+                    _caCerts = new X509Certificate2Collection();
+                    try
+                    {
+                        _caCerts.Add(new X509Certificate2(certAuthFile));
+                    }
+                    catch(CryptographicException ex)
+                    {
+                        Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+                        e.reason = "IceSSL: error while attempting to load CA certificate from " + certAuthFile;
+                        throw e;
+                    }
+                }
+            }
+
             _initialized = true;
+        }
+
+        internal string certStore()
+        {
+            return _certStore;
+        }
+
+        internal X509Certificate2Collection caCerts()
+        {
+            return _caCerts;
+        }
+
+        internal void setCACertificates(X509Certificate2Collection caCerts)
+        {
+            if(_initialized)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: plug-in is already initialized";
+                throw e;
+            }
+
+            _caCerts = caCerts;
         }
 
         internal void setCertificates(X509Certificate2Collection certs)
@@ -1126,6 +1181,8 @@ namespace IceSSL
         private int _verifyDepthMax;
         private int _checkCRL;
         private X509Certificate2Collection _certs;
+        private string _certStore;
+        private X509Certificate2Collection _caCerts;
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;
         private TrustManager _trustManager;
