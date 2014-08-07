@@ -16,16 +16,19 @@ final class UdpEndpointFactory implements EndpointFactory
         _instance = instance;
     }
 
+    @Override
     public short type()
     {
         return _instance.type();
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
         IPEndpointI endpt = new UdpEndpointI(_instance);
@@ -33,16 +36,19 @@ final class UdpEndpointFactory implements EndpointFactory
         return endpt;
     }
 
+    @Override
     public EndpointI read(BasicStream s)
     {
         return new UdpEndpointI(_instance, s);
     }
 
+    @Override
     public void destroy()
     {
         _instance = null;
     }
 
+    @Override
     public EndpointFactory clone(ProtocolInstance instance)
     {
         return new UdpEndpointFactory(instance);

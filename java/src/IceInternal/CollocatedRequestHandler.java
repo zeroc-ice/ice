@@ -9,8 +9,6 @@
 
 package IceInternal;
 
-import Ice.Instrumentation.InvocationObserver;
-
 public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
 {
     class InvokeAll extends DispatchWorkItem
@@ -25,6 +23,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             _batch = batch;
         }
 
+        @Override
         public void
         run()
         {
@@ -53,6 +52,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
             _batch = batch;
         }
 
+        @Override
         public void
         run()
         {
@@ -93,6 +93,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, _batchAutoFlush);
     }
 
+    @Override
     synchronized public void
     prepareBatchRequest(BasicStream os)
     {
@@ -124,6 +125,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         _batchStream.swap(os);
     }
 
+    @Override
     public void
     finishBatchRequest(BasicStream os)
     {
@@ -153,6 +155,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
                     _adapter.getThreadPool().dispatch(
                         new DispatchWorkItem()
                         {
+                            @Override
                             public void
                             run()
                             {
@@ -198,6 +201,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
+    @Override
     synchronized public void
     abortBatchRequest()
     {
@@ -212,6 +216,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         notifyAll();
     }
 
+    @Override
     public boolean
     sendRequest(OutgoingMessageCallback out)
     {
@@ -219,12 +224,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         return !_response && _reference.getInvocationTimeout() == 0;
     }
 
+    @Override
     public int
     sendAsyncRequest(OutgoingAsyncMessageCallback outAsync)
     {
         return outAsync.__invokeCollocated(this);
     }
 
+    @Override
     synchronized public void
     requestTimedOut(OutgoingMessageCallback out)
     {
@@ -254,7 +261,8 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
-    synchronized public void 
+    @Override
+    synchronized public void
     asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
     {
         Integer requestId = _sendAsyncRequests.get(outAsync);
@@ -470,6 +478,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         }
     }
 
+    @Override
     public void
     sendResponse(int requestId, BasicStream os, byte status)
     {
@@ -509,12 +518,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         _adapter.decDirectCount();
     }
 
+    @Override
     public void
     sendNoResponse()
     {
         _adapter.decDirectCount();
     }
 
+    @Override
     public boolean
     systemException(int requestId, Ice.SystemException ex)
     {
@@ -523,6 +534,7 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         return true;
     }
 
+    @Override
     public void
     invokeException(int requestId, Ice.LocalException ex, int invokeNum)
     {
@@ -549,12 +561,14 @@ public class CollocatedRequestHandler implements RequestHandler, ResponseHandler
         _adapter.decDirectCount();
     }
 
+    @Override
     public Reference
     getReference()
     {
         return _reference;
     }
 
+    @Override
     public Ice.ConnectionI
     getConnection(boolean wait)
     {

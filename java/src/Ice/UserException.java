@@ -28,6 +28,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
      *
      * @return The copy of this exception.
      **/
+    @Override
     public java.lang.Object clone()
     {
         java.lang.Object o = null;
@@ -55,6 +56,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
      *
      * @return A string representation of this exception.
      **/
+    @Override
     public String
     toString()
     {

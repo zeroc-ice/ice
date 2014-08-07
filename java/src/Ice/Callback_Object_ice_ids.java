@@ -20,8 +20,10 @@ public abstract class Callback_Object_ice_ids extends IceInternal.TwowayCallback
      *
      * @param __ret The Slice type ids of the interfaces supported by the target object.
      **/
+    @Override
     public abstract void response(String[] __ret);
 
+    @Override
     public final void __completed(AsyncResult __result)
     {
         ObjectPrxHelperBase.__ice_ids_completed(this, __result);

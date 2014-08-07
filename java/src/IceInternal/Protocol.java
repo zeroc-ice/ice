@@ -98,7 +98,7 @@ final public class Protocol
     };
 
     static final public Ice.ProtocolVersion currentProtocol = new Ice.ProtocolVersion(protocolMajor, protocolMinor);
-    static final public Ice.EncodingVersion currentProtocolEncoding = new Ice.EncodingVersion(protocolEncodingMajor, 
+    static final public Ice.EncodingVersion currentProtocolEncoding = new Ice.EncodingVersion(protocolEncodingMajor,
                                                                                               protocolEncodingMinor);
 
     static final public Ice.EncodingVersion currentEncoding = new Ice.EncodingVersion(encodingMajor, encodingMinor);
@@ -151,7 +151,7 @@ final public class Protocol
             // Unsupported but compatible, use the currently supported
             // protocol, that's the best we can do.
             //
-            return currentProtocol; 
+            return currentProtocol;
         }
     }
 
@@ -176,7 +176,7 @@ final public class Protocol
             // Unsupported but compatible, use the currently supported
             // encoding, that's the best we can do.
             //
-            return currentEncoding; 
+            return currentEncoding;
         }
     }
 

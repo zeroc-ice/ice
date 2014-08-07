@@ -25,6 +25,7 @@ public class InputStreamWrapper extends java.io.InputStream
         _markPos = 0;
     }
 
+    @Override
     public int
     read()
         throws java.io.IOException
@@ -39,6 +40,7 @@ public class InputStreamWrapper extends java.io.InputStream
         }
     }
 
+    @Override
     public int
     read(byte[] b)
         throws java.io.IOException
@@ -46,6 +48,7 @@ public class InputStreamWrapper extends java.io.InputStream
         return read(b, 0, b.length);
     }
 
+    @Override
     public int
     read(byte[] b, int offset, int count)
         throws java.io.IOException
@@ -61,18 +64,21 @@ public class InputStreamWrapper extends java.io.InputStream
         return count;
     }
 
+    @Override
     public int
     available()
     {
         return _s.getBuffer().b.remaining();
     }
 
+    @Override
     public void
     mark(int readlimit)
     {
         _markPos = _s.pos();
     }
 
+    @Override
     public void
     reset()
         throws java.io.IOException
@@ -80,12 +86,14 @@ public class InputStreamWrapper extends java.io.InputStream
         _s.pos(_markPos);
     }
 
+    @Override
     public boolean
     markSupported()
     {
         return true;
     }
 
+    @Override
     public void
     close()
         throws java.io.IOException

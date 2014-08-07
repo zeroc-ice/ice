@@ -94,12 +94,13 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
     }
 
-    @Override public Ice.ObjectPrx 
+    @Override public Ice.ObjectPrx
     getProxy()
     {
         return _proxy;
     }
 
+    @Override
     public int
     __send(Ice.ConnectionI connection, boolean compress, boolean response)
         throws RetryException
@@ -108,13 +109,15 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         return connection.sendAsyncRequest(this, compress, response);
     }
 
+    @Override
     public int
     __invokeCollocated(CollocatedRequestHandler handler)
     {
         return handler.invokeAsyncRequest(this);
     }
 
-    public boolean 
+    @Override
+    public boolean
     __sent()
     {
         synchronized(_monitor)
@@ -122,7 +125,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             boolean alreadySent = (_state & Sent) != 0;
             _state |= Sent;
             _sent = true;
-            
+
             assert((_state & Done) == 0);
 
             if(!_proxy.ice_isTwoway())
@@ -146,13 +149,15 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
     }
 
-    public void 
+    @Override
+    public void
     __invokeSent()
     {
         __invokeSentInternal();
     }
 
-    public void 
+    @Override
+    public void
     __finished(Ice.Exception exc)
     {
         synchronized(_monitor)
@@ -182,7 +187,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             {
                 return; // Can't be retried immediately.
             }
-            
+
             __invoke(false); // Retry the invocation
         }
         catch(Ice.Exception ex)
@@ -191,12 +196,14 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         }
     }
 
-    public void 
+    @Override
+    public void
     __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection)
     {
         threadPool.dispatch(
             new DispatchWorkItem(connection)
             {
+                @Override
                 public void
                 run()
                 {
@@ -377,7 +384,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         __invokeCompleted();
     }
 
-    public final boolean 
+    public final boolean
     __invoke(boolean synchronous)
     {
         while(true)
@@ -458,7 +465,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         _os.writeEmptyEncaps(_encoding);
     }
 
-    public void 
+    public void
     __writeParamEncaps(byte[] encaps)
     {
         if(encaps == null || encaps.length == 0)
@@ -477,13 +484,14 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         return _is;
     }
 
-    public void 
+    @Override
+    public void
     run()
     {
         __runTimerTask();
     }
 
-    private boolean 
+    private boolean
     handleException(Ice.Exception exc)
     {
         try

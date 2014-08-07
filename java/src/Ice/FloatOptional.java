@@ -98,7 +98,7 @@ public class FloatOptional
     public void clear()
     {
         _isSet = false;
-        _value = (float)0;
+        _value = 0;
     }
 
     private float _value;

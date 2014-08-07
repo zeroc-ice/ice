@@ -11,6 +11,7 @@ package Ice;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
+    @Override
     public String
     getName()
     {
@@ -20,12 +21,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _noConfig ? "" : _name;
     }
 
+    @Override
     public synchronized Communicator
     getCommunicator()
     {
         return _communicator;
     }
 
+    @Override
     public void
     activate()
     {
@@ -122,6 +125,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     public synchronized void
     hold()
     {
@@ -133,6 +137,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     public void
     waitForHold()
     {
@@ -142,7 +147,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             synchronized(this)
             {
                 checkForDeactivation();
-            
+
                 incomingConnectionFactories =
                     new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
 
@@ -160,13 +165,13 @@ public final class ObjectAdapterI implements ObjectAdapter
                 {
                     notifyAll();
                 }
-                
+
                 //
-                // If we don't need to retry, we're done. Otherwise, we wait until 
-                // all the waiters finish waiting on the connections and we try 
-                // again waiting on all the conncetions. This is necessary in the 
+                // If we don't need to retry, we're done. Otherwise, we wait until
+                // all the waiters finish waiting on the connections and we try
+                // again waiting on all the conncetions. This is necessary in the
                 // case activate() is called by another thread while waitForHold()
-                // waits on the some connection, if we didn't retry, waitForHold() 
+                // waits on the some connection, if we didn't retry, waitForHold()
                 // could return only after waiting on a subset of the connections.
                 //
                 if(!_waitForHoldRetry)
@@ -192,6 +197,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     public void
     deactivate()
     {
@@ -278,6 +284,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         outgoingConnectionFactory.removeAdapter(this);
     }
 
+    @Override
     public void
     waitForDeactivate()
     {
@@ -320,12 +327,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     public synchronized boolean
     isDeactivated()
     {
         return _deactivated;
     }
 
+    @Override
     public void
     destroy()
     {
@@ -412,12 +421,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     public ObjectPrx
     add(Ice.Object object, Identity ident)
     {
         return addFacet(object, ident, "");
     }
 
+    @Override
     public synchronized ObjectPrx
     addFacet(Ice.Object object, Identity ident, String facet)
     {
@@ -438,12 +449,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newProxy(id, facet);
     }
 
+    @Override
     public ObjectPrx
     addWithUUID(Ice.Object object)
     {
         return addFacetWithUUID(object, "");
     }
 
+    @Override
     public ObjectPrx
     addFacetWithUUID(Ice.Object object, String facet)
     {
@@ -454,6 +467,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return addFacet(object, ident, facet);
     }
 
+    @Override
     public synchronized void
     addDefaultServant(Ice.Object servant, String category)
     {
@@ -463,12 +477,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         _servantManager.addDefaultServant(servant, category);
     }
 
+    @Override
     public Ice.Object
     remove(Identity ident)
     {
         return removeFacet(ident, "");
     }
 
+    @Override
     public synchronized Ice.Object
     removeFacet(Identity ident, String facet)
     {
@@ -478,6 +494,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.removeServant(ident, facet);
     }
 
+    @Override
     public synchronized java.util.Map<String, Ice.Object>
     removeAllFacets(Identity ident)
     {
@@ -487,6 +504,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.removeAllFacets(ident);
     }
 
+    @Override
     public synchronized Ice.Object
     removeDefaultServant(String category)
     {
@@ -495,12 +513,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.removeDefaultServant(category);
     }
 
+    @Override
     public Ice.Object
     find(Identity ident)
     {
         return findFacet(ident, "");
     }
 
+    @Override
     public synchronized Ice.Object
     findFacet(Identity ident, String facet)
     {
@@ -510,6 +530,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.findServant(ident, facet);
     }
 
+    @Override
     public synchronized java.util.Map<String, Ice.Object>
     findAllFacets(Identity ident)
     {
@@ -519,6 +540,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.findAllFacets(ident);
     }
 
+    @Override
     public synchronized Ice.Object
     findByProxy(ObjectPrx proxy)
     {
@@ -528,6 +550,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
+    @Override
     public synchronized Ice.Object
     findDefaultServant(String category)
     {
@@ -536,6 +559,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.findDefaultServant(category);
     }
 
+    @Override
     public synchronized void
     addServantLocator(ServantLocator locator, String prefix)
     {
@@ -544,6 +568,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         _servantManager.addServantLocator(locator, prefix);
     }
 
+    @Override
     public synchronized ServantLocator
     removeServantLocator(String prefix)
     {
@@ -552,6 +577,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.removeServantLocator(prefix);
     }
 
+    @Override
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
@@ -560,6 +586,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager.findServantLocator(prefix);
     }
 
+    @Override
     public synchronized ObjectPrx
     createProxy(Identity ident)
     {
@@ -569,6 +596,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newProxy(ident, "");
     }
 
+    @Override
     public synchronized ObjectPrx
     createDirectProxy(Identity ident)
     {
@@ -578,6 +606,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newDirectProxy(ident, "");
     }
 
+    @Override
     public synchronized ObjectPrx
     createIndirectProxy(Identity ident)
     {
@@ -587,6 +616,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return newIndirectProxy(ident, "", _id);
     }
 
+    @Override
     public synchronized void
     setLocator(LocatorPrx locator)
     {
@@ -595,6 +625,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         _locatorInfo = _instance.locatorManager().get(locator);
     }
 
+    @Override
     public void
     refreshPublishedEndpoints()
     {
@@ -636,6 +667,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     public synchronized Endpoint[]
     getEndpoints()
     {
@@ -647,6 +679,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return endpoints.toArray(new Endpoint[0]);
     }
 
+    @Override
     public synchronized Endpoint[]
     getPublishedEndpoints()
     {
@@ -760,8 +793,8 @@ public final class ObjectAdapterI implements ObjectAdapter
             p.updateConnectionObservers();
         }
     }
-    
-    public void 
+
+    public void
     updateThreadObservers()
     {
         IceInternal.ThreadPool threadPool = null;
@@ -1049,6 +1082,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -1115,7 +1149,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         for(int i = 0; i < _routerEndpoints.size(); ++i)
         {
-            endpoints[sz + i] = (IceInternal.EndpointI)_routerEndpoints.get(i);
+            endpoints[sz + i] = _routerEndpoints.get(i);
         }
 
         //

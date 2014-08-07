@@ -17,13 +17,14 @@ public abstract class Functional_TwowayCallback extends IceInternal.Functional_C
     {
         super(responseCb, exceptionCb, sentCb);
     }
-    
+
     protected Functional_TwowayCallback(Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                         Functional_BoolCallback sentCb)
     {
         super(exceptionCb, sentCb);
     }
-    
+
+    @Override
     public void exception(Ice.SystemException ex)
     {
         if(__exceptionCb != null)
@@ -32,6 +33,7 @@ public abstract class Functional_TwowayCallback extends IceInternal.Functional_C
         }
     }
 
+    @Override
     public final void exception(Ice.LocalException ex)
     {
         if(__exceptionCb != null)

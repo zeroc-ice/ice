@@ -11,7 +11,7 @@ package Ice;
 
 public class LoggerI implements Logger
 {
-    public 
+    public
     LoggerI(String prefix, String file)
     {
         if(prefix.length() > 0)
@@ -37,6 +37,7 @@ public class LoggerI implements Logger
         }
     }
 
+    @Override
     public void
     print(String message)
     {
@@ -45,6 +46,7 @@ public class LoggerI implements Logger
         write(s, false);
     }
 
+    @Override
     public void
     trace(String category, String message)
     {
@@ -60,6 +62,7 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
+    @Override
     public void
     warning(String message)
     {
@@ -76,6 +79,7 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
+    @Override
     public void
     error(String message)
     {
@@ -92,6 +96,7 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
+    @Override
     public Logger
     cloneWithPrefix(String prefix)
     {

@@ -24,6 +24,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends Callback_Object_
      **/
     public abstract void ice_exception(LocalException ex);
 
+    @Override
     public final void exception(LocalException ex)
     {
         ice_exception(ex);

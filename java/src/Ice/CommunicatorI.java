@@ -11,72 +11,84 @@ package Ice;
 
 public final class CommunicatorI implements Communicator
 {
+    @Override
     public void
     destroy()
     {
         _instance.destroy();
     }
 
+    @Override
     public void
     shutdown()
     {
         _instance.objectAdapterFactory().shutdown();
     }
 
+    @Override
     public void
     waitForShutdown()
     {
         _instance.objectAdapterFactory().waitForShutdown();
     }
 
+    @Override
     public boolean
     isShutdown()
     {
         return _instance.objectAdapterFactory().isShutdown();
     }
 
+    @Override
     public Ice.ObjectPrx
     stringToProxy(String s)
     {
         return _instance.proxyFactory().stringToProxy(s);
     }
 
+    @Override
     public String
     proxyToString(Ice.ObjectPrx proxy)
     {
         return _instance.proxyFactory().proxyToString(proxy);
     }
 
+    @Override
     public Ice.ObjectPrx
     propertyToProxy(String s)
     {
         return _instance.proxyFactory().propertyToProxy(s);
     }
 
+    @Override
     public java.util.Map<String, String>
     proxyToProperty(Ice.ObjectPrx proxy, String prefix)
     {
         return _instance.proxyFactory().proxyToProperty(proxy, prefix);
     }
 
+    @Override
     public Ice.Identity
     stringToIdentity(String s)
     {
         return _instance.stringToIdentity(s);
     }
 
+    @Override
     public String
     identityToString(Ice.Identity ident)
     {
         return _instance.identityToString(ident);
     }
 
+    @Override
     public ObjectAdapter
     createObjectAdapter(String name)
     {
         return _instance.objectAdapterFactory().createObjectAdapter(name, null);
     }
 
+    @Override
     public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
@@ -84,11 +96,12 @@ public final class CommunicatorI implements Communicator
         {
             name = java.util.UUID.randomUUID().toString();
         }
-        
+
         getProperties().setProperty(name + ".Endpoints", endpoints);
         return _instance.objectAdapterFactory().createObjectAdapter(name, null);
     }
 
+    @Override
     public ObjectAdapter
     createObjectAdapterWithRouter(String name, RouterPrx router)
     {
@@ -109,72 +122,84 @@ public final class CommunicatorI implements Communicator
         return _instance.objectAdapterFactory().createObjectAdapter(name, router);
     }
 
+    @Override
     public void
     addObjectFactory(ObjectFactory factory, String id)
     {
         _instance.servantFactoryManager().add(factory, id);
     }
 
+    @Override
     public ObjectFactory
     findObjectFactory(String id)
     {
         return _instance.servantFactoryManager().find(id);
     }
 
+    @Override
     public Properties
     getProperties()
     {
         return _instance.initializationData().properties;
     }
 
+    @Override
     public Logger
     getLogger()
     {
         return _instance.initializationData().logger;
     }
 
-    public Ice.Instrumentation.CommunicatorObserver 
+    @Override
+    public Ice.Instrumentation.CommunicatorObserver
     getObserver()
     {
         return _instance.getObserver();
     }
 
+    @Override
     public RouterPrx
     getDefaultRouter()
     {
         return _instance.referenceFactory().getDefaultRouter();
     }
 
+    @Override
     public void
     setDefaultRouter(RouterPrx router)
     {
         _instance.setDefaultRouter(router);
     }
 
+    @Override
     public LocatorPrx
     getDefaultLocator()
     {
         return _instance.referenceFactory().getDefaultLocator();
     }
 
+    @Override
     public void
     setDefaultLocator(LocatorPrx locator)
     {
         _instance.setDefaultLocator(locator);
     }
 
+    @Override
     public ImplicitContext
     getImplicitContext()
     {
         return _instance.getImplicitContext();
     }
 
+    @Override
     public PluginManager
     getPluginManager()
     {
         return _instance.pluginManager();
     }
 
+    @Override
     public void
     flushBatchRequests()
     {
@@ -182,24 +207,28 @@ public final class CommunicatorI implements Communicator
         end_flushBatchRequests(r);
     }
 
+    @Override
     public AsyncResult
     begin_flushBatchRequests()
     {
         return begin_flushBatchRequestsInternal(null);
     }
 
+    @Override
     public AsyncResult
     begin_flushBatchRequests(Callback cb)
     {
         return begin_flushBatchRequestsInternal(cb);
     }
 
+    @Override
     public AsyncResult
     begin_flushBatchRequests(Callback_Communicator_flushBatchRequests cb)
     {
         return begin_flushBatchRequestsInternal(cb);
     }
-    
+
+    @Override
     public AsyncResult
     begin_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
@@ -208,6 +237,7 @@ public final class CommunicatorI implements Communicator
         return begin_flushBatchRequestsInternal(
             new IceInternal.Functional_CallbackBase(false, __exceptionCb, __sentCb)
                 {
+                    @Override
                     public final void __completed(AsyncResult __result)
                     {
                         try
@@ -249,6 +279,7 @@ public final class CommunicatorI implements Communicator
         return result;
     }
 
+    @Override
     public void
     end_flushBatchRequests(AsyncResult r)
     {
@@ -256,24 +287,28 @@ public final class CommunicatorI implements Communicator
         r.__wait();
     }
 
+    @Override
     public ObjectPrx
     getAdmin()
     {
         return _instance.getAdmin();
     }
 
+    @Override
     public void
     addAdminFacet(Object servant, String facet)
     {
         _instance.addAdminFacet(servant, facet);
     }
 
+    @Override
     public Object
     removeAdminFacet(String facet)
     {
         return _instance.removeAdminFacet(facet);
     }
 
+    @Override
     public Object
     findAdminFacet(String facet)
     {

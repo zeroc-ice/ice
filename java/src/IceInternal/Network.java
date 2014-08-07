@@ -1364,6 +1364,7 @@ public final class Network
             _ipv6 = ipv6;
         }
 
+        @Override
         public int
         compare(java.net.InetSocketAddress lhs, java.net.InetSocketAddress rhs)
         {

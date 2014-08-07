@@ -13,6 +13,7 @@ public final class PluginManagerI implements PluginManager
 {
     private static String _kindOfObject = "plugin";
 
+    @Override
     public synchronized void
     initializePlugins()
     {
@@ -60,6 +61,7 @@ public final class PluginManagerI implements PluginManager
         _initialized = true;
     }
 
+    @Override
     public synchronized String[]
     getPlugins()
     {
@@ -71,6 +73,7 @@ public final class PluginManagerI implements PluginManager
         return names.toArray(new String[0]);
     }
 
+    @Override
     public synchronized Plugin
     getPlugin(String name)
     {
@@ -91,6 +94,7 @@ public final class PluginManagerI implements PluginManager
         throw ex;
     }
 
+    @Override
     public synchronized void
     addPlugin(String name, Plugin plugin)
     {
@@ -113,6 +117,7 @@ public final class PluginManagerI implements PluginManager
         _plugins.add(info);
     }
 
+    @Override
     public synchronized void
     destroy()
     {

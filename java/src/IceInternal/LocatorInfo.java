@@ -19,7 +19,7 @@ public final class LocatorInfo
 
     private static class RequestCallback
     {
-        public void 
+        public void
         response(LocatorInfo locatorInfo, Ice.ObjectPrx proxy)
         {
             EndpointI[] endpoints = null;
@@ -42,7 +42,7 @@ public final class LocatorInfo
                 {
                     //
                     // We're resolving the endpoints of a well-known object and the proxy returned
-                    // by the locator is an indirect proxy. We now need to resolve the endpoints 
+                    // by the locator is an indirect proxy. We now need to resolve the endpoints
                     // of this indirect proxy.
                     //
                     locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
@@ -60,7 +60,7 @@ public final class LocatorInfo
             }
         }
 
-        public void 
+        public void
         exception(LocatorInfo locatorInfo, Exception exc)
         {
             try
@@ -90,7 +90,7 @@ public final class LocatorInfo
 
     private abstract class Request
     {
-        synchronized public void 
+        synchronized public void
         addCallback(Reference ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
         {
             RequestCallback callback = new RequestCallback(ref, ttl, cb);
@@ -116,7 +116,7 @@ public final class LocatorInfo
                 }
             }
         }
-        
+
         synchronized EndpointI[]
         getEndpoints(Reference ref, Reference wellKnownRef, int ttl, Ice.BooleanHolder cached)
         {
@@ -131,7 +131,7 @@ public final class LocatorInfo
                     _sent = true;
                     send();
                 }
-                
+
                 while(!_response && _exception == null)
                 {
                     try
@@ -143,12 +143,12 @@ public final class LocatorInfo
                     }
                 }
             }
-            
+
             if(_exception != null)
             {
                 _locatorInfo.getEndpointsException(ref, _exception); // This throws.
             }
-            
+
             assert(_response);
             EndpointI[] endpoints = null;
             if(_proxy != null)
@@ -162,13 +162,13 @@ public final class LocatorInfo
                 {
                     //
                     // We're resolving the endpoints of a well-known object and the proxy returned
-                    // by the locator is an indirect proxy. We now need to resolve the endpoints 
+                    // by the locator is an indirect proxy. We now need to resolve the endpoints
                     // of this indirect proxy.
                     //
                     return _locatorInfo.getEndpoints(r, ref, ttl, cached);
                 }
             }
-            
+
             cached.value = false;
             if(_ref.getInstance().traceLevels().location >= 1)
             {
@@ -176,16 +176,16 @@ public final class LocatorInfo
             }
             return endpoints == null ? new EndpointI[0] : endpoints;
         }
-        
+
         Request(LocatorInfo locatorInfo, Reference ref)
         {
             _locatorInfo = locatorInfo;
-            _ref = ref; 
-            _sent = false; 
+            _ref = ref;
+            _sent = false;
             _response = false;
         }
 
-        synchronized protected void 
+        synchronized protected void
         response(Ice.ObjectPrx proxy)
         {
             _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
@@ -198,7 +198,7 @@ public final class LocatorInfo
             notifyAll();
         }
 
-        protected void 
+        protected void
         exception(Exception ex)
         {
             synchronized(this)
@@ -234,7 +234,8 @@ public final class LocatorInfo
             assert(reference.isWellKnown());
         }
 
-        protected void 
+        @Override
+        protected void
         send()
         {
             try
@@ -243,18 +244,21 @@ public final class LocatorInfo
                     _ref.getIdentity(),
                     new Ice.Callback_Locator_findObjectById()
                     {
+                        @Override
                         public void
                         response(Ice.ObjectPrx proxy)
                         {
                             ObjectRequest.this.response(proxy);
                         }
-                        
+
+                        @Override
                         public void
                         exception(Ice.UserException ex)
                         {
                             ObjectRequest.this.exception(ex);
                         }
-                        
+
+                        @Override
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -276,7 +280,8 @@ public final class LocatorInfo
             super(locatorInfo, reference);
             assert(reference.isIndirect());
         }
-    
+
+        @Override
         protected void
         send()
         {
@@ -286,18 +291,21 @@ public final class LocatorInfo
                     _ref.getAdapterId(),
                     new Ice.Callback_Locator_findAdapterById()
                     {
+                        @Override
                         public void
                         response(Ice.ObjectPrx proxy)
                         {
                             AdapterRequest.this.response(proxy);
                         }
-                        
+
+                        @Override
                         public void
                         exception(Ice.UserException ex)
                         {
                             AdapterRequest.this.exception(ex);
                         }
-                        
+
+                        @Override
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -326,6 +334,7 @@ public final class LocatorInfo
         _table.clear();
     }
 
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {
@@ -342,6 +351,7 @@ public final class LocatorInfo
         return false;
     }
 
+    @Override
     public int
     hashCode()
     {
@@ -371,7 +381,7 @@ public final class LocatorInfo
         //
         // Do not make locator calls from within sync.
         //
-        Ice.LocatorRegistryPrx locatorRegistry = (Ice.LocatorRegistryPrx)_locator.getRegistry();
+        Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
         if(locatorRegistry == null)
         {
             return null;
@@ -428,7 +438,7 @@ public final class LocatorInfo
                     return getObjectRequest(ref).getEndpoints(ref, null, ttl, cached);
                 }
             }
-            
+
             if(!r.isIndirect())
             {
                 endpoints = r.getEndpoints();
@@ -438,7 +448,7 @@ public final class LocatorInfo
                 return getEndpoints(r, ref, ttl, cached);
             }
         }
-        
+
         assert(endpoints != null);
         cached.value = true;
         if(ref.getInstance().traceLevels().location >= 1)
@@ -757,20 +767,20 @@ public final class LocatorInfo
                 _table.removeObjectReference(r.getIdentity());
             }
         }
-    
+
         if(!ref.isWellKnown())
         {
             if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).__reference().isIndirect())
             {
                 // Cache the adapter endpoints.
-                _table.addAdapterEndpoints(ref.getAdapterId(), 
+                _table.addAdapterEndpoints(ref.getAdapterId(),
                                            ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints());
             }
             else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
             {
                 _table.removeAdapterEndpoints(ref.getAdapterId());
             }
-            
+
             synchronized(this)
             {
                 assert(_adapterRequests.get(ref.getAdapterId()) != null);
@@ -779,7 +789,7 @@ public final class LocatorInfo
         }
         else
         {
-            if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).__reference().isWellKnown()) 
+            if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).__reference().isWellKnown())
             {
                 // Cache the well-known object reference.
                 _table.addObjectReference(ref.getIdentity(), ((Ice.ObjectPrxHelperBase)proxy).__reference());
@@ -796,7 +806,7 @@ public final class LocatorInfo
             }
         }
     }
-    
+
     private final Ice.LocatorPrx _locator;
     private Ice.LocatorRegistryPrx _locatorRegistry;
     private final LocatorTable _table;

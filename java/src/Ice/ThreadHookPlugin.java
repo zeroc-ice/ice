@@ -26,7 +26,7 @@ public class ThreadHookPlugin implements Ice.Plugin
      * @param communicator The communicator using the thread notification hook.
      * @param threadHook The thread notification hook for the communicator.
      **/
-    public 
+    public
     ThreadHookPlugin(Communicator communicator, ThreadNotification threadHook)
     {
         if(communicator == null)
@@ -45,7 +45,8 @@ public class ThreadHookPlugin implements Ice.Plugin
      * can override this method to perform any initialization that might be required
      * by a custom thread notification hook.
      **/
-    public void 
+    @Override
+    public void
     initialize()
     {
     }
@@ -55,6 +56,7 @@ public class ThreadHookPlugin implements Ice.Plugin
      * can override this method to perform any finalization that might be required
      * by a custom thread notification hook.
      **/
+    @Override
     public void
     destroy()
     {

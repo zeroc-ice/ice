@@ -24,6 +24,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
         }
     }
 
+    @Override
     public void
     ice_exception(java.lang.Exception ex)
     {
@@ -52,7 +53,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
             {
                 return;
             }
-    
+
             synchronized(this)
             {
                 if(!_active)

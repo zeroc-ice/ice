@@ -31,6 +31,7 @@ public abstract class Exception extends RuntimeException implements Cloneable
      *
      * @return The copy of this exception.
      **/
+    @Override
     public java.lang.Object clone()
     {
         java.lang.Object o = null;
@@ -58,6 +59,7 @@ public abstract class Exception extends RuntimeException implements Cloneable
      *
      * @return A string representation of this exception.
      **/
+    @Override
     public String
     toString()
     {

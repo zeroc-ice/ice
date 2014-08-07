@@ -30,7 +30,7 @@ public final class ObjectAdapterFactory
             _communicator = null;
 
             adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
-        
+
             notifyAll();
         }
 
@@ -66,7 +66,7 @@ public final class ObjectAdapterFactory
 
             adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
         }
-        
+
         //
         // Now we wait for deactivation of each object adapter.
         //
@@ -106,7 +106,7 @@ public final class ObjectAdapterFactory
             _adapters.clear();
         }
     }
-    
+
     public void
     updateConnectionObservers()
     {
@@ -232,6 +232,7 @@ public final class ObjectAdapterFactory
         _communicator = communicator;
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable

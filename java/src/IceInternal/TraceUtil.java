@@ -18,7 +18,7 @@ public final class TraceUtil
         {
             int p = str.pos();
             str.pos(0);
-            
+
             java.io.StringWriter s = new java.io.StringWriter();
             byte type = printMessage(s, str);
 
@@ -35,7 +35,7 @@ public final class TraceUtil
         {
             int p = str.pos();
             str.pos(0);
-            
+
             java.io.StringWriter s = new java.io.StringWriter();
             byte type = printMessage(s, str);
 
@@ -98,7 +98,7 @@ public final class TraceUtil
             {
                 if(j < data.length)
                 {
-                    int n = (int)data[j];
+                    int n = data[j];
                     if(n < 0)
                     {
                         n += 256;
@@ -176,7 +176,7 @@ public final class TraceUtil
         {
             s.write(" (oneway)");
         }
-        
+
         printRequestHeader(s, str);
     }
 
@@ -185,7 +185,7 @@ public final class TraceUtil
     {
         int batchRequestNum = str.readInt();
         s.write("\nnumber of requests = " + batchRequestNum);
-        
+
         for(int i = 0; i < batchRequestNum; ++i)
         {
             s.write("\nrequest #" + i + ':');
@@ -198,10 +198,10 @@ public final class TraceUtil
     {
         int requestId = str.readInt();
         s.write("\nrequest id = " + requestId);
-        
+
         byte replyStatus = str.readByte();
         s.write("\nreply status = " + (int)replyStatus + ' ');
-        
+
         switch(replyStatus)
         {
         case ReplyStatus.replyOK:
@@ -209,13 +209,13 @@ public final class TraceUtil
             s.write("(ok)");
             break;
         }
-        
+
         case ReplyStatus.replyUserException:
         {
             s.write("(user exception)");
             break;
         }
-        
+
         case ReplyStatus.replyObjectNotExist:
         case ReplyStatus.replyFacetNotExist:
         case ReplyStatus.replyOperationNotExist:
@@ -227,26 +227,26 @@ public final class TraceUtil
                 s.write("(object not exist)");
                 break;
             }
-                        
+
             case ReplyStatus.replyFacetNotExist:
             {
                 s.write("(facet not exist)");
                 break;
             }
-                        
+
             case ReplyStatus.replyOperationNotExist:
             {
                 s.write("(operation not exist)");
                 break;
             }
-                        
+
             default:
             {
                 assert(false);
                 break;
             }
             }
-                    
+
             printIdentityFacetOperation(s, str);
             break;
         }
@@ -268,13 +268,13 @@ public final class TraceUtil
                 s.write("(unknown local exception)");
                 break;
             }
-                        
+
             case ReplyStatus.replyUnknownUserException:
             {
                 s.write("(unknown user exception)");
                 break;
             }
-                        
+
             default:
             {
                 assert(false);
@@ -311,19 +311,19 @@ public final class TraceUtil
                     out.write("(normal)");
                     break;
                 }
-                
+
                 case Nonmutating:
                 {
                     out.write("(nonmutating)");
                     break;
                 }
-                
+
                 case Idempotent:
                 {
                     out.write("(idempotent)");
                     break;
                 }
-                
+
                 default:
                 {
                     out.write("(unknown)");
@@ -343,7 +343,7 @@ public final class TraceUtil
                     out.write(", ");
                 }
             }
-            
+
             Ice.EncodingVersion v = stream.skipEncaps();
             if(!v.equals(Ice.Util.Encoding_1_0))
             {
@@ -364,19 +364,19 @@ public final class TraceUtil
         stream.readByte();
         stream.readByte();
         stream.readByte();
-        
+
 //        byte pMajor = stream.readByte();
 //        byte pMinor = stream.readByte();
 //        out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
         stream.readByte(); // major
         stream.readByte(); // minor
-        
+
 //        byte eMajor = stream.readByte();
 //        byte eMinor = stream.readByte();
 //        out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
         stream.readByte(); // major
         stream.readByte(); // minor
-        
+
         byte type = stream.readByte();
 
         try
@@ -435,29 +435,29 @@ public final class TraceUtil
             // We're done.
             break;
         }
-        
+
         case Protocol.requestMsg:
         {
             printRequest(s, str);
             break;
         }
-        
+
         case Protocol.requestBatchMsg:
         {
             printBatchRequest(s, str);
             break;
         }
-        
+
         case Protocol.replyMsg:
         {
             printReply(s, str);
             break;
         }
-        
+
         default:
         {
             break;
-        }    
+        }
         }
 
         return type;

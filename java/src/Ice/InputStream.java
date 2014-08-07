@@ -54,7 +54,7 @@ public interface InputStream
      * @return The extracted byte.
      **/
     byte readByte();
-    
+
     /**
      * Extracts a sequence of byte values from the stream.
      *

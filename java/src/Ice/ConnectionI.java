@@ -9,8 +9,6 @@
 
 package Ice;
 
-import Ice.Instrumentation.InvocationObserver;
-
 public final class ConnectionI extends IceInternal.EventHandler implements Connection, IceInternal.ResponseHandler
 {
     public interface StartCallback
@@ -21,6 +19,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private class TimeoutCallback implements Runnable
     {
+        @Override
         public void
         run()
         {
@@ -147,6 +146,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     synchronized public void
     close(boolean force)
     {
@@ -285,8 +285,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             //
             // If writing or reading, nothing to do, the connection
-            // timeout will kick-in if writes or reads don't progress. 
-            // This check is necessary because the actitivy timer is 
+            // timeout will kick-in if writes or reads don't progress.
+            // This check is necessary because the actitivy timer is
             // only set when a message is fully read/written.
             //
             return;
@@ -314,10 +314,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 heartbeat();
             }
         }
-    
+
         if(acm.close != ACMClose.CloseOff && now >= (_acmLastActivity + acm.timeout))
         {
-            if(acm.close == ACMClose.CloseOnIdleForceful || 
+            if(acm.close == ACMClose.CloseOnIdleForceful ||
                (acm.close != ACMClose.CloseOnIdle && (!_requests.isEmpty() || !_asyncRequests.isEmpty())))
             {
                 //
@@ -326,7 +326,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 //
                 setState(StateClosed, new ConnectionTimeoutException());
             }
-            else if(acm.close != ACMClose.CloseOnInvocation && 
+            else if(acm.close != ACMClose.CloseOnInvocation &&
                     _dispatchCount == 0 && _batchStream.isEmpty() && _requests.isEmpty() && _asyncRequests.isEmpty())
             {
                 //
@@ -687,6 +687,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         notifyAll();
     }
 
+    @Override
     public void
     flushBatchRequests()
     {
@@ -696,24 +697,28 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private static final String __flushBatchRequests_name = "flushBatchRequests";
 
+    @Override
     public Ice.AsyncResult
     begin_flushBatchRequests()
     {
         return begin_flushBatchRequestsInternal(null);
     }
 
+    @Override
     public Ice.AsyncResult
     begin_flushBatchRequests(Callback cb)
     {
         return begin_flushBatchRequestsInternal(cb);
     }
 
+    @Override
     public Ice.AsyncResult
     begin_flushBatchRequests(Callback_Connection_flushBatchRequests cb)
     {
         return begin_flushBatchRequestsInternal(cb);
     }
 
+    @Override
     public AsyncResult
     begin_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
@@ -722,6 +727,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return begin_flushBatchRequestsInternal(
             new IceInternal.Functional_CallbackBase(false, __exceptionCb, __sentCb)
                 {
+                    @Override
                     public final void __completed(AsyncResult __result)
                     {
                         try
@@ -752,6 +758,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return result;
     }
 
+    @Override
     public void
     end_flushBatchRequests(AsyncResult r)
     {
@@ -889,7 +896,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return status;
     }
 
-    synchronized public void 
+    @Override
+    synchronized public void
     setCallback(ConnectionCallback callback)
     {
         if(_state > StateClosing)
@@ -899,6 +907,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _callback = callback;
     }
 
+    @Override
     synchronized public void
     setACM(Ice.IntOptional timeout, Ice.Optional<ACMClose> close, Ice.Optional<ACMHeartbeat> heartbeat)
     {
@@ -925,13 +934,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     synchronized public Ice.ACM
     getACM()
     {
         return _monitor != null ? _monitor.getACM() : new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
     }
 
-    synchronized public void 
+    synchronized public void
     requestTimedOut(IceInternal.OutgoingMessageCallback out)
     {
         java.util.Iterator<OutgoingMessage> it = _sendStreams.iterator();
@@ -944,9 +954,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     _requests.remove(o.requestId);
                 }
-                
+
                 //
-                // If the request is being sent, don't remove it from the send streams, 
+                // If the request is being sent, don't remove it from the send streams,
                 // it will be removed once the sending is finished.
                 //
                 o.timedOut();
@@ -975,7 +985,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
-    public void 
+    public void
     asyncRequestTimedOut(IceInternal.OutgoingAsyncMessageCallback outAsync)
     {
         java.util.Iterator<OutgoingMessage> it = _sendStreams.iterator();
@@ -988,13 +998,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     _asyncRequests.remove(o.requestId);
                 }
-                
+
                 //
-                // If the request is being sent, don't remove it from the send streams, 
+                // If the request is being sent, don't remove it from the send streams,
                 // it will be removed once the sending is finished.
                 //
                 o.timedOut();
-                if(o != _sendStreams.getFirst()) 
+                if(o != _sendStreams.getFirst())
                 {
                     it.remove();
                 }
@@ -1020,6 +1030,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
 
+    @Override
     synchronized public void
     sendResponse(int requestId, IceInternal.BasicStream os, byte compressFlag)
     {
@@ -1055,6 +1066,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     synchronized public void
     sendNoResponse()
     {
@@ -1087,12 +1099,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
-    public boolean 
+    @Override
+    public boolean
     systemException(int requestId, Ice.SystemException ex)
     {
         return false; // System exceptions aren't marshalled.
     }
-        
+
     public IceInternal.EndpointI
     endpoint()
     {
@@ -1105,6 +1118,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return _connector; // No mutex protection necessary, _connector is immutable.
     }
 
+    @Override
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
@@ -1135,18 +1149,21 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
     }
 
+    @Override
     public synchronized ObjectAdapter
     getAdapter()
     {
         return _adapter;
     }
 
+    @Override
     public Endpoint
     getEndpoint()
     {
         return _endpoint; // No mutex protection necessary, _endpoint is immutable.
     }
 
+    @Override
     public ObjectPrx
     createProxy(Identity ident)
     {
@@ -1160,6 +1177,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     //
     // Operations from EventHandler
     //
+    @Override
     public void
     message(IceInternal.ThreadPoolCurrent current)
     {
@@ -1438,6 +1456,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             _threadPool.dispatchFromThisThread(
                 new IceInternal.DispatchWorkItem(this)
                 {
+                    @Override
                     public void
                     run()
                     {
@@ -1553,6 +1572,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     public void
     finished(IceInternal.ThreadPoolCurrent current)
     {
@@ -1583,6 +1603,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             _threadPool.dispatchFromThisThread(
                 new IceInternal.DispatchWorkItem(this)
                 {
+                    @Override
                     public void
                     run()
                     {
@@ -1670,12 +1691,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     public String
     toString()
     {
         return _toString();
     }
 
+    @Override
     public java.nio.channels.SelectableChannel
     fd()
     {
@@ -1699,18 +1722,21 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     public String
     type()
     {
         return _type; // No mutex lock, _type is immutable.
     }
 
+    @Override
     public int
     timeout()
     {
         return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
     }
 
+    @Override
     public synchronized ConnectionInfo
     getInfo()
     {
@@ -1721,6 +1747,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return initConnectionInfo();
     }
 
+    @Override
     public String
     _toString()
     {
@@ -1733,6 +1760,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         setState(StateClosed, ex);
     }
 
+    @Override
     public synchronized void
     invokeException(int requestId, LocalException ex, int invokeNum)
     {
@@ -1850,6 +1878,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -2169,10 +2198,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     heartbeat()
     {
         assert(_state == StateActive);
-        
+
         if(!_endpoint.datagram())
         {
-            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, 
+            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance,
                                                                      IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
             IceInternal.Protocol.currentProtocol.__write(os);
@@ -2741,7 +2770,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 default:
                 {
-                    IceInternal.TraceUtil.trace("received unknown message\n(invalid, closing connection)", info.stream, 
+                    IceInternal.TraceUtil.trace("received unknown message\n(invalid, closing connection)", info.stream,
                                                 _logger, _traceLevels);
                     throw new UnknownMessageException();
                 }
@@ -3091,7 +3120,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             this.requestId = requestId;
         }
 
-        public void 
+        public void
         timedOut()
         {
             assert((out != null || outAsync != null));

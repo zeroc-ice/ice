@@ -45,132 +45,154 @@ public class InputStreamI implements InputStream
         _is.closure(this);
     }
 
+    @Override
     public Communicator
     communicator()
     {
         return _communicator;
     }
 
+    @Override
     public void
     sliceObjects(boolean slice)
     {
         _is.sliceObjects(slice);
     }
 
+    @Override
     public boolean
     readBool()
     {
         return _is.readBool();
     }
 
+    @Override
     public boolean[]
     readBoolSeq()
     {
         return _is.readBoolSeq();
     }
 
+    @Override
     public byte
     readByte()
     {
         return _is.readByte();
     }
 
+    @Override
     public byte[]
     readByteSeq()
     {
         return _is.readByteSeq();
     }
 
+    @Override
     public java.io.Serializable
     readSerializable()
     {
         return _is.readSerializable();
     }
 
+    @Override
     public short
     readShort()
     {
         return _is.readShort();
     }
 
+    @Override
     public short[]
     readShortSeq()
     {
         return _is.readShortSeq();
     }
 
+    @Override
     public int
     readInt()
     {
         return _is.readInt();
     }
 
+    @Override
     public int[]
     readIntSeq()
     {
         return _is.readIntSeq();
     }
 
+    @Override
     public long
     readLong()
     {
         return _is.readLong();
     }
 
+    @Override
     public long[]
     readLongSeq()
     {
         return _is.readLongSeq();
     }
 
+    @Override
     public float
     readFloat()
     {
         return _is.readFloat();
     }
 
+    @Override
     public float[]
     readFloatSeq()
     {
         return _is.readFloatSeq();
     }
 
+    @Override
     public double
     readDouble()
     {
         return _is.readDouble();
     }
 
+    @Override
     public double[]
     readDoubleSeq()
     {
         return _is.readDoubleSeq();
     }
 
+    @Override
     public String
     readString()
     {
         return _is.readString();
     }
 
+    @Override
     public String[]
     readStringSeq()
     {
         return _is.readStringSeq();
     }
 
+    @Override
     public int
     readSize()
     {
         return _is.readSize();
     }
 
+    @Override
     public int
     readAndCheckSeqSize(int minWire)
     {
         return _is.readAndCheckSeqSize(minWire);
     }
 
+    @Override
     public ObjectPrx
     readProxy()
     {
@@ -184,12 +206,14 @@ public class InputStreamI implements InputStream
             _cb = cb;
         }
 
+        @Override
         public void
         patch(Ice.Object v)
         {
             _cb.invoke(v);
         }
 
+        @Override
         public String
         type()
         {
@@ -199,18 +223,21 @@ public class InputStreamI implements InputStream
         ReadObjectCallback _cb;
     }
 
+    @Override
     public void
     readObject(ReadObjectCallback cb)
     {
         _is.readObject(new Patcher(cb));
     }
 
+    @Override
     public int
     readEnum(int maxValue)
     {
         return _is.readEnum(maxValue);
     }
 
+    @Override
     public void
     throwException()
         throws UserException
@@ -225,6 +252,7 @@ public class InputStreamI implements InputStream
             _factory = factory;
         }
 
+        @Override
         public void
         createAndThrow(String id)
             throws UserException
@@ -232,6 +260,7 @@ public class InputStreamI implements InputStream
             _factory.createAndThrow(id);
         }
 
+        @Override
         public void
         destroy()
         {
@@ -240,6 +269,7 @@ public class InputStreamI implements InputStream
         private UserExceptionReaderFactory _factory;
     }
 
+    @Override
     public void
     throwException(UserExceptionReaderFactory factory)
         throws UserException
@@ -247,78 +277,91 @@ public class InputStreamI implements InputStream
         _is.throwException(new UserExceptionFactoryI(factory));
     }
 
+    @Override
     public void
     startObject()
     {
         _is.startReadObject();
     }
 
+    @Override
     public SlicedData
     endObject(boolean preserve)
     {
         return _is.endReadObject(preserve);
     }
 
+    @Override
     public void
     startException()
     {
         _is.startReadException();
     }
 
+    @Override
     public SlicedData
     endException(boolean preserve)
     {
         return _is.endReadException(preserve);
     }
 
+    @Override
     public String
     startSlice()
     {
         return _is.startReadSlice();
     }
 
+    @Override
     public void
     endSlice()
     {
         _is.endReadSlice();
     }
 
+    @Override
     public void
     skipSlice()
     {
         _is.skipSlice();
     }
 
+    @Override
     public Ice.EncodingVersion
     startEncapsulation()
     {
         return _is.startReadEncaps();
     }
 
+    @Override
     public void
     endEncapsulation()
     {
         _is.endReadEncapsChecked();
     }
 
+    @Override
     public Ice.EncodingVersion
     skipEncapsulation()
     {
         return _is.skipEncaps();
     }
 
+    @Override
     public EncodingVersion
     getEncoding()
     {
         return _is.getReadEncoding();
     }
 
+    @Override
     public void
     readPendingObjects()
     {
         _is.readPendingObjects();
     }
 
+    @Override
     public void
     rewind()
     {
@@ -326,30 +369,35 @@ public class InputStreamI implements InputStream
         _is.getBuffer().b.position(0);
     }
 
+    @Override
     public void
     skip(int sz)
     {
         _is.skip(sz);
     }
 
+    @Override
     public void
     skipSize()
     {
         _is.skipSize();
     }
 
+    @Override
     public boolean
     readOptional(int tag, OptionalFormat format)
     {
         return _is.readOpt(tag, format);
     }
 
+    @Override
     public int
     pos()
     {
         return _is.pos();
     }
 
+    @Override
     public void
     destroy()
     {

@@ -9,8 +9,6 @@
 
 package IceInternal;
 
-import Ice.Instrumentation.InvocationObserver;
-
 public interface RequestHandler
 {
     void prepareBatchRequest(BasicStream out)

@@ -33,6 +33,7 @@ public abstract class UserExceptionWriter extends UserException
     public abstract void
     write(Ice.OutputStream os);
 
+    @Override
     public void
     __write(IceInternal.BasicStream os)
     {
@@ -50,6 +51,7 @@ public abstract class UserExceptionWriter extends UserException
         assert(false);
     }
 
+    @Override
     public void
     __write(Ice.OutputStream os)
     {

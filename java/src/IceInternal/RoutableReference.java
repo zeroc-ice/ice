@@ -11,66 +11,77 @@ package IceInternal;
 
 public class RoutableReference extends Reference
 {
+    @Override
     public final EndpointI[]
     getEndpoints()
     {
         return _endpoints;
     }
 
+    @Override
     public final String
     getAdapterId()
     {
         return _adapterId;
     }
 
+    @Override
     public final LocatorInfo
     getLocatorInfo()
     {
         return _locatorInfo;
     }
 
+    @Override
     public final RouterInfo
     getRouterInfo()
     {
         return _routerInfo;
     }
 
+    @Override
     public final boolean
     getCollocationOptimized()
     {
         return _collocationOptimized;
     }
 
+    @Override
     public final boolean
     getCacheConnection()
     {
         return _cacheConnection;
     }
 
+    @Override
     public final boolean
     getPreferSecure()
     {
         return _preferSecure;
     }
 
+    @Override
     public final Ice.EndpointSelectionType
     getEndpointSelection()
     {
         return _endpointSelection;
     }
 
+    @Override
     public final int
     getLocatorCacheTimeout()
     {
         return _locatorCacheTimeout;
     }
 
+    @Override
     public final String
     getConnectionId()
     {
         return _connectionId;
     }
 
+    @Override
     public Reference
     changeEncoding(Ice.EncodingVersion newEncoding)
     {
@@ -87,6 +98,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changeCompress(boolean newCompress)
     {
@@ -103,6 +115,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {
@@ -117,6 +130,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changeAdapterId(String newAdapterId)
     {
@@ -127,9 +141,10 @@ public class RoutableReference extends Reference
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._adapterId = newAdapterId;
         r._endpoints = _emptyEndpoints;
-        return r;       
+        return r;
     }
 
+    @Override
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
@@ -143,6 +158,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
@@ -156,6 +172,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changeCollocationOptimized(boolean newCollocationOptimized)
     {
@@ -168,6 +185,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public final Reference
     changeCacheConnection(boolean newCache)
     {
@@ -180,6 +198,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changePreferSecure(boolean newPreferSecure)
     {
@@ -192,6 +211,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public final Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
@@ -204,6 +224,7 @@ public class RoutableReference extends Reference
         return r;
     }
 
+    @Override
     public Reference
     changeLocatorCacheTimeout(int newTimeout)
     {
@@ -213,9 +234,10 @@ public class RoutableReference extends Reference
         }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._locatorCacheTimeout = newTimeout;
-        return r;       
+        return r;
     }
 
+    @Override
     public Reference
     changeTimeout(int newTimeout)
     {
@@ -235,9 +257,10 @@ public class RoutableReference extends Reference
             }
             r._endpoints = newEndpoints;
         }
-        return r;       
+        return r;
     }
 
+    @Override
     public Reference
     changeConnectionId(String id)
     {
@@ -256,21 +279,24 @@ public class RoutableReference extends Reference
             }
             r._endpoints = newEndpoints;
         }
-        return r;       
+        return r;
     }
 
+    @Override
     public boolean
     isIndirect()
     {
         return _endpoints.length == 0;
     }
 
+    @Override
     public boolean
     isWellKnown()
     {
         return _endpoints.length == 0 && _adapterId.length() == 0;
     }
 
+    @Override
     public void
     streamWrite(BasicStream s)
         throws Ice.MarshalException
@@ -293,6 +319,7 @@ public class RoutableReference extends Reference
         }
     }
 
+    @Override
     public String
     toString()
     {
@@ -320,7 +347,7 @@ public class RoutableReference extends Reference
         else if(_adapterId.length() > 0)
         {
             s.append(" @ ");
-            
+
             //
             // If the encoded adapter id string contains characters which
             // the reference parser uses as separators, then we enclose
@@ -341,6 +368,7 @@ public class RoutableReference extends Reference
         return s.toString();
     }
 
+    @Override
     public java.util.Map<String, String> toProperty(String prefix)
     {
         java.util.Map<String, String> properties = new java.util.HashMap<String, String>();
@@ -349,7 +377,7 @@ public class RoutableReference extends Reference
         properties.put(prefix + ".CollocationOptimized", _collocationOptimized ? "1" : "0");
         properties.put(prefix + ".ConnectionCached", _cacheConnection ? "1" : "0");
         properties.put(prefix + ".PreferSecure", _preferSecure ? "1" : "0");
-        properties.put(prefix + ".EndpointSelection", 
+        properties.put(prefix + ".EndpointSelection",
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered");
 
         {
@@ -386,6 +414,7 @@ public class RoutableReference extends Reference
         return properties;
     }
 
+    @Override
     public synchronized int
     hashCode()
     {
@@ -397,6 +426,7 @@ public class RoutableReference extends Reference
         return _hashValue;
     }
 
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {
@@ -465,6 +495,7 @@ public class RoutableReference extends Reference
         return true;
     }
 
+    @Override
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder comp)
     {
@@ -514,7 +545,7 @@ public class RoutableReference extends Reference
             {
                 assert(_locatorInfo != null);
                 _locatorInfo.clearCache(this);
-                if(cached.value) 
+                if(cached.value)
                 {
                     TraceLevels traceLevels = getInstance().traceLevels();
                     if(traceLevels.retry >= 2)
@@ -530,6 +561,7 @@ public class RoutableReference extends Reference
         }
     }
 
+    @Override
     public void
     getConnection(final GetConnectionCallback callback)
     {
@@ -541,6 +573,7 @@ public class RoutableReference extends Reference
             //
             _routerInfo.getClientEndpoints(new RouterInfo.GetClientEndpointsCallback()
                 {
+                    @Override
                     public void
                     setEndpoints(EndpointI[] endpts)
                     {
@@ -555,6 +588,7 @@ public class RoutableReference extends Reference
                         }
                     }
 
+                    @Override
                     public void
                     setException(Ice.LocalException ex)
                     {
@@ -582,6 +616,7 @@ public class RoutableReference extends Reference
         {
             _locatorInfo.getEndpoints(this, _locatorCacheTimeout, new LocatorInfo.GetEndpointsCallback()
             {
+                @Override
                 public void
                 setEndpoints(EndpointI[] endpoints, final boolean cached)
                 {
@@ -590,16 +625,18 @@ public class RoutableReference extends Reference
                         callback.setException(new Ice.NoEndpointException(self.toString()));
                         return;
                     }
-                        
+
                     applyOverrides(endpoints);
                     createConnection(endpoints, new GetConnectionCallback()
                     {
+                        @Override
                         public void
                         setConnection(Ice.ConnectionI connection, boolean compress)
                         {
                             callback.setConnection(connection, compress);
                         }
-                        
+
+                        @Override
                         public void
                         setException(Ice.LocalException exc)
                         {
@@ -632,7 +669,8 @@ public class RoutableReference extends Reference
                         }
                         });
                 }
-                
+
+                @Override
                 public void
                 setException(Ice.LocalException ex)
                 {
@@ -702,7 +740,7 @@ public class RoutableReference extends Reference
             endpts[i] = endpts[i].connectionId(_connectionId);
             if(_overrideCompress)
             {
-                endpts[i] = endpts[i].compress(_compress);                  
+                endpts[i] = endpts[i].compress(_compress);
             }
             if(_overrideTimeout)
             {
@@ -726,7 +764,7 @@ public class RoutableReference extends Reference
                 endpoints.add(endpoint);
             }
         }
-        
+
         //
         // Filter out endpoints according to the mode of the reference.
         //
@@ -820,7 +858,7 @@ public class RoutableReference extends Reference
             java.util.Collections.sort(endpoints, _preferNonSecureEndpointComparator);
         }
 
-        return (EndpointI[])endpoints.toArray(new EndpointI[endpoints.size()]);
+        return endpoints.toArray(new EndpointI[endpoints.size()]);
     }
 
     protected Ice.ConnectionI
@@ -831,7 +869,7 @@ public class RoutableReference extends Reference
         {
             throw new Ice.NoEndpointException(toString());
         }
-        
+
         //
         // Finally, create the connection.
         //
@@ -854,9 +892,9 @@ public class RoutableReference extends Reference
             // create a new connection even if there's an existing
             // connection for one of the endpoints.
             //
-            
+
             Ice.LocalException exception = null;
-            EndpointI[] endpoint = new EndpointI[1];            
+            EndpointI[] endpoint = new EndpointI[1];
             for(int i = 0; i < endpoints.length; ++i)
             {
                 try
@@ -881,7 +919,7 @@ public class RoutableReference extends Reference
 
         assert(connection != null);
 
-        //        
+        //
         // If we have a router, set the object adapter for this router
         // (if any) to the new connection, so that callbacks from the
         // router can be received over this new connection.
@@ -890,7 +928,7 @@ public class RoutableReference extends Reference
         {
             connection.setAdapter(_routerInfo.getAdapter());
         }
-                
+
         return connection;
     }
 
@@ -903,7 +941,7 @@ public class RoutableReference extends Reference
             callback.setException(new Ice.NoEndpointException(toString()));
             return;
         }
-        
+
         //
         // Finally, create the connection.
         //
@@ -914,13 +952,14 @@ public class RoutableReference extends Reference
             // Get an existing connection or create one if there's no
             // existing connection to one of the given endpoints.
             //
-            factory.create(endpoints, false, getEndpointSelection(), 
+            factory.create(endpoints, false, getEndpointSelection(),
                            new OutgoingConnectionFactory.CreateConnectionCallback()
                            {
-                               public void
+                               @Override
+                            public void
                                setConnection(Ice.ConnectionI connection, boolean compress)
                                {
-                                   //        
+                                   //
                                    // If we have a router, set the object adapter for this router
                                    // (if any) to the new connection, so that callbacks from the
                                    // router can be received over this new connection.
@@ -931,8 +970,9 @@ public class RoutableReference extends Reference
                                    }
                                    callback.setConnection(connection, compress);
                                }
-                               
-                               public void
+
+                               @Override
+                            public void
                                setException(Ice.LocalException ex)
                                {
                                    callback.setException(ex);
@@ -948,14 +988,15 @@ public class RoutableReference extends Reference
             // create a new connection even if there's an existing
             // connection for one of the endpoints.
             //
-            
-            factory.create(new EndpointI[]{ endpoints[0] }, true, getEndpointSelection(), 
+
+            factory.create(new EndpointI[]{ endpoints[0] }, true, getEndpointSelection(),
                            new OutgoingConnectionFactory.CreateConnectionCallback()
                            {
-                               public void
+                               @Override
+                            public void
                                setConnection(Ice.ConnectionI connection, boolean compress)
                                {
-                                   //        
+                                   //
                                    // If we have a router, set the object adapter for this router
                                    // (if any) to the new connection, so that callbacks from the
                                    // router can be received over this new connection.
@@ -966,21 +1007,22 @@ public class RoutableReference extends Reference
                                    }
                                    callback.setConnection(connection, compress);
                                }
-                               
-                               public void
+
+                               @Override
+                            public void
                                setException(final Ice.LocalException ex)
                                {
                                    if(_exception == null)
                                    {
                                        _exception = ex;
                                    }
-                                   
+
                                    if(++_i == endpoints.length)
                                    {
                                        callback.setException(_exception);
                                        return;
                                    }
-                                   
+
                                    final boolean more = _i != endpoints.length - 1;
                                    final EndpointI[] endpoint = new EndpointI[]{ endpoints[_i] };
                                    factory.create(endpoint, more, getEndpointSelection(), this);
@@ -998,7 +1040,8 @@ public class RoutableReference extends Reference
         {
             _preferSecure = preferSecure;
         }
-        
+
+        @Override
         public int
         compare(EndpointI le, EndpointI re)
         {
@@ -1034,7 +1077,7 @@ public class RoutableReference extends Reference
 
         private boolean _preferSecure;
     }
-    
+
     private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
     private static EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
     private static EndpointI[] _emptyEndpoints = new EndpointI[0];

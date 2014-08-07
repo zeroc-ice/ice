@@ -25,7 +25,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         if(response)
         {
             _os.writeBlob(IceInternal.Protocol.replyHdr);
-            
+
             //
             // Add the request ID.
             //
@@ -33,6 +33,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
     }
 
+    @Override
     public Ice.Current
     getCurrent()
     {
@@ -42,13 +43,14 @@ final public class Incoming extends IncomingBase implements Ice.Request
     //
     // These functions allow this object to be reused, rather than reallocated.
     //
+    @Override
     public void
-    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
           boolean response, byte compress, int requestId)
     {
         _cb = null;
         _inParamPos = -1;
-            
+
         super.reset(instance, handler, connection, adapter, response, compress, requestId);
 
         //
@@ -57,7 +59,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         if(response)
         {
             _os.writeBlob(IceInternal.Protocol.replyHdr);
-            
+
             //
             // Add the request ID.
             //
@@ -65,6 +67,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
     }
 
+    @Override
     public void
     reclaim()
     {
@@ -225,7 +228,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                         Thread.currentThread().setContextClassLoader(null);
                     }
                 }
-                
+
                 if(_locator != null && !__servantLocatorFinished())
                 {
                     return;
@@ -238,7 +241,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 // the next batch request if dispatching batch requests.
                 //
                 _is.skipEncaps();
-                
+
                 if(servantManager != null && servantManager.hasServant(_current.id))
                 {
                     throw new Ice.FacetNotExistException(_current.id, _current.facet, _current.operation);
@@ -258,7 +261,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             __handleException(ex);
             return;
         }
-        
+
         //
         // Don't put the code below into the try block above. Exceptions
         // in the code below are considered fatal, and must propagate to
@@ -295,10 +298,10 @@ final public class Incoming extends IncomingBase implements Ice.Request
         {
             _interceptorAsyncCallbackList = new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>();
         }
-        
+
         _interceptorAsyncCallbackList.addFirst(cb);
     }
-    
+
     public final void
     pop()
     {
@@ -306,7 +309,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         _interceptorAsyncCallbackList.removeFirst();
     }
 
-    public final void 
+    public final void
     startOver()
     {
         if(_inParamPos == -1)
@@ -319,14 +322,14 @@ final public class Incoming extends IncomingBase implements Ice.Request
         else
         {
             killAsync();
-            
+
             //
             // Let's rewind _is and clean-up _os
             //
             _is.pos(_inParamPos);
             if(_response)
             {
-                _os.resize(Protocol.headerSize + 4, false); 
+                _os.resize(Protocol.headerSize + 4, false);
             }
         }
     }
@@ -357,7 +360,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         _current.encoding = _is.startReadEncaps();
         return _is;
     }
-    
+
     public final void
     endReadParams()
     {
@@ -384,8 +387,8 @@ final public class Incoming extends IncomingBase implements Ice.Request
         assert _cb == null;
         _cb = cb;
     }
- 
-    final boolean 
+
+    final boolean
     isRetriable()
     {
         return _inParamPos != -1;

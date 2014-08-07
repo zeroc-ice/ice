@@ -37,11 +37,13 @@ public abstract class Callback extends IceInternal.CallbackBase
     {
     }
 
+    @Override
     public final void __completed(AsyncResult r)
     {
         completed(r);
     }
 
+    @Override
     public final void __sent(AsyncResult r)
     {
         sent(r);

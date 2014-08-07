@@ -37,114 +37,133 @@ public class OutputStreamI implements OutputStream
         _os.closure(this);
     }
 
+    @Override
     public Communicator
     communicator()
     {
         return _communicator;
     }
 
+    @Override
     public void
     writeBool(boolean v)
     {
         _os.writeBool(v);
     }
 
+    @Override
     public void
     writeBoolSeq(boolean[] v)
     {
         _os.writeBoolSeq(v);
     }
 
+    @Override
     public void
     writeByte(byte v)
     {
         _os.writeByte(v);
     }
 
+    @Override
     public void
     writeByteSeq(byte[] v)
     {
         _os.writeByteSeq(v);
     }
 
+    @Override
     public void
     writeSerializable(java.io.Serializable v)
     {
         _os.writeSerializable(v);
     }
 
+    @Override
     public void
     writeShort(short v)
     {
         _os.writeShort(v);
     }
 
+    @Override
     public void
     writeShortSeq(short[] v)
     {
         _os.writeShortSeq(v);
     }
 
+    @Override
     public void
     writeInt(int v)
     {
         _os.writeInt(v);
     }
 
+    @Override
     public void
     writeIntSeq(int[] v)
     {
         _os.writeIntSeq(v);
     }
 
+    @Override
     public void
     writeLong(long v)
     {
         _os.writeLong(v);
     }
 
+    @Override
     public void
     writeLongSeq(long[] v)
     {
         _os.writeLongSeq(v);
     }
 
+    @Override
     public void
     writeFloat(float v)
     {
         _os.writeFloat(v);
     }
 
+    @Override
     public void
     writeFloatSeq(float[] v)
     {
         _os.writeFloatSeq(v);
     }
 
+    @Override
     public void
     writeDouble(double v)
     {
         _os.writeDouble(v);
     }
 
+    @Override
     public void
     writeDoubleSeq(double[] v)
     {
         _os.writeDoubleSeq(v);
     }
 
+    @Override
     public void
     writeString(String v)
     {
         _os.writeString(v);
     }
 
+    @Override
     public void
     writeStringSeq(String[] v)
     {
         _os.writeStringSeq(v);
     }
 
+    @Override
     public void
     writeSize(int sz)
     {
@@ -156,126 +175,147 @@ public class OutputStreamI implements OutputStream
         _os.writeSize(sz);
     }
 
+    @Override
     public void
     writeProxy(ObjectPrx v)
     {
         _os.writeProxy(v);
     }
 
+    @Override
     public void
     writeObject(Ice.Object v)
     {
         _os.writeObject(v);
     }
 
+    @Override
     public void
     writeEnum(int v, int maxValue)
     {
         _os.writeEnum(v, maxValue);
     }
 
+    @Override
     public void
     writeException(UserException v)
     {
         _os.writeUserException(v);
     }
 
+    @Override
     public void
     startObject(SlicedData slicedData)
     {
         _os.startWriteObject(slicedData);
     }
 
+    @Override
     public void
     endObject()
     {
         _os.endWriteObject();
     }
 
+    @Override
     public void
     startException(SlicedData slicedData)
     {
         _os.startWriteException(slicedData);
     }
 
+    @Override
     public void
     endException()
     {
         _os.endWriteException();
     }
 
+    @Override
     public void
     startSlice(String typeId, int compactId, boolean last)
     {
         _os.startWriteSlice(typeId, compactId, last);
     }
 
+    @Override
     public void
     endSlice()
     {
         _os.endWriteSlice();
     }
 
+    @Override
     public void
     startEncapsulation(Ice.EncodingVersion encoding, Ice.FormatType format)
     {
         _os.startWriteEncaps(encoding, format);
     }
 
+    @Override
     public void
     startEncapsulation()
     {
         _os.startWriteEncaps();
     }
 
+    @Override
     public void
     endEncapsulation()
     {
         _os.endWriteEncapsChecked();
     }
 
+    @Override
     public EncodingVersion
     getEncoding()
     {
         return _os.getWriteEncoding();
     }
 
+    @Override
     public void
     writePendingObjects()
     {
         _os.writePendingObjects();
     }
 
+    @Override
     public boolean
     writeOptional(int tag, Ice.OptionalFormat format)
     {
         return _os.writeOpt(tag, format);
     }
 
+    @Override
     public int
     pos()
     {
         return _os.pos();
     }
 
+    @Override
     public void
     rewrite(int sz, int pos)
     {
         _os.rewriteInt(sz, pos);
     }
 
+    @Override
     public int
     startSize()
     {
         return _os.startSize();
     }
 
+    @Override
     public void
     endSize(int pos)
     {
         _os.endSize(pos);
     }
 
+    @Override
     public byte[]
     finished()
     {
@@ -286,6 +326,7 @@ public class OutputStreamI implements OutputStream
         return result;
     }
 
+    @Override
     public void
     reset(boolean clearBuffer)
     {
@@ -303,6 +344,7 @@ public class OutputStreamI implements OutputStream
         buf.b.position(0);
     }
 
+    @Override
     public void
     destroy()
     {

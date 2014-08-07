@@ -25,7 +25,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         r.add("endpointIsSecure", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("secure"));
         r.add("endpointTimeout", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("timeout"));
         r.add("endpointCompress", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("compress"));
-        
+
         cli = Ice.IPEndpointInfo.class;
         r.add("endpointHost", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("host"));
         r.add("endpointPort", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("port"));
@@ -39,17 +39,17 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         r.add("incoming", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("incoming"));
         r.add("adapterName", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("adapterName"));
         r.add("connectionId", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("connectionId"));
-        
+
         cli = Ice.IPConnectionInfo.class;
         r.add("localHost", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("localAddress"));
         r.add("localPort", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("localPort"));
         r.add("remoteHost", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("remoteAddress"));
         r.add("remotePort", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("remotePort"));
-        
+
         cli = Ice.UDPConnectionInfo.class;
         r.add("mcastHost", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("mcastAddress"));
         r.add("mcastPort", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("mcastPort"));
-        
+
         addEndpointAttributes(r, cl);
     }
 
@@ -127,8 +127,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 return "";
             }
         }
-    
-        public String 
+
+        public String
         getParent()
         {
             if(_connectionInfo.adapterName != null && !_connectionInfo.adapterName.isEmpty())
@@ -140,7 +140,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 return "Communicator";
             }
         }
-    
+
         public Ice.ConnectionInfo
         getConnectionInfo()
         {
@@ -180,9 +180,9 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                         Class<?> cl = DispatchHelper.class;
                         add("parent", cl.getDeclaredMethod("getParent"));
                         add("id", cl.getDeclaredMethod("getId"));
-                        
+
                         addConnectionAttributes(this, cl);
-                        
+
                         Class<?> clc = Ice.Current.class;
                         add("operation", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("operation"));
                         add("identity", cl.getDeclaredMethod("getIdentity"));
@@ -197,7 +197,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     }
                 }
             };
-        
+
         DispatchHelper(Ice.Current current, int size)
         {
             super(_attributes);
@@ -205,13 +205,15 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             _size = size;
         }
 
+        @Override
         public void
         initMetrics(DispatchMetrics v)
         {
             v.size += _size;
         }
 
-        protected String 
+        @Override
+        protected String
         defaultResolve(String attribute)
         {
             if(attribute.indexOf("context.", 0) == 0)
@@ -224,13 +226,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
             throw new IllegalArgumentException(attribute);
         }
-        
+
         public String
         getMode()
         {
             return _current.requestId == 0 ? "oneway" : "twoway";
         }
-        
+
         public String
         getId()
         {
@@ -253,12 +255,12 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _current.requestId;
         }
 
-        public String 
+        public String
         getParent()
         {
             return _current.adapter.getName();
         }
-        
+
         public Ice.ConnectionInfo
         getConnectionInfo()
         {
@@ -268,7 +270,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
             return null;
         }
-        
+
         public Ice.Endpoint
         getEndpoint()
         {
@@ -284,7 +286,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             return _current.con;
         }
-        
+
         public Ice.EndpointInfo
         getEndpointInfo()
         {
@@ -300,13 +302,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             return _current;
         }
-        
+
         public String
         getIdentity()
         {
             return _current.adapter.getCommunicator().identityToString(_current.id);
         }
-        
+
         final private Ice.Current _current;
         final private int _size;
         private String _id;
@@ -316,17 +318,17 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public final class InvocationHelper extends MetricsHelper<InvocationMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
-            { 
+            {
                 {
                     try
                     {
                         Class<?> cl = InvocationHelper.class;
                         add("parent", cl.getDeclaredMethod("getParent"));
                         add("id", cl.getDeclaredMethod("getId"));
-                        
+
                         add("operation", cl.getDeclaredMethod("getOperation"));
                         add("identity", cl.getDeclaredMethod("getIdentity"));
-                        
+
                         Class<?> cli = Ice.ObjectPrx.class;
                         add("facet", cl.getDeclaredMethod("getProxy"), cli.getDeclaredMethod("ice_getFacet"));
                         add("encoding", cl.getDeclaredMethod("getEncodingVersion"));
@@ -340,7 +342,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     }
                 }
             };
-        
+
         InvocationHelper(Ice.ObjectPrx proxy, String op, java.util.Map<String, String> ctx)
         {
             super(_attributes);
@@ -349,7 +351,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             _context = ctx;
         }
 
-        protected String 
+        @Override
+        protected String
         defaultResolve(String attribute)
         {
             if(attribute.indexOf("context.", 0) == 0)
@@ -362,7 +365,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
             throw new IllegalArgumentException(attribute);
         }
-        
+
         public String
         getMode()
         {
@@ -370,27 +373,27 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             {
                 throw new IllegalArgumentException("mode");
             }
-            
+
             if(_proxy.ice_isTwoway())
             {
                 return "twoway";
-            } 
+            }
             else if(_proxy.ice_isOneway())
             {
                 return "oneway";
-            } 
+            }
             else if(_proxy.ice_isBatchOneway())
             {
                 return "batch-oneway";
-            } 
+            }
             else if(_proxy.ice_isDatagram())
             {
                 return "datagram";
-            } 
+            }
             else if(_proxy.ice_isBatchDatagram())
             {
                 return "batch-datagram";
-            } 
+            }
             else
             {
                 throw new IllegalArgumentException("mode");
@@ -424,13 +427,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
             return _id;
         }
-        
-        public String 
+
+        public String
         getParent()
         {
             return "Communicator";
         }
-        
+
         public Ice.ObjectPrx
         getProxy()
         {
@@ -456,12 +459,12 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _operation;
         }
 
-        public String 
+        public String
         getEncodingVersion()
         {
             return Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
         }
-        
+
         final private Ice.ObjectPrx _proxy;
         final private String _operation;
         final private java.util.Map<String, String> _context;
@@ -469,11 +472,11 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
 
         static final private Ice.Endpoint[] emptyEndpoints = new Ice.Endpoint[0];
     };
-    
+
     static public final class ThreadHelper extends MetricsHelper<ThreadMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
-            { 
+            {
                 {
                     try
                     {
@@ -495,7 +498,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             _state = state;
         }
 
-        public void 
+        @Override
+        public void
         initMetrics(ThreadMetrics v)
         {
             switch(_state)
@@ -513,7 +517,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 break;
             }
         }
-        
+
         final public String _parent;
         final public String _id;
         final private Ice.Instrumentation.ThreadState _state;
@@ -522,7 +526,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     static public final class EndpointHelper extends MetricsHelper<Metrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
-            { 
+            {
                 {
                     try
                     {
@@ -550,7 +554,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             super(_attributes);
             _endpoint = endpt;
         }
-        
+
         public Ice.EndpointInfo
         getEndpointInfo()
         {
@@ -566,7 +570,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         {
             return "Communicator";
         }
-        
+
         public String
         getId()
         {
@@ -576,25 +580,25 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
             return _id;
         }
-        
+
         public String
         getEndpoint()
         {
             return _endpoint.toString();
         }
-        
+
         final private Ice.Endpoint _endpoint;
         private String _id;
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    public 
+    public
     CommunicatorObserverI(IceInternal.MetricsAdminI metrics)
     {
         this(metrics, null);
     }
 
-    public 
+    public
     CommunicatorObserverI(IceInternal.MetricsAdminI metrics, Ice.Instrumentation.CommunicatorObserver delegate)
     {
         _metrics = metrics;
@@ -608,16 +612,16 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             Ice.Instrumentation.InvocationObserver>(metrics, "Invocation", InvocationMetrics.class);
         _threads = new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
             Ice.Instrumentation.ThreadObserver>(metrics, "Thread", ThreadMetrics.class);
-        _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, 
+        _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
             Ice.Instrumentation.Observer>(metrics, "ConnectionEstablishment", Metrics.class);
         _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
             Ice.Instrumentation.Observer>(metrics, "EndpointLookup", Metrics.class);
 
         try
         {
-            _invocations.registerSubMap("Remote", RemoteMetrics.class, 
+            _invocations.registerSubMap("Remote", RemoteMetrics.class,
                                         InvocationMetrics.class.getDeclaredField("remotes"));
-            _invocations.registerSubMap("Collocated", CollocatedMetrics.class, 
+            _invocations.registerSubMap("Collocated", CollocatedMetrics.class,
                                         InvocationMetrics.class.getDeclaredField("collocated"));
         }
         catch(Exception ex)
@@ -626,6 +630,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
     }
 
+    @Override
     public Ice.Instrumentation.Observer
     getConnectionEstablishmentObserver(Ice.Endpoint endpt, String connector)
     {
@@ -638,7 +643,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 {
                     delegate = _delegate.getConnectionEstablishmentObserver(endpt, connector);
                 }
-                return _connects.getObserver(new EndpointHelper(endpt, connector), ObserverWithDelegateI.class, 
+                return _connects.getObserver(new EndpointHelper(endpt, connector), ObserverWithDelegateI.class,
                                              delegate);
             }
             catch(Exception ex)
@@ -649,7 +654,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         return null;
     }
 
-    public Ice.Instrumentation.Observer 
+    @Override
+    public Ice.Instrumentation.Observer
     getEndpointLookupObserver(Ice.Endpoint endpt)
     {
         if(_endpointLookups.isEnabled())
@@ -671,8 +677,9 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
         return null;
     }
-    
-    public Ice.Instrumentation.ConnectionObserver 
+
+    @Override
+    public Ice.Instrumentation.ConnectionObserver
     getConnectionObserver(Ice.ConnectionInfo c, Ice.Endpoint e, Ice.Instrumentation.ConnectionState s,
                           Ice.Instrumentation.ConnectionObserver observer)
     {
@@ -695,9 +702,10 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
         return null;
     }
-    
-    public Ice.Instrumentation.ThreadObserver 
-    getThreadObserver(String parent, String id, Ice.Instrumentation.ThreadState s, 
+
+    @Override
+    public Ice.Instrumentation.ThreadObserver
+    getThreadObserver(String parent, String id, Ice.Instrumentation.ThreadState s,
                       Ice.Instrumentation.ThreadObserver observer)
     {
         if(_threads.isEnabled())
@@ -719,7 +727,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
         return null;
     }
-    
+
+    @Override
     public Ice.Instrumentation.InvocationObserver
     getInvocationObserver(Ice.ObjectPrx prx, String operation, java.util.Map<java.lang.String, java.lang.String> ctx)
     {
@@ -732,7 +741,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                 {
                     delegate = _delegate.getInvocationObserver(prx, operation, ctx);
                 }
-                return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), 
+                return _invocations.getObserver(new InvocationHelper(prx, operation, ctx),
                                                 InvocationObserverI.class,
                                                 delegate);
             }
@@ -743,7 +752,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
         return null;
     }
-    
+
+    @Override
     public Ice.Instrumentation.DispatchObserver
     getDispatchObserver(Ice.Current c, int size)
     {
@@ -765,8 +775,9 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         }
         return null;
     }
-    
-    public void 
+
+    @Override
+    public void
     setObserverUpdater(final Ice.Instrumentation.ObserverUpdater updater)
     {
         if(updater == null)
@@ -777,13 +788,15 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         else
         {
             _connections.setUpdater(new Runnable() {
-                    public void 
+                    @Override
+                    public void
                     run()
                     {
                         updater.updateConnectionObservers();
                     }
                 });
-            _threads.setUpdater(new Runnable() { 
+            _threads.setUpdater(new Runnable() {
+                    @Override
                     public void
                     run()
                     {

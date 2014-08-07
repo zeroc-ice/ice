@@ -21,6 +21,7 @@ public interface Transceiver
     int read(Buffer buf, Ice.BooleanHolder moreData);
 
     String protocol();
+    @Override
     String toString();
     Ice.ConnectionInfo getInfo();
     void checkSendSize(Buffer buf, int messageSizeMax);

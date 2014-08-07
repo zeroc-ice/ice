@@ -11,12 +11,14 @@ package IceInternal;
 
 final class TcpTransceiver implements Transceiver
 {
+    @Override
     public java.nio.channels.SelectableChannel fd()
     {
         assert(_fd != null);
         return _fd;
     }
 
+    @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData)
     {
         try
@@ -119,6 +121,7 @@ final class TcpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     public int closing(boolean initiator, Ice.LocalException ex)
     {
         // If we are initiating the connection closure, wait for the peer
@@ -126,6 +129,7 @@ final class TcpTransceiver implements Transceiver
         return initiator ? SocketOperation.Read : SocketOperation.None;
     }
 
+    @Override
     public void close()
     {
         if(_state == StateConnected && _instance.traceLevel() >= 1)
@@ -149,6 +153,7 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public int write(Buffer buf)
     {
@@ -234,6 +239,7 @@ final class TcpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public int read(Buffer buf, Ice.BooleanHolder moreData)
     {
@@ -285,16 +291,19 @@ final class TcpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String toString()
     {
         return _desc;
     }
 
+    @Override
     public Ice.ConnectionInfo getInfo()
     {
         Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
@@ -312,6 +321,7 @@ final class TcpTransceiver implements Transceiver
         return info;
     }
 
+    @Override
     public void checkSendSize(Buffer buf, int messageSizeMax)
     {
         if(buf.size() > messageSizeMax)
@@ -371,6 +381,7 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable

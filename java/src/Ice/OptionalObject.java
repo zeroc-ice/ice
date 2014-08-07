@@ -34,6 +34,7 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      *
      * @param v The new object for the optional.
      **/
+    @Override
     @SuppressWarnings("unchecked")
     public void
     patch(Ice.Object v)
@@ -57,6 +58,7 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      *
      * @return The Slice type ID.
      **/
+    @Override
     public String
     type()
     {
@@ -68,6 +70,7 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      *
      * @param obj The new object for the optional.
      **/
+    @Override
     public void
     invoke(Ice.Object obj)
     {

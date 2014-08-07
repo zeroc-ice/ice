@@ -9,15 +9,17 @@
 
 package IceInternal;
 
-public class CollocatedObserverI 
-    extends IceMX.ObserverWithDelegate<IceMX.CollocatedMetrics, Ice.Instrumentation.CollocatedObserver> 
+public class CollocatedObserverI
+    extends IceMX.ObserverWithDelegate<IceMX.CollocatedMetrics, Ice.Instrumentation.CollocatedObserver>
     implements Ice.Instrumentation.CollocatedObserver
 {
+    @Override
     public void
     reply(final int size)
     {
         forEach(new MetricsUpdate<IceMX.CollocatedMetrics>()
                 {
+                    @Override
                     public void
                     update(IceMX.CollocatedMetrics v)
                     {

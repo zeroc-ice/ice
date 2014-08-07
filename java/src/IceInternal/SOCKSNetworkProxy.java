@@ -22,6 +22,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
         _address = address;
     }
 
+    @Override
     public void beginWriteConnectRequest(java.net.InetSocketAddress endpoint, Buffer buf)
     {
         final java.net.InetAddress addr = endpoint.getAddress();
@@ -51,11 +52,13 @@ public final class SOCKSNetworkProxy implements NetworkProxy
         buf.b.order(order);
     }
 
+    @Override
     public void endWriteConnectRequest(Buffer buf)
     {
         buf.reset();
     }
 
+    @Override
     public void beginReadConnectRequestResponse(Buffer buf)
     {
         //
@@ -65,6 +68,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
         buf.b.position(0);
     }
 
+    @Override
     public void endReadConnectRequestResponse(Buffer buf)
     {
         buf.b.position(0);
@@ -77,6 +81,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
         buf.reset();
     }
 
+    @Override
     public NetworkProxy resolveHost()
     {
         assert(_host != null);
@@ -87,12 +92,14 @@ public final class SOCKSNetworkProxy implements NetworkProxy
                                                           false).get(0));
     }
 
+    @Override
     public java.net.InetSocketAddress getAddress()
     {
         assert(_address != null); // Host must be resolved.
         return _address;
     }
 
+    @Override
     public String getName()
     {
         return "SOCKS";

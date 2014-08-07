@@ -47,20 +47,24 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Return the endpoint information.
     //
+    @Override
     public Ice.EndpointInfo getInfo()
     {
         Ice.UDPEndpointInfo info = new Ice.UDPEndpointInfo()
             {
+                @Override
                 public short type()
                 {
                     return UdpEndpointI.this.type();
                 }
 
+                @Override
                 public boolean datagram()
                 {
                     return UdpEndpointI.this.datagram();
                 }
 
+                @Override
                 public boolean secure()
                 {
                     return UdpEndpointI.this.secure();
@@ -75,6 +79,7 @@ final class UdpEndpointI extends IPEndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
+    @Override
     public int timeout()
     {
         return -1;
@@ -85,6 +90,7 @@ final class UdpEndpointI extends IPEndpointI
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
+    @Override
     public EndpointI timeout(int timeout)
     {
         return this;
@@ -94,6 +100,7 @@ final class UdpEndpointI extends IPEndpointI
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
+    @Override
     public boolean compress()
     {
         return _compress;
@@ -104,6 +111,7 @@ final class UdpEndpointI extends IPEndpointI
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
+    @Override
     public EndpointI compress(boolean compress)
     {
         if(compress == _compress)
@@ -120,6 +128,7 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Return true if the endpoint is datagram-based.
     //
+    @Override
     public boolean datagram()
     {
         return true;
@@ -128,6 +137,7 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Return true if the endpoint is secure.
     //
+    @Override
     public boolean secure()
     {
         return false;
@@ -140,6 +150,7 @@ final class UdpEndpointI extends IPEndpointI
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
+    @Override
     public Transceiver transceiver(EndpointIHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
@@ -154,6 +165,7 @@ final class UdpEndpointI extends IPEndpointI
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
+    @Override
     public Acceptor acceptor(EndpointIHolder endpoint, String adapterName)
     {
         endpoint.value = this;
@@ -163,6 +175,7 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Convert the endpoint to its string form
     //
+    @Override
     public String options()
     {
         //
@@ -197,6 +210,7 @@ final class UdpEndpointI extends IPEndpointI
         return s;
     }
 
+    @Override
     public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
         if(!(obj instanceof UdpEndpointI))
@@ -249,6 +263,7 @@ final class UdpEndpointI extends IPEndpointI
     //
     // Marshal the endpoint
     //
+    @Override
     public void streamWriteImpl(BasicStream s)
     {
         super.streamWriteImpl(s);
@@ -262,6 +277,7 @@ final class UdpEndpointI extends IPEndpointI
         s.writeBool(_compress);
     }
 
+    @Override
     public int hashInit(int h)
     {
         h = super.hashInit(h);
@@ -272,6 +288,7 @@ final class UdpEndpointI extends IPEndpointI
         return h;
     }
 
+    @Override
     public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
@@ -285,6 +302,7 @@ final class UdpEndpointI extends IPEndpointI
         }
     }
 
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint)
     {
         if(super.checkOption(option, argument, endpoint))
@@ -372,11 +390,13 @@ final class UdpEndpointI extends IPEndpointI
         return true;
     }
 
+    @Override
     protected Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy)
     {
         return new UdpConnector(_instance, addr, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
     }
 
+    @Override
     protected IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
         return new UdpEndpointI(_instance, host, port, _sourceAddr, _mcastInterface,_mcastTtl, _connect,

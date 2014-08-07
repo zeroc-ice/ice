@@ -12,7 +12,7 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+    IncomingBase(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
                  boolean response, byte compress, int requestId)
     {
         _instance = instance;
@@ -100,18 +100,18 @@ public class IncomingBase
             _os.writeByte((byte)0);
             _os.startWriteEncaps(_current.encoding, format);
         }
-    
+
         //
         // We still return the stream even if no response is expected. The
         // servant code might still write some out parameters if for
         // example a method with out parameters somehow and erroneously
-        // invoked as oneway (or if the invocation is invoked on a 
+        // invoked as oneway (or if the invocation is invoked on a
         // blobject and the blobject erroneously writes a response).
         //
         return _os;
     }
-    
-    public void 
+
+    public void
     __endWriteParams(boolean ok)
     {
         if(!ok && _observer != null)
@@ -129,7 +129,7 @@ public class IncomingBase
         }
     }
 
-    public void 
+    public void
     __writeEmptyParams()
     {
         if(_response)
@@ -141,7 +141,7 @@ public class IncomingBase
         }
     }
 
-    public void 
+    public void
     __writeParamEncaps(byte[] v, boolean ok)
     {
         if(!ok && _observer != null)
@@ -177,7 +177,7 @@ public class IncomingBase
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, 
+    reset(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
           boolean response, byte compress, int requestId)
     {
         _instance = instance;
@@ -344,7 +344,7 @@ public class IncomingBase
             {
                 __warning(ex);
             }
-            
+
             if(_observer != null)
             {
                 _observer.failed(ex.ice_name());

@@ -19,6 +19,7 @@ class ConnectionACMMonitor implements ACMMonitor
         _config = config;
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -36,6 +37,7 @@ class ConnectionACMMonitor implements ACMMonitor
         }
     }
 
+    @Override
     public synchronized void
     add(Ice.ConnectionI connection)
     {
@@ -48,6 +50,7 @@ class ConnectionACMMonitor implements ACMMonitor
         }
     }
 
+    @Override
     public synchronized void
     remove(Ice.ConnectionI connection)
     {
@@ -59,19 +62,22 @@ class ConnectionACMMonitor implements ACMMonitor
             _future = null;
         }
     }
-    
+
+    @Override
     public void
     reap(Ice.ConnectionI connection)
     {
         _parent.reap(connection);
     }
-    
+
+    @Override
     public ACMMonitor
     acm(Ice.IntOptional timeout, Ice.Optional<Ice.ACMClose> close, Ice.Optional<Ice.ACMHeartbeat> heartbeat)
     {
         return _parent.acm(timeout, close, heartbeat);
     }
-    
+
+    @Override
     public Ice.ACM
     getACM()
     {
@@ -81,7 +87,8 @@ class ConnectionACMMonitor implements ACMMonitor
         acm.heartbeat = _config.heartbeat;
         return acm;
     }
-    
+
+    @Override
     public void
     run()
     {
@@ -94,13 +101,13 @@ class ConnectionACMMonitor implements ACMMonitor
             }
             connection = _connection;
         }
-        
+
         try
-        {          
+        {
             connection.monitor(Time.currentMonotonicTimeMillis(), _config);
         }
         catch(Exception ex)
-        {   
+        {
             _parent.handleException(ex);
         }
     }

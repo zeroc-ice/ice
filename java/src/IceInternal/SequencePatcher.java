@@ -20,6 +20,7 @@ public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
         _index = index;
     }
 
+    @Override
     public void
     patch(Ice.Object v)
     {
@@ -38,12 +39,14 @@ public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
         _seq[_index] = v;
     }
 
+    @Override
     public String
     type()
     {
         return _type;
     }
 
+    @Override
     public void
     invoke(Ice.Object v)
     {

@@ -19,14 +19,15 @@ public abstract class Functional_CallbackBase extends IceInternal.CallbackBase
         __exceptionCb = exceptionCb;
         __sentCb = sentCb;
     }
-    
+
     protected Functional_CallbackBase(Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                       Functional_BoolCallback sentCb)
     {
         __exceptionCb = exceptionCb;
         __sentCb = sentCb;
     }
-    
+
+    @Override
     public final void __sent(Ice.AsyncResult __result)
     {
         if(__sentCb != null)
@@ -35,8 +36,9 @@ public abstract class Functional_CallbackBase extends IceInternal.CallbackBase
         }
     }
 
+    @Override
     public abstract void __completed(Ice.AsyncResult __result);
-    
+
     protected final Functional_GenericCallback1<Ice.Exception> __exceptionCb;
     protected final Functional_BoolCallback __sentCb;
 }

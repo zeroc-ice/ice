@@ -11,12 +11,14 @@ package IceInternal;
 
 final class UdpTransceiver implements Transceiver
 {
+    @Override
     public java.nio.channels.SelectableChannel fd()
     {
         assert(_fd != null);
         return _fd;
     }
 
+    @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData)
     {
         //
@@ -25,6 +27,7 @@ final class UdpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     public int closing(boolean initiator, Ice.LocalException ex)
     {
         //
@@ -33,6 +36,7 @@ final class UdpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     public void close()
     {
         assert(_fd != null);
@@ -53,6 +57,7 @@ final class UdpTransceiver implements Transceiver
         _fd = null;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public int write(Buffer buf)
     {
@@ -129,6 +134,7 @@ final class UdpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public int read(Buffer buf, Ice.BooleanHolder moreData)
     {
@@ -203,11 +209,13 @@ final class UdpTransceiver implements Transceiver
         return SocketOperation.None;
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String toString()
     {
         if(_fd == null)
@@ -218,7 +226,7 @@ final class UdpTransceiver implements Transceiver
         String s;
         if(_state == StateNotConnected)
         {
-            java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel)_fd).socket();
+            java.net.DatagramSocket socket = _fd.socket();
             s = "local address = " + Network.addrToString((java.net.InetSocketAddress)socket.getLocalSocketAddress());
             if(_peerAddr != null)
             {
@@ -237,6 +245,7 @@ final class UdpTransceiver implements Transceiver
         return s;
     }
 
+    @Override
     public Ice.ConnectionInfo getInfo()
     {
         Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
@@ -270,6 +279,7 @@ final class UdpTransceiver implements Transceiver
         return info;
     }
 
+    @Override
     public void checkSendSize(Buffer buf, int messageSizeMax)
     {
         if(buf.size() > messageSizeMax)
@@ -593,6 +603,7 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    @Override
     protected synchronized void finalize()
         throws Throwable
     {

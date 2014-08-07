@@ -47,6 +47,7 @@ public class ProxyIdentityFacetKey
      *
      * @return The hash value.
      **/
+    @Override
     public int
     hashCode()
     {
@@ -60,6 +61,7 @@ public class ProxyIdentityFacetKey
      * @return <code>true</code> if the passed object is a proxy with the same object
      * identity and facet as this proxy; <code>false</code>, otherwise.
      **/
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {

@@ -13,7 +13,7 @@ package Ice;
  * Interface for incoming requests.
  **/
 public interface Request
-{   
+{
     /**
      * Returns the {@link Current} object for this the request.
      *

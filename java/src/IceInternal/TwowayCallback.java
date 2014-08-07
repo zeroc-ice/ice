@@ -15,11 +15,13 @@ public abstract class TwowayCallback extends CallbackBase implements Ice.TwowayC
     {
     }
 
+    @Override
     public void exception(Ice.SystemException __ex)
     {
         exception(new Ice.UnknownException(__ex));
     }
 
+    @Override
     public final void __sent(Ice.AsyncResult __result)
     {
         sent(__result.sentSynchronously());

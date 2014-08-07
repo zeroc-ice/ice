@@ -48,7 +48,7 @@ public final class Util
         catch(IllegalArgumentException ex)
         {
             //
-            // With JDK-7 this can happen if the result url (base url + path) produces a 
+            // With JDK-7 this can happen if the result url (base url + path) produces a
             // malformed url for an URLClassLoader. For example the code in following
             // comment will produce this exception under Windows.
             //

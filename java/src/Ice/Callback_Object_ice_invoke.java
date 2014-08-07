@@ -25,8 +25,10 @@ public abstract class Callback_Object_ice_invoke
      * is <code>true</code>; otherwise, if <code>ok</code> is <code>false</code>, contains the
      * encoded user exception raised by the operation.
      **/
+    @Override
     public abstract void response(boolean ret, byte[] outParams);
 
+    @Override
     public final void __completed(AsyncResult __result)
     {
         ObjectPrxHelperBase.__ice_invoke_completed(this, __result);

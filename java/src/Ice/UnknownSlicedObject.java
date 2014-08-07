@@ -36,6 +36,7 @@ public final class UnknownSlicedObject extends ObjectImpl
         return _unknownTypeId;
     }
 
+    @Override
     public void
     __write(IceInternal.BasicStream __os)
     {
@@ -43,6 +44,7 @@ public final class UnknownSlicedObject extends ObjectImpl
         __os.endWriteObject();
     }
 
+    @Override
     public void
     __read(IceInternal.BasicStream __is)
     {

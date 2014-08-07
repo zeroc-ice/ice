@@ -173,7 +173,7 @@ public class EndpointHostResolver
                     break;
                 }
 
-                r = (ResolveEntry)_queue.removeFirst();
+                r = _queue.removeFirst();
                 threadObserver = _observer;
             }
 
@@ -278,6 +278,7 @@ public class EndpointHostResolver
             setName(threadName + "Ice.HostResolver");
         }
 
+        @Override
         public void run()
         {
             try

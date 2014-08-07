@@ -21,6 +21,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The hash code.
      **/
+    @Override
     public final int
     hashCode()
     {
@@ -32,6 +33,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The communicator that created this proxy.
      **/
+    @Override
     public final Communicator
     ice_getCommunicator()
     {
@@ -43,6 +45,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The stringified proxy.
      **/
+    @Override
     public final String
     toString()
     {
@@ -55,6 +58,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __id The Slice type ID of an interface.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isA(String __id)
     {
@@ -68,6 +72,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __context The <code>Context</code> map for the invocation.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isA(String __id, java.util.Map<String, String> __context)
     {
@@ -121,6 +126,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __id The Slice type ID of an interface.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id)
     {
@@ -134,6 +140,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __context The <code>Context</code> map for the invocation.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id, java.util.Map<String, String> __context)
     {
@@ -147,6 +154,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id, Callback __cb)
     {
@@ -161,6 +169,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback __cb)
     {
@@ -174,6 +183,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id, Callback_Object_ice_isA __cb)
     {
@@ -188,12 +198,13 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback_Object_ice_isA __cb)
     {
         return begin_ice_isA(__id, __context, true, __cb);
     }
-    
+
     /**
      * Tests whether this proxy supports a given interface.
      *
@@ -202,14 +213,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_isA(String __id, 
-                  IceInternal.Functional_BoolCallback __responseCb, 
+    begin_ice_isA(String __id,
+                  IceInternal.Functional_BoolCallback __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_isA(__id, null, false, __responseCb, __exceptionCb, null);
     }
-    
+
     /**
      * Tests whether this proxy supports a given interface.
      *
@@ -219,9 +231,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_isA(String __id, 
-                  IceInternal.Functional_BoolCallback __responseCb, 
+    begin_ice_isA(String __id,
+                  IceInternal.Functional_BoolCallback __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
@@ -237,15 +250,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id,
-                  java.util.Map<String, String> __context, 
-                  IceInternal.Functional_BoolCallback __responseCb, 
+                  java.util.Map<String, String> __context,
+                  IceInternal.Functional_BoolCallback __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_isA(__id, __context, true, __responseCb, __exceptionCb, null);
     }
-    
+
     /**
      * Tests whether this proxy supports a given interface.
      *
@@ -256,27 +270,29 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_isA(String __id,
-                  java.util.Map<String, String> __context, 
-                  IceInternal.Functional_BoolCallback __responseCb, 
+                  java.util.Map<String, String> __context,
+                  IceInternal.Functional_BoolCallback __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_isA(__id, __context, true, __responseCb, __exceptionCb, __sentCb);
     }
-    
+
     private final AsyncResult
     begin_ice_isA(String __id,
                   java.util.Map<String, String> __context,
                   boolean __explicitCtx,
-                  IceInternal.Functional_BoolCallback __responseCb, 
+                  IceInternal.Functional_BoolCallback __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_isA(__id, __context, __explicitCtx,
             new IceInternal.Functional_TwowayCallbackBool(__responseCb, __exceptionCb, __sentCb)
                 {
+                    @Override
                     public final void __completed(AsyncResult __result)
                     {
                         ObjectPrxHelperBase.__ice_isA_completed(this, __result);
@@ -311,6 +327,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __result The asynchronous result.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     end_ice_isA(AsyncResult __result)
     {
@@ -332,7 +349,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         __result.__endReadParams();
         return __ret;
     }
-    
+
     static public final void __ice_isA_completed(TwowayCallbackBool __cb, Ice.AsyncResult __result)
     {
         boolean __ret = false;
@@ -356,6 +373,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Tests whether the target object of this proxy can be reached.
      **/
+    @Override
     public final void
     ice_ping()
     {
@@ -367,6 +385,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @param __context The <code>Context</code> map for the invocation.
      **/
+    @Override
     public final void
     ice_ping(java.util.Map<String, String> __context)
     {
@@ -395,6 +414,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping()
     {
@@ -407,6 +427,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __context The context map for the invocation.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping(java.util.Map<String, String> __context)
     {
@@ -419,6 +440,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping(Callback __cb)
     {
@@ -432,6 +454,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping(java.util.Map<String, String> __context, Callback __cb)
     {
@@ -444,6 +467,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping(Callback_Object_ice_ping __cb)
     {
@@ -457,12 +481,13 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping(java.util.Map<String, String> __context, Callback_Object_ice_ping __cb)
     {
         return begin_ice_ping(__context, true, __cb);
     }
-    
+
     /**
      * Tests whether the target object of this proxy can be reached.
      *
@@ -470,14 +495,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb, 
+    begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb,
                    IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
-        return begin_ice_ping(null, false, 
+        return begin_ice_ping(null, false,
                               new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, null));
     }
-    
+
     /**
      * Tests whether the target object of this proxy can be reached.
      *
@@ -486,15 +512,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb, 
+    begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb,
                    IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                    IceInternal.Functional_BoolCallback __sentCb)
     {
-        return begin_ice_ping(null, false, new 
+        return begin_ice_ping(null, false, new
                               IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, __sentCb));
     }
-    
+
     /**
      * Tests whether the target object of this proxy can be reached.
      *
@@ -503,15 +530,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_ping(java.util.Map<String, String> __context, 
-                   IceInternal.Functional_VoidCallback __responseCb, 
+    begin_ice_ping(java.util.Map<String, String> __context,
+                   IceInternal.Functional_VoidCallback __responseCb,
                    IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
-        return begin_ice_ping(__context, true, 
+        return begin_ice_ping(__context, true,
                               new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, null));
     }
-    
+
     /**
      * Tests whether the target object of this proxy can be reached.
      *
@@ -521,13 +549,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ping(java.util.Map<String, String> __context,
-                   IceInternal.Functional_VoidCallback __responseCb, 
+                   IceInternal.Functional_VoidCallback __responseCb,
                    IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                    IceInternal.Functional_BoolCallback __sentCb)
     {
-        return begin_ice_ping(__context, true, 
+        return begin_ice_ping(__context, true,
                               new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, __sentCb));
     }
 
@@ -553,6 +582,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @param __result The asynchronous result.
      **/
+    @Override
     public final void
     end_ice_ping(AsyncResult __result)
     {
@@ -565,6 +595,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
+    @Override
     public final String[]
     ice_ids()
     {
@@ -578,6 +609,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
+    @Override
     public final String[]
     ice_ids(java.util.Map<String, String> __context)
     {
@@ -621,6 +653,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids()
     {
@@ -633,6 +666,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __context The context map for the invocation.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context)
     {
@@ -645,6 +679,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(Callback __cb)
     {
@@ -658,6 +693,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context, Callback __cb)
     {
@@ -670,6 +706,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(Callback_Object_ice_ids __cb)
     {
@@ -683,12 +720,13 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context, Callback_Object_ice_ids __cb)
     {
         return begin_ice_ids(__context, true, __cb);
     }
-    
+
     class FunctionalCallback_Object_ice_ids extends IceInternal.Functional_TwowayCallbackArg1<String[]>
     {
         FunctionalCallback_Object_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
@@ -697,13 +735,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             super(__responseCb, __exceptionCb, __sentCb);
         }
-        
+
+        @Override
         public final void __completed(AsyncResult __result)
         {
             ObjectPrxHelperBase.__ice_ids_completed(this, __result);
         }
     }
-    
+
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
@@ -711,13 +750,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
+    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_ids(null, false, new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, null));
     }
-    
+
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
@@ -726,15 +766,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
+    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
-        return begin_ice_ids(null, false, 
+        return begin_ice_ids(null, false,
                              new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, __sentCb));
     }
-    
+
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
@@ -743,15 +784,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context,
-                  IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
+                  IceInternal.Functional_GenericCallback1<String[]> __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
-        return begin_ice_ids(__context, true, 
+        return begin_ice_ids(__context, true,
                              new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, null));
     }
-    
+
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
@@ -761,26 +803,28 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context,
-                  IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
+                  IceInternal.Functional_GenericCallback1<String[]> __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
-        return begin_ice_ids(__context, true, 
+        return begin_ice_ids(__context, true,
                              new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, __sentCb));
     }
-    
+
     private final AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context,
                   boolean __explicitCtx,
-                  IceInternal.Functional_GenericCallback1<String[]> __responseCb, 
+                  IceInternal.Functional_GenericCallback1<String[]> __responseCb,
                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                   IceInternal.Functional_BoolCallback __sentCb)
     {
-        return begin_ice_ids(__context, true, 
+        return begin_ice_ids(__context, true,
             new IceInternal.Functional_TwowayCallbackArg1<String[]>(__responseCb, __exceptionCb, __sentCb)
                 {
+                    @Override
                     public final void __completed(AsyncResult __result)
                     {
                         ObjectPrxHelperBase.__ice_ids_completed(this, __result);
@@ -813,6 +857,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
+    @Override
     public final String[]
     end_ice_ids(AsyncResult __result)
     {
@@ -834,7 +879,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         __result.__endReadParams();
         return __ret;
     }
-    
+
     static public final void __ice_ids_completed(TwowayCallbackArg1<String[]> __cb, AsyncResult __result)
     {
         String[] __ret = null;
@@ -860,6 +905,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The Slice type ID of the most-derived interface.
      **/
+    @Override
     public final String
     ice_id()
     {
@@ -872,6 +918,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __context The <code>Context</code> map for the invocation.
      * @return The Slice type ID of the most-derived interface.
      **/
+    @Override
     public final String
     ice_id(java.util.Map<String, String> __context)
     {
@@ -915,6 +962,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id()
     {
@@ -927,6 +975,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __context The context map for the invocation.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context)
     {
@@ -939,6 +988,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(Callback __cb)
     {
@@ -952,6 +1002,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context, Callback __cb)
     {
@@ -964,6 +1015,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(Callback_Object_ice_id __cb)
     {
@@ -977,12 +1029,13 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context, Callback_Object_ice_id __cb)
     {
         return begin_ice_id(__context, true, __cb);
     }
-    
+
     class FunctionalCallback_Object_ice_id extends IceInternal.Functional_TwowayCallbackArg1<String>
     {
         FunctionalCallback_Object_ice_id(IceInternal.Functional_GenericCallback1<String> responseCb,
@@ -991,13 +1044,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             super(responseCb, exceptionCb, sentCb);
         }
-        
+
+        @Override
         public final void __completed(AsyncResult __result)
         {
             ObjectPrxHelperBase.__ice_id_completed(this, __result);
         }
     }
-    
+
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
@@ -1005,13 +1059,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb, 
+    begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb,
                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_id(null, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, null));
     }
-    
+
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
@@ -1020,14 +1075,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
-    begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb, 
+    begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb,
                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                  IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_ice_id(null, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, __sentCb));
     }
-    
+
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
@@ -1036,14 +1092,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context,
-                 IceInternal.Functional_GenericCallback1<String> __responseCb, 
+                 IceInternal.Functional_GenericCallback1<String> __responseCb,
                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
     {
         return begin_ice_id(__context, true, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, null));
     }
-    
+
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
@@ -1053,13 +1110,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
+    @Override
     public final AsyncResult
     begin_ice_id(java.util.Map<String, String> __context,
-                 IceInternal.Functional_GenericCallback1<String> __responseCb, 
+                 IceInternal.Functional_GenericCallback1<String> __responseCb,
                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
                  IceInternal.Functional_BoolCallback __sentCb)
     {
-        return begin_ice_id(__context, true, 
+        return begin_ice_id(__context, true,
                             new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, __sentCb));
     }
 
@@ -1087,6 +1145,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __result The asynchronous result.
      * @return The Slice type ID of the most-derived interface.
      **/
+    @Override
     public final String
     end_ice_id(AsyncResult __result)
     {
@@ -1108,7 +1167,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         __result.__endReadParams();
         return __ret;
     }
-    
+
     static public final void __ice_id_completed(TwowayCallbackArg1<String> __cb, AsyncResult __result)
     {
         String __ret = null;
@@ -1146,6 +1205,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams)
     {
@@ -1168,6 +1228,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map<String, String> context)
@@ -1186,7 +1247,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             boolean ok = __og.invoke();
             if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
-                if(outParams != null) 
+                if(outParams != null)
                 {
                     outParams.value = __og.readParamEncaps();
                 }
@@ -1212,6 +1273,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams)
     {
@@ -1231,6 +1293,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> __context)
@@ -1251,6 +1314,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback __cb)
     {
@@ -1271,6 +1335,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
                      Callback __cb)
@@ -1291,6 +1356,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback_Object_ice_invoke __cb)
     {
@@ -1311,13 +1377,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
                      Callback_Object_ice_invoke __cb)
     {
         return begin_ice_invoke(operation, mode, inParams, __context, true, __cb);
     }
-    
+
     /**
      * Invokes an operation dynamically and asynchronously.
      *
@@ -1333,6 +1400,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
                                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
@@ -1340,7 +1408,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
          return begin_ice_invoke(operation, mode, inParams, null, false, responseCb, exceptionCb, sentCb);
     }
-    
+
     /**
      * Invokes an operation dynamically and asynchronously.
      *
@@ -1355,13 +1423,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
                                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
         return begin_ice_invoke(operation, mode, inParams, null, false, responseCb, exceptionCb, null);
     }
-    
+
     /**
      * Invokes an operation dynamically and asynchronously.
      *
@@ -1378,6 +1447,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> context,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
@@ -1386,7 +1456,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         return begin_ice_invoke(operation, mode, inParams, context, true, responseCb, exceptionCb, sentCb);
     }
-    
+
     /**
      * Invokes an operation dynamically and asynchronously.
      *
@@ -1402,6 +1472,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see Blobject
      * @see OperationMode
      **/
+    @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> context,
                                  FunctionalCallback_Object_ice_invoke_Response responseCb,
@@ -1409,7 +1480,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         return begin_ice_invoke(operation, mode, inParams, context, true, responseCb, exceptionCb, null);
     }
-    
+
     private final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
                                  java.util.Map<String, String> __context,
                                  boolean __explicitCtx,
@@ -1426,17 +1497,19 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 super(responseCb != null, exceptionCb, sentCb);
                 __responseCb = responseCb;
             }
-            
+
+            @Override
             public void response(boolean __ret, byte[] outParams)
             {
                 __responseCb.apply(__ret, outParams);
             }
-            
+
+            @Override
             public final void __completed(AsyncResult __result)
             {
                 ObjectPrxHelperBase.__ice_invoke_completed(this, __result);
             }
-            
+
             FunctionalCallback_Object_ice_invoke_Response __responseCb;
         }
         return begin_ice_invoke(operation, mode, inParams, __context, __explicitCtx,
@@ -1472,6 +1545,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * contains the encoded user exception. If the operation raises a run-time exception,
      * it throws it directly.
      **/
+    @Override
     public final boolean
     end_ice_invoke(ByteSeqHolder outParams, AsyncResult __result)
     {
@@ -1486,7 +1560,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
         return ok;
     }
-    
+
     public static void __ice_invoke_completed(_Callback_Object_ice_invoke __cb, AsyncResult __result)
     {
         ByteSeqHolder outParams = new ByteSeqHolder();
@@ -1522,6 +1596,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see AMI_Object_ice_invoke
      * @see OperationMode
      **/
+    @Override
     public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
@@ -1544,6 +1619,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @see AMI_Object_ice_invoke
      * @see OperationMode
      **/
+    @Override
     public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
                      java.util.Map<String, String> context)
@@ -1557,6 +1633,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The identity of the target object.
      **/
+    @Override
     public final Identity
     ice_getIdentity()
     {
@@ -1569,6 +1646,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param newIdentity The identity for the new proxy.
      * @return The proxy with the new identity.
      **/
+    @Override
     public final ObjectPrx
     ice_identity(Identity newIdentity)
     {
@@ -1594,6 +1672,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
      * is <code>null</code>.
      **/
+    @Override
     public final java.util.Map<String, String>
     ice_getContext()
     {
@@ -1606,6 +1685,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param newContext The context for the new proxy.
      * @return The proxy with the new per-proxy context.
      **/
+    @Override
     public final ObjectPrx
     ice_context(java.util.Map<String, String> newContext)
     {
@@ -1617,6 +1697,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
      **/
+    @Override
     public final String
     ice_getFacet()
     {
@@ -1629,6 +1710,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param newFacet The facet for the new proxy.
      * @return The proxy with the new facet.
      **/
+    @Override
     public final ObjectPrx
     ice_facet(String newFacet)
     {
@@ -1654,6 +1736,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
      **/
+    @Override
     public final String
     ice_getAdapterId()
     {
@@ -1666,6 +1749,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param newAdapterId The adapter ID for the new proxy.
      * @return The proxy with the new adapter ID.
      **/
+    @Override
     public final ObjectPrx
     ice_adapterId(String newAdapterId)
     {
@@ -1691,6 +1775,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see Endpoint
      **/
+    @Override
     public final Endpoint[]
     ice_getEndpoints()
     {
@@ -1703,6 +1788,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param newEndpoints The endpoints for the new proxy.
      * @return The proxy with the new endpoints.
      **/
+    @Override
     public final ObjectPrx
     ice_endpoints(Endpoint[] newEndpoints)
     {
@@ -1713,7 +1799,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             IceInternal.EndpointI[] edpts = new IceInternal.EndpointI[newEndpoints.length];
-            edpts = (IceInternal.EndpointI[])java.util.Arrays.asList(newEndpoints).toArray(edpts);
+            edpts = java.util.Arrays.asList(newEndpoints).toArray(edpts);
             return newInstance(_reference.changeEndpoints(edpts));
         }
     }
@@ -1725,6 +1811,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see Locator
      **/
+    @Override
     public final int
     ice_getLocatorCacheTimeout()
     {
@@ -1736,6 +1823,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The invocation timeout value (in seconds).
      **/
+    @Override
     public final int
     ice_getInvocationTimeout()
     {
@@ -1748,6 +1836,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return The connection id.
      *
      **/
+    @Override
     public final String
     ice_getConnectionId()
     {
@@ -1761,6 +1850,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see Locator
      **/
+    @Override
     public final ObjectPrx
     ice_locatorCacheTimeout(int newTimeout)
     {
@@ -1779,6 +1869,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @param newTimeout The new invocation timeout (in seconds).
      **/
+    @Override
     public final ObjectPrx
     ice_invocationTimeout(int newTimeout)
     {
@@ -1797,6 +1888,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return <code>true</code> if this proxy caches connections; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isConnectionCached()
     {
@@ -1809,6 +1901,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param newCache <code>true</code> if the new proxy should cache connections; <code>false</code>, otherwise.
      * @return The new proxy with the specified caching policy.
      **/
+    @Override
     public final ObjectPrx
     ice_connectionCached(boolean newCache)
     {
@@ -1829,6 +1922,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see EndpointSelectionType
      **/
+    @Override
     public final Ice.EndpointSelectionType
     ice_getEndpointSelection()
     {
@@ -1843,6 +1937,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see EndpointSelectionType
      **/
+    @Override
     public final ObjectPrx
     ice_endpointSelection(Ice.EndpointSelectionType newType)
     {
@@ -1861,6 +1956,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return <code>true</code> if all endpoints for this proxy are secure; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isSecure()
     {
@@ -1874,6 +1970,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * retained for the new proxy. If <code>b</code> is false, the returned proxy is identical to this proxy.
      * @return The new proxy with possible different endpoints.k
      **/
+    @Override
     public final ObjectPrx
     ice_secure(boolean b)
     {
@@ -1894,6 +1991,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param e The encoding version to use to marshal requests parameters.
      * @return The new proxy with the specified encoding version.
      **/
+    @Override
     public final ObjectPrx
     ice_encodingVersion(Ice.EncodingVersion e)
     {
@@ -1912,7 +2010,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The encoding version.
      **/
-    public final Ice.EncodingVersion 
+    @Override
+    public final Ice.EncodingVersion
     ice_getEncodingVersion()
     {
         return (Ice.EncodingVersion)_reference.getEncoding().clone();
@@ -1924,6 +2023,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return <code>true</code> if the proxy always attempts to invoke via secure endpoints before it
      * attempts to use insecure endpoints; <code>false</code>, otherwise;
      **/
+    @Override
     public final boolean
     ice_isPreferSecure()
     {
@@ -1938,6 +2038,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * <code>false</code>, the proxy prefers insecure endpoints to secure ones.
      * @return The new proxy with the new endpoint selection policy.
      **/
+    @Override
     public final ObjectPrx
     ice_preferSecure(boolean b)
     {
@@ -1957,6 +2058,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return The router for the proxy. If no router is configured for the proxy, the return value
      * is <code>null</code>.
      **/
+    @Override
     public final Ice.RouterPrx
     ice_getRouter()
     {
@@ -1970,6 +2072,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param router The router for the new proxy.
      * @return The new proxy with the specified router.
      **/
+    @Override
     public final ObjectPrx
     ice_router(Ice.RouterPrx router)
     {
@@ -1989,6 +2092,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The locator for this proxy. If no locator is configured, the return value is <code>null</code>.
      **/
+    @Override
     public final Ice.LocatorPrx
     ice_getLocator()
     {
@@ -2002,6 +2106,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param The locator for the new proxy.
      * @return The new proxy with the specified locator.
      **/
+    @Override
     public final ObjectPrx
     ice_locator(Ice.LocatorPrx locator)
     {
@@ -2021,6 +2126,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return <code>true</code> if the proxy uses collocation optimization; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isCollocationOptimized()
     {
@@ -2033,6 +2139,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code>, otherwise.
      * @return The new proxy the specified collocation optimization.
      **/
+    @Override
     public final ObjectPrx
     ice_collocationOptimized(boolean b)
     {
@@ -2051,6 +2158,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return A new proxy that uses twoway invocations.
      **/
+    @Override
     public final ObjectPrx
     ice_twoway()
     {
@@ -2068,6 +2176,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Returns whether this proxy uses twoway invocations.
      * @return <code>true</code> if this proxy uses twoway invocations; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isTwoway()
     {
@@ -2079,6 +2188,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return A new proxy that uses oneway invocations.
      **/
+    @Override
     public final ObjectPrx
     ice_oneway()
     {
@@ -2096,6 +2206,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Returns whether this proxy uses oneway invocations.
      * @return <code>true</code> if this proxy uses oneway invocations; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isOneway()
     {
@@ -2107,6 +2218,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return A new proxy that uses batch oneway invocations.
      **/
+    @Override
     public final ObjectPrx
     ice_batchOneway()
     {
@@ -2124,6 +2236,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Returns whether this proxy uses batch oneway invocations.
      * @return <code>true</code> if this proxy uses batch oneway invocations; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isBatchOneway()
     {
@@ -2135,6 +2248,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return A new proxy that uses datagram invocations.
      **/
+    @Override
     public final ObjectPrx
     ice_datagram()
     {
@@ -2152,6 +2266,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Returns whether this proxy uses datagram invocations.
      * @return <code>true</code> if this proxy uses datagram invocations; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isDatagram()
     {
@@ -2163,6 +2278,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return A new proxy that uses batch datagram invocations.
      **/
+    @Override
     public final ObjectPrx
     ice_batchDatagram()
     {
@@ -2180,6 +2296,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Returns whether this proxy uses batch datagram invocations.
      * @return <code>true</code> if this proxy uses batch datagram invocations; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     ice_isBatchDatagram()
     {
@@ -2192,6 +2309,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param co <code>true</code> enables compression for the new proxy; <code>false</code>disables compression.
      * @return A new proxy with the specified compression setting.
      **/
+    @Override
     public final ObjectPrx
     ice_compress(boolean co)
     {
@@ -2212,6 +2330,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param t The timeout for the new proxy in milliseconds.
      * @return A new proxy with the specified timeout.
      **/
+    @Override
     public final ObjectPrx
     ice_timeout(int t)
     {
@@ -2234,6 +2353,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return A new proxy with the specified connection ID.
      **/
+    @Override
     public final ObjectPrx
     ice_connectionId(String id)
     {
@@ -2258,6 +2378,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see Connection
      **/
+    @Override
     public final Connection
     ice_getConnection()
     {
@@ -2325,6 +2446,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @see Connection
      **/
+    @Override
     public final Connection
     ice_getCachedConnection()
     {
@@ -2350,6 +2472,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
      **/
+    @Override
     public void
     ice_flushBatchRequests()
     {
@@ -2364,6 +2487,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @return <code>true</code> if the requests were flushed immediately without blocking; <code>false</code>
      * if the requests could not be flushed immediately.
      **/
+    @Override
     public boolean
     ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
     {
@@ -2376,6 +2500,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The asynchronous result object.
      **/
+    @Override
     public AsyncResult
     begin_ice_flushBatchRequests()
     {
@@ -2389,6 +2514,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
+    @Override
     public AsyncResult
     begin_ice_flushBatchRequests(Callback __cb)
     {
@@ -2402,13 +2528,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
+    @Override
     public AsyncResult
     begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests __cb)
     {
         AsyncResult result = begin_ice_flushBatchRequestsInternal(__cb);
         return result;
     }
-    
+
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
@@ -2417,6 +2544,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param __sentCb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
+    @Override
     public AsyncResult
     begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
                                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
@@ -2444,6 +2572,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return __result;
     }
 
+    @Override
     public void
     end_ice_flushBatchRequests(AsyncResult __result)
     {
@@ -2458,6 +2587,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param r The object to compare this proxy with.
      * @return <code>true</code> if this proxy is equal to <code>r</code>; <code>false</code>, otherwise.
      **/
+    @Override
     public final boolean
     equals(java.lang.Object r)
     {
@@ -2492,7 +2622,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final int
-    __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent, 
+    __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent,
                       Ice.IntHolder interval, int cnt)
     {
         __setRequestHandler(handler, null); // Clear the request handler
@@ -2509,7 +2639,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         // "at-most-once" (see the implementation of the checkRetryAfterException method
         //  of the ProxyFactory class for the reasons why it can be useful).
         //
-        // If the request didn't get sent or if it's non-mutating or idempotent it can 
+        // If the request didn't get sent or if it's non-mutating or idempotent it can
         // also always be retried if the retry count isn't reached.
         //
         if(ex instanceof LocalException && (!sent ||
@@ -2592,7 +2722,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             __og.readEmptyParams();
         }
     }
-    
+
     public final void
     __end(AsyncResult __result, String operation)
     {
@@ -2627,7 +2757,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     return _requestHandler;
                 }
                 // async = true to avoid blocking with the proxy mutex locked.
-                _requestHandler = createRequestHandler(true); 
+                _requestHandler = createRequestHandler(true);
                 return _requestHandler;
             }
         }
@@ -2716,7 +2846,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         try
         {
-            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)getClass().newInstance();
+            ObjectPrxHelperBase proxy = getClass().newInstance();
             proxy.__setup(ref);
             return proxy;
         }

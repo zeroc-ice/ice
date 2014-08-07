@@ -11,11 +11,13 @@ package IceInternal;
 
 class TcpAcceptor implements Acceptor
 {
+    @Override
     public java.nio.channels.ServerSocketChannel fd()
     {
         return _fd;
     }
 
+    @Override
     public void close()
     {
         if(_instance.traceLevel() >= 1)
@@ -29,6 +31,7 @@ class TcpAcceptor implements Acceptor
         _fd = null;
     }
 
+    @Override
     public void listen()
     {
         // Nothing to do.
@@ -50,6 +53,7 @@ class TcpAcceptor implements Acceptor
         }
     }
 
+    @Override
     public Transceiver accept()
     {
         java.nio.channels.SocketChannel fd = Network.doAccept(_fd);
@@ -65,11 +69,13 @@ class TcpAcceptor implements Acceptor
         return new TcpTransceiver(_instance, fd);
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String toString()
     {
         return Network.addrToString(_addr);
@@ -122,6 +128,7 @@ class TcpAcceptor implements Acceptor
         }
     }
 
+    @Override
     protected synchronized void finalize()
         throws Throwable
     {

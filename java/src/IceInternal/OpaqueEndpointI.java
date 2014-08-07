@@ -44,6 +44,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Marshal the endpoint
     //
+    @Override
     public void streamWrite(BasicStream s)
     {
         s.startWriteEncaps(_rawEncoding, Ice.FormatType.DefaultFormat);
@@ -54,20 +55,24 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return the endpoint information.
     //
+    @Override
     public Ice.EndpointInfo getInfo()
     {
         return new Ice.OpaqueEndpointInfo(-1, false, _rawEncoding, _rawBytes)
             {
+                @Override
                 public short type()
                 {
                     return _type;
                 }
 
+                @Override
                 public boolean datagram()
                 {
                     return false;
                 }
 
+                @Override
                 public boolean secure()
                 {
                     return false;
@@ -78,6 +83,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return the endpoint type
     //
+    @Override
     public short type()
     {
         return _type;
@@ -86,6 +92,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return the protocol name
     //
+    @Override
     public String protocol()
     {
         return "opaque";
@@ -95,6 +102,7 @@ final class OpaqueEndpointI extends EndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
+    @Override
     public int timeout()
     {
         return -1;
@@ -105,11 +113,13 @@ final class OpaqueEndpointI extends EndpointI
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
+    @Override
     public EndpointI timeout(int t)
     {
         return this;
     }
 
+    @Override
     public String connectionId()
     {
         return "";
@@ -118,6 +128,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return a new endpoint with a different connection id.
     //
+    @Override
     public EndpointI connectionId(String connectionId)
     {
         return this;
@@ -127,6 +138,7 @@ final class OpaqueEndpointI extends EndpointI
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
+    @Override
     public boolean compress()
     {
         return false;
@@ -137,6 +149,7 @@ final class OpaqueEndpointI extends EndpointI
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
+    @Override
     public EndpointI compress(boolean compress)
     {
         return this;
@@ -145,6 +158,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return true if the endpoint is datagram-based.
     //
+    @Override
     public boolean datagram()
     {
         return false;
@@ -153,6 +167,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Return true if the endpoint is secure.
     //
+    @Override
     public boolean secure()
     {
         return false;
@@ -173,6 +188,7 @@ final class OpaqueEndpointI extends EndpointI
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
+    @Override
     public Transceiver transceiver(EndpointIHolder endpoint)
     {
         endpoint.value = null;
@@ -183,11 +199,13 @@ final class OpaqueEndpointI extends EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
+    @Override
     public java.util.List<Connector> connectors(Ice.EndpointSelectionType selType)
     {
         return new java.util.ArrayList<Connector>();
     }
 
+    @Override
     public void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
     {
         callback.connectors(new java.util.ArrayList<Connector>());
@@ -200,6 +218,7 @@ final class OpaqueEndpointI extends EndpointI
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
+    @Override
     public Acceptor acceptor(EndpointIHolder endpoint, String adapterName)
     {
         endpoint.value = null;
@@ -211,6 +230,7 @@ final class OpaqueEndpointI extends EndpointI
     // host if listening on INADDR_ANY on server side or if no host
     // was specified on client side.
     //
+    @Override
     public java.util.List<EndpointI> expand()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
@@ -221,16 +241,19 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Check whether the endpoint is equivalent to another one.
     //
+    @Override
     public boolean equivalent(EndpointI endpoint)
     {
         return false;
     }
 
+    @Override
     public int hashCode()
     {
         return _hashCode;
     }
 
+    @Override
     public String options()
     {
         String s = "";
@@ -249,6 +272,7 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Compare endpoints for sorting purposes
     //
+    @Override
     public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
         if(!(obj instanceof OpaqueEndpointI))
@@ -312,6 +336,7 @@ final class OpaqueEndpointI extends EndpointI
         return 0;
     }
 
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint)
     {
         switch(option.charAt(1))

@@ -155,7 +155,7 @@ public abstract class Application
 
         //
         // We parse the properties here to extract Ice.ProgramName.
-        // 
+        //
         InitializationData initData;
         if(initializationData != null)
         {
@@ -376,7 +376,7 @@ public abstract class Application
                 "interrupt method called on Application configured to not handle interrupts.");
         }
     }
-    
+
     /**
      * Instructs <code>Application</code> to call {@link Communicator#shutdown} on receipt of a signal.
      *
@@ -445,7 +445,7 @@ public abstract class Application
                 "interrupt method called on Application configured to not handle interrupts.");
         }
     }
-    
+
     /**
      * Clears any shutdown hooks, including any hook established with {@link #destroyOnInterrupt}code> or
      * {@link #shutdownOnInterrupt}.
@@ -563,6 +563,7 @@ public abstract class Application
 
     static class DestroyHook extends AppHook
     {
+        @Override
         public void
         run()
         {
@@ -597,6 +598,7 @@ public abstract class Application
 
     static class ShutdownHook extends AppHook
     {
+        @Override
         public void
         run()
         {
@@ -640,6 +642,7 @@ public abstract class Application
             _hook = hook;
         }
 
+        @Override
         public void
         run()
         {
@@ -649,7 +652,7 @@ public abstract class Application
                 {
                     return;
                 }
-                
+
                 _hook.run();
 
                 clearCallbackInProgress();

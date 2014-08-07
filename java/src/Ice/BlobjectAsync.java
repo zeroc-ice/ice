@@ -31,6 +31,7 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
     public abstract void
     ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
 
+    @Override
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {

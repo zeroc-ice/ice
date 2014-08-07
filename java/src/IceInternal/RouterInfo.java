@@ -39,6 +39,7 @@ public final class RouterInfo
         _identities.clear();
     }
 
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {
@@ -55,6 +56,7 @@ public final class RouterInfo
         return false;
     }
 
+    @Override
     public int
     hashCode()
     {
@@ -92,21 +94,23 @@ public final class RouterInfo
         {
             clientEndpoints = _clientEndpoints;
         }
-        
+
         if(clientEndpoints != null)
         {
             callback.setEndpoints(clientEndpoints);
             return;
         }
-        
+
         _router.begin_getClientProxy(new Ice.Callback_Router_getClientProxy()
             {
+                @Override
                 public void
                 response(Ice.ObjectPrx clientProxy)
                 {
                     callback.setEndpoints(setClientEndpoints(clientProxy));
                 }
-                
+
+                @Override
                 public void
                 exception(Ice.LocalException ex)
                 {
@@ -125,7 +129,7 @@ public final class RouterInfo
                 return _serverEndpoints;
             }
         }
-        
+
         return setServerEndpoints(_router.getServerProxy());
     }
 
@@ -165,13 +169,15 @@ public final class RouterInfo
         _router.begin_addProxies(new Ice.ObjectPrx[] { proxy },
             new Ice.Callback_Router_addProxies()
             {
+                @Override
                 public void
                 response(Ice.ObjectPrx[] evictedProxies)
                 {
                     addAndEvictProxies(proxy, evictedProxies);
                     callback.addedProxy();
                 }
-                
+
+                @Override
                 public void
                 exception(Ice.LocalException ex)
                 {
@@ -214,7 +220,7 @@ public final class RouterInfo
             else
             {
                 clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
-            
+
                 //
                 // In order to avoid creating a new connection to the
                 // router, we must use the same timeout as the already
@@ -224,7 +230,7 @@ public final class RouterInfo
                 {
                     clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                 }
-            
+
                 _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
             }
         }
@@ -238,7 +244,7 @@ public final class RouterInfo
         {
             throw new Ice.NoEndpointException();
         }
-        
+
         serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
         _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).__reference().getEndpoints();
         return _serverEndpoints;

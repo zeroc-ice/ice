@@ -246,7 +246,7 @@ public final class Util
             {
                 escapes++;
             }
-               
+
             //
             // We ignore escaped escapes
             //
@@ -420,7 +420,7 @@ public final class Util
             {
                 return n;
             }
-            
+
             String lhsFacet = lhs.ice_getFacet();
             String rhsFacet = rhs.ice_getFacet();
             if(lhsFacet == null && rhsFacet == null)
@@ -624,7 +624,7 @@ public final class Util
      *
      * @return The converted string.
      **/
-    static public String 
+    static public String
     protocolVersionToString(Ice.ProtocolVersion v)
     {
         return majorMinorToString(v.major, v.minor);
@@ -637,7 +637,7 @@ public final class Util
      *
      * @return The converted string.
      **/
-    static public String 
+    static public String
     encodingVersionToString(Ice.EncodingVersion v)
     {
         return majorMinorToString(v.major, v.minor);
@@ -653,19 +653,19 @@ public final class Util
     {
         return (Ice.ProtocolVersion)IceInternal.Protocol.currentProtocol.clone();
     }
-    
+
     /**
      * Returns the supported Ice encoding version.
      *
      * @return The Ice encoding version.
      **/
     static public Ice.EncodingVersion
-    currentEncoding() 
+    currentEncoding()
     {
         return (Ice.EncodingVersion)IceInternal.Protocol.currentEncoding.clone();
     }
 
-    static private byte 
+    static private byte
     stringToMajor(String str)
     {
         int pos = str.indexOf('.');
@@ -673,7 +673,7 @@ public final class Util
         {
             throw new Ice.VersionParseException("malformed version value `" + str + "'");
         }
-            
+
         String majStr = str.substring(0, pos);
         int majVersion;
         try
@@ -684,7 +684,7 @@ public final class Util
         {
             throw new Ice.VersionParseException("invalid version value `" + str + "'");
         }
-        
+
         if(majVersion < 1 || majVersion > 255)
         {
             throw new Ice.VersionParseException("range error in version `" + str + "'");
@@ -701,7 +701,7 @@ public final class Util
         {
             throw new Ice.VersionParseException("malformed version value `" + str + "'");
         }
-            
+
         String minStr = str.substring(pos + 1, str.length());
         int minVersion;
         try
@@ -712,7 +712,7 @@ public final class Util
         {
             throw new Ice.VersionParseException("invalid version value `" + str + "'");
         }
-        
+
         if(minVersion < 0 || minVersion > 255)
         {
             throw new Ice.VersionParseException("range error in version `" + str + "'");
@@ -721,13 +721,13 @@ public final class Util
         return (byte)minVersion;
     }
 
-    static private String 
+    static private String
     majorMinorToString(byte major, byte minor)
     {
         StringBuilder str = new StringBuilder();
-        str.append(major < 0 ? (int)major + 255 : (int)major);
+        str.append(major < 0 ? major + 255 : (int)major);
         str.append(".");
-        str.append(minor < 0 ? (int)minor + 255 : (int)minor);
+        str.append(minor < 0 ? minor + 255 : (int)minor);
         return str.toString();
     }
 

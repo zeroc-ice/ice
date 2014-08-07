@@ -16,6 +16,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         super(communicator, instance, operation, callback);
     }
 
+    @Override
     public int
     __send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
@@ -23,13 +24,15 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         return connection.flushAsyncBatchRequests(this);
     }
 
+    @Override
     public int
     __invokeCollocated(CollocatedRequestHandler handler)
     {
         return handler.invokeAsyncBatchRequests(this);
     }
 
-    public boolean 
+    @Override
+    public boolean
     __sent()
     {
         synchronized(_monitor)
@@ -52,13 +55,15 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         }
     }
 
-    public void 
+    @Override
+    public void
     __invokeSent()
     {
         __invokeSentInternal();
     }
-    
-    public void 
+
+    @Override
+    public void
     __finished(Ice.Exception exc)
     {
         synchronized(_monitor)
@@ -79,12 +84,14 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         __invokeException(exc);
     }
 
-    public void 
+    @Override
+    public void
     __dispatchInvocationTimeout(ThreadPool threadPool, Ice.Connection connection)
     {
         threadPool.dispatch(
             new DispatchWorkItem(connection)
             {
+                @Override
                 public void
                 run()
                 {
@@ -93,7 +100,8 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
             });
     }
 
-    public void 
+    @Override
+    public void
     run()
     {
         __runTimerTask();

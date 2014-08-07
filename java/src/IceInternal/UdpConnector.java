@@ -11,6 +11,7 @@ package IceInternal;
 
 final class UdpConnector implements Connector
 {
+    @Override
     public Transceiver connect()
     {
         return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
@@ -22,16 +23,19 @@ final class UdpConnector implements Connector
         return null;
     }
 
+    @Override
     public short type()
     {
         return _instance.type();
     }
 
+    @Override
     public String toString()
     {
         return Network.addrToString(_addr);
     }
 
+    @Override
     public int hashCode()
     {
         return _hashCode;
@@ -62,6 +66,7 @@ final class UdpConnector implements Connector
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
+    @Override
     public boolean equals(java.lang.Object obj)
     {
         if(!(obj instanceof UdpConnector))

@@ -20,6 +20,7 @@ public class ListPatcher<T> implements Patcher, Ice.ReadObjectCallback
         _index = index;
     }
 
+    @Override
     public void
     patch(Ice.Object v)
     {
@@ -43,12 +44,14 @@ public class ListPatcher<T> implements Patcher, Ice.ReadObjectCallback
         _list.set(_index, _cls.cast(v));
     }
 
+    @Override
     public String
     type()
     {
         return _type;
     }
 
+    @Override
     public void
     invoke(Ice.Object v)
     {

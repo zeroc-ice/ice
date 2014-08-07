@@ -103,7 +103,7 @@ public final class ProxyFactory
     {
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.initializationData().logger;
-        
+
         //
         // We don't retry batch requests because the exception might have caused
         // the all the requests batched with the connection to be aborted and we
@@ -280,7 +280,7 @@ public final class ProxyFactory
 
                 //
                 // If -1 is the first value, no retry and wait intervals.
-                // 
+                //
                 if(i == 0 && v == -1)
                 {
                     _retryIntervals = new int[0];

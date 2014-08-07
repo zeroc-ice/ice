@@ -709,7 +709,7 @@ public final class Instance
             _clientACM = new ACMConfig(_initData.properties,
                                        _initData.logger,
                                        "Ice.ACM.Client",
-                                       new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM", 
+                                       new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
                                                      new ACMConfig(false)));
 
             _serverACM = new ACMConfig(_initData.properties,
@@ -717,7 +717,7 @@ public final class Instance
                                        "Ice.ACM.Server",
                                        new ACMConfig(_initData.properties, _initData.logger, "Ice.ACM",
                                                      new ACMConfig(true)));
-            
+
             {
                 final int defaultMessageSizeMax = 1024;
                 int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
@@ -830,7 +830,7 @@ public final class Instance
                 //
                 props.addUpdateCallback(admin);
             }
-            else 
+            else
             {
                 _observer = _initData.observer;
             }
@@ -842,6 +842,7 @@ public final class Instance
         }
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -900,6 +901,7 @@ public final class Instance
                 new java.util.concurrent.ScheduledThreadPoolExecutor(1,
                     new java.util.concurrent.ThreadFactory()
                     {
+                        @Override
                         public Thread newThread(Runnable r)
                         {
                             Thread t = new Thread(r);
@@ -908,7 +910,7 @@ public final class Instance
                                 final int priority = Util.getThreadPriorityProperty(
                                     initializationData().properties, "Ice");
                                 t.setPriority(priority);
-                            } 
+                            }
 
                             String threadName = initializationData().properties.getProperty("Ice.ProgramName");
                             if(threadName.length() > 0)
@@ -1082,7 +1084,7 @@ public final class Instance
                 _timer.shutdown();
                 // Once we support interrupt we can use shutdownNow.
                 //_timer.shutdownNow();
-                
+
                 _timer = null;
             }
 

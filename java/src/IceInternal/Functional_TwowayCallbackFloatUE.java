@@ -12,15 +12,16 @@ package IceInternal;
 public abstract class Functional_TwowayCallbackFloatUE
     extends Functional_TwowayCallbackFloat implements Ice.TwowayCallbackFloatUE
 {
-    public Functional_TwowayCallbackFloatUE(Functional_FloatCallback responseCb, 
-                                            Functional_GenericCallback1<Ice.UserException> userExceptionCb, 
-                                            Functional_GenericCallback1<Ice.Exception> exceptionCb, 
+    public Functional_TwowayCallbackFloatUE(Functional_FloatCallback responseCb,
+                                            Functional_GenericCallback1<Ice.UserException> userExceptionCb,
+                                            Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                             Functional_BoolCallback sentCb)
     {
         super(userExceptionCb != null, responseCb, exceptionCb, sentCb);
         __userExceptionCb = userExceptionCb;
     }
 
+    @Override
     public void exception(Ice.UserException ex)
     {
         if(__userExceptionCb != null)
@@ -28,6 +29,6 @@ public abstract class Functional_TwowayCallbackFloatUE
             __userExceptionCb.apply(ex);
         }
     }
-    
+
     private final Functional_GenericCallback1<Ice.UserException> __userExceptionCb;
 };

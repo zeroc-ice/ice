@@ -182,13 +182,13 @@ public class AsyncResult
         return _is;
     }
 
-    public void 
+    public void
     __endReadParams()
     {
         _is.endReadEncaps();
     }
 
-    public void 
+    public void
     __readEmptyParams()
     {
         _is.skipEmptyEncaps(null);
@@ -254,6 +254,7 @@ public class AsyncResult
         {
             _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
                 {
+                    @Override
                     public void
                     run()
                     {
@@ -276,7 +277,7 @@ public class AsyncResult
             _exception = ex;
             _monitor.notifyAll();
         }
-        
+
         __invokeCompleted();
     }
 
@@ -329,7 +330,7 @@ public class AsyncResult
         }
     }
 
-    public void 
+    public void
     __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
     {
         if(_observer != null)
@@ -347,7 +348,7 @@ public class AsyncResult
         if(_observer != null)
         {
             _childObserver = _observer.getCollocatedObserver(adapter,
-                                                              requestId, 
+                                                              requestId,
                                                               _os.size() - IceInternal.Protocol.headerSize - 4);
             if(_childObserver != null)
             {
@@ -367,6 +368,7 @@ public class AsyncResult
         {
             _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
                 {
+                    @Override
                     public void
                     run()
                     {
@@ -471,16 +473,16 @@ public class AsyncResult
         }
     }
 
-    protected void 
+    protected void
     __runTimerTask()
     {
         IceInternal.RequestHandler handler;
         synchronized(_monitor)
         {
-            handler = _timeoutRequestHandler; 
+            handler = _timeoutRequestHandler;
             _timeoutRequestHandler = null;
         }
-        
+
         if(handler != null)
         {
             handler.asyncRequestTimedOut((IceInternal.OutgoingAsyncMessageCallback)this);
@@ -525,6 +527,6 @@ public class AsyncResult
 
     protected Ice.Instrumentation.InvocationObserver _observer;
     protected Ice.Instrumentation.ChildInvocationObserver _childObserver;
-    
+
     private IceInternal.CallbackBase _callback;
 }

@@ -32,11 +32,13 @@ public abstract class UserExceptionReader extends UserException
      **/
     public abstract void read(Ice.InputStream is);
 
+    @Override
     public void __write(IceInternal.BasicStream os)
     {
         assert(false);
     }
 
+    @Override
     public void __read(IceInternal.BasicStream is)
     {
         InputStream stream = (InputStream)is.closure();
@@ -44,11 +46,13 @@ public abstract class UserExceptionReader extends UserException
         read(stream);
     }
 
+    @Override
     public void __write(Ice.OutputStream os)
     {
         assert(false);
     }
 
+    @Override
     public void __read(Ice.InputStream is)
     {
         read(is);

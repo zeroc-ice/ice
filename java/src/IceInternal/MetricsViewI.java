@@ -17,7 +17,7 @@ public class MetricsViewI
     }
 
     public boolean
-    addOrUpdateMap(Ice.Properties properties, String mapName, MetricsAdminI.MetricsMapFactory<?> factory, 
+    addOrUpdateMap(Ice.Properties properties, String mapName, MetricsAdminI.MetricsMapFactory<?> factory,
                    Ice.Logger logger)
     {
         //
@@ -26,7 +26,7 @@ public class MetricsViewI
         String viewPrefix = "IceMX.Metrics." + _name + ".";
         String mapsPrefix = viewPrefix + "Map.";
         java.util.Map<String, String> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
-        
+
         String mapPrefix;
         java.util.Map<String, String> mapProps = new java.util.HashMap<String, String>();
         if(!mapsProps.isEmpty())
@@ -50,13 +50,13 @@ public class MetricsViewI
             // This map is disabled for this view.
             return _maps.remove(mapName) != null;
         }
-        
+
         MetricsMap<?> m = _maps.get(mapName);
         if(m != null && m.getProperties().equals(mapProps))
         {
             return false; // The map configuration didn't change, no need to re-create.
         }
-        
+
         try
         {
             _maps.put(mapName, factory.create(mapPrefix, properties));
@@ -68,7 +68,7 @@ public class MetricsViewI
         }
         return true;
     }
-    
+
     public boolean
     removeMap(String mapName)
     {
@@ -114,7 +114,7 @@ public class MetricsViewI
         return _maps.keySet();
     }
 
-    @SuppressWarnings("unchecked") 
+    @SuppressWarnings("unchecked")
     public <T extends IceMX.Metrics> MetricsMap<T>
     getMap(String mapName, Class<T> cl)
     {

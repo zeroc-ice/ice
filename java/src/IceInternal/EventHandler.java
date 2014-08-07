@@ -24,6 +24,7 @@ public abstract class EventHandler
     //
     // Get a textual representation of the event handler.
     //
+    @Override
     abstract public String toString();
 
     //

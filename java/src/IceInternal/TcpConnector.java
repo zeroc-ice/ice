@@ -11,6 +11,7 @@ package IceInternal;
 
 final class TcpConnector implements Connector
 {
+    @Override
     public Transceiver connect()
     {
         if(_instance.traceLevel() >= 2)
@@ -39,16 +40,19 @@ final class TcpConnector implements Connector
         }
     }
 
+    @Override
     public short type()
     {
         return _instance.type();
     }
 
+    @Override
     public String toString()
     {
         return Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
     }
 
+    @Override
     public int hashCode()
     {
         return _hashCode;
@@ -78,6 +82,7 @@ final class TcpConnector implements Connector
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
+    @Override
     public boolean equals(java.lang.Object obj)
     {
         if(!(obj instanceof TcpConnector))

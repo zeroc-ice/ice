@@ -25,6 +25,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
         _instance = instance;
     }
 
+    @Override
     protected Class<?>
     resolveClass(java.io.ObjectStreamClass cls)
         throws java.io.IOException, ClassNotFoundException

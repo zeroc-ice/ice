@@ -19,7 +19,7 @@ public final class ReferenceFactory
             return null;
         }
 
-        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(), 
+        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
                       endpoints, null, null);
     }
 
@@ -31,7 +31,7 @@ public final class ReferenceFactory
             return null;
         }
 
-        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(), null, 
+        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(), null,
                       adapterId, null);
     }
 
@@ -47,9 +47,9 @@ public final class ReferenceFactory
         // Create new reference
         //
         return new FixedReference(
-            _instance, 
-            _communicator, 
-            ident, 
+            _instance,
+            _communicator,
+            ident,
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
@@ -343,14 +343,14 @@ public final class ReferenceFactory
                     {
                         throw new Ice.ProxyParseException("no argument provided for -e option in `" + s + "'");
                     }
-            
+
                     try
                     {
                         encoding = Ice.Util.stringToEncodingVersion(argument);
                     }
                     catch(Ice.VersionParseException e)
                     {
-                        throw new Ice.ProxyParseException("invalid encoding version `" + argument + "' in `" + s + 
+                        throw new Ice.ProxyParseException("invalid encoding version `" + argument + "' in `" + s +
                                                           "':\n" + e.str);
                     }
                     break;
@@ -362,14 +362,14 @@ public final class ReferenceFactory
                     {
                         throw new Ice.ProxyParseException("no argument provided for -p option in `" + s + "'");
                     }
-            
+
                     try
                     {
                         protocol = Ice.Util.stringToProtocolVersion(argument);
                     }
                     catch(Ice.VersionParseException e)
                     {
-                        throw new Ice.ProxyParseException("invalid protocol version `" + argument + "' in `" + s + 
+                        throw new Ice.ProxyParseException("invalid protocol version `" + argument + "' in `" + s +
                                                           "':\n" + e.str);
                     }
                     break;
@@ -399,7 +399,7 @@ public final class ReferenceFactory
             while(end < s.length() && s.charAt(end) == ':')
             {
                 beg = end + 1;
-                
+
                 end = beg;
                 while(true)
                 {
@@ -442,7 +442,7 @@ public final class ReferenceFactory
                         ++end;
                     }
                 }
-                
+
                 String es = s.substring(beg, end);
                 EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                 if(endp != null)
@@ -574,7 +574,7 @@ public final class ReferenceFactory
             facet = "";
         }
 
-        int mode = (int)s.readByte();
+        int mode = s.readByte();
         if(mode < 0 || mode > Reference.ModeLast)
         {
             throw new Ice.ProxyUnmarshalException();
@@ -624,7 +624,7 @@ public final class ReferenceFactory
         {
             return this;
         }
-        
+
         ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
         factory._defaultLocator = _defaultLocator;
         factory._defaultRouter = defaultRouter;
@@ -644,7 +644,7 @@ public final class ReferenceFactory
         {
             return this;
         }
-        
+
         ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
         factory._defaultRouter = _defaultRouter;
         factory._defaultLocator = defaultLocator;
@@ -684,7 +684,7 @@ public final class ReferenceFactory
     {
         //
         // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
-        //      
+        //
         for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
         {
             if(prefix.startsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
@@ -732,7 +732,7 @@ public final class ReferenceFactory
     }
 
     private Reference
-    create(Ice.Identity ident, String facet, int mode, boolean secure, Ice.ProtocolVersion protocol, 
+    create(Ice.Identity ident, String facet, int mode, boolean secure, Ice.ProtocolVersion protocol,
            Ice.EncodingVersion encoding, EndpointI[] endpoints, String adapterId, String propertyPrefix)
     {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
@@ -776,9 +776,9 @@ public final class ReferenceFactory
             {
                 checkForUnknownProperties(propertyPrefix);
             }
-            
+
             String property;
-            
+
             property = propertyPrefix + ".Locator";
             Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
             if(locator != null)
@@ -808,7 +808,7 @@ public final class ReferenceFactory
                     routerInfo = _instance.routerManager().get(router);
                 }
             }
-    
+
             property = propertyPrefix + ".CollocationOptimized";
             collocationOptimized = properties.getPropertyAsIntWithDefault(property, collocationOptimized ? 1 : 0) > 0;
 
@@ -825,7 +825,7 @@ public final class ReferenceFactory
                 if(type.equals("Random"))
                 {
                     endpointSelection = Ice.EndpointSelectionType.Random;
-                } 
+                }
                 else if(type.equals("Ordered"))
                 {
                     endpointSelection = Ice.EndpointSelectionType.Ordered;
@@ -836,7 +836,7 @@ public final class ReferenceFactory
                                                                       "'; expected `Random' or `Ordered'");
                 }
             }
-        
+
             property = propertyPrefix + ".LocatorCacheTimeout";
             locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
 
@@ -850,15 +850,15 @@ public final class ReferenceFactory
                 context = new java.util.HashMap<String, String>();
                 for(java.util.Map.Entry<String, String> e : contexts.entrySet())
                 {
-                    context.put(e.getKey().substring(property.length()), e.getValue()); 
+                    context.put(e.getKey().substring(property.length()), e.getValue());
                 }
             }
         }
-        
+
         //
         // Create new reference
         //
-        return new RoutableReference(_instance, 
+        return new RoutableReference(_instance,
                                      _communicator,
                                      ident,
                                      facet,

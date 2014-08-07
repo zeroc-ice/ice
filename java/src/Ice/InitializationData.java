@@ -30,6 +30,7 @@ public final class InitializationData implements Cloneable
     /**
      * Creates and returns a copy of this object.
      **/
+    @Override
     public java.lang.Object
     clone()
     {

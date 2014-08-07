@@ -11,16 +11,16 @@ package IceInternal;
 
 public abstract class Functional_TwowayCallbackByte extends Functional_TwowayCallback implements Ice.TwowayCallbackByte
 {
-    public Functional_TwowayCallbackByte(Functional_ByteCallback responseCb, 
+    public Functional_TwowayCallbackByte(Functional_ByteCallback responseCb,
                                          Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                          Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
         __responseCb = responseCb;
     }
-    
+
     protected Functional_TwowayCallbackByte(boolean userExceptionCb,
-                                            Functional_ByteCallback responseCb, 
+                                            Functional_ByteCallback responseCb,
                                             Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                             Functional_BoolCallback sentCb)
     {
@@ -28,7 +28,8 @@ public abstract class Functional_TwowayCallbackByte extends Functional_TwowayCal
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
         __responseCb = responseCb;
     }
-    
+
+    @Override
     public void response(byte arg)
     {
         if(__responseCb != null)
@@ -36,6 +37,6 @@ public abstract class Functional_TwowayCallbackByte extends Functional_TwowayCal
             __responseCb.apply(arg);
         }
     }
-    
+
     final private Functional_ByteCallback __responseCb;
 };

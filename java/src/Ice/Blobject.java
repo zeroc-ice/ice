@@ -32,6 +32,7 @@ public abstract class Blobject extends Ice.ObjectImpl
     public abstract boolean
     ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current);
 
+    @Override
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {

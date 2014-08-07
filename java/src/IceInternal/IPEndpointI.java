@@ -42,6 +42,7 @@ public abstract class IPEndpointI extends EndpointI
         _hashInitialized = false;
     }
 
+    @Override
     public void streamWrite(BasicStream s)
     {
         s.startWriteEncaps();
@@ -49,20 +50,24 @@ public abstract class IPEndpointI extends EndpointI
         s.endWriteEncaps();
     }
 
+    @Override
     public Ice.EndpointInfo getInfo()
     {
         Ice.IPEndpointInfo info = new Ice.IPEndpointInfo()
             {
+                @Override
                 public short type()
                 {
                     return IPEndpointI.this.type();
                 }
 
+                @Override
                 public boolean datagram()
                 {
                     return IPEndpointI.this.datagram();
                 }
 
+                @Override
                 public boolean secure()
                 {
                     return IPEndpointI.this.secure();
@@ -72,21 +77,25 @@ public abstract class IPEndpointI extends EndpointI
         return info;
     }
 
+    @Override
     public short type()
     {
         return _instance.type();
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String connectionId()
     {
         return _connectionId;
     }
 
+    @Override
     public EndpointI connectionId(String connectionId)
     {
         if(connectionId.equals(_connectionId))
@@ -99,16 +108,19 @@ public abstract class IPEndpointI extends EndpointI
         }
     }
 
+    @Override
     public java.util.List<Connector> connectors(Ice.EndpointSelectionType selType)
     {
         return _instance.resolve(_host, _port, selType, this);
     }
 
+    @Override
     public void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
     {
         _instance.resolve(_host, _port, selType, this, callback);
     }
 
+    @Override
     public java.util.List<EndpointI> expand()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
@@ -127,6 +139,7 @@ public abstract class IPEndpointI extends EndpointI
         return endps;
     }
 
+    @Override
     public boolean equivalent(EndpointI endpoint)
     {
         if(!(endpoint instanceof IPEndpointI))
@@ -149,6 +162,7 @@ public abstract class IPEndpointI extends EndpointI
         return connectors;
     }
 
+    @Override
     synchronized public int hashCode()
     {
         if(!_hashInitialized)
@@ -161,6 +175,7 @@ public abstract class IPEndpointI extends EndpointI
         return _hashValue;
     }
 
+    @Override
     public String options()
     {
         //
@@ -197,6 +212,7 @@ public abstract class IPEndpointI extends EndpointI
         return s;
     }
 
+    @Override
     public int compareTo(EndpointI obj) // From java.lang.Comparable
     {
         if(!(obj instanceof IPEndpointI))
@@ -308,6 +324,7 @@ public abstract class IPEndpointI extends EndpointI
         }
     }
 
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint)
     {
         if(option.equals("-h"))

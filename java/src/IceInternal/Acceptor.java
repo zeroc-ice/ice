@@ -16,5 +16,6 @@ public interface Acceptor
     void listen();
     Transceiver accept();
     String protocol();
+    @Override
     String toString();
 }

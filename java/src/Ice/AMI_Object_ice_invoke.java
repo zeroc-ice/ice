@@ -32,11 +32,13 @@ public abstract class AMI_Object_ice_invoke extends Callback_Object_ice_invoke
      **/
     public abstract void ice_exception(LocalException ex);
 
+    @Override
     public final void response(boolean ok, byte[] outEncaps)
     {
         ice_response(ok, outEncaps);
     }
 
+    @Override
     public final void exception(LocalException ex)
     {
         ice_exception(ex);

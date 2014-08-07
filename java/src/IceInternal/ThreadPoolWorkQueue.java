@@ -34,6 +34,7 @@ final class ThreadPoolWorkQueue extends EventHandler
         _selector.update(this, SocketOperation.None, SocketOperation.Read);
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -92,6 +93,7 @@ final class ThreadPoolWorkQueue extends EventHandler
         postMessage();
     }
 
+    @Override
     public void
     message(ThreadPoolCurrent current)
     {
@@ -131,19 +133,22 @@ final class ThreadPoolWorkQueue extends EventHandler
             throw new ThreadPool.DestroyedException();
         }
     }
-    
-    public void 
+
+    @Override
+    public void
     finished(ThreadPoolCurrent current)
     {
         assert(false);
     }
 
+    @Override
     public String
     toString()
     {
         return "work queue";
     }
 
+    @Override
     public java.nio.channels.SelectableChannel
     fd()
     {

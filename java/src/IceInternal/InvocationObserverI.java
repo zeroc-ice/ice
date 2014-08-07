@@ -11,14 +11,14 @@ package IceInternal;
 
 import IceMX.*;
 
-public class InvocationObserverI 
-    extends IceMX.ObserverWithDelegate<IceMX.InvocationMetrics, Ice.Instrumentation.InvocationObserver> 
+public class InvocationObserverI
+    extends IceMX.ObserverWithDelegate<IceMX.InvocationMetrics, Ice.Instrumentation.InvocationObserver>
     implements Ice.Instrumentation.InvocationObserver
 {
     static public final class RemoteInvocationHelper extends MetricsHelper<RemoteMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
-        { 
+        {
             {
                 try
                 {
@@ -35,8 +35,8 @@ public class InvocationObserverI
                 }
             }
         };
-        
-        RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size) 
+
+        RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size)
         {
             super(_attributes);
             _connectionInfo = con;
@@ -45,7 +45,8 @@ public class InvocationObserverI
             _size = size;
         }
 
-        public void 
+        @Override
+        public void
         initMetrics(RemoteMetrics v)
         {
             v.size += _size;
@@ -71,7 +72,7 @@ public class InvocationObserverI
             return _requestId;
         }
 
-        public String 
+        public String
         getParent()
         {
             if(_connectionInfo.adapterName != null && !_connectionInfo.adapterName.isEmpty())
@@ -83,13 +84,13 @@ public class InvocationObserverI
                 return "Communicator";
             }
         }
-        
+
         public Ice.ConnectionInfo
         getConnectionInfo()
         {
             return _connectionInfo;
         }
-        
+
         public Ice.Endpoint
         getEndpoint()
         {
@@ -117,7 +118,7 @@ public class InvocationObserverI
     static public final class CollocatedInvocationHelper extends MetricsHelper<CollocatedMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
-        { 
+        {
             {
                 try
                 {
@@ -133,8 +134,8 @@ public class InvocationObserverI
                 }
             }
         };
-        
-        CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) 
+
+        CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size)
         {
             super(_attributes);
             _id = adapter.getName();
@@ -142,7 +143,8 @@ public class InvocationObserverI
             _size = size;
         }
 
-        public void 
+        @Override
+        public void
         initMetrics(CollocatedMetrics v)
         {
             v.size += _size;
@@ -160,7 +162,7 @@ public class InvocationObserverI
             return _requestId;
         }
 
-        public String 
+        public String
         getParent()
         {
             return "Communicator";
@@ -171,6 +173,7 @@ public class InvocationObserverI
         final private String _id;
     };
 
+    @Override
     public void
     userException()
     {
@@ -181,6 +184,7 @@ public class InvocationObserverI
         }
     }
 
+    @Override
     public void
     retried()
     {
@@ -190,8 +194,9 @@ public class InvocationObserverI
             _delegate.retried();
         }
     }
-    
-    public Ice.Instrumentation.RemoteObserver 
+
+    @Override
+    public Ice.Instrumentation.RemoteObserver
     getRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint edpt, int requestId, int sz)
     {
         Ice.Instrumentation.RemoteObserver delegate = null;
@@ -199,13 +204,14 @@ public class InvocationObserverI
         {
             delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);
         }
-        return (Ice.Instrumentation.RemoteObserver)getObserver("Remote",
+        return getObserver("Remote",
                                                                new RemoteInvocationHelper(con, edpt, requestId, sz),
-                                                               RemoteMetrics.class, 
+                                                               RemoteMetrics.class,
                                                                RemoteObserverI.class,
                                                                delegate);
     }
 
+    @Override
     public Ice.Instrumentation.CollocatedObserver
     getCollocatedObserver(Ice.ObjectAdapter adapter, int requestId, int sz)
     {
@@ -214,16 +220,17 @@ public class InvocationObserverI
         {
             delegate = _delegate.getCollocatedObserver(adapter, requestId, sz);
         }
-        return (Ice.Instrumentation.CollocatedObserver)getObserver(
+        return getObserver(
             "Collocated",
             new CollocatedInvocationHelper(adapter, requestId, sz),
-            CollocatedMetrics.class, 
+            CollocatedMetrics.class,
             CollocatedObserverI.class,
             delegate);
     }
 
     final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>()
     {
+        @Override
         public void
         update(InvocationMetrics v)
         {
@@ -233,6 +240,7 @@ public class InvocationObserverI
 
     final MetricsUpdate<InvocationMetrics> _userException = new MetricsUpdate<InvocationMetrics>()
     {
+        @Override
         public void
         update(InvocationMetrics v)
         {

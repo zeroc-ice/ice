@@ -13,7 +13,8 @@ public final class LocatorManager
 {
     static private class LocatorKey implements Cloneable
     {
-        public boolean 
+        @Override
+        public boolean
         equals(Object o)
         {
             assert(o instanceof LocatorKey);
@@ -29,6 +30,7 @@ public final class LocatorManager
             return true;
         }
 
+        @Override
         public int
         hashCode()
         {
@@ -38,6 +40,7 @@ public final class LocatorManager
             return h;
         }
 
+        @Override
         public java.lang.Object
         clone()
         {
@@ -52,7 +55,7 @@ public final class LocatorManager
             }
             return o;
         }
-        
+
         LocatorKey set(Ice.LocatorPrx locator)
         {
             Reference r = ((Ice.ObjectPrxHelperBase)locator).__reference();

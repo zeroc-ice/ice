@@ -21,6 +21,7 @@ public abstract class ObjectWriter extends ObjectImpl
      **/
     public abstract void write(OutputStream out);
 
+    @Override
     public void
     __write(IceInternal.BasicStream os)
     {

@@ -32,7 +32,7 @@ public final class ACMConfig implements java.lang.Cloneable
         {
             timeoutProperty = prefix + ".Timeout";
         };
-        
+
         timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To milliseconds
 
         int hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.ordinal());
@@ -60,6 +60,7 @@ public final class ACMConfig implements java.lang.Cloneable
         }
     }
 
+    @Override
     public java.lang.Object
     clone()
     {

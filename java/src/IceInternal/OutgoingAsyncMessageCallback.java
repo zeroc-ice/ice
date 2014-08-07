@@ -27,7 +27,7 @@ public interface OutgoingAsyncMessageCallback
     // Called by the connection when the message is confirmed sent. The connection is locked
     // when this is called so this method can call the sent callback. Instead, this method
     // returns true if there's a sent callback and false otherwise. If true is returned, the
-    // connection will call the __invokeSent() method bellow (which in turn should call the 
+    // connection will call the __invokeSent() method bellow (which in turn should call the
     // sent callback).
     //
     boolean __sent();
@@ -36,7 +36,7 @@ public interface OutgoingAsyncMessageCallback
     // Called by the connection to call the user sent callback.
     //
     void __invokeSent();
-    
+
     //
     // Called by the connection when the request failed.
     //

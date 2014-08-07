@@ -28,8 +28,9 @@ class FactoryACMMonitor implements ACMMonitor
         _instance = instance;
         _config = config;
     }
-    
-    protected synchronized void 
+
+    @Override
+    protected synchronized void
     finalize()
         throws Throwable
     {
@@ -61,6 +62,7 @@ class FactoryACMMonitor implements ACMMonitor
         _changes.clear();
     }
 
+    @Override
     public void
     add(Ice.ConnectionI connection)
     {
@@ -85,6 +87,7 @@ class FactoryACMMonitor implements ACMMonitor
         }
     }
 
+    @Override
     public void
     remove(Ice.ConnectionI connection)
     {
@@ -92,7 +95,7 @@ class FactoryACMMonitor implements ACMMonitor
         {
             return;
         }
-        
+
         synchronized(this)
         {
             assert(_instance != null);
@@ -100,17 +103,19 @@ class FactoryACMMonitor implements ACMMonitor
         }
     }
 
+    @Override
     public synchronized void
     reap(Ice.ConnectionI connection)
     {
         _reapedConnections.add(connection);
     }
 
+    @Override
     public synchronized ACMMonitor
     acm(Ice.IntOptional timeout, Ice.Optional<Ice.ACMClose> close, Ice.Optional<Ice.ACMHeartbeat> heartbeat)
     {
         assert(_instance != null);
-        
+
         ACMConfig config = (ACMConfig)_config.clone();
         if(timeout != null && timeout.isSet())
         {
@@ -126,8 +131,9 @@ class FactoryACMMonitor implements ACMMonitor
         }
         return new ConnectionACMMonitor(this, _instance.timer(), config);
     }
-    
-    public Ice.ACM 
+
+    @Override
+    public Ice.ACM
     getACM()
     {
         Ice.ACM acm = new Ice.ACM();
@@ -136,7 +142,7 @@ class FactoryACMMonitor implements ACMMonitor
         acm.heartbeat = _config.heartbeat;
         return acm;
     }
-    
+
     synchronized java.util.List<Ice.ConnectionI>
     swapReapedConnections()
     {
@@ -149,6 +155,7 @@ class FactoryACMMonitor implements ACMMonitor
         return connections;
     }
 
+    @Override
     public void
     run()
     {
@@ -179,8 +186,8 @@ class FactoryACMMonitor implements ACMMonitor
                 return;
             }
         }
-        
-        
+
+
         //
         // Monitor connections outside the thread synchronization, so
         // that connections can be added or removed during monitoring.
@@ -189,23 +196,23 @@ class FactoryACMMonitor implements ACMMonitor
         for(Ice.ConnectionI connection : _connections)
         {
             try
-            {          
+            {
                 connection.monitor(now, _config);
             }
             catch(Exception ex)
-            {   
+            {
                 handleException(ex);
             }
         }
     }
-    
+
     synchronized void
     handleException(Exception ex)
     {
         if(_instance == null)
         {
             return;
-        }        
+        }
         _instance.initializationData().logger.error("exception in connection monitor:\n" + ex);
     }
 

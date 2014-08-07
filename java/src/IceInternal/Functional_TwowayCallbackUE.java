@@ -20,7 +20,8 @@ public abstract class Functional_TwowayCallbackUE extends Functional_TwowayCallb
         CallbackBase.check(responseCb || (userExceptionCb != null && exceptionCb != null));
         __userExceptionCb = userExceptionCb;
     }
-    
+
+    @Override
     public final void exception(Ice.UserException ex)
     {
         if(__userExceptionCb != null)
@@ -28,6 +29,6 @@ public abstract class Functional_TwowayCallbackUE extends Functional_TwowayCallb
             __userExceptionCb.apply(ex);
         }
     }
-    
+
     protected final Functional_GenericCallback1<Ice.UserException> __userExceptionCb;
 }

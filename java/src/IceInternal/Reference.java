@@ -37,13 +37,13 @@ public abstract class Reference implements Cloneable
     }
 
     public final Ice.ProtocolVersion
-    getProtocol() 
+    getProtocol()
     {
         return _protocol;
     }
 
     public final Ice.EncodingVersion
-    getEncoding() 
+    getEncoding()
     {
         return _encoding;
     }
@@ -78,7 +78,7 @@ public abstract class Reference implements Cloneable
         return _invocationTimeout;
     }
 
-    public final Ice.Communicator 
+    public final Ice.Communicator
     getCommunicator()
     {
         return _communicator;
@@ -138,7 +138,7 @@ public abstract class Reference implements Cloneable
         {
             return this;
         }
-        Reference r = (Reference)_instance.referenceFactory().copy(this);
+        Reference r = _instance.referenceFactory().copy(this);
         r._secure = newSecure;
         return r;
     }
@@ -201,7 +201,7 @@ public abstract class Reference implements Cloneable
         Reference r = _instance.referenceFactory().copy(this);
         r._compress = newCompress;
         r._overrideCompress = true;
-        return r;       
+        return r;
     }
 
     public abstract Reference changeAdapterId(String newAdapterId);
@@ -217,6 +217,7 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeTimeout(int newTimeout);
     public abstract Reference changeConnectionId(String connectionId);
 
+    @Override
     public synchronized int
     hashCode()
     {
@@ -224,7 +225,7 @@ public abstract class Reference implements Cloneable
         {
             return _hashValue;
         }
-        
+
         int h = 5381;
         h = IceInternal.HashUtil.hashAdd(h, _mode);
         h = IceInternal.HashUtil.hashAdd(h, _secure);
@@ -292,6 +293,7 @@ public abstract class Reference implements Cloneable
     //
     // Convert the reference to its string form.
     //
+    @Override
     public String
     toString()
     {
@@ -396,7 +398,7 @@ public abstract class Reference implements Cloneable
         // Always print the encoding version to ensure a stringified proxy
         // will convert back to a proxy with the same encoding with
         // stringToProxy (and won't use Ice.Default.EncodingVersion).
-        // 
+        //
         s.append(" -e ");
         s.append(Ice.Util.encodingVersionToString(_encoding));
 
@@ -413,6 +415,7 @@ public abstract class Reference implements Cloneable
     public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
     public abstract void getConnection(GetConnectionCallback callback);
 
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {
@@ -474,6 +477,7 @@ public abstract class Reference implements Cloneable
         return true;
     }
 
+    @Override
     public Object clone()
     {
         //

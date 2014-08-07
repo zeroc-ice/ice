@@ -43,7 +43,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                 unknownProps.add(prop);
             }
         }
-        
+
         if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
             StringBuffer message = new StringBuffer("found unknown IceMX properties for `");
@@ -57,7 +57,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
             Ice.Util.getProcessLogger().warning(message.toString());
         }
     }
-    
+
     static class MetricsMapFactory<T extends IceMX.Metrics>
     {
         public MetricsMapFactory(Runnable updater, Class<T> cl)
@@ -87,7 +87,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
 
         final private Runnable _updater;
         final private Class<T> _class;
-        final private java.util.Map<String, MetricsMap.SubMapFactory<?>> _subMaps = 
+        final private java.util.Map<String, MetricsMap.SubMapFactory<?>> _subMaps =
             new java.util.HashMap<String, MetricsMap.SubMapFactory<?>>();
     };
 
@@ -115,20 +115,20 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                 {
                     viewName = viewName.substring(0, dotPos);
                 }
-                
+
                 if(views.containsKey(viewName) || _disabledViews.contains(viewName))
                 {
                     continue; // View already configured.
                 }
-                
+
                 validateProperties(viewsPrefix + viewName + ".", _properties);
-                
+
                 if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                 {
                     _disabledViews.add(viewName);
                     continue; // The view is disabled
                 }
-                
+
                 //
                 // Create the view or update it.
                 //
@@ -150,7 +150,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
             java.util.Map<String, MetricsViewI> tmp = _views;
             _views = views;
             views = tmp;
-        
+
             //
             // Go through removed views to collect maps to update.
             //
@@ -165,7 +165,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                 }
             }
         }
-        
+
         //
         // Call the updaters to update the maps.
         //
@@ -175,14 +175,16 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         }
     }
 
-    synchronized public String[] 
+    @Override
+    synchronized public String[]
     getMetricsViewNames(Ice.StringSeqHolder holder, Ice.Current current)
     {
         holder.value = _disabledViews.toArray(new String[_disabledViews.size()]);
         return _views.keySet().toArray(new String[_views.size()]);
     }
 
-    public void 
+    @Override
+    public void
     enableMetricsView(String name, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
@@ -193,8 +195,9 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         }
         updateViews();
     }
-    
-    public void 
+
+    @Override
+    public void
     disableMetricsView(String name, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
@@ -205,8 +208,9 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         }
         updateViews();
     }
-    
-    synchronized public java.util.Map<String, IceMX.Metrics[]> 
+
+    @Override
+    synchronized public java.util.Map<String, IceMX.Metrics[]>
     getMetricsView(String viewName, Ice.LongHolder holder, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
@@ -219,7 +223,8 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         return new java.util.HashMap<String, IceMX.Metrics[]>();
     }
 
-    synchronized public IceMX.MetricsFailures[] 
+    @Override
+    synchronized public IceMX.MetricsFailures[]
     getMapMetricsFailures(String viewName, String mapName, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
@@ -231,7 +236,8 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         return new IceMX.MetricsFailures[0];
     }
 
-    synchronized public IceMX.MetricsFailures 
+    @Override
+    synchronized public IceMX.MetricsFailures
     getMetricsFailures(String viewName, String mapName, String id, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
@@ -282,7 +288,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         }
     }
 
-    public void 
+    public void
     unregisterMap(String mapName)
     {
         boolean updated;
@@ -317,7 +323,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         return maps;
     }
 
-    public Ice.Logger 
+    public Ice.Logger
     getLogger()
     {
         return _logger;
@@ -328,8 +334,9 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
     {
         _properties = properties;
     }
-    
-    public void 
+
+    @Override
+    public void
     updated(java.util.Map<String, String> props)
     {
         for(java.util.Map.Entry<String, String> e : props.entrySet())
@@ -343,7 +350,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                 }
                 catch(Exception ex)
                 {
-                    _logger.warning("unexpected exception while updating metrics view configuration:\n" + 
+                    _logger.warning("unexpected exception while updating metrics view configuration:\n" +
                                     ex.toString());
                 }
                 return;
@@ -351,7 +358,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         }
     }
 
-    private MetricsViewI 
+    private MetricsViewI
     getMetricsView(String name)
         throws IceMX.UnknownMetricsView
     {
@@ -366,7 +373,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         }
         return view;
     }
-    
+
     private boolean
     addOrUpdateMap(String mapName, MetricsMapFactory factory)
     {
@@ -391,7 +398,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
 
     private Ice.Properties _properties;
     final private Ice.Logger _logger;
-    final private java.util.Map<String, MetricsMapFactory<?>> _factories = 
+    final private java.util.Map<String, MetricsMapFactory<?>> _factories =
         new java.util.HashMap<String, MetricsMapFactory<?>>();
 
     private java.util.Map<String, MetricsViewI> _views = new java.util.HashMap<String, MetricsViewI>();

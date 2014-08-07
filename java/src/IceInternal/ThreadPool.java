@@ -13,6 +13,7 @@ public final class ThreadPool
 {
     final class ShutdownWorkItem implements ThreadPoolWorkItem
     {
+        @Override
         public void execute(ThreadPoolCurrent current)
         {
             current.ioCompleted();
@@ -34,6 +35,7 @@ public final class ThreadPool
             _handler = handler;
         }
 
+        @Override
         public void execute(ThreadPoolCurrent current)
         {
             _handler.finished(current);
@@ -41,7 +43,7 @@ public final class ThreadPool
 
         private final EventHandler _handler;
     }
-    
+
     static final class JoinThreadWorkItem implements ThreadPoolWorkItem
     {
         public
@@ -49,19 +51,21 @@ public final class ThreadPool
         {
             _thread = thread;
         }
-        
+
+        @Override
         public void execute(ThreadPoolCurrent current)
         {
             // No call to ioCompleted, this shouldn't block (and we don't want to cause
             // a new thread to be started).
             _thread.join();
         }
-        
+
         private final EventHandlerThread _thread;
     }
- 
+
     static final class InterruptWorkItem implements ThreadPoolWorkItem
     {
+        @Override
         public void execute(ThreadPoolCurrent current)
         {
             // Nothing to do, this is just used to interrupt the thread pool selector.
@@ -92,7 +96,7 @@ public final class ThreadPool
         _promote = true;
         _serialize = _instance.initializationData().properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
         _serverIdleTime = timeout;
-        
+
         Ice.Properties properties = _instance.initializationData().properties;
 
         String programName = properties.getProperty("Ice.ProgramName");
@@ -118,7 +122,7 @@ public final class ThreadPool
             String s = _prefix + ".Size < 1; Size adjusted to 1";
             _instance.initializationData().logger.warning(s);
             size = 1;
-        }               
+        }
 
         int sizeMax = properties.getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
         if(sizeMax == -1)
@@ -131,7 +135,7 @@ public final class ThreadPool
             _instance.initializationData().logger.warning(s);
             sizeMax = size;
         }
-                
+
         int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
         if(sizeWarn != 0 && sizeWarn < size)
         {
@@ -182,14 +186,14 @@ public final class ThreadPool
         _workQueue = new ThreadPoolWorkQueue(this, _instance, _selector);
 
         _nextHandler = _handlers.iterator();
-        
+
         if(_instance.traceLevels().threadPool >= 1)
         {
             String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
                        _sizeWarn;
             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
         }
-        
+
         try
         {
             for(int i = 0; i < _size; i++)
@@ -217,6 +221,7 @@ public final class ThreadPool
         }
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -452,7 +457,7 @@ public final class ThreadPool
                     if(!current._ioCompleted)
                     {
                         //
-                        // The handler didn't call ioCompleted() so we take care of decreasing 
+                        // The handler didn't call ioCompleted() so we take care of decreasing
                         // the IO thread count now.
                         //
                         --_inUseIO;
@@ -533,9 +538,9 @@ public final class ThreadPool
                 if(current._handler == null)
                 {
                     //
-                    // If there are no more ready handlers and there are still threads busy performing 
+                    // If there are no more ready handlers and there are still threads busy performing
                     // IO, we give up leadership and promote another follower (which will perform the
-                    // select() only once all the IOs are completed). Otherwise, if there's no more 
+                    // select() only once all the IOs are completed). Otherwise, if there's no more
                     // threads peforming IOs, it's time to do another select().
                     //
                     if(_inUseIO > 0)
@@ -613,16 +618,16 @@ public final class ThreadPool
 
             assert(_inUse >= 0);
             ++_inUse;
-                
+
             if(_inUse == _sizeWarn)
             {
                 String s = "thread pool `" + _prefix + "' is running low on threads\n"
                     + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
                 _instance.initializationData().logger.warning(s);
             }
-                
+
             if(!_destroyed)
-            {            
+            {
                 assert(_inUse <= _threads.size());
                 if(_inUse < _sizeMax && _inUse == _threads.size())
                 {
@@ -631,7 +636,7 @@ public final class ThreadPool
                         String s = "growing " + _prefix + ": Size=" + (_threads.size() + 1);
                         _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                     }
-                        
+
                     try
                     {
                         EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
@@ -654,7 +659,7 @@ public final class ThreadPool
             }
         }
     }
-    
+
     private synchronized void
     promoteFollower(ThreadPoolCurrent current)
     {
@@ -681,7 +686,7 @@ public final class ThreadPool
         //
         current._handler = null;
         current.stream.reset();
-        
+
         //
         // Wait to be promoted and for all the IO threads to be done.
         //
@@ -794,6 +799,7 @@ public final class ThreadPool
             _thread.start();
         }
 
+        @Override
         public void
         run()
         {

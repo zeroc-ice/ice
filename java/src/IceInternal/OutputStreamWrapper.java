@@ -38,6 +38,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
         _pos = 0;
     }
 
+    @Override
     public void
     write(int b) throws IOException
     {
@@ -81,12 +82,14 @@ public class OutputStreamWrapper extends java.io.OutputStream
         }
     }
 
+    @Override
     public void
     write(byte[] b) throws IOException
     {
         write(b, 0, b.length);
     }
 
+    @Override
     public void
     write(byte[] bytes, int offset, int count) throws IOException
     {
@@ -131,6 +134,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
         }
     }
 
+    @Override
     public void
     flush() throws IOException
     {
@@ -138,6 +142,7 @@ public class OutputStreamWrapper extends java.io.OutputStream
         // and we cannot write to the BasicStream until we know whether the final size is < 255 or not.
     }
 
+    @Override
     public void
     close() throws IOException
     {

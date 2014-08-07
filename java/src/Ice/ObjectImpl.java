@@ -28,6 +28,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *
      * @return The cloned object.
      **/
+    @Override
     public java.lang.Object
     clone()
     {
@@ -55,6 +56,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @return The return value is <code>true</code> if <code>s</code> is
      * <code>::Ice::Object</code>.
      **/
+    @Override
     public boolean
     ice_isA(String s)
     {
@@ -69,6 +71,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @return The return value is <code>true</code> if <code>s</code> is
      * <code>::Ice::Object</code>.
      **/
+    @Override
     public boolean
     ice_isA(String s, Current current)
     {
@@ -91,6 +94,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     /**
      * Tests whether this object can be reached.
      **/
+    @Override
     public void
     ice_ping()
     {
@@ -102,6 +106,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *
      * @param current The current object for the invocation.
      **/
+    @Override
     public void
     ice_ping(Current current)
     {
@@ -122,6 +127,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *
      * @return An array whose only element is <code>::Ice::Object</code>.
      **/
+    @Override
     public String[]
     ice_ids()
     {
@@ -134,6 +140,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @param current The current object for the invocation.
      * @return An array whose only element is <code>::Ice::Object</code>.
      **/
+    @Override
     public String[]
     ice_ids(Current current)
     {
@@ -156,6 +163,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *
      * @return The return value is always <code>::Ice::Object</code>.
      **/
+    @Override
     public String
     ice_id()
     {
@@ -168,6 +176,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @param current The current object for the invocation.
      * @return The return value is always {@link IceObject}.
      **/
+    @Override
     public String
     ice_id(Current current)
     {
@@ -221,6 +230,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *
      * @see Freeze.TransactionalEvictor
      **/
+    @Override
     public int ice_operationAttributes(String operation)
     {
         return 0;
@@ -230,6 +240,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
      * to override this method in order to validate its data members. This default implementation does nothing.
      **/
+    @Override
     public void
     ice_preMarshal()
     {
@@ -240,6 +251,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * subclass to override this method in order to perform additional initialization. This default
      * implementation does nothing.
      **/
+    @Override
     public void
     ice_postUnmarshal()
     {
@@ -266,6 +278,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @see DispatchInterceptorAsyncCallback
      * @see DispatchStatus
      **/
+    @Override
     public DispatchStatus
     ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
     {
@@ -298,12 +311,14 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * @see DispatchInterceptor
      * @see DispatchStatus
      **/
+    @Override
     public DispatchStatus
     ice_dispatch(Request request)
     {
         return ice_dispatch(request, null);
     }
 
+    @Override
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
@@ -337,6 +352,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
     }
 
+    @Override
     public void
     __write(IceInternal.BasicStream os)
     {
@@ -345,6 +361,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
          os.endWriteObject();
     }
 
+    @Override
     public void
     __read(IceInternal.BasicStream is)
     {
@@ -353,6 +370,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
          is.endReadObject(false);
     }
 
+    @Override
     public void
     __write(OutputStream os)
     {
@@ -361,6 +379,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         os.endObject();
     }
 
+    @Override
     public void
     __read(InputStream is)
     {
@@ -378,7 +397,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     __readImpl(IceInternal.BasicStream is)
     {
     }
-    
+
      protected void
     __writeImpl(OutputStream os)
     {

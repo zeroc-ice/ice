@@ -25,7 +25,7 @@ public class LoggerPlugin implements Ice.Plugin
      * @param communicator The communicator using the custom logger.
      * @param logger The custom logger for the communicator.
      **/
-    public 
+    public
     LoggerPlugin(Communicator communicator, Logger logger)
     {
         if(communicator == null)
@@ -51,7 +51,8 @@ public class LoggerPlugin implements Ice.Plugin
      * can override this method to perform any initialization that might be required
      * by a custom logger.
      **/
-    public void 
+    @Override
+    public void
     initialize()
     {
     }
@@ -61,6 +62,7 @@ public class LoggerPlugin implements Ice.Plugin
      * can override this method to perform any finalization that might be required
      * by a custom logger.
      **/
+    @Override
     public void
     destroy()
     {

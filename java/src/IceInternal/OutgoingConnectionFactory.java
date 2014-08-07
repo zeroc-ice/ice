@@ -455,6 +455,7 @@ public final class OutgoingConnectionFactory
         _destroyed = false;
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -975,6 +976,7 @@ public final class OutgoingConnectionFactory
             endpoint = e;
         }
 
+        @Override
         public boolean
         equals(Object obj)
         {
@@ -982,6 +984,7 @@ public final class OutgoingConnectionFactory
             return connector.equals(r.connector);
         }
 
+        @Override
         public int
         hashCode()
         {
@@ -1008,6 +1011,7 @@ public final class OutgoingConnectionFactory
         //
         // Methods from ConnectionI.StartCallback
         //
+        @Override
         public void
         connectionStartCompleted(Ice.ConnectionI connection)
         {
@@ -1019,6 +1023,7 @@ public final class OutgoingConnectionFactory
             _factory.finishGetConnection(_connectors, _current, connection, this);
         }
 
+        @Override
         public void
         connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
         {
@@ -1048,6 +1053,7 @@ public final class OutgoingConnectionFactory
         //
         // Methods from EndpointI_connectors
         //
+        @Override
         public void
         connectors(java.util.List<Connector> cons)
         {
@@ -1073,6 +1079,7 @@ public final class OutgoingConnectionFactory
             }
         }
 
+        @Override
         public void
         exception(Ice.LocalException ex)
         {
@@ -1214,18 +1221,18 @@ public final class OutgoingConnectionFactory
             {
                 assert(_iter.hasNext());
                 _current = _iter.next();
-                
+
                 Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.getObserver();
                 if(obsv != null)
                 {
-                    _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint, 
+                    _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint,
                                                                         _current.connector.toString());
                     if(_observer != null)
                     {
                         _observer.attach();
                     }
                 }
-                
+
                 connection = _factory.createConnection(_current.connector.connect(), _current);
                 connection.start(this);
             }
@@ -1250,7 +1257,7 @@ public final class OutgoingConnectionFactory
 
     private Ice.Communicator _communicator;
     private final Instance _instance;
-    private final FactoryACMMonitor _monitor;    
+    private final FactoryACMMonitor _monitor;
     private boolean _destroyed;
 
     private MultiHashMap<Connector, Ice.ConnectionI> _connections = new MultiHashMap<Connector, Ice.ConnectionI>();

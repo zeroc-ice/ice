@@ -15,13 +15,15 @@ public class ProcessI extends Ice._ProcessDisp
     {
         _communicator = communicator;
     }
-    
+
+    @Override
     public void
     shutdown(Ice.Current current)
     {
         _communicator.shutdown();
     }
-    
+
+    @Override
     public void
     writeMessage(String message, int fd, Ice.Current current)
     {
@@ -39,6 +41,6 @@ public class ProcessI extends Ice._ProcessDisp
             }
         }
     }
-    
+
     private Ice.Communicator _communicator;
 }

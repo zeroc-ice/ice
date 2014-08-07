@@ -45,6 +45,7 @@ public class ProxyIdentityKey
      *
      * @return The hash value.
      **/
+    @Override
     public int
     hashCode()
     {
@@ -58,6 +59,7 @@ public class ProxyIdentityKey
      * @return <code>true</code> if the passed object is a proxy with the same object
      * identity; <code>false</code>, otherwise.
      **/
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {

@@ -12,16 +12,16 @@ package IceInternal;
 public abstract class Functional_TwowayCallbackLong
     extends Functional_TwowayCallback implements Ice.TwowayCallbackLong
 {
-    public Functional_TwowayCallbackLong(Functional_LongCallback responseCb, 
+    public Functional_TwowayCallbackLong(Functional_LongCallback responseCb,
                                          Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                          Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
         __responseCb = responseCb;
     }
-    
+
     protected Functional_TwowayCallbackLong(boolean userExceptionCb,
-                                            Functional_LongCallback responseCb, 
+                                            Functional_LongCallback responseCb,
                                             Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                             Functional_BoolCallback sentCb)
     {
@@ -29,7 +29,8 @@ public abstract class Functional_TwowayCallbackLong
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
         __responseCb = responseCb;
     }
-    
+
+    @Override
     public void response(long arg)
     {
         if(__responseCb != null)
@@ -37,6 +38,6 @@ public abstract class Functional_TwowayCallbackLong
             __responseCb.apply(arg);
         }
     }
-    
+
     final private Functional_LongCallback __responseCb;
 };

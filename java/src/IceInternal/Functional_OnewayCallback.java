@@ -11,7 +11,7 @@ package IceInternal;
 
 public class Functional_OnewayCallback extends IceInternal.Functional_CallbackBase
 {
-    public Functional_OnewayCallback(Functional_VoidCallback responseCb, 
+    public Functional_OnewayCallback(Functional_VoidCallback responseCb,
                                      Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                      Functional_BoolCallback sentCb)
     {
@@ -20,6 +20,7 @@ public class Functional_OnewayCallback extends IceInternal.Functional_CallbackBa
         __responseCb = responseCb;
     }
 
+    @Override
     public final void __completed(Ice.AsyncResult __result)
     {
         try
@@ -38,6 +39,6 @@ public class Functional_OnewayCallback extends IceInternal.Functional_CallbackBa
             }
         }
     }
-    
+
     private final Functional_VoidCallback __responseCb;
 }

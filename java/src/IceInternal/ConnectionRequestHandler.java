@@ -9,10 +9,9 @@
 
 package IceInternal;
 
-import Ice.Instrumentation.InvocationObserver;
-
 public class ConnectionRequestHandler implements RequestHandler
 {
+    @Override
     public void
     prepareBatchRequest(BasicStream out)
         throws RetryException
@@ -20,18 +19,21 @@ public class ConnectionRequestHandler implements RequestHandler
         _connection.prepareBatchRequest(out);
     }
 
+    @Override
     public void
     finishBatchRequest(BasicStream out)
     {
         _connection.finishBatchRequest(out, _compress);
     }
 
+    @Override
     public void
     abortBatchRequest()
     {
         _connection.abortBatchRequest();
     }
 
+    @Override
     public boolean
     sendRequest(OutgoingMessageCallback out)
         throws RetryException
@@ -39,6 +41,7 @@ public class ConnectionRequestHandler implements RequestHandler
         return out.send(_connection, _compress, _response) && !_response; // Finished if sent and no response
     }
 
+    @Override
     public int
     sendAsyncRequest(OutgoingAsyncMessageCallback out)
         throws RetryException
@@ -46,31 +49,35 @@ public class ConnectionRequestHandler implements RequestHandler
         return out.__send(_connection, _compress, _response);
     }
 
-    public void 
+    @Override
+    public void
     requestTimedOut(OutgoingMessageCallback out)
     {
         _connection.requestTimedOut(out);
     }
 
-    public void 
+    @Override
+    public void
     asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
     {
         _connection.asyncRequestTimedOut(outAsync);
     }
 
-    public Reference 
+    @Override
+    public Reference
     getReference()
     {
         return _reference;
     }
 
+    @Override
     public Ice.ConnectionI
     getConnection(boolean wait)
     {
         return _connection;
     }
 
-    public 
+    public
     ConnectionRequestHandler(Reference ref, Ice.ObjectPrx proxy)
     {
         _reference = ref;

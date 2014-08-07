@@ -36,6 +36,7 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
      *
      * @param v The new object for this holder.
      **/
+    @Override
     public void
     patch(Ice.Object v)
     {
@@ -48,6 +49,7 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
      *
      * @return The Slice type ID.
      **/
+    @Override
     public String
     type()
     {

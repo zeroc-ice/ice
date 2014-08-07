@@ -38,16 +38,17 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
     {
         class BatchOutgoingAsyncI extends BatchOutgoingAsync
         {
-            public 
+            public
             BatchOutgoingAsyncI()
             {
-                super(CommunicatorBatchOutgoingAsync.this._communicator, 
-                      CommunicatorBatchOutgoingAsync.this._instance, 
-                      CommunicatorBatchOutgoingAsync.this._operation, 
+                super(CommunicatorBatchOutgoingAsync.this._communicator,
+                      CommunicatorBatchOutgoingAsync.this._instance,
+                      CommunicatorBatchOutgoingAsync.this._operation,
                       null);
             }
 
-            public boolean 
+            @Override
+            public boolean
             __sent()
             {
                 if(_childObserver != null)
@@ -59,7 +60,7 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
                 return false;
             }
 
-            public void 
+            public void
             __finished(Ice.LocalException ex, boolean sent)
             {
                 if(_childObserver != null)
@@ -71,6 +72,7 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
                 check(false);
             }
 
+            @Override
             public void
             __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
             {
@@ -90,7 +92,7 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
         {
             ++_useCount;
         }
-        
+
         try
         {
             int status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());

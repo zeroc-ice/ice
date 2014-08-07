@@ -15,7 +15,7 @@ public interface TwowayCallbackVoidUE extends TwowayCallback
      * Called when the invocation response is received.
      **/
     void response();
-    
+
     /**
      * Called when the invocation raises an user exception.
      *

@@ -231,7 +231,7 @@ public final class ServantManager
     {
         Ice.ServantLocator l = null;
         assert(_instance != null); // Must not be called after destruction.
-    
+
         l = _locatorMap.remove(category);
         if(l == null)
         {
@@ -280,7 +280,7 @@ public final class ServantManager
             assert(_instance != null); // Must not be called after destruction.
             logger = _instance.initializationData().logger;
             _servantMapMap.clear();
-           
+
             locatorMap.putAll(_locatorMap);
             _locatorMap.clear();
             _instance = null;

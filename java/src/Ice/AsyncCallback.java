@@ -16,6 +16,7 @@ package Ice;
  *
  * @deprecated This class is deprecated, use Ice.Callback instead.
  **/
+@Deprecated
 public abstract class AsyncCallback extends Callback
 {
 }

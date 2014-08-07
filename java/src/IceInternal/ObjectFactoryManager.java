@@ -43,7 +43,7 @@ public final class ObjectFactoryManager
             _factoryMap.remove(id);
         }
 
-        factory.destroy();   
+        factory.destroy();
     }
 
     public synchronized Ice.ObjectFactory

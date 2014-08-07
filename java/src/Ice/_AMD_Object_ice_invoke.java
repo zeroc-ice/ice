@@ -17,6 +17,7 @@ final class _AMD_Object_ice_invoke extends IceInternal.IncomingAsync implements 
         super(in);
     }
 
+    @Override
     public void
     ice_response(boolean ok, byte[] outEncaps)
     {

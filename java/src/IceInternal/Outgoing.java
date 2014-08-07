@@ -55,7 +55,7 @@ public final class Outgoing implements OutgoingMessageCallback
         writeHeader(op, mode, context, explicitCtx);
     }
 
-    public void 
+    public void
     detach()
     {
         if(_observer != null)
@@ -146,14 +146,14 @@ public final class Outgoing implements OutgoingMessageCallback
                         }
                     }
                 }
-        
+
                 if(timedOut)
                 {
                     _handler.requestTimedOut(this);
 
                     //
                     // Wait for the exception to propagate. It's possible the request handler ignores
-                    // the timeout if there was a failure shortly before requestTimedOut got called. 
+                    // the timeout if there was a failure shortly before requestTimedOut got called.
                     // In this case, the exception should be set on the Outgoing.
                     //
                     synchronized(this)
@@ -237,6 +237,7 @@ public final class Outgoing implements OutgoingMessageCallback
         throw ex;
     }
 
+    @Override
     public boolean
     send(Ice.ConnectionI connection, boolean compress, boolean response)
         throws RetryException
@@ -244,12 +245,14 @@ public final class Outgoing implements OutgoingMessageCallback
         return connection.sendRequest(this, compress, response);
     }
 
+    @Override
     public void
     invokeCollocated(CollocatedRequestHandler handler)
     {
         handler.invokeRequest(this);
     }
 
+    @Override
     synchronized public void
     sent()
     {
@@ -265,14 +268,14 @@ public final class Outgoing implements OutgoingMessageCallback
         _sent = true;
         notify();
     }
-    
+
     public synchronized void
     finished(BasicStream is)
     {
         assert(_proxy.__reference().getMode() == Reference.ModeTwoway); // Only for twoways.
-        
+
         assert(_state <= StateInProgress);
-        
+
         if(_childObserver != null)
         {
             _childObserver.reply(is.size() - Protocol.headerSize - 4);
@@ -286,7 +289,7 @@ public final class Outgoing implements OutgoingMessageCallback
         }
         _is.swap(is);
         byte replyStatus = _is.readByte();
-        
+
         switch(replyStatus)
         {
             case ReplyStatus.replyOK:
@@ -294,7 +297,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 _state = StateOK; // The state must be set last, in case there is an exception.
                 break;
             }
-            
+
             case ReplyStatus.replyUserException:
             {
                 if(_observer != null)
@@ -304,7 +307,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 _state = StateUserException; // The state must be set last, in case there is an exception.
                 break;
             }
-            
+
             case ReplyStatus.replyObjectNotExist:
             case ReplyStatus.replyFacetNotExist:
             case ReplyStatus.replyOperationNotExist:
@@ -317,26 +320,26 @@ public final class Outgoing implements OutgoingMessageCallback
                         ex = new Ice.ObjectNotExistException();
                         break;
                     }
-                    
+
                     case ReplyStatus.replyFacetNotExist:
                     {
                         ex = new Ice.FacetNotExistException();
                         break;
                     }
-                    
+
                     case ReplyStatus.replyOperationNotExist:
                     {
                         ex = new Ice.OperationNotExistException();
                         break;
                     }
-                    
+
                     default:
                     {
                         assert(false);
                         break;
                     }
                 }
-                
+
                 ex.id = new Ice.Identity();
                 ex.id.__read(_is);
 
@@ -363,7 +366,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 _state = StateLocalException; // The state must be set last, in case there is an exception.
                 break;
             }
-            
+
             case ReplyStatus.replyUnknownException:
             case ReplyStatus.replyUnknownLocalException:
             case ReplyStatus.replyUnknownUserException:
@@ -376,33 +379,33 @@ public final class Outgoing implements OutgoingMessageCallback
                         ex = new Ice.UnknownException();
                         break;
                     }
-                    
+
                     case ReplyStatus.replyUnknownLocalException:
                     {
                         ex = new Ice.UnknownLocalException();
                         break;
                     }
-                    
-                    case ReplyStatus.replyUnknownUserException: 
+
+                    case ReplyStatus.replyUnknownUserException:
                     {
                         ex = new Ice.UnknownUserException();
                         break;
                     }
-                    
+
                     default:
                     {
                         assert(false);
                         break;
                     }
                 }
-                
+
                 ex.unknown = _is.readString();
                 _exception = ex;
 
                 _state = StateLocalException; // The state must be set last, in case there is an exception.
                 break;
             }
-            
+
             default:
             {
                 _exception = new Ice.UnknownReplyStatusException();
@@ -414,6 +417,7 @@ public final class Outgoing implements OutgoingMessageCallback
         notify();
     }
 
+    @Override
     public synchronized void
     finished(Ice.Exception ex)
     {
@@ -443,21 +447,21 @@ public final class Outgoing implements OutgoingMessageCallback
         _exception = ex;
         notify();
     }
-    
+
     public BasicStream
     os()
     {
         return _os;
     }
 
-    public BasicStream 
+    public BasicStream
     startReadParams()
     {
         _is.startReadEncaps();
         return _is;
     }
 
-    public void 
+    public void
     endReadParams()
     {
         _is.endReadEncaps();
@@ -494,7 +498,7 @@ public final class Outgoing implements OutgoingMessageCallback
         _os.writeEmptyEncaps(_encoding);
     }
 
-    public void 
+    public void
     writeParamEncaps(byte[] encaps)
     {
         if(encaps == null || encaps.length == 0)
@@ -507,13 +511,13 @@ public final class Outgoing implements OutgoingMessageCallback
         }
     }
 
-    public boolean 
+    public boolean
     hasResponse()
     {
         return _is != null && !_is.isEmpty();
     }
 
-    public void 
+    public void
     throwUserException()
         throws Ice.UserException
     {
@@ -529,7 +533,7 @@ public final class Outgoing implements OutgoingMessageCallback
         }
     }
 
-    public void 
+    public void
     attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
     {
         if(_observer != null)
@@ -638,7 +642,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 //
                 Ice.ImplicitContextI implicitContext = _proxy.__reference().getInstance().getImplicitContext();
                 java.util.Map<String, String> prxContext = _proxy.__reference().getContext();
-                
+
                 if(implicitContext == null)
                 {
                     Ice.ContextHelper.write(_os, prxContext);
@@ -663,7 +667,7 @@ public final class Outgoing implements OutgoingMessageCallback
     private BasicStream _os;
     private boolean _sent;
     private Ice.Exception _exception;
-    
+
     private static final int StateUnsent = 0;
     private static final int StateInProgress = 1;
     private static final int StateOK = 2;

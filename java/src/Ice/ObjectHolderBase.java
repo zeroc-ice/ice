@@ -36,6 +36,7 @@ public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObje
      *
      * @param obj The new object for this holder.
      **/
+    @Override
     public void
     invoke(Ice.Object obj)
     {

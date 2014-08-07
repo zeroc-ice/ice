@@ -32,7 +32,7 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
      * @param ex The Ice system exception raised by the operation.
      **/
     public void exception(SystemException ex)
-    {        
+    {
         exception(new Ice.UnknownException(ex));
     }
 
@@ -43,11 +43,13 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
     {
     }
 
+    @Override
     public final void __sent(AsyncResult __result)
     {
         sent(__result.sentSynchronously());
     }
 
+    @Override
     public final void __completed(AsyncResult __result)
     {
         try

@@ -34,7 +34,8 @@ public abstract class DispatchInterceptor extends ObjectImpl
      **/
     public abstract DispatchStatus
     dispatch(Request request);
-   
+
+    @Override
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {

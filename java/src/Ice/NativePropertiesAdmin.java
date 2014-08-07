@@ -11,6 +11,6 @@ package Ice;
 
 public interface NativePropertiesAdmin
 {
-    void addUpdateCallback(PropertiesAdminUpdateCallback callback); 
+    void addUpdateCallback(PropertiesAdminUpdateCallback callback);
     void removeUpdateCallback(PropertiesAdminUpdateCallback callback);
 }

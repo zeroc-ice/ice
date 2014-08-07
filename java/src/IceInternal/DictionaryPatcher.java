@@ -20,6 +20,7 @@ public class DictionaryPatcher<K, V> implements Patcher, Ice.ReadObjectCallback
         _key = key;
     }
 
+    @Override
     public void
     patch(Ice.Object v)
     {
@@ -38,12 +39,14 @@ public class DictionaryPatcher<K, V> implements Patcher, Ice.ReadObjectCallback
         _dict.put(_key, _cls.cast(v));
     }
 
+    @Override
     public String
     type()
     {
         return _type;
     }
 
+    @Override
     public void
     invoke(Ice.Object v)
     {

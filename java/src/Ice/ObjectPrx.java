@@ -1208,5 +1208,6 @@ public interface ObjectPrx
      * @param r The object to compare this proxy with.
      * @return <code>true</code> if this proxy is equal to <code>r</code>; <code>false</code>, otherwise.
      **/
+    @Override
     boolean equals(java.lang.Object r);
 }

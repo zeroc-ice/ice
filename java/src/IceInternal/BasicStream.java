@@ -407,7 +407,7 @@ public class BasicStream
             {
                 throw new Ice.EncapsulationException();
             }
-            
+
             //
             // Ice version < 3.3 had a bug where user exceptions with
             // class members could be encoded with a trailing byte
@@ -606,7 +606,7 @@ public class BasicStream
             // If using the 1.0 encoding and no objects were written, we
             // still write an empty sequence for pending objects if
             // requested (i.e.: if this is called).
-            // 
+            //
             // This is required by the 1.0 encoding, even if no objects
             // are written we do marshal an empty sequence if marshaled
             // data types use classes.
@@ -648,7 +648,7 @@ public class BasicStream
             }
             else
             {
-                return (int)(b < 0 ? b + 256 : b);
+                return b < 0 ? b + 256 : b;
             }
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -712,7 +712,7 @@ public class BasicStream
     {
         int pos = _buf.b.position();
         writeInt(0); // Placeholder for 32-bit size
-	return pos;
+    return pos;
     }
 
     public void
@@ -2094,7 +2094,7 @@ public class BasicStream
             }
 
             final byte b = readByte();
-            final int v = b < 0 ? (int)b + 256 : b;
+            final int v = b < 0 ? b + 256 : b;
             if(v == OPTIONAL_END_MARKER)
             {
                 _buf.b.position(_buf.b.position() - 1); // Rewind.
@@ -2214,7 +2214,7 @@ public class BasicStream
             }
 
             final byte b = readByte();
-            final int v = b < 0 ? (int)b + 256 : b;
+            final int v = b < 0 ? b + 256 : b;
             if(v == OPTIONAL_END_MARKER)
             {
                 return;
@@ -2280,18 +2280,21 @@ public class BasicStream
             _data = data;
         }
 
+        @Override
         public void
         close()
             throws java.io.IOException
         {
         }
 
+        @Override
         public void
         flush()
             throws java.io.IOException
         {
         }
 
+        @Override
         public void
         write(byte[] b)
             throws java.io.IOException
@@ -2301,6 +2304,7 @@ public class BasicStream
             _pos += b.length;
         }
 
+        @Override
         public void
         write(byte[] b, int off, int len)
             throws java.io.IOException
@@ -2310,6 +2314,7 @@ public class BasicStream
             _pos += len;
         }
 
+        @Override
         public void
         write(int b)
             throws java.io.IOException
@@ -2371,8 +2376,8 @@ public class BasicStream
             // For interoperability with the bzip2 C library, we insert the magic bytes
             // 'B', 'Z' before invoking the Java implementation.
             //
-            bos.write((int)'B');
-            bos.write((int)'Z');
+            bos.write('B');
+            bos.write('Z');
             java.lang.Object[] args = new java.lang.Object[]{ bos, Integer.valueOf(compressionLevel) };
             java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
@@ -2533,7 +2538,7 @@ public class BasicStream
         return obj;
     }
 
-    private String 
+    private String
     getTypeId(int compactId)
     {
         String className = "IceCompactId.TypeId_" + Integer.toString(compactId);
@@ -2746,25 +2751,25 @@ public class BasicStream
         abstract void readObject(Patcher patcher);
         abstract void throwException(UserExceptionFactory factory)
             throws Ice.UserException;
-            
+
         abstract void startInstance(SliceType type);
         abstract Ice.SlicedData endInstance(boolean preserve);
         abstract String startSlice();
         abstract void endSlice();
         abstract void skipSlice();
-        
-        boolean 
+
+        boolean
         readOpt(int tag, Ice.OptionalFormat format)
         {
             return false;
         }
 
-        void 
+        void
         readPendingObjects()
         {
         }
 
-        protected String 
+        protected String
         readTypeId(boolean isIndex)
         {
             if(_typeIdMap == null) // Lazy initialization
@@ -2802,7 +2807,7 @@ public class BasicStream
             {
                 v = userFactory.create(typeId);
             }
-                    
+
             //
             // If that fails, invoke the default factory if one has been
             // registered.
@@ -2815,7 +2820,7 @@ public class BasicStream
                     v = userFactory.create(typeId);
                 }
             }
-                    
+
             //
             // Last chance: try to instantiate the class dynamically.
             //
@@ -2870,7 +2875,7 @@ public class BasicStream
             l.add(patcher);
         }
 
-        protected void 
+        protected void
         unmarshal(int index, Ice.Object v)
         {
             //
@@ -2893,7 +2898,7 @@ public class BasicStream
                 if(l != null)
                 {
                     assert(l.size() > 0);
-                    
+
                     //
                     // Patch all pointers that refer to the instance.
                     //
@@ -2901,7 +2906,7 @@ public class BasicStream
                     {
                         p.patch(v);
                     }
-                    
+
                     //
                     // Clear out the patch map for that index -- there is nothing left
                     // to patch for that index for the time being.
@@ -2909,7 +2914,7 @@ public class BasicStream
                     _patchMap.remove(index);
                 }
             }
-                
+
             if((_patchMap == null || _patchMap.isEmpty()) && _objectList == null)
             {
                 try
@@ -2929,7 +2934,7 @@ public class BasicStream
                     _objectList = new java.util.ArrayList<Ice.Object>();
                 }
                 _objectList.add(v);
-                
+
                 if(_patchMap == null || _patchMap.isEmpty())
                 {
                     //
@@ -2978,10 +2983,11 @@ public class BasicStream
             _sliceType = SliceType.NoSlice;
         }
 
+        @Override
         void readObject(Patcher patcher)
         {
             assert(patcher != null);
-            
+
             //
             // Object references are encoded as a negative integer in 1.0.
             //
@@ -3002,6 +3008,7 @@ public class BasicStream
             }
         }
 
+        @Override
         void throwException(UserExceptionFactory factory)
             throws Ice.UserException
         {
@@ -3087,12 +3094,14 @@ public class BasicStream
             }
         }
 
+        @Override
         void startInstance(SliceType sliceType)
         {
             assert(_sliceType == sliceType);
             _skipFirstSlice = true;
         }
 
+        @Override
         Ice.SlicedData endInstance(boolean preserve)
         {
             //
@@ -3113,6 +3122,7 @@ public class BasicStream
             return null;
         }
 
+        @Override
         String startSlice()
         {
             //
@@ -3128,7 +3138,7 @@ public class BasicStream
             //
             // For objects, first read the type ID boolean which indicates
             // whether or not the type ID is encoded as a string or as an
-            // index. For exceptions, the type ID is always encoded as a 
+            // index. For exceptions, the type ID is always encoded as a
             // string.
             //
             if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
@@ -3150,10 +3160,12 @@ public class BasicStream
             return _typeId;
         }
 
+        @Override
         void endSlice()
         {
         }
 
+        @Override
         void skipSlice()
         {
             if(_stream.instance().traceLevels().slicing > 0)
@@ -3173,6 +3185,7 @@ public class BasicStream
             _stream.skip(_sliceSize - 4);
         }
 
+        @Override
         void readPendingObjects()
         {
             int num;
@@ -3274,6 +3287,7 @@ public class BasicStream
             _current = null;
         }
 
+        @Override
         void readObject(Patcher patcher)
         {
             int index = _stream.readSize();
@@ -3319,6 +3333,7 @@ public class BasicStream
             }
         }
 
+        @Override
         void throwException(UserExceptionFactory factory)
             throws Ice.UserException
         {
@@ -3387,12 +3402,14 @@ public class BasicStream
             }
         }
 
+        @Override
         void startInstance(SliceType sliceType)
         {
             assert(_current.sliceType == sliceType);
             _current.skipFirstSlice = true;
         }
 
+        @Override
         Ice.SlicedData endInstance(boolean preserve)
         {
             Ice.SlicedData slicedData = null;
@@ -3409,6 +3426,7 @@ public class BasicStream
             return slicedData;
         }
 
+        @Override
         String startSlice()
         {
             //
@@ -3472,6 +3490,7 @@ public class BasicStream
             return _current.typeId;
         }
 
+        @Override
         void endSlice()
         {
             if((_current.sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
@@ -3492,8 +3511,8 @@ public class BasicStream
                 for(int i = 0; i < indirectionTable.length; ++i)
                 {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
-                }        
-                
+                }
+
                 //
                 // Sanity checks. If there are optional members, it's possible
                 // that not all object references were read if they are from
@@ -3528,6 +3547,7 @@ public class BasicStream
             }
         }
 
+        @Override
         void skipSlice()
         {
             if(_stream.instance().traceLevels().slicing > 0)
@@ -3556,7 +3576,7 @@ public class BasicStream
                 if(_current.sliceType == SliceType.ObjectSlice)
                 {
                     throw new Ice.NoObjectFactoryException(
-                        "compact format prevents slicing (the sender should use the sliced format instead)", 
+                        "compact format prevents slicing (the sender should use the sliced format instead)",
                         _current.typeId);
                 }
                 else
@@ -3617,7 +3637,7 @@ public class BasicStream
                 for(int i = 0; i < indirectionTable.length; ++i)
                 {
                     indirectionTable[i] = readInstance(_stream.readSize(), null);
-                }        
+                }
                 _current.indirectionTables.add(indirectionTable);
             }
             else
@@ -3628,6 +3648,7 @@ public class BasicStream
             _current.slices.add(info);
         }
 
+        @Override
         boolean readOpt(int readTag, Ice.OptionalFormat expectedFormat)
         {
             if(_current == null)
@@ -3644,7 +3665,7 @@ public class BasicStream
         private int readInstance(int index, Patcher patcher)
         {
             assert(index > 0);
-            
+
             if(index > 1)
             {
                 if(patcher != null)
@@ -3690,7 +3711,7 @@ public class BasicStream
                         }
                         catch(Throwable ex)
                         {
-                            throw new Ice.MarshalException("exception in CompactIdResolver for ID " + 
+                            throw new Ice.MarshalException("exception in CompactIdResolver for ID " +
                                                            _current.compactId, ex);
                         }
                     }
@@ -3699,11 +3720,11 @@ public class BasicStream
                         _current.typeId = _stream.getTypeId(_current.compactId);
                     }
                 }
-                
+
                 if(_current.typeId.length() > 0)
                 {
                     v = newInstance(_current.typeId);
-                    
+
                     //
                     // We found a factory, we get out of this loop.
                     //
@@ -3795,7 +3816,7 @@ public class BasicStream
                 info.objects = new Ice.Object[table != null ? table.length : 0];
                 for(int j = 0; j < info.objects.length; ++j)
                 {
-                    addPatchEntry(table[j], new SequencePatcher(info.objects, Ice.Object.class, 
+                    addPatchEntry(table[j], new SequencePatcher(info.objects, Ice.Object.class,
                                                                 Ice.ObjectImpl.ice_staticId(), j));
                 }
             }
@@ -3867,10 +3888,10 @@ public class BasicStream
             _typeIdIndex = 0;
             _marshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
         }
-        
+
         abstract void writeObject(Ice.Object v);
         abstract void writeUserException(Ice.UserException v);
-        
+
         abstract void startInstance(SliceType type, Ice.SlicedData data);
         abstract void endInstance();
         abstract void startSlice(String typeId, int compactId, boolean last);
@@ -3909,7 +3930,7 @@ public class BasicStream
 
         // Encapsulation attributes for object marshalling.
         final protected java.util.IdentityHashMap<Ice.Object, Integer> _marshaledMap;
-        
+
         // Encapsulation attributes for object marshalling.
         private java.util.TreeMap<String, Integer> _typeIdMap;
         private int _typeIdIndex;
@@ -3925,6 +3946,7 @@ public class BasicStream
             _toBeMarshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
         }
 
+        @Override
         void writeObject(Ice.Object v)
         {
             //
@@ -3940,12 +3962,13 @@ public class BasicStream
             }
         }
 
+        @Override
         void writeUserException(Ice.UserException v)
         {
             //
             // User exception with the 1.0 encoding start with a boolean
             // flag that indicates whether or not the exception uses
-            // classes. 
+            // classes.
             //
             // This allows reading the pending objects even if some part of
             // the exception was sliced.
@@ -3958,12 +3981,14 @@ public class BasicStream
                 writePendingObjects();
             }
         }
-        
+
+        @Override
         void startInstance(SliceType sliceType, Ice.SlicedData sliceData)
         {
             _sliceType = sliceType;
         }
 
+        @Override
         void endInstance()
         {
             if(_sliceType == SliceType.ObjectSlice)
@@ -3978,6 +4003,7 @@ public class BasicStream
             _sliceType = SliceType.NoSlice;
         }
 
+        @Override
         void startSlice(String typeId, int compactId, boolean last)
         {
             //
@@ -4009,6 +4035,7 @@ public class BasicStream
             _writeSlice = _stream.pos();
         }
 
+        @Override
         void endSlice()
         {
             //
@@ -4018,6 +4045,7 @@ public class BasicStream
             _stream.rewriteInt(sz, _writeSlice - 4);
         }
 
+        @Override
         void writePendingObjects()
         {
             while(_toBeMarshaledMap.size() > 0)
@@ -4103,11 +4131,12 @@ public class BasicStream
     {
         EncapsEncoder11(BasicStream stream, WriteEncaps encaps)
         {
-            super(stream, encaps); 
+            super(stream, encaps);
             _current = null;
             _objectIdIndex = 1;
         }
 
+        @Override
         void writeObject(Ice.Object v)
         {
             if(v == null)
@@ -4128,14 +4157,14 @@ public class BasicStream
                 // table. The indirect object table is encoded at the end of
                 // each slice and is always read (even if the Slice is
                 // unknown).
-                // 
+                //
                 Integer index = _current.indirectionMap.get(v);
                 if(index == null)
                 {
                     _current.indirectionTable.add(v);
                     final int idx = _current.indirectionTable.size(); // Position + 1 (0 is reserved for nil)
                     _current.indirectionMap.put(v, idx);
-                    _stream.writeSize(idx); 
+                    _stream.writeSize(idx);
                 }
                 else
                 {
@@ -4148,11 +4177,13 @@ public class BasicStream
             }
         }
 
+        @Override
         void writeUserException(Ice.UserException v)
         {
             v.__write(_stream);
         }
 
+        @Override
         void startInstance(SliceType sliceType, Ice.SlicedData data)
         {
             if(_current == null)
@@ -4172,14 +4203,16 @@ public class BasicStream
             }
         }
 
+        @Override
         void endInstance()
         {
             _current = _current.previous;
-        } 
+        }
 
+        @Override
         void startSlice(String typeId, int compactId, boolean last)
         {
-            assert((_current.indirectionTable == null || _current.indirectionTable.isEmpty()) && 
+            assert((_current.indirectionTable == null || _current.indirectionTable.isEmpty()) &&
                    (_current.indirectionMap == null || _current.indirectionMap.isEmpty()));
 
             _current.sliceFlagsPos = _stream.pos();
@@ -4206,7 +4239,7 @@ public class BasicStream
                 //
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
-                // 
+                //
                 if(_encaps.format == Ice.FormatType.SlicedFormat || _current.firstSlice)
                 {
                     if(compactId >= 0)
@@ -4244,6 +4277,7 @@ public class BasicStream
             _current.firstSlice = false;
         }
 
+        @Override
         void endSlice()
         {
             //
@@ -4290,7 +4324,8 @@ public class BasicStream
             //
             _stream.rewriteByte(_current.sliceFlags, _current.sliceFlagsPos);
         }
-        
+
+        @Override
         boolean writeOpt(int tag, Ice.OptionalFormat format)
         {
             if(_current == null)
@@ -4314,7 +4349,7 @@ public class BasicStream
         private void writeSlicedData(Ice.SlicedData slicedData)
         {
             assert(slicedData != null);
-            
+
             //
             // We only remarshal preserved slices if we are using the sliced
             // format. Otherwise, we ignore the preserved slices, which
@@ -4329,12 +4364,12 @@ public class BasicStream
             for(Ice.SliceInfo info : slicedData.slices)
             {
                 startSlice(info.typeId, info.compactId, info.isLastSlice);
- 
+
                 //
                 // Write the bytes associated with this slice.
                 //
                 _stream.writeBlob(info.bytes);
-        
+
                 if(info.hasOptionalMembers)
                 {
                     _current.sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
@@ -4392,7 +4427,7 @@ public class BasicStream
 
             _stream.writeSize(1); // Object instance marker.
             v.__write(_stream);
-        } 
+        }
 
         private static final class InstanceData
         {

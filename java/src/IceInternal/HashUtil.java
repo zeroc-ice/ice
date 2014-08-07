@@ -82,7 +82,7 @@ public final class HashUtil
         return ((hashCode << 5) + hashCode) ^ java.util.Arrays.hashCode(arr);
     }
 
-    public static int 
+    public static int
     hashAdd(int hashCode, double[] arr)
     {
         return ((hashCode << 5) + hashCode) ^ java.util.Arrays.hashCode(arr);

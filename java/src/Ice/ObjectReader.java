@@ -25,12 +25,14 @@ public abstract class ObjectReader extends ObjectImpl
      **/
     public abstract void read(InputStream in);
 
+    @Override
     public void
     __write(IceInternal.BasicStream os)
     {
         assert(false);
     }
 
+    @Override
     public void
     __read(IceInternal.BasicStream is)
     {

@@ -9,19 +9,19 @@
 
 package IceInternal;
 
-public abstract class Functional_TwowayCallbackFloat 
+public abstract class Functional_TwowayCallbackFloat
     extends Functional_TwowayCallback implements Ice.TwowayCallbackFloat
 {
-    public Functional_TwowayCallbackFloat(Functional_FloatCallback responseCb, 
+    public Functional_TwowayCallbackFloat(Functional_FloatCallback responseCb,
                                           Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                           Functional_BoolCallback sentCb)
     {
         super(responseCb != null, exceptionCb, sentCb);
         __responseCb = responseCb;
     }
-    
+
     protected Functional_TwowayCallbackFloat(boolean userExceptionCb,
-                                             Functional_FloatCallback responseCb, 
+                                             Functional_FloatCallback responseCb,
                                              Functional_GenericCallback1<Ice.Exception> exceptionCb,
                                              Functional_BoolCallback sentCb)
     {
@@ -29,7 +29,8 @@ public abstract class Functional_TwowayCallbackFloat
         CallbackBase.check(responseCb != null || (userExceptionCb && exceptionCb != null));
         __responseCb = responseCb;
     }
-    
+
+    @Override
     public void response(float arg)
     {
         if(__responseCb != null)
@@ -37,6 +38,6 @@ public abstract class Functional_TwowayCallbackFloat
             __responseCb.apply(arg);
         }
     }
-    
+
     final private Functional_FloatCallback __responseCb;
 };

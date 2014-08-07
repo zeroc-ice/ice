@@ -18,25 +18,28 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
         _logger = logger;
     }
 
+    @Override
     public synchronized String
     getProperty(String name, Ice.Current current)
     {
         return _properties.getProperty(name);
     }
 
+    @Override
     public synchronized java.util.TreeMap<String, String>
     getPropertiesForPrefix(String name, Ice.Current current)
     {
         return new java.util.TreeMap<String, String>(_properties.getPropertiesForPrefix(name));
     }
 
+    @Override
     synchronized public void
     setProperties_async(Ice.AMD_PropertiesAdmin_setProperties cb, java.util.Map<String, String> props,
                         Ice.Current current)
     {
         java.util.Map<String, String> old = _properties.getPropertiesForPrefix("");
         final int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
-        
+
         //
         // Compute the difference between the new property set and the existing property set:
         //
@@ -168,7 +171,7 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
             //
             // Copy the callbacks to allow callbacks to update the callbacks.
             //
-            java.util.List<Ice.PropertiesAdminUpdateCallback> callbacks = 
+            java.util.List<Ice.PropertiesAdminUpdateCallback> callbacks =
                 new java.util.ArrayList<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
 
             java.util.Map<String, String> changes = new java.util.HashMap<String, String>(added);
@@ -188,12 +191,14 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
         }
     }
 
+    @Override
     public synchronized void
     addUpdateCallback (Ice.PropertiesAdminUpdateCallback cb)
     {
         _updateCallbacks.add(cb);
     }
 
+    @Override
     public synchronized void
     removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
     {
@@ -203,6 +208,6 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
     private final String _name;
     private final Ice.Properties _properties;
     private final Ice.Logger _logger;
-    private java.util.List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks = 
+    private java.util.List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks =
         new java.util.ArrayList<Ice.PropertiesAdminUpdateCallback>();
 }

@@ -25,144 +25,168 @@ public class FixedReference extends Reference
         _fixedConnection = connection;
     }
 
+    @Override
     public EndpointI[]
     getEndpoints()
     {
         return _emptyEndpoints;
     }
 
+    @Override
     public String
     getAdapterId()
     {
         return "";
     }
 
+    @Override
     public LocatorInfo
     getLocatorInfo()
     {
         return null;
     }
 
+    @Override
     public RouterInfo
     getRouterInfo()
     {
         return null;
     }
 
+    @Override
     public boolean
     getCollocationOptimized()
     {
         return false;
     }
-    
+
+    @Override
     public final boolean
     getCacheConnection()
     {
         return true;
     }
 
+    @Override
     public boolean
     getPreferSecure()
     {
         return false;
     }
 
+    @Override
     public final Ice.EndpointSelectionType
     getEndpointSelection()
     {
         return Ice.EndpointSelectionType.Random;
     }
 
+    @Override
     public int
     getLocatorCacheTimeout()
     {
         return 0;
     }
 
+    @Override
     public String
     getConnectionId()
     {
         return "";
     }
 
+    @Override
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeAdapterId(String newAdapterId)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeCollocationOptimized(boolean newCollocationOptimized)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public final Reference
     changeCacheConnection(boolean newCache)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changePreferSecure(boolean prefSec)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public final Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeLocatorCacheTimeout(int newTimeout)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeTimeout(int newTimeout)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Reference
     changeConnectionId(String connectionId)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public boolean
     isIndirect()
     {
         return false;
     }
 
+    @Override
     public boolean
     isWellKnown()
     {
         return false;
     }
 
+    @Override
     public void
     streamWrite(BasicStream s)
         throws Ice.MarshalException
@@ -170,6 +194,7 @@ public class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public String
     toString()
         throws Ice.MarshalException
@@ -177,12 +202,14 @@ public class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public java.util.Map<String, String>
     toProperty(String prefix)
     {
         throw new Ice.FixedProxyException();
     }
 
+    @Override
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder compress)
     {
@@ -246,6 +273,7 @@ public class FixedReference extends Reference
         return _fixedConnection;
     }
 
+    @Override
     public void
     getConnection(GetConnectionCallback callback)
     {
@@ -261,6 +289,7 @@ public class FixedReference extends Reference
         }
     }
 
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {
@@ -280,6 +309,7 @@ public class FixedReference extends Reference
         return _fixedConnection.equals(rhs._fixedConnection);
     }
 
+    @Override
     public int
     hashCode()
     {

@@ -29,6 +29,7 @@ public final class PropertiesI implements Properties
         public boolean used;
     }
 
+    @Override
     public synchronized String
     getProperty(String key)
     {
@@ -44,6 +45,7 @@ public final class PropertiesI implements Properties
         }
     }
 
+    @Override
     public synchronized String
     getPropertyWithDefault(String key, String value)
     {
@@ -59,12 +61,14 @@ public final class PropertiesI implements Properties
         }
     }
 
+    @Override
     public int
     getPropertyAsInt(String key)
     {
         return getPropertyAsIntWithDefault(key, 0);
     }
 
+    @Override
     public synchronized int
     getPropertyAsIntWithDefault(String key, int value)
     {
@@ -87,12 +91,14 @@ public final class PropertiesI implements Properties
         return value;
     }
 
+    @Override
     public String[]
     getPropertyAsList(String key)
     {
         return getPropertyAsListWithDefault(key, null);
     }
 
+    @Override
     public synchronized String[]
     getPropertyAsListWithDefault(String key, String[] value)
     {
@@ -125,6 +131,7 @@ public final class PropertiesI implements Properties
         }
     }
 
+    @Override
     public synchronized java.util.Map<String, String>
     getPropertiesForPrefix(String prefix)
     {
@@ -142,6 +149,7 @@ public final class PropertiesI implements Properties
         return result;
     }
 
+    @Override
     public void
     setProperty(String key, String value)
     {
@@ -249,6 +257,7 @@ public final class PropertiesI implements Properties
         }
     }
 
+    @Override
     public synchronized String[]
     getCommandLineOptions()
     {
@@ -262,6 +271,7 @@ public final class PropertiesI implements Properties
         return result;
     }
 
+    @Override
     public String[]
     parseCommandLineOptions(String pfx, String[] options)
     {
@@ -291,6 +301,7 @@ public final class PropertiesI implements Properties
         return result.toArray(new String[0]);
     }
 
+    @Override
     public String[]
     parseIceCommandLineOptions(String[] options)
     {
@@ -302,6 +313,7 @@ public final class PropertiesI implements Properties
         return args;
     }
 
+    @Override
     public void
     load(String file)
     {
@@ -354,7 +366,7 @@ public final class PropertiesI implements Properties
                             {
                                 break;
                             }
-                            
+
                             String envKey = line.substring(start + 1, end);
                             String envValue = System.getenv(envKey);
                             if(envValue == null)
@@ -434,6 +446,7 @@ public final class PropertiesI implements Properties
         }
     }
 
+    @Override
     public synchronized Properties
     _clone()
     {
@@ -742,7 +755,7 @@ public final class PropertiesI implements Properties
             {
                 load(file.trim());
             }
-       
+
             _properties.put("Ice.Config", new PropertyValue(value, true));
         }
     }

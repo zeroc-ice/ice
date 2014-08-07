@@ -112,7 +112,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                     }
                 }
             }
-            
+
             if(timedOut)
             {
                 handler.requestTimedOut(this);
@@ -144,7 +144,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
             // isn't useful, there were no batch requests associated with
             // the proxy's request handler.
             //
-            _proxy.__setRequestHandler(handler, null); 
+            _proxy.__setRequestHandler(handler, null);
         }
         catch(Ice.Exception ex)
         {
@@ -157,18 +157,21 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         }
     }
 
+    @Override
     public boolean
     send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
         return connection.flushBatchRequests(this);
     }
 
+    @Override
     public void
     invokeCollocated(CollocatedRequestHandler handler)
     {
         handler.invokeBatchRequests(this);
     }
 
+    @Override
     synchronized public void
     sent()
     {
@@ -180,7 +183,8 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         _sent = true;
         notify();
     }
-    
+
+    @Override
     public synchronized void
     finished(Ice.Exception ex)
     {
@@ -200,7 +204,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         return _os;
     }
 
-    public void 
+    public void
     attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int size)
     {
         if(_observer != null)
@@ -213,7 +217,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         }
     }
 
-    public void 
+    public void
     attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
         if(_observer != null)

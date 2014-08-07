@@ -11,11 +11,13 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<EndpointI>
 {
+    @Override
     public String toString()
     {
         return _toString();
     }
 
+    @Override
     public String _toString()
     {
         //
@@ -177,6 +179,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     // Compare endpoints for sorting purposes.
     //
+    @Override
     public boolean equals(java.lang.Object obj)
     {
         if(!(obj instanceof EndpointI))

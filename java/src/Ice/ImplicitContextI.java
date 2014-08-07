@@ -40,11 +40,13 @@ public abstract class ImplicitContextI implements ImplicitContext
 
     static class Shared extends ImplicitContextI
     {
+        @Override
         public synchronized java.util.Map<String, String> getContext()
         {
             return new java.util.HashMap<String, String>(_context);
         }
 
+        @Override
         public synchronized void setContext(java.util.Map<String, String> context)
         {
             _context.clear();
@@ -54,6 +56,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
         }
 
+        @Override
         public synchronized boolean containsKey(String key)
         {
             if(key == null)
@@ -64,6 +67,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return _context.containsKey(key);
         }
 
+        @Override
         public synchronized String get(String key)
         {
             if(key == null)
@@ -80,6 +84,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return val;
         }
 
+        @Override
         public synchronized String put(String key, String value)
         {
             if(key == null)
@@ -99,6 +104,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return oldVal;
         }
 
+        @Override
         public synchronized String remove(String key)
         {
             if(key == null)
@@ -115,6 +121,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return val;
         }
 
+        @Override
         public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os)
         {
             if(prxContext.isEmpty())
@@ -135,6 +142,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
         }
 
+        @Override
         synchronized java.util.Map<String, String> combine(java.util.Map<String, String> prxContext)
         {
             java.util.Map<String, String> combined = new java.util.HashMap<String, String>(_context);
@@ -148,6 +156,7 @@ public abstract class ImplicitContextI implements ImplicitContext
     static class PerThread extends ImplicitContextI
     {
 
+        @Override
         public java.util.Map<String, String> getContext()
         {
             //
@@ -162,6 +171,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return threadContext;
         }
 
+        @Override
         public void setContext(java.util.Map<String, String> context)
         {
             if(context == null || context.isEmpty())
@@ -175,6 +185,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
         }
 
+        @Override
         public boolean containsKey(String key)
         {
             if(key == null)
@@ -192,6 +203,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return threadContext.containsKey(key);
         }
 
+        @Override
         public String get(String key)
         {
             if(key == null)
@@ -213,6 +225,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return val;
         }
 
+        @Override
         public String put(String key, String value)
         {
             if(key == null)
@@ -241,6 +254,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return oldVal;
         }
 
+        @Override
         public String remove(String key)
         {
             if(key == null)
@@ -264,6 +278,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return val;
         }
 
+        @Override
         public void write(java.util.Map<String, String> prxContext, IceInternal.BasicStream os)
         {
             java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());
@@ -284,6 +299,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             }
         }
 
+        @Override
         java.util.Map<String, String> combine(java.util.Map<String, String> prxContext)
         {
             java.util.Map<String, String> threadContext = _map.get(Thread.currentThread());

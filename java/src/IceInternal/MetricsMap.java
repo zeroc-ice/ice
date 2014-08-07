@@ -26,13 +26,13 @@ public class MetricsMap<T extends IceMX.Metrics>
                 ++_object.failures;
                 if(_failures == null)
                 {
-                    _failures = new java.util.HashMap<String, Integer>(); 
+                    _failures = new java.util.HashMap<String, Integer>();
                 }
                 Integer count = _failures.get(exceptionName);
                 _failures.put(exceptionName, new Integer(count == null ? 1 : count + 1));
             }
         }
-        
+
         @SuppressWarnings("unchecked")
         public <S extends IceMX.Metrics> MetricsMap<S>.Entry
         getMatching(String mapName, IceMX.MetricsHelper<S> helper, Class<S> cl)
@@ -58,7 +58,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             return m.getMatching(helper);
         }
 
-        public void 
+        public void
         detach(long lifetime)
         {
             synchronized(MetricsMap.this)
@@ -86,7 +86,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             return MetricsMap.this;
         }
 
-        private IceMX.MetricsFailures 
+        private IceMX.MetricsFailures
         getFailures()
         {
             if(_failures == null)
@@ -107,12 +107,13 @@ public class MetricsMap<T extends IceMX.Metrics>
             helper.initMetrics(_object);
         }
 
-        private boolean 
+        private boolean
         isDetached()
         {
             return _object.current == 0;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public IceMX.Metrics
         clone()
@@ -135,20 +136,20 @@ public class MetricsMap<T extends IceMX.Metrics>
 
     static class SubMap<S extends IceMX.Metrics>
     {
-        public 
+        public
         SubMap(MetricsMap<S> map, java.lang.reflect.Field field)
         {
             _map = map;
             _field = field;
         }
 
-        public MetricsMap<S>.Entry 
+        public MetricsMap<S>.Entry
         getMatching(IceMX.MetricsHelper<S> helper)
         {
             return _map.getMatching(helper, null);
         }
 
-        public void 
+        public void
         addSubMapToMetrics(IceMX.Metrics metrics)
         {
             try
@@ -160,7 +161,7 @@ public class MetricsMap<T extends IceMX.Metrics>
                 assert(false);
             }
         }
-            
+
         final private MetricsMap<S> _map;
         final private java.lang.reflect.Field _field;
     };
@@ -205,7 +206,7 @@ public class MetricsMap<T extends IceMX.Metrics>
     {
         MetricsAdminI.validateProperties(mapPrefix, props);
         _properties = props.getPropertiesForPrefix(mapPrefix);
-        
+
         _retain = props.getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10);
         _accept = parseRule(props, mapPrefix + "Accept");
         _reject = parseRule(props, mapPrefix + "Reject");
@@ -222,7 +223,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             {
                 _groupByAttributes.add("");
             }
-            
+
             for(char p : groupBy.toCharArray())
             {
                 boolean isAlphaNum = Character.isLetter(p) || Character.isDigit(p) || p == '.';
@@ -243,7 +244,7 @@ public class MetricsMap<T extends IceMX.Metrics>
                     v += p;
                 }
             }
-            
+
             if(attribute)
             {
                 _groupByAttributes.add(v);
@@ -284,7 +285,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             _subMaps = null;
         }
     }
-    
+
     MetricsMap(MetricsMap<T> map)
     {
         _properties = map._properties;
@@ -314,7 +315,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         }
         return metrics;
     }
-    
+
     synchronized IceMX.MetricsFailures[]
     getFailures()
     {
@@ -329,7 +330,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         }
         return failures.toArray(new IceMX.MetricsFailures[failures.size()]);
     }
-    
+
     synchronized IceMX.MetricsFailures
     getFailures(String id)
     {
@@ -357,7 +358,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         return null;
     }
 
-    public Entry 
+    public Entry
     getMatching(IceMX.MetricsHelper<T> helper, Entry previous)
     {
         //
@@ -411,7 +412,7 @@ public class MetricsMap<T extends IceMX.Metrics>
 
         //
         // Lookup the metrics object.
-        // 
+        //
         synchronized(this)
         {
             if(previous != null && previous._object.id.equals(key))
@@ -439,21 +440,21 @@ public class MetricsMap<T extends IceMX.Metrics>
             return e;
         }
     }
-    
-    private void 
+
+    private void
     detached(Entry entry)
     {
         if(_retain == 0)
         {
             return;
         }
-        
+
         if(_detachedQueue == null)
         {
             _detachedQueue = new java.util.LinkedList<Entry>();
         }
         assert(_detachedQueue.size() <= _retain);
-        
+
         // Compress the queue by removing entries which are no longer detached.
         java.util.Iterator<Entry> p = _detachedQueue.iterator();
         while(p.hasNext())
@@ -464,17 +465,17 @@ public class MetricsMap<T extends IceMX.Metrics>
                 p.remove();
             }
         }
-        
+
         // If there's still no room, remove the oldest entry (at the front).
         if(_detachedQueue.size() == _retain)
         {
             _objects.remove(_detachedQueue.pollFirst()._object.id);
         }
-            
+
         // Add the entry at the back of the queue.
         _detachedQueue.add(entry);
     }
-    
+
     private java.util.Map<String, java.util.regex.Pattern>
     parseRule(Ice.Properties properties, String name)
     {

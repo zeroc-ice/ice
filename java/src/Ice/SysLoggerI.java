@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public final class SysLoggerI implements Logger
 {
-    public 
+    public
     SysLoggerI(String ident, String facilityString)
     {
         int facility;
@@ -107,7 +107,7 @@ public final class SysLoggerI implements Logger
         initialize(ident, facility);
     }
 
-    private 
+    private
     SysLoggerI(String ident, int facility)
     {
         initialize(ident, facility);
@@ -122,7 +122,7 @@ public final class SysLoggerI implements Logger
         //
         // Open a datagram socket to communicate with the localhost
         // syslog daemon.
-        // 
+        //
         try
         {
             _host = IceInternal.Network.getLocalAddress(IceInternal.Network.EnableBoth);
@@ -135,30 +135,35 @@ public final class SysLoggerI implements Logger
         }
     }
 
+    @Override
     public void
     print(String message)
     {
         log(LOG_INFO, message);
     }
 
+    @Override
     public void
     trace(String category, String message)
     {
         log(LOG_INFO, category + ": " + message);
     }
 
+    @Override
     public void
     warning(String message)
     {
         log(LOG_WARNING, message);
     }
 
+    @Override
     public void
     error(String message)
     {
         log(LOG_ERR, message);
     }
 
+    @Override
     public Logger
     cloneWithPrefix(String prefix)
     {
@@ -168,7 +173,7 @@ public final class SysLoggerI implements Logger
     private void
     log(int severity, String message)
     {
-        try 
+        try
         {
             //
             // Create a syslog message as defined by the RFC 3164:
@@ -185,7 +190,7 @@ public final class SysLoggerI implements Logger
             byte buf[] = msg.getBytes();
             DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
             _socket.send(p);
-        } 
+        }
         catch(IOException ex)
         {
             throw new Ice.SocketException(ex);
@@ -200,7 +205,7 @@ public final class SysLoggerI implements Logger
 
     //
     // Syslog facilities (as defined in syslog.h)
-    // 
+    //
     private final static int LOG_KERN = 0;
     private final static int LOG_USER = 1;
     private final static int LOG_MAIL = 2;
@@ -224,7 +229,7 @@ public final class SysLoggerI implements Logger
 
     //
     // Syslog priorities (as defined in syslog.h)
-    // 
+    //
     private final static int LOG_ERR = 3;
     private final static int LOG_WARNING = 4;
     private final static int LOG_INFO = 6;

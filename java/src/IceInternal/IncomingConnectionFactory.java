@@ -185,6 +185,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     // Operations from EventHandler.
     //
 
+    @Override
     public void
     message(ThreadPoolCurrent current)
     {
@@ -282,6 +283,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         connection.start(this);
     }
 
+    @Override
     public synchronized void
     finished(ThreadPoolCurrent current)
     {
@@ -289,6 +291,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         setState(StateFinished);
     }
 
+    @Override
     public synchronized String
     toString()
     {
@@ -301,6 +304,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         return _acceptor.toString();
     }
 
+    @Override
     public java.nio.channels.SelectableChannel
     fd()
     {
@@ -311,6 +315,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     //
     // Operations from ConnectionI.StartCallback
     //
+    @Override
     public synchronized void
     connectionStartCompleted(Ice.ConnectionI connection)
     {
@@ -324,6 +329,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         }
     }
 
+    @Override
     public synchronized void
     connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
     {
@@ -426,6 +432,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         }
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -474,7 +481,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                         s.append(" connections at ");
                         s.append(_acceptor.toString());
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
-                    }                
+                    }
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
                 }
 
@@ -500,7 +507,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                         s.append(" connections at ");
                         s.append(_acceptor.toString());
                         _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
-                    }                
+                    }
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
                 }
 
@@ -552,7 +559,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     }
 
     private final Instance _instance;
-    private final FactoryACMMonitor _monitor;    
+    private final FactoryACMMonitor _monitor;
 
     private Acceptor _acceptor;
     private Transceiver _transceiver;

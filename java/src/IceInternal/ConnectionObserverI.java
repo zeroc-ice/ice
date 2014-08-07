@@ -9,11 +9,12 @@
 
 package IceInternal;
 
-public class ConnectionObserverI 
-    extends IceMX.ObserverWithDelegate<IceMX.ConnectionMetrics, Ice.Instrumentation.ConnectionObserver> 
+public class ConnectionObserverI
+    extends IceMX.ObserverWithDelegate<IceMX.ConnectionMetrics, Ice.Instrumentation.ConnectionObserver>
     implements Ice.Instrumentation.ConnectionObserver
 {
-    public void 
+    @Override
+    public void
     sentBytes(final int num)
     {
         _sentBytes = num;
@@ -24,7 +25,8 @@ public class ConnectionObserverI
         }
     }
 
-    public void 
+    @Override
+    public void
     receivedBytes(int num)
     {
         _receivedBytes = num;
@@ -37,6 +39,7 @@ public class ConnectionObserverI
 
     private MetricsUpdate<IceMX.ConnectionMetrics> _sentBytesUpdate = new MetricsUpdate<IceMX.ConnectionMetrics>()
         {
+            @Override
             public void
             update(IceMX.ConnectionMetrics v)
             {
@@ -46,6 +49,7 @@ public class ConnectionObserverI
 
     private MetricsUpdate<IceMX.ConnectionMetrics> _receivedBytesUpdate = new MetricsUpdate<IceMX.ConnectionMetrics>()
         {
+            @Override
             public void
             update(IceMX.ConnectionMetrics v)
             {

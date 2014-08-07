@@ -9,8 +9,6 @@
 
 package IceInternal;
 
-import Ice.Instrumentation.InvocationObserver;
-
 public class ConnectRequestHandler
     implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
@@ -57,6 +55,7 @@ public class ConnectRequestHandler
         }
     }
 
+    @Override
     public void
     prepareBatchRequest(BasicStream os)
         throws RetryException
@@ -92,12 +91,13 @@ public class ConnectRequestHandler
         _connection.prepareBatchRequest(os);
     }
 
+    @Override
     public void
     finishBatchRequest(BasicStream os)
     {
         synchronized(this)
         {
-            if(!initialized()) // This can't throw until _batchRequestInProgress = false 
+            if(!initialized()) // This can't throw until _batchRequestInProgress = false
             {
                 assert(_batchRequestInProgress);
                 _batchRequestInProgress = false;
@@ -119,6 +119,7 @@ public class ConnectRequestHandler
         _connection.finishBatchRequest(os, _compress);
     }
 
+    @Override
     public void
     abortBatchRequest()
     {
@@ -141,6 +142,7 @@ public class ConnectRequestHandler
         _connection.abortBatchRequest();
     }
 
+    @Override
     public boolean
     sendRequest(OutgoingMessageCallback out)
         throws RetryException
@@ -163,6 +165,7 @@ public class ConnectRequestHandler
         return out.send(_connection, _compress, _response) && !_response; // Finished if sent and no response.
     }
 
+    @Override
     public int
     sendAsyncRequest(OutgoingAsyncMessageCallback out)
         throws RetryException
@@ -185,7 +188,8 @@ public class ConnectRequestHandler
         return out.__send(_connection, _compress, _response);
     }
 
-    public void 
+    @Override
+    public void
     requestTimedOut(OutgoingMessageCallback out)
     {
         synchronized(this)
@@ -214,7 +218,8 @@ public class ConnectRequestHandler
         _connection.requestTimedOut(out);
     }
 
-    public void 
+    @Override
+    public void
     asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
     {
         synchronized(this)
@@ -243,12 +248,14 @@ public class ConnectRequestHandler
         _connection.asyncRequestTimedOut(outAsync);
     }
 
+    @Override
     public Reference
     getReference()
     {
         return _reference;
     }
 
+    @Override
     synchronized public Ice.ConnectionI
     getConnection(boolean waitInit)
     {
@@ -284,6 +291,7 @@ public class ConnectRequestHandler
     // Implementation of Reference.GetConnectionCallback
     //
 
+    @Override
     public void
     setConnection(Ice.ConnectionI connection, boolean compress)
     {
@@ -312,6 +320,7 @@ public class ConnectRequestHandler
         flushRequests();
     }
 
+    @Override
     public synchronized void
     setException(final Ice.LocalException ex)
     {
@@ -330,6 +339,7 @@ public class ConnectRequestHandler
         {
             _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
                                                                 {
+                                                                    @Override
                                                                     public void
                                                                     run()
                                                                     {
@@ -344,6 +354,7 @@ public class ConnectRequestHandler
     //
     // Implementation of RouterInfo.AddProxyCallback
     //
+    @Override
     public void
     addedProxy()
     {
@@ -444,7 +455,7 @@ public class ConnectRequestHandler
                 }
                 else if(request.outAsync != null)
                 {
-                    if((request.outAsync.__send(_connection, _compress, _response) & 
+                    if((request.outAsync.__send(_connection, _compress, _response) &
                         AsyncStatus.InvokeSentCallback) > 0)
                     {
                         sentCallbacks.add(request.outAsync);
@@ -477,13 +488,14 @@ public class ConnectRequestHandler
             // RetryException. We handle the exception like it
             // was an exception that occured while sending the
             // request.
-            // 
+            //
             synchronized(this)
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
                 _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
                     {
+                        @Override
                         public void
                         run()
                         {
@@ -500,6 +512,7 @@ public class ConnectRequestHandler
                 _exception = ex;
                 _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
                     {
+                        @Override
                         public void
                         run()
                         {
@@ -514,6 +527,7 @@ public class ConnectRequestHandler
             _reference.getInstance().clientThreadPool().dispatch(
                 new DispatchWorkItem(_connection)
                 {
+                    @Override
                     public void
                     run()
                     {
@@ -524,7 +538,7 @@ public class ConnectRequestHandler
                     };
                 });
         }
-        
+
         //
         // We've finished sending the queued requests and the request handler now send
         // the requests over the connection directly. It's time to substitute the
@@ -558,7 +572,7 @@ public class ConnectRequestHandler
         for(Request request : _requests)
         {
             if(request.out != null)
-            {            
+            {
                 request.out.finished(_exception);
             }
             else if(request.outAsync != null)
