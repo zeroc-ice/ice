@@ -13,12 +13,12 @@ public interface Transceiver
 {
     java.nio.channels.SelectableChannel fd();
 
-    int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData);
+    int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData);
     int closing(boolean initiator, Ice.LocalException ex);
     void close();
 
     int write(Buffer buf);
-    int read(Buffer buf, Ice.BooleanHolder moreData);
+    int read(Buffer buf, Ice.Holder<Boolean> moreData);
 
     String protocol();
     @Override

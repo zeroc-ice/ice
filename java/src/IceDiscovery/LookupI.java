@@ -221,7 +221,7 @@ class LookupI extends _LookupDisp
             return; // Ignore.
         }
 
-        Ice.BooleanHolder isReplicaGroup = new Ice.BooleanHolder();
+        Ice.Holder<Boolean> isReplicaGroup = new Ice.Holder<Boolean>();
         Ice.ObjectPrx proxy = _registry.findAdapter(adapterId, isReplicaGroup);
         if(proxy != null)
         {

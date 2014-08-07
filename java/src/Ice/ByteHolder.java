@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for bytes that are out- or inout-parameters.
  **/
-public final class ByteHolder
+public final class ByteHolder extends Holder<Byte>
 {
     /**
      * Instantiates the class with the value zero.
@@ -30,11 +30,6 @@ public final class ByteHolder
     public
     ByteHolder(byte value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The <code>byte</code> value stored by this holder.
-     **/
-    public byte value;
 }

@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for strings that are out- or inout-parameters.
  **/
-public final class StringHolder
+public final class StringHolder extends Holder<String>
 {
     /**
      * Instantiates the class with a <code>null</code> string.
@@ -30,12 +30,6 @@ public final class StringHolder
     public
     StringHolder(String value)
     {
-        this.value = value;
+        super(value);
     }
-
-
-    /**
-     * The <code>String</code> value stored by this holder.
-     **/
-    public String value;
 }

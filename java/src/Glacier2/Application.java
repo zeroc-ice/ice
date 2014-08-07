@@ -254,7 +254,7 @@ public abstract class Application extends Ice.Application
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
         boolean restart;
-        Ice.IntHolder ret = new Ice.IntHolder();
+        Ice.Holder<Integer> ret = new Ice.Holder<Integer>();
         do
         {
             //
@@ -274,7 +274,7 @@ public abstract class Application extends Ice.Application
     }
 
     private boolean
-    doMain(Ice.StringSeqHolder argHolder, Ice.InitializationData initData, Ice.IntHolder status)
+    doMain(Ice.StringSeqHolder argHolder, Ice.InitializationData initData, Ice.Holder<Integer> status)
     {
         //
         // Reset internal state variables from Ice.Application. The

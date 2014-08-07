@@ -186,7 +186,7 @@ public final class OutgoingConnectionFactory
         //
         try
         {
-            Ice.BooleanHolder compress = new Ice.BooleanHolder();
+            Ice.Holder<Boolean> compress = new Ice.Holder<Boolean>();
             Ice.ConnectionI connection = findConnectionByEndpoint(endpoints, compress);
             if(connection != null)
             {
@@ -368,7 +368,7 @@ public final class OutgoingConnectionFactory
     }
 
     synchronized private Ice.ConnectionI
-    findConnectionByEndpoint(java.util.List<EndpointI> endpoints, Ice.BooleanHolder compress)
+    findConnectionByEndpoint(java.util.List<EndpointI> endpoints, Ice.Holder<Boolean> compress)
     {
         if(_destroyed)
         {
@@ -410,7 +410,7 @@ public final class OutgoingConnectionFactory
     // Must be called while synchronized.
     //
     private Ice.ConnectionI
-    findConnection(java.util.List<ConnectorInfo> connectors, Ice.BooleanHolder compress)
+    findConnection(java.util.List<ConnectorInfo> connectors, Ice.Holder<Boolean> compress)
     {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         for(ConnectorInfo ci : connectors)
@@ -476,7 +476,7 @@ public final class OutgoingConnectionFactory
     }
 
     private Ice.ConnectionI
-    getConnection(java.util.List<ConnectorInfo> connectors, ConnectCallback cb, Ice.BooleanHolder compress)
+    getConnection(java.util.List<ConnectorInfo> connectors, ConnectCallback cb, Ice.Holder<Boolean> compress)
     {
         assert(cb != null);
         synchronized(this)
@@ -1039,7 +1039,7 @@ public final class OutgoingConnectionFactory
                 // If all the connectors have been created, we ask the factory to get a
                 // connection.
                 //
-                Ice.BooleanHolder compress = new Ice.BooleanHolder();
+                Ice.Holder<Boolean> compress = new Ice.Holder<Boolean>();
                 Ice.ConnectionI connection = _factory.getConnection(_connectors, this, compress);
                 if(connection == null)
                 {

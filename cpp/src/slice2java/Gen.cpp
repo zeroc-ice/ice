@@ -4598,16 +4598,20 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     {
         out << " extends Ice.ObjectHolderBase<" << typeS << ">";
     }
+    else {
+        out << " extends Ice.Holder<" << typeS << ">";
+    }
     out << sb;
-    out << sp << nl << "public" << nl << name << "Holder()";
-    out << sb;
-    out << eb;
-    out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
-    out << sb;
-    out << nl << "this.value = value;";
-    out << eb;
     if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
     {
+        out << sp << nl << "public" << nl << name << "Holder()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
+        out << sb;
+        out << nl << "this.value = value;";
+        out << eb;
+
         out << sp << nl << "public void";
         out << nl << "patch(Ice.Object v)";
         out << sb;
@@ -4639,9 +4643,15 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         }
         out << eb;
     }
-    else
+    else 
     {
-        out << sp << nl << "public " << typeS << " value;";
+        out << sp << nl << "public" << nl << name << "Holder()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
+        out << sb;
+        out << nl << "super(value);";
+        out << eb;
     }
     out << eb;
     close();

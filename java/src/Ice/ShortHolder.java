@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for shorts that are out- or inout-parameters.
  **/
-public final class ShortHolder
+public final class ShortHolder extends Holder<Short>
 {
     /**
      * Instantiates the class with the value zero.
@@ -30,12 +30,6 @@ public final class ShortHolder
     public
     ShortHolder(short value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     *
-     * The <code>short</code> value stored by this holder.
-     **/
-    public short value;
 }

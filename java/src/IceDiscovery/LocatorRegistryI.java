@@ -129,7 +129,7 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
     }
     
     synchronized Ice.ObjectPrx 
-    findAdapter(String adapterId, Ice.BooleanHolder isReplicaGroup)
+    findAdapter(String adapterId, Ice.Holder<Boolean> isReplicaGroup)
     {
         Ice.ObjectPrx proxy = _adapters.get(adapterId);
         if(proxy != null)

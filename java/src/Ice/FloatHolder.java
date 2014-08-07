@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for floats that are out- or inout-parameters.
  **/
-public final class FloatHolder
+public final class FloatHolder extends Holder<Float>
 {
     /**
      * Instantiates the class with the value zero.
@@ -30,11 +30,6 @@ public final class FloatHolder
     public
     FloatHolder(float value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The <code>float</code> value stored by this holder.
-     **/
-    public float value;
 }

@@ -33,7 +33,7 @@ public abstract class EventHandler
     abstract public java.nio.channels.SelectableChannel fd();
 
     public int _disabled = 0;
-    public Ice.BooleanHolder _hasMoreData = new Ice.BooleanHolder(false);
+    public Ice.Holder<Boolean> _hasMoreData = new Ice.Holder<Boolean>(false);
     public int _registered = 0;
     public java.nio.channels.SelectionKey _key = null;
 }

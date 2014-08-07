@@ -19,7 +19,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return _delegate.fd();
     }
 
-    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.BooleanHolder moreData)
+    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         //
         // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
@@ -356,7 +356,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    public int read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
+    public int read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
     {
         if(_state < StateOpened)
         {

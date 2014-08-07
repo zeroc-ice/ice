@@ -19,7 +19,7 @@ final class TcpTransceiver implements Transceiver
     }
 
     @Override
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData)
+    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         try
         {
@@ -239,7 +239,7 @@ final class TcpTransceiver implements Transceiver
     }
 
     @Override
-    public int read(Buffer buf, Ice.BooleanHolder moreData)
+    public int read(Buffer buf, Ice.Holder<Boolean> moreData)
     {
         int packetSize = buf.b.remaining();
         if(packetSize == 0)

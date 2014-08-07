@@ -18,7 +18,7 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     public int
-    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.BooleanHolder moreData)
+    initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         int status = _configuration.initializeSocketStatus();
         if(status == IceInternal.SocketOperation.Connect)
@@ -81,7 +81,7 @@ final class Transceiver implements IceInternal.Transceiver
     }
 
     public int
-    read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
+    read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
     {
         if(!_configuration.readReady() && buf.b.hasRemaining())
         {

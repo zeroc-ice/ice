@@ -224,7 +224,7 @@ public final class StringUtil
     // newStart is set to the index of the first character following the decoded character
     // or escape sequence.
     //
-    private static char decodeChar(String s, int start, int end, Ice.IntHolder nextStart)
+    private static char decodeChar(String s, int start, int end, Ice.Holder<Integer> nextStart)
     {
         assert(start >= 0);
         assert(start < end);
@@ -327,7 +327,7 @@ public final class StringUtil
     private static void
     decodeString(String s, int start, int end, StringBuilder sb)
     {
-        Ice.IntHolder nextStart = new Ice.IntHolder();
+        Ice.Holder<Integer> nextStart = new Ice.Holder<Integer>();
         while(start < end)
         {
             sb.append(decodeChar(s, start, end, nextStart));

@@ -23,7 +23,7 @@ final class LocatorTable
     }
 
     synchronized IceInternal.EndpointI[]
-    getAdapterEndpoints(String adapter, int ttl, Ice.BooleanHolder cached)
+    getAdapterEndpoints(String adapter, int ttl, Ice.Holder<Boolean> cached)
     {
         if(ttl == 0) // Locator cache disabled.
         {
@@ -56,7 +56,7 @@ final class LocatorTable
     }
 
     synchronized Reference
-    getObjectReference(Ice.Identity id, int ttl, Ice.BooleanHolder cached)
+    getObjectReference(Ice.Identity id, int ttl, Ice.Holder<Boolean> cached)
     {
         if(ttl == 0) // Locator cache disabled.
         {

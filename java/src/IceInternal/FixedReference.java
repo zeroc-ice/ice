@@ -215,7 +215,7 @@ public class FixedReference extends Reference
     {
         try
         {
-            Ice.BooleanHolder compress = new Ice.BooleanHolder();
+            Ice.Holder<Boolean> compress = new Ice.Holder<Boolean>();
             switch(getMode())
             {
                 case Reference.ModeTwoway:

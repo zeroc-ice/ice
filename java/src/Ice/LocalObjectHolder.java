@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for local objects that are out- or inout-parameters.
  **/
-public final class LocalObjectHolder
+public final class LocalObjectHolder extends Holder<java.lang.Object>
 {
     /**
      * Instantiates the class with a <code>null</code> value.
@@ -28,8 +28,6 @@ public final class LocalObjectHolder
     public
     LocalObjectHolder(java.lang.Object value)
     {
-        this.value = value;
+        super(value);
     }
-
-    public java.lang.Object value;
 }

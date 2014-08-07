@@ -12,7 +12,7 @@ package Ice;
 /**
  * Generic holder class for values that are in- or in-out parameters.
  **/
-public final class Holder<T>
+public class Holder<T>
 {
     /**
      * Instantiates the class with the default-initialized value of type <code>T</code>.

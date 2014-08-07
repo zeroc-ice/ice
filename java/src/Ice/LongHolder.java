@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for longs that are out- or inout-parameters.
  **/
-public final class LongHolder
+public final class LongHolder extends Holder<Long>
 {
     /**
      * Instantiates the class with the value zero.
@@ -28,11 +28,6 @@ public final class LongHolder
     public
     LongHolder(long value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The <code>long</code> value stored by this holder.
-     **/
-    public long value;
 }

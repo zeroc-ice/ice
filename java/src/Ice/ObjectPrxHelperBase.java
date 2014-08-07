@@ -815,24 +815,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                              new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, __sentCb));
     }
 
-    private final AsyncResult
-    begin_ice_ids(java.util.Map<String, String> __context,
-                  boolean __explicitCtx,
-                  IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                  IceInternal.Functional_BoolCallback __sentCb)
-    {
-        return begin_ice_ids(__context, true,
-            new IceInternal.Functional_TwowayCallbackArg1<String[]>(__responseCb, __exceptionCb, __sentCb)
-                {
-                    @Override
-                    public final void __completed(AsyncResult __result)
-                    {
-                        ObjectPrxHelperBase.__ice_ids_completed(this, __result);
-                    }
-                });
-    }
-
     private AsyncResult
     begin_ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
     {
@@ -2406,7 +2388,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 {
                     try
                     {
-                        Ice.IntHolder interval = new Ice.IntHolder();
+                        Ice.Holder<Integer> interval = new Ice.Holder<Integer>();
                         cnt = __handleException(ex, handler, OperationMode.Idempotent, false, interval, cnt);
                         if(observer != null)
                         {
@@ -2639,7 +2621,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     public final int
     __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent,
-                      Ice.IntHolder interval, int cnt)
+                      Holder<Integer> interval, int cnt)
     {
         __setRequestHandler(handler, null); // Clear the request handler
 

@@ -348,7 +348,7 @@ public final class LocatorInfo
     {
         assert(ref.isIndirect());
         EndpointI[] endpoints = null;
-        Ice.BooleanHolder cached = new Ice.BooleanHolder();
+        Ice.Holder<Boolean> cached = new Ice.Holder<Boolean>();
         if(!ref.isWellKnown())
         {
             endpoints = _table.getAdapterEndpoints(ref.getAdapterId(), ttl, cached);

@@ -21,7 +21,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return _fd;
     }
 
-    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.BooleanHolder moreData)
+    public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         try
         {
@@ -227,7 +227,7 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     @SuppressWarnings("deprecation")
-    public int read(IceInternal.Buffer buf, Ice.BooleanHolder moreData)
+    public int read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
     {
         moreData.value = false;
 

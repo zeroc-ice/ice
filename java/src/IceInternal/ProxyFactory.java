@@ -101,7 +101,7 @@ public final class ProxyFactory
     }
 
     public int
-    checkRetryAfterException(Ice.LocalException ex, Reference ref, Ice.IntHolder sleepInterval, int cnt)
+    checkRetryAfterException(Ice.LocalException ex, Reference ref, Ice.Holder<Integer> sleepInterval, int cnt)
     {
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.initializationData().logger;

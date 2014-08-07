@@ -505,7 +505,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     {
         try
         {
-            Ice.IntHolder interval = new Ice.IntHolder();
+            Ice.Holder<Integer> interval = new Ice.Holder<Integer>();
             _cnt = _proxy.__handleException(exc, _handler, _mode, _sent, interval, _cnt);
             if(_observer != null)
             {

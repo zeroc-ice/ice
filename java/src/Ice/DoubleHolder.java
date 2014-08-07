@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for doubles that are out- or inout-parameters.
  **/
-public final class DoubleHolder
+public final class DoubleHolder extends Holder<Double>
 {
     /**
      * Instantiates the class with the value zero.
@@ -30,11 +30,6 @@ public final class DoubleHolder
     public
     DoubleHolder(double value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The <code>double</code> value stored by this holder.
-     **/
-    public double value;
 }

@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for integers that are out- or inout-parameters.
  **/
-public final class IntHolder
+public final class IntHolder extends Holder<Integer>
 {
     /**
      * Instantiates the class with the value zero.
@@ -30,11 +30,6 @@ public final class IntHolder
     public
     IntHolder(int value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The <code>int</code> value stored by this holder.
-     **/
-    public int value;
 }

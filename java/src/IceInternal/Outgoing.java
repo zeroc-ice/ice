@@ -230,7 +230,7 @@ public final class Outgoing implements OutgoingMessageCallback
             {
                 try
                 {
-                    Ice.IntHolder interval = new Ice.IntHolder();
+                    Ice.Holder<Integer> interval = new Ice.Holder<Integer>();
                     cnt = _proxy.__handleException(ex, _handler, _mode, _sent, interval, cnt);
                     if(_observer != null)
                     {

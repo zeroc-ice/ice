@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for booleans that are out- or inout-parameters.
  **/
-public final class BooleanHolder
+public final class BooleanHolder extends Holder<Boolean>
 {
     /**
      * Instantiates the class with the value <code>false</code>.
@@ -30,11 +30,6 @@ public final class BooleanHolder
     public
     BooleanHolder(boolean value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The <code>boolean</code> value stored by this holder.
-     **/
-    public boolean value;
 }

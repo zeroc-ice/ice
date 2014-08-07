@@ -19,7 +19,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.BooleanHolder moreData)
+    public int initialize(Buffer readBuffer, Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         //
         // Nothing to do.
@@ -134,7 +134,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     @Override
-    public int read(Buffer buf, Ice.BooleanHolder moreData)
+    public int read(Buffer buf, Ice.Holder<Boolean> moreData)
     {
         if(!buf.b.hasRemaining())
         {

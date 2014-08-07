@@ -12,7 +12,7 @@ package Ice;
 /**
  * Holder class for proxies that are out- or inout-parameters.
  **/
-public final class ObjectPrxHolder
+public final class ObjectPrxHolder extends Holder<ObjectPrx>
 {
     /**
      * Instantiates the class with a <code>null</code> proxy.
@@ -30,11 +30,6 @@ public final class ObjectPrxHolder
     public
     ObjectPrxHolder(ObjectPrx value)
     {
-        this.value = value;
+        super(value);
     }
-
-    /**
-     * The proxy stored by this holder.
-     **/
-    public ObjectPrx value;
 }
