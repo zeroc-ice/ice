@@ -218,8 +218,8 @@ if not limitedTests:
                 [(False, 'hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010' % fqdn),
                 (True, 'bar:tcp -h 127.0.0.1 -p 12010')], []),
             ('testing maximum proxy length rule',
-                ('', '', '41', '', '', ''),
-                [(True, 'hello:tcp -h 127.0.0.1 -p 12010'),
+                ('', '', '53', '', '', ''),
+                [(True, 'hello:tcp -h 127.0.0.1 -p 12010 -t infinite'),
                 (False, '012345678901234567890123456789012345678901234567890123456789:tcp -h 127.0.0.1 -p 12010')], []),
             ])
 

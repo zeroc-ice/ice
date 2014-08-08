@@ -297,7 +297,7 @@ namespace IceInternal
             info.sourceAddress = Network.endpointAddressToString(sourceAddr_);
         }
 
-        public void initWithOptions(List<string> args, bool oaEndpoint)
+        public virtual void initWithOptions(List<string> args, bool oaEndpoint)
         {
             base.initWithOptions(args);
 

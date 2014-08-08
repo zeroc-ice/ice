@@ -531,7 +531,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!(compObj->ice_locator(loc1) < compObj->ice_locator(0)));
     test(compObj->ice_locator(loc1) < compObj->ice_locator(loc2));
     test(!(compObj->ice_locator(loc2) < compObj->ice_locator(loc1)));
-    
+
     Ice::RouterPrx rtr1 = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("rtr1:default -p 10000"));
     Ice::RouterPrx rtr2 = Ice::RouterPrx::uncheckedCast(communicator->stringToProxy("rtr2:default -p 10000"));
     test(compObj->ice_router(0) == compObj->ice_router(0));
@@ -543,7 +543,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!(compObj->ice_router(rtr1) < compObj->ice_router(0)));
     test(compObj->ice_router(rtr1) < compObj->ice_router(rtr2));
     test(!(compObj->ice_router(rtr2) < compObj->ice_router(rtr1)));
-    
+
     Ice::Context ctx1;
     ctx1["ctx1"] = "v1";
     Ice::Context ctx2;
@@ -555,12 +555,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_context(ctx1) != compObj->ice_context(ctx2));
     test(compObj->ice_context(ctx1) < compObj->ice_context(ctx2));
     test(!(compObj->ice_context(ctx2) < compObj->ice_context(ctx1)));
-    
+
     test(compObj->ice_preferSecure(true) == compObj->ice_preferSecure(true));
     test(compObj->ice_preferSecure(true) != compObj->ice_preferSecure(false));
     test(compObj->ice_preferSecure(false) < compObj->ice_preferSecure(true));
     test(!(compObj->ice_preferSecure(true) < compObj->ice_preferSecure(false)));
-    
+
     Ice::ObjectPrx compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
     Ice::ObjectPrx compObj2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
     test(compObj1 != compObj2);
@@ -610,13 +610,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing checked cast... " << flush;
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     test(cl);
-    
+
     Test::MyDerivedClassPrx derived = Test::MyDerivedClassPrx::checkedCast(cl);
     test(derived);
     test(cl == base);
     test(derived == base);
     test(cl == derived);
-    
+
     Ice::LocatorPrx loc = Ice::LocatorPrx::checkedCast(base);
     test(loc == 0);
 
@@ -640,7 +640,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(cl == base);
     test(derived == base);
     test(cl == derived);
-    
+
     loc = checkedCast<Ice::LocatorPrx>(base);
     test(loc == 0);
 
@@ -679,7 +679,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing encoding versioning... " << flush;
     string ref20 = "test -e 2.0:default -p 12010";
     Test::MyClassPrx cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
-    try 
+    try
     {
         cl20->ice_collocationOptimized(false)->ice_ping();
         test(false);
@@ -701,7 +701,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrx cl13 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref13));
     cl13->ice_ping();
     cl13->end_ice_ping(cl13->begin_ice_ping());
-    
+
     try
     {
         // Send request with bogus 1.2 encoding.
@@ -750,7 +750,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     ref20 = "test -p 2.0:default -p 12010";
     cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
-    try 
+    try
     {
         cl20->ice_collocationOptimized(false)->ice_ping();
         test(false);
@@ -922,7 +922,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pstr = communicator->proxyToString(p1);
         if(ssl)
         {
-            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
         }
         else if(tcp)
         {
@@ -957,7 +957,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pstr = communicator->proxyToString(p2);
         if(ssl)
         {
-            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
+            test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
         }
         else if(tcp)
         {

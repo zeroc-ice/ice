@@ -110,6 +110,15 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         throw ex;
     }
 
+    const_cast<int&>(defaultTimeout) =
+        properties->getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+    if(defaultTimeout < 1 && defaultTimeout != -1)
+    {
+        InitializationException ex(__FILE__, __LINE__);
+        ex.reason = "invalid value for Ice.Default.Timeout: `" + properties->getProperty("Ice.Default.Timeout") + "'";
+        throw ex;
+    }
+
     const_cast<int&>(defaultInvocationTimeout) =
         properties->getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
 

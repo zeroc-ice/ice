@@ -72,6 +72,13 @@ IceInternal::ProtocolInstance::defaultEncoding() const
     return _instance->defaultsAndOverrides()->defaultEncoding;
 }
 
+int
+IceInternal::ProtocolInstance::defaultTimeout() const
+{
+    return _instance->defaultsAndOverrides()->defaultTimeout;
+}
+
+
 NetworkProxyPtr
 IceInternal::ProtocolInstance::networkProxy() const
 {

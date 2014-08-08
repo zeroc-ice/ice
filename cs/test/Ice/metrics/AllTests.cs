@@ -82,7 +82,7 @@ public class AllTests : TestCommon.TestApp
     };
 
     static private Dictionary<string, string>
-    getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m) 
+    getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.getPropertiesForPrefix("IceMX.Metrics");
         foreach(string e in new List<string>(props.Keys))
@@ -133,7 +133,7 @@ public class AllTests : TestCommon.TestApp
             _updated = false;
             _serverProps = serverProps;
         }
-        
+
         public void
         waitForUpdate()
         {
@@ -143,15 +143,15 @@ public class AllTests : TestCommon.TestApp
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-                // Ensure that the previous updates were committed, the setProperties call returns before 
+                // Ensure that the previous updates were committed, the setProperties call returns before
                 // notifying the callbacks so to ensure all the update callbacks have be notified we call
                 // a second time, this will block until all the notifications from the first update have
                 // completed.
-                _serverProps.setProperties(new Dictionary<string, string>()); 
+                _serverProps.setProperties(new Dictionary<string, string>());
                 _updated = false;
             }
         }
-            
+
         public void
         updated(Dictionary<string, string> dict)
         {
@@ -161,11 +161,11 @@ public class AllTests : TestCommon.TestApp
                 System.Threading.Monitor.Pulse(this);
             }
         }
-        
+
         private bool _updated;
         private Ice.PropertiesAdminPrx _serverProps;
     };
-    
+
     static void
     waitForCurrent(IceMX.MetricsAdminPrx metrics, string viewName, string map, int value)
     {
@@ -190,12 +190,12 @@ public class AllTests : TestCommon.TestApp
             System.Threading.Thread.Sleep(50);
         }
     }
-    
+
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics, 
-                  Ice.PropertiesAdminPrx props, 
+    testAttribute(IceMX.MetricsAdminPrx metrics,
+                  Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
-                  string map, 
+                  string map,
                   string attr,
                   string value,
 #if COMPACT
@@ -216,7 +216,7 @@ public class AllTests : TestCommon.TestApp
             props.setProperties(getServerProps(props, dict, map));
             props.setProperties(new Dictionary<string, string>());
         }
-        
+
         func();
         long timestamp;
         Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
@@ -233,7 +233,7 @@ public class AllTests : TestCommon.TestApp
             WriteLine("invalid attribute value: " + attr + " = " + value + " got " + view[map][0].id);
             test(false);
         }
-        
+
         dict.Clear();
         if(props.ice_getIdentity().category.Equals("client"))
         {
@@ -253,7 +253,7 @@ public class AllTests : TestCommon.TestApp
         {
             proxy.ice_getCachedConnection().close(false);
         }
-        
+
         try
         {
             proxy.ice_ping();
@@ -261,7 +261,7 @@ public class AllTests : TestCommon.TestApp
         catch(Ice.LocalException)
         {
         }
-        
+
         if(proxy.ice_getCachedConnection() != null)
         {
             proxy.ice_getCachedConnection().close(false);
@@ -277,10 +277,10 @@ public class AllTests : TestCommon.TestApp
     }
 
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics, 
-                  Ice.PropertiesAdminPrx props, 
+    testAttribute(IceMX.MetricsAdminPrx metrics,
+                  Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
-                  string map, 
+                  string map,
                   string attr,
                   string value)
     {
@@ -288,9 +288,9 @@ public class AllTests : TestCommon.TestApp
     }
 
     static void
-    updateProps(Ice.PropertiesAdminPrx cprops, 
-                Ice.PropertiesAdminPrx sprops, 
-                UpdateCallbackI callback, 
+    updateProps(Ice.PropertiesAdminPrx cprops,
+                Ice.PropertiesAdminPrx sprops,
+                UpdateCallbackI callback,
                 Dictionary<string, string> props,
                 string map)
     {
@@ -314,7 +314,7 @@ public class AllTests : TestCommon.TestApp
         }
         callback.waitForUpdate();
     }
-    
+
     static void
     clearView(Ice.PropertiesAdminPrx cprops, Ice.PropertiesAdminPrx sprops, UpdateCallbackI callback)
     {
@@ -406,7 +406,7 @@ public class AllTests : TestCommon.TestApp
         Dictionary<string, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", out timestamp);
         if(!collocated)
         {
-            test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 && 
+            test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
                  view["Connection"][0].total == 1);
         }
         test(view["Thread"].Length == 1 && view["Thread"][0].current == 4 && view["Thread"][0].total == 4);
@@ -468,7 +468,7 @@ public class AllTests : TestCommon.TestApp
         }
 
         clearView(clientProps, serverProps, update);
-    
+
         WriteLine("ok");
 
         Dictionary<string, IceMX.Metrics> map;
@@ -477,7 +477,7 @@ public class AllTests : TestCommon.TestApp
         {
             Write("testing connection metrics... ");
             Flush();
-            
+
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
@@ -489,7 +489,7 @@ public class AllTests : TestCommon.TestApp
             IceMX.ConnectionMetrics cm1, sm1, cm2, sm2;
             cm1 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
             sm1 = getServerConnectionMetrics(serverMetrics, 25);
-        
+
             metrics.ice_ping();
 
             cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
@@ -538,14 +538,14 @@ public class AllTests : TestCommon.TestApp
             test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
             test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.Length + 4));
             test((sm2.sentBytes - sm1.sentBytes) == replySz);
-    
+
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
             map = toMap(serverMetrics.getMetricsView("View", out timestamp)["Connection"]);
 
             test(map["active"].current == 1);
-        
+
             ControllerPrx controller = ControllerPrxHelper.checkedCast(
                 communicator.stringToProxy("controller:default -p 12011"));
             controller.hold();
@@ -625,7 +625,7 @@ public class AllTests : TestCommon.TestApp
             testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", "12010");
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "");
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "");
-    
+
             m.ice_getConnection().close(false);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
@@ -641,7 +641,7 @@ public class AllTests : TestCommon.TestApp
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 0);
 
             metrics.ice_ping();
-    
+
             test(clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"].Length == 1);
             IceMX.Metrics m1 = clientMetrics.getMetricsView("View", out timestamp)["ConnectionEstablishment"][0];
             test(m1.current == 0 && m1.total == 1 && m1.id.Equals("127.0.0.1:12010"));
@@ -675,14 +675,18 @@ public class AllTests : TestCommon.TestApp
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                          "tcp -h 127.0.0.1 -p 12010", c);
+                          "tcp -h 127.0.0.1 -p 12010 -t 60000", c);
 
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False", c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "False", c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "-1", c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False", c);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
+                          c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "False",
+                          c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
+                          c);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1",
+                          c);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", "12010", c);
 
             WriteLine("ok");
@@ -694,12 +698,12 @@ public class AllTests : TestCommon.TestApp
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 0);
 
-            Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost");
+            Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost -t infinite");
             prx.ice_ping();
-    
+
             test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 1);
             m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-            test(m1.current <= 1 && m1.total == 1 && m1.id.Equals("tcp -h localhost -p 12010"));
+            test(m1.current <= 1 && m1.total == 1 && m1.id.Equals("tcp -h localhost -p 12010 -t infinite"));
 
             prx.ice_getConnection().close(false);
 
@@ -723,7 +727,7 @@ public class AllTests : TestCommon.TestApp
             {
                 m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
             }
-            test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 && 
+            test(m1.id.Equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 &&
                  (!dnsException || m1.failures == 2));
             if(dnsException)
             {
@@ -733,10 +737,10 @@ public class AllTests : TestCommon.TestApp
             c = () => { connect(prx); };
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -h localhost -p 12010", 
-                          c);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", 
-                          "tcp -h localhost -p 12010", c);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
+                          "tcp -h localhost -p 12010 -t infinite", c);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
+                          "tcp -h localhost -p 12010 -t infinite", c);
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", "1", c);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c);
@@ -838,18 +842,18 @@ public class AllTests : TestCommon.TestApp
 
         if(!collocated)
         {
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", 
-                          "tcp -h 127.0.0.1 -p 12010", op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
+                          "tcp -h 127.0.0.1 -p 12010 -t 60000", op);
             //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
-            
+
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", "1", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", "False", op);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "-1", op);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "False", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", "12010", op);
-            
+
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "True", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op);
@@ -860,16 +864,16 @@ public class AllTests : TestCommon.TestApp
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op);
         }
-    
+
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "operation", "op", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "identity", "metrics", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "facet", "", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "mode", "twoway", op);
-            
+
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry1", "test", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry2", "", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry3", "", op);
-        
+
         WriteLine("ok");
 
         Write("testing invocation metrics... ");
@@ -1052,7 +1056,7 @@ public class AllTests : TestCommon.TestApp
         testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010", op);
+                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 60000", op);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op);

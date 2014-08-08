@@ -33,6 +33,7 @@ public:
     std::string defaultProtocol;
     bool defaultCollocationOptimization;
     Ice::EndpointSelectionType defaultEndpointSelection;
+    int defaultTimeout;
     int defaultInvocationTimeout;
     int defaultLocatorCacheTimeout;
     bool defaultPreferSecure;

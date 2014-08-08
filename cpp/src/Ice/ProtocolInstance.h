@@ -65,6 +65,7 @@ public:
     const Ice::EncodingVersion& defaultEncoding() const;
     NetworkProxyPtr networkProxy() const;
     size_t messageSizeMax() const;
+    int defaultTimeout() const;
 
     std::vector<ConnectorPtr> resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&) const;
     void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,

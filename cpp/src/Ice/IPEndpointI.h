@@ -76,7 +76,7 @@ public:
     using EndpointI::connectors;
     using EndpointI::connectionId;
 
-    void initWithOptions(std::vector<std::string>&, bool);
+    virtual void initWithOptions(std::vector<std::string>&, bool);
 
 protected:
 

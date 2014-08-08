@@ -127,6 +127,12 @@ public final class DefaultsAndOverrides
             throw ex;
         }
 
+        defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+        if(defaultTimeout < 1 && defaultTimeout != -1)
+        {
+            throw new Ice.InitializationException("invalid value for Ice.Default.Timeout: `" +
+                                                      properties.getProperty("Ice.Default.Timeout") + "'");
+        }
         defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
         defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
 
@@ -146,6 +152,7 @@ public final class DefaultsAndOverrides
     final public String defaultProtocol;
     final public boolean defaultCollocationOptimization;
     final public Ice.EndpointSelectionType defaultEndpointSelection;
+    final public int defaultTimeout;
     final public int defaultLocatorCacheTimeout;
     final public int defaultInvocationTimeout;
     final public boolean defaultPreferSecure;

@@ -90,7 +90,7 @@ public class AllTests
     };
 
     static private Map<String, String>
-    getClientProps(Ice.PropertiesAdminPrx p, Map<String, String> orig, String m) 
+    getClientProps(Ice.PropertiesAdminPrx p, Map<String, String> orig, String m)
     {
         Map<String, String> props = p.getPropertiesForPrefix("IceMX.Metrics");
         for(Map.Entry<String, String> e : props.entrySet())
@@ -141,7 +141,7 @@ public class AllTests
             _updated = false;
             _serverProps = serverProps;
         }
-        
+
         public synchronized void
         waitForUpdate()
         {
@@ -155,25 +155,25 @@ public class AllTests
                 {
                 }
             }
-            // Ensure that the previous updates were committed, the setProperties call returns before 
+            // Ensure that the previous updates were committed, the setProperties call returns before
             // notifying the callbacks so to ensure all the update callbacks have be notified we call
             // a second time, this will block until all the notifications from the first update have
             // completed.
-            _serverProps.setProperties(new java.util.HashMap<String, String>()); 
+            _serverProps.setProperties(new java.util.HashMap<String, String>());
             _updated = false;
         }
-            
+
         public synchronized void
         updated(Map<String, String> dict)
         {
             _updated = true;
             notify();
         }
-        
+
         private boolean _updated;
         private Ice.PropertiesAdminPrx _serverProps;
     };
-    
+
     static void
     waitForCurrent(IceMX.MetricsAdminPrx metrics, String viewName, String map, int value)
         throws IceMX.UnknownMetricsView
@@ -205,15 +205,15 @@ public class AllTests
             }
         }
     }
-    
+
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics, 
-                  Ice.PropertiesAdminPrx props, 
+    testAttribute(IceMX.MetricsAdminPrx metrics,
+                  Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
-                  String map, 
+                  String map,
                   String attr,
                   String value,
-                  Runnable func, 
+                  Runnable func,
                   PrintWriter out)
         throws IceMX.UnknownMetricsView
     {
@@ -229,7 +229,7 @@ public class AllTests
             props.setProperties(getServerProps(props, dict, map));
             props.setProperties(new java.util.HashMap<String, String>());
         }
-        
+
         func.run();
         Ice.LongHolder timestamp = new Ice.LongHolder();
         Map<String, IceMX.Metrics[]> view = metrics.getMetricsView("View", timestamp);
@@ -246,7 +246,7 @@ public class AllTests
             out.println("invalid attribute value: " + attr + " = " + value + " got " + view.get(map)[0].id);
             test(false);
         }
-        
+
         dict.clear();
         if(props.ice_getIdentity().category.equals("client"))
         {
@@ -259,21 +259,21 @@ public class AllTests
             props.setProperties(new java.util.HashMap<String, String>());
         }
     }
-    
+
     static class Void implements Runnable
     {
         public void run()
         {
         }
     };
-    
+
     static class Connect implements Runnable
     {
         public Connect(Ice.ObjectPrx proxy)
         {
             this.proxy = proxy;
         }
-        
+
         public void run()
         {
             if(proxy.ice_getCachedConnection() != null)
@@ -294,10 +294,10 @@ public class AllTests
                 proxy.ice_getCachedConnection().close(false);
             }
         }
-        
+
         final private Ice.ObjectPrx proxy;
     };
-    
+
     static class InvokeOp implements Runnable
     {
         public InvokeOp(MetricsPrx proxy)
@@ -317,12 +317,12 @@ public class AllTests
     };
 
     static void
-    testAttribute(IceMX.MetricsAdminPrx metrics, 
-                  Ice.PropertiesAdminPrx props, 
+    testAttribute(IceMX.MetricsAdminPrx metrics,
+                  Ice.PropertiesAdminPrx props,
                   UpdateCallbackI update,
-                  String map, 
+                  String map,
                   String attr,
-                  String value, 
+                  String value,
                   PrintWriter out)
         throws IceMX.UnknownMetricsView
     {
@@ -330,9 +330,9 @@ public class AllTests
     }
 
     static void
-    updateProps(Ice.PropertiesAdminPrx cprops, 
-                Ice.PropertiesAdminPrx sprops, 
-                UpdateCallbackI callback, 
+    updateProps(Ice.PropertiesAdminPrx cprops,
+                Ice.PropertiesAdminPrx sprops,
+                UpdateCallbackI callback,
                 Map<String, String> props,
                 String map)
     {
@@ -350,7 +350,7 @@ public class AllTests
         }
         callback.waitForUpdate();
     }
-    
+
     static void
     clearView(Ice.PropertiesAdminPrx cprops, Ice.PropertiesAdminPrx sprops, UpdateCallbackI callback)
     {
@@ -406,7 +406,7 @@ public class AllTests
         return m;
     }
 
-    static MetricsPrx 
+    static MetricsPrx
     allTests(Ice.Communicator communicator, PrintWriter out, CommunicatorObserverI obsv)
         throws IceMX.UnknownMetricsView
     {
@@ -441,7 +441,7 @@ public class AllTests
         Map<String, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", timestamp);
         if(!collocated)
         {
-            test(view.get("Connection").length == 1 && view.get("Connection")[0].current == 1 && 
+            test(view.get("Connection").length == 1 && view.get("Connection")[0].current == 1 &&
                  view.get("Connection")[0].total == 1);
         }
         test(view.get("Thread").length == 1 && view.get("Thread")[0].current == 3 && view.get("Thread")[0].total == 3);
@@ -499,7 +499,7 @@ public class AllTests
             waitForCurrent(serverMetrics, "View", "Connection", 0);
         }
         clearView(clientProps, serverProps, update);
-    
+
         out.println("ok");
 
         Map<String, IceMX.Metrics> map;
@@ -570,7 +570,7 @@ public class AllTests
             test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
             test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.length + 4));
             test((sm2.sentBytes - sm1.sentBytes) == replySz);
-    
+
             props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "state");
             updateProps(clientProps, serverProps, update, props, "Connection");
 
@@ -663,7 +663,7 @@ public class AllTests
             testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", "12010", out);
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", out);
             testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", out);
-    
+
             m.ice_getConnection().close(false);
 
             waitForCurrent(clientMetrics, "View", "Connection", 0);
@@ -679,7 +679,7 @@ public class AllTests
             test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 0);
 
             metrics.ice_ping();
-    
+
             test(clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment").length == 1);
             IceMX.Metrics m1 = clientMetrics.getMetricsView("View", timestamp).get("ConnectionEstablishment")[0];
             test(m1.current == 0 && m1.total == 1 && m1.id.equals("127.0.0.1:12010"));
@@ -709,19 +709,19 @@ public class AllTests
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, out);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c, out);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                          "tcp -h 127.0.0.1 -p 12010", c, out);
+                          "tcp -h 127.0.0.1 -p 12010 -t 60000", c, out);
 
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c, out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c, 
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c,
                           out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c, 
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c,
                           out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "-1", c, out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c, 
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c,
                           out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c, 
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c,
                           out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", "12010", c, 
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointPort", "12010", c,
                           out);
 
             out.println("ok");
@@ -733,12 +733,12 @@ public class AllTests
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
             test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 0);
 
-            Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost");
+            Ice.ObjectPrx prx = communicator.stringToProxy("metrics:default -p 12010 -h localhost -t infinite");
             prx.ice_ping();
-    
+
             test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 1);
             m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
-            test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -h localhost -p 12010"));
+            test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -h localhost -p 12010 -t infinite"));
 
             prx.ice_getConnection().close(false);
 
@@ -762,7 +762,7 @@ public class AllTests
             {
                 m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[1];
             }
-            test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 && 
+            test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010 -t 500") && m1.total == 2 &&
                  (!dnsException || m1.failures == 2));
             if(dnsException)
             {
@@ -772,10 +772,10 @@ public class AllTests
             c = new Connect(prx);
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, out);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -h localhost -p 12010", c,
-                          out);
-            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", 
-                          "tcp -h localhost -p 12010", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
+                          "tcp -h localhost -p 12010 -t infinite", c, out);
+            testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
+                          "tcp -h localhost -p 12010 -t infinite", c, out);
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", "1", c, out);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "false", c, out);
@@ -849,7 +849,7 @@ public class AllTests
         dm1 = (IceMX.DispatchMetrics)map.get("opWithUserException");
         test(dm1.current <= 1 &dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
         test(dm1.size == 38 && dm1.replySize == 23);
-        
+
         dm1 = (IceMX.DispatchMetrics)map.get("opWithLocalException");
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::SyscallException", 1, out);
@@ -871,18 +871,18 @@ public class AllTests
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op, out);
         if(!collocated)
         {
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", 
-                          "tcp -h 127.0.0.1 -p 12010", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
+                          "tcp -h 127.0.0.1 -p 12010 -t 60000", op, out);
             //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
-            
+
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", "1", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "false", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", "false", op, out);
-            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "-1", op, out);
+            testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "false", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointPort", "12010", op, out);
-            
+
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "incoming", "true", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "adapterName", "TestAdapter", op, out);
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "connectionId", "", op, out);
@@ -1078,21 +1078,21 @@ public class AllTests
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op, out);
-        
+
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010", op, out);
+                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 60000", op, out);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, out);
 
         out.println("ok");
-        
+
         out.print("testing metrics view enable/disable...");
         out.flush();
 

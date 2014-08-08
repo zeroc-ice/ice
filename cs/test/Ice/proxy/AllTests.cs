@@ -229,7 +229,7 @@ public class AllTests : TestCommon.TestApp
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
         test(b1.ToString().Equals("test -t -e 1.0"));
-        
+
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
         test(b1.ToString().Equals("test -t -p 6.5 -e 1.0"));
 
@@ -266,11 +266,11 @@ public class AllTests : TestCommon.TestApp
         Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
         Ice.Identity id2 = communicator.stringToIdentity(communicator.identityToString(id));
         test(id.Equals(id2));
-        
+
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
         id2 = communicator.stringToIdentity(communicator.identityToString(id));
         test(id.Equals(id2));
-       
+
         WriteLine("ok");
 
         Write("testing propertyToProxy... ");
@@ -442,7 +442,7 @@ public class AllTests : TestCommon.TestApp
         test(proxyProps["Test.Locator.EndpointSelection"].Equals("Random"));
         test(proxyProps["Test.Locator.LocatorCacheTimeout"].Equals("300"));
         test(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
-                                                        
+
         test(proxyProps["Test.Locator.Router"].Equals(
                  "router -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
         test(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
@@ -451,7 +451,7 @@ public class AllTests : TestCommon.TestApp
         test(proxyProps["Test.Locator.Router.EndpointSelection"].Equals("Random"));
         test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"].Equals("200"));
         test(proxyProps["Test.Locator.Router.InvocationTimeout"].Equals("1500"));
-                                                          
+
         WriteLine("ok");
 
         Write("testing ice_getCommunicator... ");
@@ -602,7 +602,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         string ref20 = "test -e 2.0:default -p 12010";
         Test.MyClassPrx cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
-        try 
+        try
         {
             cl20.ice_collocationOptimized(false).ice_ping();
             test(false);
@@ -657,7 +657,7 @@ public class AllTests : TestCommon.TestApp
             inEncaps[4] = version.major;
             inEncaps[5] = version.minor;
             byte[] outEncaps;
-            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, 
+            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
                                                           out outEncaps);
             test(false);
         }
@@ -673,7 +673,7 @@ public class AllTests : TestCommon.TestApp
         Flush();
         ref20 = "test -p 2.0:default -p 12010";
         cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
-        try 
+        try
         {
             cl20.ice_collocationOptimized(false).ice_ping();
             test(false);
@@ -816,7 +816,7 @@ public class AllTests : TestCommon.TestApp
         // Opaque endpoint encoded with 1.1 encoding.
         Ice.ObjectPrx p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         test(communicator.proxyToString(p2).Equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
-        
+
         if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
         {
             // Working?
@@ -837,7 +837,7 @@ public class AllTests : TestCommon.TestApp
             pstr = communicator.proxyToString(p1);
             if(ssl)
             {
-                test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
+                test(pstr.Equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
             }
             else if(tcp)
             {

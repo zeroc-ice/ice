@@ -106,6 +106,7 @@ const IceInternal::Property IcePropsData[] =
     IceInternal::Property("Ice.Default.Router", false, 0),
     IceInternal::Property("Ice.Default.SlicedFormat", false, 0),
     IceInternal::Property("Ice.Default.SourceAddress", false, 0),
+    IceInternal::Property("Ice.Default.Timeout", false, 0),
     IceInternal::Property("Ice.IPv4", false, 0),
     IceInternal::Property("Ice.IPv6", false, 0),
     IceInternal::Property("Ice.EventLog.Source", false, 0),

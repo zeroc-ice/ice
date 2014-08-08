@@ -235,7 +235,7 @@ public class AllTests
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
         test(b1.toString().equals("test -t -e 1.0"));
-        
+
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
         test(b1.toString().equals("test -t -p 6.5 -e 1.0"));
 
@@ -272,11 +272,11 @@ public class AllTests
         Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
         Ice.Identity id2 = communicator.stringToIdentity(communicator.identityToString(id));
         test(id.equals(id2));
-        
+
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
         id2 = communicator.stringToIdentity(communicator.identityToString(id));
         test(id.equals(id2));
-        
+
         out.println("ok");
 
         out.print("testing propertyToProxy... ");
@@ -612,7 +612,7 @@ public class AllTests
         out.flush();
         String ref20 = "test -e 2.0:default -p 12010";
         MyClassPrx cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
-        try 
+        try
         {
             cl20.ice_collocationOptimized(false).ice_ping();
             test(false);
@@ -681,7 +681,7 @@ public class AllTests
         out.flush();
         ref20 = "test -p 2.0:default -p 12010";
         cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
-        try 
+        try
         {
             cl20.ice_collocationOptimized(false).ice_ping();
             test(false);
@@ -702,7 +702,7 @@ public class AllTests
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
         out.println("ok");
-        
+
         out.print("testing opaque endpoints... ");
         out.flush();
 
@@ -848,7 +848,7 @@ public class AllTests
             pstr = communicator.proxyToString(p1);
             if(ssl)
             {
-                test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
+                test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
             }
             else if(tcp)
             {
@@ -882,7 +882,7 @@ public class AllTests
             pstr = communicator.proxyToString(p2);
             if(ssl)
             {
-                test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
+                test(pstr.equals("test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"));
             }
             else if(tcp)
             {

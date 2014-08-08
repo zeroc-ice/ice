@@ -72,7 +72,7 @@ IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instanc
 
 IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance) :
     IPEndpointI(instance),
-    _timeout(-1),
+    _timeout(-2),
     _compress(false)
 {
 }
@@ -193,7 +193,11 @@ IceInternal::StreamEndpointI::options() const
 
     s << IPEndpointI::options();
 
-    if(_timeout != -1)
+    if(_timeout == -1)
+    {
+        s << " -t infinite";
+    }
+    else
     {
         s << " -t " << _timeout;
     }
@@ -294,6 +298,17 @@ IceInternal::StreamEndpointI::hashInit(Ice::Int& h) const
     hashAdd(h, _compress);
 }
 
+void
+IceInternal::StreamEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
+{
+    IPEndpointI::initWithOptions(args, oaEndpoint);
+
+    if(_timeout == -2)
+    {
+        const_cast<Int&>(_timeout) = _instance->defaultTimeout();
+    }
+}
+
 bool
 IceInternal::StreamEndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
@@ -312,12 +327,20 @@ IceInternal::StreamEndpointI::checkOption(const string& option, const string& ar
             ex.str = "no argument provided for -t option in endpoint " + endpoint;
             throw ex;
         }
-        istringstream t(argument);
-        if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
+        
+        if(argument == "infinite")
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-            throw ex;
+            const_cast<Int&>(_timeout) = -1;
+        }
+        else
+        {
+            istringstream t(argument);
+            if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+                throw ex;
+            }
         }
         return true;
     }

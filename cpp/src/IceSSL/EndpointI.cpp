@@ -33,7 +33,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance) :
     IceInternal::IPEndpointI(instance),
     _instance(instance),
-    _timeout(-1),
+    _timeout(-2),
     _compress(false)
 {
 }
@@ -165,7 +165,11 @@ IceSSL::EndpointI::options() const
     ostringstream s;
     s << IPEndpointI::options();
 
-    if(_timeout != -1)
+    if(_timeout == -1)
+    {
+        s << " -t infinite";
+    }
+    else
     {
         s << " -t " << _timeout;
     }
@@ -278,6 +282,17 @@ IceSSL::EndpointI::fillEndpointInfo(IPEndpointInfo* info) const
     }
 }
 
+void
+IceSSL::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
+{
+    IPEndpointI::initWithOptions(args, oaEndpoint);
+
+    if(_timeout == -2)
+    {
+        const_cast<Int&>(_timeout) = _instance->defaultTimeout();
+    }
+}
+
 bool
 IceSSL::EndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
 {
@@ -296,12 +311,20 @@ IceSSL::EndpointI::checkOption(const string& option, const string& argument, con
             ex.str = "no argument provided for -t option in endpoint " + endpoint;
             throw ex;
         }
-        istringstream t(argument);
-        if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
+
+        if(argument == "infinite")
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-            throw ex;
+            const_cast<Int&>(_timeout) = -1;
+        }
+        else
+        {
+            istringstream t(argument);
+            if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+                throw ex;
+            }
         }
         return true;
     }

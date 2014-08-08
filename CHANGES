@@ -27,6 +27,16 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added Ice.Default.Timeout property to the set the timeout for
+  stringified proxy endpoint that do not have timeout explicitly set.
+  The default setting for the property is 60 seconds. It is also now
+  possible to set an infinite timeout using "-t infinite" in the 
+  endpoint configuration.
+
+- Added Ice.Default.SourceAddress property and --sourceAddress
+  endpoint setting to control the interface used for the outgoing
+  connection.
+
 - The signatures of Ice::OutputStream startSize() and endSize() have
   been modified. It is now necessary for the caller of startSize() to
   save the returned position and pass it into endSize().

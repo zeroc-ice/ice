@@ -24,7 +24,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     {
         super(instance);
         _instance = instance;
-        _timeout = -1;
+        _timeout = -2;
         _compress = false;
     }
 
@@ -170,7 +170,11 @@ final class EndpointI extends IceInternal.IPEndpointI
         //
         String s = super.options();
 
-        if(_timeout != -1)
+        if(_timeout == -1)
+        {
+            s += " -t infinite";
+        }
+        else
         {
             s += " -t " + _timeout;
         }
@@ -246,6 +250,17 @@ final class EndpointI extends IceInternal.IPEndpointI
         }
     }
 
+    @Override
+    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint)
+    {
+        super.initWithOptions(args, oaEndpoint);
+
+        if(_timeout == -2)
+        {
+            _timeout = _instance.defaultTimeout();
+        }
+    }
+
     protected boolean checkOption(String option, String argument, String endpoint)
     {
         if(super.checkOption(option, argument, endpoint))
@@ -262,14 +277,26 @@ final class EndpointI extends IceInternal.IPEndpointI
                 throw new Ice.EndpointParseException("no argument provided for -t option in endpoint " + endpoint);
             }
 
-            try
+            if(argument.equals("infinite"))
             {
-                _timeout = Integer.parseInt(argument);
+                _timeout = -1;
             }
-            catch(NumberFormatException ex)
+            else
             {
-                throw new Ice.EndpointParseException("invalid timeout value `" + argument + "' in endpoint " +
-                                                     endpoint);
+                try
+                {
+                    _timeout = Integer.parseInt(argument);
+                    if(_timeout < 1)
+                    {
+                        throw new Ice.EndpointParseException("invalid timeout value `" + argument +
+                                                         "' in endpoint " + endpoint);
+                    }
+                }
+                catch(NumberFormatException ex)
+                {
+                    throw new Ice.EndpointParseException("invalid timeout value `" + argument +
+                                                         "' in endpoint " + endpoint);
+                }
             }
 
             return true;

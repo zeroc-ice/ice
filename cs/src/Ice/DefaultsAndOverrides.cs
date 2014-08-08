@@ -136,6 +136,12 @@ namespace IceInternal
                 throw ex;
             }
 
+            defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+            if(defaultTimeout < 1 && defaultTimeout != -1)
+            {
+                throw new Ice.InitializationException("invalid value for Ice.Default.Timeout: `" +
+                                                      properties.getProperty("Ice.Default.Timeout") + "'");
+            }
             defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
             defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
 
@@ -155,6 +161,7 @@ namespace IceInternal
         public string defaultProtocol;
         public bool defaultCollocationOptimization;
         public Ice.EndpointSelectionType defaultEndpointSelection;
+        public int defaultTimeout;
         public int defaultLocatorCacheTimeout;
         public int defaultInvocationTimeout;
         public bool defaultPreferSecure;

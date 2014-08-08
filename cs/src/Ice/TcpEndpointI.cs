@@ -28,7 +28,7 @@ namespace IceInternal
         public TcpEndpointI(ProtocolInstance instance) :
             base(instance)
         {
-            _timeout = -1;
+            _timeout = -2;
             _compress = false;
         }
 
@@ -143,7 +143,11 @@ namespace IceInternal
             //
             string s = base.options();
 
-            if(_timeout != -1)
+            if(_timeout == -1)
+            {
+                s += " -t infinite";
+            }
+            else
             {
                 s += " -t " + _timeout;
             }
@@ -215,6 +219,16 @@ namespace IceInternal
             }
         }
 
+        public override void initWithOptions(List<string> args, bool oaEndpoint)
+        {
+            base.initWithOptions(args, oaEndpoint);
+
+            if(_timeout == -2)
+            {
+                _timeout = instance_.defaultTimeout();
+            }
+        }
+
         protected override bool checkOption(string option, string argument, string endpoint)
         {
             if(base.checkOption(option, argument, endpoint))
@@ -232,15 +246,28 @@ namespace IceInternal
                                                              endpoint);
                     }
 
-                    try
+                    if(argument.Equals("infinite"))
                     {
-                        _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                        _timeout = -1;
                     }
-                    catch(System.FormatException ex)
+                    else
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                        e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                        throw e;
+                        try
+                        {
+                            _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                            if(_timeout < 1)
+                            {
+                                Ice.EndpointParseException e = new Ice.EndpointParseException();
+                                e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+                                throw e;
+                            }
+                        }
+                        catch(System.FormatException ex)
+                        {
+                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                            e.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
+                            throw e;
+                        }
                     }
 
                     return true;
