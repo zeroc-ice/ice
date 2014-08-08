@@ -17,6 +17,7 @@ public class PluginI implements Ice.Plugin
         _communicator = communicator;
     }
 
+    @Override
     public void
     initialize()
     {
@@ -99,7 +100,7 @@ public class PluginI implements Ice.Plugin
             b.append(ex.toString());
             throw new Ice.PluginInitializationException(b.toString());
         }
-        
+
         //
         // Add lookup and lookup reply Ice objects
         //
@@ -114,12 +115,13 @@ public class PluginI implements Ice.Plugin
         //
         Ice.ObjectPrx locator = _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
         _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
-    
+
         _multicastAdapter.activate();
         _replyAdapter.activate();
         _locatorAdapter.activate();
     }
 
+    @Override
     public void
     destroy()
     {

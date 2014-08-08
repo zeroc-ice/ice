@@ -11,6 +11,7 @@ package Freeze;
 
 class EvictorIteratorI implements EvictorIterator
 {
+    @Override
     public boolean
     hasNext()
     {
@@ -25,6 +26,7 @@ class EvictorIteratorI implements EvictorIterator
         }
     }
 
+    @Override
     public Ice.Identity
     next()
     {

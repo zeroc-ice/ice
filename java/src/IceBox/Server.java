@@ -32,6 +32,7 @@ public final class Server extends Ice.Application
         System.exit(server.main("IceBox.Server", args, initData));
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -40,8 +41,8 @@ public final class Server extends Ice.Application
         java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
         java.util.List<String> argSeq = new java.util.ArrayList<String>(args.length);
         for(String s : args)
-        {  
-            argSeq.add(s);  
+        {
+            argSeq.add(s);
         }
 
         for(java.util.Map.Entry<String, String> entry : services.entrySet())

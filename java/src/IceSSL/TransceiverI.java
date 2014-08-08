@@ -15,12 +15,14 @@ import javax.net.ssl.SSLEngineResult.*;
 
 final class TransceiverI implements IceInternal.Transceiver
 {
+    @Override
     public java.nio.channels.SelectableChannel fd()
     {
         assert(_fd != null);
         return _fd;
     }
 
+    @Override
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         try
@@ -119,6 +121,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
+    @Override
     public int closing(boolean initiator, Ice.LocalException ex)
     {
         // If we are initiating the connection closure, wait for the peer
@@ -126,6 +129,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return initiator ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
     }
 
+    @Override
     public void close()
     {
         if(_state == StateHandshakeComplete && _instance.traceLevel() >= 1)
@@ -201,6 +205,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
+    @Override
     public int write(IceInternal.Buffer buf)
     {
         if(_state == StateProxyConnectRequest)
@@ -226,7 +231,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return status;
     }
 
-    @SuppressWarnings("deprecation")
+    @Override
     public int read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
     {
         moreData.value = false;
@@ -320,21 +325,25 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String toString()
     {
         return _desc;
     }
 
+    @Override
     public Ice.ConnectionInfo getInfo()
     {
         return getNativeConnectionInfo();
     }
 
+    @Override
     public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {
         if(buf.size() > messageSizeMax)
@@ -366,7 +375,6 @@ final class TransceiverI implements IceInternal.Transceiver
         _desc = IceInternal.Network.fdToString(_fd);
     }
 
-    @SuppressWarnings("deprecation")
     private void init(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd)
     {
         _instance = instance;
@@ -392,6 +400,7 @@ final class TransceiverI implements IceInternal.Transceiver
         _netOutput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
     }
 
+    @Override
     protected void finalize()
         throws Throwable
     {
@@ -619,7 +628,6 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    @SuppressWarnings("deprecation")
     private int writeNonBlocking(ByteBuffer buf)
     {
         //
@@ -836,7 +844,6 @@ final class TransceiverI implements IceInternal.Transceiver
         _appInput.compact();
     }
 
-    @SuppressWarnings("deprecation")
     private boolean writeRaw(IceInternal.Buffer buf)
     {
         //
@@ -886,7 +893,6 @@ final class TransceiverI implements IceInternal.Transceiver
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     private boolean readRaw(IceInternal.Buffer buf)
     {
         int packetSize = buf.b.remaining();

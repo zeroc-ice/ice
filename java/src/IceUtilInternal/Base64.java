@@ -15,7 +15,7 @@ public class Base64
 public static String
 encode(byte[] plainSeq)
 {
-    if(plainSeq == null || plainSeq.length == 0) 
+    if(plainSeq == null || plainSeq.length == 0)
     {
         return "";
     }
@@ -25,7 +25,7 @@ encode(byte[] plainSeq)
     int totalBytes = base64Bytes + newlineBytes;
 
     StringBuilder retval = new StringBuilder(totalBytes);
- 
+
     int by1;
     int by2;
     int by3;
@@ -49,7 +49,7 @@ encode(byte[] plainSeq)
         {
             by3 = plainSeq[i+2] & 0xff;
         }
- 
+
         by4 = (by1 >> 2) & 0xff;
         by5 = (((by1 & 0x3) << 4) | (by2 >> 4)) & 0xff;
         by6 = (((by2 & 0xf) << 2) | (by3 >> 6)) & 0xff;
@@ -57,7 +57,7 @@ encode(byte[] plainSeq)
 
         retval.append(encode((byte)by4));
         retval.append(encode((byte)by5));
- 
+
         if((i + 1) < plainSeq.length)
         {
             retval.append(encode((byte)by6));
@@ -66,7 +66,7 @@ encode(byte[] plainSeq)
         {
             retval.append('=');
         }
- 
+
         if((i + 2) < plainSeq.length)
         {
             retval.append(encode((byte)by7));
@@ -222,17 +222,17 @@ encode(byte uc)
     {
         return (char)('A' + uc);
     }
-    
+
     if(uc < 52)
     {
         return (char)('a' + (uc - 26));
     }
-    
+
     if(uc < 62)
     {
         return (char)('0' + (uc - 52));
     }
-    
+
     if(uc == 62)
     {
         return '+';
@@ -263,7 +263,7 @@ decode(char c)
     {
         return 62;
     }
- 
+
     return 63;
 }
 

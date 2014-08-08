@@ -17,9 +17,9 @@ class DiscoveryPluginI implements Ice.Plugin
 {
     private static class Request
     {
-        Request(LocatorI locator, 
-                String operation, 
-                Ice.OperationMode mode, 
+        Request(LocatorI locator,
+                String operation,
+                Ice.OperationMode mode,
                 byte[] inParams,
                 java.util.Map<String, String> context,
                 Ice.AMD_Object_ice_invoke amdCB)
@@ -36,21 +36,24 @@ class DiscoveryPluginI implements Ice.Plugin
         invoke(Ice.LocatorPrx l)
         {
             _locatorPrx = l;
-            l.begin_ice_invoke(_operation, _mode, _inParams, _context, 
+            l.begin_ice_invoke(_operation, _mode, _inParams, _context,
                 new Ice.Callback_Object_ice_invoke()
                 {
+                    @Override
                     public void
                     response(boolean ok, byte[] outParams)
                     {
                         _amdCB.ice_response(ok, outParams);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
                     }
-                    
+
+                    @Override
                     public void
                     exception(Ice.SystemException ex)
                     {
@@ -71,31 +74,36 @@ class DiscoveryPluginI implements Ice.Plugin
 
     static private class VoidLocatorI extends IceGrid._LocatorDisp
     {
-        public void 
+        @Override
+        public void
         findObjectById_async(Ice.AMD_Locator_findObjectById amdCB, Ice.Identity id, Ice.Current current)
         {
             amdCB.ice_response(null);
         }
-        
-        public void 
+
+        @Override
+        public void
         findAdapterById_async(Ice.AMD_Locator_findAdapterById amdCB, String id, Ice.Current current)
         {
             amdCB.ice_response(null);
         }
-        
-        public Ice.LocatorRegistryPrx 
+
+        @Override
+        public Ice.LocatorRegistryPrx
         getRegistry(Ice.Current current)
         {
             return null;
         }
-        
-        public IceGrid.RegistryPrx 
+
+        @Override
+        public IceGrid.RegistryPrx
         getLocalRegistry(Ice.Current current)
         {
             return null;
         }
-        
-        public IceGrid.QueryPrx 
+
+        @Override
+        public IceGrid.QueryPrx
         getLocalQuery(Ice.Current current)
         {
             return null;
@@ -124,6 +132,7 @@ class DiscoveryPluginI implements Ice.Plugin
             _lookupReply = lookupReply;
         }
 
+        @Override
         public synchronized void
         ice_invoke_async(Ice.AMD_Object_ice_invoke amdCB, byte[] inParams, Ice.Current current)
         {
@@ -133,7 +142,7 @@ class DiscoveryPluginI implements Ice.Plugin
         public synchronized void
         foundLocator(LocatorPrx locator)
         {
-            if(locator == null || 
+            if(locator == null ||
                (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)))
             {
                 return;
@@ -235,7 +244,7 @@ class DiscoveryPluginI implements Ice.Plugin
                 _locator = null;
 
                 _pendingRequests.add(request);
-                
+
                 if(_pendingRetryCount == 0) // No request in progress
                 {
                     _pendingRetryCount = _retryCount;
@@ -247,6 +256,7 @@ class DiscoveryPluginI implements Ice.Plugin
 
         private Runnable _retryTask = new Runnable()
         {
+            @Override
             public void run()
             {
                 synchronized(LocatorI.this)
@@ -296,6 +306,7 @@ class DiscoveryPluginI implements Ice.Plugin
             _locator = locator;
         }
 
+        @Override
         public void
         foundLocator(LocatorPrx locator, Ice.Current curr)
         {
@@ -311,6 +322,7 @@ class DiscoveryPluginI implements Ice.Plugin
         _communicator = communicator;
     }
 
+    @Override
     public void
     initialize()
     {
@@ -378,7 +390,7 @@ class DiscoveryPluginI implements Ice.Plugin
         }
 
         LocatorPrx voidLoc = LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
-        
+
         String instanceName = properties.getProperty("IceGridDiscovery.InstanceName");
         Ice.Identity id = new Ice.Identity();
         id.name = "Locator";
@@ -393,6 +405,7 @@ class DiscoveryPluginI implements Ice.Plugin
         _locatorAdapter.activate();
     }
 
+    @Override
     public void
     destroy()
     {

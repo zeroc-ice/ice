@@ -284,18 +284,21 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // Freeze.Map methods
     //
 
+    @Override
     public void
     fastPut(K key, V value)
     {
         putImpl(new com.sleepycat.db.DatabaseEntry(encodeKey(key)), value);
     }
 
+    @Override
     public boolean
     fastRemove(K key)
     {
         return removeImpl(new com.sleepycat.db.DatabaseEntry(encodeKey(key)));
     }
 
+    @Override
     public void
     close()
     {
@@ -314,6 +317,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public int
     closeAllIterators()
     {
@@ -323,6 +327,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     //
     // Close this map and destroy the underlying Berkeley DB database
     //
+    @Override
     public void
     destroy()
     {
@@ -429,12 +434,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public Connection
     getConnection()
     {
         return _connection;
     }
 
+    @Override
     public void
     closeDb()
     {
@@ -446,42 +453,49 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // NavigableMap methods
     //
 
+    @Override
     public java.util.Map.Entry<K, V>
     firstEntry()
     {
         return entrySearch(Search.Type.FIRST, null, true);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     lastEntry()
     {
         return entrySearch(Search.Type.LAST, null, true);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     ceilingEntry(K key)
     {
         return entrySearch(Search.Type.CEILING, encodeKey(key), true);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     floorEntry(K key)
     {
         return entrySearch(Search.Type.FLOOR, encodeKey(key), true);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     higherEntry(K key)
     {
         return entrySearch(Search.Type.HIGHER, encodeKey(key), true);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     lowerEntry(K key)
     {
         return entrySearch(Search.Type.LOWER, encodeKey(key), true);
     }
 
+    @Override
     public K
     ceilingKey(K key)
     {
@@ -489,6 +503,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public K
     floorKey(K key)
     {
@@ -496,6 +511,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public K
     higherKey(K key)
     {
@@ -503,6 +519,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public K
     lowerKey(K key)
     {
@@ -510,12 +527,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public java.util.Set<K>
     descendingKeySet()
     {
         return descendingMap().keySet();
     }
 
+    @Override
     public NavigableMap<K, V>
     descendingMap()
     {
@@ -532,6 +551,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return _descendingMap;
     }
 
+    @Override
     public NavigableMap<K, V>
     headMap(K toKey, boolean inclusive)
     {
@@ -548,6 +568,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return new SubMap<K, V>(this, null, false, toKey, inclusive, true);
     }
 
+    @Override
     public NavigableMap<K, V>
     subMap(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive)
     {
@@ -564,6 +585,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return new SubMap<K, V>(this, fromKey, fromInclusive, toKey, toInclusive, true);
     }
 
+    @Override
     public NavigableMap<K, V>
     tailMap(K fromKey, boolean inclusive)
     {
@@ -580,6 +602,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return new SubMap<K, V>(this, fromKey, inclusive, null, false, true);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     pollFirstEntry()
     {
@@ -591,6 +614,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e;
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     pollLastEntry()
     {
@@ -606,6 +630,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // SortedMap methods
     //
 
+    @Override
     public java.util.Comparator<? super K>
     comparator()
     {
@@ -622,6 +647,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public K
     firstKey()
     {
@@ -633,6 +659,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e.getKey();
     }
 
+    @Override
     public K
     lastKey()
     {
@@ -644,18 +671,21 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return e.getKey();
     }
 
+    @Override
     public java.util.SortedMap<K, V>
     headMap(K toKey)
     {
         return headMap(toKey, false);
     }
 
+    @Override
     public java.util.SortedMap<K, V>
     tailMap(K fromKey)
     {
         return tailMap(fromKey, true);
     }
 
+    @Override
     public java.util.SortedMap<K, V>
     subMap(K fromKey, K toKey)
     {
@@ -666,6 +696,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // Map methods
     //
 
+    @Override
     public int
     size()
     {
@@ -678,7 +709,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         for(;;)
         {
-            
+
             try
             {
                 com.sleepycat.db.BtreeStats s =
@@ -711,6 +742,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public boolean
     containsValue(Object value)
     {
@@ -725,7 +757,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     while(p.hasNext())
                     {
-                        Entry e = (Entry)p.next();
+                        Entry<K,V> e = p.next();
                         if(e.getValue() == null)
                         {
                             return true;
@@ -736,7 +768,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     while(p.hasNext())
                     {
-                        Entry e = (Entry)p.next();
+                        Entry<K,V> e = p.next();
                         if(value.equals(e.getValue()))
                         {
                             return true;
@@ -755,7 +787,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsValue while " + 
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsValue while " +
                                               "iterating over Db \"" + _dbName  + "\"; retrying...");
                     }
 
@@ -774,6 +806,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public boolean
     containsKey(Object o)
     {
@@ -829,6 +862,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public V
     get(Object o)
     {
@@ -846,6 +880,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public V
     put(K key, V value)
     {
@@ -860,6 +895,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return old;
     }
 
+    @Override
     public V
     remove(Object o)
     {
@@ -879,6 +915,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public void
     clear()
     {
@@ -900,7 +937,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         com.sleepycat.db.DatabaseEntry valueEntry = new com.sleepycat.db.DatabaseEntry();
         valueEntry.setPartial(true);
-        
+
         for(;;)
         {
             try
@@ -931,7 +968,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                             dbc.close();
                         }
                     }
-                    finally 
+                    finally
                     {
                         if(tx != null)
                         {
@@ -967,6 +1004,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         }
     }
 
+    @Override
     public java.util.Set<java.util.Map.Entry<K, V>>
     entrySet()
     {
@@ -974,12 +1012,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         {
             _entrySet = new java.util.AbstractSet<java.util.Map.Entry<K, V>>()
             {
+                @Override
                 public java.util.Iterator<java.util.Map.Entry<K, V>>
                 iterator()
                 {
                     return new IteratorI<K, V>(MapI.this, MapI.this);
                 }
 
+                @Override
                 public boolean
                 contains(Object o)
                 {
@@ -995,6 +1035,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                     return v != null && valEquals(decodeValue(v), value);
                 }
 
+                @Override
                 public boolean
                 remove(Object o)
                 {
@@ -1014,12 +1055,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                     return false;
                 }
 
+                @Override
                 public int
                 size()
                 {
                     return MapI.this.size();
                 }
 
+                @Override
                 public void
                 clear()
                 {
@@ -1035,18 +1078,21 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     // IteratorModel methods
     //
 
+    @Override
     public String
     dbName()
     {
         return _dbName;
     }
 
+    @Override
     public TraceLevels
     traceLevels()
     {
         return _trace;
     }
 
+    @Override
     public com.sleepycat.db.Cursor
     openCursor()
         throws com.sleepycat.db.DatabaseException
@@ -1054,6 +1100,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return _db.db().openCursor(_connection.dbTxn(), null);
     }
 
+    @Override
     public EntryI<K, V>
     firstEntry(com.sleepycat.db.Cursor cursor)
         throws com.sleepycat.db.DatabaseException
@@ -1061,6 +1108,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         return firstEntry(cursor, null, false, null, false);
     }
 
+    @Override
     public EntryI<K, V>
     nextEntry(com.sleepycat.db.Cursor cursor)
         throws com.sleepycat.db.DatabaseException
@@ -1155,11 +1203,11 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     {
         int count = 0;
 
-        java.util.Iterator<IteratorI> p = _iteratorList.iterator();
+        java.util.Iterator<IteratorI<K, V>> p = _iteratorList.iterator();
 
         while(p.hasNext())
         {
-            IteratorI i = p.next();
+            IteratorI<K, V> i = p.next();
             if(i != except)
             {
                 i.close();
@@ -1171,10 +1219,10 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     }
 
     Object
-    addIterator(IteratorI i)
+    addIterator(IteratorI<K, V> i)
     {
         _iteratorList.addFirst(i);
-        java.util.Iterator<IteratorI> p = _iteratorList.iterator();
+        java.util.Iterator<IteratorI<K, V>> p = _iteratorList.iterator();
         p.next();
         return p;
     }
@@ -1183,8 +1231,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     removeIterator(Object token)
     {
         @SuppressWarnings("unchecked")
-        java.util.Iterator<IteratorI> i = (java.util.Iterator<IteratorI>)token;
-
+        java.util.Iterator<IteratorI<K, V>> i = (java.util.Iterator<IteratorI<K, V>>)token;
         i.remove();
     }
 
@@ -1568,11 +1615,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             _comparator = comparator;
         }
 
-        public java.util.Comparator<K> comparator()
-        {
-            return _comparator;
-        }
-
+        @Override
         public int compare(byte[] d1, byte[] d2)
         {
             final ByteBuffer b1 = ByteBuffer.wrap(d1);
@@ -1598,6 +1641,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             return _comparator;
         }
 
+        @Override
         public int compare(ByteBuffer b1, ByteBuffer b2)
         {
             return _comparator.compare(decodeKey(b1), decodeKey(b2));
@@ -1617,12 +1661,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             this.type = type;
         }
 
+        @Override
         public void
         patch(Ice.Object v)
         {
             value = v;
         }
 
+        @Override
         public String
         type()
         {
@@ -1647,11 +1693,11 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     private final Ice.Communicator _communicator;
     private final Ice.EncodingVersion _encoding;
     private final TraceLevels _trace;
-    private java.util.Iterator _token;
+    private java.util.Iterator<?> _token;
     private MapDb _db;
 
     private java.util.Set<java.util.Map.Entry<K, V>> _entrySet;
     private NavigableMap<K, V> _descendingMap;
-    private LinkedList<IteratorI> _iteratorList = new LinkedList<IteratorI>();
+    private LinkedList<IteratorI<K, V>> _iteratorList = new LinkedList<IteratorI<K, V>>();
     private java.util.Map<String, MapIndex> _indexMap = new java.util.HashMap<String, MapIndex>();
 }

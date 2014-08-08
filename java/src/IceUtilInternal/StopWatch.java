@@ -11,12 +11,12 @@ package IceUtilInternal;
 
 public class StopWatch
 {
-    public void 
+    public void
     start()
     {
         _s = System.nanoTime();
     }
-    
+
     public long
     stop()
     {

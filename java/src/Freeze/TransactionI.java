@@ -11,6 +11,7 @@ package Freeze;
 
 class TransactionI implements Transaction
 {
+    @Override
     public void
     commit()
     {
@@ -79,6 +80,7 @@ class TransactionI implements Transaction
         }
     }
 
+    @Override
     public void
     rollback()
     {
@@ -145,6 +147,7 @@ class TransactionI implements Transaction
         }
     }
 
+    @Override
     public Connection
     getConnection()
     {

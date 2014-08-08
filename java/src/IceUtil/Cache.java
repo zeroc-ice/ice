@@ -45,7 +45,7 @@ public class Cache
     {
         synchronized(_map)
         {
-            CacheValue val = (CacheValue)_map.get(key);
+            CacheValue val = _map.get(key);
             return val == null ? null : val.obj;
         }
     }
@@ -64,7 +64,7 @@ public class Cache
     {
         synchronized(_map)
         {
-            CacheValue val = (CacheValue)_map.remove(key);
+            CacheValue val = _map.remove(key);
             return val == null ? null : val.obj;
         }
     }
@@ -112,7 +112,7 @@ public class Cache
     {
         synchronized(_map)
         {
-            CacheValue existingVal = (CacheValue)_map.put(key, new CacheValue(o));
+            CacheValue existingVal = _map.put(key, new CacheValue(o));
             if(existingVal != null)
             {
                 _map.put(key, existingVal);
@@ -188,7 +188,7 @@ public class Cache
 
             synchronized(_map)
             {
-                val = (CacheValue)_map.get(key);
+                val = _map.get(key);
                 if(val == null)
                 {
                     val = new CacheValue();

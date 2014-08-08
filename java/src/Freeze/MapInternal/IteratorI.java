@@ -9,12 +9,9 @@
 
 package Freeze.MapInternal;
 
-import Freeze.Connection;
-import Freeze.ConnectionI;
 import Freeze.DatabaseException;
 import Freeze.DeadlockException;
 import Freeze.NotFoundException;
-import Freeze.Map;
 import java.nio.ByteBuffer;
 
 class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K, V>>
@@ -46,6 +43,7 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
         _iteratorListToken = _map.addIterator(this);
     }
 
+    @Override
     public boolean
     hasNext()
     {
@@ -96,6 +94,7 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
         }
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     next()
     {
@@ -110,6 +109,7 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
         }
     }
 
+    @Override
     public void
     remove()
     {
@@ -208,6 +208,7 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
     //
     // Extra operations.
     //
+    @Override
     public void
     close()
     {
@@ -228,12 +229,14 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
     //
     // An alias for close()
     //
+    @Override
     public void
     destroy()
     {
         close();
     }
 
+    @Override
     protected void
     finalize()
         throws Throwable

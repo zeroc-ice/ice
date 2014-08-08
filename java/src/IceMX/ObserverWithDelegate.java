@@ -11,6 +11,7 @@ package IceMX;
 
 public class ObserverWithDelegate<T extends Metrics, O extends Ice.Instrumentation.Observer> extends Observer<T>
 {
+    @Override
     public void
     attach()
     {
@@ -21,6 +22,7 @@ public class ObserverWithDelegate<T extends Metrics, O extends Ice.Instrumentati
         }
     }
 
+    @Override
     public void
     detach()
     {
@@ -31,7 +33,8 @@ public class ObserverWithDelegate<T extends Metrics, O extends Ice.Instrumentati
         }
     }
 
-    public void 
+    @Override
+    public void
     failed(String exceptionName)
     {
         super.failed(exceptionName);
@@ -54,7 +57,7 @@ public class ObserverWithDelegate<T extends Metrics, O extends Ice.Instrumentati
     }
 
     @SuppressWarnings("unchecked")
-    public <S extends Metrics, ObserverImpl extends ObserverWithDelegate<S, Obs>, 
+    public <S extends Metrics, ObserverImpl extends ObserverWithDelegate<S, Obs>,
         Obs extends Ice.Instrumentation.Observer> Obs
     getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl, Obs delegate)
     {

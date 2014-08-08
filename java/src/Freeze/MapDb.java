@@ -17,7 +17,7 @@ package Freeze;
 public class MapDb
 {
     public
-    MapDb(ConnectionI connection, String dbName, String key, String value, java.util.Comparator comparator,
+    MapDb(ConnectionI connection, String dbName, String key, String value, java.util.Comparator<?> comparator,
           MapIndex[] indices, boolean createDb)
     {
         _communicator = connection.communicator();
@@ -27,7 +27,7 @@ public class MapDb
         _trace = connection.trace();
 
         Catalog catalog = new Catalog(connection, Util.catalogName(), true);
-        CatalogData catalogData = (CatalogData)catalog.get(_dbName);
+        CatalogData catalogData = catalog.get(_dbName);
         if(catalogData != null)
         {
             if(catalogData.evictor)

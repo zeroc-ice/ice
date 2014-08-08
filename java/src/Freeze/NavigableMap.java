@@ -141,7 +141,7 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
      * <p>
      * If either map is modified while an iteration over either map is
      * in progress (except through the iterator's own <code>remove</code> or <code>fastRemove</code>operation),
-     * the results of the iteration are undefined. 
+     * the results of the iteration are undefined.
      *
      * @return a Reverse order view of this map.
      **/

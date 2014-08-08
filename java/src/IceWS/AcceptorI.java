@@ -11,21 +11,25 @@ package IceWS;
 
 final class AcceptorI implements IceInternal.Acceptor
 {
+    @Override
     public java.nio.channels.ServerSocketChannel fd()
     {
         return _delegate.fd();
     }
 
+    @Override
     public void close()
     {
         _delegate.close();
     }
 
+    @Override
     public void listen()
     {
         _delegate.listen();
     }
 
+    @Override
     public IceInternal.Transceiver accept()
     {
         //
@@ -35,11 +39,13 @@ final class AcceptorI implements IceInternal.Acceptor
         return new TransceiverI(_instance, _delegate.accept());
     }
 
+    @Override
     public String protocol()
     {
         return _delegate.protocol();
     }
 
+    @Override
     public String toString()
     {
         return _delegate.toString();

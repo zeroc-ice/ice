@@ -39,20 +39,24 @@ final class EndpointI extends IceInternal.EndpointI
         _resource = s.readString();
     }
 
+    @Override
     public Ice.EndpointInfo getInfo()
     {
         IceWS.EndpointInfo info = new IceWS.EndpointInfo()
             {
+                @Override
                 public short type()
                 {
                     return EndpointI.this.type();
                 }
 
+                @Override
                 public boolean datagram()
                 {
                     return EndpointI.this.datagram();
                 }
 
+                @Override
                 public boolean secure()
                 {
                     return EndpointI.this.secure();
@@ -66,16 +70,19 @@ final class EndpointI extends IceInternal.EndpointI
         return info;
     }
 
+    @Override
     public short type()
     {
         return _delegate.type();
     }
 
+    @Override
     public String protocol()
     {
         return _delegate.protocol();
     }
 
+    @Override
     public void streamWrite(IceInternal.BasicStream s)
     {
         s.startWriteEncaps();
@@ -84,11 +91,13 @@ final class EndpointI extends IceInternal.EndpointI
         s.endWriteEncaps();
     }
 
+    @Override
     public int timeout()
     {
         return _delegate.timeout();
     }
 
+    @Override
     public IceInternal.EndpointI timeout(int timeout)
     {
         if(timeout == _delegate.timeout())
@@ -101,11 +110,13 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public String connectionId()
     {
         return _delegate.connectionId();
     }
 
+    @Override
     public IceInternal.EndpointI connectionId(String connectionId)
     {
         if(connectionId.equals(_delegate.connectionId()))
@@ -118,11 +129,13 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public boolean compress()
     {
         return _delegate.compress();
     }
 
+    @Override
     public IceInternal.EndpointI compress(boolean compress)
     {
         if(compress == _delegate.compress())
@@ -135,22 +148,26 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public boolean datagram()
     {
         return _delegate.datagram();
     }
 
+    @Override
     public boolean secure()
     {
         return _delegate.secure();
     }
 
+    @Override
     public IceInternal.Transceiver transceiver(IceInternal.EndpointIHolder endpoint)
     {
         endpoint.value = this;
         return null;
     }
 
+    @Override
     public java.util.List<IceInternal.Connector> connectors(Ice.EndpointSelectionType selType)
     {
         java.util.List<IceInternal.Connector> connectors = _delegate.connectors(selType);
@@ -162,10 +179,12 @@ final class EndpointI extends IceInternal.EndpointI
         return l;
     }
 
+    @Override
     public void connectors_async(Ice.EndpointSelectionType selType, final IceInternal.EndpointI_connectors callback)
     {
         IceInternal.EndpointI_connectors cb = new IceInternal.EndpointI_connectors()
         {
+            @Override
             public void connectors(java.util.List<IceInternal.Connector> connectors)
             {
                 java.util.List<IceInternal.Connector> l = new java.util.ArrayList<IceInternal.Connector>();
@@ -176,6 +195,7 @@ final class EndpointI extends IceInternal.EndpointI
                 callback.connectors(l);
             }
 
+            @Override
             public void exception(Ice.LocalException ex)
             {
                 callback.exception(ex);
@@ -184,6 +204,7 @@ final class EndpointI extends IceInternal.EndpointI
         _delegate.connectors_async(selType, cb);
     }
 
+    @Override
     public IceInternal.Acceptor acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
         IceInternal.EndpointIHolder delEndp = new IceInternal.EndpointIHolder();
@@ -195,6 +216,7 @@ final class EndpointI extends IceInternal.EndpointI
         return new AcceptorI(_instance, delAcc);
     }
 
+    @Override
     public java.util.List<IceInternal.EndpointI> expand()
     {
         java.util.List<IceInternal.EndpointI> endps = _delegate.expand();
@@ -206,6 +228,7 @@ final class EndpointI extends IceInternal.EndpointI
         return l;
     }
 
+    @Override
     public boolean equivalent(IceInternal.EndpointI endpoint)
     {
         if(!(endpoint instanceof EndpointI))
@@ -216,6 +239,7 @@ final class EndpointI extends IceInternal.EndpointI
         return _delegate.equivalent(wsEndpointI._delegate);
     }
 
+    @Override
     synchronized public int hashCode()
     {
         int h = _delegate.hashCode();
@@ -223,6 +247,7 @@ final class EndpointI extends IceInternal.EndpointI
         return h;
     }
 
+    @Override
     public String options()
     {
         //
@@ -252,6 +277,7 @@ final class EndpointI extends IceInternal.EndpointI
         return s;
     }
 
+    @Override
     public int compareTo(IceInternal.EndpointI obj) // From java.lang.Comparable
     {
         if(!(obj instanceof EndpointI))
@@ -274,6 +300,7 @@ final class EndpointI extends IceInternal.EndpointI
         return _delegate.compareTo(p._delegate);
     }
 
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint)
     {
         switch(option.charAt(1))

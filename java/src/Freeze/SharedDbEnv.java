@@ -18,13 +18,13 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
         SharedDbEnv result;
 
-        synchronized(_map) 
+        synchronized(_map)
         {
             result = _map.get(key);
             if(result == null)
             {
                 result = new SharedDbEnv(key, dbEnv);
-      
+
                 SharedDbEnv previousValue = _map.put(key, result);
                 assert(previousValue == null);
             }
@@ -36,12 +36,12 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
         return result;
     }
-    
+
     //
     // Returns a shared map Db; the caller should NOT close this Db.
     //
     public MapDb
-    getSharedMapDb(String dbName, String key, String value, java.util.Comparator comparator, MapIndex[] indices,
+    getSharedMapDb(String dbName, String key, String value, java.util.Comparator<?> comparator, MapIndex[] indices,
                    boolean createDb)
     {
         if(dbName.equals(_catalog.dbName()))
@@ -55,7 +55,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             return _catalogIndexList;
         }
 
-        synchronized(_sharedDbMap) 
+        synchronized(_sharedDbMap)
         {
             MapDb db = _sharedDbMap.get(dbName);
             if(db == null)
@@ -89,7 +89,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     public void
     removeSharedMapDb(String dbName)
     {
-        synchronized(_sharedDbMap) 
+        synchronized(_sharedDbMap)
         {
             MapDb db = _sharedDbMap.remove(dbName);
             if(db != null)
@@ -99,7 +99,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         }
     }
 
-    public String 
+    public String
     getEnvName()
     {
         return _key.envName;
@@ -122,14 +122,14 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     {
         return _dbEnv;
     }
-   
+
     public void
     close()
     {
-        synchronized(_map) 
+        synchronized(_map)
         {
             if(--_refCount == 0)
-            {       
+            {
                 //
                 // Remove from map
                 //
@@ -144,6 +144,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         }
     }
 
+    @Override
     public void
     run()
     {
@@ -168,7 +169,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                     return;
                 }
             }
-            
+
             if(_trace >= 2)
             {
                 _key.communicator.getLogger().trace("Freeze.DbEnv", "checkpointing environment \"" + _key.envName +
@@ -188,8 +189,9 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             }
         }
     }
-    
-    public void 
+
+    @Override
+    public void
     error(com.sleepycat.db.Environment env, String errorPrefix, String message)
     {
         _key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
@@ -209,14 +211,14 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
         TransactionalEvictorContext ctx = _ctxMap.get(t);
         assert ctx == null;
-      
+
         ctx = new TransactionalEvictorContext(this);
         synchronized(_map)
         {
             _refCount++; // owned by the underlying ConnectionI
         }
         _ctxMap.put(t, ctx);
-        
+
         return ctx;
     }
 
@@ -244,7 +246,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             //
             if(txi.getConnectionI().dbEnv() != this)
             {
-                throw new DatabaseException(errorPrefix(_key.envName) + 
+                throw new DatabaseException(errorPrefix(_key.envName) +
                                             "the given transaction is bound to environment '" +
                                             txi.getConnectionI().dbEnv()._key.envName + "'");
             }
@@ -266,10 +268,10 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             _ctxMap.put(t, null);
         }
     }
-    
+
     private
     SharedDbEnv(MapKey key, com.sleepycat.db.Environment dbEnv)
-    {   
+    {
         _key = key;
         _dbEnv = dbEnv;
         _ownDbEnv = (dbEnv == null);
@@ -320,7 +322,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             if(_ownDbEnv)
             {
                 com.sleepycat.db.EnvironmentConfig config = new com.sleepycat.db.EnvironmentConfig();
-                
+
                 config.setErrorHandler(this);
                 config.setInitializeLocking(true);
                 config.setInitializeLogging(true);
@@ -367,13 +369,13 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 {
                     throw new NotFoundException(errorPrefix(_key.envName) + "open: " + dx.getMessage(), dx);
                 }
-            
+
                 //
                 // Default checkpoint period is every 120 seconds
                 //
                 _checkpointPeriod =
                     properties.getPropertyAsIntWithDefault(propertyPrefix + ".CheckpointPeriod", 120) * 1000;
-            
+
                 _kbyte = properties.getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
 
                 String threadName;
@@ -392,7 +394,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 {
                     _thread = new Thread(this, threadName);
                     _thread.start();
-                }  
+                }
             }
 
             _catalog = new MapDb(_key.communicator, _key.envName, Util.catalogName(), "string",
@@ -430,7 +432,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             _done = true;
             notify();
         }
-        
+
         while(_thread != null)
         {
             try
@@ -443,7 +445,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             {
             }
         }
-        
+
         //
         // Release catalogs
         //
@@ -458,7 +460,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 _catalog = null;
             }
         }
-        
+
         if(_catalogIndexList != null)
         {
             try
@@ -470,7 +472,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 _catalogIndexList = null;
             }
         }
-        
+
         //
         // Close Dbs
         //
@@ -478,13 +480,13 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         {
             db.close();
         }
-       
+
         if(_trace >= 1)
         {
             _key.communicator.getLogger().trace("Freeze.DbEnv", "closing database environment \"" +
                                                 _key.envName + "\"");
         }
-        
+
         if(_ownDbEnv && _dbEnv != null)
         {
             try
@@ -520,16 +522,17 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     {
         final String envName;
         final Ice.Communicator communicator;
-        
+
         MapKey(String envName, Ice.Communicator communicator)
         {
             this.envName = envName;
             this.communicator = communicator;
         }
 
+        @Override
         public boolean
         equals(Object o)
-        {   
+        {
             try
             {
                 MapKey k = (MapKey)o;
@@ -541,7 +544,8 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 return false;
             }
         }
-        
+
+        @Override
         public int
         hashCode()
         {

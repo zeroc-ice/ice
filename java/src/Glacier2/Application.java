@@ -29,7 +29,7 @@ package Glacier2;
  * class destroys the current session and restarts the application
  * with another call to {@link #createSession} followed by
  * {@link #runWithSession}.
- * 
+ *
  * The application can optionally override the {@link #sessionDestroyed}
  * callback method if it needs to take action when connectivity with
  * the Glacier2 router is lost.
@@ -98,6 +98,7 @@ public abstract class Application extends Ice.Application
      * Run should not be overridden for Glacier2.Application. Instead
      * <code>runWithSession</code> should be used.
      */
+    @Override
     final public int
     run(String[] args)
     {
@@ -234,17 +235,20 @@ public abstract class Application extends Ice.Application
 
     private class ConnectionCallbackI implements Ice.ConnectionCallback
     {
+        @Override
         public void heartbeat(Ice.Connection con)
         {
-                
+
         }
 
+        @Override
         public void closed(Ice.Connection con)
         {
             sessionDestroyed();
         }
     }
 
+    @Override
     protected int
     doMain(Ice.StringSeqHolder argHolder, Ice.InitializationData initData)
     {
@@ -287,7 +291,7 @@ public abstract class Application extends Ice.Application
         boolean restart = false;
         status.value = 0;
 
-        
+
         try
         {
             _communicator = Ice.Util.initialize(argHolder, initData);
@@ -326,7 +330,7 @@ public abstract class Application extends Ice.Application
                 {
                     int acmTimeout = 0;
                     try
-                    { 
+                    {
                         acmTimeout = _router.getACMTimeout();
                     }
                     catch(Ice.OperationNotExistException ex)
@@ -336,8 +340,8 @@ public abstract class Application extends Ice.Application
                     {
                         Ice.Connection connection = _router.ice_getCachedConnection();
                         assert(connection != null);
-                        connection.setACM(new Ice.IntOptional(acmTimeout), 
-                                          null, 
+                        connection.setACM(new Ice.IntOptional(acmTimeout),
+                                          null,
                                           new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
                         connection.setCallback(new ConnectionCallbackI());
                     }
@@ -354,15 +358,18 @@ public abstract class Application extends Ice.Application
                             //
                             timer.scheduleAtFixedRate(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
                                             {
+                                                @Override
                                                 public void
                                                 response()
                                                 {
                                                 }
 
+                                                @Override
                                                 public void
                                                 exception(Ice.LocalException ex)
                                                 {
@@ -373,6 +380,7 @@ public abstract class Application extends Ice.Application
                                                     sessionDestroyed();
                                                 }
 
+                                                @Override
                                                 public void
                                                 exception(Ice.UserException ex)
                                                 {
@@ -510,7 +518,7 @@ public abstract class Application extends Ice.Application
                 //
                 // Not expected.
                 //
-                Ice.Util.getProcessLogger().error("unexpected exception when destroying the session:\n" + 
+                Ice.Util.getProcessLogger().error("unexpected exception when destroying the session:\n" +
                                                   IceInternal.Ex.toString(ex));
             }
             _router = null;

@@ -17,6 +17,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
     // Implementation details
     //
 
+    @Override
     public boolean
     createSecondaryKey(com.sleepycat.db.SecondaryDatabase secondary,
                        com.sleepycat.db.DatabaseEntry key,
@@ -81,8 +82,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             // In DB > 5.1.x we can not set DB_DBT_PARTIAL in the key Dbt when calling
             // getSearchKey.
             //
-            if(com.sleepycat.db.Environment.getVersionMajor() < 5 || 
-               (com.sleepycat.db.Environment.getVersionMajor() == 5 && 
+            if(com.sleepycat.db.Environment.getVersionMajor() < 5 ||
+               (com.sleepycat.db.Environment.getVersionMajor() == 5 &&
                 com.sleepycat.db.Environment.getVersionMinor() <= 1))
             {
                 key.setPartial(true);
@@ -231,8 +232,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             // In DB > 5.1.x we can not set DB_DBT_PARTIAL in the key Dbt when calling
             // getSearchKey.
             //
-            if(com.sleepycat.db.Environment.getVersionMajor() < 5 || 
-               (com.sleepycat.db.Environment.getVersionMajor() == 5 && 
+            if(com.sleepycat.db.Environment.getVersionMajor() < 5 ||
+               (com.sleepycat.db.Environment.getVersionMajor() == 5 &&
                 com.sleepycat.db.Environment.getVersionMinor() <= 1))
             {
                 key.setPartial(true);

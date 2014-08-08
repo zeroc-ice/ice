@@ -9,8 +9,6 @@
 
 package Freeze.MapInternal;
 
-import Freeze.ConnectionI;
-import Freeze.Map;
 import Freeze.NavigableMap;
 import java.nio.ByteBuffer;
 
@@ -44,6 +42,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
     // NavigableMap methods
     //
 
+    @Override
     public boolean
     fastRemove(K key)
     {
@@ -55,42 +54,49 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return _map.fastRemove(key);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     firstEntry()
     {
         return _view.first();
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     lastEntry()
     {
         return _view.last();
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     ceilingEntry(K key)
     {
         return _view.ceiling(key);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     floorEntry(K key)
     {
         return _view.floor(key);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     higherEntry(K key)
     {
         return _view.higher(key);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     lowerEntry(K key)
     {
         return _view.lower(key);
     }
 
+    @Override
     public K
     ceilingKey(K key)
     {
@@ -98,6 +104,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public K
     floorKey(K key)
     {
@@ -105,6 +112,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public K
     higherKey(K key)
     {
@@ -112,6 +120,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public K
     lowerKey(K key)
     {
@@ -119,12 +128,14 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public java.util.Set<K>
     descendingKeySet()
     {
         return descendingMap().keySet();
     }
 
+    @Override
     public NavigableMap<K, V>
     descendingMap()
     {
@@ -136,6 +147,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return _descendingMap;
     }
 
+    @Override
     public NavigableMap<K, V>
     headMap(K toKey, boolean inclusive)
     {
@@ -147,6 +159,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return new SubMap<K, V>(_map, v);
     }
 
+    @Override
     public NavigableMap<K, V>
     subMap(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive)
     {
@@ -158,6 +171,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return new SubMap<K, V>(_map, v);
     }
 
+    @Override
     public NavigableMap<K, V>
     tailMap(K fromKey, boolean inclusive)
     {
@@ -169,6 +183,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return new SubMap<K, V>(_map, v);
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     pollFirstEntry()
     {
@@ -180,6 +195,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e;
     }
 
+    @Override
     public java.util.Map.Entry<K, V>
     pollLastEntry()
     {
@@ -195,12 +211,14 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
     // SortedMap methods
     //
 
+    @Override
     public java.util.Comparator<? super K>
     comparator()
     {
         return _view.comparator();
     }
 
+    @Override
     public K
     firstKey()
     {
@@ -212,6 +230,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e.getKey();
     }
 
+    @Override
     public K
     lastKey()
     {
@@ -223,18 +242,21 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return e.getKey();
     }
 
+    @Override
     public java.util.SortedMap<K, V>
     headMap(K toKey)
     {
         return headMap(toKey, false);
     }
 
+    @Override
     public java.util.SortedMap<K, V>
     tailMap(K fromKey)
     {
         return tailMap(fromKey, true);
     }
 
+    @Override
     public java.util.SortedMap<K, V>
     subMap(K fromKey, K toKey)
     {
@@ -245,6 +267,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
     // Map methods
     //
 
+    @Override
     public java.util.Set<java.util.Map.Entry<K, V>>
     entrySet()
     {
@@ -252,12 +275,14 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         {
             _entrySet = new java.util.AbstractSet<java.util.Map.Entry<K, V>>()
             {
+                @Override
                 public java.util.Iterator<java.util.Map.Entry<K, V>>
                 iterator()
                 {
                     return new IteratorI<K, V>(_map, _view);
                 }
 
+                @Override
                 public boolean
                 contains(Object o)
                 {
@@ -276,6 +301,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
                     }
                 }
 
+                @Override
                 public boolean
                 remove(Object o)
                 {
@@ -291,12 +317,14 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
                     }
                 }
 
+                @Override
                 public int
                 size()
                 {
                     throw new UnsupportedOperationException();
                 }
 
+                @Override
                 public boolean
                 isEmpty()
                 {
@@ -332,6 +360,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return _map.containsKey(k);
     }
 
+    @Override
     public V
     get(Object key)
     {
@@ -345,6 +374,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         return _map.get(k);
     }
 
+    @Override
     public V
     remove(Object key)
     {
@@ -483,18 +513,21 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         // IteratorModel methods (partial)
         //
 
+        @Override
         final public String
         dbName()
         {
             return _map.dbName();
         }
 
+        @Override
         final public TraceLevels
         traceLevels()
         {
             return _map.traceLevels();
         }
 
+        @Override
         final public com.sleepycat.db.Cursor
         openCursor()
             throws com.sleepycat.db.DatabaseException
@@ -506,6 +539,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         // Search.KeyValidator methods
         //
 
+        @Override
         final public boolean
         keyInRange(ByteBuffer key)
         {
@@ -599,18 +633,21 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         // View methods
         //
 
+        @Override
         Search.Type
         mapSearchType(Search.Type type)
         {
             return type;
         }
 
+        @Override
         View
         copy(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive)
         {
             return new AscendingView(this, fromKey, fromInclusive, toKey, toInclusive);
         }
 
+        @Override
         View
         descendingView()
         {
@@ -621,6 +658,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         // IteratorModel methods
         //
 
+        @Override
         public EntryI<K, V>
         firstEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -628,6 +666,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
             return _map.firstEntry(cursor, _fromKey, _fromInclusive, _toKey, _toInclusive);
         }
 
+        @Override
         public EntryI<K, V>
         nextEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -652,18 +691,21 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         // View methods
         //
 
+        @Override
         Search.Type
         mapSearchType(Search.Type type)
         {
             return type.descending();
         }
 
+        @Override
         View
         copy(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive)
         {
             return new DescendingView(this, fromKey, fromInclusive, toKey, toInclusive);
         }
 
+        @Override
         View
         descendingView()
         {
@@ -674,6 +716,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         // IteratorModel methods
         //
 
+        @Override
         public EntryI<K, V>
         firstEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -681,6 +724,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
             return _map.lastEntry(cursor, _fromKey, _fromInclusive, _toKey, _toInclusive);
         }
 
+        @Override
         public EntryI<K, V>
         nextEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException

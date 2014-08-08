@@ -16,6 +16,7 @@ public class TransactionalEvictorDeadlockException extends Ice.SystemException
         tx = transaction;
     }
 
+    @Override
     public String
     ice_name()
     {

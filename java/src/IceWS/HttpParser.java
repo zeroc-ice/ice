@@ -472,7 +472,7 @@ final class HttpParser
                     _versionMajor = 0;
                 }
                 _versionMajor *= 10;
-                _versionMajor += (int)(c - '0');
+                _versionMajor += c - '0';
                 break;
             }
             case VersionMinor:
@@ -513,7 +513,7 @@ final class HttpParser
                     _versionMinor = 0;
                 }
                 _versionMinor *= 10;
-                _versionMinor += (int)(c - '0');
+                _versionMinor += c - '0';
                 break;
             }
             case Response:
@@ -571,7 +571,7 @@ final class HttpParser
                     _status = 0;
                 }
                 _status *= 10;
-                _status += (int)(c - '0');
+                _status += c - '0';
                 break;
             }
             case ResponseReasonStart:

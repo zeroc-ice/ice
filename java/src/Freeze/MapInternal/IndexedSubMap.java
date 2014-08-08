@@ -9,7 +9,6 @@
 
 package Freeze.MapInternal;
 
-import Freeze.ConnectionI;
 import Freeze.DatabaseException;
 import Freeze.Map;
 import Freeze.NavigableMap;
@@ -24,24 +23,27 @@ class IndexedSubMap<K, V, I>
 {
     private class Value extends java.util.AbstractSet<java.util.Map.Entry<K, V>>
     {
+        @Override
         public java.util.Iterator<java.util.Map.Entry<K, V>>
         iterator()
         {
             return _index.find(_myKey, true);
         }
 
+        @Override
         public int
         size()
         {
             return _index.count(_myKey);
         }
 
+        @Override
         public boolean
         equals(Object o)
         {
             if(o instanceof IndexedSubMap.Value)
             {
-                IndexedSubMap.Value v = (IndexedSubMap.Value)o;
+                IndexedSubMap<?,?,?>.Value v = (IndexedSubMap<?,?,?>.Value)o;
                 return v._myKey.equals(_myKey);
             }
             else
@@ -50,6 +52,7 @@ class IndexedSubMap<K, V, I>
             }
         }
 
+        @Override
         public int
         hashCode()
         {
@@ -73,30 +76,34 @@ class IndexedSubMap<K, V, I>
 
     private class Entry implements java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     {
+        @Override
         public I
         getKey()
         {
             return _value.getKey();
         }
 
+        @Override
         public java.util.Set<java.util.Map.Entry<K, V>>
         getValue()
         {
             return _value;
         }
 
+        @Override
         public java.util.Set<java.util.Map.Entry<K, V>>
         setValue(java.util.Set<java.util.Map.Entry<K, V>> value)
         {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public boolean
         equals(Object o)
         {
             if(o instanceof IndexedSubMap.Entry)
             {
-                IndexedSubMap.Entry e = (IndexedSubMap.Entry)o;
+                IndexedSubMap<?,?,?>.Entry e = (IndexedSubMap<?,?,?>.Entry)o;
                 return e._value.equals(_value);
             }
             else
@@ -105,6 +112,7 @@ class IndexedSubMap<K, V, I>
             }
         }
 
+        @Override
         public int
         hashCode()
         {
@@ -129,12 +137,14 @@ class IndexedSubMap<K, V, I>
     private class Iterator
         implements Map.EntryIterator<java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>>
     {
+        @Override
         public boolean
         hasNext()
         {
             return _iterator.hasNext();
         }
 
+        @Override
         public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
         next()
         {
@@ -142,18 +152,21 @@ class IndexedSubMap<K, V, I>
             return new Entry(_index.decodeKey(entry.getIndexBytes()));
         }
 
+        @Override
         public void
         remove()
         {
             _iterator.remove();
         }
 
+        @Override
         public void
         close()
         {
             _iterator.close();
         }
 
+        @Override
         public void
         destroy()
         {
@@ -189,6 +202,7 @@ class IndexedSubMap<K, V, I>
     // NavigableMap methods
     //
 
+    @Override
     public boolean
     fastRemove(I key)
     {
@@ -203,42 +217,49 @@ class IndexedSubMap<K, V, I>
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     firstEntry()
     {
         return _view.first();
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     lastEntry()
     {
         return _view.last();
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     ceilingEntry(I key)
     {
         return _view.ceiling(key);
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     floorEntry(I key)
     {
         return _view.floor(key);
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     higherEntry(I key)
     {
         return _view.higher(key);
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     lowerEntry(I key)
     {
         return _view.lower(key);
     }
 
+    @Override
     public I
     ceilingKey(I key)
     {
@@ -246,6 +267,7 @@ class IndexedSubMap<K, V, I>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public I
     floorKey(I key)
     {
@@ -253,6 +275,7 @@ class IndexedSubMap<K, V, I>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public I
     higherKey(I key)
     {
@@ -260,6 +283,7 @@ class IndexedSubMap<K, V, I>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public I
     lowerKey(I key)
     {
@@ -267,12 +291,14 @@ class IndexedSubMap<K, V, I>
         return e != null ? e.getKey() : null;
     }
 
+    @Override
     public java.util.Set<I>
     descendingKeySet()
     {
         return descendingMap().keySet();
     }
 
+    @Override
     public NavigableMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     descendingMap()
     {
@@ -284,6 +310,7 @@ class IndexedSubMap<K, V, I>
         return _descendingMap;
     }
 
+    @Override
     public NavigableMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     headMap(I toKey, boolean inclusive)
     {
@@ -295,6 +322,7 @@ class IndexedSubMap<K, V, I>
         return new IndexedSubMap<K, V, I>(_index, v);
     }
 
+    @Override
     public NavigableMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     subMap(I fromKey, boolean fromInclusive, I toKey, boolean toInclusive)
     {
@@ -306,6 +334,7 @@ class IndexedSubMap<K, V, I>
         return new IndexedSubMap<K, V, I>(_index, v);
     }
 
+    @Override
     public NavigableMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     tailMap(I fromKey, boolean inclusive)
     {
@@ -317,6 +346,7 @@ class IndexedSubMap<K, V, I>
         return new IndexedSubMap<K, V, I>(_index, v);
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     pollFirstEntry()
     {
@@ -326,6 +356,7 @@ class IndexedSubMap<K, V, I>
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>
     pollLastEntry()
     {
@@ -339,12 +370,14 @@ class IndexedSubMap<K, V, I>
     // SortedMap methods
     //
 
+    @Override
     public java.util.Comparator<? super I>
     comparator()
     {
         return _view.comparator();
     }
 
+    @Override
     public I
     firstKey()
     {
@@ -356,6 +389,7 @@ class IndexedSubMap<K, V, I>
         return e.getKey();
     }
 
+    @Override
     public I
     lastKey()
     {
@@ -367,18 +401,21 @@ class IndexedSubMap<K, V, I>
         return e.getKey();
     }
 
+    @Override
     public java.util.SortedMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     headMap(I toKey)
     {
         return headMap(toKey, false);
     }
 
+    @Override
     public java.util.SortedMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     tailMap(I fromKey)
     {
         return tailMap(fromKey, true);
     }
 
+    @Override
     public java.util.SortedMap<I, java.util.Set<java.util.Map.Entry<K, V>>>
     subMap(I fromKey, I toKey)
     {
@@ -389,6 +426,7 @@ class IndexedSubMap<K, V, I>
     // Map methods
     //
 
+    @Override
     public java.util.Set<java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>>
     entrySet()
     {
@@ -396,18 +434,20 @@ class IndexedSubMap<K, V, I>
         {
             _entrySet = new java.util.AbstractSet<java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>>()
             {
+                @Override
                 public java.util.Iterator<java.util.Map.Entry<I, java.util.Set<java.util.Map.Entry<K, V>>>>
                 iterator()
                 {
                     return new Iterator();
                 }
 
+                @Override
                 public boolean
                 contains(Object o)
                 {
                     if(o instanceof IndexedSubMap.Entry)
                     {
-                        IndexedSubMap.Entry e = (IndexedSubMap.Entry)o;
+                        IndexedSubMap<?,?,?>.Entry e = (IndexedSubMap<?,?,?>.Entry)o;
                         return e.parent() == IndexedSubMap.this && _index.containsKey(e.getKey());
                     }
                     else
@@ -416,6 +456,7 @@ class IndexedSubMap<K, V, I>
                     }
                 }
 
+                @Override
                 public boolean
                 remove(Object o)
                 {
@@ -426,12 +467,14 @@ class IndexedSubMap<K, V, I>
                     throw new UnsupportedOperationException();
                 }
 
+                @Override
                 public int
                 size()
                 {
                     throw new UnsupportedOperationException();
                 }
 
+                @Override
                 public boolean
                 isEmpty()
                 {
@@ -467,6 +510,7 @@ class IndexedSubMap<K, V, I>
         return _index.containsKey(key);
     }
 
+    @Override
     public java.util.Set<java.util.Map.Entry<K, V>>
     get(Object key)
     {
@@ -487,6 +531,7 @@ class IndexedSubMap<K, V, I>
         }
     }
 
+    @Override
     public java.util.Set<java.util.Map.Entry<K, V>>
     remove(Object key)
     {
@@ -655,18 +700,21 @@ class IndexedSubMap<K, V, I>
         // IteratorModel methods (partial)
         //
 
+        @Override
         final public String
         dbName()
         {
             return _index.dbName();
         }
 
+        @Override
         final public TraceLevels
         traceLevels()
         {
             return _index.traceLevels();
         }
 
+        @Override
         final public com.sleepycat.db.Cursor
         openCursor()
             throws com.sleepycat.db.DatabaseException
@@ -678,6 +726,7 @@ class IndexedSubMap<K, V, I>
         // Search.KeyValidator methods
         //
 
+        @Override
         final public boolean
         keyInRange(ByteBuffer key)
         {
@@ -771,18 +820,21 @@ class IndexedSubMap<K, V, I>
         // View methods
         //
 
+        @Override
         Search.Type
         mapSearchType(Search.Type type)
         {
             return type;
         }
 
+        @Override
         View
         copy(I fromKey, boolean fromInclusive, I toKey, boolean toInclusive)
         {
             return new AscendingView(this, fromKey, fromInclusive, toKey, toInclusive);
         }
 
+        @Override
         View
         descendingView()
         {
@@ -793,6 +845,7 @@ class IndexedSubMap<K, V, I>
         // IteratorModel methods
         //
 
+        @Override
         public EntryI<K, V>
         firstEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -800,6 +853,7 @@ class IndexedSubMap<K, V, I>
             return _index.firstEntry(cursor, _fromKey, _fromInclusive, _toKey, _toInclusive);
         }
 
+        @Override
         public EntryI<K, V>
         nextEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -825,18 +879,21 @@ class IndexedSubMap<K, V, I>
         // View methods
         //
 
+        @Override
         Search.Type
         mapSearchType(Search.Type type)
         {
             return type.descending();
         }
 
+        @Override
         View
         copy(I fromKey, boolean fromInclusive, I toKey, boolean toInclusive)
         {
             return new DescendingView(this, fromKey, fromInclusive, toKey, toInclusive);
         }
 
+        @Override
         View
         descendingView()
         {
@@ -847,6 +904,7 @@ class IndexedSubMap<K, V, I>
         // IteratorModel methods
         //
 
+        @Override
         public EntryI<K, V>
         firstEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -854,6 +912,7 @@ class IndexedSubMap<K, V, I>
             return _index.lastEntry(cursor, _fromKey, _fromInclusive, _toKey, _toInclusive);
         }
 
+        @Override
         public EntryI<K, V>
         nextEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException

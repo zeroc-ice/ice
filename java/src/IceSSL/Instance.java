@@ -9,10 +9,6 @@
 
 package IceSSL;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 class Instance extends IceInternal.ProtocolInstance
 {
     Instance(SSLEngine engine, short type, String protocol)

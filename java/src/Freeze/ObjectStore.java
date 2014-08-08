@@ -428,6 +428,7 @@ class ObjectStore implements IceUtil.Store
     // Load a servant from the database; will end up in the cache associated with
     // this ObjectStore. This load is not transactional.
     //
+    @Override
     public Object
     load(Object identObj)
     {

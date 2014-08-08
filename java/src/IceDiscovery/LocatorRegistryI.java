@@ -23,9 +23,10 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
         _wellKnownProxy = com.stringToProxy("p").ice_locator(null).ice_router(null).ice_collocationOptimized(true);
     }
 
+    @Override
     synchronized public void
-    setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, 
-                                String adapterId, 
+    setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb,
+                                String adapterId,
                                 Ice.ObjectPrx proxy,
                                 Ice.Current current)
     {
@@ -40,11 +41,12 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
         cb.ice_response();
     }
 
+    @Override
     synchronized public void
     setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb,
                                           String adapterId,
                                           String replicaGroupId,
-                                          Ice.ObjectPrx proxy, 
+                                          Ice.ObjectPrx proxy,
                                           Ice.Current current)
     {
         if(proxy != null)
@@ -74,25 +76,26 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
         cb.ice_response();
     }
 
+    @Override
     public void
-    setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb, 
-                                String serverId, 
+    setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb,
+                                String serverId,
                                 Ice.ProcessPrx process,
                                 Ice.Current current)
     {
         cb.ice_response();
     }
-    
-    synchronized Ice.ObjectPrx 
+
+    synchronized Ice.ObjectPrx
     findObject(Ice.Identity id)
     {
         if(id.name.length() == 0)
         {
             return null;
         }
-        
+
         Ice.ObjectPrx prx = _wellKnownProxy.ice_identity(id);
-        
+
         List<String> adapterIds = new ArrayList<String>();
         for(String a : _replicaGroups.keySet())
         {
@@ -127,8 +130,8 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
         java.util.Collections.shuffle(adapterIds);
         return prx.ice_adapterId(adapterIds.get(0));
     }
-    
-    synchronized Ice.ObjectPrx 
+
+    synchronized Ice.ObjectPrx
     findAdapter(String adapterId, Ice.Holder<Boolean> isReplicaGroup)
     {
         Ice.ObjectPrx proxy = _adapters.get(adapterId);
@@ -137,7 +140,7 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
             isReplicaGroup.value = false;
             return proxy;
         }
-        
+
         Set<String> s = _replicaGroups.get(adapterId);
         if(s != null)
         {
@@ -150,15 +153,15 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
                 {
                     continue; // TODO: Inconsistency
                 }
-                
+
                 if(prx == null)
                 {
                     prx = proxy;
                 }
-                
+
                 endpoints.addAll(java.util.Arrays.asList(proxy.ice_getEndpoints()));
             }
-            
+
             if(prx != null)
             {
                 isReplicaGroup.value = true;
@@ -170,7 +173,7 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
     }
 
     final Ice.ObjectPrx _wellKnownProxy;
-    final Map<String, Ice.ObjectPrx> _adapters = new HashMap<String, Ice.ObjectPrx>(); 
+    final Map<String, Ice.ObjectPrx> _adapters = new HashMap<String, Ice.ObjectPrx>();
     final Map<String, Set<String>> _replicaGroups = new HashMap<String, Set<String>>();
 }
 

@@ -70,11 +70,11 @@ public final class ValueWriter
             }
             else if(value instanceof java.util.Map)
             {
-                java.util.Map map = (java.util.Map)value;
-                java.util.Iterator i = map.entrySet().iterator();
+                java.util.Map<?,?> map = (java.util.Map<?,?>)value;
+                java.util.Iterator<?> i = map.entrySet().iterator();
                 while(i.hasNext())
                 {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
+                    java.util.Map.Entry<?,?> entry = (java.util.Map.Entry<?,?>)i.next();
                     String elem = (name != null ? name + "." : "");
                     writeValue(elem + "key", entry.getKey(), objectTable, out);
                     writeValue(elem + "value", entry.getValue(), objectTable, out);
@@ -109,7 +109,7 @@ public final class ValueWriter
             else if(value instanceof java.lang.Enum)
             {
                 writeName(name, out);
-                out.print(((java.lang.Enum)value).name());
+                out.print(((java.lang.Enum<?>)value).name());
             }
             else
             {

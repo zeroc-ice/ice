@@ -19,6 +19,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
     static final int required = 2;
     static final int never = 3;
 
+    @Override
     public Transaction
     getCurrentTransaction()
     {
@@ -34,6 +35,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     public void
     setCurrentTransaction(Transaction tx)
     {
@@ -48,6 +50,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     public Ice.ObjectPrx
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
@@ -127,6 +130,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     public Ice.Object
     removeFacet(Ice.Identity ident, String facet)
     {
@@ -208,6 +212,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     public boolean
     hasFacet(Ice.Identity ident, String facet)
     {
@@ -250,6 +255,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     public void
     finished(Ice.Current current, Ice.Object servant, java.lang.Object cookieObj)
     {
@@ -258,6 +264,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         //
     }
 
+    @Override
     public void
     deactivate(String category)
     {
@@ -599,18 +606,21 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         return null;
     }
 
+    @Override
     protected Object
     createEvictorElement(Ice.Identity ident, ObjectRecord rec, ObjectStore store)
     {
         return new EvictorElement(rec.servant, ident, store);
     }
 
+    @Override
     protected Ice.Object
     locateImpl(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
         return _interceptor;
     }
 
+    @Override
     protected boolean
     hasAnotherFacet(Ice.Identity ident, String facet)
     {
@@ -632,7 +642,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 //
                 if(!facet.equals(entry.getKey()))
                 {
-                    ObjectStore store = (ObjectStore)entry.getValue();
+                    ObjectStore store = entry.getValue();
 
                     if(tx == null && store.cache().getIfPinned(ident) != null)
                     {
@@ -654,6 +664,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     protected void
     evict()
     {
@@ -669,6 +680,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
 
+    @Override
     protected TransactionI
     beforeQuery()
     {
@@ -830,6 +842,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
     //
     private Ice.DispatchInterceptor _interceptor = new Ice.DispatchInterceptor()
     {
+        @Override
         public Ice.DispatchStatus
         dispatch(Ice.Request request)
         {

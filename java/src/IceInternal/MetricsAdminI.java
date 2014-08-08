@@ -100,7 +100,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
 
     public void updateViews()
     {
-        java.util.Set<MetricsMapFactory> updatedMaps = new java.util.HashSet<MetricsMapFactory>();
+        java.util.Set<MetricsMapFactory<?> > updatedMaps = new java.util.HashSet<MetricsMapFactory<?> >();
         synchronized(this)
         {
             String viewsPrefix = "IceMX.Metrics.";
@@ -169,7 +169,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         //
         // Call the updaters to update the maps.
         //
-        for(MetricsMapFactory f : updatedMaps)
+        for(MetricsMapFactory<?> f : updatedMaps)
         {
             f.update();
         }
@@ -375,7 +375,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
     }
 
     private boolean
-    addOrUpdateMap(String mapName, MetricsMapFactory factory)
+    addOrUpdateMap(String mapName, MetricsMapFactory<?> factory)
     {
         boolean updated = false;
         for(MetricsViewI v : _views.values())

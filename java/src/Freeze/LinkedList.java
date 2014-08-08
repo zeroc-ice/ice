@@ -82,12 +82,14 @@ public class LinkedList<T>
 
     private class ForwardIterator implements java.util.Iterator<T>
     {
+        @Override
         public boolean
         hasNext()
         {
             return _next != null;
         }
 
+        @Override
         public T
         next()
         {
@@ -109,6 +111,7 @@ public class LinkedList<T>
             return _current.element;
         }
 
+        @Override
         public void
         remove()
         {
@@ -139,12 +142,14 @@ public class LinkedList<T>
 
     private class ReverseIterator implements java.util.Iterator<T>
     {
+        @Override
         public boolean
         hasNext()
         {
             return _next != null;
         }
 
+        @Override
         public T
         next()
         {
@@ -166,6 +171,7 @@ public class LinkedList<T>
             return _current.element;
         }
 
+        @Override
         public void
         remove()
         {

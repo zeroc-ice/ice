@@ -31,6 +31,7 @@ public class FileLockException extends RuntimeException implements Cloneable
         this.path = path;
     }
 
+    @Override
     public java.lang.Object clone()
     {
         java.lang.Object o = null;
@@ -51,6 +52,7 @@ public class FileLockException extends RuntimeException implements Cloneable
         return "IceUtil::FileLockException";
     }
 
+    @Override
     public String
     toString()
     {

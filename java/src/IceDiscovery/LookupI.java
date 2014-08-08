@@ -24,12 +24,12 @@ class LookupI extends _LookupDisp
             _nRetry = retryCount;
         }
 
-        T 
+        T
         getId()
         {
             return _id;
         }
-        
+
         boolean
         addCallback(AmdCB cb)
         {
@@ -72,12 +72,13 @@ class LookupI extends _LookupDisp
             _latency = 0;
         }
 
+        @Override
         boolean
         retry()
         {
             return _proxies.size() == 0 && --_nRetry >= 0;
         }
-        
+
         boolean
         response(Ice.ObjectPrx proxy, boolean isReplicaGroup)
         {
@@ -126,8 +127,9 @@ class LookupI extends _LookupDisp
             }
             sendResponse(result.ice_endpoints(endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
         }
-        
-        public void 
+
+        @Override
+        public void
         run()
         {
             adapterRequestTimedOut(this);
@@ -155,13 +157,13 @@ class LookupI extends _LookupDisp
             super(id, retryCount);
         }
 
-        void 
+        void
         response(Ice.ObjectPrx proxy)
         {
             finished(proxy);
         }
-        
-        void 
+
+        void
         finished(Ice.ObjectPrx proxy)
         {
             for(Ice.AMD_Locator_findObjectById cb : _callbacks)
@@ -171,6 +173,7 @@ class LookupI extends _LookupDisp
             _callbacks.clear();
         }
 
+        @Override
         public void
         run()
         {
@@ -195,6 +198,7 @@ class LookupI extends _LookupDisp
         _lookupReply = lookupReply;
     }
 
+    @Override
     public void
     findObjectById(String domainId, Ice.Identity id, IceDiscovery.LookupReplyPrx reply, Ice.Current c)
     {
@@ -213,6 +217,7 @@ class LookupI extends _LookupDisp
         }
     }
 
+    @Override
     public void
     findAdapterById(String domainId, String adapterId, IceDiscovery.LookupReplyPrx reply, Ice.Current c)
     {

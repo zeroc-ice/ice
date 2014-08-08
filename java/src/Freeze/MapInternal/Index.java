@@ -11,8 +11,6 @@ package Freeze.MapInternal;
 
 import Freeze.DatabaseException;
 import Freeze.DeadlockException;
-import Freeze.ConnectionI;
-import Freeze.Map;
 import Freeze.MapIndex;
 import Freeze.NavigableMap;
 import java.nio.ByteBuffer;
@@ -37,12 +35,14 @@ public abstract class Index<K, V, I>
     // MapIndex methods
     //
 
+    @Override
     public String
     name()
     {
         return _name;
     }
 
+    @Override
     public void
     associate(String dbName, com.sleepycat.db.Database db, com.sleepycat.db.Transaction txn, boolean createDb)
         throws com.sleepycat.db.DatabaseException, java.io.FileNotFoundException
@@ -62,6 +62,7 @@ public abstract class Index<K, V, I>
         {
             java.util.Comparator<byte[]> c = new java.util.Comparator<byte[]>()
             {
+                @Override
                 public int compare(byte[] a1, byte[] a2)
                 {
                     return Index.this.compare(ByteBuffer.wrap(a1), ByteBuffer.wrap(a2));
@@ -107,6 +108,7 @@ public abstract class Index<K, V, I>
         _db = _map.connection().dbEnv().getEnv().openSecondaryDatabase(txn, _dbName, null, db, config);
     }
 
+    @Override
     public void
     init(MapIndex f)
     {
@@ -122,6 +124,7 @@ public abstract class Index<K, V, I>
         _trace = _map.traceLevels();
     }
 
+    @Override
     public void
     close()
     {
@@ -149,6 +152,7 @@ public abstract class Index<K, V, I>
     // SecondaryKeyCreator methods
     //
 
+    @Override
     public boolean
     createSecondaryKey(com.sleepycat.db.SecondaryDatabase secondary,
                        com.sleepycat.db.DatabaseEntry key,
@@ -156,7 +160,6 @@ public abstract class Index<K, V, I>
                        com.sleepycat.db.DatabaseEntry result)
         throws com.sleepycat.db.DatabaseException
     {
-        Ice.Communicator communicator = _map.connection().getCommunicator();
         ByteBuffer secondaryKey = marshalKey(UtilI.getBuffer(value));
         assert(secondaryKey != null);
 
@@ -167,6 +170,7 @@ public abstract class Index<K, V, I>
     //
     // java.util.Comparator<ByteBuffer>.compare()
     //
+    @Override
     public int compare(ByteBuffer b1, ByteBuffer b2)
     {
         assert(_comparator != null);
@@ -181,18 +185,21 @@ public abstract class Index<K, V, I>
             _onlyDups = onlyDups;
         }
 
+        @Override
         public String
         dbName()
         {
             return Index.this.dbName();
         }
 
+        @Override
         public TraceLevels
         traceLevels()
         {
             return _trace;
         }
 
+        @Override
         public com.sleepycat.db.Cursor
         openCursor()
             throws com.sleepycat.db.DatabaseException
@@ -200,6 +207,7 @@ public abstract class Index<K, V, I>
             return _db.openSecondaryCursor(_map.connection().dbTxn(), null);
         }
 
+        @Override
         public EntryI<K, V>
         firstEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -207,6 +215,7 @@ public abstract class Index<K, V, I>
             return Index.this.findFirstEntry(cursor, _fromKey);
         }
 
+        @Override
         public EntryI<K, V>
         nextEntry(com.sleepycat.db.Cursor cursor)
             throws com.sleepycat.db.DatabaseException
@@ -246,8 +255,8 @@ public abstract class Index<K, V, I>
         // In DB > 5.1.x we can not set DB_DBT_PARTIAL in the key Dbt when calling
         // getSearchKey.
         //
-        if(com.sleepycat.db.Environment.getVersionMajor() < 5 || 
-           (com.sleepycat.db.Environment.getVersionMajor() == 5 && 
+        if(com.sleepycat.db.Environment.getVersionMajor() < 5 ||
+           (com.sleepycat.db.Environment.getVersionMajor() == 5 &&
             com.sleepycat.db.Environment.getVersionMinor() <= 1))
         {
             dbKey.setPartial(true);
@@ -294,14 +303,14 @@ public abstract class Index<K, V, I>
                     }
                     else
                     {
-                        
+
                         if(_trace.deadlockWarning)
                         {
                             _trace.logger.warning(
                                 "Deadlock in Freeze.MapInternal.Index.count while iterating over index \"" + _dbName +
                                 "\"; retrying...");
                         }
-                        
+
                         //
                         // Retry
                         //

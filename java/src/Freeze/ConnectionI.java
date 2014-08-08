@@ -11,6 +11,7 @@ package Freeze;
 
 public class ConnectionI implements Connection
 {
+    @Override
     public Transaction
     beginTransaction()
     {
@@ -23,12 +24,14 @@ public class ConnectionI implements Connection
         return _transaction;
     }
 
+    @Override
     public Transaction
     currentTransaction()
     {
         return _transaction;
     }
 
+    @Override
     public void
     removeMapIndex(String mapName, String indexName)
     {
@@ -55,6 +58,7 @@ public class ConnectionI implements Connection
         }
     }
 
+    @Override
     public void
     close()
     {
@@ -72,7 +76,7 @@ public class ConnectionI implements Connection
             }
         }
 
-        java.util.Iterator<Map> p = _mapList.iterator();
+        java.util.Iterator<Map<?,?> > p = _mapList.iterator();
         while(p.hasNext())
         {
             p.next().close();
@@ -91,24 +95,28 @@ public class ConnectionI implements Connection
         }
     }
 
+    @Override
     public Ice.Communicator
     getCommunicator()
     {
         return _communicator;
     }
 
+    @Override
     public Ice.EncodingVersion
     getEncoding()
     {
         return _encoding;
     }
 
+    @Override
     public String
     getName()
     {
         return _envName;
     }
 
+    @Override
     protected void
     finalize()
         throws Throwable
@@ -151,24 +159,24 @@ public class ConnectionI implements Connection
     public void
     closeAllIterators()
     {
-        java.util.Iterator<Map> p = _mapList.iterator();
+        java.util.Iterator<Map<?,?>> p = _mapList.iterator();
         while(p.hasNext())
         {
             p.next().closeAllIterators();
         }
     }
 
-    public java.util.Iterator
-    registerMap(Map map)
+    public java.util.Iterator<?>
+    registerMap(Map<?,?> map)
     {
         _mapList.addFirst(map);
-        java.util.Iterator<Map> p = _mapList.iterator();
+        java.util.Iterator<Map<?,?>> p = _mapList.iterator();
         p.next();
         return p;
     }
 
     public void
-    unregisterMap(java.util.Iterator p)
+    unregisterMap(java.util.Iterator<?> p)
     {
         p.remove();
     }
@@ -240,7 +248,7 @@ public class ConnectionI implements Connection
     private SharedDbEnv _dbEnv;
     private String _envName;
     private TransactionI _transaction;
-    private LinkedList<Map> _mapList = new LinkedList<Map>();
+    private LinkedList<Map<?,?> > _mapList = new LinkedList<Map<?,?>>();
     private int _trace;
     private int _txTrace;
     private boolean _deadlockWarning;

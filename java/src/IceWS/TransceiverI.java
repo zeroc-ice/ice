@@ -9,16 +9,17 @@
 
 package IceWS;
 
-import java.nio.*;
 import java.security.*;
 
 final class TransceiverI implements IceInternal.Transceiver
 {
+    @Override
     public java.nio.channels.SelectableChannel fd()
     {
         return _delegate.fd();
     }
 
+    @Override
     public int initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
         //
@@ -236,6 +237,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
+    @Override
     public int closing(boolean initiator, Ice.LocalException reason)
     {
         if(_instance.traceLevel() >= 1)
@@ -296,12 +298,14 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
+    @Override
     public void close()
     {
         _delegate.close();
         _state = StateClosed;
     }
 
+    @Override
     public int write(IceInternal.Buffer buf)
     {
         if(_state < StateOpened)
@@ -355,7 +359,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
-    @SuppressWarnings("deprecation")
+    @Override
     public int read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
     {
         if(_state < StateOpened)
@@ -386,7 +390,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 {
                     //
                     // If the payload length is smaller than what remains to be read, we read
-                    // no more than the payload length. The remaining of the buffer will be 
+                    // no more than the payload length. The remaining of the buffer will be
                     // sent over in another frame.
                     //
                     int readSz = _readPayloadLength - (buf.b.position() - _readStart);
@@ -433,16 +437,19 @@ final class TransceiverI implements IceInternal.Transceiver
         return s;
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String toString()
     {
         return _delegate.toString();
     }
 
+    @Override
     public Ice.ConnectionInfo getInfo()
     {
         Ice.IPConnectionInfo di = (Ice.IPConnectionInfo)_delegate.getInfo();
@@ -454,6 +461,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return info;
     }
 
+    @Override
     public void checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {
         _delegate.checkSendSize(buf, messageSizeMax);
@@ -497,7 +505,6 @@ final class TransceiverI implements IceInternal.Transceiver
         assert(_readBufferSize > 256);
     }
 
-    @SuppressWarnings("deprecation")
     private void init(Instance instance, IceInternal.Transceiver del)
     {
         _instance = instance;
@@ -1494,18 +1501,28 @@ final class TransceiverI implements IceInternal.Transceiver
     final static private int OP_CONT     = 0x0;    // Continuation frame
     final static private int OP_TEXT     = 0x1;    // Text frame
     final static private int OP_DATA     = 0x2;    // Data frame
+    @SuppressWarnings("unused")
     final static private int OP_RES_0x3  = 0x3;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0x4  = 0x4;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0x5  = 0x5;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0x6  = 0x6;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0x7  = 0x7;    // Reserved
     final static private int OP_CLOSE    = 0x8;    // Connection close
     final static private int OP_PING     = 0x9;    // Ping
     final static private int OP_PONG     = 0xA;    // Pong
+    @SuppressWarnings("unused")
     final static private int OP_RES_0xB  = 0xB;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0xC  = 0xC;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0xD  = 0xD;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0xE  = 0xE;    // Reserved
+    @SuppressWarnings("unused")
     final static private int OP_RES_0xF  = 0xF;    // Reserved
     final static private int FLAG_FINAL  = 0x80;   // Last frame
     final static private int FLAG_MASKED = 0x80;   // Payload is masked

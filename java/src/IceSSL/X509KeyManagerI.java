@@ -49,7 +49,7 @@ final class X509KeyManagerI extends javax.net.ssl.X509ExtendedKeyManager
     public java.security.cert.X509Certificate[]
     getCertificateChain(String alias)
     {
-        return _delegate.getCertificateChain(alias); 
+        return _delegate.getCertificateChain(alias);
     }
 
     @Override

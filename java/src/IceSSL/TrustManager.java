@@ -128,8 +128,7 @@ class TrustManager
         //
         if(info.nativeCerts != null && info.nativeCerts.length > 0)
         {
-            javax.security.auth.x500.X500Principal subjectDN = (javax.security.auth.x500.X500Principal)
-                ((java.security.cert.X509Certificate)info.nativeCerts[0]).getSubjectX500Principal();
+            javax.security.auth.x500.X500Principal subjectDN = ((java.security.cert.X509Certificate)info.nativeCerts[0]).getSubjectX500Principal();
             String subjectName = subjectDN.getName(javax.security.auth.x500.X500Principal.RFC2253);
             assert subjectName != null;
             try

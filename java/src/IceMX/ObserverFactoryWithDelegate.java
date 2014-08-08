@@ -10,11 +10,11 @@
 package IceMX;
 
 public class ObserverFactoryWithDelegate<T extends Metrics,
-                                         OImpl extends ObserverWithDelegate<T, O>, 
-                                         O extends Ice.Instrumentation.Observer> 
+                                         OImpl extends ObserverWithDelegate<T, O>,
+                                         O extends Ice.Instrumentation.Observer>
     extends ObserverFactory<T, OImpl>
 {
-    public 
+    public
     ObserverFactoryWithDelegate(IceInternal.MetricsAdminI metrics, String name, Class<T> cl)
     {
         super(metrics, name, cl);

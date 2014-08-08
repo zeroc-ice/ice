@@ -13,15 +13,16 @@ import IceInternal.MetricsMap;
 
 public class ObserverFactory<T extends Metrics, O extends Observer<T>>
 {
-    public 
+    public
     ObserverFactory(IceInternal.MetricsAdminI metrics, String name, Class<T> cl)
     {
         _metrics = metrics;
         _name = name;
         _class = cl;
-        _metrics.registerMap(name, _class, new Runnable() 
+        _metrics.registerMap(name, _class, new Runnable()
             {
-                public void 
+                @Override
+                public void
                 run()
                 {
                     update();
@@ -105,7 +106,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         return _enabled;
     }
 
-    public void 
+    public void
     update()
     {
         Runnable updater;
@@ -131,7 +132,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
     {
         _updater = updater;
     }
-    
+
     private final IceInternal.MetricsAdminI _metrics;
     private final String _name;
     private final Class<T> _class;

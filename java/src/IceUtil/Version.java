@@ -13,6 +13,7 @@ package IceUtil;
  * @deprecated IceUtil.Version is deprecated, use Ice.Util.stringVersion() or
  * Ice.Util.intVersion() instead.
  **/
+@Deprecated
 public final class Version
 {
     //

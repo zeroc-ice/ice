@@ -24,6 +24,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         _haveKey = key != null;
     }
 
+    @Override
     public K
     getKey()
     {
@@ -36,6 +37,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         return _key;
     }
 
+    @Override
     public V
     getValue()
     {
@@ -58,6 +60,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         return _indexBytes;
     }
 
+    @Override
     public V
     setValue(V value)
     {
@@ -75,6 +78,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         return old;
     }
 
+    @Override
     public boolean
     equals(Object o)
     {
@@ -87,6 +91,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         return eq(getKey(), e.getKey()) && eq(getValue(), e.getValue());
     }
 
+    @Override
     public int
     hashCode()
     {
@@ -94,6 +99,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
                ((getValue() == null) ? 0 : getValue().hashCode());
     }
 
+    @Override
     public String
     toString()
     {

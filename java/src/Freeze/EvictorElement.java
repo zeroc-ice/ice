@@ -43,7 +43,7 @@ class EvictorElement
         this.identity = identity;
         this.store = store;
     }
-    
+
     final ObjectStore store;
     final Ice.Identity identity;
 

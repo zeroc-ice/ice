@@ -47,6 +47,7 @@ public class XMLOutput extends OutputBase
         _sgml = true;
     }
 
+    @Override
     public void
     print(String s)
     {
@@ -75,6 +76,7 @@ public class XMLOutput extends OutputBase
         return this;
     }
 
+    @Override
     public void
     nl()
     {

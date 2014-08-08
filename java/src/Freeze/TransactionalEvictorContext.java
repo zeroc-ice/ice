@@ -16,6 +16,7 @@ package Freeze;
 
 class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallback, PostCompletionCallback
 {
+    @Override
     public void
     postCompletion(boolean committed, boolean deadlock, SharedDbEnv dbEnv)
     {
@@ -55,6 +56,7 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
         }
     }
 
+    @Override
     public boolean
     response(boolean ok)
     {
@@ -91,6 +93,7 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
         }
     }
 
+    @Override
     public boolean
     exception(java.lang.Exception ex)
     {

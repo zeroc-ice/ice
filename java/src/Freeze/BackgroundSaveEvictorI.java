@@ -107,6 +107,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         _thread.start();
     }
 
+    @Override
     public Ice.ObjectPrx
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
@@ -194,7 +195,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 ObjectRecord rec = element.rec;
 
                                 rec.servant = servant;
-                                
+
                                 if(store.keepStats())
                                 {
                                     rec.stats.creationTime = IceInternal.Time.currentMonotonicTimeMillis();
@@ -253,6 +254,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public Ice.Object
     removeFacet(Ice.Identity ident, String facet)
     {
@@ -389,12 +391,14 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public void
     keep(Ice.Identity ident)
     {
         keepFacet(ident, "");
     }
 
+    @Override
     public void
     keepFacet(Ice.Identity ident, String facet)
     {
@@ -493,12 +497,14 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public void
     release(Ice.Identity ident)
     {
         releaseFacet(ident, "");
     }
 
+    @Override
     public void
     releaseFacet(Ice.Identity ident, String facet)
     {
@@ -566,6 +572,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public boolean
     hasFacet(Ice.Identity ident, String facet)
     {
@@ -607,6 +614,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     protected boolean
     hasAnotherFacet(Ice.Identity ident, String facet)
     {
@@ -667,6 +675,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     protected Object
     createEvictorElement(Ice.Identity ident, ObjectRecord rec, ObjectStore store)
     {
@@ -675,6 +684,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         return elt;
     }
 
+    @Override
     protected Ice.Object
     locateImpl(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
@@ -758,6 +768,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public void
     finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie)
     {
@@ -819,6 +830,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public void
     deactivate(String category)
     {
@@ -858,6 +870,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     public void
     run()
     {
@@ -994,6 +1007,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 //
                                 future = _timer.schedule(new Runnable()
                                     {
+                                        @Override
                                         public void run()
                                         {
                                             _communicator.getLogger().error(_errorPrefix +
@@ -1001,7 +1015,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
                                             Util.handleFatalError(BackgroundSaveEvictorI.this, _communicator, null);
                                         }
-                                    }, _streamTimeout, java.util.concurrent.TimeUnit.MILLISECONDS); 
+                                    }, _streamTimeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                             }
                             synchronized(servant)
                             {
@@ -1233,6 +1247,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     protected void
     evict()
     {
@@ -1280,6 +1295,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
+    @Override
     protected TransactionI
     beforeQuery()
     {

@@ -27,6 +27,7 @@ public final class Admin
                 "shutdown            Shutdown the server.");
         }
 
+        @Override
         public int
         run(String[] args)
         {
@@ -68,11 +69,11 @@ public final class Admin
                 //
 
                 Ice.Properties properties = communicator().getProperties();
-                
+
                 Ice.Identity managerIdentity = new Ice.Identity();
                 managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
                 managerIdentity.name = "ServiceManager";
-                
+
                 String managerProxy;
                 if(properties.getProperty("Ice.Default.Locator").length() == 0)
                 {
@@ -82,7 +83,7 @@ public final class Admin
                         System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
                         return 1;
                     }
-                    
+
                     managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
                 }
                 else
@@ -93,10 +94,10 @@ public final class Admin
                         System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
                         return 1;
                     }
-                    
+
                     managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
                 }
-                
+
                 base = communicator().stringToProxy(managerProxy);
             }
 
@@ -109,7 +110,7 @@ public final class Admin
 
             for(int i = 0; i < commands.size(); i++)
             {
-                String command = (String)commands.get(i);
+                String command = commands.get(i);
                 if(command.equals("shutdown"))
                 {
                     manager.shutdown();
@@ -122,7 +123,7 @@ public final class Admin
                         return 1;
                     }
 
-                    String service = (String)commands.get(i);
+                    String service = commands.get(i);
                     try
                     {
                         manager.startService(service);
@@ -144,7 +145,7 @@ public final class Admin
                         return 1;
                     }
 
-                    String service = (String)commands.get(i);
+                    String service = commands.get(i);
                     try
                     {
                         manager.stopService(service);

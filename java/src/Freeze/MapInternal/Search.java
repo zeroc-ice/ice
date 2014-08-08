@@ -20,26 +20,32 @@ class Search
     {
         FIRST       // The first entry
         {
+            @Override
             Type descending() { return LAST; };
         },
         LAST        // The last entry
         {
+            @Override
             Type descending() { return FIRST; };
         },
         CEILING     // The entry with the smallest key greater than or equal to the target key
         {
+            @Override
             Type descending() { return FLOOR; };
         },
         FLOOR       // The entry with the greatest key less than or equal to the target key
         {
+            @Override
             Type descending() { return CEILING; };
         },
         HIGHER      // The entry with the smallest key greater than the target key
         {
+            @Override
             Type descending() { return LOWER; };
         },
         LOWER       // The entry with the greatest key less than the target key
         {
+            @Override
             Type descending() { return HIGHER; };
         };
 

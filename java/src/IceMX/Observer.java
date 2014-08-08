@@ -17,7 +17,8 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
     {
         void update(T m);
     };
-    
+
+    @Override
     public void
     attach()
     {
@@ -27,6 +28,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         }
     }
 
+    @Override
     public void
     detach()
     {
@@ -37,6 +39,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         }
     }
 
+    @Override
     public void
     failed(String exceptionName)
     {
@@ -45,7 +48,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
             e.failed(exceptionName);
         }
     }
-    
+
     public void
     forEach(MetricsUpdate<T> u)
     {
@@ -64,7 +67,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         {
             return;
         }
-        
+
         _previousDelay = previous._previousDelay + previous.delay();
 
         //
@@ -115,8 +118,8 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         }
     }
 
-    public MetricsMap<T>.Entry 
-    getEntry(MetricsMap map)
+    public MetricsMap<T>.Entry
+    getEntry(MetricsMap<?> map)
     {
         for(MetricsMap<T>.Entry e : _objects)
         {
@@ -127,7 +130,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         }
         return null;
     }
-    
+
     private java.util.List<MetricsMap<T>.Entry> _objects;
     private long _previousDelay = 0;
 };

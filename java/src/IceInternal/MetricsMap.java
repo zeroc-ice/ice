@@ -80,7 +80,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             }
         }
 
-        public MetricsMap
+        public MetricsMap<?>
         getMap()
         {
             return MetricsMap.this;
@@ -121,7 +121,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             T metrics = (T)_object.clone();
             if(_subMaps != null)
             {
-                for(SubMap s : _subMaps.values())
+                for(SubMap<?> s : _subMaps.values())
                 {
                     s.addSubMapToMetrics(metrics);
                 }

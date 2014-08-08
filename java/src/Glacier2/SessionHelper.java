@@ -21,11 +21,13 @@ public class SessionHelper
             _sessionHelper = sessionHelper;
         }
 
+        @Override
         public void heartbeat(Ice.Connection con)
         {
-                
+
         }
 
+        @Override
         public void closed(Ice.Connection con)
         {
             _sessionHelper.destroy();
@@ -48,7 +50,7 @@ public class SessionHelper
 
     /**
      * Destroys the Glacier2 session.
-     * 
+     *
      * Once the session has been destroyed, {@link SessionCallback.disconnected} is called on
      * the associated callback object.
      */
@@ -95,6 +97,7 @@ public class SessionHelper
         //
         new Thread(new Runnable()
         {
+            @Override
             public void run()
             {
                 destroyInternal();
@@ -127,7 +130,7 @@ public class SessionHelper
         {
             throw new SessionNotExistException();
         }
-        
+
         return _category;
     }
 
@@ -148,9 +151,9 @@ public class SessionHelper
         return internalObjectAdapter().add(servant, new Ice.Identity(java.util.UUID.randomUUID().toString(),
                                                                      _category));
     }
-    
+
     /**
-     * Returns the Glacier2 session proxy. If the session hasn't been established yet, 
+     * Returns the Glacier2 session proxy. If the session hasn't been established yet,
      * or the session has already been destroyed, throws SessionNotExistException.
      * @return The session proxy, or throws SessionNotExistException if no session exists.
      * @throws SessionNotExistException No session exists.
@@ -169,7 +172,7 @@ public class SessionHelper
 
     /**
      * Returns true if there is an active session, otherwise returns false.
-     * @return <code>true</code>if session exists or false if no session exists. 
+     * @return <code>true</code>if session exists or false if no session exists.
      */
     synchronized public boolean
     isConnected()
@@ -214,7 +217,7 @@ public class SessionHelper
         connect(Glacier2.RouterPrx router)
             throws CannotCreateSessionException, PermissionDeniedException;
     }
-    
+
     /**
      * Connects to the Glacier2 router using the associated SSL credentials.
      *
@@ -228,6 +231,7 @@ public class SessionHelper
     {
         connectImpl(new ConnectStrategy()
                             {
+                                @Override
                                 public SessionPrx connect(RouterPrx router)
                                     throws CannotCreateSessionException, PermissionDeniedException
                                 {
@@ -240,8 +244,8 @@ public class SessionHelper
      * Connects a Glacier2 session using user name and password credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure {@link SessionCallback.exception} is called with the exception. 
-     * 
+     * upon failure {@link SessionCallback.exception} is called with the exception.
+     *
      * @param username The user name.
      * @param password The password.
      * @param context The request context to use when creating the session.
@@ -251,6 +255,7 @@ public class SessionHelper
     {
         connectImpl(new ConnectStrategy()
                             {
+                                @Override
                                 public SessionPrx connect(RouterPrx router)
                                     throws CannotCreateSessionException, PermissionDeniedException
                                 {
@@ -286,6 +291,7 @@ public class SessionHelper
                 //
                 new Thread(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         destroyInternal();
@@ -309,8 +315,8 @@ public class SessionHelper
             {
                 Ice.Connection connection = _router.ice_getCachedConnection();
                 assert(connection != null);
-                connection.setACM(new Ice.IntOptional(acmTimeout), 
-                                  null, 
+                connection.setACM(new Ice.IntOptional(acmTimeout),
+                                  null,
                                   new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
                 connection.setCallback(new ConnectionCallbackI(this));
             }
@@ -324,19 +330,23 @@ public class SessionHelper
                 //
                 timer.scheduleAtFixedRate(new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
                             {
+                                @Override
                                 public void response()
                                 {
                                 }
 
+                                @Override
                                 public void exception(Ice.LocalException ex)
                                 {
                                     SessionHelper.this.destroy();
                                 }
 
+                                @Override
                                 public void exception(Ice.UserException ex)
                                 {
                                     SessionHelper.this.destroy();
@@ -352,6 +362,7 @@ public class SessionHelper
 
             _shutdownHook = new Thread("Shutdown hook")
             {
+                @Override
                 public void run()
                 {
                     SessionHelper.this.destroy();
@@ -378,6 +389,7 @@ public class SessionHelper
 
         dispatchCallback(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -451,13 +463,14 @@ public class SessionHelper
         //
         dispatchCallback(new Runnable()
         {
+            @Override
             public void run()
             {
                 _callback.disconnected(SessionHelper.this);
             }
         }, null);
     }
-    
+
     private void
     connectImpl(final ConnectStrategy factory)
     {
@@ -472,10 +485,12 @@ public class SessionHelper
             _destroy = true;
             new Thread(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         dispatchCallback(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 _callback.connectFailed(SessionHelper.this, ex);
@@ -488,12 +503,14 @@ public class SessionHelper
 
         new Thread(new Runnable()
         {
+            @Override
             public void run()
             {
                 try
                 {
                     dispatchCallbackAndWait(new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             _callback.createdCommunicator(SessionHelper.this);
@@ -518,6 +535,7 @@ public class SessionHelper
 
                     dispatchCallback(new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             _callback.connectFailed(SessionHelper.this, ex);
@@ -550,7 +568,8 @@ public class SessionHelper
             _initData.dispatcher.dispatch(
                 new Runnable()
                 {
-                    public void 
+                    @Override
+                    public void
                     run()
                     {
                         runnable.run();

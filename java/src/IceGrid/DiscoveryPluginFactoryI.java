@@ -11,7 +11,8 @@ package IceGrid;
 
 public class DiscoveryPluginFactoryI implements Ice.PluginFactory
 {
-     public Ice.Plugin
+     @Override
+    public Ice.Plugin
      create(Ice.Communicator communicator, String name, String[] args)
      {
          return new DiscoveryPluginI(communicator);

@@ -21,8 +21,9 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      * @param cls The formal type required for the unmarshaled object.
      * @param type The Slice type ID corresponding to the formal type.
      **/
+    @SuppressWarnings("rawtypes")
     public
-    OptionalObject(Optional opt, Class cls, String type)
+    OptionalObject(Optional opt, Class<?> cls, String type)
     {
         this.opt = opt;
         this.cls = cls;
@@ -34,8 +35,8 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
      *
      * @param v The new object for the optional.
      **/
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public void
     patch(Ice.Object v)
     {
@@ -80,12 +81,13 @@ public class OptionalObject implements ReadObjectCallback, IceInternal.Patcher
     /**
      * The optional object.
      **/
+    @SuppressWarnings("rawtypes")
     public Optional opt;
 
     /**
      * The formal type of the target class.
      **/
-    public Class cls;
+    public Class<?> cls;
 
     /**
      * The Slice type ID of the target class.

@@ -244,38 +244,38 @@ public final class StringUtil
             }
             switch(s.charAt(++start))
             {
-                case '\\': 
-                case '\'': 
-                case '"': 
+                case '\\':
+                case '\'':
+                case '"':
                 {
                     c = s.charAt(start++);
                     break;
                 }
-                case 'b': 
+                case 'b':
                 {
                     ++start;
                     c = '\b';
                     break;
                 }
-                case 'f': 
+                case 'f':
                 {
                     ++start;
                     c = '\f';
                     break;
                 }
-                case 'n': 
+                case 'n':
                 {
                     ++start;
                     c = '\n';
                     break;
                 }
-                case 'r': 
+                case 'r':
                 {
                     ++start;
                     c = '\r';
                     break;
                 }
-                case 't': 
+                case 't':
                 {
                     ++start;
                     c = '\t';
@@ -393,7 +393,7 @@ public final class StringUtil
         java.util.List<String> l = new java.util.ArrayList<String>();
         char[] arr = new char[str.length()];
         int pos = 0;
-        
+
         int n = 0;
         char quoteChar = '\0';
         while(pos < str.length())
@@ -403,12 +403,12 @@ public final class StringUtil
                 quoteChar = str.charAt(pos++);
                 continue; // Skip the quote.
             }
-            else if(quoteChar == '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() && 
+            else if(quoteChar == '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() &&
                     (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\''))
             {
                 ++pos; // Skip the backslash
             }
-            else if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() && 
+            else if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() &&
                     str.charAt(pos + 1) == quoteChar)
             {
                 ++pos; // Skip the backslash
@@ -447,7 +447,7 @@ public final class StringUtil
         {
             return null; // Unmatched quote.
         }
-        return (String[])l.toArray(new String[0]);
+        return l.toArray(new String[0]);
     }
 
     public static int
@@ -484,7 +484,7 @@ public final class StringUtil
         return 0; // Not quoted
     }
 
-    public static boolean 
+    public static boolean
     match(String s, String pat, boolean emptyMatch)
     {
         assert(s.length() > 0);

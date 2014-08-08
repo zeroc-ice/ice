@@ -17,19 +17,22 @@ class LocatorI extends Ice._LocatorDisp
         _registry = registry;
     }
 
-    public void 
+    @Override
+    public void
     findObjectById_async(Ice.AMD_Locator_findObjectById cb, Ice.Identity id, Ice.Current current)
     {
         _lookup.findObject(cb, id);
     }
 
-    public void 
+    @Override
+    public void
     findAdapterById_async(Ice.AMD_Locator_findAdapterById cb, String adapterId, Ice.Current current)
     {
         _lookup.findAdapter(cb, adapterId);
     }
 
-    public Ice.LocatorRegistryPrx 
+    @Override
+    public Ice.LocatorRegistryPrx
     getRegistry(Ice.Current current)
     {
         return _registry;

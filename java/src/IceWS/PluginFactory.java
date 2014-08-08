@@ -25,6 +25,7 @@ public class PluginFactory implements Ice.PluginFactory
      * that a general error occurred. Alternatively, <code>create</code> can throw
      * {@link PluginInitializationException} to provide more detailed information.
      **/
+    @Override
     public Ice.Plugin create(Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginI(communicator);

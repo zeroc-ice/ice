@@ -28,10 +28,12 @@ class PluginI implements Ice.Plugin
         }
     }
 
+    @Override
     public void initialize()
     {
     }
 
+    @Override
     public void destroy()
     {
     }

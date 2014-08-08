@@ -26,55 +26,66 @@ class PluginI implements Plugin
             new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl")));
     }
 
+    @Override
     public void initialize()
     {
         _engine.initialize();
     }
 
+    @Override
     public void destroy()
     {
     }
 
+    @Override
     public void setContext(javax.net.ssl.SSLContext context)
     {
         _engine.context(context);
     }
 
+    @Override
     public javax.net.ssl.SSLContext getContext()
     {
         return _engine.context();
     }
 
+    @Override
     public void setCertificateVerifier(CertificateVerifier verifier)
     {
         _engine.setCertificateVerifier(verifier);
     }
 
+    @Override
     public CertificateVerifier getCertificateVerifier()
     {
         return _engine.getCertificateVerifier();
     }
 
+    @Override
     public void setPasswordCallback(PasswordCallback callback)
     {
         _engine.setPasswordCallback(callback);
     }
 
+    @Override
     public PasswordCallback getPasswordCallback()
     {
         return _engine.getPasswordCallback();
     }
 
+    @Override
     public void setKeystoreStream(java.io.InputStream stream)
     {
         _engine.setKeystoreStream(stream);
     }
 
+    @Override
     public void setTruststoreStream(java.io.InputStream stream)
     {
         _engine.setTruststoreStream(stream);
     }
 
+    @Override
     public void addSeedStream(java.io.InputStream stream)
     {
         _engine.addSeedStream(stream);

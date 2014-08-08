@@ -114,7 +114,7 @@ public final class Options
                     {
                         vec.add(arg.toString());
                         arg = new StringBuilder(128);
-                        
+
                         //
                         // Move to start of next argument.
                         //
@@ -260,7 +260,7 @@ public final class Options
                         final String octalDigits = "01234567";
                         short us = 0;
                         int j;
-                        for(j = i; 
+                        for(j = i;
                             j < i + 3 && j < line.length() && octalDigits.indexOf(c = line.charAt(j)) != -1;
                             ++j)
                         {
@@ -283,7 +283,7 @@ public final class Options
                             arg.append('x');
                             break;
                         }
-                                
+
                         short s = 0;
                         int j;
                         for(j = i + 1;
@@ -308,7 +308,7 @@ public final class Options
                         arg.append((char)s);
                         break;
                     }
-                            
+
                     //
                     // Process control-chars.
                     //
@@ -316,7 +316,7 @@ public final class Options
                     {
                         c = line.charAt(++i);
                         if((Character.toUpperCase(c) >= 'A' && Character.toUpperCase(c) <= 'Z') ||
-                           c == '@' || 
+                           c == '@' ||
                            (c >= '[' && c <= '_'))
                         {
                             arg.append((char)(Character.toUpperCase(c) - '@'));
@@ -336,7 +336,7 @@ public final class Options
                         }
                         break;
                     }
-                        
+
                     //
                     // If inside an ANSI-quoted string, a backslash isn't followed by
                     // one of the recognized characters, both the backslash and the
@@ -395,8 +395,8 @@ public final class Options
             break;
         }
         }
-        
-        return (String[])vec.toArray(new String[0]);
+
+        return vec.toArray(new String[0]);
     }
 
 

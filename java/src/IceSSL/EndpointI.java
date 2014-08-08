@@ -39,20 +39,24 @@ final class EndpointI extends IceInternal.IPEndpointI
     //
     // Return the endpoint information.
     //
+    @Override
     public Ice.EndpointInfo getInfo()
     {
         Ice.IPEndpointInfo info = new IceSSL.EndpointInfo()
             {
+                @Override
                 public short type()
                 {
                     return EndpointI.this.type();
                 }
 
+                @Override
                 public boolean datagram()
                 {
                     return EndpointI.this.datagram();
                 }
 
+                @Override
                 public boolean secure()
                 {
                     return EndpointI.this.secure();
@@ -67,6 +71,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
+    @Override
     public int timeout()
     {
         return _timeout;
@@ -77,6 +82,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
+    @Override
     public IceInternal.EndpointI timeout(int timeout)
     {
         if(timeout == _timeout)
@@ -93,6 +99,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
+    @Override
     public boolean compress()
     {
         return _compress;
@@ -103,6 +110,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
+    @Override
     public IceInternal.EndpointI compress(boolean compress)
     {
         if(compress == _compress)
@@ -118,6 +126,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     //
     // Return true if the endpoint is datagram-based.
     //
+    @Override
     public boolean datagram()
     {
         return false;
@@ -126,6 +135,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     //
     // Return true if the endpoint is secure.
     //
+    @Override
     public boolean secure()
     {
         return true;
@@ -138,6 +148,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
+    @Override
     public IceInternal.Transceiver transceiver(IceInternal.EndpointIHolder endpoint)
     {
         endpoint.value = this;
@@ -151,6 +162,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
+    @Override
     public IceInternal.Acceptor acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
         AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
@@ -159,6 +171,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         return p;
     }
 
+    @Override
     public String options()
     {
         //
@@ -190,6 +203,7 @@ final class EndpointI extends IceInternal.IPEndpointI
     //
     // Compare endpoints for sorting purposes
     //
+    @Override
     public int compareTo(IceInternal.EndpointI obj) // From java.lang.Comparable
     {
         if(!(obj instanceof EndpointI))
@@ -224,6 +238,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         return super.compareTo(obj);
     }
 
+    @Override
     public void streamWriteImpl(IceInternal.BasicStream s)
     {
         super.streamWriteImpl(s);
@@ -231,6 +246,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         s.writeBool(_compress);
     }
 
+    @Override
     public int hashInit(int h)
     {
         h = super.hashInit(h);
@@ -239,6 +255,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         return h;
     }
 
+    @Override
     public void fillEndpointInfo(Ice.IPEndpointInfo info)
     {
         super.fillEndpointInfo(info);
@@ -261,6 +278,7 @@ final class EndpointI extends IceInternal.IPEndpointI
         }
     }
 
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint)
     {
         if(super.checkOption(option, argument, endpoint))
@@ -321,11 +339,13 @@ final class EndpointI extends IceInternal.IPEndpointI
         }
     }
 
+    @Override
     protected IceInternal.Connector createConnector(java.net.InetSocketAddress addr, IceInternal.NetworkProxy proxy)
     {
         return new ConnectorI(_instance, _host, addr, proxy, _sourceAddr, _timeout, _connectionId);
     }
 
+    @Override
     protected IceInternal.IPEndpointI createEndpoint(String host, int port, String connectionId)
     {
         return new EndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);

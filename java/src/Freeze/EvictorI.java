@@ -140,24 +140,28 @@ abstract class EvictorI implements Evictor
     static final String defaultDb = "$default";
     static final String indexPrefix = "$index:";
 
+    @Override
     public Ice.ObjectPrx
     add(Ice.Object servant, Ice.Identity ident)
     {
         return addFacet(servant, ident, "");
     }
 
+    @Override
     public Ice.Object
     remove(Ice.Identity ident)
     {
         return removeFacet(ident, "");
     }
 
+    @Override
     public boolean
     hasObject(Ice.Identity ident)
     {
         return hasFacet(ident, "");
     }
 
+    @Override
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
@@ -214,6 +218,7 @@ abstract class EvictorI implements Evictor
         return result;
     }
 
+    @Override
     synchronized public void
     setSize(int evictorSize)
     {
@@ -244,12 +249,14 @@ abstract class EvictorI implements Evictor
         }
     }
 
+    @Override
     synchronized public int
     getSize()
     {
         return _evictorSize;
     }
 
+    @Override
     public EvictorIterator
     getIterator(String facet, int batchSize)
     {
@@ -438,7 +445,7 @@ abstract class EvictorI implements Evictor
     {
         return _encoding;
     }
-    
+
     final SharedDbEnv
     dbEnv()
     {

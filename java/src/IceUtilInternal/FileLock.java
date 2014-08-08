@@ -11,10 +11,7 @@ package IceUtilInternal;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.io.FileWriter;
 import java.nio.channels.FileChannel;
-import java.nio.channels.OverlappingFileLockException;
-
 import java.lang.reflect.Method;
 
 public final class FileLock
@@ -41,7 +38,7 @@ public final class FileLock
         {
             throw new IceUtil.FileLockException(path);
         }
-        
+
         java.nio.channels.FileLock lock;
         try
         {
@@ -51,7 +48,7 @@ public final class FileLock
         {
             throw new IceUtil.FileLockException(path, ex);
         }
-        
+
         if(lock == null)
         {
             throw new IceUtil.FileLockException(path);
@@ -76,7 +73,7 @@ public final class FileLock
                 {
                     //
                     // We access java.lang.management classes using reflection
-                    // because these classes are not available with Android 
+                    // because these classes are not available with Android
                     // Dalvik JVM.
                     //
                     if(!System.getProperty("java.vm.name").startsWith("Dalvik"))
@@ -95,7 +92,7 @@ public final class FileLock
                     {
                         //
                         // In Android with Dalvik we can use android.os.Process to get the
-                        // process pid. That is done using reflection because it is specific 
+                        // process pid. That is done using reflection because it is specific
                         // for Android Dalvik VM.
                         //
                         Class<?> pC = IceInternal.Util.findClass("android.os.Process", null);

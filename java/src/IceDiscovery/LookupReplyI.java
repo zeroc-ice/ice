@@ -16,13 +16,15 @@ class LookupReplyI extends _LookupReplyDisp
         _lookup = lookup;
     }
 
-    public void 
+    @Override
+    public void
     foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current current)
     {
         _lookup.foundObject(id, proxy);
     }
 
-    public void 
+    @Override
+    public void
     foundAdapterById(String adapterId, Ice.ObjectPrx proxy, boolean isReplicaGroup, Ice.Current current)
     {
         _lookup.foundAdapter(adapterId, proxy, isReplicaGroup);

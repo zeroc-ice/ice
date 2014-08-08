@@ -24,6 +24,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
         _observerCompletedCB = new Ice.Callback()
             {
+                @Override
                 public void completed(Ice.AsyncResult result)
                 {
                     try
@@ -45,12 +46,14 @@ public class ServiceManagerI extends _ServiceManagerDisp
             };
     }
 
+    @Override
     public java.util.Map<String, String>
     getSliceChecksums(Ice.Current current)
     {
         return SliceChecksums.checksums;
     }
 
+    @Override
     public void
     startService(String name, Ice.Current current)
         throws AlreadyStartedException, NoSuchServiceException
@@ -123,6 +126,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
     }
 
+    @Override
     public void
     stopService(String name, Ice.Current current)
         throws AlreadyStoppedException, NoSuchServiceException
@@ -195,6 +199,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
     }
 
+    @Override
     public void
     addObserver(final ServiceObserverPrx observer, Ice.Current current)
     {
@@ -230,6 +235,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {
@@ -348,9 +354,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 }
 
                 //
-                // If Ice metrics are enabled on the IceBox communicator, we also enable them on the 
+                // If Ice metrics are enabled on the IceBox communicator, we also enable them on the
                 // shared communicator.
-                // 
+                //
                 IceInternal.MetricsAdminI metricsAdmin = null;
                 if(_communicator.getObserver() instanceof IceInternal.CommunicatorObserverI)
                 {
@@ -362,7 +368,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
                 //
                 // Ensure the metrics admin plugin uses the same property set as the
-                // communicator. This is necessary to correctly deal with runtime 
+                // communicator. This is necessary to correctly deal with runtime
                 // property updates.
                 //
                 if(metricsAdmin != null)
@@ -489,18 +495,18 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     classDir = new java.io.File(System.getProperty("user.dir") + java.io.File.separator +
                                                 classDir).getCanonicalPath();
                 }
-                
+
                 if(!classDir.endsWith(java.io.File.separator) && !classDir.endsWith(".jar"))
                 {
                     classDir += java.io.File.separator;
                 }
-                
+
                 //
                 // Reuse an existing class loader if we have already loaded a plug-in with
                 // the same value for classDir, otherwise create a new one.
                 //
                 ClassLoader cl = null;
-                
+
                 if(_classLoaders == null)
                 {
                     _classLoaders = new java.util.HashMap<String, ClassLoader>();
@@ -509,16 +515,16 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 {
                     cl = _classLoaders.get(classDir);
                 }
-                
+
                 if(cl == null)
                 {
                     final java.net.URL[] url = new java.net.URL[] { new java.net.URL("file:///" + classDir) };
-                    
+
                     cl = new java.net.URLClassLoader(url);
-                    
+
                     _classLoaders.put(classDir, cl);
                 }
-                
+
                 c = cl.loadClass(className);
             }
             catch(java.net.MalformedURLException ex)
@@ -539,7 +545,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         {
             c = IceInternal.Util.findClass(className, null);
         }
-        
+
         if(c == null)
         {
             throw new FailureException("ServiceManager: class " + className + " not found");
@@ -594,7 +600,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     //
                     serviceArgs.value = initData.properties.parseCommandLineOptions(service, serviceArgs.value);
                 }
-                
+
                 //
                 // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
                 // don't set any logger.
@@ -609,13 +615,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 //
                 // If Ice metrics are enabled on the IceBox communicator, we also enable them on
                 // the service communicator.
-                // 
+                //
                 if(_communicator.getObserver() instanceof IceInternal.CommunicatorObserverI)
                 {
                     metricsAdmin = new IceInternal.MetricsAdminI(initData.properties, initData.logger);
                     initData.observer = new IceInternal.CommunicatorObserverI(metricsAdmin);
                 }
-                
+
                 //
                 // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
@@ -626,7 +632,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
                 //
                 // Ensure the metrics admin plugin uses the same property set as the
-                // communicator. This is necessary to correctly deal with runtime 
+                // communicator. This is necessary to correctly deal with runtime
                 // property updates.
                 //
                 if(metricsAdmin != null)
@@ -652,8 +658,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // in case it wants to set a callback).
             //
             final String facetName = "IceBox.Service." + service + ".Properties";
-            IceInternal.PropertiesAdminI propAdmin = new IceInternal.PropertiesAdminI(facetName, 
-                                                                                      communicator.getProperties(), 
+            IceInternal.PropertiesAdminI propAdmin = new IceInternal.PropertiesAdminI(facetName,
+                                                                                      communicator.getProperties(),
                                                                                       communicator.getLogger());
             _communicator.addAdminFacet(propAdmin, facetName);
 
@@ -934,6 +940,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
     static class ServiceInfo implements Cloneable
     {
+        @Override
         public Object clone()
         {
             Object o = null;

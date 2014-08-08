@@ -15,11 +15,6 @@ public class MetricsHelper<T>
     {
         private abstract class Resolver
         {
-            Resolver(String name)
-            {
-                _name = name;
-            }
-
             abstract Object resolve(Object obj) throws Exception;
 
             String resolveImpl(Object obj)
@@ -44,17 +39,15 @@ public class MetricsHelper<T>
                     return null;
                 }
             }
+        }
 
-            final String _name;
-        };
-
-        protected 
+        protected
         AttributeResolver()
         {
         }
 
-        public String 
-        resolve(MetricsHelper helper, String attribute)
+        public String
+        resolve(MetricsHelper<?> helper, String attribute)
         {
             Resolver resolver = _attributes.get(attribute);
             if(resolver == null)
@@ -73,12 +66,13 @@ public class MetricsHelper<T>
             return resolver.resolveImpl(helper);
         }
 
-        public void 
+        public void
         add(String name, final java.lang.reflect.Method method)
         {
-            _attributes.put(name, new Resolver(name)
+            _attributes.put(name, new Resolver()
                 {
-                    public Object 
+                    @Override
+                    public Object
                     resolve(Object obj) throws Exception
                     {
                         return method.invoke(obj);
@@ -86,11 +80,12 @@ public class MetricsHelper<T>
                 });
         }
 
-        public void 
+        public void
         add(String name, final java.lang.reflect.Field field)
         {
-            _attributes.put(name, new Resolver(name)
+            _attributes.put(name, new Resolver()
                 {
+                    @Override
                     public Object
                     resolve(Object obj) throws Exception
                     {
@@ -99,12 +94,13 @@ public class MetricsHelper<T>
                 });
         }
 
-        public void 
+        public void
         add(final String name, final java.lang.reflect.Method method, final java.lang.reflect.Field field)
         {
-            _attributes.put(name, new Resolver(name)
+            _attributes.put(name, new Resolver()
                 {
-                    public Object 
+                    @Override
+                    public Object
                     resolve(Object obj) throws Exception
                     {
                         Object o = method.invoke(obj);
@@ -117,12 +113,13 @@ public class MetricsHelper<T>
                 });
         }
 
-        public void 
+        public void
         add(final String name, final java.lang.reflect.Method method, final java.lang.reflect.Method subMethod)
         {
-            _attributes.put(name, new Resolver(name)
+            _attributes.put(name, new Resolver()
                 {
-                    public Object 
+                    @Override
+                    public Object
                     resolve(Object obj) throws Exception
                     {
                         Object o = method.invoke(obj);
@@ -138,19 +135,19 @@ public class MetricsHelper<T>
         private java.util.Map<String, Resolver> _attributes = new java.util.HashMap<String, Resolver>();
     };
 
-    protected 
+    protected
     MetricsHelper(AttributeResolver attributes)
     {
         _attributes = attributes;
     }
 
-    public String 
+    public String
     resolve(String attribute)
     {
         return _attributes.resolve(this, attribute);
     }
 
-    public void 
+    public void
     initMetrics(T metrics)
     {
         // Override in specialized helpers.

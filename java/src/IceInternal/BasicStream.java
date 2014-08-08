@@ -2755,10 +2755,9 @@ public class BasicStream
 
     abstract private static class EncapsDecoder
     {
-        EncapsDecoder(BasicStream stream, ReadEncaps encaps, boolean sliceObjects, ObjectFactoryManager f)
+        EncapsDecoder(BasicStream stream, boolean sliceObjects, ObjectFactoryManager f)
         {
             _stream = stream;
-            _encaps = encaps;
             _sliceObjects = sliceObjects;
             _servantFactoryManager = f;
             _typeIdIndex = 0;
@@ -2978,7 +2977,6 @@ public class BasicStream
         }
 
         protected final BasicStream _stream;
-        protected final ReadEncaps _encaps;
         protected final boolean _sliceObjects;
         protected ObjectFactoryManager _servantFactoryManager;
 
@@ -2994,9 +2992,9 @@ public class BasicStream
 
     private static final class EncapsDecoder10 extends EncapsDecoder
     {
-        EncapsDecoder10(BasicStream stream, ReadEncaps encaps, boolean sliceObjects, ObjectFactoryManager f)
+        EncapsDecoder10(BasicStream stream, boolean sliceObjects, ObjectFactoryManager f)
         {
-            super(stream, encaps, sliceObjects, f);
+            super(stream, sliceObjects, f);
             _sliceType = SliceType.NoSlice;
         }
 
@@ -3297,9 +3295,9 @@ public class BasicStream
 
     private static class EncapsDecoder11 extends EncapsDecoder
     {
-        EncapsDecoder11(BasicStream stream, ReadEncaps encaps, boolean sliceObjects, ObjectFactoryManager f)
+        EncapsDecoder11(BasicStream stream, boolean sliceObjects, ObjectFactoryManager f)
         {
-            super(stream, encaps, sliceObjects, f);
+            super(stream, sliceObjects, f);
             _objectIdIndex = 1;
             _current = null;
         }
@@ -4568,11 +4566,11 @@ public class BasicStream
             ObjectFactoryManager factoryManager = _instance.servantFactoryManager();
             if(_readEncapsStack.encoding_1_0)
             {
-                _readEncapsStack.decoder = new EncapsDecoder10(this, _readEncapsStack, _sliceObjects, factoryManager);
+                _readEncapsStack.decoder = new EncapsDecoder10(this, _sliceObjects, factoryManager);
             }
             else
             {
-                _readEncapsStack.decoder = new EncapsDecoder11(this, _readEncapsStack, _sliceObjects, factoryManager);
+                _readEncapsStack.decoder = new EncapsDecoder11(this, _sliceObjects, factoryManager);
             };
         }
     }

@@ -11,11 +11,13 @@ package IceSSL;
 
 final class AcceptorI implements IceInternal.Acceptor
 {
+    @Override
     public java.nio.channels.ServerSocketChannel fd()
     {
         return _fd;
     }
 
+    @Override
     public void close()
     {
         if(_instance.traceLevel() >= 1)
@@ -29,6 +31,7 @@ final class AcceptorI implements IceInternal.Acceptor
         _fd = null;
     }
 
+    @Override
     public void listen()
     {
         // Nothing to do.
@@ -38,8 +41,8 @@ final class AcceptorI implements IceInternal.Acceptor
             StringBuffer s = new StringBuffer("listening for " + _instance.protocol() + " connections at ");
             s.append(toString());
 
-            java.util.List<String> interfaces = 
-                IceInternal.Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), 
+            java.util.List<String> interfaces =
+                IceInternal.Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(),
                                                               _instance.protocolSupport(), true);
             if(!interfaces.isEmpty())
             {
@@ -50,6 +53,7 @@ final class AcceptorI implements IceInternal.Acceptor
         }
     }
 
+    @Override
     public IceInternal.Transceiver accept()
     {
         //
@@ -88,11 +92,13 @@ final class AcceptorI implements IceInternal.Acceptor
         return new TransceiverI(_instance, engine, fd, _adapterName);
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public String toString()
     {
         return IceInternal.Network.addrToString(_addr);
@@ -131,7 +137,7 @@ final class AcceptorI implements IceInternal.Acceptor
                 //
                 IceInternal.Network.setReuseAddress(_fd, true);
             }
-            _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport(), 
+            _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport(),
                                                             _instance.preferIPv6());
             if(_instance.traceLevel() >= 2)
             {
@@ -147,6 +153,7 @@ final class AcceptorI implements IceInternal.Acceptor
         }
     }
 
+    @Override
     protected synchronized void finalize()
         throws Throwable
     {

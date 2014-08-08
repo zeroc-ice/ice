@@ -17,32 +17,38 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
         _delegate = delegate;
     }
 
+    @Override
     public short type()
     {
         return _instance.type();
     }
 
+    @Override
     public String protocol()
     {
         return _instance.protocol();
     }
 
+    @Override
     public IceInternal.EndpointI create(java.util.ArrayList<String> args, boolean oaEndpoint)
     {
         return new EndpointI(_instance, _delegate.create(args, oaEndpoint), args);
     }
 
+    @Override
     public IceInternal.EndpointI read(IceInternal.BasicStream s)
     {
         return new EndpointI(_instance, _delegate.read(s), s);
     }
 
+    @Override
     public void destroy()
     {
         _delegate.destroy();
         _instance = null;
     }
 
+    @Override
     public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance instance)
     {
         assert(false); // We don't support cloning this transport.

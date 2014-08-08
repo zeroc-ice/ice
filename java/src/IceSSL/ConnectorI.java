@@ -11,6 +11,7 @@ package IceSSL;
 
 final class ConnectorI implements IceInternal.Connector
 {
+    @Override
     public IceInternal.Transceiver connect()
     {
         //
@@ -58,16 +59,19 @@ final class ConnectorI implements IceInternal.Connector
         }
     }
 
+    @Override
     public short type()
     {
         return _instance.type();
     }
 
+    @Override
     public String toString()
     {
         return IceInternal.Network.addrToString(_proxy == null ? _addr : _proxy.getAddress());
     }
 
+    @Override
     public int hashCode()
     {
         return _hashCode;
@@ -98,6 +102,7 @@ final class ConnectorI implements IceInternal.Connector
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
+    @Override
     public boolean equals(java.lang.Object obj)
     {
         if(!(obj instanceof ConnectorI))
