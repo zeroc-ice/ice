@@ -77,8 +77,14 @@ class FactoryACMMonitor implements ACMMonitor
             {
                 _connections.add(connection);
                 assert _future == null;
-                _future = _instance.timer().scheduleAtFixedRate(this, _config.timeout / 2, _config.timeout / 2,
-                    java.util.concurrent.TimeUnit.MILLISECONDS);
+                _future = _instance.timer().scheduleAtFixedRate(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        monitorConnections();
+                    }
+                },
+                _config.timeout / 2, _config.timeout / 2, java.util.concurrent.TimeUnit.MILLISECONDS);
             }
             else
             {
@@ -155,9 +161,8 @@ class FactoryACMMonitor implements ACMMonitor
         return connections;
     }
 
-    @Override
-    public void
-    run()
+    private void
+    monitorConnections()
     {
         synchronized(this)
         {

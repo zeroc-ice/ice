@@ -901,10 +901,6 @@ namespace Ice
                         _monitor.remove(this);
                     }
                     _monitor = _monitor.acm(timeout, close, heartbeat);
-                    if(_state == StateActive)
-                    {
-                        _monitor.add(this);
-                    }
 
                     if(_monitor.getACM().timeout <= 0)
                     {
@@ -914,6 +910,12 @@ namespace Ice
                     {
                         _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                     }
+
+                    if(_state == StateActive)
+                    {
+                        _monitor.add(this);
+                    }
+
                 }
             }
         }
@@ -2091,11 +2093,11 @@ namespace Ice
             {
                 if(state == StateActive)
                 {
-                    _monitor.add(this);
                     if(_acmLastActivity > 0)
                     {
                         _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                     }
+                    _monitor.add(this);
                 }
                 else if(_state == StateActive)
                 {

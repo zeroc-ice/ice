@@ -1197,10 +1197,6 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
             _monitor->remove(this);
         }
         _monitor = _monitor->acm(timeout, close, heartbeat);
-        if(_state == StateActive)
-        {
-            _monitor->add(this);
-        }
 
         if(_monitor->getACM().timeout <= 0)
         {
@@ -1209,6 +1205,11 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
         else if(_acmLastActivity == IceUtil::Time() && _state == StateActive)
         {
             _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        }
+
+        if(_state == StateActive)
+        {
+            _monitor->add(this);
         }
     }
 }
@@ -2483,11 +2484,11 @@ Ice::ConnectionI::setState(State state)
     {
         if(state == StateActive)
         {
-            _monitor->add(this);
             if(_acmLastActivity != IceUtil::Time())
             {
                 _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
             }
+            _monitor->add(this);
         }
         else if(_state == StateActive)
         {

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public interface ACMMonitor extends Runnable
+public interface ACMMonitor
 {
     void add(Ice.ConnectionI con);
     void remove(Ice.ConnectionI con);

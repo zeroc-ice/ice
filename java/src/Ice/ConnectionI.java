@@ -893,11 +893,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 _monitor.remove(this);
             }
             _monitor = _monitor.acm(timeout, close, heartbeat);
-            if(_state == StateActive)
-            {
-                _monitor.add(this);
-            }
-
+            
             if(_monitor.getACM().timeout <= 0)
             {
                 _acmLastActivity = -1; // Disable the recording of last activity.
@@ -906,6 +902,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
             }
+
+            if(_state == StateActive)
+            {
+                _monitor.add(this);
+            }
+
         }
     }
 
@@ -2066,11 +2068,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(state == StateActive)
             {
-                _monitor.add(this);
                 if(_acmLastActivity > 0)
                 {
                     _acmLastActivity = IceInternal.Time.currentMonotonicTimeMillis();
                 }
+                _monitor.add(this);
             }
             else if(_state == StateActive)
             {
