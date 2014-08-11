@@ -395,6 +395,62 @@ public class AllTests
                 comm.destroy();
 
                 //
+                // This should succeed because the self signed certificate used by the server is
+                // trusted.
+                //
+                initData = createClientProps(defaultProperties, testDir, defaultHost);
+                comm = Ice.Util.initialize(ref args, initData);
+                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, testDir, defaultHost);
+                d["IceSSL.CertFile"] = defaultDir + "/cacert2.pfx";
+                d["IceSSL.Password"] = "password";
+                d["IceSSL.VerifyPeer"] = "0";
+                server = fact.createServer(d);
+                store.Add(caCert2);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                store.Remove(caCert2);
+                comm.destroy();
+
+                //
+                // This should fail because the self signed certificate used by the server is not
+                // trusted.
+                //
+                initData = createClientProps(defaultProperties, testDir, defaultHost);
+                comm = Ice.Util.initialize(ref args, initData);
+                fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, testDir, defaultHost);
+                d["IceSSL.CertFile"] = defaultDir + "/cacert2.pfx";
+                d["IceSSL.Password"] = "password";
+                d["IceSSL.VerifyPeer"] = "0";
+                server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                    test(false);
+                }
+                catch(Ice.SecurityException)
+                {
+                    // Expected.
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
+
+
+                //
                 // Verify that IceSSL.CheckCertName has no effect in a server.
                 //
                 initData = createClientProps(defaultProperties, testDir, defaultHost);

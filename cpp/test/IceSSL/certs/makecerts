@@ -37,6 +37,8 @@ if ! [ -f cakey1.pem ]; then
     openssl req -config test_ca2.cnf -x509 -days 3650 -newkey rsa:1024 -keyout cakey2.pem -out cacert2.pem \
         -outform PEM -nodes
 
+    openssl pkcs12 -in cacert2.pem -inkey cakey2.pem -export -out cacert2.pfx -passout pass:password
+    
     #
     # In order for OpenSSL to locate CA certificates dynamically at run time, the
     # directory containing the certificates must be indexed. Typically this is
@@ -55,6 +57,8 @@ if ! [ -f cakey1.pem ]; then
     #
     cp cacert1.pem `openssl x509 -subject_hash_old -noout -in cacert1.pem`.0
     cp cacert2.pem `openssl x509 -subject_hash_old -noout -in cacert2.pem`.0
+    
+    
 
     #
     # Create a server certificate and key (no password).

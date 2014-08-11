@@ -281,6 +281,62 @@ public class AllTests
             }
             fact.destroyServer(server);
             comm.destroy();
+            
+            //
+            // This should succeed because the self signed certificate used by the server is
+            // trusted.
+            //
+            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+            initData.properties.setProperty("IceSSL.Truststore", "cacert2.jks");
+            comm = Ice.Util.initialize(args, initData);
+            fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d.put("IceSSL.Keystore", "s_cacert2.jks");
+            d.put("IceSSL.Password", "password");
+            d.put("IceSSL.VerifyPeer", "0");
+            server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            fact.destroyServer(server);
+            comm.destroy();
+            
+            //
+            // This should fail because the self signed certificate used by the server is not
+            // trusted.
+            //
+            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+            comm = Ice.Util.initialize(args, initData);
+            fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d.put("IceSSL.Keystore", "s_cacert2.jks");
+            d.put("IceSSL.Password", "password");
+            d.put("IceSSL.VerifyPeer", "0");
+            server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+                test(false);
+            }
+            catch(Ice.SecurityException ex)
+            {
+                // Expected.
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            fact.destroyServer(server);
+            comm.destroy();
 
             //
             // Test IceSSL.VerifyPeer=1. Client has a certificate.

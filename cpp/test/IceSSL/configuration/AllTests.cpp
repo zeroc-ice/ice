@@ -646,6 +646,85 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         comm->destroy();
 
         //
+        // This should succeed because the self signed certificate used by the server is
+        // trusted. The IceSSL.DefaultDir setting in the client allows OpenSSL to find 
+        // the server's CA certificate.
+        //
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+        comm = initialize(initData);
+        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+        if(pfx)
+        {
+            d["IceSSL.CertFile"] = defaultDir + "/cacert2.pfx";
+        }
+        else
+        {
+            d["IceSSL.CertFile"] = defaultDir + "/cacert2.pem";
+            d["IceSSL.KeyFile"] = defaultDir + "/cakey2.pem";
+        }
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+        }
+        catch(const LocalException&)
+        {
+            test(false);
+        }
+        fact->destroyServer(server);
+
+        comm->destroy();
+        
+        //
+        // This should fail because the self signed certificate used by the server is not
+        // trusted.  The IceSSL.DefaultDir setting in the client allows OpenSSL to find 
+        // the server's CA certificate. We have to disable IceSSL.DefaultDir in the client 
+        // so that it can't find the server's CA certificate.
+        //
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+        initData.properties->setProperty("IceSSL.DefaultDir", "");
+        comm = initialize(initData);
+        fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+        if(pfx)
+        {
+            d["IceSSL.CertFile"] = defaultDir + "/cacert2.pfx";
+        }
+        else
+        {
+            d["IceSSL.CertFile"] = defaultDir + "/cacert2.pem";
+            d["IceSSL.KeyFile"] = defaultDir + "/cakey2.pem";
+        }
+        d["IceSSL.VerifyPeer"] = "0";
+        server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const ProtocolException&)
+        {
+            // Expected.
+        }
+#ifdef _WIN32
+        catch(const ConnectionLostException&)
+        {
+            // Expected.
+        }
+#endif
+        catch(const LocalException&)
+        {
+            test(false);
+        }
+        fact->destroyServer(server);
+
+        comm->destroy();
+
+        //
         // Verify that IceSSL.CheckCertName has no effect in a server.
         //
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);

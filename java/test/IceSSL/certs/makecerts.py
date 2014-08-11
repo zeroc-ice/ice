@@ -108,6 +108,17 @@ for x in certs:
         os.system("java -classpath ../../../../certs ImportKey " + p12  + " cert " + cacert + ".der " + ks + " password")
         os.remove(p12)
         print "Created " + ks
+        
+p12 = "cacert2.pfx"
+ks = "s_cacert2.jks"
+if force or not os.path.exists(ks):
+    cert = os.path.join(cppcerts, "cacert2.pem")
+    key = os.path.join(cppcerts, "cakey2.pem")
+    os.system("openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out " + p12 + \
+              " -name cert -passout pass:password -certfile " + cert)
+    os.system("java -classpath ../../../../certs ImportKey " + p12  + " cert cacert2.der " + ks + " password")
+    os.remove(p12)
+    print "Created " + ks
 
 #
 # Create a keystore that contains both RSA and DSS certificates.

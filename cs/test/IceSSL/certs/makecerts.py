@@ -73,6 +73,10 @@ for x in certs:
                   ".pfx -passout pass:password")
         print("Created " + x + ".pfx")
 
+if force or not os.path.exists("cacert2.pfx"):
+    cert = os.path.join(cppcerts, "cacert2.pem")
+    key = os.path.join(cppcerts, "cakey2.pem")
+    os.system("openssl pkcs12 -in " + cert + " -inkey " + key + " -export -out cacert2.pfx -passout pass:password")
 #
 # Done.
 #
