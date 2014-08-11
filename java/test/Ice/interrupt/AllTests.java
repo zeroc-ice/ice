@@ -210,7 +210,8 @@ public class AllTests
             Ice.AsyncResult r = null;
             try
             {
-                byte[] seq = new byte[128 * 1024];
+                // The sequence needs to be large enough to fill the write/recv buffers
+                byte[] seq = new byte[20000000];
                 r = p.begin_opWithPayload(seq);
                 r.waitForSent();
                 test(false);
