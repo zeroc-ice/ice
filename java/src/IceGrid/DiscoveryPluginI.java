@@ -163,7 +163,7 @@ class DiscoveryPluginI implements Ice.Plugin
                         "using = `" + _locator.ice_getIdentity().category + "'\n" +
                         "received = `" + locator.ice_getIdentity().category + "'\n" +
                         "This is typically the case if multiple IceGrid registries with different " +
-                        "nstance names are deployed and the property `IceGridDiscovery.InstanceName'" +
+                        "instance names are deployed and the property `IceGridDiscovery.InstanceName'" +
                         "is not set.");
                 }
                 return;

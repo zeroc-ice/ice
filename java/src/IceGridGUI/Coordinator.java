@@ -10,16 +10,13 @@
 package IceGridGUI;
 
 import java.lang.reflect.Constructor;
-
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import java.util.Enumeration;
 import java.util.Collection;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.File;
@@ -28,7 +25,6 @@ import java.io.FileOutputStream;
 
 import javax.swing.*;
 import javax.swing.text.Keymap;
-
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
@@ -54,6 +50,8 @@ import java.security.MessageDigest;
 
 import javax.security.auth.x500.X500Principal;
 
+import Ice.LocatorFinderPrx;
+import Ice.LocatorFinderPrxHelper;
 import IceGrid.*;
 
 import javax.naming.ldap.LdapName;
@@ -1695,6 +1693,49 @@ public class Coordinator
             }
             return;
         }
+        final String finderStr;
+        final String endpointStr;
+        {
+	        Ice.Identity finderId = new Ice.Identity();
+	        finderId.category = "Ice";
+	        finderId.name = info.getDirect() ? "LocatorFinder" : "RouterFinder";
+	        String finderString = "\"" + _communicator.identityToString(finderId) + "\"";
+	         
+	        if (info.getSSL())
+	        {
+	        	finderString += " -s:";
+	        }
+	        else
+	        {
+	        	finderString += " :";
+	        }
+	        
+	        String endpointString = "";
+	        if(info.getDefaultEndpoint())
+	        {
+	        	if(info.getSSL())
+	        	{
+	        		endpointString += "ssl";
+	        	}
+	        	else
+	        	{
+	        		endpointString += "tcp";
+	        	}
+	        	String host = info.getHost();
+	        	if(host.indexOf('"') == -1)
+	        	{
+	        		host = "\"" + host + "\"";
+	        	}
+	        	endpointString += " -h " + host + " -p " + info.getPort();
+	        }
+	        else
+	        {
+	        	endpointString += info.getEndpoint();
+	        }
+	        finderString += endpointString;
+	        finderStr = new String(finderString);
+	        endpointStr = new String(endpointString);
+        }
 
         class ConnectionCallback
         {
@@ -1759,35 +1800,6 @@ public class Coordinator
 
         if(!info.getDirect())
         {
-            Ice.Identity routerId = new Ice.Identity();
-            routerId.category = info.getInstanceName();
-            routerId.name = "router";
-            String str = "\"" + _communicator.identityToString(routerId) + "\"";
-
-            if(info.getDefaultEndpoint())
-            {
-                str += ":";
-                if(info.getSSL())
-                {
-                    str += "ssl";
-                }
-                else
-                {
-                    str += "tcp";
-                }
-                String host = info.getHost();
-                if(host.indexOf('"') == -1)
-                {
-                    host = "\"" + host + "\"";
-                }
-                str += " -h " + host + " -p " + info.getPort();
-            }
-            else
-            {
-                str += ":" + info.getEndpoint();
-            }
-    
-            final String proxyStr = str;
             final ConnectionCallback cb = new ConnectionCallback();
             new Thread(new Runnable()
                 {
@@ -1795,7 +1807,20 @@ public class Coordinator
                     {
                         try
                         {
-                            Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
+                        	Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
+    		                        _communicator.stringToProxy(finderStr));
+    			        	info.setInstanceName(finder.getRouter().ice_getIdentity().category);
+    			        	info.save();
+    			        	
+    			        	 Ice.Identity routerId = new Ice.Identity();
+    			             routerId.category = info.getInstanceName();
+    			             routerId.name = "router";
+    			             String proxyStr = "\"" + _communicator.identityToString(routerId) + "\":";
+    			             proxyStr += endpointStr;
+    			             System.out.println(endpointStr);
+    			             System.out.println(proxyStr);
+    			             
+    			             Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
                                                                                  _communicator.stringToProxy(proxyStr));
 
                             //
@@ -1919,6 +1944,21 @@ public class Coordinator
                                 });
                             return;
                         }
+        		        catch(final java.util.prefs.BackingStoreException ex)
+        	            {
+        		        	  SwingUtilities.invokeLater(new Runnable()
+                              {
+                                  public void run()
+                                  {
+                                	 JOptionPane.showMessageDialog(
+                                			 getMainFrame(),
+                                			 ex.toString(),
+                                			 "Error saving connection",
+                                			 JOptionPane.ERROR_MESSAGE);
+                                  }
+                              });
+        	                return;
+        		        }
                         catch(final Ice.LocalException e)
                         {
                             SwingUtilities.invokeLater(new Runnable()
@@ -1990,38 +2030,6 @@ public class Coordinator
                 return;
             }
 
-            //
-            // The client uses the locator only without routing
-            //
-            Ice.Identity locatorId = new Ice.Identity();
-            locatorId.category = info.getInstanceName();
-            locatorId.name = "Locator";
-            String str = "\"" + _communicator.identityToString(locatorId) + "\"";
-            if(info.getDefaultEndpoint())
-            {
-                str += ":";
-                if(info.getSSL())
-                {
-                    str += "ssl";
-                }
-                else
-                {
-                    str += "tcp";
-                }
-                String host = info.getHost();
-                if(host.indexOf('"') == -1)
-                {
-                    host = "\"" + host + "\"";
-                }
-                str += " -h " + host + " -p " + info.getPort();
-            }
-            else
-            {
-                str += ":" + info.getEndpoint();
-            }
-
-            final String proxyStr = str;
-
             new Thread(new Runnable()
                 {
                     public void run()
@@ -2030,6 +2038,22 @@ public class Coordinator
                         {
                             try
                             {
+        	                   	Ice.LocatorFinderPrx finder = LocatorFinderPrxHelper.uncheckedCast(
+        		                        _communicator.stringToProxy(finderStr));
+        			        	
+        			        	info.setInstanceName(finder.getLocator().ice_getIdentity().category);
+        			        	info.save();
+        			        	
+        			            //
+        			            // The client uses the locator only without routing
+        			            //
+
+        			        	Ice.Identity locatorId = new Ice.Identity();
+        			            locatorId.category = info.getInstanceName();
+        			            locatorId.name = "Locator";
+        			            String proxyStr = "\"" + _communicator.identityToString(locatorId) + "\":";
+        			            proxyStr += endpointStr;
+        			            
                                 cb.setLocator(
                                         IceGrid.LocatorPrxHelper.checkedCast(_communicator.stringToProxy(proxyStr)));
 
@@ -2053,6 +2077,21 @@ public class Coordinator
                                 cb.setCurrentRegistry(cb.getLocator().getLocalRegistry());
                                 _communicator.setDefaultLocator(cb.getLocator());
                             }
+                            catch(final java.util.prefs.BackingStoreException ex)
+            	            {
+            		        	  SwingUtilities.invokeLater(new Runnable()
+                                  {
+                                      public void run()
+                                      {
+                                    	 JOptionPane.showMessageDialog(
+                                    			 getMainFrame(),
+                                    			 ex.toString(),
+                                    			 "Error saving connection",
+                                    			 JOptionPane.ERROR_MESSAGE);
+                                      }
+                                  });
+            	                return;
+            		        }
                             catch(final Ice.LocalException e)
                             {
                                 SwingUtilities.invokeLater(new Runnable()
@@ -2061,7 +2100,7 @@ public class Coordinator
                                         {
                                             JOptionPane.showMessageDialog(
                                                 parent,
-                                                "Could not contact '" + proxyStr + "': " + e.toString(),
+                                                "Could not contact '" + endpointStr + "': " + e.toString(),
                                                 "Login failed",
                                                 JOptionPane.ERROR_MESSAGE);
                                             cb.loginFailed();
@@ -2159,6 +2198,7 @@ public class Coordinator
                                         });
                                     return;
                                 }
+                                
                                 catch(final Ice.LocalException e)
                                 {
                                     if(cb.getRegistry().ice_getIdentity().equals(cb.getCurrentRegistry().ice_getIdentity()))
@@ -2219,7 +2259,7 @@ public class Coordinator
                 }).start();
         }
     }
-
+    
     void destroySession(AdminSessionPrx session, boolean routed)
     {
         _liveDeploymentRoot.closeAllShowLogDialogs();

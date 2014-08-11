@@ -22,8 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.File;
-
-
 import java.awt.Container;
 import java.awt.Frame;
 import java.awt.Component;
@@ -50,15 +48,17 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.Sizes;
 import com.jgoodies.forms.util.LayoutStyle;
 
 import java.util.prefs.Preferences;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Enumeration;
 import java.util.Formatter;
 import java.util.Collection;
 import java.util.Iterator;
-
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -68,10 +68,11 @@ import java.security.MessageDigest;
 
 import javax.security.auth.x500.X500Principal;
 import javax.net.ssl.KeyManagerFactory;
-
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import Ice.LocatorFinderPrxHelper;
+import Ice.Instrumentation._DispatchObserverOperationsNC;
 import IceGrid.*;
 
 //
@@ -82,12 +83,56 @@ import IceGrid.*;
 @SuppressWarnings("unchecked")
 public class SessionKeeper
 {
+
+    private class LookupReplyI extends _LookupReplyDisp
+    {
+        public synchronized void
+        foundLocator(LocatorPrx locator, Ice.Current curr)
+        {
+            for(LocatorPrx l : _locators)
+            {
+                if(l.ice_getIdentity().equals(locator.ice_getIdentity()))
+                {
+                    List<Ice.Endpoint> newEndpoints =  new ArrayList<Ice.Endpoint>(Arrays.asList(l.ice_getEndpoints()));
+                    for(Ice.Endpoint p : locator.ice_getEndpoints())
+                    {
+                        //
+                        //  Only add unknown endpoints
+                        //
+                        boolean found = false;
+                        for(Ice.Endpoint q : newEndpoints)
+                        {
+                            if(p.equals(q))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if(!found)
+                        {
+                            newEndpoints.add(p);
+                        }
+                    }
+                    l = (LocatorPrx) l.ice_endpoints(newEndpoints.toArray(new Ice.Endpoint[newEndpoints.size()]));
+                }
+            }
+            _locators.add(locator);
+        }
+
+        synchronized List<LocatorPrx>
+        getLocators()
+        {
+            return _locators;
+        }
+
+        private List<LocatorPrx> _locators = new ArrayList<LocatorPrx>();
+    }
     //
     // An AdminSessionPrx and various objects associated with that session
     //
     private class Session
     {
-        Session(AdminSessionPrx session, long sessionTimeout, int acmTimeout, boolean routed, final Component parent) 
+        Session(AdminSessionPrx session, long sessionTimeout, int acmTimeout, boolean routed, final Component parent)
             throws java.lang.Throwable
         {
             _session = session;
@@ -202,7 +247,7 @@ public class SessionKeeper
                                     logout(true);
                                     JOptionPane.showMessageDialog(
                                         parent,
-                                        "Could not retrieve admin callback template or server admin category: " + 
+                                        "Could not retrieve admin callback template or server admin category: " +
                                         e.toString(),
                                         "Login failed",
                                         JOptionPane.ERROR_MESSAGE);
@@ -225,19 +270,19 @@ public class SessionKeeper
             if(acmTimeout > 0)
             {
                 _session.ice_getConnection().setACM(
-                    new Ice.IntOptional(acmTimeout), 
-                    null, 
+                    new Ice.IntOptional(acmTimeout),
+                    null,
                     new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
 
                 _session.ice_getConnection().setCallback(
                     new Ice.ConnectionCallback()
                     {
-                        public void 
+                        public void
                         heartbeat(Ice.Connection con)
                         {
                         }
-                        
-                        public void 
+
+                        public void
                         closed(Ice.Connection con)
                         {
                             try
@@ -439,7 +484,7 @@ public class SessionKeeper
                 _adapter.destroy();
                 _adapter = null;
             }
-            
+
             _session.ice_getConnection().setCallback(null);
 
             if(destroySession)
@@ -449,7 +494,7 @@ public class SessionKeeper
             _coordinator.setConnected(false);
         }
 
-        private void registerObservers() throws java.lang.Throwable 
+        private void registerObservers() throws java.lang.Throwable
         {
             //
             // Create the object adapter for the observers
@@ -607,7 +652,7 @@ public class SessionKeeper
 
         public synchronized String toString()
         {
-            
+
             String name = getInstanceName();
             name += ":";
             if(getDefaultEndpoint())
@@ -635,7 +680,7 @@ public class SessionKeeper
             return name;
         }
 
-        public int compareTo(ConnectionInfo other) 
+        public int compareTo(ConnectionInfo other)
         {
             return _instanceName.compareTo(other._instanceName);
         }
@@ -711,7 +756,7 @@ public class SessionKeeper
             {
                 _prefs.putBoolean("connectToMaster", _connectToMaster);
             }
-            
+
             _prefs.putBoolean("isDefault", _isDefault);
 
             _prefs.flush();
@@ -834,7 +879,7 @@ public class SessionKeeper
         {
             return _uuid;
         }
-    
+
         public synchronized void setUUID(String uuid)
         {
             this._uuid = uuid;
@@ -1005,7 +1050,7 @@ public class SessionKeeper
         {
             return _username;
         }
-            
+
         public synchronized void setUsername(String username)
         {
             _username = username == null ? null : username.trim();
@@ -1144,13 +1189,16 @@ public class SessionKeeper
             setTitle(title);
             getContentPane().setLayout(new BorderLayout());
             _cardPanel = new JPanel();
-            _cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));       
+            _cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
 
-            _cardLayout = new CardLayout(); 
+            _cardLayout = new CardLayout();
             _cardPanel.setLayout(_cardLayout);
 
             _wizardSteps.push(WizardStep.ConnectionTypeStep);
 
+            _directInstanceName = new JLabel();
+            _routedInstanceName = new JLabel();
+            
             // Connection type panel
             {
                 FormLayout layout = new FormLayout("pref", "pref");
@@ -1186,6 +1234,56 @@ public class SessionKeeper
                 _cardPanel.add(builder.getPanel(), WizardStep.ConnectionTypeStep.toString());
             }
 
+            // Direct Discovery Endpoint List
+            {
+            	FormLayout layout = new FormLayout("pref:grow", "pref");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(false);
+
+                _directDiscoveryEndpointModel = new DefaultListModel<LocatorPrx>();
+                _directDiscoveryEndpointList = new JList<LocatorPrx>(_directDiscoveryEndpointModel);
+                _directDiscoveryEndpointList.setVisibleRowCount(7);
+                
+                _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
+                {
+                	public void valueChanged(ListSelectionEvent event)
+                	{
+                		validatePanel();
+                	}
+                });
+                
+                JScrollPane endpointListScroll = createStrippedScrollPane(_directDiscoveryEndpointList);
+                
+                ButtonGroup group = new ButtonGroup();
+                _directDiscoveryDiscoveredEndpoint = new JRadioButton(new AbstractAction("Discovered Endpoints")
+                	{
+                		public void actionPerformed(ActionEvent e)
+                		{
+                			_directDiscoveryEndpointList.setEnabled(true);
+                			validatePanel();
+                		}
+                	});
+                _directDiscoveryDiscoveredEndpoint.setSelected(true);
+                group.add(_directDiscoveryDiscoveredEndpoint);
+                
+                _directDiscoveryManualEndpoint = new JRadioButton(new AbstractAction("Manual Endpoint")
+                	{
+                    	public void actionPerformed(ActionEvent e)
+                    	{
+                    		_directDiscoveryEndpointList.setEnabled(false);
+                    		validatePanel();
+                    	}
+                	});
+                group.add(_directDiscoveryManualEndpoint);
+               
+                builder.append(_directDiscoveryDiscoveredEndpoint);
+                builder.append(endpointListScroll);
+                builder.append(_directDiscoveryManualEndpoint);
+                
+                _cardPanel.add(builder.getPanel(), WizardStep.DirectDiscoveryChooseStep.toString());
+            }
+
             // Direct Instance Panel
             {
                 FormLayout layout = new FormLayout("pref:grow", "pref");
@@ -1193,68 +1291,15 @@ public class SessionKeeper
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
 
-                _directInstanceName = new JTextField(20);
-                _directInstanceName.addFocusListener(new FocusListener(_directInstanceName));
-
-                _directInstanceName.getDocument().addDocumentListener(new DocumentListener()
-                    {
-                        public void changedUpdate(DocumentEvent e)
-                        {
-                            validatePanel();
-                        }
-                        public void removeUpdate(DocumentEvent e)
-                        {
-                            validatePanel();
-                        }
-                        public void insertUpdate(DocumentEvent e)
-                        {
-                            validatePanel();
-                        }
-                    });
-
-                builder.append("<html><b>Instance Name:</b></html>");
-                builder.append(_directInstanceName);
-                builder.append(new JLabel("The instance name of the IceGrid registry you want to connect to."));
-                
                 _directConnectToMaster = new JCheckBox("Connect to a Master Registry.");
                 _directConnectToMaster.setSelected(true); // on by default
                 builder.append(_directConnectToMaster);
                 builder.append(new JLabel("You need to connect to a Master Registry to change definitions."));
-                
 
-                _cardPanel.add(builder.getPanel(), WizardStep.DirectInstanceStep.toString());
+
+                _cardPanel.add(builder.getPanel(), WizardStep.DirectMasterStep.toString());
             }
 
-            // Routed Instance Panel
-            {
-                FormLayout layout = new FormLayout("pref:grow", "pref");
-                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
-                builder.rowGroupingEnabled(true);
-
-                _routedInstanceName = new JTextField(20);
-                _routedInstanceName.addFocusListener(new FocusListener(_routedInstanceName));
-                _routedInstanceName.getDocument().addDocumentListener(new DocumentListener()
-                    {
-                        public void changedUpdate(DocumentEvent e)
-                        {
-                            validatePanel();
-                        }
-                        public void removeUpdate(DocumentEvent e)
-                        {
-                            validatePanel();
-                        }
-                        public void insertUpdate(DocumentEvent e)
-                        {
-                            validatePanel();
-                        }
-                    });
-
-                builder.append("<html><b>Instance Name:</b></html>");
-                builder.append(_routedInstanceName);
-                builder.append(new JLabel("The instance name of the Glacier2 router you want to connect to."));
-                _cardPanel.add(builder.getPanel(), WizardStep.RoutedInstanceStep.toString());
-            }
 
             // Direct Endpoint panel
             {
@@ -1321,9 +1366,9 @@ public class SessionKeeper
                 builder.append(new JLabel("<html><b>Addressing Information</b></html>"));
                 builder.append(new JLabel("Do you want to provide addressing information for the Glacier2 router as:"));
                 builder.append(_routedDefaultEndpoints);
-            
+
                 builder.append(_routedCustomEndpoints);
-                
+
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedEndpointStep.toString());
             }
 
@@ -1335,7 +1380,6 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _directDefaultEndpointHost = new JTextField(20);
-                _directInstanceName.addFocusListener(new FocusListener(_directInstanceName));
                 _directDefaultEndpointHost.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1379,7 +1423,7 @@ public class SessionKeeper
                         }
                     });
                 builder.append("<html><b>Port number:</b></html>", _directDefaultEndpointPort);
-                builder.append("", new JLabel("<html>The port number the IceGrid registry listens on; " + 
+                builder.append("", new JLabel("<html>The port number the IceGrid registry listens on; " +
                                               "leave empty to use the default <br/>IceGrid registry port number.</html>"));
                 builder.nextLine();
                 ButtonGroup group = new ButtonGroup();
@@ -1462,9 +1506,9 @@ public class SessionKeeper
                         }
                     });
                 builder.append("<html><b>Port:</b></html>", _routedDefaultEndpointPort);
-                builder.append("", new JLabel("<html>The port number the Glacier2 router listens on; " + 
+                builder.append("", new JLabel("<html>The port number the Glacier2 router listens on; " +
                                               "leave empty to use the default <br/>Glacier2 router port number.</html>"));
-                
+
                 builder.nextLine();
                 ButtonGroup group = new ButtonGroup();
                 _routedDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
@@ -1486,7 +1530,7 @@ public class SessionKeeper
                 _routedDefaultEndpointTCP.setSelected(true);
                 JPanel protocolOptionPane;
                 {
-                    DefaultFormBuilder protocolBuilder = 
+                    DefaultFormBuilder protocolBuilder =
                                                     new DefaultFormBuilder(new FormLayout("pref, 2dlu, pref", "pref"));
                     protocolBuilder.append(_routedDefaultEndpointTCP,_routedDefaultEndpointSSL);
                     protocolOptionPane = protocolBuilder.getPanel();
@@ -1639,7 +1683,7 @@ public class SessionKeeper
                     builder.rowGroupingEnabled(true);
 
                     ButtonGroup group = new ButtonGroup();
-                    
+
                     builder.append("<html><b>Alias:</b></html>", alias);
                     builder.append("", new JLabel("<html><p>Your X.509 certificate for SSL authentication.</p></html>"));
 
@@ -1647,7 +1691,7 @@ public class SessionKeeper
                     builder.append("<html><b>Password:</b></html>", _directCertificatePassword);
                     builder.append("", new JLabel("<html>Enter your certificate password above to save it with this connection; otherwise<br>" +
                                                   "you will need to enter this password each time you connect.</p></html>"));
-                  
+
                     panel = builder.getPanel();
                 }
 
@@ -1703,7 +1747,7 @@ public class SessionKeeper
                     builder.rowGroupingEnabled(true);
 
                     ButtonGroup group = new ButtonGroup();
-                    
+
                     builder.append("<html><b>Alias:</b></html>", alias);
                     builder.append("", new JLabel("<html><p>Your X.509 certificate for SSL authentication.</p></html>"));
 
@@ -1755,7 +1799,7 @@ public class SessionKeeper
                 builder.append(new JLabel("<html><b>Authentication Type</b></html>"));
                 builder.append(_usernamePasswordAuthButton);
                 builder.append(_certificateAuthButton);
-             
+
                 _cardPanel.add(builder.getPanel(), WizardStep.AuthStep.toString());
             }
 
@@ -1872,22 +1916,170 @@ public class SessionKeeper
                             {
                                 if(_directConnection.isSelected())
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.DirectInstanceStep.toString());
-                                    _wizardSteps.push(WizardStep.DirectInstanceStep);
+                                	_cardLayout.show(_cardPanel, WizardStep.DirectMasterStep.toString());
+                                    _wizardSteps.push(WizardStep.DirectMasterStep);
                                 }
                                 else
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.RoutedInstanceStep.toString());
-                                    _wizardSteps.push(WizardStep.RoutedInstanceStep);
+                                    _cardLayout.show(_cardPanel, WizardStep.RoutedEndpointStep.toString());
+                                    _wizardSteps.push(WizardStep.RoutedEndpointStep);
                                 }
                                 break;
                             }
-                            case DirectInstanceStep:
+                            
+                            case DirectMasterStep:
                             {
-                                _cardLayout.show(_cardPanel, WizardStep.DirectEndpointStep.toString());
-                                _wizardSteps.push(WizardStep.DirectEndpointStep);
-                                break;
+                            	 JOptionPane messagePane = new JOptionPane(
+                            	            "Searching for nearby registries",
+                            	            JOptionPane.DEFAULT_OPTION,
+                            	            JOptionPane.INFORMATION_MESSAGE, null, new Object[] {},
+                            	            null);
+                            	 final JDialog searchingDialog = messagePane.createDialog(ConnectionWizardDialog.this, 
+                            			 "Please wait...");
+                            	 searchingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+
+                            	 new Thread(new Runnable()
+                                 {
+                                     public void run()
+                                     {
+                                         // Search for endpoints
+                                         Ice.Properties properties = _coordinator.getCommunicator().getProperties();
+                                         boolean ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
+                                         String address;
+                                         if (ipv4)
+                                         {
+                                             address = properties.getPropertyWithDefault(
+                                            		 "IceGridAdmin.Discovery.Address", "239.255.0.1");
+                                         }
+                                         else
+                                         {
+                                             address = properties.getPropertyWithDefault(
+                                            		 "IceGridAdmin.Discovery.Address", "ff15::1");
+                                         }
+
+                                         String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
+                                         String lookupEndpoints = properties.getProperty(
+                                        		 "IceGridAdmin.Discovery.Lookup");
+
+                                         if(lookupEndpoints.isEmpty())
+                                         {
+                                             StringBuilder s = new StringBuilder();
+                                             s.append("udp -h \"").append(address).append("\" -p ");
+                                             s.append(4061);
+                                             if(!intf.isEmpty())
+                                             {
+                                                 s.append(" --interface \"").append(intf);
+                                             }
+                                             lookupEndpoints = s.toString();
+                                         }
+                                         
+                                         Ice.ObjectPrx prx = _coordinator.getWizardCommunicator().stringToProxy(
+                                                 "IceGrid/Lookup -d:" + lookupEndpoints);
+                                         LookupPrx lookupPrx = LookupPrxHelper.uncheckedCast(
+                                                 prx.ice_collocationOptimized(false));
+
+
+                                         if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
+                                         {
+                                             StringBuilder s = new StringBuilder();
+                                             s.append("udp");
+                                             if(!intf.isEmpty())
+                                             {
+                                                 s.append(" -h \"").append(intf).append("\"");
+                                             }
+                                             properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", 
+                                                     s.toString());
+                                         }
+
+                                         Ice.ObjectAdapter adapter = _coordinator.getCommunicator().createObjectAdapter(
+                                                 "IceGridAdmin.Discovery.Reply");
+                                         adapter.activate();
+
+                                         LookupReplyI reply = new LookupReplyI();
+                                         LookupReplyPrx replyPrx =  LookupReplyPrxHelper.uncheckedCast(
+                                                 adapter.addWithUUID(reply).ice_datagram());
+
+                                         synchronized(this)
+                                         {
+                                             int retryCount = 3; // Send several findLocator queries.
+                                             try
+                                             {
+                                                 while(--retryCount >= 0)
+                                                 {
+                                                     lookupPrx.findLocator("", replyPrx);
+                                                     try
+                                                     {
+                                                         wait(300);
+                                                     }
+                                                     catch(InterruptedException ex)
+                                                     {
+                                                     }
+
+                                                     if(!reply.getLocators().isEmpty())
+                                                     {
+                                                         break;
+                                                     }
+                                                 }
+                                             }
+                                             catch(Ice.LocalException ex)
+                                             {
+                                                 System.err.println("IceGrid registry discovery failed:\n" + ex);
+                                             }
+                                             adapter.destroy();
+
+                                             List<LocatorPrx> locators = reply.getLocators();
+                                             _directDiscoveryEndpointModel.clear();
+                                             if (!locators.isEmpty())
+                                             {
+                                                _directDiscoveryDiscoveredEndpoint.setEnabled(true);
+                                                 for(LocatorPrx l : locators)
+                                                 {
+                                                     _directDiscoveryEndpointModel.addElement(l);
+                                                 }
+
+                                             }
+                                             else
+                                             {
+                                                _directDiscoveryDiscoveredEndpoint.setEnabled(false);
+                                                _directDiscoveryManualEndpoint.setSelected(true);
+                                             }
+                                         }
+                                         SwingUtilities.invokeLater(new Runnable()
+                                         {
+                                             public void run()
+                                             {
+                                                 searchingDialog.dispose();
+                                                 _cardLayout.show(_cardPanel, 
+                                                         WizardStep.DirectDiscoveryChooseStep.toString());
+                                                 _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
+                                             }
+                                         });
+                                     }
+                                 }).start();
+                            	 searchingDialog.setVisible(true);
+                            	 break;
                             }
+
+                            case DirectDiscoveryChooseStep:
+                            {
+                            	if(_directDiscoveryManualEndpoint.isSelected())
+                            	{
+                            		_cardLayout.show(_cardPanel, WizardStep.DirectEndpointStep.toString());
+                            		_wizardSteps.push(WizardStep.DirectEndpointStep);
+                            	} 
+                            	else 
+                            	{
+                            		LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
+                            		_directInstanceName.setText(locator.ice_getIdentity().category);
+                            		_directCustomEndpointValue.setText(locator.ice_getEndpoints()[0].toString());
+                            		_directCustomEndpoints.setSelected(true);
+                            		
+                            		_cardLayout.show(_cardPanel, WizardStep.DirectCustomEnpointStep.toString());
+                            		_wizardSteps.push(WizardStep.DirectCustomEnpointStep);
+                            	}
+                            	break;
+                            }
+                            
                             case DirectEndpointStep:
                             {
                                 if(_directDefaultEndpoints.isSelected())
@@ -1902,12 +2094,7 @@ public class SessionKeeper
                                 }
                                 break;
                             }
-                            case RoutedInstanceStep:
-                            {
-                                _cardLayout.show(_cardPanel, WizardStep.RoutedEndpointStep.toString());
-                                _wizardSteps.push(WizardStep.RoutedEndpointStep);
-                                break;
-                            }
+
                             case RoutedEndpointStep:
                             {
                                 if(_routedDefaultEndpoints.isSelected())
@@ -1922,6 +2109,7 @@ public class SessionKeeper
                                 }
                                 break;
                             }
+
                             case DirectDefaultEndpointStep:
                             {
                                 if(_directDefaultEndpointSSL.isSelected())
@@ -1931,7 +2119,8 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                    _cardLayout.show(_cardPanel, 
+                                    		WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
                                 if(_x509CertificateDefault)
@@ -1949,6 +2138,7 @@ public class SessionKeeper
                                 }
                                 break;
                             }
+                            
                             case RoutedDefaultEndpointStep:
                             {
                                 if(_routedDefaultEndpointSSL.isSelected())
@@ -1958,7 +2148,8 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                    _cardLayout.show(_cardPanel, 
+                                    		WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                 }
                                 if(_x509CertificateDefault)
@@ -1976,6 +2167,7 @@ public class SessionKeeper
                                 }
                                 break;
                             }
+                            
                             case DirectCustomEnpointStep:
                             {
                                 try
@@ -1995,7 +2187,8 @@ public class SessionKeeper
                                     }
                                     else
                                     {
-                                        _cardLayout.show(_cardPanel, WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _cardLayout.show(_cardPanel, 
+                                        		WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     }
                                 }
@@ -2051,7 +2244,8 @@ public class SessionKeeper
                                     }
                                     else
                                     {
-                                        _cardLayout.show(_cardPanel, WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _cardLayout.show(_cardPanel, 
+                                        		WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
@@ -2088,6 +2282,7 @@ public class SessionKeeper
                                 }
                                 break;
                             }
+                            
                             case X509CertificateStep:
                             {
                                 if(_x509CertificateYesButton.isSelected())
@@ -2109,13 +2304,13 @@ public class SessionKeeper
                                 {
                                     if(_directConnection.isSelected())
                                     {
-                                        _cardLayout.show(_cardPanel, 
+                                        _cardLayout.show(_cardPanel,
                                                          WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     }
                                     else
                                     {
-                                        _cardLayout.show(_cardPanel, 
+                                        _cardLayout.show(_cardPanel,
                                                          WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
@@ -2135,19 +2330,20 @@ public class SessionKeeper
                                 {
                                     if(_directConnection.isSelected())
                                     {
-                                        _cardLayout.show(_cardPanel, 
+                                        _cardLayout.show(_cardPanel,
                                                          WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     }
                                     else
                                     {
-                                        _cardLayout.show(_cardPanel, 
+                                        _cardLayout.show(_cardPanel,
                                                          WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
                                 break;
                             }
+                            
                             default:
                             {
                                 break;
@@ -2194,7 +2390,7 @@ public class SessionKeeper
                                 {
                                     inf.setPassword(null);
                                     inf.setStorePassword(false);
-                                }                  
+                                }
                             }
 
                             if(_x509CertificateYesButton.isSelected())
@@ -2254,7 +2450,7 @@ public class SessionKeeper
                                 {
                                     inf.setPassword(null);
                                     inf.setStorePassword(false);
-                                }                            
+                                }
                             }
 
                             if(_x509CertificateYesButton.isSelected())
@@ -2310,7 +2506,7 @@ public class SessionKeeper
                             inf.setAuth(AuthType.X509CertificateAuthType);
                             inf.setUseX509Certificate(true);
                         }
-                        
+
                         try
                         {
                             inf.save();
@@ -2368,11 +2564,20 @@ public class SessionKeeper
             boolean lastStep = false; // No next step
             switch(step)
             {
-                case DirectInstanceStep:
+
+                case DirectDiscoveryChooseStep:
                 {
-                    _directInstanceName.requestFocusInWindow();
+                	if(_directDiscoveryManualEndpoint.isSelected())
+                	{
+                		_directDiscoveryManualEndpoint.requestFocusInWindow();	
+                	}
+                	else
+                	{
+                		_directDiscoveryEndpointList.requestFocusInWindow();
+                	}
                     break;
                 }
+                
                 case DirectEndpointStep:
                 {
                     if(_directDefaultEndpoints.isSelected())
@@ -2395,11 +2600,7 @@ public class SessionKeeper
                     _directCustomEndpointValue.requestFocusInWindow();
                     break;
                 }
-                case RoutedInstanceStep:
-                {
-                    _routedInstanceName.requestFocusInWindow();
-                    break;
-                }
+
                 case RoutedEndpointStep:
                 {
                     if(_routedDefaultEndpoints.isSelected())
@@ -2451,23 +2652,24 @@ public class SessionKeeper
                     }
                     else
                     {
-                        lastStep = true;
+                    	lastStep = true;
                         _certificateAuthButton.requestFocusInWindow();
                     }
                     break;
                 }
                 case DirectUsernamePasswordCredentialsStep:
                 {
-                    lastStep = true;
+                	lastStep = true;
                     _directUsername.requestFocusInWindow();
                     break;
                 }
                 case RoutedUsernamePasswordCredentialsStep:
                 {
-                    lastStep = true;
+                	lastStep = true;
                     _routedUsername.requestFocusInWindow();
                     break;
                 }
+                
                 default:
                 {
                     break;
@@ -2506,14 +2708,23 @@ public class SessionKeeper
                     validated = true;
                     break;
                 }
-                case DirectInstanceStep:
+
+                case DirectDiscoveryChooseStep:
                 {
-                    validated = _directInstanceName.getText() != null && _directInstanceName.getText().length() > 0;
+                	if(_directDiscoveryManualEndpoint.isSelected())
+                	{
+                		validated = true;
+                	}
+                	else
+                	{
+                		validated = _directDiscoveryEndpointList.getSelectedValue() != null;
+                	}
                     break;
                 }
+
                 case DirectDefaultEndpointStep:
                 {
-                    validated = _directDefaultEndpointHost.getText() != null && 
+                    validated = _directDefaultEndpointHost.getText() != null &&
                                 _directDefaultEndpointHost.getText().length() > 0;
                     String port = _directDefaultEndpointPort.getText();
                     if(port != null && port.length() > 0)
@@ -2536,18 +2747,14 @@ public class SessionKeeper
                 }
                 case DirectCustomEnpointStep:
                 {
-                    validated = _directCustomEndpointValue.getText() != null && 
+                    validated = _directCustomEndpointValue.getText() != null &&
                                 _directCustomEndpointValue.getText().length() > 0;
                     break;
                 }
-                case RoutedInstanceStep:
-                {
-                    validated = _routedInstanceName.getText() != null && _routedInstanceName.getText().length() > 0;
-                    break;
-                }
+
                 case RoutedDefaultEndpointStep:
                 {
-                    validated = _routedDefaultEndpointHost.getText() != null && 
+                    validated = _routedDefaultEndpointHost.getText() != null &&
                                 _routedDefaultEndpointHost.getText().length() > 0;
                     String port = _routedDefaultEndpointPort.getText();
                     if(port != null && port.length() > 0)
@@ -2570,7 +2777,7 @@ public class SessionKeeper
                 }
                 case RoutedCustomEnpointStep:
                 {
-                    validated = _routedCustomEndpointValue.getText() != null && 
+                    validated = _routedCustomEndpointValue.getText() != null &&
                                 _routedCustomEndpointValue.getText().length() > 0;
                     break;
                 }
@@ -2594,6 +2801,8 @@ public class SessionKeeper
                     validated = _routedUsername.getText() != null && _routedUsername.getText().length() > 0;
                     break;
                 }
+                
+                case DirectMasterStep:
                 case RoutedEndpointStep:
                 case DirectEndpointStep:
                 case AuthStep:
@@ -2628,10 +2837,6 @@ public class SessionKeeper
             }
             if(_directConnection.isSelected())
             {
-                if(!validateWizardStep(WizardStep.DirectInstanceStep))
-                {
-                    return false;
-                }
                 if(_directDefaultEndpoints.isSelected())
                 {
                     if(!validateWizardStep(WizardStep.DirectDefaultEndpointStep))
@@ -2649,10 +2854,6 @@ public class SessionKeeper
             }
             else // Routed
             {
-                if(!validateWizardStep(WizardStep.RoutedInstanceStep))
-                {
-                    return false;
-                }
 
                 if(_routedDefaultEndpoints.isSelected())
                 {
@@ -2754,8 +2955,8 @@ public class SessionKeeper
                     {
                         _directDefaultEndpoints.setSelected(true);
                         _directDefaultEndpointHost.setText(_conf.getHost());
-                        
-                        
+
+
                         if(_conf.getSSL())
                         {
                             _directDefaultEndpointSSL.setSelected(true);
@@ -2910,14 +3111,20 @@ public class SessionKeeper
         private JRadioButton _routedConnection;
 
         // Direct Instance panel components
-        private JTextField _directInstanceName;
+        private JLabel _directInstanceName;
         private JCheckBox _directConnectToMaster;
+
+        // Direct Discovery Endpoints
+        private JList<LocatorPrx> _directDiscoveryEndpointList;
+        private DefaultListModel<LocatorPrx> _directDiscoveryEndpointModel;
+        private JRadioButton _directDiscoveryDiscoveredEndpoint;
+        private JRadioButton _directDiscoveryManualEndpoint;
 
         // Direct Endpoints panel components
         private JRadioButton _directDefaultEndpoints;
-        private JRadioButton _directCustomEndpoints;
 
         // Direct Default endpoints panel components
+        private JRadioButton _directCustomEndpoints;
         private JTextField _directDefaultEndpointHost;
         private JTextField _directDefaultEndpointPort;
         private JRadioButton _directDefaultEndpointTCP;
@@ -2927,7 +3134,7 @@ public class SessionKeeper
         private JTextField _directCustomEndpointValue;
 
         // Routed Instance panel components
-        private JTextField _routedInstanceName;
+        private JLabel _routedInstanceName;
 
         // Routed Endpoints panel components
         private JRadioButton _routedDefaultEndpoints;
@@ -3001,12 +3208,13 @@ public class SessionKeeper
         return false;
     }
 
-    enum WizardStep {ConnectionTypeStep, 
-                     DirectInstanceStep, DirectEndpointStep, DirectDefaultEndpointStep, DirectCustomEnpointStep,
-                     RoutedInstanceStep, RoutedEndpointStep, RoutedDefaultEndpointStep, RoutedCustomEnpointStep,
-                     X509CertificateStep, 
-                     DirectX509CredentialsStep, RoutedX509CredentialsStep, 
-                     AuthStep, 
+    enum WizardStep {ConnectionTypeStep,
+                     DirectMasterStep, DirectDiscoveryChooseStep, DirectEndpointStep, DirectDefaultEndpointStep,
+                        DirectCustomEnpointStep,
+                     RoutedEndpointStep, RoutedDefaultEndpointStep, RoutedCustomEnpointStep,
+                     X509CertificateStep,
+                     DirectX509CredentialsStep, RoutedX509CredentialsStep,
+                     AuthStep,
                      DirectUsernamePasswordCredentialsStep, RoutedUsernamePasswordCredentialsStep};
 
     enum AuthType {UsernamePasswordAuthType, X509CertificateAuthType};
@@ -3029,39 +3237,39 @@ public class SessionKeeper
                 builder.nextLine();
                 if(inf.getDirect())
                 {
-                    builder.append(new JLabel("<html><b>IceGrid instance name:</b></html>"), 
+                    builder.append(new JLabel("<html><b>IceGrid instance name:</b></html>"),
                                    new JLabel(inf.getInstanceName()));
                 }
                 else
                 {
-                    builder.append(new JLabel("<html><b>IceGrid instance name:</b></html>"), 
+                    builder.append(new JLabel("<html><b>IceGrid instance name:</b></html>"),
                                    new JLabel(inf.getInstanceName()));
                 }
 
                 boolean ssl = false;
                 if(inf.getDefaultEndpoint())
                 {
-                    builder.append(new JLabel("<html><b>Hostname:</b></html>"), 
+                    builder.append(new JLabel("<html><b>Hostname:</b></html>"),
                                 new JLabel(inf.getHost()));
 
-                    builder.append(new JLabel("<html><b>Port:</b></html>"), 
+                    builder.append(new JLabel("<html><b>Port:</b></html>"),
                                    new JLabel(Integer.toString(inf.getPort())));
 
                     if(inf.getSSL())
                     {
-                        builder.append(new JLabel("<html><b>Protocol:</b></html>"), 
+                        builder.append(new JLabel("<html><b>Protocol:</b></html>"),
                                     new JLabel("SSL"));
                     }
                     else
                     {
-                        builder.append(new JLabel("<html><b>Protocol:</b></html>"), 
+                        builder.append(new JLabel("<html><b>Protocol:</b></html>"),
                                     new JLabel("TCP"));
                     }
                     ssl = inf.getSSL();
                 }
                 else
                 {
-                    builder.append(new JLabel("<html><b>Endpoints:</b></html>"), 
+                    builder.append(new JLabel("<html><b>Endpoints:</b></html>"),
                                    new JLabel(inf.getEndpoint()));
 
                     Ice.Identity id = new Ice.Identity();
@@ -3076,25 +3284,25 @@ public class SessionKeeper
 
                 if(inf.getAuth() == AuthType.UsernamePasswordAuthType)
                 {
-                    builder.append(new JLabel("<html><b>Authentication mode:</b></html>"), 
+                    builder.append(new JLabel("<html><b>Authentication mode:</b></html>"),
                                    new JLabel("Username and password"));
                 }
                 else
                 {
-                    builder.append(new JLabel("<html><b>Authentication mode:</b></html>"), 
+                    builder.append(new JLabel("<html><b>Authentication mode:</b></html>"),
                                    new JLabel("SSL Certificate"));
                 }
-                
+
                 if(ssl)
                 {
                     if(inf.getUseX509Certificate())
                     {
-                        builder.append(new JLabel("<html><b>Use SSL Client Certificate:</b></html>"), 
+                        builder.append(new JLabel("<html><b>Use SSL Client Certificate:</b></html>"),
                                        new JLabel("Yes"));
                     }
                     else
                     {
-                        builder.append(new JLabel("<html><b>Use SSL Client Certificate:</b></html>"), 
+                        builder.append(new JLabel("<html><b>Use SSL Client Certificate:</b></html>"),
                                        new JLabel("No"));
                     }
                 }
@@ -3291,17 +3499,17 @@ public class SessionKeeper
                 class ConnectionListRenderer extends DefaultListCellRenderer
                 {
                     public Component
-                    getListCellRendererComponent(JList list, Object value, int index, boolean selected, 
+                    getListCellRendererComponent(JList list, Object value, int index, boolean selected,
                                                  boolean hasFocus)
                     {
-                        JLabel label = (JLabel)super.getListCellRendererComponent(list, value, index, selected, 
+                        JLabel label = (JLabel)super.getListCellRendererComponent(list, value, index, selected,
                                                                                   hasFocus);
                         if(value instanceof ConnectionInfo)
                         {
                             ConnectionInfo conn = (ConnectionInfo)value;
                             ImageIcon icon = Utils.getIcon(conn.isDefault() ? "/icons/16x16/default.png" :
                                                                               "/icons/16x16/transparent.png");
-                                
+
                             label.setIcon(icon);
                         }
                         return label;
@@ -3542,7 +3750,7 @@ public class SessionKeeper
             if(keyStore.isKeyEntry(alias))
             {
                 Key key = keyStore.getKey(alias, new char[]{});
-            }            
+            }
         }
         catch(java.security.UnrecoverableKeyException ex)
         {
@@ -3579,7 +3787,7 @@ public class SessionKeeper
         {
             final JPasswordField passwordField = new JPasswordField();
             char[] password = null;
-            JOptionPane optionPane = new JOptionPane(new JComponent[]{new JLabel(label), passwordField}, 
+            JOptionPane optionPane = new JOptionPane(new JComponent[]{new JLabel(label), passwordField},
                                                      JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
             JDialog dialog = optionPane.createDialog(KeyStorePanel.this, title);
             Utils.addEscapeListener(dialog);
@@ -3630,17 +3838,17 @@ public class SessionKeeper
                     }
 
                     public int getRowCount()
-                    { 
+                    {
                         if(_aliases == null)
                         {
                             return 0;
                         }
                         return _aliases.size();
                     }
-                
+
                     public int getColumnCount()
-                    { 
-                        return columnNames.length; 
+                    {
+                        return columnNames.length;
                     }
 
                     public Object getValueAt(int row, int col)
@@ -3678,8 +3886,8 @@ public class SessionKeeper
                     }
 
                     public boolean isCellEditable(int row, int col)
-                    { 
-                        return false; 
+                    {
+                        return false;
                     }
 
                     public void setValueAt(Object value, int row, int col)
@@ -3711,15 +3919,15 @@ public class SessionKeeper
                                     {
                                         return true;
                                     }
- 
-                                    if(f != null && (f.getName().toUpperCase().endsWith(".PFX") || 
+
+                                    if(f != null && (f.getName().toUpperCase().endsWith(".PFX") ||
                                                      f.getName().toUpperCase().endsWith(".P12")))
                                     {
                                         return true;
                                     }
                                     return false;
                                 }
- 
+
                                 public String getDescription()
                                 {
                                     return "PKCS12 Files (*.pfx, *.p12)";
@@ -3735,15 +3943,15 @@ public class SessionKeeper
                                     {
                                         return true;
                                     }
- 
-                                    if(f != null && (f.getName().toUpperCase().endsWith(".PEM") || 
+
+                                    if(f != null && (f.getName().toUpperCase().endsWith(".PEM") ||
                                                      f.getName().toUpperCase().endsWith(".CRT")))
                                     {
                                         return true;
                                     }
                                     return false;
                                 }
- 
+
                                 public String getDescription()
                                 {
                                     return "PEM Files (*.pem, *.crt)";
@@ -3759,14 +3967,14 @@ public class SessionKeeper
                                     {
                                         return true;
                                     }
- 
+
                                     if(f != null && f.getName().toUpperCase().endsWith(".JKS"))
                                     {
                                         return true;
                                     }
                                     return false;
                                 }
- 
+
                                 public String getDescription()
                                 {
                                     return "Java Key Store Files (*.jks)";
@@ -3776,7 +3984,7 @@ public class SessionKeeper
                         if(chooser.showOpenDialog(KeyStorePanel.this) == JFileChooser.APPROVE_OPTION )
                         {
                             final String filePath = chooser.getSelectedFile().getAbsolutePath();
-                            final boolean pkcs12 = filePath.toUpperCase().endsWith(".PFX") || 
+                            final boolean pkcs12 = filePath.toUpperCase().endsWith(".PFX") ||
                                                    filePath.toUpperCase().endsWith(".P12");
                             final boolean pem = filePath.toUpperCase().endsWith(".PEM") ||
                                                 filePath.toUpperCase().endsWith(".CRT");
@@ -3804,15 +4012,15 @@ public class SessionKeeper
                                     }
                                     catch(java.io.IOException ex)
                                     {
-                                        JOptionPane.showMessageDialog(KeyStorePanel.this, 
-                                                                      "Invalid certificate password", 
-                                                                      "Invalid certificate password", 
+                                        JOptionPane.showMessageDialog(KeyStorePanel.this,
+                                                                      "Invalid certificate password",
+                                                                      "Invalid certificate password",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }
                                     catch(java.lang.Exception ex)
                                     {
                                         JOptionPane.showMessageDialog(KeyStorePanel.this, ex.toString(),
-                                                                      "Error importing certificate", 
+                                                                      "Error importing certificate",
                                                                       JOptionPane.ERROR_MESSAGE);
                                         return;
                                     }
@@ -3822,13 +4030,13 @@ public class SessionKeeper
                                 {
                                     try
                                     {
-                                        
+
                                         importKeyStore(keyStore);
                                     }
                                     catch(java.lang.Exception ex)
                                     {
                                         JOptionPane.showMessageDialog(KeyStorePanel.this, ex.toString(),
-                                                                      "Error importing certificate", 
+                                                                      "Error importing certificate",
                                                                       JOptionPane.ERROR_MESSAGE);
                                         return;
                                     }
@@ -3846,8 +4054,8 @@ public class SessionKeeper
                                     while(i.hasNext())
                                     {
                                         Certificate certificate = (Certificate)i.next();
-                                        final String newAlias = JOptionPane.showInputDialog(KeyStorePanel.this, 
-                                                                                    "Certificate Alias", 
+                                        final String newAlias = JOptionPane.showInputDialog(KeyStorePanel.this,
+                                                                                    "Certificate Alias",
                                                                                     "Certificate Alias",
                                                                                     JOptionPane.INFORMATION_MESSAGE);
                                         if(newAlias == null || newAlias.length() == 0)
@@ -3857,11 +4065,11 @@ public class SessionKeeper
                                         if(_keyStore.containsAlias(newAlias))
                                         {
                                             if(JOptionPane.showConfirmDialog(
-                                                    KeyStorePanel.this, 
-                                                    "<html>Your KeyStore already contains a certificate with alias `" + 
+                                                    KeyStorePanel.this,
+                                                    "<html>Your KeyStore already contains a certificate with alias `" +
                                                     newAlias + "'<br/>" +
                                                     "Do you want to update the certificate?</html>",
-                                                    "Confirm Certificate Update - IceGrid Admin", 
+                                                    "Confirm Certificate Update - IceGrid Admin",
                                                     JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                                             {
                                                 continue;
@@ -3904,7 +4112,7 @@ public class SessionKeeper
                     }
                 };
                 _importButton.setAction(importAction);
-                
+
                 _viewButton = new JButton();
                 AbstractAction viewAction = new AbstractAction("View")
                 {
@@ -4006,8 +4214,8 @@ public class SessionKeeper
                         }
                         catch(java.security.UnrecoverableKeyException ex)
                         {
-                            JOptionPane.showMessageDialog(this, "Invalid certificate password", 
-                                                          "Invalid certificate password", 
+                            JOptionPane.showMessageDialog(this, "Invalid certificate password",
+                                                          "Invalid certificate password",
                                                           JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -4017,11 +4225,11 @@ public class SessionKeeper
                     }
                     Certificate[] chain = keyStore.getCertificateChain(alias);
 
-                    String newAlias = alias;                                     
+                    String newAlias = alias;
                     if(newAlias == null || newAlias.length() == 0 || _keyStore.containsAlias(newAlias))
                     {
-                        newAlias = JOptionPane.showInputDialog(KeyStorePanel.this, 
-                                                        "Certificate Alias For <" + alias + ">", 
+                        newAlias = JOptionPane.showInputDialog(KeyStorePanel.this,
+                                                        "Certificate Alias For <" + alias + ">",
                                                         "certificate alias for <" + alias + ">:",
                                                         JOptionPane.INFORMATION_MESSAGE);
                     }
@@ -4034,10 +4242,10 @@ public class SessionKeeper
                     if(_keyStore.containsAlias(newAlias))
                     {
                         if(JOptionPane.showConfirmDialog(
-                            KeyStorePanel.this, 
+                            KeyStorePanel.this,
                             "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
                             "Do you want to update the certificate?</html>",
-                            "Confirm Certificate Update - IceGrid Admin", 
+                            "Confirm Certificate Update - IceGrid Admin",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                         {
                             continue;
@@ -4047,11 +4255,11 @@ public class SessionKeeper
                 }
                 else if(keyStore.isCertificateEntry(alias))
                 {
-                    String newAlias = alias;                                     
+                    String newAlias = alias;
                     if(newAlias == null || newAlias.length() == 0 || _keyStore.containsAlias(newAlias))
                     {
-                        newAlias = JOptionPane.showInputDialog(KeyStorePanel.this, 
-                                                        "Certificate Alias For <" + alias + ">", 
+                        newAlias = JOptionPane.showInputDialog(KeyStorePanel.this,
+                                                        "Certificate Alias For <" + alias + ">",
                                                         "certificate alias for <" + alias + ">:",
                                                         JOptionPane.INFORMATION_MESSAGE);
                     }
@@ -4059,10 +4267,10 @@ public class SessionKeeper
                     if(_keyStore.containsAlias(newAlias))
                     {
                         if(JOptionPane.showConfirmDialog(
-                            KeyStorePanel.this, 
+                            KeyStorePanel.this,
                             "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
                             "Do you want to update the certificate?</html>",
-                            "Confirm Certificate Update - IceGrid Admin", 
+                            "Confirm Certificate Update - IceGrid Admin",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                         {
                             continue;
@@ -4124,7 +4332,7 @@ public class SessionKeeper
     {
         java.util.HashMap< String, Object> details = new java.util.HashMap< String, Object>();
         LdapName dn = new LdapName(cert.getSubjectX500Principal().getName());
-        for(Rdn rdn: dn.getRdns()) 
+        for(Rdn rdn: dn.getRdns())
         {
             details.put(rdn.getType().toUpperCase(), rdn.getValue());
         }
@@ -4139,7 +4347,7 @@ public class SessionKeeper
 
         if(details.get("CN") != null)
         {
-            builder.append(new JLabel("<html><b>Common Name (CN):</b></html>"), 
+            builder.append(new JLabel("<html><b>Common Name (CN):</b></html>"),
                             new JLabel(details.get("CN").toString()));
         }
         else
@@ -4149,7 +4357,7 @@ public class SessionKeeper
 
         if(details.get("O") != null)
         {
-            builder.append(new JLabel("<html><b>Organization (O):</b></html>"), 
+            builder.append(new JLabel("<html><b>Organization (O):</b></html>"),
                             new JLabel(details.get("O").toString()));
         }
         else
@@ -4159,7 +4367,7 @@ public class SessionKeeper
 
         if(details.get("OU") != null)
         {
-            builder.append(new JLabel("<html><b>Organization Unit (OU):</b></html>"), 
+            builder.append(new JLabel("<html><b>Organization Unit (OU):</b></html>"),
                             new JLabel(details.get("OU").toString()));
         }
         else
@@ -4177,7 +4385,7 @@ public class SessionKeeper
         java.util.HashMap< String, Object> details = new java.util.HashMap< String, Object>();
 
         LdapName dn = new LdapName(cert.getIssuerX500Principal().getName());
-        for(Rdn rdn: dn.getRdns()) 
+        for(Rdn rdn: dn.getRdns())
         {
             details.put(rdn.getType().toUpperCase(), rdn.getValue());
         }
@@ -4191,7 +4399,7 @@ public class SessionKeeper
         builder.nextLine();
         if(details.get("CN") != null)
         {
-            builder.append(new JLabel("<html><b>Common Name (CN):</b></html>"), 
+            builder.append(new JLabel("<html><b>Common Name (CN):</b></html>"),
                             new JLabel(details.get("CN").toString()));
         }
         else
@@ -4201,7 +4409,7 @@ public class SessionKeeper
 
         if(details.get("O") != null)
         {
-            builder.append(new JLabel("<html><b>Organization (O):</b></html>"), 
+            builder.append(new JLabel("<html><b>Organization (O):</b></html>"),
                             new JLabel(details.get("O").toString()));
         }
         else
@@ -4211,7 +4419,7 @@ public class SessionKeeper
 
         if(details.get("OU") != null)
         {
-            builder.append(new JLabel("<html><b>Organization Unit (OU):</b></html>"), 
+            builder.append(new JLabel("<html><b>Organization Unit (OU):</b></html>"),
                             new JLabel(details.get("OU").toString()));
         }
         else
@@ -4259,9 +4467,9 @@ public class SessionKeeper
 
             StringBuilder sb = new StringBuilder(digest.length * 2);
 
-            Formatter formatter = new Formatter(sb);  
+            Formatter formatter = new Formatter(sb);
             for(int i = 0; i < digest.length;)
-            {  
+            {
                 formatter.format("%02x", digest[i]);
                 i++;
                 if(i < digest.length)
@@ -4276,7 +4484,7 @@ public class SessionKeeper
                         new JLabel(sha1Fingerprint));
         builder.nextLine();
 
-        
+
         String md5Fingerprint = "";
         {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -4286,9 +4494,9 @@ public class SessionKeeper
 
             StringBuilder sb = new StringBuilder(digest.length * 2);
 
-            Formatter formatter = new Formatter(sb);  
+            Formatter formatter = new Formatter(sb);
             for(int i = 0; i < digest.length;)
-            {  
+            {
                 formatter.format("%02x", digest[i]);
                 i++;
                 if(i < digest.length)
@@ -4305,7 +4513,7 @@ public class SessionKeeper
         return builder.getPanel();
     }
 
-    public static JPanel getSubjectAlternativeNamesPanel(X509Certificate cert) 
+    public static JPanel getSubjectAlternativeNamesPanel(X509Certificate cert)
         throws java.security.cert.CertificateParsingException
     {
         FormLayout layout = new FormLayout("right:pref, 2dlu, left:pref:grow", "pref");
@@ -4341,7 +4549,7 @@ public class SessionKeeper
 
     public class CertificateDetailDialog extends JDialog
     {
-        CertificateDetailDialog(X509Certificate cert) 
+        CertificateDetailDialog(X509Certificate cert)
             throws java.security.GeneralSecurityException, java.io.IOException, javax.naming.InvalidNameException
         {
             super(_coordinator.getMainFrame(), "Certificate Details - IceGrid Admin", true);
@@ -4387,7 +4595,7 @@ public class SessionKeeper
         {
             super(_coordinator.getMainFrame(), "Certificate Manager - IceGrid Admin", true);
             _tabs = new JTabbedPane();
-            
+
             _identityCertificatesPanel = new KeyStorePanel();
             _tabs.addTab("My Certificates", _identityCertificatesPanel);
 
@@ -4400,7 +4608,7 @@ public class SessionKeeper
             Container contentPane = getContentPane();
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
             contentPane.add(_tabs);
-            
+
             JButton closeButton = new JButton("Close");
             closeButton.addActionListener(new ActionListener()
                 {
@@ -4424,7 +4632,7 @@ public class SessionKeeper
             {
                 _identityCertificatesPanel.load(_coordinator.getDataDirectory() + File.separator + "MyCerts.jks");
                 _serverCertificatesPanel.load(_coordinator.getDataDirectory() + File.separator + "ServerCerts.jks");
-                _authorityCertificatesPanel.load(_coordinator.getDataDirectory() + File.separator + 
+                _authorityCertificatesPanel.load(_coordinator.getDataDirectory() + File.separator +
                                                  "AuthorityCerts.jks");
             }
             catch(java.lang.Exception ex)
@@ -4536,7 +4744,7 @@ public class SessionKeeper
 
                     Container contentPane = getContentPane();
                     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-                    
+
                     {
                         // Build the basic login panel.
                         FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
@@ -4554,13 +4762,13 @@ public class SessionKeeper
                             builder.append(new JLabel("Password"), _password);
                             builder.nextLine();
                             _storePassword = new JCheckBox("Save Password.");
-                            _storePassword.setEnabled(_password.getPassword() != null && 
+                            _storePassword.setEnabled(_password.getPassword() != null &&
                                                       _password.getPassword().length > 0);
                             _password.getDocument().addDocumentListener(new DocumentListener()
                                 {
                                     public void changedUpdate(DocumentEvent e)
                                     {
-                                        _storePassword.setEnabled(_password.getPassword() != null && 
+                                        _storePassword.setEnabled(_password.getPassword() != null &&
                                                                   _password.getPassword().length > 0);
                                     }
                                     public void removeUpdate(DocumentEvent e)
@@ -4570,15 +4778,15 @@ public class SessionKeeper
                                     }
                                     public void insertUpdate(DocumentEvent e)
                                     {
-                                        _storePassword.setEnabled(_password.getPassword() != null && 
+                                        _storePassword.setEnabled(_password.getPassword() != null &&
                                                                   _password.getPassword().length > 0);
                                     }
                                 });
                             builder.append("", _storePassword);
                             builder.nextLine();
                         }
-                        
-                        if(info.getUseX509Certificate() && (info.getKeyPassword() == null || 
+
+                        if(info.getUseX509Certificate() && (info.getKeyPassword() == null ||
                                                             info.getKeyPassword().length == 0))
                         {
                             _keyAlias = new JTextField(20);
@@ -4590,23 +4798,23 @@ public class SessionKeeper
                             builder.append(new JLabel("Key Password"), _keyPassword);
                             builder.nextLine();
                             _storeKeyPassword = new JCheckBox("Save Key Password.");
-                            _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                            _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                          _keyPassword.getPassword().length > 0);
                             _keyPassword.getDocument().addDocumentListener(new DocumentListener()
                                 {
                                     public void changedUpdate(DocumentEvent e)
                                     {
-                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                      _keyPassword.getPassword().length > 0);
                                     }
                                     public void removeUpdate(DocumentEvent e)
                                     {
-                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                      _keyPassword.getPassword().length > 0);
                                     }
                                     public void insertUpdate(DocumentEvent e)
                                     {
-                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                      _keyPassword.getPassword().length > 0);
                                     }
                                 });
@@ -4638,7 +4846,7 @@ public class SessionKeeper
                                     info.setStoreKeyPassword(_storeKeyPassword.isSelected());
                                 }
 
-                                if(checkCertificateRequirePassword(info.getAlias()) && 
+                                if(checkCertificateRequirePassword(info.getAlias()) &&
                                    !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                                 {
                                     dispose();
@@ -4684,11 +4892,11 @@ public class SessionKeeper
             }
 
             //
-            // If there isn't a store password or the certificate requires a password 
+            // If there isn't a store password or the certificate requires a password
             // and the password isn't provided, we show the login dialog.
             //
             if((info.getPassword() == null || info.getPassword().length == 0) ||
-               (info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) && 
+               (info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) &&
                 (info.getKeyPassword() == null || info.getKeyPassword().length == 0)))
             {
                 _authDialog = new UsernamePasswordAuthDialog();
@@ -4741,17 +4949,17 @@ public class SessionKeeper
                             {
                                 public void changedUpdate(DocumentEvent e)
                                 {
-                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
                                 public void removeUpdate(DocumentEvent e)
                                 {
-                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
                                 public void insertUpdate(DocumentEvent e)
                                 {
-                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
                             });
@@ -4773,7 +4981,7 @@ public class SessionKeeper
 
                                 info.setKeyPassword(_keyPassword.getPassword());
 
-                                if(checkCertificateRequirePassword(info.getAlias()) && 
+                                if(checkCertificateRequirePassword(info.getAlias()) &&
                                    !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                                 {
                                     dispose();
@@ -4815,10 +5023,10 @@ public class SessionKeeper
             }
 
             //
-            // If the certificate requires a password and the password isn't provided, we 
+            // If the certificate requires a password and the password isn't provided, we
             // show the login dialog.
             //
-            if((info.getKeyPassword() == null || info.getKeyPassword().length == 0) && 
+            if((info.getKeyPassword() == null || info.getKeyPassword().length == 0) &&
                 checkCertificateRequirePassword(info.getAlias()))
             {
                 _authDialog = new X509CertificateAuthDialog();
@@ -4833,7 +5041,7 @@ public class SessionKeeper
                 }
                 assert _session == null;
 
-                if(checkCertificateRequirePassword(info.getAlias()) && 
+                if(checkCertificateRequirePassword(info.getAlias()) &&
                    !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                 {
                     permissionDenied(parent, info, "Invalid certificate password");
@@ -4848,7 +5056,7 @@ public class SessionKeeper
         }
     }
 
-    public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long sessionTimeout, 
+    public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long sessionTimeout,
                              final int acmTimeout, final AdminSessionPrx session, final ConnectionInfo info)
     {
         assert session != null;
@@ -4948,7 +5156,7 @@ public class SessionKeeper
                 super(parent, "Login - IceGrid Admin");
 
                 Container contentPane = getContentPane();
-                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));                
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
                 {
                     // Build the basic login panel.
                     FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
@@ -4971,18 +5179,18 @@ public class SessionKeeper
                         builder.nextLine();
                         _storePassword = new JCheckBox("Save Password.");
                         _storePassword.setSelected(info.getStorePassword());
-                        _storePassword.setEnabled(_password.getPassword() != null && 
+                        _storePassword.setEnabled(_password.getPassword() != null &&
                                                   _password.getPassword().length > 0);
                         _password.getDocument().addDocumentListener(new DocumentListener()
                             {
                                 public void changedUpdate(DocumentEvent e)
                                 {
-                                    _storePassword.setEnabled(_password.getPassword() != null && 
+                                    _storePassword.setEnabled(_password.getPassword() != null &&
                                                               _password.getPassword().length > 0);
                                 }
                                 public void removeUpdate(DocumentEvent e)
                                 {
-                                    _storePassword.setEnabled(_password.getPassword() != null && 
+                                    _storePassword.setEnabled(_password.getPassword() != null &&
                                                               _password.getPassword().length > 0);
                                 }
                                 public void insertUpdate(DocumentEvent e)
@@ -4994,7 +5202,7 @@ public class SessionKeeper
                         builder.append("", _storePassword);
                         builder.nextLine();
                     }
-                    
+
                     if(info.getUseX509Certificate())
                     {
                         _keyAlias = new JTextField(20);
@@ -5011,23 +5219,23 @@ public class SessionKeeper
                         builder.nextLine();
                         _storeKeyPassword = new JCheckBox("Save Key Password.");
                         _storeKeyPassword.setSelected(info.getStoreKeyPassword());
-                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                      _keyPassword.getPassword().length > 0);
                         _keyPassword.getDocument().addDocumentListener(new DocumentListener()
                             {
                                 public void changedUpdate(DocumentEvent e)
                                 {
-                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
                                 public void removeUpdate(DocumentEvent e)
                                 {
-                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
                                 public void insertUpdate(DocumentEvent e)
                                 {
-                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
                             });
@@ -5058,7 +5266,7 @@ public class SessionKeeper
                             {
                                 info.setKeyPassword(_keyPassword.getPassword());
                                 info.setStoreKeyPassword(_storeKeyPassword.isSelected());
-                                certificatePasswordMatch = checkCertificatePassword(info.getAlias(), 
+                                certificatePasswordMatch = checkCertificatePassword(info.getAlias(),
                                                                                     info.getKeyPassword());
                             }
 
@@ -5081,7 +5289,7 @@ public class SessionKeeper
                     {
                         public void actionPerformed(ActionEvent e)
                         {
-                            info.load();                   
+                            info.load();
                             dispose();
                             _authDialog = null;
                             JDialog dialog = new ConnectionWizardDialog(info, parent);
@@ -5101,7 +5309,7 @@ public class SessionKeeper
                         }
                     });
 
-                JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton, 
+                JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton,
                                                                                   cancelButton).addGlue().build();
                 buttonBar.setBorder(Borders.DIALOG);
                 contentPane.add(buttonBar);
@@ -5119,7 +5327,7 @@ public class SessionKeeper
             private JCheckBox _storeKeyPassword;
         }
 
-        JOptionPane.showMessageDialog(parent, "Permission denied: " + msg, "Login failed", 
+        JOptionPane.showMessageDialog(parent, "Permission denied: " + msg, "Login failed",
                                       JOptionPane.ERROR_MESSAGE);
 
         _authDialog = new PermissionDeniedAuthDialog();
@@ -5158,7 +5366,7 @@ public class SessionKeeper
     }
 
     AdminPrx getAdmin()
-    {         
+    {
         return _session == null ? null : _session.getAdmin();
     }
 
