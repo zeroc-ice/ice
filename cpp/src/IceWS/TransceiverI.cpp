@@ -20,7 +20,7 @@
 #include <IceUtil/Random.h>
 #include <IceUtil/SHA1.h>
 #include <IceUtil/StringUtil.h>
-  
+
 #include <IceUtil/DisableWarnings.h>
 
 #include <stdint.h>
@@ -64,7 +64,10 @@ namespace
 const string _iceProtocol = "ice.zeroc.com";
 const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-void htonll(Long v, Byte* dest)
+//
+// Rename to avoid conflict with OS 10.10 htonll
+//
+void ice_htonll(Long v, Byte* dest)
 {
     //
     // Transfer a 64-bit integer in network (big-endian) order.
@@ -92,7 +95,10 @@ void htonll(Long v, Byte* dest)
 #endif
 }
 
-Long nlltoh(const Byte* src)
+//
+// Rename to avoid conflict with OS 10.10 nlltoh
+//
+Long ice_nlltoh(const Byte* src)
 {
     Long v;
 
@@ -182,7 +188,7 @@ IceWS::TransceiverI::getAsyncInfo(SocketOperation status)
     return _delegate->getNativeInfo()->getAsyncInfo(status);
 }
 #elif defined(ICE_OS_WINRT)
-void 
+void
 IceWS::TransceiverI::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
 {
     _delegate->getNativeInfo()->setCompletedHandler(handler);
@@ -281,7 +287,7 @@ IceWS::TransceiverI::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& h
             //
             // Try to read the client's upgrade request or the server's response.
             //
-            if((_state == StateUpgradeRequestPending && _incoming) || 
+            if((_state == StateUpgradeRequestPending && _incoming) ||
                (_state == StateUpgradeResponsePending && !_incoming))
             {
                 //
@@ -503,7 +509,7 @@ IceWS::TransceiverI::write(Buffer& buf)
                     return s;
                 }
             }
-            
+
             if(_incoming && !buf.b.empty() && _writeState == WriteStatePayload)
             {
                 SocketOperation s = _delegate->write(buf);
@@ -559,7 +565,7 @@ IceWS::TransceiverI::read(Buffer& buf, bool& hasMoreData)
             {
                 //
                 // If the payload length is smaller than what remains to be read, we read
-                // no more than the payload length. The remaining of the buffer will be 
+                // no more than the payload length. The remaining of the buffer will be
                 // sent over in another frame.
                 //
                 size_t readSz = _readPayloadLength - (buf.i - _readStart); // Already read
@@ -703,7 +709,7 @@ IceWS::TransceiverI::startRead(Buffer& buf)
         {
             //
             // If the payload length is smaller than what remains to be read, we read
-            // no more than the payload length. The remaining of the buffer will be 
+            // no more than the payload length. The remaining of the buffer will be
             // sent over in another frame.
             //
             size_t readSz = _readPayloadLength  - (buf.i - _readStart);
@@ -1173,7 +1179,7 @@ IceWS::TransceiverI::preRead(Buffer& buf)
             else if(_readPayloadLength == 127)
             {
                 assert(_readPayloadLength == 127);
-                Long l = nlltoh(_readI);
+                Long l = ice_nlltoh(_readI);
                 _readI += 8;
                 if(l < 0 || l > INT_MAX)
                 {
@@ -1330,7 +1336,7 @@ IceWS::TransceiverI::preRead(Buffer& buf)
         if(_readState == ReadStatePayload)
         {
             //
-            // This must be assigned before the check for the buffer. If the buffer is empty 
+            // This must be assigned before the check for the buffer. If the buffer is empty
             // or already read, postRead will return false.
             //
             _readStart = buf.i;
@@ -1347,7 +1353,7 @@ IceWS::TransceiverI::preRead(Buffer& buf)
                 buf.i += n;
                 _readI += n;
             }
-        
+
             //
             // Continue reading if we didn't read the full message, otherwise give back
             // the control to the connection
@@ -1451,7 +1457,7 @@ IceWS::TransceiverI::preWrite(Buffer& buf)
         }
         else if((_state == StateClosingRequestPending && !_closingInitiator) ||
                 (_state == StateClosingResponsePending && _closingInitiator))
-        {            
+        {
             prepareWriteHeader(OP_CLOSE, 2);
 
             // Write closing reason
@@ -1477,7 +1483,7 @@ IceWS::TransceiverI::preWrite(Buffer& buf)
         }
 
         _writePayloadLength = 0;
-    } 
+    }
 
     if(_writeState == WriteStatePayload)
     {
@@ -1497,14 +1503,14 @@ IceWS::TransceiverI::preWrite(Buffer& buf)
                 {
                     _writeBuffer.i = _writeBuffer.b.begin();
                 }
-                
+
                 size_t n = buf.i - buf.b.begin();
                 for(; n < buf.b.size() && _writeBuffer.i < _writeBuffer.b.end(); ++_writeBuffer.i, ++n)
                 {
                     *_writeBuffer.i = buf.b[n] ^ _writeMask[n % 4];
                 }
                 _writePayloadLength = n;
-                
+
                 if(_writeBuffer.i < _writeBuffer.b.end())
                 {
                     _writeBuffer.b.resize(_writeBuffer.i - _writeBuffer.b.begin());
@@ -1551,7 +1557,7 @@ IceWS::TransceiverI::postWrite(Buffer& buf)
                     Trace out(_instance->logger(), _instance->traceCategory());
                     out << "sent " << protocol() << " connection close frame\n" << toString();
                 }
-                
+
                 if(_state == StateClosingRequestPending && !_closingInitiator)
                 {
                     _writeState = WriteStateHeader;
@@ -1587,14 +1593,14 @@ IceWS::TransceiverI::postWrite(Buffer& buf)
             buf.i = buf.b.begin() + _writePayloadLength;
         }
     }
-    
+
     if(buf.b.empty() || buf.i == buf.b.end())
     {
         _writeState = WriteStateHeader;
         if(_state == StatePingPending ||
            _state == StatePongPending ||
            (_state == StateClosingRequestPending && !_closingInitiator) ||
-           (_state == StateClosingResponsePending && _closingInitiator)) 
+           (_state == StateClosingResponsePending && _closingInitiator))
         {
             return true;
         }
@@ -1646,7 +1652,7 @@ IceWS::TransceiverI::prepareWriteHeader(Byte opCode, IceInternal::Buffer::Contai
     //
     _writeBuffer.b.resize(_writeBufferSize);
     _writeBuffer.i = _writeBuffer.b.begin();
-    
+
     //
     // Set the opcode - this is the one and only data frame.
     //
@@ -1674,10 +1680,10 @@ IceWS::TransceiverI::prepareWriteHeader(Byte opCode, IceInternal::Buffer::Contai
         // Use an extra 64 bits to encode the payload length.
         //
         *_writeBuffer.i++ = static_cast<Byte>(127);
-        htonll(payloadLength, _writeBuffer.i);
+        ice_htonll(payloadLength, _writeBuffer.i);
         _writeBuffer.i += 8;
     }
-    
+
     if(!_incoming)
     {
         //
