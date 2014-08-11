@@ -565,7 +565,12 @@ SChannelEngine::newCredentialsHandle(bool incoming)
 
     if(incoming)
     {
-        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER | SCH_SEND_ROOT_CERT;
+        //
+        // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with 
+        // Java certificate validation and SChannel doesn't seems to send 
+        // the root certificate either way.
+        //
+        cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
     }
     else
     {

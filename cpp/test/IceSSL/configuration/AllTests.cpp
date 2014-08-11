@@ -1348,7 +1348,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         fact->destroyServer(server);
         comm->destroy();
         
-        cerr << "Use incorrect password" << endl;
         //
         // Use an incorrect password and check that retries are attempted.
         //
