@@ -564,7 +564,7 @@ generated from the section label.
         <property name="DHParams" />
         <property name="EntropyDaemon" />
         <property name="FindCert.[any]" />
-        <property name="ImportCert.[any]" />
+        <property name="ImportCert.[any]" deprecated="true"/>
         <property name="InitOpenSSL" />
         <property name="KeyFile" />
         <property name="KeySet"/>
