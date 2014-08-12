@@ -22,6 +22,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
@@ -29,6 +30,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     SBaseAsObject_async(AMD_TestIntf_SBaseAsObject cb, Ice.Current current)
     {
@@ -37,6 +39,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(sb);
     }
 
+    @Override
     public void
     SBaseAsSBase_async(AMD_TestIntf_SBaseAsSBase cb, Ice.Current current)
     {
@@ -45,6 +48,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(sb);
     }
 
+    @Override
     public void
     SBSKnownDerivedAsSBase_async(AMD_TestIntf_SBSKnownDerivedAsSBase cb, Ice.Current current)
     {
@@ -54,6 +58,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(sbskd);
     }
 
+    @Override
     public void
     SBSKnownDerivedAsSBSKnownDerived_async(AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerived cb, Ice.Current current)
     {
@@ -63,6 +68,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(sbskd);
     }
 
+    @Override
     public void
     SBSUnknownDerivedAsSBase_async(AMD_TestIntf_SBSUnknownDerivedAsSBase cb, Ice.Current current)
     {
@@ -72,6 +78,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(sbsud);
     }
 
+    @Override
     public void
     SBSUnknownDerivedAsSBaseCompact_async(AMD_TestIntf_SBSUnknownDerivedAsSBaseCompact cb, Ice.Current current)
     {
@@ -81,6 +88,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(sbsud);
     }
 
+    @Override
     public void
     SUnknownAsObject_async(AMD_TestIntf_SUnknownAsObject cb, Ice.Current current)
     {
@@ -89,6 +97,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(su);
     }
 
+    @Override
     public void
     checkSUnknown_async(AMD_TestIntf_checkSUnknown cb, Ice.Object obj, Ice.Current current)
     {
@@ -104,6 +113,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     oneElementCycle_async(AMD_TestIntf_oneElementCycle cb, Ice.Current current)
     {
@@ -113,6 +123,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(b);
     }
 
+    @Override
     public void
     twoElementCycle_async(AMD_TestIntf_twoElementCycle cb, Ice.Current current)
     {
@@ -125,6 +136,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(b1);
     }
 
+    @Override
     public void
     D1AsB_async(AMD_TestIntf_D1AsB cb, Ice.Current current)
     {
@@ -141,6 +153,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d1);
     }
 
+    @Override
     public void
     D1AsD1_async(AMD_TestIntf_D1AsD1 cb, Ice.Current current)
     {
@@ -157,6 +170,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d1);
     }
 
+    @Override
     public void
     D2AsB_async(AMD_TestIntf_D2AsB cb, Ice.Current current)
     {
@@ -173,6 +187,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d2);
     }
 
+    @Override
     public void
     paramTest1_async(AMD_TestIntf_paramTest1 cb, Ice.Current current)
     {
@@ -189,6 +204,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d1, d2);
     }
 
+    @Override
     public void
     paramTest2_async(AMD_TestIntf_paramTest2 cb, Ice.Current current)
     {
@@ -205,6 +221,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d2, d1);
     }
 
+    @Override
     public void
     paramTest3_async(AMD_TestIntf_paramTest3 cb, Ice.Current current)
     {
@@ -234,6 +251,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d3, d2, d4);
     }
 
+    @Override
     public void
     paramTest4_async(AMD_TestIntf_paramTest4 cb, Ice.Current current)
     {
@@ -247,6 +265,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d4.p2, d4);
     }
 
+    @Override
     public void
     returnTest1_async(AMD_TestIntf_returnTest1 cb, Ice.Current current)
     {
@@ -263,6 +282,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d2, d2, d1);
     }
 
+    @Override
     public void
     returnTest2_async(AMD_TestIntf_returnTest2 cb, Ice.Current current)
     {
@@ -279,12 +299,14 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(d1, d1, d2);
     }
 
+    @Override
     public void
     returnTest3_async(AMD_TestIntf_returnTest3 cb, B p1, B p2, Ice.Current current)
     {
         cb.ice_response(p1);
     }
 
+    @Override
     public void
     sequenceTest_async(AMD_TestIntf_sequenceTest cb, SS1 p1, SS2 p2, Ice.Current current)
     {
@@ -294,6 +316,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(ss);
     }
 
+    @Override
     public void
     dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, java.util.Map<Integer, B> bin, Ice.Current current)
     {
@@ -323,12 +346,14 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(r, bout);
     }
 
+    @Override
     public void
     exchangePBase_async(AMD_TestIntf_exchangePBase cb, PBase pb, Ice.Current current)
     {
         cb.ice_response(pb);
     }
 
+    @Override
     public void
     PBSUnknownAsPreserved_async(AMD_TestIntf_PBSUnknownAsPreserved cb, Ice.Current current)
     {
@@ -348,6 +373,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response(r);
     }
 
+    @Override
     public void
     checkPBSUnknown_async(AMD_TestIntf_checkPBSUnknown cb, Preserved p, Ice.Current current)
     {
@@ -369,6 +395,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb, Ice.Current current)
     {
@@ -384,6 +411,7 @@ public final class AMDTestI extends _TestIntfDisp
         r.graph.next.next.next = null; // Break the cycle.
     }
 
+    @Override
     public void
     checkPBSUnknownWithGraph_async(AMD_TestIntf_checkPBSUnknownWithGraph cb, Preserved p, Ice.Current current)
     {
@@ -407,6 +435,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb, Ice.Current current)
     {
@@ -418,6 +447,7 @@ public final class AMDTestI extends _TestIntfDisp
         r.pb = null; // Break the cycle.
     }
 
+    @Override
     public void
     checkPBSUnknown2WithGraph_async(AMD_TestIntf_checkPBSUnknown2WithGraph cb, Preserved p, Ice.Current current)
     {
@@ -438,12 +468,14 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     exchangePNode_async(AMD_TestIntf_exchangePNode cb, PNode pn, Ice.Current current)
     {
         cb.ice_response(pn);
     }
 
+    @Override
     public void
     throwBaseAsBase_async(AMD_TestIntf_throwBaseAsBase cb, Ice.Current current)
         throws BaseException
@@ -456,6 +488,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(be);
     }
 
+    @Override
     public void
     throwDerivedAsBase_async(AMD_TestIntf_throwDerivedAsBase cb, Ice.Current current)
         throws BaseException
@@ -474,6 +507,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(de);
     }
 
+    @Override
     public void
     throwDerivedAsDerived_async(AMD_TestIntf_throwDerivedAsDerived cb, Ice.Current current)
         throws DerivedException
@@ -492,6 +526,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(de);
     }
 
+    @Override
     public void
     throwUnknownDerivedAsBase_async(AMD_TestIntf_throwUnknownDerivedAsBase cb, Ice.Current current)
         throws BaseException
@@ -510,6 +545,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ude);
     }
 
+    @Override
     public void
     throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
     {
@@ -522,6 +558,7 @@ public final class AMDTestI extends _TestIntfDisp
         ue.p.pb = null; // Break the cycle.
     }
 
+    @Override
     public void
     useForward_async(AMD_TestIntf_useForward cb, Ice.Current current)
     {

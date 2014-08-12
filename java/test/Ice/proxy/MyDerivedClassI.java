@@ -17,24 +17,28 @@ public final class MyDerivedClassI extends MyDerivedClass
     {
     }
 
+    @Override
     public Ice.ObjectPrx
     echo(Ice.ObjectPrx obj, Ice.Current c)
     {
         return obj;
     }
 
+    @Override
     public void
     shutdown(Ice.Current c)
     {
         c.adapter.getCommunicator().shutdown();
     }
 
+    @Override
     public java.util.Map<String, String>
     getContext(Ice.Current current)
     {
         return _ctx;
     }
 
+    @Override
     public boolean
     ice_isA(String s, Ice.Current current)
     {

@@ -19,18 +19,21 @@ final class EndpointI extends IceInternal.EndpointI
         _configuration = configuration;
     }
 
+    @Override
     public String
     _toString()
     {
         return "test-" + _endpoint.toString();
     }
 
+    @Override
     public Ice.EndpointInfo
     getInfo()
     {
         return _endpoint.getInfo();
     }
 
+    @Override
     public void
     streamWrite(IceInternal.BasicStream s)
     {
@@ -40,24 +43,28 @@ final class EndpointI extends IceInternal.EndpointI
         s.endWriteEncaps();
     }
 
+    @Override
     public short
     type()
     {
         return (short)(TYPE_BASE + _endpoint.type());
     }
 
+    @Override
     public String
     protocol()
     {
         return _endpoint.protocol();
     }
 
+    @Override
     public int
     timeout()
     {
         return _endpoint.timeout();
     }
 
+    @Override
     public IceInternal.EndpointI
     timeout(int timeout)
     {
@@ -72,12 +79,14 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public String
     connectionId()
     {
         return _endpoint.connectionId();
     }
 
+    @Override
     public IceInternal.EndpointI
     connectionId(String connectionId)
     {
@@ -92,12 +101,14 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public boolean
     compress()
     {
         return _endpoint.compress();
     }
 
+    @Override
     public IceInternal.EndpointI
     compress(boolean compress)
     {
@@ -112,18 +123,21 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public boolean
     datagram()
     {
         return _endpoint.datagram();
     }
 
+    @Override
     public boolean
     secure()
     {
         return _endpoint.secure();
     }
 
+    @Override
     public IceInternal.Transceiver
     transceiver(IceInternal.EndpointIHolder endpoint)
     {
@@ -147,6 +161,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public java.util.List<IceInternal.Connector>
     connectors(Ice.EndpointSelectionType selType)
     {
@@ -159,11 +174,13 @@ final class EndpointI extends IceInternal.EndpointI
         return connectors;
     }
 
+    @Override
     public void
     connectors_async(Ice.EndpointSelectionType selType, final IceInternal.EndpointI_connectors cb)
     {
         class Callback implements IceInternal.EndpointI_connectors
         {
+            @Override
             public void 
             connectors(java.util.List<IceInternal.Connector> cons)
             {
@@ -175,6 +192,7 @@ final class EndpointI extends IceInternal.EndpointI
                 cb.connectors(connectors);
             }
 
+            @Override
             public void
             exception(Ice.LocalException exception)
             {
@@ -193,6 +211,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public IceInternal.Acceptor
     acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
@@ -201,6 +220,7 @@ final class EndpointI extends IceInternal.EndpointI
         return p;
     }
 
+    @Override
     public java.util.List<IceInternal.EndpointI>
     expand()
     {
@@ -212,6 +232,7 @@ final class EndpointI extends IceInternal.EndpointI
         return endps;
     }
 
+    @Override
     public boolean
     equivalent(IceInternal.EndpointI endpoint)
     {
@@ -227,12 +248,14 @@ final class EndpointI extends IceInternal.EndpointI
         return testEndpoint._endpoint.equivalent(_endpoint);
     }
 
+    @Override
     public String
     options()
     {
         return _endpoint.options();
     }
 
+    @Override
     public int
     hashCode()
     {
@@ -242,6 +265,7 @@ final class EndpointI extends IceInternal.EndpointI
     //
     // Compare endpoints for sorting purposes
     //
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {
@@ -256,6 +280,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
     }
 
+    @Override
     public int
     compareTo(IceInternal.EndpointI obj) // From java.lang.Comparable
     {

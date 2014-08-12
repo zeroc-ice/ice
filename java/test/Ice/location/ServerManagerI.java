@@ -28,6 +28,7 @@ public class ServerManagerI extends _ServerManagerDisp
         _initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     }
 
+    @Override
     public void
     startServer(Ice.Current current)
     {
@@ -72,6 +73,7 @@ public class ServerManagerI extends _ServerManagerDisp
         adapter2.activate();
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

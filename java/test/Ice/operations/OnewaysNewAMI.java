@@ -12,11 +12,7 @@ package test.Ice.operations;
 import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
 import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
 import test.Ice.operations.Test.Callback_MyClass_opVoid;
-import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
-import test.Ice.operations.Test.Callback_MyClass_opVoid;
-import test.Ice.operations.Test.Callback_MyClass_opByte;
 
 class OnewaysNewAMI
 {
@@ -83,25 +79,27 @@ class OnewaysNewAMI
     static void
     onewaysNewAMI(test.Util.Application app, MyClassPrx proxy)
     {
-        Ice.Communicator communicator = app.communicator();
         MyClassPrx p = (MyClassPrx)proxy.ice_oneway();
 
         {
             final Callback cb = new Callback();
             Ice.Callback_Object_ice_ping callback = new Ice.Callback_Object_ice_ping()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.noException(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean sentSynchronously)
                     {
@@ -149,18 +147,21 @@ class OnewaysNewAMI
             final Callback cb = new Callback();
             Callback_MyClass_opVoid callback = new Callback_MyClass_opVoid()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.noException(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean sentSynchronously)
                     {
@@ -175,18 +176,21 @@ class OnewaysNewAMI
             final Callback cb = new Callback();
             Callback_MyClass_opIdempotent callback = new Callback_MyClass_opIdempotent()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.noException(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean sentSynchronously)
                     {
@@ -201,18 +205,21 @@ class OnewaysNewAMI
             final Callback cb = new Callback();
             Callback_MyClass_opNonmutating callback = new Callback_MyClass_opNonmutating()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.noException(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean sentSynchronously)
                     {

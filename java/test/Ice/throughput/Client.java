@@ -24,6 +24,7 @@ public class Client extends test.Util.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -62,6 +63,7 @@ public class Client extends test.Util.Application
         "?: help\n");
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -156,8 +158,6 @@ public class Client extends test.Util.Application
 
         menu();
 
-        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
-
         char currentType = '1';
         int seqSize = ByteSeqSize.value;
 
@@ -171,13 +171,6 @@ public class Client extends test.Util.Application
         {
             try
             {
-                //out.print("==> ");
-                //out.flush();
-                //line = in.readLine();
-                //if(line == null)
-                //{
-                //    break;
-                //}
                 line = input[inputIndex++];
 
                 long tmsec = System.currentTimeMillis();
@@ -480,6 +473,7 @@ public class Client extends test.Util.Application
         return 0;
     }
     
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

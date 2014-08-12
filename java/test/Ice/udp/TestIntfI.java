@@ -13,6 +13,7 @@ import test.Ice.udp.Test.*;
 
 public final class TestIntfI extends _TestIntfDisp
 {
+    @Override
     public void ping(PingReplyPrx reply, Ice.Current current)
     {
         try
@@ -25,6 +26,7 @@ public final class TestIntfI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void sendByteSeq(byte[] seq, PingReplyPrx reply, Ice.Current current)
     {
         try
@@ -37,6 +39,7 @@ public final class TestIntfI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void pingBiDir(Ice.Identity id, Ice.Current current)
     {
         try
@@ -63,6 +66,7 @@ public final class TestIntfI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

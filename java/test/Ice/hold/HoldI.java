@@ -30,6 +30,7 @@ public final class HoldI extends _HoldDisp
         _last = 0;
     }
 
+    @Override
     public void
     putOnHold(int milliSeconds, Ice.Current current)
     {
@@ -46,6 +47,7 @@ public final class HoldI extends _HoldDisp
         {
             _timer.schedule(new java.util.TimerTask() 
                             {
+                                @Override
                                 public void 
                                 run()
                                 {
@@ -61,11 +63,13 @@ public final class HoldI extends _HoldDisp
         }
     }
 
+    @Override
     public void
     waitForHold(final Ice.Current current)
     {
         _timer.schedule(new java.util.TimerTask() 
                         {
+                            @Override
                             public void 
                             run()
                             {
@@ -87,6 +91,7 @@ public final class HoldI extends _HoldDisp
     }
 
 
+    @Override
     public int
     set(int value, int delay, Ice.Current current)
     {
@@ -106,6 +111,7 @@ public final class HoldI extends _HoldDisp
         }
     }
 
+    @Override
     synchronized public void
     setOneway(int value, int expected, Ice.Current current)
     {
@@ -118,6 +124,7 @@ public final class HoldI extends _HoldDisp
         _last = value;
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

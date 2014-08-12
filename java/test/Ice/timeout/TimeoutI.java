@@ -21,6 +21,7 @@ class TimeoutI extends _TimeoutDisp
             _timeout = timeout;
         }
 
+        @Override
         public void
         run()
         {
@@ -39,28 +40,33 @@ class TimeoutI extends _TimeoutDisp
         int _timeout;
     }
 
+    @Override
     public void
     op(Ice.Current current)
     {
     }
 
+    @Override
     public void
     sendData(byte[] seq, Ice.Current current)
     {
     }
 
+    @Override
     public void
     sleep(int to, Ice.Current current)
     {
         try
         {
-            Thread.currentThread().sleep(to);
+            Thread.currentThread();
+            Thread.sleep(to);
         }
         catch(InterruptedException ex)
         {
         }
     }
 
+    @Override
     public void
     holdAdapter(int to, Ice.Current current)
     {
@@ -69,6 +75,7 @@ class TimeoutI extends _TimeoutDisp
         thread.start();
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -15,6 +15,7 @@ public class Client
 {
     static class ReadThread extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -59,7 +60,7 @@ public class Client
             }
             finally
             {
-                ((Freeze.Map)_map).close();
+                ((Freeze.Map<Byte, Integer>)_map).close();
                 _connection.close();
             }
         }
@@ -76,6 +77,7 @@ public class Client
 
     static class WriteThread extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -128,7 +130,7 @@ public class Client
             }
             finally
             {
-                ((Freeze.Map)_map).close();
+                ((Freeze.Map<Byte, Integer>)_map).close();
                 _connection.close();
             }
         }
@@ -279,7 +281,7 @@ public class Client
             //
             // The iterator should have already been closed when we reached the last entry.
             //
-            int count = ((Freeze.Map)m).closeAllIterators();
+            int count = ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
             test(count == 0);
 
             try
@@ -292,7 +294,7 @@ public class Client
                 // Expected - no transaction.
             }
 
-            count = ((Freeze.Map)m).closeAllIterators();
+            count = ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
             test(count == 1); // Opened by keys.remove()
 
             Transaction tx = connection.beginTransaction();
@@ -331,7 +333,7 @@ public class Client
             //
             // The iterator should have already been closed when we reached the last entry.
             //
-            int count = ((Freeze.Map)m).closeAllIterators();
+            int count = ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
             test(count == 0);
 
             try
@@ -344,7 +346,7 @@ public class Client
                 // Expected - no transaction.
             }
 
-            count = ((Freeze.Map)m).closeAllIterators();
+            count = ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
             test(count == 1); // Opened by keys.remove()
 
             Transaction tx = connection.beginTransaction();
@@ -379,7 +381,7 @@ public class Client
             //
             // The iterator should have already been closed when we reached the last entry.
             //
-            int count = ((Freeze.Map)m).closeAllIterators();
+            int count = ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
             test(count == 0);
             System.out.println("ok");
         }
@@ -478,12 +480,12 @@ public class Client
 
             e = nm.firstEntry();
             test(e != null);
-            test(e.getKey().byteValue() == (byte)firstByte);
+            test(e.getKey().byteValue() == firstByte);
             test(e.getValue().intValue() == 0);
 
             e = nm.lastEntry();
             test(e != null);
-            test(e.getKey().byteValue() == (byte)lastByte);
+            test(e.getKey().byteValue() == lastByte);
             test(e.getValue().intValue() == length - 1);
 
             try
@@ -528,13 +530,13 @@ public class Client
 
             e = nm.pollFirstEntry();
             test(e != null);
-            test(e.getKey().byteValue() == (byte)firstByte);
+            test(e.getKey().byteValue() == firstByte);
             test(e.getValue().intValue() == 0);
             test(!nm.containsKey(firstByte));
 
             e = nm.pollLastEntry();
             test(e != null);
-            test(e.getKey().byteValue() == (byte)lastByte);
+            test(e.getKey().byteValue() == lastByte);
             test(e.getValue().intValue() == length - 1);
             test(!nm.containsKey(lastByte));
 
@@ -600,7 +602,7 @@ public class Client
             //
             // The iterator should have already been closed when we reached the last entry.
             //
-            int count = ((Freeze.Map)m).closeAllIterators();
+            int count = ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
             test(count == 0);
 
             System.out.println("ok");
@@ -918,7 +920,7 @@ public class Client
             System.out.println("ok");
         }
 
-        ((Freeze.Map)m).closeAllIterators();
+        ((Freeze.Map<Byte, Integer>)m).closeAllIterators();
 
         {
             System.out.print("testing concurrent access... ");
@@ -1037,6 +1039,7 @@ public class Client
 
         final java.util.Comparator<Integer> less = new java.util.Comparator<Integer>()
         {
+            @Override
             public int compare(Integer i1, Integer i2)
             {
                 if(i1 == i2)
@@ -1056,6 +1059,7 @@ public class Client
 
         java.util.Comparator<String> greater = new java.util.Comparator<String>()
         {
+            @Override
             public int compare(String s1, String s2)
             {
                 if(s1 == s2)
@@ -1102,7 +1106,6 @@ public class Client
 
             {
                 final Integer first = sm.firstKey();
-                final Integer last = sm.lastKey();
 
                 //
                 // fastRemove

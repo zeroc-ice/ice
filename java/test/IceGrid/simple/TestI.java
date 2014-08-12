@@ -18,6 +18,7 @@ public class TestI extends _TestIntfDisp
     {
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -13,6 +13,7 @@ import test.Ice.servantLocator.Test._TestActivationDisp;
 
 public final class AMDTestActivationI extends _TestActivationDisp
 {
+    @Override
     public void activateServantLocator(boolean activate, Ice.Current current)
     {
         if(activate)

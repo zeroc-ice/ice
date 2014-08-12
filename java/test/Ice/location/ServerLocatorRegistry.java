@@ -13,6 +13,7 @@ import test.Ice.location.Test._TestLocatorRegistryDisp;
 
 public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
 {
+    @Override
     public void
     setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter,
                                 Ice.ObjectPrx object, Ice.Current current)
@@ -28,6 +29,7 @@ public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, String adapter, 
                                           String replica, Ice.ObjectPrx object, Ice.Current current)
@@ -45,12 +47,14 @@ public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb, String id, Ice.ProcessPrx proxy,
                                 Ice.Current current)
     {
     }
 
+    @Override
     public void
     addObject(Ice.ObjectPrx object, Ice.Current current)
     {

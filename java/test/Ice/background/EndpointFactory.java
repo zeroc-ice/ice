@@ -16,24 +16,28 @@ final class EndpointFactory implements IceInternal.EndpointFactory
         _factory = factory;
     }
 
+    @Override
     public short
     type()
     {
         return (short)(EndpointI.TYPE_BASE + _factory.type());
     }
 
+    @Override
     public String
     protocol()
     {
         return "test-" + _factory.protocol();
     }
 
+    @Override
     public IceInternal.EndpointI
     create(java.util.ArrayList<String> args, boolean server)
     {
         return new EndpointI(_configuration, _factory.create(args, server));
     }
 
+    @Override
     public IceInternal.EndpointI
     read(IceInternal.BasicStream s)
     {
@@ -46,11 +50,13 @@ final class EndpointFactory implements IceInternal.EndpointFactory
         return endpoint;
     }
 
+    @Override
     public void
     destroy()
     {
     }
 
+    @Override
     public IceInternal.EndpointFactory
     clone(IceInternal.ProtocolInstance instance)
     {

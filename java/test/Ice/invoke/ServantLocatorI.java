@@ -23,17 +23,20 @@ public class ServantLocatorI implements Ice.ServantLocator
         }
     }
 
+    @Override
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
         return _blobject;
     }
 
+    @Override
     public void
     finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie)
     {
     }
 
+    @Override
     public void
     deactivate(String category)
     {

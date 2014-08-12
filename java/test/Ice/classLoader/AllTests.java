@@ -22,6 +22,7 @@ public class AllTests
 {
     private static class MyObjectFactory implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object create(String type)
         {
             if(type.equals("::Test::AbstractClass"))
@@ -33,6 +34,7 @@ public class AllTests
             return null;
         }
 
+        @Override
         public void destroy()
         {
             // Nothing to do
@@ -41,6 +43,7 @@ public class AllTests
 
     private static class MyClassLoader extends ClassLoader
     {
+        @Override
         protected Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException
         {

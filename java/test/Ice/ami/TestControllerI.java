@@ -12,12 +12,14 @@ import test.Ice.ami.Test._TestIntfControllerDisp;
 
 class TestControllerI extends _TestIntfControllerDisp
 {
+    @Override
     public void
     holdAdapter(Ice.Current current)
     {
         _adapter.hold();
     }
     
+    @Override
     public void
     resumeAdapter(Ice.Current current)
     {

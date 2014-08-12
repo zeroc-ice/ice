@@ -13,6 +13,7 @@ import test.IceDiscovery.simple.Test.*;
 
 public final class ControllerI extends _ControllerDisp
 {
+    @Override
     public void
     activateObjectAdapter(String name, String adapterId, String replicaGroupId, Ice.Current current)
     {
@@ -26,6 +27,7 @@ public final class ControllerI extends _ControllerDisp
         oa.activate();
     }
 
+    @Override
     public void
     deactivateObjectAdapter(String name, Ice.Current current)
     {
@@ -33,6 +35,7 @@ public final class ControllerI extends _ControllerDisp
         _adapters.remove(name);
     }
 
+    @Override
     public void
     addObject(String oaName, String id, Ice.Current current)
     {
@@ -42,6 +45,7 @@ public final class ControllerI extends _ControllerDisp
         _adapters.get(oaName).add(new TestIntfI(), identity);
     }
 
+    @Override
     public void
     removeObject(String oaName, String id, Ice.Current current)
     {
@@ -51,6 +55,7 @@ public final class ControllerI extends _ControllerDisp
         _adapters.get(oaName).remove(identity);
     }
 
+    @Override
     public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

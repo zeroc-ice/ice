@@ -9,33 +9,27 @@
 
 package IceGridGUI.LiveDeployment;
 
-import java.awt.Cursor;
 import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Frame;
-
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.HeaderStyle;
@@ -70,6 +64,7 @@ class ShowLogDialog extends JDialog
         {
             SwingUtilities.invokeLater(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         for(int i = 0; i < lines.length; ++i)
@@ -137,6 +132,7 @@ class ShowLogDialog extends JDialog
             SwingUtilities.invokeLater(
                 new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         if(_textArea.getText() == null || _textArea.getText().length() == 0)
@@ -157,6 +153,7 @@ class ShowLogDialog extends JDialog
                 });
         }
 
+        @Override
         public void run()
         {
             //
@@ -187,6 +184,7 @@ class ShowLogDialog extends JDialog
             SwingUtilities.invokeLater(
                 new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         if(isVisible())
@@ -280,6 +278,7 @@ class ShowLogDialog extends JDialog
                         SwingUtilities.invokeLater(
                             new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     stopReading();
@@ -299,6 +298,7 @@ class ShowLogDialog extends JDialog
                         SwingUtilities.invokeLater(
                             new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     stopReading();
@@ -402,6 +402,7 @@ class ShowLogDialog extends JDialog
 
             Action save = new AbstractAction("Save As...")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         JFileChooser fileChooser = _root.getCoordinator().getSaveLogChooser();
@@ -474,6 +475,7 @@ class ShowLogDialog extends JDialog
 
             fileMenu.add(new AbstractAction("Close")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         close(true);
@@ -485,6 +487,7 @@ class ShowLogDialog extends JDialog
 
             Action copy = new AbstractAction("Copy")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         _textArea.copy();
@@ -498,6 +501,7 @@ class ShowLogDialog extends JDialog
             editMenu.addSeparator();
             Action selectAll = new AbstractAction("Select All")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         _textArea.grabFocus();
@@ -511,6 +515,7 @@ class ShowLogDialog extends JDialog
             editMenu.addSeparator();
             editMenu.add(new AbstractAction("Preferences...")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         new ShowLogPrefsDialog(ShowLogDialog.this);
@@ -561,9 +566,10 @@ class ShowLogDialog extends JDialog
         _factory = factory;
         _root = root;
 
-        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()
             {
+                @Override
                 public void windowClosing(java.awt.event.WindowEvent e)
                 {
                     close(true);
@@ -572,6 +578,7 @@ class ShowLogDialog extends JDialog
 
         _pause = new AbstractAction("Pause")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     pause();
@@ -580,6 +587,7 @@ class ShowLogDialog extends JDialog
 
         _play = new AbstractAction("Play")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     play();
@@ -588,6 +596,7 @@ class ShowLogDialog extends JDialog
 
         _stop = new AbstractAction("Stop")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     stopReading();
@@ -598,8 +607,8 @@ class ShowLogDialog extends JDialog
         getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
 
         JScrollPane scrollPane = new JScrollPane(_textArea,
-                                                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                                                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         getContentPane().add(scrollPane);
 

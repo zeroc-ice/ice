@@ -19,6 +19,7 @@ public final class CAI extends CA
     {
     }
 
+    @Override
     public CAPrx
     caop(CAPrx p, Ice.Current current)
     {

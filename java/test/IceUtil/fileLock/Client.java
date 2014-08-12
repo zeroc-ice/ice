@@ -46,7 +46,7 @@ public class Client
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         try
         {
-            String dummy = br.readLine();
+            br.readLine();
         }
         catch(java.io.IOException ex)
         {

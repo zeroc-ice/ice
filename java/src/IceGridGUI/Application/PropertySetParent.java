@@ -10,7 +10,6 @@
 package IceGridGUI.Application;
 
 import IceGrid.*;
-import IceGridGUI.*;
 
 interface PropertySetParent
 {

@@ -13,17 +13,11 @@ import java.awt.Component;
 import java.awt.Cursor;
 
 import javax.swing.Icon;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-
 import java.text.NumberFormat;
-
-import java.util.Enumeration;
 
 import IceGrid.*;
 import IceGridGUI.*;
@@ -33,6 +27,7 @@ class Node extends ListTreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
@@ -42,10 +37,12 @@ class Node extends ListTreeNode
         return actions;
     }
 
+    @Override
     public void retrieveOutput(final boolean stdout)
     {
         getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
             {
+                @Override
                 public FileIteratorPrx open(int count)
                     throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException
                 {
@@ -62,11 +59,13 @@ class Node extends ListTreeNode
                     return result;
                 }
 
+                @Override
                 public String getTitle()
                 {
                     return "Node " + _id + " " + (stdout ? "stdout" : "stderr");
                 }
 
+                @Override
                 public String getDefaultFilename()
                 {
                     return _id + (stdout ? ".out" : ".err");
@@ -74,6 +73,7 @@ class Node extends ListTreeNode
             });
     }
 
+    @Override
     public void shutdownNode()
     {
         final String prefix = "Shutting down node '" + _id + "'...";
@@ -84,16 +84,19 @@ class Node extends ListTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id, e);
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id,
@@ -119,6 +122,7 @@ class Node extends ListTreeNode
         }
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
@@ -136,6 +140,7 @@ class Node extends ListTreeNode
         return _popup;
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -146,6 +151,7 @@ class Node extends ListTreeNode
         return _editor;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -244,7 +250,7 @@ class Node extends ListTreeNode
         if(appData != null)
         {
             NodeDescriptor descriptor = appData.descriptor;
-            PropertySetDescriptor result = (PropertySetDescriptor)descriptor.propertySets.get(name);
+            PropertySetDescriptor result = descriptor.propertySets.get(name);
             if(result != null)
             {
                 return result;
@@ -313,7 +319,7 @@ class Node extends ListTreeNode
     void update(ApplicationDescriptor appDesc, NodeUpdateDescriptor update, boolean variablesChanged,
                 java.util.Set<String> serviceTemplates, java.util.Set<String> serverTemplates)
     {
-        ApplicationData data = (ApplicationData)_map.get(appDesc.name);
+        ApplicationData data = _map.get(appDesc.name);
 
         if(data == null)
         {
@@ -678,6 +684,7 @@ class Node extends ListTreeNode
     {
         Callback_Admin_getNodeLoad cb = new Callback_Admin_getNodeLoad()
             {
+                @Override
                 public void response(LoadInfo loadInfo)
                 {
                     NumberFormat format;
@@ -701,6 +708,7 @@ class Node extends ListTreeNode
 
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 _editor.setLoad(load, Node.this);
@@ -708,10 +716,12 @@ class Node extends ListTreeNode
                         });
                 }
 
+                @Override
                 public void exception(final Ice.UserException e)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 if(e instanceof IceGrid.NodeNotExistException)
@@ -732,10 +742,12 @@ class Node extends ListTreeNode
                         });
                 }
 
+                @Override
                 public void exception(final Ice.LocalException e)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 _editor.setLoad("Error: " + e.toString(), Node.this);
@@ -777,7 +789,7 @@ class Node extends ListTreeNode
         // Find template
         //
         TemplateDescriptor templateDescriptor =
-            (TemplateDescriptor)application.serverTemplates.get(instanceDescriptor.template);
+            application.serverTemplates.get(instanceDescriptor.template);
         assert templateDescriptor != null;
 
         ServerDescriptor serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;

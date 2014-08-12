@@ -9,9 +9,6 @@
 
 package IceGridGUI.Application;
 
-import IceGrid.*;
-import IceGridGUI.*;
-
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -19,11 +16,9 @@ import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
@@ -59,6 +54,7 @@ public class ParametersField extends JTable
 
         Action deleteRow = new AbstractAction("Delete selected row(s)")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(isEditing())
@@ -118,6 +114,7 @@ public class ParametersField extends JTable
 
         _model.addTableModelListener(new TableModelListener()
             {
+                @Override
                 public void tableChanged(TableModelEvent e)
                 {
                     Object lastKey = _model.getValueAt(_model.getRowCount() - 1 , 0);
@@ -149,7 +146,7 @@ public class ParametersField extends JTable
         }
         @SuppressWarnings("unchecked")
         java.util.Vector<java.util.Vector<String>> vector =
-            (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
+            _model.getDataVector();
 
         for(java.util.Vector<String> row : vector)
         {

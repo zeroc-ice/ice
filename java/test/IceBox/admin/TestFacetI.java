@@ -18,6 +18,7 @@ public class TestFacetI extends _TestFacetDisp implements Ice.PropertiesAdminUpd
         _called = false;
     }
 
+    @Override
     public synchronized java.util.Map<String, String> getChanges(Ice.Current current)
     {
         //
@@ -43,6 +44,7 @@ public class TestFacetI extends _TestFacetDisp implements Ice.PropertiesAdminUpd
         return _changes;
     }
 
+    @Override
     public synchronized void updated(java.util.Map<String, String> changes)
     {
         _changes = changes;

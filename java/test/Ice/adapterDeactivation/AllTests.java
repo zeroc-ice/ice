@@ -9,8 +9,6 @@
 
 package test.Ice.adapterDeactivation;
 
-import java.io.PrintStream;
-
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
 import test.Ice.adapterDeactivation.Test.TestIntfPrxHelper;
 

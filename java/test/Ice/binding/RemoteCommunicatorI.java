@@ -13,6 +13,7 @@ import test.Ice.binding.Test._RemoteCommunicatorDisp;
 
 public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
 {
+    @Override
     public RemoteObjectAdapterPrx
     createObjectAdapter(String name, String endpts, Ice.Current current)
     {
@@ -30,12 +31,14 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
             current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
     }
 
+    @Override
     public void
     deactivateObjectAdapter(RemoteObjectAdapterPrx adapter, Ice.Current current)
     {
         adapter.deactivate(); // Collocated call.
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

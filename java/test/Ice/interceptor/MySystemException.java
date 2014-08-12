@@ -16,6 +16,7 @@ public class MySystemException extends Ice.SystemException
     {
     }
 
+    @Override
     public String
     ice_name()
     {

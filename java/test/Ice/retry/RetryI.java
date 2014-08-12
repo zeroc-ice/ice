@@ -17,6 +17,7 @@ public final class RetryI extends _RetryDisp
     {
     }
 
+    @Override
     public void
     op(boolean kill, Ice.Current current)
     {
@@ -33,6 +34,7 @@ public final class RetryI extends _RetryDisp
         }
     }
 
+    @Override
     public int
     opIdempotent(int counter, Ice.Current current)
     {
@@ -51,6 +53,7 @@ public final class RetryI extends _RetryDisp
         return _counter;
     }
     
+    @Override
     public void
     opNotIdempotent(int counter, Ice.Current current)
     {
@@ -70,12 +73,14 @@ public final class RetryI extends _RetryDisp
         }
     }
     
+    @Override
     public void
     opSystemException(Ice.Current c)
     {
         throw new SystemFailure();
     }
     
+    @Override
     public void
     shutdown(Ice.Current current)
     {

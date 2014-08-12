@@ -9,14 +9,7 @@
 
 package IceGridGUI.LiveDeployment;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -73,7 +66,7 @@ class AdapterEditor extends Editor
         // getId() returns the name of the adapter!
         _endpoints.setText(resolver.substitute(properties.get(adapter.getId() + ".Endpoints")));
         _publishedEndpoints.setText(
-            resolver.substitute((String)properties.get(adapter.getId() + ".PublishedEndpoints")));
+            resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
 
         _registerProcess.setSelected(descriptor.registerProcess);
         _serverLifetime.setSelected(descriptor.serverLifetime);
@@ -82,6 +75,7 @@ class AdapterEditor extends Editor
         _allocatables.setObjects(descriptor.allocatables, resolver);
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("Runtime Status");
@@ -158,6 +152,7 @@ class AdapterEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();

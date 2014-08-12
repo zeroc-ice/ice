@@ -11,6 +11,7 @@ package test.IceBox.configuration;
 
 public class TestServiceI implements IceBox.Service
 {
+    @Override
     public void
     start(String name, Ice.Communicator communicator, String[] args)
     {
@@ -21,6 +22,7 @@ public class TestServiceI implements IceBox.Service
         adapter.activate();
     }
 
+    @Override
     public void
     stop()
     {

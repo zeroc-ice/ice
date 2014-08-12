@@ -19,18 +19,21 @@ public final class HI extends _HDisp
         _communicator = communicator;
     }
 
+    @Override
     public String
     callG(Ice.Current current)
     {
         return "G";
     }
 
+    @Override
     public String
     callH(Ice.Current current)
     {
         return "H";
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -22,8 +22,6 @@ import javax.swing.tree.TreePath;
 
 import java.io.File;
 
-import java.util.Enumeration;
-
 import IceGrid.*;
 import IceGridGUI.*;
 
@@ -126,6 +124,7 @@ public class Root extends ListTreeNode
         return copy;
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -136,6 +135,7 @@ public class Root extends ListTreeNode
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new ApplicationEditor();
@@ -245,6 +245,7 @@ public class Root extends ListTreeNode
         }
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -264,6 +265,7 @@ public class Root extends ListTreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -289,6 +291,7 @@ public class Root extends ListTreeNode
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = _coordinator.getActionsForPopup();
@@ -308,42 +311,50 @@ public class Root extends ListTreeNode
         return _popup;
     }
 
+    @Override
     public void copy()
     {
         _coordinator.setClipboard(copyDescriptor(_descriptor));
         _coordinator.getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void paste()
     {
         _coordinator.pasteApplication();
     }
 
+    @Override
     public void newNode()
     {
         _nodes.newNode();
     }
 
+    @Override
     public void newPropertySet()
     {
         _propertySets.newPropertySet();
     }
 
+    @Override
     public void newReplicaGroup()
     {
         _replicaGroups.newReplicaGroup();
     }
 
+    @Override
     public void newTemplateServer()
     {
         _serverTemplates.newTemplateServer();
     }
 
+    @Override
     public void newTemplateServerIceBox()
     {
         _serverTemplates.newTemplateServerIceBox();
     }
 
+    @Override
     public void newTemplateService()
     {
         _serviceTemplates.newTemplateService();
@@ -407,6 +418,7 @@ public class Root extends ListTreeNode
                         JOptionPane.ERROR_MESSAGE);
                 }
 
+                @Override
                 public void run()
                 {
                     _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -425,6 +437,7 @@ public class Root extends ListTreeNode
 
                                 Ice.Callback cb = new Ice.Callback()
                                     {
+                                        @Override
                                         public void completed(Ice.AsyncResult result)
                                         {
                                             try
@@ -446,6 +459,7 @@ public class Root extends ListTreeNode
                                                 
                                                 SwingUtilities.invokeLater(new Runnable()
                                                     {
+                                                        @Override
                                                         public void run()
                                                         {
                                                             commit();
@@ -464,6 +478,7 @@ public class Root extends ListTreeNode
                                                 
                                                 SwingUtilities.invokeLater(new Runnable()
                                                     {
+                                                        @Override
                                                         public void run()
                                                         {
                                                             _skipUpdates--;
@@ -527,6 +542,7 @@ public class Root extends ListTreeNode
 
                                 Callback_Admin_addApplication cb = new Callback_Admin_addApplication()
                                     {
+                                        @Override
                                         public void response()
                                         {
                                             if(_traceSaveToRegistry)
@@ -537,6 +553,7 @@ public class Root extends ListTreeNode
 
                                             SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         commit();
@@ -548,6 +565,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
+                                        @Override
                                         public void exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
@@ -558,6 +576,7 @@ public class Root extends ListTreeNode
 
                                             SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         handleFailure(prefix, "Add failed",
@@ -567,6 +586,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
+                                        @Override
                                         public void exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
@@ -577,6 +597,7 @@ public class Root extends ListTreeNode
 
                                             SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         handleFailure(prefix, "Add failed",
@@ -602,6 +623,7 @@ public class Root extends ListTreeNode
                                 
                                 Ice.Callback cb = new Ice.Callback()
                                     {
+                                        @Override
                                         public void completed(Ice.AsyncResult result)
                                         {
                                             try
@@ -623,6 +645,7 @@ public class Root extends ListTreeNode
                                                 
                                                 SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         commit();
@@ -664,6 +687,7 @@ public class Root extends ListTreeNode
 
                                                 SwingUtilities.invokeLater(new Runnable()
                                                     {
+                                                        @Override
                                                         public void run()
                                                             {
                                                                 if(_live)
@@ -970,11 +994,13 @@ public class Root extends ListTreeNode
         _serviceTemplates.commit();
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return false;
     }
 
+    @Override
     public void destroy()
     {
         if(!_live && _file == null)
@@ -1143,6 +1169,7 @@ public class Root extends ListTreeNode
         return _treeModel;
     }
 
+    @Override
     public Coordinator getCoordinator()
     {
         return _coordinator;
@@ -1244,6 +1271,7 @@ public class Root extends ListTreeNode
         return result;
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptor;
@@ -1265,6 +1293,7 @@ public class Root extends ListTreeNode
         _descriptor.description = clone.description;
     }
 
+    @Override
     public void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -1389,12 +1418,12 @@ public class Root extends ListTreeNode
 
     TemplateDescriptor findServerTemplateDescriptor(String templateName)
     {
-        return (TemplateDescriptor)_descriptor.serverTemplates.get(templateName);
+        return _descriptor.serverTemplates.get(templateName);
     }
 
     TemplateDescriptor findServiceTemplateDescriptor(String templateName)
     {
-        return (TemplateDescriptor)_descriptor.serviceTemplates.get(templateName);
+        return _descriptor.serviceTemplates.get(templateName);
     }
 
     ServerTemplates getServerTemplates()
@@ -1440,11 +1469,13 @@ public class Root extends ListTreeNode
         return true;
     }
 
+    @Override
     public Root getRoot()
     {
         return this;
     }
 
+    @Override
     Utils.Resolver getResolver()
     {
         return _resolver;

@@ -11,6 +11,7 @@ package test.Ice.metrics;
 
 class DispatchObserverI extends ObserverI implements Ice.Instrumentation.DispatchObserver
 {
+    @Override
     public synchronized void 
     reset()
     {
@@ -19,12 +20,14 @@ class DispatchObserverI extends ObserverI implements Ice.Instrumentation.Dispatc
         replySize = 0;
     }
 
+    @Override
     public synchronized void 
     userException()
     {
         ++userExceptionCount;
     }
 
+    @Override
     public synchronized void 
     reply(int s)
     {

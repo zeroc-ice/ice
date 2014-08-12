@@ -21,16 +21,18 @@ import test.Ice.interceptor.Test._MyObjectDisp;
 class MyObjectI extends _MyObjectDisp
 {
 
+    @Override
     public int 
     add(int x, int y, Ice.Current current)
     {
         return x + y;
     } 
     
+    @Override
     public int 
     addWithRetry(int x, int y, Ice.Current current)
     {
-        String val = (String)current.ctx.get("retry");
+        String val = current.ctx.get("retry");
         
         if(val == null || !val.equals("no"))
         {
@@ -39,18 +41,21 @@ class MyObjectI extends _MyObjectDisp
         return x + y;
     } 
 
+    @Override
     public int 
     badAdd(int x, int y, Ice.Current current) throws InvalidInputException
     {
         throw new InvalidInputException();
     } 
 
+    @Override
     public int 
     notExistAdd(int x, int y, Ice.Current current)
     {
         throw new Ice.ObjectNotExistException();
     } 
     
+    @Override
     public int 
     badSystemAdd(int x, int y, Ice.Current current)
     {
@@ -62,11 +67,13 @@ class MyObjectI extends _MyObjectDisp
     // AMD
     //
 
+    @Override
     public void 
     amdAdd_async(final AMD_MyObject_amdAdd cb, final int x, final int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
+                @Override
                 public void
                 run()
                 {
@@ -85,11 +92,13 @@ class MyObjectI extends _MyObjectDisp
         thread.start();
     }
 
+    @Override
     public void 
     amdAddWithRetry_async(final AMD_MyObject_amdAddWithRetry cb, final int x, final int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
+                @Override
                 public void
                 run()
                 {
@@ -107,7 +116,7 @@ class MyObjectI extends _MyObjectDisp
         thread.setDaemon(true);
         thread.start();
         
-        String val = (String)current.ctx.get("retry");
+        String val = current.ctx.get("retry");
         
         if(val == null || !val.equals("no"))
         {
@@ -115,11 +124,13 @@ class MyObjectI extends _MyObjectDisp
         }
     } 
     
+    @Override
     public void 
     amdBadAdd_async(final AMD_MyObject_amdBadAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
+                @Override
                 public void
                 run()
                 {
@@ -138,11 +149,13 @@ class MyObjectI extends _MyObjectDisp
         thread.start();
     } 
 
+    @Override
     public void 
     amdNotExistAdd_async(final AMD_MyObject_amdNotExistAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
+                @Override
                 public void
                 run()
                 {
@@ -161,11 +174,13 @@ class MyObjectI extends _MyObjectDisp
         thread.start();
     } 
     
+    @Override
     public void 
     amdBadSystemAdd_async(final AMD_MyObject_amdBadSystemAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
+                @Override
                 public void
                 run()
                 {

@@ -23,6 +23,7 @@ public class Client extends test.Util.Application
         }
     }
 
+    @Override
     public int run(String[] args)
     {
         java.io.PrintWriter out = getWriter();

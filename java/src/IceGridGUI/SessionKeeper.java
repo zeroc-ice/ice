@@ -9,7 +9,6 @@
 
 package IceGridGUI;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
@@ -20,35 +19,25 @@ import javax.swing.filechooser.FileFilter;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.File;
 import java.awt.Container;
-import java.awt.Frame;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
 import java.awt.CardLayout;
 import java.awt.BorderLayout;
 import java.awt.Insets;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.Sizes;
 import com.jgoodies.forms.util.LayoutStyle;
 
 import java.util.prefs.Preferences;
@@ -66,13 +55,9 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.MessageDigest;
 
-import javax.security.auth.x500.X500Principal;
-import javax.net.ssl.KeyManagerFactory;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import Ice.LocatorFinderPrxHelper;
-import Ice.Instrumentation._DispatchObserverOperationsNC;
 import IceGrid.*;
 
 //
@@ -86,6 +71,7 @@ public class SessionKeeper
 
     private class LookupReplyI extends _LookupReplyDisp
     {
+        @Override
         public synchronized void
         foundLocator(LocatorPrx locator, Ice.Current curr)
         {
@@ -149,6 +135,7 @@ public class SessionKeeper
                     {
                         SwingUtilities.invokeAndWait(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     logout(true);
@@ -210,6 +197,7 @@ public class SessionKeeper
                     {
                         SwingUtilities.invokeAndWait(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     logout(true);
@@ -242,6 +230,7 @@ public class SessionKeeper
                     {
                         SwingUtilities.invokeAndWait(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     logout(true);
@@ -277,11 +266,13 @@ public class SessionKeeper
                 _session.ice_getConnection().setCallback(
                     new Ice.ConnectionCallback()
                     {
+                        @Override
                         public void
                         heartbeat(Ice.Connection con)
                         {
                         }
 
+                        @Override
                         public void
                         closed(Ice.Connection con)
                         {
@@ -295,6 +286,7 @@ public class SessionKeeper
                                 SwingUtilities.invokeLater(
                                     new Runnable()
                                     {
+                                        @Override
                                         public void run()
                                         {
                                             sessionLost("Failed to contact the IceGrid registry: " + ex.toString());
@@ -311,6 +303,7 @@ public class SessionKeeper
                     {
                         SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 sessionLost("Failed to contact the IceGrid registry: " + e.toString());
@@ -318,23 +311,20 @@ public class SessionKeeper
                         });
                     }
 
+                    @Override
                     public void run()
                     {
                         _session.begin_keepAlive(new Callback_AdminSession_keepAlive()
                             {
+                                @Override
                                 public void
                                 response()
                                 {
                                 }
 
+                                @Override
                                 public void
                                 exception(Ice.LocalException ex)
-                                {
-                                    error(ex);
-                                }
-
-                                public void
-                                exception(Ice.UserException ex)
                                 {
                                     error(ex);
                                 }
@@ -355,6 +345,7 @@ public class SessionKeeper
                     {
                         SwingUtilities.invokeAndWait(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     logout(true);
@@ -542,6 +533,7 @@ public class SessionKeeper
                 {
                     SwingUtilities.invokeAndWait(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 ApplicationObserverI applicationObserverServant = new ApplicationObserverI(
@@ -633,7 +625,7 @@ public class SessionKeeper
     private static JScrollPane createStrippedScrollPane(Component component)
     {
         JScrollPane scrollPane = new JScrollPane(component);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         return scrollPane;
     }
 
@@ -650,6 +642,7 @@ public class SessionKeeper
             load();
         }
 
+        @Override
         public synchronized String toString()
         {
 
@@ -680,6 +673,7 @@ public class SessionKeeper
             return name;
         }
 
+        @Override
         public int compareTo(ConnectionInfo other)
         {
             return _instanceName.compareTo(other._instanceName);
@@ -1152,11 +1146,13 @@ public class SessionKeeper
             _field = field;
         }
 
+        @Override
         public void focusGained(java.awt.event.FocusEvent fe)
         {
             _field.setCaretPosition(_field.getDocument().getLength());
         }
 
+        @Override
         public void focusLost(java.awt.event.FocusEvent fe)
         {
 
@@ -1210,6 +1206,7 @@ public class SessionKeeper
 
                 _directConnection = new JRadioButton(new AbstractAction("Direct Connection")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1219,6 +1216,7 @@ public class SessionKeeper
                 group.add(_directConnection);
                 _routedConnection = new JRadioButton(new AbstractAction("Routed Connection")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1247,7 +1245,8 @@ public class SessionKeeper
                 
                 _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
                 {
-                	public void valueChanged(ListSelectionEvent event)
+                	@Override
+                    public void valueChanged(ListSelectionEvent event)
                 	{
                 		validatePanel();
                 	}
@@ -1258,7 +1257,8 @@ public class SessionKeeper
                 ButtonGroup group = new ButtonGroup();
                 _directDiscoveryDiscoveredEndpoint = new JRadioButton(new AbstractAction("Discovered Endpoints")
                 	{
-                		public void actionPerformed(ActionEvent e)
+                		@Override
+                        public void actionPerformed(ActionEvent e)
                 		{
                 			_directDiscoveryEndpointList.setEnabled(true);
                 			validatePanel();
@@ -1269,7 +1269,8 @@ public class SessionKeeper
                 
                 _directDiscoveryManualEndpoint = new JRadioButton(new AbstractAction("Manual Endpoint")
                 	{
-                    	public void actionPerformed(ActionEvent e)
+                    	@Override
+                        public void actionPerformed(ActionEvent e)
                     	{
                     		_directDiscoveryEndpointList.setEnabled(false);
                     		validatePanel();
@@ -1312,6 +1313,7 @@ public class SessionKeeper
                 _directDefaultEndpoints = new JRadioButton(
                     new AbstractAction("A hostname and a port number?")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 validatePanel();
@@ -1321,6 +1323,7 @@ public class SessionKeeper
                 group.add(_directDefaultEndpoints);
                 _directCustomEndpoints = new JRadioButton(new AbstractAction("An endpoint string?")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1347,6 +1350,7 @@ public class SessionKeeper
                 _routedDefaultEndpoints = new JRadioButton(
                     new AbstractAction("A hostname and a port number?")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 validatePanel();
@@ -1356,6 +1360,7 @@ public class SessionKeeper
                 group.add(_routedDefaultEndpoints);
                 _routedCustomEndpoints = new JRadioButton(new AbstractAction("An endpoint string?")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1382,16 +1387,19 @@ public class SessionKeeper
                 _directDefaultEndpointHost = new JTextField(20);
                 _directDefaultEndpointHost.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _directDefaultEndpointHost.requestFocusInWindow();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _directDefaultEndpointHost.requestFocusInWindow();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1406,16 +1414,19 @@ public class SessionKeeper
                 _directDefaultEndpointPort.addFocusListener(new FocusListener(_directDefaultEndpointPort));
                 _directDefaultEndpointPort.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _directDefaultEndpointPort.requestFocusInWindow();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _directDefaultEndpointPort.requestFocusInWindow();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1429,6 +1440,7 @@ public class SessionKeeper
                 ButtonGroup group = new ButtonGroup();
                 _directDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                     }
@@ -1437,6 +1449,7 @@ public class SessionKeeper
 
                 _directDefaultEndpointSSL = new JRadioButton(new AbstractAction("SSL")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                     }
@@ -1465,16 +1478,19 @@ public class SessionKeeper
                 _routedDefaultEndpointHost.addFocusListener(new FocusListener(_routedDefaultEndpointHost));
                 _routedDefaultEndpointHost.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _routedDefaultEndpointHost.requestFocusInWindow();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _routedDefaultEndpointHost.requestFocusInWindow();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1489,16 +1505,19 @@ public class SessionKeeper
                 _routedDefaultEndpointPort.addFocusListener(new FocusListener(_routedDefaultEndpointPort));
                 _routedDefaultEndpointPort.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _routedDefaultEndpointPort.requestFocusInWindow();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _routedDefaultEndpointPort.requestFocusInWindow();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1513,6 +1532,7 @@ public class SessionKeeper
                 ButtonGroup group = new ButtonGroup();
                 _routedDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         validatePanel();
@@ -1522,6 +1542,7 @@ public class SessionKeeper
 
                 _routedDefaultEndpointSSL = new JRadioButton(new AbstractAction("SSL")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                     }
@@ -1550,14 +1571,17 @@ public class SessionKeeper
                 _directCustomEndpointValue.addFocusListener(new FocusListener(_directCustomEndpointValue));
                 _directCustomEndpointValue.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1582,14 +1606,17 @@ public class SessionKeeper
                 _routedCustomEndpointValue.addFocusListener(new FocusListener(_routedCustomEndpointValue));
                 _routedCustomEndpointValue.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1614,6 +1641,7 @@ public class SessionKeeper
 
                 _x509CertificateNoButton = new JRadioButton(new AbstractAction("No")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             _x509CertificateDefault = false;
@@ -1625,6 +1653,7 @@ public class SessionKeeper
                 group.add(_x509CertificateNoButton);
                 _x509CertificateYesButton = new JRadioButton(new AbstractAction("Yes")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             _x509CertificateDefault = false;
@@ -1645,6 +1674,7 @@ public class SessionKeeper
                 _directCertificateAliases = new JComboBox();
                 _directCertificateAliases.addActionListener (new ActionListener ()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1653,6 +1683,7 @@ public class SessionKeeper
 
                 _directImportCertificate = new JButton(new AbstractAction("Import...")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             CertificateManagerDialog d = certificateManager(ConnectionWizardDialog.this);
@@ -1682,8 +1713,6 @@ public class SessionKeeper
                     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                     builder.rowGroupingEnabled(true);
 
-                    ButtonGroup group = new ButtonGroup();
-
                     builder.append("<html><b>Alias:</b></html>", alias);
                     builder.append("", new JLabel("<html><p>Your X.509 certificate for SSL authentication.</p></html>"));
 
@@ -1709,6 +1738,7 @@ public class SessionKeeper
                 _routedCertificateAliases = new JComboBox();
                 _routedCertificateAliases.addActionListener (new ActionListener ()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1717,6 +1747,7 @@ public class SessionKeeper
 
                 _routedImportCertificate = new JButton(new AbstractAction("Import...")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             CertificateManagerDialog d = certificateManager(ConnectionWizardDialog.this);
@@ -1745,8 +1776,6 @@ public class SessionKeeper
                     FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
                     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                     builder.rowGroupingEnabled(true);
-
-                    ButtonGroup group = new ButtonGroup();
 
                     builder.append("<html><b>Alias:</b></html>", alias);
                     builder.append("", new JLabel("<html><p>Your X.509 certificate for SSL authentication.</p></html>"));
@@ -1780,6 +1809,7 @@ public class SessionKeeper
                 _usernamePasswordAuthButton = new JRadioButton(
                     new AbstractAction("Log in with a username and password")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 validatePanel();
@@ -1789,6 +1819,7 @@ public class SessionKeeper
                 group.add(_usernamePasswordAuthButton);
                 _certificateAuthButton = new JRadioButton(new AbstractAction("Log in with my X.509 certificate")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             validatePanel();
@@ -1810,21 +1841,22 @@ public class SessionKeeper
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
 
-                ButtonGroup group = new ButtonGroup();
-
                 _directUsername = new JTextField();
                 _directUsername.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _directUsername.requestFocusInWindow();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _directUsername.requestFocusInWindow();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1848,21 +1880,22 @@ public class SessionKeeper
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
 
-                ButtonGroup group = new ButtonGroup();
-
                 _routedUsername = new JTextField();
                 _routedUsername.getDocument().addDocumentListener(new DocumentListener()
                     {
+                        @Override
                         public void changedUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _routedUsername.requestFocusInWindow();
                         }
+                        @Override
                         public void removeUpdate(DocumentEvent e)
                         {
                             validatePanel();
                             _routedUsername.requestFocusInWindow();
                         }
+                        @Override
                         public void insertUpdate(DocumentEvent e)
                         {
                             validatePanel();
@@ -1882,6 +1915,7 @@ public class SessionKeeper
             _backButton = new JButton();
             AbstractAction backAction = new AbstractAction("< Back")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         if(_wizardSteps.size() <= 1)
@@ -1906,6 +1940,7 @@ public class SessionKeeper
             _nextButton = new JButton();
             AbstractAction nextAction = new AbstractAction("Next >")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         _nextButton.setEnabled(false);
@@ -1936,11 +1971,12 @@ public class SessionKeeper
                             	            null);
                             	 final JDialog searchingDialog = messagePane.createDialog(ConnectionWizardDialog.this, 
                             			 "Please wait...");
-                            	 searchingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                            	 searchingDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
                             	 new Thread(new Runnable()
                                  {
-                                     public void run()
+                                     @Override
+                                    public void run()
                                      {
                                          // Search for endpoints
                                          Ice.Properties properties = _coordinator.getCommunicator().getProperties();
@@ -2046,7 +2082,8 @@ public class SessionKeeper
                                          }
                                          SwingUtilities.invokeLater(new Runnable()
                                          {
-                                             public void run()
+                                             @Override
+                                            public void run()
                                              {
                                                  searchingDialog.dispose();
                                                  _cardLayout.show(_cardPanel, 
@@ -2363,9 +2400,9 @@ public class SessionKeeper
             _finishButton = new JButton();
             AbstractAction finishAction = new AbstractAction("Finish")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        boolean secureEndpoints = false;
                         ConnectionInfo inf = getConfiguration();
                         if(inf == null)
                         {
@@ -2534,6 +2571,7 @@ public class SessionKeeper
             _cancelButton = new JButton();
             AbstractAction cancelAction = new AbstractAction("Cancel")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         dispose();
@@ -3103,7 +3141,6 @@ public class SessionKeeper
         private JButton _backButton;
         private JButton _nextButton;
         private JButton _finishButton;
-        private JButton _connectButton;
         private JButton _cancelButton;
 
         // Connection type components
@@ -3316,6 +3353,7 @@ public class SessionKeeper
             JButton closeButton = new JButton("Close");
             closeButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         dispose();
@@ -3328,15 +3366,6 @@ public class SessionKeeper
             pack();
             setResizable(false);
         }
-
-        void showDialog()
-        {
-            if(isVisible() == false)
-            {
-                setLocationRelativeTo(_coordinator.getMainFrame());
-                setVisible(true);
-            }
-        }
     }
 
 
@@ -3345,7 +3374,7 @@ public class SessionKeeper
         ConnectionManagerDialog()
         {
             super(_coordinator.getMainFrame(), "Saved Connections - IceGrid Admin", true);
-            setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+            setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
             JPanel connectionActionPanel = null;
             {
@@ -3357,6 +3386,7 @@ public class SessionKeeper
                 _newConnectionButton.setToolTipText("Configure a new connection with IceGrid registry");
                 _newConnectionButton.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             JDialog dialog = new ConnectionWizardDialog(ConnectionManagerDialog.this);
@@ -3373,6 +3403,7 @@ public class SessionKeeper
                 _viewConnectionButton.setEnabled(false);
                 _viewConnectionButton.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             Object obj = _connectionList.getSelectedValue();
@@ -3395,6 +3426,7 @@ public class SessionKeeper
                 _editConnectionButton.setEnabled(false);
                 _editConnectionButton.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             Object obj = _connectionList.getSelectedValue();
@@ -3417,6 +3449,7 @@ public class SessionKeeper
                 _setDefaultConnectionButton.setEnabled(false);
                 _setDefaultConnectionButton.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             _connectionListModel.setDefault();
@@ -3430,6 +3463,7 @@ public class SessionKeeper
                 _removeConnectionButton.setEnabled(false);
                 _removeConnectionButton.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             int index = _connectionList.getSelectedIndex();
@@ -3498,6 +3532,7 @@ public class SessionKeeper
 
                 class ConnectionListRenderer extends DefaultListCellRenderer
                 {
+                    @Override
                     public Component
                     getListCellRendererComponent(JList list, Object value, int index, boolean selected,
                                                  boolean hasFocus)
@@ -3517,6 +3552,7 @@ public class SessionKeeper
                 }
                 _connectionList = new JList(_connectionListModel)
                     {
+                        @Override
                         public String getToolTipText(MouseEvent evt)
                         {
                             int index = locationToIndex(evt.getPoint());
@@ -3537,6 +3573,7 @@ public class SessionKeeper
                 _connectionList.setVisibleRowCount(7);
                 _connectionList.addListSelectionListener(new ListSelectionListener()
                     {
+                        @Override
                         public void valueChanged(ListSelectionEvent event)
                         {
                             if(!event.getValueIsAdjusting())
@@ -3562,6 +3599,7 @@ public class SessionKeeper
                 _connectionList.addMouseListener(
                     new MouseAdapter()
                         {
+                            @Override
                             public void mouseClicked(MouseEvent e)
                             {
                                 if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
@@ -3600,6 +3638,7 @@ public class SessionKeeper
             _connectButton = new JButton("Connect");
             _connectButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         Object obj = _connectionList.getSelectedValue();
@@ -3616,6 +3655,7 @@ public class SessionKeeper
             JButton closeButton = new JButton("Close");
             closeButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         setVisible(false);
@@ -3749,7 +3789,7 @@ public class SessionKeeper
             keyStore.load(new FileInputStream(_coordinator.getDataDirectory() + File.separator + "MyCerts.jks"), null);
             if(keyStore.isKeyEntry(alias))
             {
-                Key key = keyStore.getKey(alias, new char[]{});
+                keyStore.getKey(alias, new char[]{});
             }
         }
         catch(java.security.UnrecoverableKeyException ex)
@@ -3770,7 +3810,7 @@ public class SessionKeeper
             keyStore.load(new FileInputStream(_coordinator.getDataDirectory() + File.separator + "MyCerts.jks"), null);
             if(keyStore.isKeyEntry(alias))
             {
-                Key key = keyStore.getKey(alias, password);
+                keyStore.getKey(alias, password);
             }
         }
         catch(Exception ex)
@@ -3832,11 +3872,13 @@ public class SessionKeeper
             final String columnNames[] = new String[]{"Alias", "Subject", "Issuer"};
             _tableModel = new AbstractTableModel()
                 {
+                    @Override
                     public String getColumnName(int col)
                     {
                         return columnNames[col].toString();
                     }
 
+                    @Override
                     public int getRowCount()
                     {
                         if(_aliases == null)
@@ -3846,11 +3888,13 @@ public class SessionKeeper
                         return _aliases.size();
                     }
 
+                    @Override
                     public int getColumnCount()
                     {
                         return columnNames.length;
                     }
 
+                    @Override
                     public Object getValueAt(int row, int col)
                     {
                         if(_aliases == null)
@@ -3885,11 +3929,13 @@ public class SessionKeeper
                         return "";
                     }
 
+                    @Override
                     public boolean isCellEditable(int row, int col)
                     {
                         return false;
                     }
 
+                    @Override
                     public void setValueAt(Object value, int row, int col)
                     {
                     }
@@ -3906,6 +3952,7 @@ public class SessionKeeper
                 _importButton = new JButton();
                 AbstractAction importAction = new AbstractAction("Import")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         String defaultPath = _coordinator.getPrefs().node("Configurations").get("importDirectory", "");
@@ -3913,6 +3960,7 @@ public class SessionKeeper
                         chooser.setFileFilter(new FileFilter()
                             {
                                 //Accept all directories and *.pfx, *.p12 files.
+                                @Override
                                 public boolean accept(File f)
                                 {
                                     if(f.isDirectory())
@@ -3928,6 +3976,7 @@ public class SessionKeeper
                                     return false;
                                 }
 
+                                @Override
                                 public String getDescription()
                                 {
                                     return "PKCS12 Files (*.pfx, *.p12)";
@@ -3937,6 +3986,7 @@ public class SessionKeeper
                         chooser.setFileFilter(new FileFilter()
                             {
                                 //Accept all directories and *.pem, *.crt files.
+                                @Override
                                 public boolean accept(File f)
                                 {
                                     if(f.isDirectory())
@@ -3952,6 +4002,7 @@ public class SessionKeeper
                                     return false;
                                 }
 
+                                @Override
                                 public String getDescription()
                                 {
                                     return "PEM Files (*.pem, *.crt)";
@@ -3961,6 +4012,7 @@ public class SessionKeeper
                         chooser.setFileFilter(new FileFilter()
                             {
                                 //Accept all directories and *.jks files.
+                                @Override
                                 public boolean accept(File f)
                                 {
                                     if(f.isDirectory())
@@ -3975,6 +4027,7 @@ public class SessionKeeper
                                     return false;
                                 }
 
+                                @Override
                                 public String getDescription()
                                 {
                                     return "Java Key Store Files (*.jks)";
@@ -4116,6 +4169,7 @@ public class SessionKeeper
                 _viewButton = new JButton();
                 AbstractAction viewAction = new AbstractAction("View")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         int index = _certificatesTable.getSelectionModel().getMinSelectionIndex();
@@ -4146,6 +4200,7 @@ public class SessionKeeper
                 _removeButton = new JButton();
                 AbstractAction removeAction = new AbstractAction("Remove")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         int index = _certificatesTable.getSelectionModel().getMinSelectionIndex();
@@ -4192,9 +4247,9 @@ public class SessionKeeper
                                                                            java.io.FileNotFoundException,
                                                                            java.io.IOException
         {
-            for(Enumeration aliases = keyStore.aliases(); aliases.hasMoreElements(); )
+            for(Enumeration<String> aliases = keyStore.aliases(); aliases.hasMoreElements(); )
             {
-                String alias = aliases.nextElement().toString();
+                String alias = aliases.nextElement();
                 if(keyStore.isKeyEntry(alias))
                 {
                     char[] password = null;
@@ -4303,9 +4358,9 @@ public class SessionKeeper
             }
 
             _aliases = new java.util.Vector<String>();
-            for(Enumeration e = _keyStore.aliases(); e.hasMoreElements() ;)
+            for(Enumeration<String> e = _keyStore.aliases(); e.hasMoreElements() ;)
             {
-                _aliases.add(e.nextElement().toString());
+                _aliases.add(e.nextElement());
             }
             _tableModel.fireTableStructureChanged();
         }
@@ -4468,14 +4523,21 @@ public class SessionKeeper
             StringBuilder sb = new StringBuilder(digest.length * 2);
 
             Formatter formatter = new Formatter(sb);
-            for(int i = 0; i < digest.length;)
+            try
             {
-                formatter.format("%02x", digest[i]);
-                i++;
-                if(i < digest.length)
+                for(int i = 0; i < digest.length;)
                 {
-                    sb.append(":");
+                    formatter.format("%02x", digest[i]);
+                    i++;
+                    if(i < digest.length)
+                    {
+                        sb.append(":");
+                    }
                 }
+            }
+            finally
+            {
+                formatter.close();
             }
             sha1Fingerprint = sb.toString().toUpperCase();
         }
@@ -4495,14 +4557,21 @@ public class SessionKeeper
             StringBuilder sb = new StringBuilder(digest.length * 2);
 
             Formatter formatter = new Formatter(sb);
-            for(int i = 0; i < digest.length;)
+            try
             {
-                formatter.format("%02x", digest[i]);
-                i++;
-                if(i < digest.length)
+                for(int i = 0; i < digest.length;)
                 {
-                    sb.append(":");
+                    formatter.format("%02x", digest[i]);
+                    i++;
+                    if(i < digest.length)
+                    {
+                        sb.append(":");
+                    }
                 }
+            }
+            finally
+            {
+                formatter.close();
             }
             md5Fingerprint = sb.toString().toUpperCase();
         }
@@ -4524,12 +4593,11 @@ public class SessionKeeper
         builder.addSeparator("Subject Alternate Names");
         builder.nextLine();
 
-        Collection altNames = cert.getSubjectAlternativeNames();
+        Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
         if(altNames != null)
         {
-            for(Object o : altNames)
+            for(List<?> l : altNames)
             {
-                java.util.List l = (java.util.List)o;
                 Integer kind = (Integer)l.get(0);
                 String value = l.get(1).toString();
                 if(kind == 2)
@@ -4566,6 +4634,7 @@ public class SessionKeeper
             JButton closeButton = new JButton("Close");
             closeButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         dispose();
@@ -4612,6 +4681,7 @@ public class SessionKeeper
             JButton closeButton = new JButton("Close");
             closeButton.addActionListener(new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         setVisible(false);
@@ -4662,7 +4732,6 @@ public class SessionKeeper
             }
         }
 
-        private String _dataDir;
         private JTabbedPane _tabs;
         private KeyStorePanel _identityCertificatesPanel;
         private KeyStorePanel _serverCertificatesPanel;
@@ -4672,7 +4741,6 @@ public class SessionKeeper
     SessionKeeper(Coordinator coordinator)
     {
         _coordinator = coordinator;
-        _loginPrefs = coordinator.getPrefs().node("Connection");
     }
 
     void connectionManager()
@@ -4716,7 +4784,7 @@ public class SessionKeeper
         public AuthDialog(JDialog parent, String title)
         {
             super(parent, title, true);
-            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         }
 
         public void showDialog()
@@ -4766,16 +4834,19 @@ public class SessionKeeper
                                                       _password.getPassword().length > 0);
                             _password.getDocument().addDocumentListener(new DocumentListener()
                                 {
+                                    @Override
                                     public void changedUpdate(DocumentEvent e)
                                     {
                                         _storePassword.setEnabled(_password.getPassword() != null &&
                                                                   _password.getPassword().length > 0);
                                     }
+                                    @Override
                                     public void removeUpdate(DocumentEvent e)
                                     {
                                         _storePassword.setEnabled(_password.getPassword() != null &&
                                                                   _password.getPassword().length > 0);
                                     }
+                                    @Override
                                     public void insertUpdate(DocumentEvent e)
                                     {
                                         _storePassword.setEnabled(_password.getPassword() != null &&
@@ -4802,16 +4873,19 @@ public class SessionKeeper
                                                          _keyPassword.getPassword().length > 0);
                             _keyPassword.getDocument().addDocumentListener(new DocumentListener()
                                 {
+                                    @Override
                                     public void changedUpdate(DocumentEvent e)
                                     {
                                         _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                      _keyPassword.getPassword().length > 0);
                                     }
+                                    @Override
                                     public void removeUpdate(DocumentEvent e)
                                     {
                                         _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                      _keyPassword.getPassword().length > 0);
                                     }
+                                    @Override
                                     public void insertUpdate(DocumentEvent e)
                                     {
                                         _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
@@ -4828,6 +4902,7 @@ public class SessionKeeper
                     JButton okButton = new JButton();
                     AbstractAction okAction = new AbstractAction("OK")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 if(_session != null)
@@ -4866,6 +4941,7 @@ public class SessionKeeper
                     JButton cancelButton = new JButton();
                     AbstractAction cancelAction = new AbstractAction("Cancel")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 dispose();
@@ -4947,16 +5023,19 @@ public class SessionKeeper
                         _storeKeyPassword.setEnabled(false);
                         _keyPassword.getDocument().addDocumentListener(new DocumentListener()
                             {
+                                @Override
                                 public void changedUpdate(DocumentEvent e)
                                 {
                                     _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
+                                @Override
                                 public void removeUpdate(DocumentEvent e)
                                 {
                                     _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
+                                @Override
                                 public void insertUpdate(DocumentEvent e)
                                 {
                                     _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
@@ -4971,6 +5050,7 @@ public class SessionKeeper
                     JButton okButton = new JButton();
                     AbstractAction okAction = new AbstractAction("OK")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 if(_session != null)
@@ -5001,6 +5081,7 @@ public class SessionKeeper
                     JButton cancelButton = new JButton();
                     AbstractAction cancelAction = new AbstractAction("Cancel")
                         {
+                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 dispose();
@@ -5092,6 +5173,7 @@ public class SessionKeeper
         //
         new Thread(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -5102,6 +5184,7 @@ public class SessionKeeper
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     _connectionManagerDialog.setCursor(oldCursor);
@@ -5112,6 +5195,7 @@ public class SessionKeeper
 
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 _connectionManagerDialog.setCursor(oldCursor);
@@ -5183,16 +5267,19 @@ public class SessionKeeper
                                                   _password.getPassword().length > 0);
                         _password.getDocument().addDocumentListener(new DocumentListener()
                             {
+                                @Override
                                 public void changedUpdate(DocumentEvent e)
                                 {
                                     _storePassword.setEnabled(_password.getPassword() != null &&
                                                               _password.getPassword().length > 0);
                                 }
+                                @Override
                                 public void removeUpdate(DocumentEvent e)
                                 {
                                     _storePassword.setEnabled(_password.getPassword() != null &&
                                                               _password.getPassword().length > 0);
                                 }
+                                @Override
                                 public void insertUpdate(DocumentEvent e)
                                 {
                                     _storePassword.setEnabled(_password.getPassword() != null &&
@@ -5223,16 +5310,19 @@ public class SessionKeeper
                                                      _keyPassword.getPassword().length > 0);
                         _keyPassword.getDocument().addDocumentListener(new DocumentListener()
                             {
+                                @Override
                                 public void changedUpdate(DocumentEvent e)
                                 {
                                     _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
+                                @Override
                                 public void removeUpdate(DocumentEvent e)
                                 {
                                     _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
                                                                  _keyPassword.getPassword().length > 0);
                                 }
+                                @Override
                                 public void insertUpdate(DocumentEvent e)
                                 {
                                     _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null &&
@@ -5248,6 +5338,7 @@ public class SessionKeeper
 
                 JButton okButton = new JButton(new AbstractAction("OK")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             if(_session != null)
@@ -5287,6 +5378,7 @@ public class SessionKeeper
 
                 JButton editConnectionButton = new JButton(new AbstractAction("Edit Connection")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             info.load();
@@ -5301,6 +5393,7 @@ public class SessionKeeper
 
                 JButton cancelButton = new JButton(new AbstractAction("Cancel")
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             info.load();
@@ -5410,8 +5503,7 @@ public class SessionKeeper
     private static AuthDialog _authDialog;
 
     private final Coordinator _coordinator;
-    private Preferences _loginPrefs;
-
+    
     private Session _session;
     private boolean _connectedToMaster = false;
     private String _replicaName = "";

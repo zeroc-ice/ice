@@ -9,8 +9,6 @@
 
 package IceGridGUI.Application;
 
-import javax.swing.AbstractListModel;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import IceGrid.*;
@@ -32,6 +30,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -46,6 +45,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -58,6 +58,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         return _popup;
     }
 
+    @Override
     public void newPropertySet()
     {
         PropertySetDescriptor descriptor =
@@ -65,6 +66,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         newPropertySet(descriptor);
     }
 
+    @Override
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
@@ -144,11 +146,13 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         }
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptors;
     }
 
+    @Override
     public void tryAdd(String id, PropertySetDescriptor descriptor)
         throws UpdateFailedException
     {
@@ -157,6 +161,7 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         _descriptors.put(id, descriptor);
     }
 
+    @Override
     public void tryRename(String oldId, String oldId2, String newId)
         throws UpdateFailedException
     {
@@ -187,22 +192,26 @@ class PropertySets extends ListTreeNode implements PropertySetParent
         _descriptors.put(newId, descriptor);
     }
 
+    @Override
     public void insertPropertySet(PropertySet nps, boolean fireEvent)
         throws UpdateFailedException
     {
         insertChild(nps, fireEvent);
     }
 
+    @Override
     public void removePropertySet(PropertySet nps)
     {
         removeChild(nps);
     }
 
+    @Override
     public void removeDescriptor(String id)
     {
         _descriptors.remove(id);
     }
 
+    @Override
     public Editable getEditable()
     {
         return super.getEditable();

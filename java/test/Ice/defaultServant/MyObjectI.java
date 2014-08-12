@@ -12,6 +12,7 @@ import test.Ice.defaultServant.Test.*;
 
 public final class MyObjectI extends _MyObjectDisp
 {
+    @Override
     public void
     ice_ping(Ice.Current current)
     {
@@ -27,6 +28,7 @@ public final class MyObjectI extends _MyObjectDisp
         }
     }
 
+    @Override
     public String
     getName(Ice.Current current)
     {

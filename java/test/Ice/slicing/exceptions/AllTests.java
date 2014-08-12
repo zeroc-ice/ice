@@ -59,18 +59,21 @@ public class AllTests
 
     private static class Callback_TestIntf_baseAsBaseI extends Callback_TestIntf_baseAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -101,18 +104,21 @@ public class AllTests
 
     private static class Callback_TestIntf_unknownDerivedAsBaseI extends Callback_TestIntf_unknownDerivedAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -143,18 +149,21 @@ public class AllTests
 
     private static class Callback_TestIntf_knownDerivedAsBaseI extends Callback_TestIntf_knownDerivedAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -187,18 +196,21 @@ public class AllTests
     private static class Callback_TestIntf_knownDerivedAsKnownDerivedI
         extends Callback_TestIntf_knownDerivedAsKnownDerived
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -231,18 +243,21 @@ public class AllTests
     private static class Callback_TestIntf_unknownIntermediateAsBaseI 
         extends Callback_TestIntf_unknownIntermediateAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -273,18 +288,21 @@ public class AllTests
 
     private static class Callback_TestIntf_knownIntermediateAsBaseI extends Callback_TestIntf_knownIntermediateAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -316,18 +334,21 @@ public class AllTests
 
     private static class Callback_TestIntf_knownMostDerivedAsBaseI extends Callback_TestIntf_knownMostDerivedAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -361,18 +382,21 @@ public class AllTests
     private static class Callback_TestIntf_knownIntermediateAsKnownIntermediateI
         extends Callback_TestIntf_knownIntermediateAsKnownIntermediate
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -405,18 +429,21 @@ public class AllTests
     private static class Callback_TestIntf_knownMostDerivedAsKnownIntermediateI
         extends Callback_TestIntf_knownMostDerivedAsKnownIntermediate
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -450,18 +477,21 @@ public class AllTests
     private static class Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI
         extends Callback_TestIntf_knownMostDerivedAsKnownMostDerived
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -495,18 +525,21 @@ public class AllTests
     private static class Callback_TestIntf_unknownMostDerived1AsBaseI 
         extends Callback_TestIntf_unknownMostDerived1AsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -539,18 +572,21 @@ public class AllTests
     private static class Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI
         extends Callback_TestIntf_unknownMostDerived1AsKnownIntermediate
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -583,18 +619,21 @@ public class AllTests
     private static class Callback_TestIntf_unknownMostDerived2AsBaseI 
         extends Callback_TestIntf_unknownMostDerived2AsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -625,6 +664,7 @@ public class AllTests
 
     private static class RelayI extends _RelayDisp
     {
+        @Override
         public void knownPreservedAsBase(Ice.Current current)
             throws Base
         {
@@ -635,6 +675,7 @@ public class AllTests
             throw ex;
         }
 
+        @Override
         public void knownPreservedAsKnownPreserved(Ice.Current current)
             throws KnownPreserved
         {
@@ -645,6 +686,7 @@ public class AllTests
             throw ex;
         }
 
+        @Override
         public void unknownPreservedAsBase(Ice.Current current)
             throws Base
         {
@@ -657,6 +699,7 @@ public class AllTests
             throw ex;
         }
 
+        @Override
         public void unknownPreservedAsKnownPreserved(Ice.Current current)
             throws KnownPreserved
         {

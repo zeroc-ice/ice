@@ -115,14 +115,12 @@ public class Client extends test.Util.Application
             }
         }
 
-        Glacier2.SessionPrx session;
-
         {
             out.print("trying to create session with wrong password... ");
             out.flush();
             try
             {
-                session = router.createSession("userid", "xxx");
+                router.createSession("userid", "xxx");
                 test(false);
             }
             catch(Glacier2.PermissionDeniedException ex)
@@ -154,7 +152,7 @@ public class Client extends test.Util.Application
             out.flush();
             try
             {
-                session = router.createSession("userid", "abc123");
+                router.createSession("userid", "abc123");
             }
             catch(Glacier2.PermissionDeniedException ex)
             {

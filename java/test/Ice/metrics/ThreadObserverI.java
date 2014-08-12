@@ -11,6 +11,7 @@ package test.Ice.metrics;
 
 class ThreadObserverI extends ObserverI implements Ice.Instrumentation.ThreadObserver
 {
+    @Override
     public synchronized void 
     reset()
     {
@@ -18,6 +19,7 @@ class ThreadObserverI extends ObserverI implements Ice.Instrumentation.ThreadObs
         states = 0;
     }
 
+    @Override
     public synchronized void 
     stateChanged(Ice.Instrumentation.ThreadState o, Ice.Instrumentation.ThreadState n)
     {

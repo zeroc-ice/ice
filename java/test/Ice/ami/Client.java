@@ -11,12 +11,14 @@ package test.Ice.ami;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         AllTests.allTests(this);
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

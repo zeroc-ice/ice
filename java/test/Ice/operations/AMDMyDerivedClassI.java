@@ -71,6 +71,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
             _cb = cb;
         }
         
+        @Override
         public void
         run()
         {
@@ -84,6 +85,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     // Override the Object "pseudo" operations to verify the operation mode.
     //
 
+    @Override
     public boolean
     ice_isA(String id, Ice.Current current)
     {
@@ -91,6 +93,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         return super.ice_isA(id, current);
     }
 
+    @Override
     public void
     ice_ping(Ice.Current current)
     {
@@ -98,6 +101,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         super.ice_ping(current);
     }
 
+    @Override
     public String[]
     ice_ids(Ice.Current current)
     {
@@ -105,6 +109,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         return super.ice_ids(current);
     }
 
+    @Override
     public String
     ice_id(Ice.Current current)
     {
@@ -112,6 +117,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         return super.ice_id(current);
     }
 
+    @Override
     synchronized public void
     shutdown_async(AMD_MyClass_shutdown cb,
                    Ice.Current current)
@@ -132,6 +138,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response();
     }
 
+    @Override
     public void
     delay_async(AMD_MyClass_delay cb, int ms, Ice.Current current)
     {
@@ -145,6 +152,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response();
     }
 
+    @Override
     synchronized public void
     opVoid_async(AMD_MyClass_opVoid cb,
                  Ice.Current current)
@@ -167,6 +175,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         _opVoidThread.start();
     }
 
+    @Override
     public void
     opBool_async(AMD_MyClass_opBool cb,
                  boolean p1, boolean p2,
@@ -175,6 +184,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p2, p1);
     }
 
+    @Override
     public void
     opBoolS_async(AMD_MyClass_opBoolS cb,
                   boolean[] p1, boolean[] p2,
@@ -192,6 +202,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opBoolSS_async(AMD_MyClass_opBoolSS cb,
                    boolean[][] p1, boolean[][] p2,
@@ -209,6 +220,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opByte_async(AMD_MyClass_opByte cb,
                  byte p1, byte p2,
@@ -217,6 +229,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p1, (byte)(p1 ^ p2));
     }
 
+    @Override
     public void
     opByteBoolD_async(AMD_MyClass_opByteBoolD cb,
                       java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
@@ -229,6 +242,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opByteS_async(AMD_MyClass_opByteS cb,
                   byte[] p1, byte[] p2,
@@ -246,6 +260,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opByteSS_async(AMD_MyClass_opByteSS cb,
                    byte[][] p1, byte[][] p2,
@@ -263,6 +278,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opFloatDouble_async(AMD_MyClass_opFloatDouble cb,
                         float p1, double p2,
@@ -271,6 +287,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p2, p1, p2);
     }
 
+    @Override
     public void
     opFloatDoubleS_async(AMD_MyClass_opFloatDoubleS cb,
                          float[] p1, double[] p2,
@@ -291,6 +308,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3, p4);
     }
 
+    @Override
     public void
     opFloatDoubleSS_async(AMD_MyClass_opFloatDoubleSS cb,
                           float[][] p1, double[][] p2,
@@ -308,6 +326,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3, p4);
     }
 
+    @Override
     public void
     opLongFloatD_async(AMD_MyClass_opLongFloatD cb,
                        java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
@@ -320,6 +339,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opMyClass_async(AMD_MyClass_opMyClass cb,
                     MyClassPrx p1,
@@ -331,6 +351,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3);
     }
 
+    @Override
     public void
     opMyEnum_async(AMD_MyClass_opMyEnum cb,
                    MyEnum p1,
@@ -339,6 +360,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(MyEnum.enum3, p1);
     }
 
+    @Override
     public void
     opShortIntD_async(AMD_MyClass_opShortIntD cb,
                       java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
@@ -351,6 +373,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opShortIntLong_async(AMD_MyClass_opShortIntLong cb,
                          short p1, int p2, long p3,
@@ -359,6 +382,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p3, p1, p2, p3);
     }
 
+    @Override
     public void
     opShortIntLongS_async(AMD_MyClass_opShortIntLongS cb,
                           short[] p1, int[] p2, long[] p3,
@@ -376,6 +400,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p3, p4, p5, p6);
     }
 
+    @Override
     public void
     opShortIntLongSS_async(AMD_MyClass_opShortIntLongSS cb,
                            short[][] p1, int[][] p2, long[][] p3,
@@ -393,6 +418,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p3, p4, p5, p6);
     }
 
+    @Override
     public void
     opString_async(AMD_MyClass_opString cb,
                    String p1, String p2,
@@ -401,6 +427,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p1 + " " + p2, p2 + " " + p1);
     }
 
+    @Override
     public void
     opStringMyEnumD_async(AMD_MyClass_opStringMyEnumD cb,
                           java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2,
@@ -413,6 +440,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opMyEnumStringD_async(AMD_MyClass_opMyEnumStringD cb,
                           java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2,
@@ -425,6 +453,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opMyStructMyEnumD_async(AMD_MyClass_opMyStructMyEnumD cb,
                             java.util.Map<MyStruct, MyEnum> p1, java.util.Map<MyStruct, MyEnum> p2,
@@ -437,6 +466,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opIntS_async(AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
     {
@@ -448,18 +478,21 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r);
     }
 
+    @Override
     public void
     opByteSOneway_async(AMD_MyClass_opByteSOneway cb, byte[] s, Ice.Current current)
     {
         cb.ice_response();
     }
 
+    @Override
     public void
     opContext_async(AMD_MyClass_opContext cb, Ice.Current current)
     {
         cb.ice_response(current.ctx);
     }
 
+    @Override
     public void
     opDoubleMarshaling_async(AMD_MyClass_opDoubleMarshaling cb, double p1, double[] p2, Ice.Current current)
     {
@@ -472,6 +505,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response();
     }
 
+    @Override
     public void
     opStringS_async(AMD_MyClass_opStringS cb,
                     String[] p1, String[] p2,
@@ -489,6 +523,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opStringSS_async(AMD_MyClass_opStringSS cb,
                      String[][] p1, String[][] p2,
@@ -506,6 +541,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opStringSSS_async(AMD_MyClass_opStringSSS cb,
                      String[][][] p1, String[][][] p2,
@@ -523,6 +559,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opStringStringD_async(AMD_MyClass_opStringStringD cb,
                           java.util.Map<String, String> p1, java.util.Map<String, String> p2,
@@ -535,6 +572,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(r, p3);
     }
 
+    @Override
     public void
     opStruct_async(AMD_MyClass_opStruct cb,
                    Structure p1, Structure p2,
@@ -545,6 +583,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(p2, p3);
     }
 
+    @Override
     public void
     opIdempotent_async(AMD_MyClass_opIdempotent cb,
                        Ice.Current current)
@@ -553,6 +592,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response();
     }
 
+    @Override
     public void
     opNonmutating_async(AMD_MyClass_opNonmutating cb,
                         Ice.Current current)
@@ -561,6 +601,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response();
     }
 
+    @Override
     public void
     opDerived_async(AMD_MyDerivedClass_opDerived cb,
                     Ice.Current current)

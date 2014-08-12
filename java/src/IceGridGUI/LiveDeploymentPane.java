@@ -10,14 +10,10 @@
 package IceGridGUI;
 
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.*;
-import javax.swing.border.AbstractBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -26,25 +22,22 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreePath;
-import javax.swing.event.TreeWillExpandListener;
-import javax.swing.event.TreeExpansionEvent;
-
 import com.jgoodies.forms.factories.Borders;
 
-import IceGrid.*;
 import IceGridGUI.LiveDeployment.Editor;
 import IceGridGUI.LiveDeployment.Root;
 import IceGridGUI.LiveDeployment.TreeNode;
-import IceGridGUI.LiveDeployment.Server;
 
 public class LiveDeploymentPane extends JSplitPane implements Tab
 {
+    @Override
     public void updateUI()
     {
         super.updateUI();
         setEmptyDividerBorder();
     }
 
+    @Override
     public void selected()
     {
         Coordinator c = _root.getCoordinator();
@@ -65,6 +58,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         c.showActions(_currentNode);
     }
 
+    @Override
     public void refresh()
     {
         if(_currentNode != null)
@@ -81,6 +75,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void showNode(TreeNodeBase node)
     {
         TreeNode newNode = (TreeNode)node;
@@ -115,6 +110,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void back()
     {
         TreeNode previousNode = null;
@@ -144,6 +140,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void forward()
     {
         TreeNode nextNode = null;
@@ -173,26 +170,31 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void save()
     {
         assert false;
     }
 
+    @Override
     public void saveToRegistry(boolean restart)
     {
         assert false;
     }
 
+    @Override
     public void saveToFile()
     {
         assert false;
     }
 
+    @Override
     public void discardUpdates()
     {
         assert false;
     }
 
+    @Override
     public boolean close()
     {
         return false;
@@ -225,8 +227,8 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
         JScrollPane leftScroll =
             new JScrollPane(tree,
-                            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane = new SimpleInternalFrame("Runtime Components");
@@ -279,6 +281,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
     private class SelectionListener implements TreeSelectionListener
     {
+        @Override
         public void valueChanged(TreeSelectionEvent e)
         {
             if(_selectionListenerEnabled)
@@ -303,11 +306,13 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
     private class PopupListener extends MouseAdapter
     {
+        @Override
         public void mousePressed(MouseEvent e)
         {
             maybeShowPopup(e);
         }
 
+        @Override
         public void mouseReleased(MouseEvent e)
         {
             maybeShowPopup(e);

@@ -18,6 +18,7 @@ public final class AI extends _ADisp
     {
     }
 
+    @Override
     public String
     callA(Ice.Current current)
     {

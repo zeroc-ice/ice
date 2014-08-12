@@ -11,13 +11,8 @@ package test.Glacier2.sessionHelper;
 
 import javax.swing.SwingUtilities;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import test.Glacier2.sessionHelper.Test.CallbackException;
 import test.Glacier2.sessionHelper.Test.CallbackPrx;
 import test.Glacier2.sessionHelper.Test.CallbackPrxHelper;
-import test.Glacier2.sessionHelper.Test.CallbackReceiverPrx;
-import test.Glacier2.sessionHelper.Test.CallbackReceiverPrxHelper;
 
 public class Client extends test.Util.Application
 {
@@ -36,6 +31,7 @@ public class Client extends test.Util.Application
         }
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         _initData = new Ice.InitializationData();
@@ -43,6 +39,7 @@ public class Client extends test.Util.Application
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
         _initData.dispatcher = new Ice.Dispatcher()
             {
+                @Override
                 public void
                 dispatch(Runnable runnable, Ice.Connection connection)
                 {
@@ -53,10 +50,12 @@ public class Client extends test.Util.Application
         return _initData;
     }
 
+    @Override
     public int run(String[] args)
     {
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
+                @Override
                 public void
                 connected(Glacier2.SessionHelper session)
                     throws Glacier2.SessionNotExistException
@@ -64,12 +63,14 @@ public class Client extends test.Util.Application
                      test(false);
                 }
 
+                @Override
                 public void
                 disconnected(Glacier2.SessionHelper session)
                 {
                     test(false);
                 }
 
+                @Override
                 public void
                 connectFailed(Glacier2.SessionHelper session, Throwable exception)
                 {
@@ -91,6 +92,7 @@ public class Client extends test.Util.Application
                     }
                 }
 
+                @Override
                 public void
                 createdCommunicator(Glacier2.SessionHelper session)
                 {
@@ -126,6 +128,7 @@ public class Client extends test.Util.Application
 
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
+                @Override
                 public void
                 connected(Glacier2.SessionHelper session)
                     throws Glacier2.SessionNotExistException
@@ -137,6 +140,7 @@ public class Client extends test.Util.Application
                     }
                 }
 
+                @Override
                 public void
                 disconnected(Glacier2.SessionHelper session)
                 {
@@ -147,12 +151,14 @@ public class Client extends test.Util.Application
                     }
                 }
 
+                @Override
                 public void
                 connectFailed(Glacier2.SessionHelper session, Throwable ex)
                 {
                     test(false);
                 }
 
+                @Override
                 public void
                 createdCommunicator(Glacier2.SessionHelper session)
                 {
@@ -264,7 +270,7 @@ public class Client extends test.Util.Application
             out.print("testing SessionHelper session after destroy... ");
             try
             {
-                Glacier2.SessionPrx session = _session.session();
+                _session.session();
                 test(false);
             }
             catch(Glacier2.SessionNotExistException ex)
@@ -314,6 +320,7 @@ public class Client extends test.Util.Application
 
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
+                @Override
                 public void
                 connected(Glacier2.SessionHelper session)
                     throws Glacier2.SessionNotExistException
@@ -321,12 +328,14 @@ public class Client extends test.Util.Application
                      test(false);
                 }
 
+                @Override
                 public void
                 disconnected(Glacier2.SessionHelper session)
                 {
                     test(false);
                 }
 
+                @Override
                 public void
                 connectFailed(Glacier2.SessionHelper session, Throwable exception)
                 {
@@ -348,6 +357,7 @@ public class Client extends test.Util.Application
                     }
                 }
 
+                @Override
                 public void
                 createdCommunicator(Glacier2.SessionHelper session)
                 {

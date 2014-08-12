@@ -130,7 +130,7 @@ public class Client
             S2 v1, v2;
 
             v1 = (S2)def_s2.clone();
-            v1.ss = (String[])def_s2.ss.clone();
+            v1.ss = def_s2.ss.clone();
             test(v1.equals(def_s2));
 
             v1 = (S2)def_s2.clone();

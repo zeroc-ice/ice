@@ -12,13 +12,9 @@ package IceGridGUI.LiveDeployment;
 import java.awt.Component;
 import java.awt.Cursor;
 
-import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-
 import IceGrid.*;
 import IceGridGUI.*;
 
@@ -27,6 +23,7 @@ class Slave extends TreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
@@ -36,6 +33,7 @@ class Slave extends TreeNode
         return actions;
     }
 
+    @Override
     public void shutdownRegistry()
     {
         final String prefix = "Shutting down registry '" + _id + "'...";
@@ -46,16 +44,19 @@ class Slave extends TreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id, e);
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id,
@@ -79,10 +80,12 @@ class Slave extends TreeNode
         }
     }
 
+    @Override
     public void retrieveOutput(final boolean stdout)
     {
         getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
             {
+                @Override
                 public FileIteratorPrx open(int count)
                     throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
                 {
@@ -100,11 +103,13 @@ class Slave extends TreeNode
                     return result;
                 }
 
+                @Override
                 public String getTitle()
                 {
                     return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
                 }
 
+                @Override
                 public String getDefaultFilename()
                 {
                     return _id + (stdout ? ".out" : ".err");
@@ -112,6 +117,7 @@ class Slave extends TreeNode
             });
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
@@ -129,6 +135,7 @@ class Slave extends TreeNode
         return _popup;
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -139,6 +146,7 @@ class Slave extends TreeNode
         return _editor;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,

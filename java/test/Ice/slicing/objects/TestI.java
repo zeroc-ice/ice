@@ -22,12 +22,14 @@ public final class TestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
+    @Override
     public Ice.Object
     SBaseAsObject(Ice.Current current)
     {
@@ -36,6 +38,7 @@ public final class TestI extends _TestIntfDisp
         return sb;
     }
 
+    @Override
     public SBase
     SBaseAsSBase(Ice.Current current)
     {
@@ -44,6 +47,7 @@ public final class TestI extends _TestIntfDisp
         return sb;
     }
 
+    @Override
     public SBase
     SBSKnownDerivedAsSBase(Ice.Current current)
     {
@@ -53,6 +57,7 @@ public final class TestI extends _TestIntfDisp
         return sbskd;
     }
 
+    @Override
     public SBSKnownDerived
     SBSKnownDerivedAsSBSKnownDerived(Ice.Current current)
     {
@@ -62,6 +67,7 @@ public final class TestI extends _TestIntfDisp
         return sbskd;
     }
 
+    @Override
     public SBase
     SBSUnknownDerivedAsSBase(Ice.Current current)
     {
@@ -71,6 +77,7 @@ public final class TestI extends _TestIntfDisp
         return sbsud;
     }
 
+    @Override
     public SBase
     SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
     {
@@ -80,6 +87,7 @@ public final class TestI extends _TestIntfDisp
         return sbsud;
     }
 
+    @Override
     public Ice.Object
     SUnknownAsObject(Ice.Current current)
     {
@@ -88,6 +96,7 @@ public final class TestI extends _TestIntfDisp
         return su;
     }
 
+    @Override
     public void
     checkSUnknown(Ice.Object obj, Ice.Current current)
     {
@@ -102,6 +111,7 @@ public final class TestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public B
     oneElementCycle(Ice.Current current)
     {
@@ -111,6 +121,7 @@ public final class TestI extends _TestIntfDisp
         return b;
     }
 
+    @Override
     public B
     twoElementCycle(Ice.Current current)
     {
@@ -123,6 +134,7 @@ public final class TestI extends _TestIntfDisp
         return b1;
     }
 
+    @Override
     public B
     D1AsB(Ice.Current current)
     {
@@ -139,6 +151,7 @@ public final class TestI extends _TestIntfDisp
         return d1;
     }
 
+    @Override
     public D1
     D1AsD1(Ice.Current current)
     {
@@ -155,6 +168,7 @@ public final class TestI extends _TestIntfDisp
         return d1;
     }
 
+    @Override
     public B
     D2AsB(Ice.Current current)
     {
@@ -171,6 +185,7 @@ public final class TestI extends _TestIntfDisp
         return d2;
     }
 
+    @Override
     public void
     paramTest1(BHolder p1, BHolder p2, Ice.Current current)
     {
@@ -188,12 +203,14 @@ public final class TestI extends _TestIntfDisp
         p2.value = d2;
     }
 
+    @Override
     public void
     paramTest2(BHolder p1, BHolder p2, Ice.Current current)
     {
         paramTest1(p2, p1, current);
     }
 
+    @Override
     public B
     paramTest3(BHolder p1, BHolder p2, Ice.Current current)
     {
@@ -226,6 +243,7 @@ public final class TestI extends _TestIntfDisp
         return d3;
     }
 
+    @Override
     public B
     paramTest4(BHolder p1, Ice.Current current)
     {
@@ -240,6 +258,7 @@ public final class TestI extends _TestIntfDisp
         return d4.p2;
     }
 
+    @Override
     public B
     returnTest1(BHolder p1, BHolder p2, Ice.Current current)
     {
@@ -248,6 +267,7 @@ public final class TestI extends _TestIntfDisp
         return p1.value;
     }
 
+    @Override
     public B
     returnTest2(BHolder p1, BHolder p2, Ice.Current current)
     {
@@ -256,12 +276,14 @@ public final class TestI extends _TestIntfDisp
         return p1.value;
     }
 
+    @Override
     public B
     returnTest3(B p1, B p2, Ice.Current current)
     {
         return p1;
     }
 
+    @Override
     public SS3
     sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
@@ -271,6 +293,7 @@ public final class TestI extends _TestIntfDisp
         return ss;
     }
 
+    @Override
     public java.util.Map<Integer, B>
     dictionaryTest(java.util.Map<Integer, B> bin, BDictHolder bout, Ice.Current current)
     {
@@ -300,12 +323,14 @@ public final class TestI extends _TestIntfDisp
         return r;
     }
 
+    @Override
     public PBase
     exchangePBase(PBase pb, Ice.Current current)
     {
         return pb;
     }
 
+    @Override
     public Preserved
     PBSUnknownAsPreserved(Ice.Current current)
     {
@@ -325,6 +350,7 @@ public final class TestI extends _TestIntfDisp
         return r;
     }
 
+    @Override
     public void
     checkPBSUnknown(Preserved p, Ice.Current current)
     {
@@ -345,6 +371,7 @@ public final class TestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb, Ice.Current current)
     {
@@ -360,6 +387,7 @@ public final class TestI extends _TestIntfDisp
         r.graph.next.next.next = null; // Break the cycle.
     }
 
+    @Override
     public void
     checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
     {
@@ -382,6 +410,7 @@ public final class TestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb, Ice.Current current)
     {
@@ -393,6 +422,7 @@ public final class TestI extends _TestIntfDisp
         r.pb = null; // Break the cycle.
     }
 
+    @Override
     public void
     checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
     {
@@ -412,12 +442,14 @@ public final class TestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public PNode
     exchangePNode(PNode pn, Ice.Current current)
     {
         return pn;
     }
 
+    @Override
     public void
     throwBaseAsBase(Ice.Current current)
         throws BaseException
@@ -430,6 +462,7 @@ public final class TestI extends _TestIntfDisp
         throw be;
     }
 
+    @Override
     public void
     throwDerivedAsBase(Ice.Current current)
         throws BaseException
@@ -448,6 +481,7 @@ public final class TestI extends _TestIntfDisp
         throw de;
     }
 
+    @Override
     public void
     throwDerivedAsDerived(Ice.Current current)
         throws DerivedException
@@ -466,6 +500,7 @@ public final class TestI extends _TestIntfDisp
         throw de;
     }
 
+    @Override
     public void
     throwUnknownDerivedAsBase(Ice.Current current)
         throws BaseException
@@ -484,6 +519,7 @@ public final class TestI extends _TestIntfDisp
         throw ude;
     }
 
+    @Override
     public void
     throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
     {
@@ -496,6 +532,7 @@ public final class TestI extends _TestIntfDisp
         ue.p.pb = null; // Break the cycle.
     }
 
+    @Override
     public void
     useForward(ForwardHolder f, Ice.Current current)
     {

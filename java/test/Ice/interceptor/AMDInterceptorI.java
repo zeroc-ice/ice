@@ -22,6 +22,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         super(servant);
     }
     
+    @Override
     public Ice.DispatchStatus
     dispatch(Ice.Request request)
     {
@@ -34,12 +35,14 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
             {
                 Ice.DispatchInterceptorAsyncCallback cb = new Ice.DispatchInterceptorAsyncCallback()
                     {
+                        @Override
                         public boolean response(boolean ok)
                         {
                             test(ok);
                             return false;
                         }
                         
+                        @Override
                         public boolean exception(java.lang.Exception ex)
                         {
                             test(ex instanceof RetryException);
@@ -59,18 +62,21 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         return _lastStatus;
     }
 
+    @Override
     public boolean response(boolean ok)
     {
         setActualStatus(ok ? Ice.DispatchStatus.DispatchOK : Ice.DispatchStatus.DispatchUserException);
         return true;
     }
 
+    @Override
     public boolean exception(java.lang.Exception ex)
     {
         setActualStatus(ex);
         return true;
     }
 
+    @Override
     void
     clear()
     {

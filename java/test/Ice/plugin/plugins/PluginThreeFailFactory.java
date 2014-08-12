@@ -11,6 +11,7 @@ package test.Ice.plugin.plugins;
 
 public class PluginThreeFailFactory implements Ice.PluginFactory
 {
+    @Override
     public Ice.Plugin create(Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginThreeFail(communicator);
@@ -23,16 +24,19 @@ public class PluginThreeFailFactory implements Ice.PluginFactory
             super(communicator);
         }
 
+        @Override
         public void initialize()
         {
             throw new PluginInitializeFailException();
         }
 
+        @Override
         public void destroy()
         {
             test(false);
         }
 
+        @Override
         protected void finalize() throws Throwable
         {
             try

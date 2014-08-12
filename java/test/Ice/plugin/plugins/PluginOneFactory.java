@@ -11,6 +11,7 @@ package test.Ice.plugin.plugins;
 
 public class PluginOneFactory implements Ice.PluginFactory
 {
+    @Override
     public Ice.Plugin create(Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginOne(communicator);
@@ -23,6 +24,7 @@ public class PluginOneFactory implements Ice.PluginFactory
             super(communicator);
         }
 
+        @Override
         public void initialize()
         {
             _other = (BasePlugin)_communicator.getPluginManager().getPlugin("PluginTwo");
@@ -30,6 +32,7 @@ public class PluginOneFactory implements Ice.PluginFactory
             _initialized = true;
         }
 
+        @Override
         public void destroy()
         {
             _destroyed = true;

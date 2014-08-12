@@ -13,6 +13,7 @@ import test.Ice.slicing.exceptions.client.Test.TestIntfPrx;
 
 public class Client extends test.Util.Application
 {
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

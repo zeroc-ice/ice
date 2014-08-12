@@ -9,11 +9,6 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
@@ -30,6 +25,7 @@ import IceGridGUI.*;
 @SuppressWarnings("unchecked")
 class ApplicationEditor extends Editor
 {
+    @Override
     protected boolean applyUpdate(boolean refresh)
     {
         Root root = (Root)_target;
@@ -115,6 +111,7 @@ class ApplicationEditor extends Editor
 
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Name");
@@ -153,6 +150,7 @@ class ApplicationEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -183,6 +181,7 @@ class ApplicationEditor extends Editor
         descriptor.distrib.directories = _distribDirs.getList();
     }
 
+    @Override
     protected boolean validate()
     {
         return check(new String[]{"Name", _name.getText().trim()});
@@ -230,6 +229,7 @@ class ApplicationEditor extends Editor
         detectUpdates(true);
     }
 
+    @Override
     Utils.Resolver getDetailResolver()
     {
         if(_target.getCoordinator().substitute())
@@ -244,6 +244,7 @@ class ApplicationEditor extends Editor
 
     static private final Object NO_DISTRIB = new Object()
         {
+            @Override
             public String toString()
             {
                 return "None selected";

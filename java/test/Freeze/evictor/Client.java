@@ -272,14 +272,14 @@ public class Client extends test.Util.Application
                             }
                             else
                             {
-                                ServantPrx servant = _evictor.createServant(id, i);
+                                _evictor.createServant(id, i);
 
                                 //
                                 // Twice
                                 //
                                 try
                                 {
-                                    servant = _evictor.createServant(id, 0);
+                                    _evictor.createServant(id, 0);
                                     test(false);
                                 }
                                 catch(AlreadyRegisteredException e)
@@ -584,7 +584,7 @@ public class Client extends test.Util.Application
         //    
         try
         {
-            int balance = AccountPrxHelper.uncheckedCast(servants[0]).getBalance();
+            AccountPrxHelper.uncheckedCast(servants[0]).getBalance();
             test(false);
         }
         catch(Ice.OperationNotExistException ex)
@@ -894,7 +894,7 @@ public class Client extends test.Util.Application
 
             try
             {
-                Thread.currentThread().sleep(500);
+                Thread.sleep(500);
             }
             catch(InterruptedException e)
             {
@@ -949,7 +949,7 @@ public class Client extends test.Util.Application
 
             try
             {
-                Thread.currentThread().sleep(500);
+                Thread.sleep(500);
             }
             catch(InterruptedException e)
             {

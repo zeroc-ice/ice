@@ -22,10 +22,12 @@ import IceGridGUI.*;
 //
 abstract class Communicator extends TreeNode implements DescriptorHolder
 {
+    @Override
     public Enumeration children()
     {
         return new Enumeration()
             {
+                @Override
                 public boolean hasMoreElements()
                 {
                     if(_p.hasNext())
@@ -44,6 +46,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                     return false;
                 }
 
+                @Override
                 public Object nextElement()
                 {
                     try
@@ -68,11 +71,13 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             };
     }
 
+    @Override
     public boolean getAllowsChildren()
     {
         return true;
     }
 
+    @Override
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
         if(childIndex < 0)
@@ -94,6 +99,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         throw new ArrayIndexOutOfBoundsException(childIndex);
     }
 
+    @Override
     public int getChildCount()
     {
         int result = 0;
@@ -104,6 +110,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         return result;
     }
 
+    @Override
     public int getIndex(javax.swing.tree.TreeNode node)
     {
         int offset = 0;
@@ -122,6 +129,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         return -1;
     }
 
+    @Override
     public boolean isLeaf()
     {
         for(ChildList childList : _childListArray)
@@ -138,26 +146,31 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     // Actions
     //
 
+    @Override
     public void newAdapter()
     {
         _adapters.newChild();
     }
 
+    @Override
     public void newDbEnv()
     {
         _dbEnvs.newChild();
     }
 
+    @Override
     public void newService()
     {
         _services.newChild();
     }
 
+    @Override
     public void newServiceFromTemplate()
     {
         _services.newServiceFromTemplate();
     }
 
+    @Override
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
@@ -198,6 +211,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         return result;
     }
 
+    @Override
     TreeNode findChildLike(TreeNode other)
     {
         if(other instanceof Adapter)
@@ -489,6 +503,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             }
         }
 
+        @Override
         void newChild()
         {
             AdapterDescriptor descriptor = new AdapterDescriptor(
@@ -514,6 +529,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             return new Adapter(Communicator.this, name, ad, null, false);
         }
         */
+        @Override
         TreeNode createChild(AdapterDescriptor descriptor)
         {
             String name = Utils.substitute(descriptor.name, getResolver());
@@ -574,6 +590,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             super(true);
         }
 
+        @Override
         void newChild()
         {
             DbEnvDescriptor descriptor = new DbEnvDescriptor(
@@ -586,6 +603,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
         }
 
         //TreeNode createChild(Object descriptor)
+        @Override
         TreeNode createChild(DbEnvDescriptor descriptor)
         {
             //DbEnvDescriptor dd = (DbEnvDescriptor)descriptor;
@@ -618,6 +636,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             super(false);
         }
 
+        @Override
         void newChild()
         {
             ServiceDescriptor serviceDescriptor =
@@ -690,6 +709,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             getCoordinator().showActions(child);
         }
 
+        @Override
         TreeNode createChild(ServiceInstanceDescriptor descriptor)
             throws UpdateFailedException
         {
@@ -761,6 +781,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             }
         }
 
+        @Override
         void tryUpdate(TreeNode child)
             throws UpdateFailedException
         {
@@ -868,7 +889,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             ServiceInstance obj = (ServiceInstance)p.next();
             if(obj instanceof ServiceInstance)
             {
-                ServiceInstance service = (ServiceInstance)obj;
+                ServiceInstance service = obj;
                 ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)service.getDescriptor();
                 if(d.template.equals(template))
                 {

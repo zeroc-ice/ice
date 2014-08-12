@@ -16,7 +16,6 @@ import test.Ice.binding.Test.RemoteCommunicatorPrxHelper;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
 import test.Ice.binding.Test.TestIntfPrx;
 import test.Ice.binding.Test.TestIntfPrxHelper;
-import test.Ice.binding.Test.Callback_TestIntf_getAdapterName;
 
 public class AllTests
 {
@@ -31,6 +30,7 @@ public class AllTests
 
     static class GetAdapterNameCB extends Ice.Callback
     {
+        @Override
         synchronized public void
         completed(Ice.AsyncResult result)
         {
@@ -84,7 +84,7 @@ public class AllTests
             endpoints.addAll(java.util.Arrays.asList(edpts));
         }
         return TestIntfPrxHelper.uncheckedCast(
-            test.ice_endpoints((Ice.Endpoint[])endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
+            test.ice_endpoints(endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
     }
 
     private static void

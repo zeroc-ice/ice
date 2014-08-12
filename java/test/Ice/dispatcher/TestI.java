@@ -27,30 +27,35 @@ public class TestI extends _TestIntfDisp
         _dispatcher = dispatcher;
     }
 
+    @Override
     public void
     op(Ice.Current current)
     {
         test(_dispatcher.isDispatcherThread());
     }
 
+    @Override
     public void
     sleep(int to, Ice.Current current)
     {
         try
         {
-            Thread.currentThread().sleep(to);
+            Thread.currentThread();
+            Thread.sleep(to);
         }
         catch(InterruptedException ex)
         {
         }
     }
 
+    @Override
     public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
         test(_dispatcher.isDispatcherThread());
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -30,7 +30,7 @@ public class AllTests
         Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 
-        Ice.Object servant = (Ice.Object)new MyObjectI();
+        Ice.Object servant = new MyObjectI();
 
         //
         // Register default servant with category "foo"

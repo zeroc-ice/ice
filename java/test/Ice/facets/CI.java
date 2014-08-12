@@ -18,12 +18,14 @@ public final class CI extends _CDisp
     {
     }
 
+    @Override
     public String
     callA(Ice.Current current)
     {
         return "A";
     }
 
+    @Override
     public String
     callC(Ice.Current current)
     {

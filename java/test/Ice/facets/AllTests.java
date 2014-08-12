@@ -9,7 +9,6 @@
 
 package test.Ice.facets;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import test.Ice.facets.Test.DPrx;

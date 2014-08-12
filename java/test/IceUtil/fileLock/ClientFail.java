@@ -9,9 +9,6 @@
 
 package test.IceUtil.fileLock;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.EOFException;
@@ -33,10 +30,10 @@ public class ClientFail
     public static void
     main(String[] argvs)
     {
-        IceUtilInternal.FileLock lock = null;
+        
         try
         {
-            lock = new IceUtilInternal.FileLock("file.lock");
+            new IceUtilInternal.FileLock("file.lock");
             test(false);
         }
         catch(IceUtil.FileLockException ex)
@@ -52,7 +49,14 @@ public class ClientFail
                 try
                 {
                     RandomAccessFile file = new RandomAccessFile(new File("file.lock"), "r");
-                    pid = file.readUTF();
+                    try
+                    {
+                        pid = file.readUTF();
+                    }
+                    finally
+                    {
+                        file.close();
+                    }
                 }
                 catch(EOFException eofEx)
                 {

@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -86,6 +85,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         Action allocatable = new AbstractAction("Allocatable")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _mainEditor.updated();
@@ -99,6 +99,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         Action appDistrib = new AbstractAction("Depends on the application distribution")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _mainEditor.updated();
@@ -127,6 +128,7 @@ class ServerSubEditor extends CommunicatorSubEditor
         return (ServerDescriptor)_mainEditor.getSubDescriptor();
     }
 
+    @Override
     void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Server ID");
@@ -355,6 +357,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
     static private final Object NO_DISTRIB = new Object()
         {
+            @Override
             public String toString()
             {
                 return "None selected";

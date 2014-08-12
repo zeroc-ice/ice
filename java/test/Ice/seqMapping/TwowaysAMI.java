@@ -61,6 +61,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opSerialSmallJavaNull extends AMI_MyClass_opSerialSmallJava
     {
+        @Override
         public void
         ice_response(Small r, Small o)
         {
@@ -69,6 +70,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -86,6 +88,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opSerialSmallJavaI extends AMI_MyClass_opSerialSmallJava
     {
+        @Override
         public void
         ice_response(Small r, Small o)
         {
@@ -94,6 +97,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -111,6 +115,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opSerialLargeJavaI extends AMI_MyClass_opSerialLargeJava
     {
+        @Override
         public void
         ice_response(Large r, Large o)
         {
@@ -137,6 +142,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -154,6 +160,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opSerialStructJavaI extends AMI_MyClass_opSerialStructJava
     {
+        @Override
         public void
         ice_response(Struct r, Struct o)
         {
@@ -172,6 +179,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {

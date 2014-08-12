@@ -23,6 +23,7 @@ public class Logger extends Ice.LoggerI
         _mainFrame = mainFrame;
     }
 
+    @Override
     public void
     warning(final String message)
     {
@@ -35,6 +36,7 @@ public class Logger extends Ice.LoggerI
         }
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     JOptionPane.showMessageDialog(
@@ -46,11 +48,13 @@ public class Logger extends Ice.LoggerI
             });
     }
 
+    @Override
     public void
     error(final String message)
     {
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     JOptionPane.showMessageDialog(

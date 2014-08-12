@@ -26,6 +26,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
         _thread.start();
     }
 
+    @Override
     public void 
     run()
     {
@@ -71,6 +72,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
         }
     }
     
+    @Override
     synchronized public void
     dispatch(Runnable call, Ice.Connection con)
     {

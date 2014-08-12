@@ -13,6 +13,7 @@ import test.Ice.servantLocator.Test.TestIntfPrx;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         TestIntfPrx obj = AllTests.allTests(communicator(), getWriter());
@@ -20,6 +21,7 @@ public class Client extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

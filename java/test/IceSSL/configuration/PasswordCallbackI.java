@@ -8,7 +8,6 @@
 // **********************************************************************
 
 package test.IceSSL.configuration;
-import test.IceSSL.configuration.Test.*;
 
 public class PasswordCallbackI implements IceSSL.PasswordCallback
 {
@@ -24,18 +23,21 @@ public class PasswordCallbackI implements IceSSL.PasswordCallback
         _password = password;
     }
 
+    @Override
     public char[]
     getPassword(String alias)
     {
         return _password.toCharArray();
     }
 
+    @Override
     public char[]
     getTruststorePassword()
     {
         return null;
     }
 
+    @Override
     public char[]
     getKeystorePassword()
     {

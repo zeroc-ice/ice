@@ -38,6 +38,7 @@ public class Client
         {
         }
         
+        @Override
         public void
         checkedCast_async(AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
         {
@@ -53,6 +54,7 @@ public class Client
         {
         }
 
+        @Override
         public void
         _do(Ice.Current __current)
         {
@@ -67,6 +69,7 @@ public class Client
         {
         }
 
+        @Override
         public void
         foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
         {
@@ -80,6 +83,7 @@ public class Client
         {
         }
 
+        @Override
         public _assert
         _notify(_break _notifyAll, _else _null, _finalize _package,
                 elsePrx _private, finalizePrx _protected,
@@ -97,6 +101,7 @@ public class Client
         {
         }
 
+        @Override
         public void
         checkedCast_async(AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
         {
@@ -104,11 +109,13 @@ public class Client
             __cb.ice_response(_continue);
         }
 
+        @Override
         public void
         _do(Ice.Current __current)
         {
         }
 
+        @Override
         public void
         foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
         {
@@ -119,6 +126,7 @@ public class Client
     // This section of the test is present to ensure that the C++ types
     // are named correctly. It is not expected to run.
     //
+    @SuppressWarnings({ "unused", "null" })
     private static void
     testtypes()
     {

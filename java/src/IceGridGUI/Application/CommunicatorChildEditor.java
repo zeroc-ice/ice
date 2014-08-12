@@ -11,9 +11,6 @@ package IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
 
-import IceGrid.*;
-import IceGridGUI.*;
-
 abstract class CommunicatorChildEditor extends Editor
 {
     abstract void writeDescriptor();
@@ -24,6 +21,7 @@ abstract class CommunicatorChildEditor extends Editor
     {
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected boolean applyUpdate(boolean refresh)
     {

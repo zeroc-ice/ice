@@ -9,11 +9,6 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -44,6 +39,7 @@ class DbEnvEditor extends CommunicatorChildEditor
         _properties = new PropertiesField(this);
     }
 
+    @Override
     void writeDescriptor()
     {
         DbEnvDescriptor descriptor = (DbEnvDescriptor)getDbEnv().getDescriptor();
@@ -53,17 +49,20 @@ class DbEnvEditor extends CommunicatorChildEditor
         descriptor.properties = _properties.getProperties();
     }
 
+    @Override
     boolean isSimpleUpdate()
     {
         DbEnvDescriptor descriptor = (DbEnvDescriptor)getDbEnv().getDescriptor();
         return descriptor.name.equals(_name.getText().trim());
     }
 
+    @Override
     Communicator.ChildList getChildList()
     {
         return ((Communicator)_target.getParent()).getDbEnvs();
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Name" );
@@ -100,12 +99,14 @@ class DbEnvEditor extends CommunicatorChildEditor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Database Environment Properties");
     }
 
+    @Override
     protected boolean validate()
     {
         return check(new String[]{"Name", _name.getText().trim()});
@@ -189,6 +190,7 @@ class DbEnvEditor extends CommunicatorChildEditor
 
     static private final Object NO_DB_HOME = new Object()
         {
+            @Override
             public String toString()
             {
                 return "Created by the IceGrid Node";

@@ -10,12 +10,8 @@
 package IceGridGUI.LiveDeployment;
 
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -50,6 +46,7 @@ class DbEnvEditor extends Editor
         _properties.setProperties(descriptor.properties, resolver);
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Description");
@@ -83,6 +80,7 @@ class DbEnvEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();

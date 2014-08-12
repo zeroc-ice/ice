@@ -10,14 +10,10 @@
 package IceGridGUI;
 
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.*;
-import javax.swing.border.AbstractBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -27,24 +23,22 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import com.jgoodies.forms.factories.Borders;
 
-import IceGrid.*;
 import IceGridGUI.Application.Editor;
 import IceGridGUI.Application.Root;
 import IceGridGUI.Application.TreeNode;
 
 public class ApplicationPane extends JSplitPane implements Tab
 {
+    @Override
     public void updateUI()
     {
         super.updateUI();
         setEmptyDividerBorder();
     }
 
+    @Override
     public void selected()
     {
         Coordinator c = _root.getCoordinator();
@@ -73,6 +67,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         c.showActions(_currentNode);
     }
 
+    @Override
     public void refresh()
     {
         if(_currentNode != null)
@@ -88,6 +83,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void showNode(TreeNodeBase node)
     {
         TreeNode newNode = (TreeNode)node;
@@ -135,6 +131,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void back()
     {
         //
@@ -172,6 +169,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void forward()
     {
         if(_currentEditor != null && !_currentEditor.save(false))
@@ -250,8 +248,8 @@ public class ApplicationPane extends JSplitPane implements Tab
 
         JScrollPane leftScroll =
             new JScrollPane(tree,
-                            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane.setContent(leftScroll);
@@ -264,6 +262,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void save()
     {
         if(_currentEditor == null || _currentEditor.save(true))
@@ -272,6 +271,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void saveToRegistry(boolean restart)
     {
         if(_currentEditor == null || _currentEditor.save(true))
@@ -280,6 +280,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void saveToFile()
     {
         if(_currentEditor == null || _currentEditor.save(true))
@@ -288,11 +289,13 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
+    @Override
     public void discardUpdates()
     {
         _root.discardUpdates();
     }
 
+    @Override
     public boolean close()
     {
         _root.getCoordinator().getMainPane().remove(this);
@@ -319,7 +322,7 @@ public class ApplicationPane extends JSplitPane implements Tab
         javax.swing.InputMap im = _leftPane.getInputMap();
 
         im.put((KeyStroke)action.getValue(Action.ACCELERATOR_KEY), (String)action.getValue(Action.NAME));
-        am.put((String)action.getValue(Action.NAME), action);
+        am.put(action.getValue(Action.NAME), action);
     }
 
     ApplicationPane(Root root)
@@ -384,11 +387,13 @@ public class ApplicationPane extends JSplitPane implements Tab
 
     private class PopupListener extends MouseAdapter
     {
+        @Override
         public void mousePressed(MouseEvent e)
         {
             maybeShowPopup(e);
         }
 
+        @Override
         public void mouseReleased(MouseEvent e)
         {
             maybeShowPopup(e);
@@ -417,6 +422,7 @@ public class ApplicationPane extends JSplitPane implements Tab
 
     private class SelectionListener implements TreeSelectionListener
     {
+        @Override
         public void valueChanged(TreeSelectionEvent e)
         {
             if(_root.isSelectionListenerEnabled())

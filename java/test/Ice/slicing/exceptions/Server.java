@@ -21,6 +21,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

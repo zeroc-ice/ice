@@ -21,7 +21,6 @@ import test.Ice.exceptions.Test.AMI_Thrower_throwCasA;
 import test.Ice.exceptions.Test.AMI_Thrower_throwCasB;
 import test.Ice.exceptions.Test.AMI_Thrower_throwCasC;
 import test.Ice.exceptions.Test.AMI_Thrower_throwLocalException;
-import test.Ice.exceptions.Test.AMI_Thrower_throwLocalExceptionIdempotent;
 import test.Ice.exceptions.Test.AMI_Thrower_throwNonIceException;
 import test.Ice.exceptions.Test.AMI_Thrower_throwUndeclaredA;
 import test.Ice.exceptions.Test.AMI_Thrower_throwUndeclaredB;
@@ -1394,7 +1393,7 @@ public class AllTests
             first = communicator.createObjectAdapter("TestAdapter0");
             try
             {
-                Ice.ObjectAdapter second = communicator.createObjectAdapter("TestAdapter0");
+                communicator.createObjectAdapter("TestAdapter0");
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException ex)
@@ -1404,8 +1403,7 @@ public class AllTests
 
             try
             {
-                Ice.ObjectAdapter second =
-                    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
+                communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException ex)

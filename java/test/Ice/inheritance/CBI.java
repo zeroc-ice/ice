@@ -20,12 +20,14 @@ public final class CBI extends CB
     {
     }
 
+    @Override
     public CAPrx
     caop(CAPrx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public CBPrx
     cbop(CBPrx p, Ice.Current current)
     {

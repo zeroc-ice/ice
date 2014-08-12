@@ -9,7 +9,6 @@
 
 package test.Ice.hold;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import test.Ice.hold.Test.HoldPrx;
@@ -74,6 +73,7 @@ public class AllTests
         {
         }
 
+        @Override
         synchronized public void
         sent(boolean sync)
         {

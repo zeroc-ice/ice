@@ -29,6 +29,7 @@ class PlainService extends Communicator implements Service, Cloneable
         return copy;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -52,6 +53,7 @@ class PlainService extends Communicator implements Service, Cloneable
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -81,6 +83,7 @@ class PlainService extends Communicator implements Service, Cloneable
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -97,32 +100,38 @@ class PlainService extends Communicator implements Service, Cloneable
         return _popup;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(ServiceInstance.copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void moveUp()
     {
         move(true);
     }
 
+    @Override
     public void moveDown()
     {
         move(false);
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _descriptor;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         return _descriptor.clone();
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)savedDescriptor;
@@ -133,11 +142,13 @@ class PlainService extends Communicator implements Service, Cloneable
         _descriptor.descriptor.entry = sid.descriptor.entry;
     }
 
+    @Override
     public void destroy()
     {
         ((Communicator)_parent).getServices().destroyChild(this);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -148,11 +159,13 @@ class PlainService extends Communicator implements Service, Cloneable
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new PlainServiceEditor();
     }
 
+    @Override
     Editable getEnclosingEditable()
     {
         return ((Communicator)_parent).getEnclosingEditable();
@@ -176,6 +189,7 @@ class PlainService extends Communicator implements Service, Cloneable
         ((Communicator)_parent).getServices().move(this, up);
     }
 
+    @Override
     public Object rebuild(java.util.List<Editable> editables)
         throws UpdateFailedException
     {
@@ -189,7 +203,7 @@ class PlainService extends Communicator implements Service, Cloneable
 
         try
         {
-            backup = (PlainService)clone();
+            backup = clone();
         }
         catch(CloneNotSupportedException e)
         {
@@ -201,6 +215,7 @@ class PlainService extends Communicator implements Service, Cloneable
         return backup;
     }
 
+    @Override
     public void restore(Object backupObj)
     {
         reset((PlainService)backupObj);
@@ -251,6 +266,7 @@ class PlainService extends Communicator implements Service, Cloneable
         return attributes;
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -273,16 +289,19 @@ class PlainService extends Communicator implements Service, Cloneable
         }
     }
 
+    @Override
     CommunicatorDescriptor getCommunicatorDescriptor()
     {
         return _descriptor.descriptor;
     }
 
+    @Override
     Utils.Resolver getResolver()
     {
         return _resolver;
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;

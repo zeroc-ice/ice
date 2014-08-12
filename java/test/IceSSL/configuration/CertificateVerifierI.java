@@ -8,7 +8,6 @@
 // **********************************************************************
 
 package test.IceSSL.configuration;
-import test.IceSSL.configuration.Test.*;
 
 public class CertificateVerifierI implements IceSSL.CertificateVerifier
 {
@@ -18,6 +17,7 @@ public class CertificateVerifierI implements IceSSL.CertificateVerifier
         reset();
     }
 
+    @Override
     public boolean
     verify(IceSSL.NativeConnectionInfo info)
     {

@@ -8,10 +8,10 @@
 // **********************************************************************
 
 package test.Ice.serialize;
-import test.Ice.serialize.Test.*;
 
 public class Server extends test.Util.Application
 {
+    @Override
     public int
     run(String[] args)
     {
@@ -24,6 +24,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

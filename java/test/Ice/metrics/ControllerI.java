@@ -17,12 +17,14 @@ public final class ControllerI extends _ControllerDisp
         _adapter = adapter;
     }
 
+    @Override
     public void hold(Ice.Current current)
     {
         _adapter.hold();
         _adapter.waitForHold();
     }
 
+    @Override
     public void resume(Ice.Current current)
     {
         _adapter.activate();

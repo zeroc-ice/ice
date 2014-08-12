@@ -11,19 +11,20 @@ package test.Ice.plugin.plugins;
 
 public class PluginFactory implements Ice.PluginFactory
 {
+    @Override
     public Ice.Plugin create(Ice.Communicator communicator, String name, String[] args)
     {
-        return new Plugin(communicator, args);
+        return new Plugin(args);
     }
 
     static class Plugin implements Ice.Plugin
     {
-        public Plugin(Ice.Communicator communicator, String[] args)
+        public Plugin(String[] args)
         {
-            _communicator = communicator;
             _args = args;
         }
 
+        @Override
         public void initialize()
         {
             _initialized = true;
@@ -33,11 +34,13 @@ public class PluginFactory implements Ice.PluginFactory
             test(_args[2].equals("C:\\Program Files\\Application\\db"));
         }
 
+        @Override
         public void destroy()
         {
             _destroyed = true;
         }
 
+        @Override
         protected void finalize() throws Throwable
         {
             try
@@ -65,7 +68,6 @@ public class PluginFactory implements Ice.PluginFactory
             }
         }
 
-        private Ice.Communicator _communicator;
         private String[] _args;
         private boolean _initialized = false;
         private boolean _destroyed = false;

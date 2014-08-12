@@ -9,8 +9,6 @@
 
 package test.IceBox.admin;
 
-import test.IceBox.admin.Test.*;
-
 public class Client
 {
     private static int

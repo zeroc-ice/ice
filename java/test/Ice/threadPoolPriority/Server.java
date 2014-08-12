@@ -11,6 +11,7 @@ package test.Ice.threadPoolPriority;
 
 public class Server extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
@@ -22,6 +23,7 @@ public class Server extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

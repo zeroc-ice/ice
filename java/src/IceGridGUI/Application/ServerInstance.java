@@ -15,7 +15,6 @@ import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.*;
@@ -34,6 +33,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     //
     // Overrides ListTreeNode
     //
+    @Override
     public boolean getAllowsChildren()
     {
         return _isIceBox;
@@ -42,6 +42,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -71,12 +72,14 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         return actions;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void paste()
     {
         if(_isIceBox)
@@ -92,11 +95,13 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         ((TreeNode)_parent).paste();
     }
 
+    @Override
     public void newPropertySet()
     {
         newPropertySet(new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>()));
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         if(_isIceBox)
@@ -116,6 +121,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -126,11 +132,13 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new ServerInstanceEditor();
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -158,6 +166,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public void destroy()
     {
         Node node = (Node)_parent;
@@ -175,16 +184,19 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _descriptor;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         return _descriptor.clone();
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         ServerInstanceDescriptor copy = (ServerInstanceDescriptor)savedDescriptor;
@@ -220,6 +232,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -278,6 +291,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         java.util.Map<String, String> parameterValues;
     }
 
+    @Override
     public Object rebuild(java.util.List<Editable> editables)
         throws UpdateFailedException
     {
@@ -341,6 +355,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         return backup;
     }
 
+    @Override
     public void restore(Object backupObj)
     {
         Backup backup = (Backup)backupObj;
@@ -370,6 +385,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
     }
 
+    @Override
     public void tryAdd(String unsubstitutedId, PropertySetDescriptor descriptor)
         throws UpdateFailedException
     {
@@ -382,6 +398,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         _editable.markModified();
     }
 
+    @Override
     public void tryRename(String oldId, String oldUnresolvedId, String newUnsubstitutedId)
         throws UpdateFailedException
     {
@@ -416,22 +433,26 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         _descriptor.servicePropertySets.put(newUnsubstitutedId, descriptor);
     }
 
+    @Override
     public void insertPropertySet(PropertySet nps, boolean fireEvent)
         throws UpdateFailedException
     {
         insertChild(nps, fireEvent);
     }
 
+    @Override
     public void removePropertySet(PropertySet nps)
     {
         removeChild(nps);
     }
 
+    @Override
     public void removeDescriptor(String unsubstitutedId)
     {
         _descriptor.servicePropertySets.remove(unsubstitutedId);
     }
 
+    @Override
     public Editable getEditable()
     {
         return _editable;
@@ -459,7 +480,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
             if(d.template.length() > 0)
             {
                 TemplateDescriptor templateDescriptor =
-                    (TemplateDescriptor)getRoot().findServiceTemplateDescriptor(d.template);
+                    getRoot().findServiceTemplateDescriptor(d.template);
                 assert templateDescriptor != null;
                 Utils.Resolver serviceResolver = new Utils.Resolver(_resolver,
                                                                     d.parameterValues,
@@ -516,16 +537,19 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         getRoot().setSelectedNode(ps);
     }
 
+    @Override
     Utils.Resolver getResolver()
     {
         return _resolver;
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
     }
 
+    @Override
     public String toString()
     {
         if(_ephemeral)

@@ -65,8 +65,15 @@ public class AllTests
             byte[] bytes = initial.getStruct1();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             Ice.ObjectInputStream ois = new Ice.ObjectInputStream(communicator, bais);
-            Struct1 s = (Struct1)ois.readObject();
-            checkStruct1(s);
+            try
+            {
+                Struct1 s = (Struct1)ois.readObject();
+                checkStruct1(s);
+            }
+            finally
+            {
+                ois.close();
+            }
         }
         catch(Throwable ex)
         {
@@ -81,8 +88,15 @@ public class AllTests
             byte[] bytes = initial.getBase();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             Ice.ObjectInputStream ois = new Ice.ObjectInputStream(communicator, bais);
-            Base b = (Base)ois.readObject();
-            checkBase(b);
+            try
+            {
+                Base b = (Base) ois.readObject();
+                checkBase(b);
+            }
+            finally
+            {
+                ois.close();
+            }
         }
         catch(Throwable ex)
         {
@@ -97,9 +111,16 @@ public class AllTests
             byte[] bytes = initial.getEx();
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             Ice.ObjectInputStream ois = new Ice.ObjectInputStream(communicator, bais);
-            Ex ex = (Ex)ois.readObject();
-            checkStruct1(ex.s);
-            checkBase(ex.b);
+            try
+            {
+                Ex ex = (Ex)ois.readObject();
+                checkStruct1(ex.s);
+                checkBase(ex.b);
+            }
+            finally
+            {
+                ois.close();
+            }
         }
         catch(Throwable ex)
         {

@@ -9,11 +9,6 @@
 
 package test.Freeze.fileLock;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import Freeze.*;
-
 public class ClientFail
 {
     private static void
@@ -44,10 +39,9 @@ public class ClientFail
                 envName += "db";
             }
 
-            Freeze.Connection connection = null;
             try
             {
-                connection = Freeze.Util.createConnection(communicator, envName);
+                Freeze.Util.createConnection(communicator, envName);
                 test(false);
             }
             catch(IceUtil.FileLockException ex)

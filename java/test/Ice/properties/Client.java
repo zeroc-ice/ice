@@ -22,6 +22,7 @@ public class Client extends test.Util.Application
 
     class PropertiesClient extends Ice.Application
     {
+        @Override
         public int
         run(String[] args)
         {
@@ -35,6 +36,7 @@ public class Client extends test.Util.Application
         };
     };
 
+    @Override
     public int run(String[] args)
     {
         {

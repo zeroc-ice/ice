@@ -32,11 +32,13 @@ public class TestServiceI implements IceBox.Service
         }
     }
 
+    @Override
     public void
     start(String name, Ice.Communicator communicator, String[] args)
     {
     }
 
+    @Override
     public void
     stop()
     {

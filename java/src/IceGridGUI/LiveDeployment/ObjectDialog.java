@@ -9,11 +9,7 @@
 
 package IceGridGUI.LiveDeployment;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Frame;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -23,10 +19,10 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
@@ -43,7 +39,7 @@ class ObjectDialog extends JDialog
         super(root.getCoordinator().getMainFrame(),
               (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid Admin", true);
 
-        setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
 
         _proxy.setLineWrap(true);
@@ -95,6 +91,7 @@ class ObjectDialog extends JDialog
             JButton okButton = new JButton("OK");
             ActionListener okListener = new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(_proxy.isEditable())
@@ -122,6 +119,7 @@ class ObjectDialog extends JDialog
             JButton cancelButton = new JButton("Cancel");
             ActionListener cancelListener = new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         setVisible(false);
@@ -169,6 +167,7 @@ class ObjectDialog extends JDialog
 
     static private final Object QUERY_OBJECT = new Object()
         {
+            @Override
             public String toString()
             {
                 return "Query object to retrieve type";

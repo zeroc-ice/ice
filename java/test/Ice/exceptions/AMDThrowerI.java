@@ -42,6 +42,7 @@ public final class AMDThrowerI extends _ThrowerDisp
     {
     }
 
+    @Override
     public void
     shutdown_async(AMD_Thrower_shutdown cb, Ice.Current current)
     {
@@ -49,18 +50,21 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     supportsUndeclaredExceptions_async(AMD_Thrower_supportsUndeclaredExceptions cb, Ice.Current current)
     {
         cb.ice_response(true);
     }
 
+    @Override
     public void
     supportsAssertException_async(AMD_Thrower_supportsAssertException cb, Ice.Current current)
     {
         cb.ice_response(true);
     }
 
+    @Override
     public void
     throwAasA_async(AMD_Thrower_throwAasA cb, int a, Ice.Current current)
         throws A
@@ -70,6 +74,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwAorDasAorD_async(AMD_Thrower_throwAorDasAorD cb, int a, Ice.Current current)
         throws A,
@@ -89,6 +94,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         }
     }
 
+    @Override
     public void
     throwBasA_async(AMD_Thrower_throwBasA cb, int a, int b, Ice.Current current)
         throws A
@@ -100,6 +106,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         //cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwBasB_async(AMD_Thrower_throwBasB cb, int a, int b, Ice.Current current)
         throws B
@@ -111,6 +118,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         //cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwCasA_async(AMD_Thrower_throwCasA cb, int a, int b, int c, Ice.Current current)
         throws A
@@ -122,6 +130,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwCasB_async(AMD_Thrower_throwCasB cb, int a, int b, int c, Ice.Current current)
         throws B
@@ -133,6 +142,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwCasC_async(AMD_Thrower_throwCasC cb, int a, int b, int c, Ice.Current current)
         throws C
@@ -144,6 +154,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwUndeclaredA_async(AMD_Thrower_throwUndeclaredA cb, int a, Ice.Current current)
     {
@@ -152,6 +163,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwUndeclaredB_async(AMD_Thrower_throwUndeclaredB cb, int a, int b, Ice.Current current)
     {
@@ -161,6 +173,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwUndeclaredC_async(AMD_Thrower_throwUndeclaredC cb, int a, int b, int c, Ice.Current current)
     {
@@ -171,36 +184,42 @@ public final class AMDThrowerI extends _ThrowerDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     throwLocalException_async(AMD_Thrower_throwLocalException cb, Ice.Current current)
     {
         cb.ice_exception(new Ice.TimeoutException());
     }
 
+    @Override
     public void
     throwNonIceException_async(AMD_Thrower_throwNonIceException cb, Ice.Current current)
     {
         throw new RuntimeException();
     }
 
+    @Override
     public void
     throwAssertException_async(AMD_Thrower_throwAssertException cb, Ice.Current current)
     {
         throw new java.lang.AssertionError();
     }
 
+    @Override
     public void
     throwMemoryLimitException_async(AMD_Thrower_throwMemoryLimitException cb, byte[] seq, Ice.Current current)
     {
         cb.ice_response(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
     }
 
+    @Override
     public void
     throwLocalExceptionIdempotent_async(AMD_Thrower_throwLocalExceptionIdempotent cb, Ice.Current current)
     {
         cb.ice_exception(new Ice.TimeoutException());
     }
 
+    @Override
     public void
     throwAfterResponse_async(AMD_Thrower_throwAfterResponse cb, Ice.Current current)
     {
@@ -209,6 +228,7 @@ public final class AMDThrowerI extends _ThrowerDisp
         throw new RuntimeException();
     }
 
+    @Override
     public void
     throwAfterException_async(AMD_Thrower_throwAfterException cb, Ice.Current current)
         throws A

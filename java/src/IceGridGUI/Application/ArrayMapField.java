@@ -9,16 +9,13 @@
 
 package IceGridGUI.Application;
 
-import IceGrid.*;
 import IceGridGUI.*;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -57,6 +54,7 @@ public class ArrayMapField extends JTable
 
         Action deleteRow = new AbstractAction("Delete selected row(s)")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(_editable)
@@ -127,6 +125,7 @@ public class ArrayMapField extends JTable
 
         _model = new DefaultTableModel(vector, _columnNames)
             {
+                @Override
                 public boolean isCellEditable(int row, int column)
                 {
                     return _editable;
@@ -135,6 +134,7 @@ public class ArrayMapField extends JTable
 
         _model.addTableModelListener(new TableModelListener()
             {
+                @Override
                 public void tableChanged(TableModelEvent e)
                 {
                     if(_editable)
@@ -174,7 +174,7 @@ public class ArrayMapField extends JTable
         }
         @SuppressWarnings("unchecked")
         java.util.Vector<java.util.Vector<String>> vector =
-            (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
+            _model.getDataVector();
 
         java.util.TreeMap<String, String[]> result = new java.util.TreeMap<String, String[]>();
 

@@ -98,12 +98,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opVoidI extends AMI_MyClass_opVoid
     {
+        @Override
         public void
         ice_response()
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -121,12 +123,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opVoidExI extends AMI_MyClass_opVoid
     {
+        @Override
         public void
         ice_response()
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -145,6 +149,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opByteI extends AMI_MyClass_opByte
     {
+        @Override
         public void
         ice_response(byte r, byte b)
         {
@@ -153,6 +158,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -170,12 +176,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opByteExI extends AMI_MyClass_opByte
     {
+        @Override
         public void
         ice_response(byte r, byte b)
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -194,6 +202,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opBoolI extends AMI_MyClass_opBool
     {
+        @Override
         public void
         ice_response(boolean r, boolean b)
         {
@@ -202,6 +211,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -219,6 +229,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opShortIntLongI extends AMI_MyClass_opShortIntLong
     {
+        @Override
         public void
         ice_response(long r, short s, int i, long l)
         {
@@ -229,6 +240,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -246,6 +258,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opFloatDoubleI extends AMI_MyClass_opFloatDouble
     {
+        @Override
         public void
         ice_response(double r, float f, double d)
         {
@@ -255,6 +268,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -272,6 +286,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opStringI extends AMI_MyClass_opString
     {
+        @Override
         public void
         ice_response(String r, String s)
         {
@@ -280,6 +295,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -297,6 +313,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opMyEnumI extends AMI_MyClass_opMyEnum
     {
+        @Override
         public void
         ice_response(MyEnum r, MyEnum e)
         {
@@ -305,6 +322,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -327,6 +345,7 @@ class TwowaysAMI
             _communicator = communicator;
         }
 
+        @Override
         public void
         ice_response(MyClassPrx r, MyClassPrx c1, MyClassPrx c2)
         {
@@ -350,6 +369,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -373,6 +393,7 @@ class TwowaysAMI
             _communicator = communicator;
         }
 
+        @Override
         public void
         ice_response(Structure rso, Structure so)
         {
@@ -389,6 +410,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -407,6 +429,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opByteSI extends AMI_MyClass_opByteS
     {
+        @Override
         public void
         ice_response(byte[] rso, byte[] bso)
         {
@@ -427,6 +450,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -444,6 +468,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opBoolSI extends AMI_MyClass_opBoolS
     {
+        @Override
         public void
         ice_response(boolean[] rso, boolean[] bso)
         {
@@ -459,6 +484,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -476,6 +502,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opShortIntLongSI extends AMI_MyClass_opShortIntLongS
     {
+        @Override
         public void
         ice_response(long[] rso, short[] sso, int[] iso,
                      long[] lso)
@@ -503,6 +530,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -520,6 +548,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opFloatDoubleSI extends AMI_MyClass_opFloatDoubleS
     {
+        @Override
         public void
         ice_response(double[] rso, float[] fso, double[] dso)
         {
@@ -539,6 +568,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -556,6 +586,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opStringSI extends AMI_MyClass_opStringS
     {
+        @Override
         public void
         ice_response(String[] rso, String[] sso)
         {
@@ -571,6 +602,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -588,6 +620,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opByteSSI extends AMI_MyClass_opByteSS
     {
+        @Override
         public void
         ice_response(byte[][] rso, byte[][] bso)
         {
@@ -613,6 +646,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -630,12 +664,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opBoolSSI extends AMI_MyClass_opBoolSS
     {
+        @Override
         public void
         ice_response(boolean[][] rso, boolean[][] bso)
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -653,12 +689,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opShortIntLongSSI extends AMI_MyClass_opShortIntLongSS
     {
+        @Override
         public void
         ice_response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -676,6 +714,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opFloatDoubleSSI extends AMI_MyClass_opFloatDoubleSS
     {
+        @Override
         public void
         ice_response(double[][] rso, float[][] fso, double[][] dso)
         {
@@ -702,6 +741,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -719,6 +759,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opStringSSI extends AMI_MyClass_opStringSS
     {
+        @Override
         public void
         ice_response(String[][] rso, String[][] sso)
         {
@@ -740,6 +781,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -757,6 +799,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opStringSSSI extends AMI_MyClass_opStringSSS
     {
+        @Override
         public void
         ice_response(String[][][] rsso, String[][][] ssso)
         {
@@ -795,6 +838,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -812,6 +856,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opByteBoolDI extends AMI_MyClass_opByteBoolD
     {
+        @Override
         public void
         ice_response(java.util.Map<Byte, Boolean> ro, java.util.Map<Byte, Boolean> _do)
         {
@@ -827,6 +872,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -844,6 +890,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opShortIntDI extends AMI_MyClass_opShortIntD
     {
+        @Override
         public void
         ice_response(java.util.Map<Short, Integer> ro, java.util.Map<Short, Integer> _do)
         {
@@ -859,6 +906,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -876,6 +924,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opLongFloatDI extends AMI_MyClass_opLongFloatD
     {
+        @Override
         public void
         ice_response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
         {
@@ -891,6 +940,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -908,6 +958,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opStringStringDI extends AMI_MyClass_opStringStringD
     {
+        @Override
         public void
         ice_response(java.util.Map<String, String> ro, java.util.Map<String, String> _do)
         {
@@ -923,6 +974,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -940,6 +992,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opStringMyEnumDI extends AMI_MyClass_opStringMyEnumD
     {
+        @Override
         public void
         ice_response(java.util.Map<String, MyEnum> ro, java.util.Map<String, MyEnum> _do)
         {
@@ -955,6 +1008,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -972,6 +1026,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opMyEnumStringDI extends AMI_MyClass_opMyEnumStringD
     {
+        @Override
         public void
         ice_response(java.util.Map<MyEnum, String> ro, java.util.Map<MyEnum, String> _do)
         {
@@ -985,6 +1040,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1002,6 +1058,7 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opMyStructMyEnumDI extends AMI_MyClass_opMyStructMyEnumD
     {
+        @Override
         public void
         ice_response(java.util.Map<MyStruct, MyEnum> ro, java.util.Map<MyStruct, MyEnum> _do)
         {
@@ -1021,6 +1078,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1043,6 +1101,7 @@ class TwowaysAMI
             _l = l;
         }
 
+        @Override
         public void
         ice_response(int[] r)
         {
@@ -1054,6 +1113,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1077,6 +1137,7 @@ class TwowaysAMI
             _d = d;
         }
 
+        @Override
         public void
         ice_response(java.util.Map r)
         {
@@ -1084,6 +1145,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1107,6 +1169,7 @@ class TwowaysAMI
             _d = d;
         }
 
+        @Override
         public void
         ice_response(java.util.Map r)
         {
@@ -1114,6 +1177,7 @@ class TwowaysAMI
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1132,12 +1196,14 @@ class TwowaysAMI
 
     private static class AMI_MyDerivedClass_opDerivedI extends AMI_MyDerivedClass_opDerived
     {
+        @Override
         public void
         ice_response()
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1155,12 +1221,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opDoubleMarshalingI extends AMI_MyClass_opDoubleMarshaling
     {
+        @Override
         public void
         ice_response()
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1178,12 +1246,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opIdempotentI extends AMI_MyClass_opIdempotent
     {
+        @Override
         public void
         ice_response()
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -1201,12 +1271,14 @@ class TwowaysAMI
 
     private static class AMI_MyClass_opNonmutatingI extends AMI_MyClass_opNonmutating
     {
+        @Override
         public void
         ice_response()
         {
             callback.called();
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {

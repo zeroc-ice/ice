@@ -65,6 +65,7 @@ public class AllTests
             _wait = true;
         }
 
+        @Override
         synchronized public void completed(Ice.AsyncResult result)
         {
             _wait = false;
@@ -163,6 +164,7 @@ public class AllTests
             _updated = false;
         }
 
+        @Override
         public synchronized void
         updated(Map<String, String> dict)
         {
@@ -262,6 +264,7 @@ public class AllTests
 
     static class Void implements Runnable
     {
+        @Override
         public void run()
         {
         }
@@ -274,6 +277,7 @@ public class AllTests
             this.proxy = proxy;
         }
 
+        @Override
         public void run()
         {
             if(proxy.ice_getCachedConnection() != null)
@@ -305,6 +309,7 @@ public class AllTests
             this.proxy = proxy;
         }
 
+        @Override
         public void run()
         {
             Map<String, String> ctx = new java.util.HashMap<String, String>();

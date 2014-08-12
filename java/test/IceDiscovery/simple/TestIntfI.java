@@ -13,6 +13,7 @@ import test.IceDiscovery.simple.Test.*;
 
 public final class TestIntfI extends _TestIntfDisp
 {
+    @Override
     public String 
     getAdapterId(Ice.Current current)
     {

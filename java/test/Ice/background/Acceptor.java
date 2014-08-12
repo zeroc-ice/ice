@@ -11,36 +11,42 @@ package test.Ice.background;
 
 class Acceptor implements IceInternal.Acceptor
 {
+    @Override
     public java.nio.channels.ServerSocketChannel
     fd()
     {
         return _acceptor.fd();
     }
 
+    @Override
     public void
     close()
     {
         _acceptor.close();
     }
 
+    @Override
     public void
     listen()
     {
         _acceptor.listen();
     }
 
+    @Override
     public IceInternal.Transceiver
     accept()
     {
         return new Transceiver(_configuration, _acceptor.accept());
     }
 
+    @Override
     public String
     protocol()
     {
         return _acceptor.protocol();
     }
 
+    @Override
     public String
     toString()
     {

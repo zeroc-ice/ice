@@ -58,6 +58,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     // Override the Object "pseudo" operations to verify the operation mode.
     //
 
+    @Override
     public boolean
     ice_isA(String id, Ice.Current current)
     {
@@ -65,6 +66,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return super.ice_isA(id, current);
     }
 
+    @Override
     public void
     ice_ping(Ice.Current current)
     {
@@ -72,6 +74,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         super.ice_ping(current);
     }
 
+    @Override
     public String[]
     ice_ids(Ice.Current current)
     {
@@ -79,6 +82,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return super.ice_ids(current);
     }
 
+    @Override
     public String
     ice_id(Ice.Current current)
     {
@@ -86,12 +90,14 @@ public final class MyDerivedClassI extends MyDerivedClass
         return super.ice_id(current);
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
+    @Override
     public void
     delay(int ms, Ice.Current current)
     {
@@ -104,12 +110,14 @@ public final class MyDerivedClassI extends MyDerivedClass
         }
     }
 
+    @Override
     public void
     opVoid(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);
     }
 
+    @Override
     public boolean
     opBool(boolean p1, boolean p2,
            Ice.BooleanHolder p3,
@@ -119,6 +127,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p2;
     }
 
+    @Override
     public boolean[]
     opBoolS(boolean[] p1, boolean[] p2,
             BoolSHolder p3,
@@ -136,6 +145,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public boolean[][]
     opBoolSS(boolean[][] p1, boolean[][] p2,
              BoolSSHolder p3,
@@ -153,6 +163,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public byte
     opByte(byte p1, byte p2,
            Ice.ByteHolder p3,
@@ -162,6 +173,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p1;
     }
 
+    @Override
     public java.util.Map<Byte, Boolean>
     opByteBoolD(java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2, ByteBoolDHolder p3,
                 Ice.Current current)
@@ -173,6 +185,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public byte[]
     opByteS(byte[] p1, byte[] p2,
             ByteSHolder p3,
@@ -190,6 +203,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public byte[][]
     opByteSS(byte[][] p1, byte[][] p2,
              ByteSSHolder p3,
@@ -207,6 +221,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public double
     opFloatDouble(float p1, double p2,
                   Ice.FloatHolder p3, Ice.DoubleHolder p4,
@@ -217,6 +232,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p2;
     }
 
+    @Override
     public double[]
     opFloatDoubleS(float[] p1, double[] p2,
                    FloatSHolder p3, DoubleSHolder p4,
@@ -237,6 +253,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public double[][]
     opFloatDoubleSS(float[][] p1, double[][] p2,
                     FloatSSHolder p3, DoubleSSHolder p4,
@@ -254,6 +271,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public java.util.Map<Long, Float>
     opLongFloatD(java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2, LongFloatDHolder p3,
                  Ice.Current current)
@@ -265,6 +283,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public MyClassPrx
     opMyClass(MyClassPrx p1,
               MyClassPrxHolder p2, MyClassPrxHolder p3,
@@ -276,6 +295,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
+    @Override
     public MyEnum
     opMyEnum(MyEnum p1,
              MyEnumHolder p2,
@@ -285,6 +305,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return MyEnum.enum3;
     }
 
+    @Override
     public java.util.Map<Short, Integer>
     opShortIntD(java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2, ShortIntDHolder p3,
                 Ice.Current current)
@@ -296,6 +317,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public long
     opShortIntLong(short p1, int p2, long p3,
                    Ice.ShortHolder p4, Ice.IntHolder p5, Ice.LongHolder p6,
@@ -307,6 +329,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p3;
     }
 
+    @Override
     public long[]
     opShortIntLongS(short[] p1, int[] p2, long[] p3,
                     ShortSHolder p4, IntSHolder p5, LongSHolder p6,
@@ -324,6 +347,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p3;
     }
 
+    @Override
     public long[][]
     opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3,
                      ShortSSHolder p4, IntSSHolder p5, LongSSHolder p6,
@@ -341,6 +365,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p3;
     }
 
+    @Override
     public String
     opString(String p1, String p2,
              Ice.StringHolder p3,
@@ -350,6 +375,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p1 + " " + p2;
     }
 
+    @Override
     public java.util.Map<String, MyEnum>
     opStringMyEnumD(java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2, StringMyEnumDHolder p3,
                     Ice.Current current)
@@ -361,6 +387,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public java.util.Map<MyEnum, String>
     opMyEnumStringD(java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2, MyEnumStringDHolder p3,
                     Ice.Current current)
@@ -372,6 +399,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public java.util.Map<MyStruct, MyEnum>
     opMyStructMyEnumD(java.util.Map<MyStruct, MyEnum> p1, java.util.Map<MyStruct, MyEnum> p2, MyStructMyEnumDHolder p3,
                       Ice.Current current)
@@ -383,6 +411,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public int[]
     opIntS(int[] s, Ice.Current current)
     {
@@ -394,17 +423,20 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public void
     opByteSOneway(byte[] s, Ice.Current current)
     {
     }
 
+    @Override
     public java.util.Map<String, String>
     opContext(Ice.Current current)
     {
         return current.ctx;
     }
 
+    @Override
     public void
     opDoubleMarshaling(double p1, double[] p2, Ice.Current current)
     {
@@ -416,6 +448,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         }
     }
 
+    @Override
     public String[]
     opStringS(String[] p1, String[] p2,
               StringSHolder p3,
@@ -433,6 +466,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public String[][]
     opStringSS(String[][] p1, String[][] p2,
                StringSSHolder p3,
@@ -450,6 +484,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public String[][][]
     opStringSSS(String[][][] p1, String[][][] p2,
                StringSSSHolder p3,
@@ -467,6 +502,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public java.util.Map<String, String>
     opStringStringD(java.util.Map<String, String> p1, java.util.Map<String, String> p2, StringStringDHolder p3,
                     Ice.Current current)
@@ -478,6 +514,7 @@ public final class MyDerivedClassI extends MyDerivedClass
         return r;
     }
 
+    @Override
     public Structure
     opStruct(Structure p1, Structure p2,
              StructureHolder p3,
@@ -488,18 +525,21 @@ public final class MyDerivedClassI extends MyDerivedClass
         return p2;
     }
 
+    @Override
     public void
     opIdempotent(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Idempotent);
     }
 
+    @Override
     public void
     opNonmutating(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Nonmutating);
     }
 
+    @Override
     public void
     opDerived(Ice.Current current)
     {

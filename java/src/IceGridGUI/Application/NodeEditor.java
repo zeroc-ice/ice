@@ -9,20 +9,10 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
@@ -31,12 +21,14 @@ import IceGridGUI.*;
 
 class NodeEditor extends Editor
 {
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Node Properties");
     }
 
+    @Override
     protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
@@ -145,6 +137,7 @@ class NodeEditor extends Editor
         }
     }
 
+    @Override
     Utils.Resolver getDetailResolver()
     {
         if(_target.getCoordinator().substitute())
@@ -176,6 +169,7 @@ class NodeEditor extends Editor
                                    + "on Windows, IceGrid uses 1.0.<html>");
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Name");
@@ -224,6 +218,7 @@ class NodeEditor extends Editor
         descriptor.loadFactor = _loadFactor.getText().trim();
     }
 
+    @Override
     protected boolean validate()
     {
         return check(new String[]{"Name", _name.getText().trim()});

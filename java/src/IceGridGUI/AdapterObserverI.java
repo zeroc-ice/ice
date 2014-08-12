@@ -20,6 +20,7 @@ class AdapterObserverI extends _AdapterObserverDisp
         _trace = coordinator.traceObservers();
     }
 
+    @Override
     public synchronized void adapterInit(final AdapterInfo[] adapters, Ice.Current current)
     {
         if(_trace)
@@ -42,6 +43,7 @@ class AdapterObserverI extends _AdapterObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.adapterInit(adapters);
@@ -49,6 +51,7 @@ class AdapterObserverI extends _AdapterObserverDisp
             });
     }
 
+    @Override
     public void adapterAdded(final AdapterInfo info, Ice.Current current)
     {
         if(_trace)
@@ -58,6 +61,7 @@ class AdapterObserverI extends _AdapterObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.adapterAdded(info);
@@ -65,6 +69,7 @@ class AdapterObserverI extends _AdapterObserverDisp
             });
     }
 
+    @Override
     public void adapterUpdated(final AdapterInfo info, Ice.Current current)
     {
         if(_trace)
@@ -74,6 +79,7 @@ class AdapterObserverI extends _AdapterObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.adapterUpdated(info);
@@ -81,6 +87,7 @@ class AdapterObserverI extends _AdapterObserverDisp
             });
     }
 
+    @Override
     public void adapterRemoved(final String id, Ice.Current current)
     {
         if(_trace)
@@ -90,6 +97,7 @@ class AdapterObserverI extends _AdapterObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.adapterRemoved(id);

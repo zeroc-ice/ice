@@ -16,6 +16,7 @@ public class TestI extends _TestIntfDisp
     {
     }
 
+    @Override
     public String
     getAdapterName(Ice.Current current)
     {

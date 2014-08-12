@@ -29,15 +29,18 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         return _parent.getCoordinator();
     }
 
-    public Enumeration children()
+    @Override
+    public Enumeration<Object> children()
     {
-        return new Enumeration()
+        return new Enumeration<Object>()
             {
+                @Override
                 public boolean hasMoreElements()
                 {
                     return false;
                 }
 
+                @Override
                 public Object nextElement()
                 {
                     throw new java.util.NoSuchElementException();
@@ -45,36 +48,43 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
             };
     }
 
+    @Override
     public boolean getAllowsChildren()
     {
         return false;
     }
 
+    @Override
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
         return null;
     }
 
+    @Override
     public int getChildCount()
     {
         return 0;
     }
 
+    @Override
     public int getIndex(javax.swing.tree.TreeNode node)
     {
         return -1;
     }
 
+    @Override
     public javax.swing.tree.TreeNode getParent()
     {
         return _parent;
     }
 
+    @Override
     public boolean isLeaf()
     {
         return true;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -87,6 +97,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         return null;
     }
 
+    @Override
     public String toString()
     {
         return _id;
@@ -161,7 +172,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     protected boolean insertSortedChild(TreeNodeBase newChild, java.util.List c, DefaultTreeModel treeModel)
     {
         @SuppressWarnings("unchecked")
-        java.util.List<TreeNodeBase> children = (java.util.List<TreeNodeBase>)c;
+        java.util.List<TreeNodeBase> children = c;
 
         String id = newChild.getId();
         int i;
@@ -190,9 +201,9 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     protected String insertSortedChildren(java.util.List nc, java.util.List ic, DefaultTreeModel treeModel)
     {
         @SuppressWarnings("unchecked")
-        java.util.List<TreeNodeBase> newChildren = (java.util.List<TreeNodeBase>)nc;
+        java.util.List<TreeNodeBase> newChildren = nc;
         @SuppressWarnings("unchecked")
-        java.util.List<TreeNodeBase> intoChildren = (java.util.List<TreeNodeBase>)ic;
+        java.util.List<TreeNodeBase> intoChildren = ic;
 
         TreeNodeBase[] children = newChildren.toArray(new TreeNodeBase[0]);
         java.util.Arrays.sort(children, _childComparator);
@@ -266,7 +277,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     protected void removeSortedChildren(String[] childIds, java.util.List fc, DefaultTreeModel treeModel)
     {
         @SuppressWarnings("unchecked")
-        java.util.List<TreeNodeBase> fromChildren = (java.util.List<TreeNodeBase>)fc;
+        java.util.List<TreeNodeBase> fromChildren = fc;
 
         if(childIds.length == 0)
         {
@@ -274,7 +285,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         }
         assert fromChildren.size() > 0;
 
-        String[] ids = (String[])childIds.clone();
+        String[] ids = childIds.clone();
         java.util.Arrays.sort(ids);
 
         Object[] childrenToRemove = new Object[ids.length];
@@ -311,7 +322,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     protected void childrenChanged(java.util.List c, DefaultTreeModel treeModel)
     {
         @SuppressWarnings("unchecked")
-        java.util.List<TreeNodeBase> children = (java.util.List<TreeNodeBase>)c;
+        java.util.List<TreeNodeBase> children = c;
 
         for(TreeNodeBase child : children)
         {
@@ -329,7 +340,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     protected TreeNodeBase find(String id, java.util.List il)
     {
         @SuppressWarnings("unchecked")
-        java.util.List<TreeNodeBase> inList = (java.util.List<TreeNodeBase>)il;
+        java.util.List<TreeNodeBase> inList = il;
 
         for(TreeNodeBase node : inList)
         {
@@ -346,6 +357,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 
     protected java.util.Comparator<TreeNodeBase> _childComparator = new java.util.Comparator<TreeNodeBase>()
         {
+            @Override
             public int compare(TreeNodeBase o1, TreeNodeBase o2)
             {
                 return o1.getId().compareTo(o2.getId());

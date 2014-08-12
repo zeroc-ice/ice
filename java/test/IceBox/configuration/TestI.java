@@ -20,12 +20,14 @@ public class TestI extends _TestIntfDisp
         _args = args;
     }
 
+    @Override
     public String
     getProperty(String name, Ice.Current current)
     {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
     
+    @Override
     public String[]
     getArgs(Ice.Current current)
     {

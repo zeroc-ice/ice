@@ -1034,4 +1034,17 @@
         <ant inheritAll="false" dir="test" target="clean"/>
     </target>
 
+    <target name="clean-generated" depends="config-init">
+        <delete includeemptydirs="true">
+            <fileset dir="${generated.dir}" includes="**/*"/>
+        </delete>
+        <delete includeemptydirs="true">
+            <fileset dir="${generated.test.dir}" includes="**/*"/>
+        </delete>
+        <!-- <delete deleteonexit="true" dir="${lib.dir}"/> -->
+        <delete dir="${cache.dir}"/>
+        <!-- <ant inheritAll="false" dir="demo" target="clean-generated"/> -->
+        <!-- <ant inheritAll="false" dir="test" target="clean-generated"/> -->
+    </target>
+
 </project>

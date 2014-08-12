@@ -10,6 +10,7 @@ package test.Ice.background;
 
 final class Connector implements IceInternal.Connector
 {
+    @Override
     public IceInternal.Transceiver
     connect()
     {
@@ -17,18 +18,21 @@ final class Connector implements IceInternal.Connector
         return new Transceiver(_configuration, _connector.connect());
     }
 
+    @Override
     public short
     type()
     {
         return (short)(EndpointI.TYPE_BASE + _connector.type());
     }
 
+    @Override
     public String
     toString()
     {
         return _connector.toString();
     }
 
+    @Override
     public int
     hashCode()
     {
@@ -44,6 +48,7 @@ final class Connector implements IceInternal.Connector
         _connector = connector;
     }
 
+    @Override
     public boolean
     equals(java.lang.Object obj)
     {

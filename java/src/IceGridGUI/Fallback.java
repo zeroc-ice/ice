@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 
 public class Fallback extends javax.swing.JApplet
 {
+    @Override
     public void start()
     {
         try
@@ -52,6 +53,7 @@ public class Fallback extends javax.swing.JApplet
             {
                 Runtime.getRuntime().addShutdownHook(new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         while(true)

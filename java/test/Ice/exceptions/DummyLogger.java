@@ -12,26 +12,31 @@ package test.Ice.exceptions;
 
 public final class DummyLogger implements Ice.Logger
 {
+    @Override
     public void
     print(String message)
     {
     }
 
+    @Override
     public void
     trace(String category, String message)
     {
     }
 
+    @Override
     public void
     warning(String message)
     {
     }
 
+    @Override
     public void
     error(String message)
     {
     }
 
+    @Override
     public Ice.Logger
     cloneWithPrefix(String prefix)
     {

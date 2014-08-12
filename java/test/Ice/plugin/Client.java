@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
@@ -146,6 +147,7 @@ public class Client extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
@@ -181,11 +183,13 @@ public class Client extends test.Util.Application
             return _destroyed;
         }
 
+        @Override
         public void initialize()
         {
             _initialized = true;
         }
 
+        @Override
         public void destroy()
         {
             _destroyed = true;

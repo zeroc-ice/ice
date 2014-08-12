@@ -22,18 +22,21 @@ public final class InitialI extends _InitialDisp
         _adapter = adapter;
     }
 
+    @Override
     public ConcreteClass
     getConcreteClass(Ice.Current current)
     {
         return new ConcreteClass();
     }
 
+    @Override
     public AbstractClass
     getAbstractClass(Ice.Current current)
     {
         return new AbstractClassI();
     }
 
+    @Override
     public void
     throwException(Ice.Current current)
         throws E
@@ -41,6 +44,7 @@ public final class InitialI extends _InitialDisp
         throw new E();
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

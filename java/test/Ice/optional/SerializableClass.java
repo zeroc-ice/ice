@@ -16,6 +16,7 @@ public class SerializableClass implements java.io.Serializable
         _v = v;
     }
 
+    @Override
     public boolean equals(Object obj)
     {
         if(obj instanceof SerializableClass)

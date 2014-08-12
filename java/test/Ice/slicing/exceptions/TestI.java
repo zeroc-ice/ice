@@ -22,12 +22,14 @@ public final class TestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
+    @Override
     public void
     baseAsBase(Ice.Current current)
         throws Base
@@ -37,6 +39,7 @@ public final class TestI extends _TestIntfDisp
         throw b;
     }
 
+    @Override
     public void
     unknownDerivedAsBase(Ice.Current current)
         throws Base
@@ -47,6 +50,7 @@ public final class TestI extends _TestIntfDisp
         throw d;
     }
 
+    @Override
     public void
     knownDerivedAsBase(Ice.Current current)
         throws Base
@@ -57,6 +61,7 @@ public final class TestI extends _TestIntfDisp
         throw d;
     }
 
+    @Override
     public void
     knownDerivedAsKnownDerived(Ice.Current current)
         throws KnownDerived
@@ -67,6 +72,7 @@ public final class TestI extends _TestIntfDisp
         throw d;
     }
 
+    @Override
     public void
     unknownIntermediateAsBase(Ice.Current current)
         throws Base
@@ -77,6 +83,7 @@ public final class TestI extends _TestIntfDisp
         throw ui;
     }
 
+    @Override
     public void
     knownIntermediateAsBase(Ice.Current current)
         throws Base
@@ -87,6 +94,7 @@ public final class TestI extends _TestIntfDisp
         throw ki;
     }
 
+    @Override
     public void
     knownMostDerivedAsBase(Ice.Current current)
         throws Base
@@ -98,6 +106,7 @@ public final class TestI extends _TestIntfDisp
         throw kmd;
     }
 
+    @Override
     public void
     knownIntermediateAsKnownIntermediate(Ice.Current current)
         throws KnownIntermediate
@@ -108,6 +117,7 @@ public final class TestI extends _TestIntfDisp
         throw ki;
     }
 
+    @Override
     public void
     knownMostDerivedAsKnownIntermediate(Ice.Current current)
         throws KnownIntermediate
@@ -119,6 +129,7 @@ public final class TestI extends _TestIntfDisp
         throw kmd;
     }
 
+    @Override
     public void
     knownMostDerivedAsKnownMostDerived(Ice.Current current)
         throws KnownMostDerived
@@ -130,6 +141,7 @@ public final class TestI extends _TestIntfDisp
         throw kmd;
     }
 
+    @Override
     public void
     unknownMostDerived1AsBase(Ice.Current current)
         throws Base
@@ -141,6 +153,7 @@ public final class TestI extends _TestIntfDisp
         throw umd1;
     }
 
+    @Override
     public void
     unknownMostDerived1AsKnownIntermediate(Ice.Current current)
         throws KnownIntermediate
@@ -152,6 +165,7 @@ public final class TestI extends _TestIntfDisp
         throw umd1;
     }
 
+    @Override
     public void
     unknownMostDerived2AsBase(Ice.Current current)
         throws Base
@@ -163,6 +177,7 @@ public final class TestI extends _TestIntfDisp
         throw umd2;
     }
 
+    @Override
     public void
     unknownMostDerived2AsBaseCompact(Ice.Current current)
         throws Base
@@ -174,6 +189,7 @@ public final class TestI extends _TestIntfDisp
         throw umd2;
     }
 
+    @Override
     public void
     knownPreservedAsBase(Ice.Current current)
         throws Base
@@ -185,6 +201,7 @@ public final class TestI extends _TestIntfDisp
         throw ex;
     }
 
+    @Override
     public void
     knownPreservedAsKnownPreserved(Ice.Current current)
         throws KnownPreserved
@@ -196,6 +213,7 @@ public final class TestI extends _TestIntfDisp
         throw ex;
     }
 
+    @Override
     public void
     relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
         throws Base
@@ -204,6 +222,7 @@ public final class TestI extends _TestIntfDisp
         test(false);
     }
 
+    @Override
     public void
     relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
         throws KnownPreserved
@@ -212,6 +231,7 @@ public final class TestI extends _TestIntfDisp
         test(false);
     }
 
+    @Override
     public void
     unknownPreservedAsBase(Ice.Current current)
         throws Base
@@ -225,6 +245,7 @@ public final class TestI extends _TestIntfDisp
         throw ex;
     }
 
+    @Override
     public void
     unknownPreservedAsKnownPreserved(Ice.Current current)
         throws KnownPreserved
@@ -238,6 +259,7 @@ public final class TestI extends _TestIntfDisp
         throw ex;
     }
 
+    @Override
     public void
     relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
         throws Base
@@ -246,6 +268,7 @@ public final class TestI extends _TestIntfDisp
         test(false);
     }
 
+    @Override
     public void
     relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
         throws KnownPreserved

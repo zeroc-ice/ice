@@ -9,8 +9,6 @@
 
 package IceGridGUI.Application;
 
-import javax.swing.AbstractListModel;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import IceGrid.*;
@@ -32,6 +30,7 @@ class ReplicaGroups extends ListTreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -46,6 +45,7 @@ class ReplicaGroups extends ListTreeNode
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -58,6 +58,7 @@ class ReplicaGroups extends ListTreeNode
         return _popup;
     }
 
+    @Override
     public void newReplicaGroup()
     {
         ReplicaGroupDescriptor descriptor = new
@@ -72,6 +73,7 @@ class ReplicaGroups extends ListTreeNode
         newReplicaGroup(descriptor);
     }
 
+    @Override
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
@@ -154,6 +156,7 @@ class ReplicaGroups extends ListTreeNode
         childrenChanged(updatedChildren);
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptors;

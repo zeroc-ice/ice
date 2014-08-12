@@ -22,7 +22,6 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.*;
-import IceGridGUI.*;
 
 class NodeEditor extends Editor
 {
@@ -35,6 +34,7 @@ class NodeEditor extends Editor
 
         Action refresh = new AbstractAction("Refresh")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.showLoad();
@@ -97,6 +97,7 @@ class NodeEditor extends Editor
         //
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("System Information");
@@ -134,6 +135,7 @@ class NodeEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();

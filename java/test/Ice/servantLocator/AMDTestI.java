@@ -27,30 +27,35 @@ import test.Ice.servantLocator.AMD.Test._TestIntfDisp;
 
 public final class AMDTestI extends _TestIntfDisp
 {
+    @Override
     public void 
     requestFailedException_async(AMD_TestIntf_requestFailedException cb, Ice.Current current)
     {
         cb.ice_response();
     }
 
+    @Override
     public void 
     unknownUserException_async(AMD_TestIntf_unknownUserException cb, Ice.Current current)
     {
         cb.ice_response();
     }
 
+    @Override
     public void 
     unknownLocalException_async(AMD_TestIntf_unknownLocalException cb, Ice.Current current)
     {
         cb.ice_response();
     }
 
+    @Override
     public void 
     unknownException_async(AMD_TestIntf_unknownException cb, Ice.Current current)
     {
         cb.ice_response();
     }
 
+    @Override
     public void 
     localException_async(AMD_TestIntf_localException cb, Ice.Current current)
     {
@@ -63,12 +68,14 @@ public final class AMDTestI extends _TestIntfDisp
 //        cb.ice_response();
 //     }
 
+    @Override
     public void 
     javaException_async(AMD_TestIntf_javaException cb, Ice.Current current)
     {
         cb.ice_response();
     }
 
+    @Override
     public void 
     unknownExceptionWithServantException_async(AMD_TestIntf_unknownExceptionWithServantException cb, 
                                                Ice.Current current)
@@ -76,6 +83,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(new Ice.ObjectNotExistException());
     }
 
+    @Override
     public void
     impossibleException_async(AMD_TestIntf_impossibleException cb, boolean _throw, Ice.Current current)
     {
@@ -93,6 +101,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     intfUserException_async(AMD_TestIntf_intfUserException cb, boolean _throw, Ice.Current current)
     {
@@ -110,6 +119,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     asyncResponse_async(AMD_TestIntf_asyncResponse cb, Ice.Current current)
     {
@@ -117,6 +127,7 @@ public final class AMDTestI extends _TestIntfDisp
         throw new Ice.ObjectNotExistException();
     }
 
+    @Override
     public void
     asyncException_async(AMD_TestIntf_asyncException cb, Ice.Current current)
     {
@@ -124,6 +135,7 @@ public final class AMDTestI extends _TestIntfDisp
         throw new Ice.ObjectNotExistException();
     }
     
+    @Override
     public void
     shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {

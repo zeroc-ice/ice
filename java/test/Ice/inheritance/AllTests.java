@@ -9,7 +9,6 @@
 
 package test.Ice.inheritance;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import test.Ice.inheritance.Test.InitialPrx;
@@ -214,7 +213,6 @@ public class AllTests
 
         out.print("ditto, but for class implementing interfaces... ");
         out.flush();
-        CDPrx cdo;
 
         cao = cd.caop(cd);
         test(cao.equals(cd));

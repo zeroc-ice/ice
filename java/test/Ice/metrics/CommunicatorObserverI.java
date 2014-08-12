@@ -20,12 +20,14 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         }
     }
 
+    @Override
     public void 
     setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
     {
         updater = u;
     }
  
+    @Override
     synchronized public Ice.Instrumentation.Observer 
     getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
     {
@@ -38,6 +40,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
 
  
+    @Override
     synchronized public Ice.Instrumentation.Observer 
     getEndpointLookupObserver(Ice.Endpoint e)
     {
@@ -49,6 +52,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return endpointLookupObserver;
     }
     
+    @Override
     synchronized public Ice.Instrumentation.ConnectionObserver 
     getConnectionObserver(Ice.ConnectionInfo c,
                           Ice.Endpoint e,
@@ -64,6 +68,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return connectionObserver;
     }
 
+    @Override
     synchronized public Ice.Instrumentation.ThreadObserver 
     getThreadObserver(String p, String id, Ice.Instrumentation.ThreadState s,
                       Ice.Instrumentation.ThreadObserver old)
@@ -77,6 +82,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return threadObserver; 
    }
 
+    @Override
     synchronized public Ice.Instrumentation.InvocationObserver
     getInvocationObserver(Ice.ObjectPrx p, String op, java.util.Map<String, String> ctx)
     {
@@ -88,6 +94,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return invocationObserver;
     }
 
+    @Override
     synchronized public Ice.Instrumentation.DispatchObserver
     getDispatchObserver(Ice.Current current, int s)
     {

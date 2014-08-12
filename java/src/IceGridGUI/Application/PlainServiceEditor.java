@@ -24,6 +24,7 @@ class PlainServiceEditor extends CommunicatorChildEditor
     //
     // From Editor:
     //
+    @Override
     Utils.Resolver getDetailResolver()
     {
         PlainService service = (PlainService)_target;
@@ -37,37 +38,44 @@ class PlainServiceEditor extends CommunicatorChildEditor
         }
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         _subEditor.appendProperties(builder);
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Properties");
     }
 
+    @Override
     protected boolean validate()
     {
         return _subEditor.validate();
     }
 
+    @Override
     void writeDescriptor()
     {
         _subEditor.writeDescriptor();
     }
 
+    @Override
     boolean isSimpleUpdate()
     {
         return _subEditor.isSimpleUpdate();
     }
 
+    @Override
     Communicator.ChildList getChildList()
     {
         return ((Communicator)_target.getParent()).getServices();
     }
 
+    @Override
     Object getSubDescriptor()
     {
         ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)_target.getDescriptor();

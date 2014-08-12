@@ -9,10 +9,6 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -43,6 +39,7 @@ class ServiceSubEditor extends CommunicatorSubEditor
         return (ServiceDescriptor)_mainEditor.getSubDescriptor();
     }
 
+    @Override
     void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Service Name");

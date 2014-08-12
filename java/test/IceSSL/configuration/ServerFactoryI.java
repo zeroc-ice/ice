@@ -23,6 +23,7 @@ class ServerFactoryI extends _ServerFactoryDisp
         }
     }
 
+    @Override
     public ServerPrx
     createServer(java.util.Map<String, String> props, Ice.Current current)
     {
@@ -44,6 +45,7 @@ class ServerFactoryI extends _ServerFactoryDisp
         return ServerPrxHelper.uncheckedCast(obj);
     }
 
+    @Override
     public void
     destroyServer(ServerPrx srv, Ice.Current current)
     {
@@ -56,6 +58,7 @@ class ServerFactoryI extends _ServerFactoryDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -11,6 +11,7 @@ package test.Ice.exceptions;
 
 public class Server extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
@@ -21,6 +22,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

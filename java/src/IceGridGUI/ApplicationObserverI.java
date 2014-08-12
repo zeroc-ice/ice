@@ -52,6 +52,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
         }
     }
 
+    @Override
     public synchronized void applicationInit(int serial, java.util.List<ApplicationInfo> applications,
                                              Ice.Current current)
     {
@@ -84,6 +85,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
         notify();
     }
 
+    @Override
     public void applicationAdded(final int serial, final ApplicationInfo info, Ice.Current current)
     {
         if(_trace)
@@ -95,6 +97,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.applicationAdded(serial, info);
@@ -102,6 +105,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
             });
     }
 
+    @Override
     public void applicationRemoved(final int serial, final String name, final Ice.Current current)
     {
         if(_trace)
@@ -113,6 +117,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.applicationRemoved(serial, name);
@@ -120,6 +125,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
             });
     }
 
+    @Override
     public void applicationUpdated(final int serial, final ApplicationUpdateInfo info, Ice.Current current)
     {
         if(_trace)
@@ -131,6 +137,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.applicationUpdated(serial, info);

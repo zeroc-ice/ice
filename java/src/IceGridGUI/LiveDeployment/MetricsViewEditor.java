@@ -20,12 +20,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentAdapter;
 import java.awt.BorderLayout;
 
 import java.util.List;
@@ -41,12 +36,7 @@ import java.text.DecimalFormat;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.AbstractCellEditor;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
 
@@ -58,8 +48,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.ListSelectionModel;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.SwingConstants;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -71,20 +59,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
 import javax.swing.table.JTableHeader;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-
-import IceGrid.*;
 import IceGridGUI.*;
 
 public class MetricsViewEditor extends Editor implements MetricsFieldContext
@@ -128,6 +107,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _format = new DecimalFormat(format);
         }
 
+        @Override
         public Component
         getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                       int row, int column)
@@ -189,6 +169,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     private static class SelectionListener implements TreeSelectionListener
     {
+        @Override
         public void valueChanged(TreeSelectionEvent e)
         {
             //
@@ -258,6 +239,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
     }
 
+    @Override
     public int getRefreshPeriod()
     {
         return _refreshPeriod;
@@ -268,6 +250,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         assert(_refreshFuture == null);
         _refreshFuture = node.getCoordinator().getExecutor().scheduleAtFixedRate(new Runnable()
         {
+            @Override
             public void run()
             {
                 node.fetchMetricsView();
@@ -483,6 +466,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             }
         }
 
+        @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
         {
             if(!isDataFlavorSupported(flavor))
@@ -492,11 +476,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return _data;
         }
 
+        @Override
         public DataFlavor[] getTransferDataFlavors()
         {
             return _flavors;
         }
 
+        @Override
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
             return _flavors[0].equals(flavor);
@@ -677,10 +663,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                         //
                         //Implement table header tool tips.
                         //
+                        @Override
                         protected JTableHeader createDefaultTableHeader()
                         {
                             return new JTableHeader(columnModel)
                             {
+                                @Override
                                 public String getToolTipText(MouseEvent e)
                                 {
                                     int index = columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getModelIndex();
@@ -732,6 +720,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                 JMenuItem newGraph = new JMenuItem("New Metrics Graph");
                                 newGraph.addActionListener(new ActionListener()
                                         {
+                                            @Override
                                             public void actionPerformed(ActionEvent e)
                                             {
                                                 Coordinator.IGraphView view = node.getCoordinator().createGraphView();
@@ -751,6 +740,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     addToGraph.add(item);
                                     item.addActionListener(new ActionListener()
                                         {
+                                            @Override
                                             public void actionPerformed(ActionEvent e)
                                             {
                                                 view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
@@ -904,6 +894,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         return null;
     }
 
+    @Override
     protected JComponent createPropertiesPanel()
     {
         JSplitPane current = null;
@@ -990,6 +981,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         return splitPane;
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -1041,11 +1033,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _fields.put(_fields.size(), field);
         }
 
+        @Override
         public boolean isCellEditable(int row, int column)
         {
             return false;
         }
 
+            @Override
             public Class getColumnClass(int index)
             {
                 return _fields.get(index).getColumnClass();
@@ -1149,21 +1143,25 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _objectField = objectField;
         }
 
+        @Override
         public MetricsView getMetricsNode()
         {
             return _node;
         }
 
+        @Override
         public String getMetricsName()
         {
             return _metricsName;
         }
 
+        @Override
         public String getFieldName()
         {
             return _fieldName;
         }
 
+        @Override
         public String getColumnName()
         {
             return _columnName == null ? _fieldName : _columnName;
@@ -1174,6 +1172,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _columnName = columnName;
         }
 
+        @Override
         public String getColumnToolTip()
         {
             return _columnToolTip;
@@ -1184,21 +1183,25 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _columnToolTip = columnToolTip;
         }
 
+        @Override
         public MetricsField createField()
         {
             return MetricsViewEditor.createField(_node, _prefix, _metricsName, _fieldName, _objectField, _context);
         }
 
+        @Override
         public String getPropertyPrefix()
         {
             return _prefix;
         }
 
+        @Override
         public MetricsFieldContext getContext()
         {
             return _context;
         }
 
+        @Override
         public void setContext(MetricsFieldContext context)
         {
             _context = context;
@@ -1249,6 +1252,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             }
         }
 
+        @Override
         public Class getColumnClass()
         {
             return _columnClass;
@@ -1259,11 +1263,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _cellRenderer = new FormatedNumberRenderer(format);
         }
 
+        @Override
         public TableCellRenderer getCellRenderer()
         {
             return _cellRenderer;
         }
 
+        @Override
         public Object getValue(IceMX.Metrics m, long timestamp)
         {
             try
@@ -1298,11 +1304,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _cellRenderer = new FormatedNumberRenderer(format);
         }
 
+            @Override
             public Class getColumnClass()
             {
                 return Float.class;
             }
 
+        @Override
         public TableCellRenderer getCellRenderer()
         {
             return _cellRenderer;
@@ -1313,6 +1321,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
+        @Override
         public Object getValue(IceMX.Metrics m2, long timestamp)
         {
             IceMX.Metrics m1 = _deltas.get(m2.id);
@@ -1359,11 +1368,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _cellRenderer = new FormatedNumberRenderer(format);
         }
 
+        @Override
         public Class getColumnClass()
         {
             return Double.class;
         }
 
+        @Override
         public TableCellRenderer getCellRenderer()
         {
             return _cellRenderer;
@@ -1379,6 +1390,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
+        @Override
         public Object getValue(IceMX.Metrics m, long timestamp)
         {
             DeltaMeasurement d1 = _deltas.get(m.id);
@@ -1450,7 +1462,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 }
                 else
                 {
-                    last = (double)((d2.value - d1.value) / (double)((d2.timestamp - d1.timestamp) /  _scaleFactor));
+                    last = (double)((d2.value - d1.value) / ((d2.timestamp - d1.timestamp) /  _scaleFactor));
                 }
             }
             _last.put(m.id, last);
@@ -1471,16 +1483,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             super(node, prefix, metricsName, fieldName, field);
         }
 
+        @Override
         public Class getColumnClass()
         {
             return JButton.class;
         }
 
+        @Override
         public TableCellRenderer getCellRenderer()
         {
             return _cellRenderer;
         }
 
+            @Override
             public Object getValue(final IceMX.Metrics m, long timestamp)
             {
             JButton button = new JButton(Integer.toString(m.failures));
@@ -1488,6 +1503,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 button.addActionListener(new ActionListener()
                     {
+                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             final DefaultTableModel model = new DefaultTableModel();
@@ -1521,10 +1537,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                             IceMX.Callback_MetricsAdmin_getMetricsFailures cb =
                                 new IceMX.Callback_MetricsAdmin_getMetricsFailures()
                                     {
+                                        @Override
                                         public void response(final IceMX.MetricsFailures data)
                                         {
                                             SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         for(Map.Entry<String, Integer> entry : data.failures.entrySet())
@@ -1541,10 +1559,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                 });
                                             }
 
+                                        @Override
                                         public void exception(final Ice.LocalException e)
                                         {
                                             SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         getMetricsNode().getCoordinator().getMainFrame().setCursor(
@@ -1569,10 +1589,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                 });
                                         }
 
+                                        @Override
                                         public void exception(final Ice.UserException e)
                                         {
                                             SwingUtilities.invokeLater(new Runnable()
                                                 {
+                                                    @Override
                                                     public void run()
                                                     {
                                                         getMetricsNode().getCoordinator().getMainFrame().setCursor(
@@ -1615,16 +1637,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             super(node, prefix, metricsName, fieldName, field);
         }
 
+        @Override
         public Class getColumnClass()
         {
             return JButton.class;
         }
 
+        @Override
         public TableCellRenderer getCellRenderer()
         {
             return _cellRenderer;
         }
 
+        @Override
         public Object getValue(final IceMX.Metrics m, final long timestamp)
         {
             try
@@ -1636,6 +1661,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 {
                     button.addActionListener(new ActionListener()
                         {
+                            @Override
                             public void actionPerformed(ActionEvent event)
                             {
                                 final TableModel model = new TableModel(getMetricsName());
@@ -1671,10 +1697,12 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                         //
                                         //Implement table header tool tips.
                                         //
+                                        @Override
                                         protected JTableHeader createDefaultTableHeader()
                                         {
                                             return new JTableHeader(columnModel)
                                             {
+                                                @Override
                                                 public String getToolTipText(MouseEvent e)
                                                 {
                                                     int index = columnModel.getColumn(columnModel.getColumnIndexAtX(

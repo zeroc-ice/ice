@@ -22,11 +22,13 @@ public class Instrumentation
 
     static class InvocationObserverI implements Ice.Instrumentation.InvocationObserver
     {
+        @Override
         public void 
         attach()
         {
         }
         
+        @Override
         public void 
         detach()
         {
@@ -36,6 +38,7 @@ public class Instrumentation
             }
         }
 
+        @Override
         public void 
         failed(String msg)
         {
@@ -45,6 +48,7 @@ public class Instrumentation
             }
         }
 
+        @Override
         public void 
         retried()
         {
@@ -54,17 +58,20 @@ public class Instrumentation
             }
         }
 
+        @Override
         public void 
         userException()
         {
         }
         
+        @Override
         public Ice.Instrumentation.RemoteObserver
         getRemoteObserver(Ice.ConnectionInfo ci, Ice.Endpoint ei, int i, int j)
         {
             return null;
         }
 
+        @Override
         public Ice.Instrumentation.CollocatedObserver 
         getCollocatedObserver(Ice.ObjectAdapter adapter, int i , int j)
         {
@@ -76,18 +83,21 @@ public class Instrumentation
 
     static class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     {
+        @Override
         public Ice.Instrumentation.Observer 
         getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
         {
             return null;
         }
 
+        @Override
         public Ice.Instrumentation.Observer 
         getEndpointLookupObserver(Ice.Endpoint e)
         {
             return null;
         }
 
+        @Override
         public Ice.Instrumentation.ConnectionObserver 
         getConnectionObserver(Ice.ConnectionInfo ci, 
                               Ice.Endpoint ei, 
@@ -97,6 +107,7 @@ public class Instrumentation
             return null;
         }
         
+        @Override
         public Ice.Instrumentation.ThreadObserver 
         getThreadObserver(String p, 
                           String n, 
@@ -106,18 +117,21 @@ public class Instrumentation
             return null;
         }
 
+        @Override
         public Ice.Instrumentation.InvocationObserver 
         getInvocationObserver(Ice.ObjectPrx p, String o, java.util.Map<String, String> c)
         {
             return invocationObserver;
         }
         
+        @Override
         public Ice.Instrumentation.DispatchObserver 
         getDispatchObserver(Ice.Current c, int i)
         {
             return null;
         }
         
+        @Override
         public void 
         setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
         {

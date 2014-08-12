@@ -28,7 +28,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
 
         if(copy.descriptor != null)
         {
-            copy.descriptor = PlainService.copyDescriptor((ServiceDescriptor)copy.descriptor);
+            copy.descriptor = PlainService.copyDescriptor(copy.descriptor);
         }
         return copy;
     }
@@ -44,6 +44,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return copy;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -65,6 +66,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -88,6 +90,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -101,32 +104,38 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return _popup;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void paste()
     {
         ((TreeNode)_parent).paste();
     }
 
+    @Override
     public void moveUp()
     {
         move(true);
     }
 
+    @Override
     public void moveDown()
     {
         move(false);
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _descriptor;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         //
@@ -137,6 +146,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return saved;
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         ServiceInstanceDescriptor sd = (ServiceInstanceDescriptor)savedDescriptor;
@@ -145,11 +155,13 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         _descriptor.propertySet = sd.propertySet;
     }
 
+    @Override
     public void destroy()
     {
         ((Communicator)_parent).getServices().destroyChild(this);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -160,11 +172,13 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new ServiceInstanceEditor();
     }
 
+    @Override
     public String toString()
     {
         if(_displayString != null)
@@ -206,6 +220,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         ServiceInstance clone;
     }
 
+    @Override
     public Object rebuild(java.util.List<Editable> editables)
         throws UpdateFailedException
     {
@@ -264,6 +279,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         return backup;
     }
 
+    @Override
     public void restore(Object backupObj)
     {
         Backup backup = (Backup)backupObj;
@@ -308,6 +324,7 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         _ephemeral = true;
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -332,11 +349,13 @@ class ServiceInstance extends TreeNode implements Service, Cloneable
         }
     }
 
+    @Override
     Utils.Resolver getResolver()
     {
         return _resolver;
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;

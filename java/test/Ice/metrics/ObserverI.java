@@ -19,17 +19,20 @@ class ObserverI implements Ice.Instrumentation.Observer
         failedCount = 0;
     }
 
+    @Override
     synchronized public void 
     attach()
     {
         ++total;
         ++current;
     }
+    @Override
     synchronized public void 
     detach()
     {
         --current;
     }
+    @Override
     synchronized public void 
     failed(String s)
     {

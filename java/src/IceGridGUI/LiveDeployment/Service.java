@@ -16,10 +16,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import java.util.Enumeration;
-
 import IceGrid.*;
 import IceGridGUI.*;
 
@@ -28,6 +24,7 @@ public class Service extends ListArrayTreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
@@ -55,6 +52,7 @@ public class Service extends ListArrayTreeNode
         return actions;
     }
 
+    @Override
     public void start()
     {
         Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
@@ -69,11 +67,13 @@ public class Service extends ListArrayTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     if(e instanceof IceBox.AlreadyStartedException)
@@ -86,6 +86,7 @@ public class Service extends ListArrayTreeNode
                     }
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to start service " + _id, e.toString());
@@ -106,6 +107,7 @@ public class Service extends ListArrayTreeNode
         }
     }
 
+    @Override
     public void stop()
     {
         Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
@@ -120,11 +122,13 @@ public class Service extends ListArrayTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     if(e instanceof IceBox.AlreadyStoppedException)
@@ -137,6 +141,7 @@ public class Service extends ListArrayTreeNode
                     }
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to stop service " + _id, e.toString());
@@ -157,6 +162,7 @@ public class Service extends ListArrayTreeNode
         }
     }
 
+    @Override
     public void retrieveLog()
     {
         assert _serviceDescriptor.logs.length > 0;
@@ -190,6 +196,7 @@ public class Service extends ListArrayTreeNode
 
             getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
                 {
+                    @Override
                     public FileIteratorPrx open(int count)
                         throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException,
                         DeploymentException
@@ -198,11 +205,13 @@ public class Service extends ListArrayTreeNode
                         return session.openServerLog(_parent.getId(), fPath, count);
                     }
 
+                    @Override
                     public String getTitle()
                     {
                         return "Service " + _parent.getId() + "/" + _id + " " + new java.io.File(fPath).getName();
                     }
 
+                    @Override
                     public String getDefaultFilename()
                     {
                         return new java.io.File(fPath).getName();
@@ -211,6 +220,7 @@ public class Service extends ListArrayTreeNode
         }
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -242,6 +252,7 @@ public class Service extends ListArrayTreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -252,6 +263,7 @@ public class Service extends ListArrayTreeNode
         return _editor;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
@@ -367,10 +379,12 @@ public class Service extends ListArrayTreeNode
         {
             Ice.Callback_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.Callback_PropertiesAdmin_getPropertiesForPrefix()
                 {
+                    @Override
                     public void response(final java.util.Map<String, String> properties)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     _editor.setRuntimeProperties((java.util.SortedMap<String, String>)properties,
@@ -379,10 +393,12 @@ public class Service extends ListArrayTreeNode
                             });
                     }
 
+                    @Override
                     public void exception(final Ice.LocalException e)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     if(e instanceof Ice.ObjectNotExistException)
@@ -500,10 +516,12 @@ public class Service extends ListArrayTreeNode
 
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {
+                @Override
                 public void response(final String[] enabledViews, final String[] disabledViews)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 for(String name : enabledViews)
@@ -519,10 +537,12 @@ public class Service extends ListArrayTreeNode
                         });
                 }
 
+                @Override
                 public void exception(final Ice.LocalException e)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 _metricsRetrieved = false;

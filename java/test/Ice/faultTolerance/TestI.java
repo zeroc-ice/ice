@@ -19,24 +19,28 @@ public final class TestI extends _TestIntfDisp
         _pseudoPid = port; // We use the port number instead of the process ID in Java.
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
+    @Override
     public void
     abort(Ice.Current current)
     {
         Runtime.getRuntime().halt(0);
     }
 
+    @Override
     public void
     idempotentAbort(Ice.Current current)
     {
         Runtime.getRuntime().halt(0);
     }
 
+    @Override
     public int
     pid(Ice.Current current)
     {

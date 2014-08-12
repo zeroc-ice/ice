@@ -14,20 +14,15 @@ import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import java.util.Map;
-import java.util.Enumeration;
-
-import IceGrid.*;
 import IceGridGUI.*;
 
 class MetricsView extends TreeNode
 {
+    @Override
     public Editor getEditor()
     {
         return _editor;
@@ -36,6 +31,7 @@ class MetricsView extends TreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
@@ -44,6 +40,7 @@ class MetricsView extends TreeNode
         return actions;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -75,6 +72,7 @@ class MetricsView extends TreeNode
         _enabled = enabled;
     }
 
+    @Override
     public void enableMetricsView(boolean enabled)
     {
         IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
@@ -84,10 +82,12 @@ class MetricsView extends TreeNode
             {
                 IceMX.Callback_MetricsAdmin_enableMetricsView cb = new IceMX.Callback_MetricsAdmin_enableMetricsView()
                     {
+                        @Override
                         public void response()
                         {
                             SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     _enabled = true;
@@ -105,11 +105,13 @@ class MetricsView extends TreeNode
                             });
                         }
 
+                        @Override
                         public void exception(final Ice.LocalException e)
                         {
                             MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         if(e instanceof Ice.ObjectNotExistException ||
@@ -131,11 +133,13 @@ class MetricsView extends TreeNode
                                 });
                         }
 
+                        @Override
                         public void exception(final Ice.UserException e)
                         {
                             MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         e.printStackTrace();
@@ -152,10 +156,12 @@ class MetricsView extends TreeNode
             {
                 IceMX.Callback_MetricsAdmin_disableMetricsView cb = new IceMX.Callback_MetricsAdmin_disableMetricsView()
                     {
+                        @Override
                         public void response()
                         {
                             SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     _enabled = false;
@@ -174,11 +180,13 @@ class MetricsView extends TreeNode
                             });
                         }
 
+                        @Override
                         public void exception(final Ice.LocalException e)
                         {
                             MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         if(e instanceof Ice.ObjectNotExistException ||
@@ -200,11 +208,13 @@ class MetricsView extends TreeNode
                                 });
                         }
 
+                        @Override
                         public void exception(final Ice.UserException e)
                         {
                             MetricsViewEditor.stopRefresh();
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         e.printStackTrace();
@@ -235,6 +245,7 @@ class MetricsView extends TreeNode
         return _admin;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         LiveActions la = getCoordinator().getLiveActionsForPopup();
@@ -274,11 +285,13 @@ class MetricsView extends TreeNode
         {
             IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
                 {
+                    @Override
                     public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
                                          final long timestamp)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     _editor.show(MetricsView.this, data, timestamp);
@@ -286,11 +299,13 @@ class MetricsView extends TreeNode
                             });
                     }
 
+                    @Override
                     public void exception(final Ice.LocalException e)
                     {
                         MetricsViewEditor.stopRefresh();
                         SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     if(e instanceof Ice.ObjectNotExistException ||
@@ -316,11 +331,13 @@ class MetricsView extends TreeNode
                             });
                     }
 
+                    @Override
                     public void exception(final Ice.UserException e)
                     {
                         MetricsViewEditor.stopRefresh();
                         SwingUtilities.invokeLater(new Runnable()
                             {
+                                @Override
                                 public void run()
                                 {
                                     e.printStackTrace();
@@ -340,7 +357,7 @@ class MetricsView extends TreeNode
             }
             catch(Ice.LocalException e)
             {
-                _editor.stopRefresh();
+                MetricsViewEditor.stopRefresh();
                 JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
                                               JOptionPane.ERROR_MESSAGE);
             }

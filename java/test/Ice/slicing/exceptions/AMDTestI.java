@@ -22,6 +22,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
@@ -29,6 +30,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_response();
     }
 
+    @Override
     public void
     baseAsBase_async(AMD_TestIntf_baseAsBase cb, Ice.Current current)
         throws Base
@@ -38,6 +40,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(b);
     }
 
+    @Override
     public void
     unknownDerivedAsBase_async(AMD_TestIntf_unknownDerivedAsBase cb, Ice.Current current)
         throws Base
@@ -48,6 +51,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(d);
     }
 
+    @Override
     public void
     knownDerivedAsBase_async(AMD_TestIntf_knownDerivedAsBase cb, Ice.Current current)
         throws Base
@@ -58,6 +62,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(d);
     }
 
+    @Override
     public void
     knownDerivedAsKnownDerived_async(AMD_TestIntf_knownDerivedAsKnownDerived cb, Ice.Current current)
         throws KnownDerived
@@ -68,6 +73,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(d);
     }
 
+    @Override
     public void
     unknownIntermediateAsBase_async(AMD_TestIntf_unknownIntermediateAsBase cb, Ice.Current current)
         throws Base
@@ -78,6 +84,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ui);
     }
 
+    @Override
     public void
     knownIntermediateAsBase_async(AMD_TestIntf_knownIntermediateAsBase cb, Ice.Current current)
         throws Base
@@ -88,6 +95,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ki);
     }
 
+    @Override
     public void
     knownMostDerivedAsBase_async(AMD_TestIntf_knownMostDerivedAsBase cb, Ice.Current current)
         throws Base
@@ -99,6 +107,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(kmd);
     }
 
+    @Override
     public void
     knownIntermediateAsKnownIntermediate_async(AMD_TestIntf_knownIntermediateAsKnownIntermediate cb,
                                                Ice.Current current)
@@ -110,6 +119,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ki);
     }
 
+    @Override
     public void
     knownMostDerivedAsKnownIntermediate_async(AMD_TestIntf_knownMostDerivedAsKnownIntermediate cb,
                                               Ice.Current current)
@@ -122,6 +132,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(kmd);
     }
 
+    @Override
     public void
     knownMostDerivedAsKnownMostDerived_async(AMD_TestIntf_knownMostDerivedAsKnownMostDerived cb,
                                              Ice.Current current)
@@ -134,6 +145,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(kmd);
     }
 
+    @Override
     public void
     unknownMostDerived1AsBase_async(AMD_TestIntf_unknownMostDerived1AsBase cb, Ice.Current current)
         throws Base
@@ -145,6 +157,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(umd1);
     }
 
+    @Override
     public void
     unknownMostDerived1AsKnownIntermediate_async(AMD_TestIntf_unknownMostDerived1AsKnownIntermediate cb,
                                                  Ice.Current current)
@@ -157,6 +170,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(umd1);
     }
 
+    @Override
     public void
     unknownMostDerived2AsBase_async(AMD_TestIntf_unknownMostDerived2AsBase cb, Ice.Current current)
         throws Base
@@ -168,6 +182,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(umd2);
     }
 
+    @Override
     public void
     unknownMostDerived2AsBaseCompact_async(AMD_TestIntf_unknownMostDerived2AsBaseCompact cb, Ice.Current current)
     {
@@ -178,6 +193,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(umd2);
     }
 
+    @Override
     public void
     knownPreservedAsBase_async(AMD_TestIntf_knownPreservedAsBase cb, Ice.Current current)
     {
@@ -188,6 +204,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     knownPreservedAsKnownPreserved_async(AMD_TestIntf_knownPreservedAsKnownPreserved cb, Ice.Current current)
     {
@@ -198,6 +215,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     relayKnownPreservedAsBase_async(AMD_TestIntf_relayKnownPreservedAsBase cb, RelayPrx r, Ice.Current current)
     {
@@ -216,6 +234,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     relayKnownPreservedAsKnownPreserved_async(AMD_TestIntf_relayKnownPreservedAsKnownPreserved cb,
                                                      RelayPrx r, Ice.Current current)
@@ -235,6 +254,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     unknownPreservedAsBase_async(AMD_TestIntf_unknownPreservedAsBase cb, Ice.Current current)
     {
@@ -247,6 +267,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     unknownPreservedAsKnownPreserved_async(AMD_TestIntf_unknownPreservedAsKnownPreserved cb, Ice.Current current)
     {
@@ -259,6 +280,7 @@ public final class AMDTestI extends _TestIntfDisp
         cb.ice_exception(ex);
     }
 
+    @Override
     public void
     relayUnknownPreservedAsBase_async(AMD_TestIntf_relayUnknownPreservedAsBase cb, RelayPrx r, Ice.Current current)
     {
@@ -277,6 +299,7 @@ public final class AMDTestI extends _TestIntfDisp
         }
     }
 
+    @Override
     public void
     relayUnknownPreservedAsKnownPreserved_async(AMD_TestIntf_relayUnknownPreservedAsKnownPreserved cb, RelayPrx r,
                                                 Ice.Current current)

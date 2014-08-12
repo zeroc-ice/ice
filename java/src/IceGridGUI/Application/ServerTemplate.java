@@ -10,14 +10,7 @@
 package IceGridGUI.Application;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import javax.swing.JTree;
@@ -37,6 +30,7 @@ class ServerTemplate extends Communicator
         return copy;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -82,6 +76,7 @@ class ServerTemplate extends Communicator
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -113,12 +108,14 @@ class ServerTemplate extends Communicator
         return actions;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -134,6 +131,7 @@ class ServerTemplate extends Communicator
         return _popup;
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -144,11 +142,13 @@ class ServerTemplate extends Communicator
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new ServerTemplateEditor();
     }
 
+    @Override
     public void destroy()
     {
         ServerTemplates serverTemplates = (ServerTemplates)_parent;
@@ -167,21 +167,25 @@ class ServerTemplate extends Communicator
         }
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _templateDescriptor;
     }
 
+    @Override
     CommunicatorDescriptor getCommunicatorDescriptor()
     {
         return _templateDescriptor.descriptor;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         //
@@ -192,6 +196,7 @@ class ServerTemplate extends Communicator
         return clone;
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
@@ -230,6 +235,7 @@ class ServerTemplate extends Communicator
         }
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -286,6 +292,7 @@ class ServerTemplate extends Communicator
         }
     }
 
+    @Override
     boolean isIceBox()
     {
         return _templateDescriptor.descriptor instanceof IceBoxDescriptor;
@@ -333,11 +340,13 @@ class ServerTemplate extends Communicator
         return _editable;
     }
 
+    @Override
     Editable getEnclosingEditable()
     {
         return _editable;
     }
 
+    @Override
     java.util.List<? extends TemplateInstance> findInstances()
     {
         return getRoot().findServerInstances(_id);

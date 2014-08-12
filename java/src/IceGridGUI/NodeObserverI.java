@@ -20,6 +20,7 @@ class NodeObserverI extends _NodeObserverDisp
         _trace = _coordinator.traceObservers();
     }
 
+    @Override
     public void nodeInit(final NodeDynamicInfo[] nodes, Ice.Current current)
     {
         if(_trace)
@@ -41,6 +42,7 @@ class NodeObserverI extends _NodeObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     for(NodeDynamicInfo node : nodes)
@@ -51,6 +53,7 @@ class NodeObserverI extends _NodeObserverDisp
             });
     }
 
+    @Override
     public void nodeUp(final NodeDynamicInfo nodeInfo, Ice.Current current)
     {
         if(_trace)
@@ -60,6 +63,7 @@ class NodeObserverI extends _NodeObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.nodeUp(nodeInfo);
@@ -67,6 +71,7 @@ class NodeObserverI extends _NodeObserverDisp
             });
     }
 
+    @Override
     public void nodeDown(final String nodeName, Ice.Current current)
     {
         if(_trace)
@@ -76,6 +81,7 @@ class NodeObserverI extends _NodeObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.nodeDown(nodeName);
@@ -83,6 +89,7 @@ class NodeObserverI extends _NodeObserverDisp
             });
     }
 
+    @Override
     public void updateServer(final String node, final ServerDynamicInfo updatedInfo, Ice.Current current)
     {
         if(_trace)
@@ -94,6 +101,7 @@ class NodeObserverI extends _NodeObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.updateServer(node, updatedInfo);
@@ -101,6 +109,7 @@ class NodeObserverI extends _NodeObserverDisp
             });
     }
 
+    @Override
     public void updateAdapter(final String node, final AdapterDynamicInfo updatedInfo, Ice.Current current)
     {
         if(_trace)
@@ -113,6 +122,7 @@ class NodeObserverI extends _NodeObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.updateAdapter(node, updatedInfo);

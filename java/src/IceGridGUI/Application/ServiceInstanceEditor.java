@@ -16,8 +16,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -38,6 +36,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         Action gotoTemplate = new AbstractAction(
             "", Utils.getIcon("/icons/16x16/goto.png"))
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     TreeNode t = (TreeNode)_template.getSelectedItem();
@@ -65,6 +64,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
     //
     // From Editor:
     //
+    @Override
     Utils.Resolver getDetailResolver()
     {
         ServiceInstance service = (ServiceInstance)_target;
@@ -78,16 +78,18 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         }
     }
 
+    @Override
     void writeDescriptor()
     {
         ServiceInstanceDescriptor descriptor = getDescriptor();
         descriptor.template = ((ServiceTemplate)_template.getSelectedItem()).getId();
         descriptor.parameterValues = _parameters.getValues();
 
-        descriptor.propertySet.references = (String[])_propertySets.getList().toArray(new String[0]);
+        descriptor.propertySet.references = _propertySets.getList().toArray(new String[0]);
         descriptor.propertySet.properties = _properties.getProperties();
     }
 
+    @Override
     boolean isSimpleUpdate()
     {
         ServiceInstanceDescriptor descriptor = getDescriptor();
@@ -96,11 +98,13 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         return descriptor.template.equals(t.getId()) && descriptor.parameterValues.equals(_parameters.getValues());
     }
 
+    @Override
     Communicator.ChildList getChildList()
     {
         return ((Communicator)_target.getParent()).getServices();
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Template", _template);
@@ -143,6 +147,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -180,6 +185,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 
         ListDataListener templateListener = new ListDataListener()
             {
+                @Override
                 public void contentsChanged(ListDataEvent e)
                 {
                     updated();
@@ -196,10 +202,12 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
                                     td.parameterDefaults, null);
                 }
 
+                @Override
                 public void intervalAdded(ListDataEvent e)
                 {
                 }
 
+                @Override
                 public void intervalRemoved(ListDataEvent e)
                 {
                 }

@@ -20,6 +20,7 @@ public final class EI extends E
         super(1, "hello");
     }
 
+    @Override
     public boolean
     checkValues(Ice.Current current)
     {

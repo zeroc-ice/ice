@@ -18,16 +18,19 @@ public class Server extends test.Util.Application
             _blob = blob;
         }
         
+        @Override
         public void startBatch(Ice.Current current)
         {
             _blob.startBatch();
         }
         
+        @Override
         public void flushBatch(Ice.Current current)
         {
             _blob.flushBatch();
         }
         
+        @Override
         public void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
@@ -36,6 +39,7 @@ public class Server extends test.Util.Application
         final private BlobjectI _blob;
     };
 
+    @Override
     public int run(String[] args)
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
@@ -47,6 +51,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

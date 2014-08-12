@@ -16,6 +16,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 class CellRenderer implements TreeCellRenderer
 {
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,

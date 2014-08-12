@@ -43,6 +43,7 @@ class Adapter extends TreeNode implements DescriptorHolder
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -63,6 +64,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         return actions;
     }
 
+    @Override
     public void copy()
     {
         AdapterCopy copy = new AdapterCopy();
@@ -73,11 +75,13 @@ class Adapter extends TreeNode implements DescriptorHolder
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void paste()
     {
         ((TreeNode)_parent).paste();
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -96,6 +100,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -106,11 +111,13 @@ class Adapter extends TreeNode implements DescriptorHolder
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new AdapterEditor();
     }
 
+    @Override
     public void destroy()
     {
         removeProperty(_descriptor.name + ".Endpoints");
@@ -120,16 +127,19 @@ class Adapter extends TreeNode implements DescriptorHolder
         ((Communicator)_parent).getAdapters().destroyChild(this);
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptor;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         return copyDescriptor(_descriptor);
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         AdapterDescriptor ad = (AdapterDescriptor)savedDescriptor;
@@ -152,6 +162,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         _parentProperties = parentProperties;
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -271,6 +282,7 @@ class Adapter extends TreeNode implements DescriptorHolder
             "${server}.${service}." + name: "${server}." + name;
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;

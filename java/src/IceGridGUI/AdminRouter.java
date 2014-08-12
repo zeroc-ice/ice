@@ -13,6 +13,7 @@ import IceGrid.*;
 
 class AdminRouter extends Ice.Blobject
 {
+    @Override
     public boolean ice_invoke(byte[] inParams, Ice.ByteSeqHolder outParams, Ice.Current current)
     {
         if(_admin == null)

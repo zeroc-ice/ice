@@ -21,6 +21,7 @@ public class ServerLocator extends _TestLocatorDisp
         _requestCount = 0;
     }
 
+    @Override
     public void
     findAdapterById_async(Ice.AMD_Locator_findAdapterById response, String adapter, Ice.Current current)
         throws Ice.AdapterNotFoundException
@@ -45,6 +46,7 @@ public class ServerLocator extends _TestLocatorDisp
         response.ice_response(_registry.getAdapter(adapter));
     }
 
+    @Override
     public void
     findObjectById_async(Ice.AMD_Locator_findObjectById response, Ice.Identity id, Ice.Current current)
         throws Ice.ObjectNotFoundException
@@ -62,12 +64,14 @@ public class ServerLocator extends _TestLocatorDisp
         response.ice_response(_registry.getObject(id));
     }
     
+    @Override
     public Ice.LocatorRegistryPrx
     getRegistry(Ice.Current current)
     {
         return _registryPrx;
     }
 
+    @Override
     public int
     getRequestCount(Ice.Current current)
     {

@@ -20,6 +20,7 @@ public class Collocated
         final Server server = new Server();
         Thread t = new Thread(new Runnable()
         {
+            @Override
             public void run()
             {
                 String[] args =
@@ -35,10 +36,12 @@ public class Collocated
                 };
                 server.setServerReadyListener(new test.Util.Application.ServerReadyListener()
                 {
+                    @Override
                     public void serverReady()
                     {
                         _clientThread = new Thread(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 String[] args =

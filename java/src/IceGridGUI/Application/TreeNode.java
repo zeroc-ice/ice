@@ -9,10 +9,6 @@
 
 package IceGridGUI.Application;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-
 import java.util.Enumeration;
 
 import IceGrid.*;

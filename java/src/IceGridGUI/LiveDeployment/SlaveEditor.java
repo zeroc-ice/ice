@@ -14,7 +14,6 @@ import javax.swing.JTextField;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.*;
-import IceGridGUI.*;
 
 class SlaveEditor extends Editor
 {
@@ -28,6 +27,7 @@ class SlaveEditor extends Editor
         _hostname.setText(info.hostname);
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Hostname" );
@@ -35,6 +35,7 @@ class SlaveEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();

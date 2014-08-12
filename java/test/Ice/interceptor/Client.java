@@ -195,6 +195,7 @@ public class Client extends test.Util.Application
         return 0;
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -247,6 +248,7 @@ public class Client extends test.Util.Application
     }
 
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

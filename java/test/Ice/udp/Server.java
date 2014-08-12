@@ -11,6 +11,7 @@ package test.Ice.udp;
 
 public class Server extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();
@@ -43,6 +44,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

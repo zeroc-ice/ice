@@ -18,12 +18,14 @@ public final class FI extends _FDisp
     {
     }
 
+    @Override
     public String
     callE(Ice.Current current)
     {
         return "E";
     }
 
+    @Override
     public String
     callF(Ice.Current current)
     {

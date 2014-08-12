@@ -15,6 +15,7 @@ public class Client extends test.Util.Application
 {
     private static class MyObjectFactory implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object create(String type)
         {
             if(type.equals("::Test::B"))
@@ -54,12 +55,14 @@ public class Client extends test.Util.Application
             return null;
         }
 
+        @Override
         public void destroy()
         {
             // Nothing to do
         }
     }
 
+    @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
@@ -78,6 +81,7 @@ public class Client extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

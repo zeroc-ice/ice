@@ -9,10 +9,7 @@
 
 package IceGridGUI.Application;
 
-import javax.swing.JOptionPane;
-
 import IceGrid.*;
-import IceGridGUI.*;
 
 abstract class Templates extends ListTreeNode
 {

@@ -15,7 +15,6 @@ import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.*;
@@ -114,6 +113,7 @@ class PlainServer extends Communicator implements Server
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -144,6 +144,7 @@ class PlainServer extends Communicator implements Server
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -159,12 +160,14 @@ class PlainServer extends Communicator implements Server
         return _popup;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -175,11 +178,13 @@ class PlainServer extends Communicator implements Server
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new PlainServerEditor();
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -211,6 +216,7 @@ class PlainServer extends Communicator implements Server
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public void destroy()
     {
         Node node = (Node)_parent;
@@ -228,11 +234,13 @@ class PlainServer extends Communicator implements Server
         }
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _descriptor;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         ServerDescriptor clone = (ServerDescriptor)_descriptor.clone();
@@ -240,6 +248,7 @@ class PlainServer extends Communicator implements Server
         return clone;
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         shallowRestore((ServerDescriptor)savedDescriptor, _descriptor);
@@ -327,6 +336,7 @@ class PlainServer extends Communicator implements Server
         }
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -374,11 +384,13 @@ class PlainServer extends Communicator implements Server
         }
     }
 
+    @Override
     boolean isIceBox()
     {
         return _descriptor instanceof IceBoxDescriptor;
     }
 
+    @Override
     public Object rebuild(java.util.List<Editable> editables)
         throws UpdateFailedException
     {
@@ -433,6 +445,7 @@ class PlainServer extends Communicator implements Server
         return backup;
     }
 
+    @Override
     public void restore(Object backupObj)
     {
         Editable backup = (Editable)backupObj;
@@ -498,26 +511,31 @@ class PlainServer extends Communicator implements Server
         }
     }
 
+    @Override
     CommunicatorDescriptor getCommunicatorDescriptor()
     {
         return _descriptor;
     }
 
+    @Override
     Utils.Resolver getResolver()
     {
         return _resolver;
     }
 
+    @Override
     public Editable getEditable()
     {
         return _editable;
     }
 
+    @Override
     Editable getEnclosingEditable()
     {
         return _editable;
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;

@@ -12,18 +12,21 @@ import test.Ice.background.Test._BackgroundDisp;
 
 class BackgroundI extends _BackgroundDisp
 {
+    @Override
     public void
     op(Ice.Current current)
     {
         _controller.checkCallPause(current);
     }
 
+    @Override
     public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
         _controller.checkCallPause(current);
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

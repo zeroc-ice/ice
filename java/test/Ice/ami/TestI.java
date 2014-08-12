@@ -18,17 +18,20 @@ public class TestI extends _TestIntfDisp
     {
     }
 
+    @Override
     public void
     op(Ice.Current current)
     {
     }
 
+    @Override
     public int
     opWithResult(Ice.Current current)
     {
         return 15;
     }
 
+    @Override
     public void
     opWithUE(Ice.Current current)
         throws TestIntfException
@@ -36,11 +39,13 @@ public class TestI extends _TestIntfDisp
         throw new TestIntfException();
     }
 
+    @Override
     public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
     }
 
+    @Override
     public synchronized void
     opBatch(Ice.Current current)
     {
@@ -48,12 +53,14 @@ public class TestI extends _TestIntfDisp
         notify();
     }
 
+    @Override
     public synchronized int
     opBatchCount(Ice.Current current)
     {
         return _batchCount;
     }
 
+    @Override
     public synchronized boolean
     waitForBatch(int count, Ice.Current current)
     {
@@ -72,12 +79,14 @@ public class TestI extends _TestIntfDisp
         return result;
     }
 
+    @Override
     public void
     close(boolean force, Ice.Current current)
     {
         current.con.close(force);
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

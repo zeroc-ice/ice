@@ -10,7 +10,6 @@
 package IceGridGUI.Application;
 
 import java.awt.Component;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -28,6 +27,7 @@ class ServiceTemplate extends Communicator
         return copy;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -50,6 +50,7 @@ class ServiceTemplate extends Communicator
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -78,12 +79,14 @@ class ServiceTemplate extends Communicator
         return actions;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -97,6 +100,7 @@ class ServiceTemplate extends Communicator
         return _popup;
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -107,6 +111,7 @@ class ServiceTemplate extends Communicator
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new ServiceTemplateEditor();
@@ -129,6 +134,7 @@ class ServiceTemplate extends Communicator
         _templateDescriptor = descriptor;
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -177,21 +183,25 @@ class ServiceTemplate extends Communicator
         _editable.commit();
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _templateDescriptor;
     }
 
+    @Override
     CommunicatorDescriptor getCommunicatorDescriptor()
     {
         return _templateDescriptor.descriptor;
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
     }
 
+    @Override
     public void destroy()
     {
         ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
@@ -210,6 +220,7 @@ class ServiceTemplate extends Communicator
         }
     }
 
+    @Override
     java.util.List<? extends TemplateInstance> findInstances()
     {
         return getRoot().findServiceInstances(_id);
@@ -220,11 +231,13 @@ class ServiceTemplate extends Communicator
         return _editable;
     }
 
+    @Override
     Editable getEnclosingEditable()
     {
         return _editable;
     }
 
+    @Override
     public Object saveDescriptor()
     {
         //
@@ -235,6 +248,7 @@ class ServiceTemplate extends Communicator
         return clone;
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;

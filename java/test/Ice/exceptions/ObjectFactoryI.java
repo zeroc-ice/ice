@@ -12,11 +12,13 @@ package test.Ice.exceptions;
 
 public final class ObjectFactoryI implements Ice.ObjectFactory
 {
+    @Override
     public Ice.Object create(String s)
     {
         return null;
     }
 
+    @Override
     public void destroy()
     {
     }

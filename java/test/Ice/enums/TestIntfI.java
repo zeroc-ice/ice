@@ -13,6 +13,7 @@ import test.Ice.enums.Test.*;
 
 public final class TestIntfI extends _TestIntfDisp
 {
+    @Override
     public ByteEnum
     opByte(ByteEnum b1, ByteEnumHolder b2, Ice.Current current)
     {
@@ -20,6 +21,7 @@ public final class TestIntfI extends _TestIntfDisp
         return b1;
     }
 
+    @Override
     public ShortEnum
     opShort(ShortEnum s1, ShortEnumHolder s2, Ice.Current current)
     {
@@ -27,6 +29,7 @@ public final class TestIntfI extends _TestIntfDisp
         return s1;
     }
 
+    @Override
     public IntEnum
     opInt(IntEnum i1, IntEnumHolder i2, Ice.Current current)
     {
@@ -34,6 +37,7 @@ public final class TestIntfI extends _TestIntfDisp
         return i1;
     }
 
+    @Override
     public SimpleEnum
     opSimple(SimpleEnum s1, SimpleEnumHolder s2, Ice.Current current)
     {
@@ -41,6 +45,7 @@ public final class TestIntfI extends _TestIntfDisp
         return s1;
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

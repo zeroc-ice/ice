@@ -24,6 +24,7 @@ class ReplicaGroup extends TreeNode
         return (ReplicaGroupDescriptor)d.clone();
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -45,6 +46,7 @@ class ReplicaGroup extends TreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -64,17 +66,20 @@ class ReplicaGroup extends TreeNode
         return actions;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
 
     }
+    @Override
     public void paste()
     {
         ((TreeNode)_parent).paste();
     }
 
+    @Override
     public void destroy()
     {
         ReplicaGroups replicaGroups = (ReplicaGroups)_parent;
@@ -88,6 +93,7 @@ class ReplicaGroup extends TreeNode
         }
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -98,16 +104,19 @@ class ReplicaGroup extends TreeNode
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new ReplicaGroupEditor();
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptor;
@@ -154,6 +163,7 @@ class ReplicaGroup extends TreeNode
         rebuild(descriptor);
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {

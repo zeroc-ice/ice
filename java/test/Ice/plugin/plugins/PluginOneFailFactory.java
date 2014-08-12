@@ -11,6 +11,7 @@ package test.Ice.plugin.plugins;
 
 public class PluginOneFailFactory implements Ice.PluginFactory
 {
+    @Override
     public Ice.Plugin create(Ice.Communicator communicator, String name, String[] args)
     {
         return new PluginOneFail(communicator);
@@ -23,6 +24,7 @@ public class PluginOneFailFactory implements Ice.PluginFactory
             super(communicator);
         }
 
+        @Override
         public void initialize()
         {
             _two = (BasePluginFail)_communicator.getPluginManager().getPlugin("PluginTwoFail");
@@ -32,6 +34,7 @@ public class PluginOneFailFactory implements Ice.PluginFactory
             _initialized = true;
         }
 
+        @Override
         public void destroy()
         {
             test(_two.isDestroyed());
@@ -42,6 +45,7 @@ public class PluginOneFailFactory implements Ice.PluginFactory
             _destroyed = true;
         }
 
+        @Override
         protected void finalize() throws Throwable
         {
             try

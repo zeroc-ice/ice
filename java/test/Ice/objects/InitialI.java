@@ -53,6 +53,7 @@ public final class InitialI extends Initial
         _d.theC = null; // Reference to a C.
     }
 
+    @Override
     public void
     getAll(BHolder b1, BHolder b2, CHolder c, DHolder d, Ice.Current current)
     {
@@ -66,6 +67,7 @@ public final class InitialI extends Initial
         d.value = _d;
     }
 
+    @Override
     public B
     getB1(Ice.Current current)
     {
@@ -75,6 +77,7 @@ public final class InitialI extends Initial
         return _b1;
     }
 
+    @Override
     public B
     getB2(Ice.Current current)
     {
@@ -84,6 +87,7 @@ public final class InitialI extends Initial
         return _b2;
     }
 
+    @Override
     public C
     getC(Ice.Current current)
     {
@@ -93,6 +97,7 @@ public final class InitialI extends Initial
         return _c;
     }
 
+    @Override
     public D
     getD(Ice.Current current)
     {
@@ -103,41 +108,48 @@ public final class InitialI extends Initial
         return _d;
     }
 
+    @Override
     public E
     getE(Ice.Current current)
     {
         return _e;
     }
 
+    @Override
     public F
     getF(Ice.Current current)
     {
         return _f;
     }
 
+    @Override
     public I
     getI(Ice.Current current)
     {
         return new II();
     }
 
+    @Override
     public I
     getJ(Ice.Current current)
     {
         return new JI();
     }
 
+    @Override
     public I
     getH(Ice.Current current)
     {
         return new HI();
     }
 
+    @Override
     public void
     setI(I theI, Ice.Current current)
     {
     }
 
+    @Override
     public Base[]
     opBaseSeq(Base[] inS, BaseSeqHolder outS, Ice.Current current)
     {
@@ -145,12 +157,14 @@ public final class InitialI extends Initial
         return inS;
     }
 
+    @Override
     public Compact
     getCompact(Ice.Current current)
     {
         return new CompactExt();
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

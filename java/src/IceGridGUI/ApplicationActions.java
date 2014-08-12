@@ -9,15 +9,9 @@
 
 package IceGridGUI;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import IceGrid.*;
 import IceGridGUI.Application.*;
 
 //
@@ -54,10 +48,9 @@ public class ApplicationActions
 
     ApplicationActions(boolean popup)
     {
-        final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
         _array[TreeNode.NEW_ADAPTER] = new AbstractAction(popup ? "New Adapter" : "Adapter")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -69,6 +62,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_DBENV] = new AbstractAction(popup ? "New Database Environment" : "Database Environment")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -80,6 +74,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_NODE] = new AbstractAction(popup ? "New Node" : "Node")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -91,6 +86,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_PROPERTY_SET] = new AbstractAction(popup ? "New Property Set" : "Property Set")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -102,6 +98,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_REPLICA_GROUP] = new AbstractAction(popup ? "New Replica Group" : "Replica Group" )
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -113,6 +110,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_SERVER] = new AbstractAction(popup ? "New Server" : "Server")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -124,6 +122,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_SERVER_ICEBOX] = new AbstractAction(popup ? "New IceBox Server" : "IceBox Server")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -136,6 +135,7 @@ public class ApplicationActions
         _array[TreeNode.NEW_SERVER_FROM_TEMPLATE] = new AbstractAction(
             popup ? "New Server from Template" : "Server from Template")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -148,6 +148,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_SERVICE] = new AbstractAction(popup ? "New Service" : "Service")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -160,6 +161,7 @@ public class ApplicationActions
         _array[TreeNode.NEW_SERVICE_FROM_TEMPLATE] = new AbstractAction(
             popup ? "New Service from Template" : "Service from Template")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -171,6 +173,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_TEMPLATE_SERVER] = new AbstractAction(popup ? "New Server Template" : "Server Template")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -183,6 +186,7 @@ public class ApplicationActions
         _array[TreeNode.NEW_TEMPLATE_SERVER_ICEBOX] = new AbstractAction(
             popup ? "New IceBox Server Template" : "IceBox Server Template")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -195,6 +199,7 @@ public class ApplicationActions
 
         _array[TreeNode.NEW_TEMPLATE_SERVICE] = new AbstractAction(popup ? "New Service Template" : "Service Template")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -206,6 +211,7 @@ public class ApplicationActions
 
         _array[TreeNode.COPY] = new AbstractAction("Copy")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.copy();
@@ -214,6 +220,7 @@ public class ApplicationActions
 
         _array[TreeNode.PASTE] = new AbstractAction("Paste")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -225,6 +232,7 @@ public class ApplicationActions
 
         _array[TreeNode.DELETE] = new AbstractAction("Delete")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.delete();
@@ -233,6 +241,7 @@ public class ApplicationActions
 
         _array[TreeNode.SHOW_VARS] = new AbstractAction("Show Variables")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.getCoordinator().showVars();
@@ -246,6 +255,7 @@ public class ApplicationActions
         _array[TreeNode.SUBSTITUTE_VARS] = new
             AbstractAction("Substitute Variables")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.getCoordinator().substituteVars();
@@ -258,6 +268,7 @@ public class ApplicationActions
 
         _array[TreeNode.MOVE_UP] = new AbstractAction("Move Up")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
@@ -269,6 +280,7 @@ public class ApplicationActions
 
         _array[TreeNode.MOVE_DOWN] = new AbstractAction("Move Down")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))

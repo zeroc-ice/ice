@@ -42,54 +42,63 @@ public final class InitialI extends _InitialDisp
         _ic = ICPrxHelper.uncheckedCast(adapter.addWithUUID(new ICI()));
     }
 
+    @Override
     public CAPrx
     caop(Ice.Current current)
     {
         return _ca;
     }
 
+    @Override
     public CBPrx
     cbop(Ice.Current current)
     {
         return _cb;
     }
 
+    @Override
     public CCPrx
     ccop(Ice.Current current)
     {
         return _cc;
     }
 
+    @Override
     public CDPrx
     cdop(Ice.Current current)
     {
         return _cd;
     }
 
+    @Override
     public IAPrx
     iaop(Ice.Current current)
     {
         return _ia;
     }
 
+    @Override
     public IB1Prx
     ib1op(Ice.Current current)
     {
         return _ib1;
     }
 
+    @Override
     public IB2Prx
     ib2op(Ice.Current current)
     {
         return _ib2;
     }
 
+    @Override
     public ICPrx
     icop(Ice.Current current)
     {
         return _ic;
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -13,6 +13,7 @@ import test.Ice.invoke.Test.MyException;
 
 public class BlobjectI extends Ice.Blobject
 {
+    @Override
     public boolean
     ice_invoke(byte[] inParams, Ice.ByteSeqHolder outParams, Ice.Current current)
     {

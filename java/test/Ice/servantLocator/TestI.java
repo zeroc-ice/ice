@@ -15,26 +15,31 @@ import test.Ice.servantLocator.Test._TestIntfDisp;
 
 public final class TestI extends _TestIntfDisp
 {
+    @Override
     public void 
     requestFailedException(Ice.Current current)
     {
     }
 
+    @Override
     public void 
     unknownUserException(Ice.Current current)
     {
     }
 
+    @Override
     public void 
     unknownLocalException(Ice.Current current)
     {
     }
 
+    @Override
     public void 
     unknownException(Ice.Current current)
     {
     }
 
+    @Override
     public void 
     localException(Ice.Current current)
     {
@@ -45,17 +50,20 @@ public final class TestI extends _TestIntfDisp
 //     {
 //     }
 
+    @Override
     public void 
     javaException(Ice.Current current)
     {
     }
 
+    @Override
     public void 
     unknownExceptionWithServantException(Ice.Current current)
     {
         throw new Ice.ObjectNotExistException();
     }
 
+    @Override
     public String
     impossibleException(boolean _throw, Ice.Current current) throws TestImpossibleException
     {
@@ -71,6 +79,7 @@ public final class TestI extends _TestIntfDisp
         return "Hello";
     }
 
+    @Override
     public String
     intfUserException(boolean _throw, Ice.Current current) throws TestIntfUserException, TestImpossibleException
     {
@@ -86,6 +95,7 @@ public final class TestI extends _TestIntfDisp
         return "Hello";
     }
 
+    @Override
     public void
     asyncResponse(Ice.Current current) throws TestIntfUserException, TestImpossibleException
     {
@@ -94,6 +104,7 @@ public final class TestI extends _TestIntfDisp
         //
     }
 
+    @Override
     public void
     asyncException(Ice.Current current) throws TestIntfUserException, TestImpossibleException
     {
@@ -102,6 +113,7 @@ public final class TestI extends _TestIntfDisp
         //
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

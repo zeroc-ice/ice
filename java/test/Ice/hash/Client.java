@@ -33,6 +33,7 @@ public class Client extends test.Util.Application
         System.exit(status);
     }
 
+    @Override
     public int run(String[] args)
     {
         PrintWriter out = getWriter();

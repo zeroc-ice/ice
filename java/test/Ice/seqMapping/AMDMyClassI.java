@@ -14,6 +14,7 @@ import test.Ice.seqMapping.Serialize.*;
 
 public final class AMDMyClassI extends MyClass
 {
+    @Override
     public void
     shutdown_async(AMD_MyClass_shutdown cb, Ice.Current current)
     {
@@ -21,18 +22,21 @@ public final class AMDMyClassI extends MyClass
         cb.ice_response();
     }
 
+    @Override
     public void
     opSerialSmallJava_async(AMD_MyClass_opSerialSmallJava cb, Small i, Ice.Current current)
     {
         cb.ice_response(i, i);
     }
 
+    @Override
     public void
     opSerialLargeJava_async(AMD_MyClass_opSerialLargeJava cb, Large i, Ice.Current current)
     {
         cb.ice_response(i, i);
     }
 
+    @Override
     public void opSerialStructJava_async(AMD_MyClass_opSerialStructJava cb, Struct i, Ice.Current current)
     {
         cb.ice_response(i, i);

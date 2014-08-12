@@ -20,18 +20,21 @@ public final class DI extends D
         _postUnmarshalInvoked = false;
     }
 
+    @Override
     public boolean
     postUnmarshalInvoked(Ice.Current current)
     {
         return _postUnmarshalInvoked;
     }
 
+    @Override
     public void
     ice_preMarshal()
     {
         preMarshalInvoked = true;
     }
 
+    @Override
     public void
     ice_postUnmarshal()
     {

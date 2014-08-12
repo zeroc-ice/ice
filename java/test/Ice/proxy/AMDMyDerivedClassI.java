@@ -20,6 +20,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     {
     }
 
+    @Override
     public void
     echo_async(AMD_MyDerivedClass_echo cb,
                    Ice.ObjectPrx obj,
@@ -28,6 +29,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response(obj);
     }
 
+    @Override
     public void
     shutdown_async(AMD_MyClass_shutdown cb,
                    Ice.Current c)
@@ -36,12 +38,14 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         cb.ice_response();
     }
 
+    @Override
     public void
     getContext_async(AMD_MyClass_getContext cb, Ice.Current current)
     {
         cb.ice_response(_ctx);
     }
 
+    @Override
     public boolean
     ice_isA(String s, Ice.Current current)
     {

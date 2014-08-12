@@ -508,6 +508,7 @@ public class AllTests
             final FHolder fholder = new FHolder();
             in.readObject(new Ice.ReadObjectCallback()
                 {
+                    @Override
                     public void invoke(Ice.Object obj)
                     {
                         fholder.value = ((FObjectReader)obj).getF();
@@ -2111,6 +2112,7 @@ public class AllTests
             final AHolder a = new AHolder();
             in.readObject(new Ice.ReadObjectCallback()
                 {
+                    @Override
                     public void invoke(Ice.Object obj)
                     {
                         a.value = (A)obj;
@@ -2282,6 +2284,7 @@ public class AllTests
 
     private static class TestObjectReader extends Ice.ObjectReader
     {
+        @Override
         public void read(Ice.InputStream in)
         {
             in.startObject();
@@ -2293,6 +2296,7 @@ public class AllTests
 
     private static class BObjectReader extends Ice.ObjectReader
     {
+        @Override
         public void read(Ice.InputStream in)
         {
             in.startObject();
@@ -2310,6 +2314,7 @@ public class AllTests
 
     private static class CObjectReader extends Ice.ObjectReader
     {
+        @Override
         public void read(Ice.InputStream in)
         {
             in.startObject();
@@ -2330,12 +2335,12 @@ public class AllTests
 
     private static class DObjectWriter extends Ice.ObjectWriter
     {
+        @Override
         public void write(Ice.OutputStream out)
         {
             out.startObject(null);
             // ::Test::D
             out.startSlice("::Test::D", -1, false);
-            String s = "test";
             out.writeString("test");
             out.writeOptional(1, Ice.OptionalFormat.FSize);
             String[] o = { "test1", "test2", "test3", "test4" };
@@ -2362,6 +2367,7 @@ public class AllTests
 
     private static class DObjectReader extends Ice.ObjectReader
     {
+        @Override
         public void read(Ice.InputStream in)
         {
             in.startObject();
@@ -2398,6 +2404,7 @@ public class AllTests
 
     private static class FObjectReader extends Ice.ObjectReader
     {
+        @Override
         public void read(Ice.InputStream in)
         {
             _f = new F();
@@ -2409,6 +2416,7 @@ public class AllTests
             in.startSlice();
             in.readObject(new Ice.ReadObjectCallback()
                 {
+                    @Override
                     public void invoke(Ice.Object obj)
                     {
                         _f.ae = (A)obj;
@@ -2428,6 +2436,7 @@ public class AllTests
 
     private static class FactoryI implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object create(String typeId)
         {
             if(!_enabled)
@@ -2463,6 +2472,7 @@ public class AllTests
             return null;
         }
 
+        @Override
         public void destroy()
         {
         }
@@ -2477,6 +2487,7 @@ public class AllTests
 
     private static class ReadObjectCallbackI implements Ice.ReadObjectCallback
     {
+        @Override
         public void invoke(Ice.Object obj)
         {
             this.obj = obj;

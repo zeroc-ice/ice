@@ -24,6 +24,7 @@ public class AllTests
 
     public static class PingReplyI extends _PingReplyDisp
     {
+        @Override
         public synchronized void
         reply(Ice.Current current)
         {

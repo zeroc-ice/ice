@@ -13,6 +13,7 @@ public class Server extends test.Util.Application
 {
     private static class MyObjectFactory implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object create(String type)
         {
             if(type.equals("::Test::I"))
@@ -32,12 +33,14 @@ public class Server extends test.Util.Application
             return null;
         }
 
+        @Override
         public void destroy()
         {
             // Nothing to do
         }
     }
 
+    @Override
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
@@ -56,6 +59,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

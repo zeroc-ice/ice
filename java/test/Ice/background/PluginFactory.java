@@ -19,6 +19,7 @@ public class PluginFactory implements Ice.PluginFactory
             _communicator = communicator;
         }
         
+        @Override
         public void
         initialize()
         {
@@ -34,6 +35,7 @@ public class PluginFactory implements Ice.PluginFactory
             }
         }
 
+        @Override
         public void
         destroy()
         {
@@ -49,6 +51,7 @@ public class PluginFactory implements Ice.PluginFactory
         private Configuration _configuration;
     }
 
+    @Override
     public Ice.Plugin
     create(Ice.Communicator communicator, String name, String[] args)
     {

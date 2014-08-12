@@ -19,11 +19,6 @@ import javax.swing.JTree;
 
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-
-import javax.swing.JComponent;
-
-import java.util.Enumeration;
 import java.util.prefs.Preferences;
 
 import IceGrid.*;
@@ -58,6 +53,7 @@ public class Root extends ListArrayTreeNode
             fireTreeStructureChanged(this, path, childIndices, children);
         }
 
+        @Override
         public int
         getChildCount(Object parent)
         {
@@ -78,6 +74,7 @@ public class Root extends ListArrayTreeNode
             return q;
         }
 
+        @Override
         public Object getChild(Object parent, int index)
         {
             if(!filterEnabled())
@@ -171,6 +168,7 @@ public class Root extends ListArrayTreeNode
 
         _tree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener()
             {
+                @Override
                 public void treeWillExpand(javax.swing.event.TreeExpansionEvent event)
                 {
                     //
@@ -187,6 +185,7 @@ public class Root extends ListArrayTreeNode
                     }
                 }
 
+                @Override
                 public void treeWillCollapse(javax.swing.event.TreeExpansionEvent event)
                     throws javax.swing.tree.ExpandVetoException
                 {
@@ -200,6 +199,7 @@ public class Root extends ListArrayTreeNode
         loadLogPrefs();
     }
 
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
@@ -210,6 +210,7 @@ public class Root extends ListArrayTreeNode
         return actions;
     }
 
+    @Override
     public void shutdownRegistry()
     {
         final String prefix = "Shutting down registry '" + _replicaName + "'...";
@@ -220,16 +221,19 @@ public class Root extends ListArrayTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _replicaName, e);
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _replicaName,
@@ -299,6 +303,7 @@ public class Root extends ListArrayTreeNode
         return r;
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -309,6 +314,7 @@ public class Root extends ListArrayTreeNode
         return _editor;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -389,17 +395,20 @@ public class Root extends ListArrayTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to patch '"
                                + applicationName + "'", e);
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to patch '" +
@@ -746,6 +755,7 @@ public class Root extends ListArrayTreeNode
         }
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         LiveActions la = _coordinator.getLiveActionsForPopup();
@@ -780,11 +790,13 @@ public class Root extends ListArrayTreeNode
         return _treeModel;
     }
 
+    @Override
     public Coordinator getCoordinator()
     {
         return _coordinator;
     }
 
+    @Override
     public String toString()
     {
         return _label;
@@ -810,6 +822,7 @@ public class Root extends ListArrayTreeNode
         return true;
     }
 
+    @Override
     public void addObject()
     {
         _addObjectDialog.showDialog();
@@ -820,6 +833,7 @@ public class Root extends ListArrayTreeNode
         _showObjectDialog.showDialog(proxy, type);
     }
 
+    @Override
     Root getRoot()
     {
         return this;
@@ -944,16 +958,19 @@ public class Root extends ListArrayTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to remove object '" + strIdentity + "'", e);
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to remove object '" + strIdentity + "'",
@@ -986,16 +1003,19 @@ public class Root extends ListArrayTreeNode
                 //
                 // Called by another thread!
                 //
+                @Override
                 public void response()
                 {
                     amiSuccess(prefix);
                 }
 
+                @Override
                 public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'", e);
                 }
 
+                @Override
                 public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'",
@@ -1018,10 +1038,12 @@ public class Root extends ListArrayTreeNode
         }
     }
 
+    @Override
     public void retrieveOutput(final boolean stdout)
     {
         getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
             {
+                @Override
                 public FileIteratorPrx open(int count)
                     throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
                 {
@@ -1039,11 +1061,13 @@ public class Root extends ListArrayTreeNode
                     return result;
                 }
 
+                @Override
                 public String getTitle()
                 {
                     return "Registry " + _label + " " + (stdout ? "stdout" : "stderr");
                 }
 
+                @Override
                 public String getDefaultFilename()
                 {
                     return _replicaName + (stdout ? ".out" : ".err");
@@ -1053,8 +1077,8 @@ public class Root extends ListArrayTreeNode
 
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
     {
-        ApplicationInfo app = (ApplicationInfo)_infoMap.get(applicationName);
-        return (PropertySetDescriptor)app.descriptor.propertySets.get(name);
+        ApplicationInfo app = _infoMap.get(applicationName);
+        return app.descriptor.propertySets.get(name);
     }
 
     void openShowLogDialog(ShowLogDialog.FileIteratorFactory factory)

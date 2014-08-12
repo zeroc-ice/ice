@@ -73,7 +73,7 @@ public class AllTests
                 }
             }
 
-            String value = (String)SliceChecksums.checksums.get(key);
+            String value = SliceChecksums.checksums.get(key);
             test(value != null);
 
             if(n <= 1)

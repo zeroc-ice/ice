@@ -14,6 +14,7 @@ public class Server extends test.Util.Application
 {
     static public class LocatorI extends Ice._LocatorDisp
     {
+        @Override
         public void
         findAdapterById_async(Ice.AMD_Locator_findAdapterById response, String adapter, Ice.Current current)
             throws Ice.AdapterNotFoundException
@@ -23,6 +24,7 @@ public class Server extends test.Util.Application
             response.ice_response(current.adapter.createDirectProxy(communicator.stringToIdentity("dummy")));
         }
 
+        @Override
         public void
         findObjectById_async(Ice.AMD_Locator_findObjectById response, Ice.Identity id, Ice.Current current)
             throws Ice.ObjectNotFoundException
@@ -31,6 +33,7 @@ public class Server extends test.Util.Application
             response.ice_response(current.adapter.createDirectProxy(id));
         }
     
+        @Override
         public Ice.LocatorRegistryPrx
         getRegistry(Ice.Current current)
         {
@@ -47,6 +50,7 @@ public class Server extends test.Util.Application
 
     static public class RouterI extends Ice._RouterDisp
     {
+        @Override
         public Ice.ObjectPrx 
         getClientProxy(Ice.Current current)
         {
@@ -54,6 +58,7 @@ public class Server extends test.Util.Application
             return null;
         }
 
+        @Override
         public Ice.ObjectPrx 
         getServerProxy(Ice.Current current)
         {
@@ -64,11 +69,14 @@ public class Server extends test.Util.Application
         /**
          * @deprecated addProxy() is deprecated, use addProxies() instead.
          **/
+        @Deprecated
+        @Override
         public void
         addProxy(Ice.ObjectPrx proxy, Ice.Current current)
         {
         }
         
+        @Override
         public Ice.ObjectPrx[]
         addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
         {
@@ -83,6 +91,7 @@ public class Server extends test.Util.Application
         final private BackgroundControllerI _controller;
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -107,6 +116,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

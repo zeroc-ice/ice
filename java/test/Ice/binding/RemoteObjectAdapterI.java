@@ -24,12 +24,14 @@ public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
         _adapter.activate();
     }
 
+    @Override
     public TestIntfPrx
     getTestIntf(Ice.Current current)
     {
         return _testIntf;
     }
 
+    @Override
     public void
     deactivate(Ice.Current current)
     {

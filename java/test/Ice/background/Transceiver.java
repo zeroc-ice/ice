@@ -11,12 +11,14 @@ package test.Ice.background;
 
 final class Transceiver implements IceInternal.Transceiver
 {
+    @Override
     public java.nio.channels.SelectableChannel
     fd()
     {
         return _transceiver.fd();
     }
 
+    @Override
     public int
     initialize(IceInternal.Buffer readBuffer, IceInternal.Buffer writeBuffer, Ice.Holder<Boolean> moreData)
     {
@@ -56,18 +58,21 @@ final class Transceiver implements IceInternal.Transceiver
         return IceInternal.SocketOperation.None;
     }
 
+    @Override
     public int
     closing(boolean initiator, Ice.LocalException ex)
     {
         return _transceiver.closing(initiator, ex);
     }
 
+    @Override
     public void
     close()
     {
         _transceiver.close();
     }
 
+    @Override
     public int
     write(IceInternal.Buffer buf)
     {
@@ -80,6 +85,7 @@ final class Transceiver implements IceInternal.Transceiver
         return _transceiver.write(buf);
     }
 
+    @Override
     public int
     read(IceInternal.Buffer buf, Ice.Holder<Boolean> moreData)
     {
@@ -131,24 +137,28 @@ final class Transceiver implements IceInternal.Transceiver
         }
     }
 
+    @Override
     public String
     protocol()
     {
         return "test-" + _transceiver.protocol();
     }
 
+    @Override
     public String
     toString()
     {
         return _transceiver.toString();
     }
 
+    @Override
     public Ice.ConnectionInfo
     getInfo()
     {
         return _transceiver.getInfo();
     }
 
+    @Override
     public void
     checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {

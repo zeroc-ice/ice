@@ -9,20 +9,10 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -33,6 +23,7 @@ import IceGridGUI.*;
 
 class PropertySetEditor extends Editor
 {
+    @Override
     protected boolean applyUpdate(boolean refresh)
     {
         PropertySet nps = (PropertySet)_target;
@@ -135,6 +126,7 @@ class PropertySetEditor extends Editor
         }
     }
 
+    @Override
     Utils.Resolver getDetailResolver()
     {
         Root root = _target.getRoot();
@@ -169,7 +161,7 @@ class PropertySetEditor extends Editor
     {
         PropertySetDescriptor descriptor = (PropertySetDescriptor)getPropertySet().getDescriptor();
 
-        descriptor.references = (String[])_propertySets.getList().toArray(new String[0]);
+        descriptor.references = _propertySets.getList().toArray(new String[0]);
         descriptor.properties = _properties.getProperties();
     }
 
@@ -178,6 +170,7 @@ class PropertySetEditor extends Editor
         return getIdText().equals(_oldId);
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append(_idLabel);
@@ -204,12 +197,14 @@ class PropertySetEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Named Property Set");
     }
 
+    @Override
     protected boolean validate()
     {
         return check(new String[]{_idLabel.getText(), getIdText()});

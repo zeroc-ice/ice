@@ -13,28 +13,15 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
-
-import javax.swing.tree.TreePath;
-
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
-
-import IceGrid.*;
 import IceGridGUI.*;
 
 public class Editor extends EditorBase
@@ -99,10 +86,12 @@ public class Editor extends EditorBase
         root.cancelEdit();
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -118,6 +107,7 @@ public class Editor extends EditorBase
         //
         AbstractAction apply = new AbstractAction("Apply")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(validate())
@@ -137,6 +127,7 @@ public class Editor extends EditorBase
         //
         AbstractAction discard = new AbstractAction("Discard")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     discardUpdate();
@@ -148,16 +139,19 @@ public class Editor extends EditorBase
 
         _updateListener = new DocumentListener()
             {
+                @Override
                 public void changedUpdate(DocumentEvent e)
                 {
                     updated();
                 }
 
+                @Override
                 public void insertUpdate(DocumentEvent e)
                 {
                     updated();
                 }
 
+                @Override
                 public void removeUpdate(DocumentEvent e)
                 {
                     updated();

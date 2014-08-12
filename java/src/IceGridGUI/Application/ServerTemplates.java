@@ -9,7 +9,6 @@
 
 package IceGridGUI.Application;
 
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import IceGrid.*;
@@ -31,6 +30,7 @@ class ServerTemplates extends Templates
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -46,6 +46,7 @@ class ServerTemplates extends Templates
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -59,6 +60,7 @@ class ServerTemplates extends Templates
         return _popup;
     }
 
+    @Override
     public void newTemplateServer()
     {
         newServerTemplate(new TemplateDescriptor(
@@ -67,6 +69,7 @@ class ServerTemplates extends Templates
                               new java.util.TreeMap<String, String>()));
     }
 
+    @Override
     public void newTemplateServerIceBox()
     {
         newServerTemplate(new TemplateDescriptor(
@@ -75,6 +78,7 @@ class ServerTemplates extends Templates
                               new java.util.TreeMap<String, String>()));
     }
 
+    @Override
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
@@ -107,6 +111,7 @@ class ServerTemplates extends Templates
     //
     // Variable resolution does not make sense for templates / template children
     //
+    @Override
     Utils.Resolver getResolver()
     {
         return null;
@@ -180,6 +185,7 @@ class ServerTemplates extends Templates
         getRoot().setSelectedNode(t);
     }
 
+    @Override
     void tryAdd(String newId, TemplateDescriptor descriptor)
         throws UpdateFailedException
     {
@@ -251,6 +257,7 @@ class ServerTemplates extends Templates
         _descriptors.remove(id);
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptors;

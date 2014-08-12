@@ -19,12 +19,14 @@ public final class GI extends _GDisp
         _communicator = communicator;
     }
 
+    @Override
     public String
     callG(Ice.Current current)
     {
         return "G";
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

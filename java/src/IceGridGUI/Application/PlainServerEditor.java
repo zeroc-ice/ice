@@ -11,16 +11,17 @@ package IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
-import IceGrid.*;
 import IceGridGUI.*;
 
 class PlainServerEditor extends AbstractServerEditor
 {
+    @Override
     protected void writeDescriptor()
     {
         _subEditor.writeDescriptor();
     }
 
+    @Override
     protected boolean isSimpleUpdate()
     {
         return _subEditor.isSimpleUpdate();
@@ -34,6 +35,7 @@ class PlainServerEditor extends AbstractServerEditor
     //
     // From Editor:
     //
+    @Override
     Utils.Resolver getDetailResolver()
     {
         if(_target.getCoordinator().substitute())
@@ -46,16 +48,19 @@ class PlainServerEditor extends AbstractServerEditor
         }
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         _subEditor.appendProperties(builder);
     }
 
+    @Override
     Object getSubDescriptor()
     {
         return _target.getDescriptor();
     }
 
+    @Override
     protected boolean validate()
     {
         return _subEditor.validate();

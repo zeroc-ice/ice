@@ -18,12 +18,14 @@ public final class BI extends _BDisp
     {
     }
 
+    @Override
     public String
     callA(Ice.Current current)
     {
         return "A";
     }
 
+    @Override
     public String
     callB(Ice.Current current)
     {

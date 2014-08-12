@@ -21,8 +21,6 @@ import Ice.LongSeqHelper;
 import Ice.StringSeqHelper;
 import test.Ice.stream.Test.*;
 
-import java.io.PrintWriter;
-
 public class Client extends test.Util.Application
 {
     private static void
@@ -41,6 +39,7 @@ public class Client extends test.Util.Application
             this.obj = obj;
         }
 
+        @Override
         public void
         write(Ice.OutputStream out)
         {
@@ -54,6 +53,7 @@ public class Client extends test.Util.Application
 
     private static class TestObjectReader extends Ice.ObjectReader
     {
+        @Override
         public void
         read(Ice.InputStream in)
         {
@@ -68,6 +68,7 @@ public class Client extends test.Util.Application
 
     private static class TestObjectFactory implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object
         create(String type)
         {
@@ -75,6 +76,7 @@ public class Client extends test.Util.Application
             return new TestObjectReader();
         }
 
+        @Override
         public void
         destroy()
         {
@@ -87,6 +89,7 @@ public class Client extends test.Util.Application
 
     private static class MyInterfaceFactory implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object
         create(String type)
         {
@@ -94,6 +97,7 @@ public class Client extends test.Util.Application
             return new MyInterfaceI();
         }
         
+        @Override
         public void
         destroy()
         {
@@ -102,6 +106,7 @@ public class Client extends test.Util.Application
 
     private static class TestReadObjectCallback implements Ice.ReadObjectCallback
     {
+        @Override
         public void
         invoke(Ice.Object obj)
         {
@@ -118,12 +123,14 @@ public class Client extends test.Util.Application
             _factory = MyClass.ice_factory();
         }
 
+        @Override
         public Ice.Object
         create(String type)
         {
             return _factory.create(type);
         }
 
+        @Override
         public void
         destroy()
         {
@@ -145,6 +152,7 @@ public class Client extends test.Util.Application
         private Ice.ObjectFactory _factory;
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -554,10 +562,10 @@ public class Client extends test.Util.Application
         {
             final float[] arr =
             {
-                (float)1,
-                (float)2,
-                (float)3,
-                (float)4
+                1,
+                2,
+                3,
+                4
             };
             out = Ice.Util.createOutputStream(comm);
             FloatSeqHelper.write(out, arr);
@@ -587,10 +595,10 @@ public class Client extends test.Util.Application
         {
             final double[] arr =
             {
-                (double)1,
-                (double)2,
-                (double)3,
-                (double)4
+                1,
+                2,
+                3,
+                4
             };
             out = Ice.Util.createOutputStream(comm);
             DoubleSeqHelper.write(out, arr);
@@ -697,8 +705,8 @@ public class Client extends test.Util.Application
                 arr[i].seq3 = new short[] { (short)1, (short)2, (short)3, (short)4 };
                 arr[i].seq4 = new int[] { 1, 2, 3, 4 };
                 arr[i].seq5 = new long[] { 1, 2, 3, 4 };
-                arr[i].seq6 = new float[] { (float)1, (float)2, (float)3, (float)4 };
-                arr[i].seq7 = new double[] { (double)1, (double)2, (double)3, (double)4 };
+                arr[i].seq6 = new float[] { 1, 2, 3, 4 };
+                arr[i].seq7 = new double[] { 1, 2, 3, 4 };
                 arr[i].seq8 = new String[] { "string1", "string2", "string3", "string4" };
                 arr[i].seq9 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
                 arr[i].seq10 = new MyClass[4]; // null elements.
@@ -773,7 +781,7 @@ public class Client extends test.Util.Application
             TestObjectWriter writer = new TestObjectWriter(obj);
             out.writeObject(writer);
             out.writePendingObjects();
-            byte[] data = out.finished();
+            out.finished();
             test(writer.called);
             out.destroy();
         }
@@ -818,8 +826,8 @@ public class Client extends test.Util.Application
             c.seq3 = new short[] { (short)1, (short)2, (short)3, (short)4 };
             c.seq4 = new int[] { 1, 2, 3, 4 };
             c.seq5 = new long[] { 1, 2, 3, 4 };
-            c.seq6 = new float[] { (float)1, (float)2, (float)3, (float)4 };
-            c.seq7 = new double[] { (double)1, (double)2, (double)3, (double)4 };
+            c.seq6 = new float[] { 1, 2, 3, 4 };
+            c.seq7 = new double[] { 1, 2, 3, 4 };
             c.seq8 = new String[] { "string1", "string2", "string3", "string4" };
             c.seq9 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
             c.seq10 = new MyClass[4]; // null elements.
@@ -883,8 +891,8 @@ public class Client extends test.Util.Application
 
         {
             java.util.Map<Long, Float> dict = new java.util.HashMap<Long, Float>();
-            dict.put((long)123809828, (float)0.51f);
-            dict.put((long)123809829, (float)0.56f);
+            dict.put((long)123809828, 0.51f);
+            dict.put((long)123809829, 0.56f);
             out = Ice.Util.createOutputStream(comm);
             LongFloatDHelper.write(out, dict);
             byte data[] = out.finished();
@@ -933,6 +941,7 @@ public class Client extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

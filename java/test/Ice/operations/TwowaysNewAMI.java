@@ -12,12 +12,10 @@ package test.Ice.operations;
 import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.Callback_MyClass_opBool;
 import test.Ice.operations.Test.Callback_MyClass_opBoolS;
-import test.Ice.operations.Test.Callback_MyClass_opBoolSS;
 import test.Ice.operations.Test.Callback_MyClass_opByte;
 import test.Ice.operations.Test.Callback_MyClass_opByteBoolD;
 import test.Ice.operations.Test.Callback_MyClass_opByteS;
 import test.Ice.operations.Test.Callback_MyClass_opByteSS;
-import test.Ice.operations.Test.Callback_MyClass_opContext;
 import test.Ice.operations.Test.Callback_MyClass_opFloatDouble;
 import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleS;
 import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleSS;
@@ -30,7 +28,6 @@ import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntD;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntLong;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntLongS;
-import test.Ice.operations.Test.Callback_MyClass_opShortIntLongSS;
 import test.Ice.operations.Test.Callback_MyClass_opString;
 import test.Ice.operations.Test.Callback_MyClass_opStringMyEnumD;
 import test.Ice.operations.Test.Callback_MyClass_opMyEnumStringD;
@@ -639,50 +636,6 @@ class TwowaysNewAMI
             test(rso[3].length == 2);
             test(rso[3][0] == (byte)0xf2);
             test(rso[3][1] == (byte)0xf1);
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class opBoolSSI extends Callback_MyClass_opBoolSS
-    {
-        @Override
-        public void response(boolean[][] rso, boolean[][] bso)
-        {
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class opShortIntLongSSI extends Callback_MyClass_opShortIntLongSS
-    {
-        @Override
-        public void response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
-        {
             callback.called();
         }
 

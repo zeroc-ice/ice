@@ -9,17 +9,14 @@
 
 package IceGridGUI;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import java.util.prefs.Preferences;
 
@@ -54,6 +51,7 @@ public class Main extends JFrame
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     try
@@ -84,9 +82,10 @@ public class Main extends JFrame
             setIconImage(icon.getImage());
         }
 
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
             {
+                @Override
                 public void windowClosing(WindowEvent e)
                 {
                     if(_coordinator != null)

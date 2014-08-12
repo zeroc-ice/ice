@@ -13,6 +13,7 @@ import test.Ice.operations.Test._MyDerivedClassTie;
 
 public class TieServer extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
@@ -22,6 +23,7 @@ public class TieServer extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

@@ -19,7 +19,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -50,6 +49,7 @@ class AdapterEditor extends CommunicatorChildEditor
         //
         Action gotoReplicaGroup = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     Object obj = _replicaGroupId.getSelectedItem();
@@ -81,6 +81,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
         Action checkRegisterProcess = new AbstractAction("Register Process")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     updated();
@@ -97,6 +98,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
         Action checkServerLifetime = new AbstractAction("Server Lifetime")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     updated();
@@ -114,16 +116,19 @@ class AdapterEditor extends CommunicatorChildEditor
         _name.getDocument().addDocumentListener(
             new DocumentListener()
             {
+                @Override
                 public void changedUpdate(DocumentEvent e)
                 {
                     update();
                 }
 
+                @Override
                 public void insertUpdate(DocumentEvent e)
                 {
                     update();
                 }
 
+                @Override
                 public void removeUpdate(DocumentEvent e)
                 {
                     update();
@@ -180,6 +185,7 @@ class AdapterEditor extends CommunicatorChildEditor
     // From CommunicatorChildEditor
     //
 
+    @Override
     void writeDescriptor()
     {
         AdapterDescriptor descriptor = (AdapterDescriptor)getAdapter().getDescriptor();
@@ -194,6 +200,7 @@ class AdapterEditor extends CommunicatorChildEditor
         descriptor.allocatables = _allocatableList;
     }
 
+    @Override
     boolean isSimpleUpdate()
     {
         AdapterDescriptor descriptor = (AdapterDescriptor)getAdapter().getDescriptor();
@@ -201,11 +208,13 @@ class AdapterEditor extends CommunicatorChildEditor
         return descriptor.name.equals(_name.getText().trim());
     }
 
+    @Override
     Communicator.ChildList getChildList()
     {
         return ((Communicator)_target.getParent()).getAdapters();
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Adapter Name" );
@@ -278,12 +287,14 @@ class AdapterEditor extends CommunicatorChildEditor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Adapter Properties");
     }
 
+    @Override
     void postUpdate()
     {
         //
@@ -405,6 +416,7 @@ class AdapterEditor extends CommunicatorChildEditor
         }
     }
 
+    @Override
     protected boolean validate()
     {
         //
@@ -477,6 +489,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
         _replicaGroupId.addItemListener(new ItemListener()
             {
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     if(e.getStateChange() == ItemEvent.SELECTED)
@@ -610,6 +623,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
     private final Object DEFAULT_ADAPTER_ID = new Object()
         {
+            @Override
             public String toString()
             {
                 return _defaultAdapterId;
@@ -644,6 +658,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
     static private final Object PUBLISH_ACTUAL = new Object()
         {
+            @Override
             public String toString()
             {
                 return "Actual endpoints";
@@ -652,6 +667,7 @@ class AdapterEditor extends CommunicatorChildEditor
 
     static private final Object NOT_REPLICATED = new Object()
         {
+            @Override
             public String toString()
             {
                 return "Does not belong to a replica group";

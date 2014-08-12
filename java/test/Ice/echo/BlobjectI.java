@@ -19,16 +19,19 @@ public class BlobjectI extends Ice.BlobjectAsync
             _twoway = twoway;
         }
 
+        @Override
         public void response(boolean ok, byte[] encaps)
         {
             _cb.ice_response(ok, encaps);
         }
         
+        @Override
         public void exception(Ice.LocalException ex)
         {
             _cb.ice_exception(ex);
         }
         
+        @Override
         public void sent(boolean sync)
         {
             if(!_twoway)
@@ -54,6 +57,7 @@ public class BlobjectI extends Ice.BlobjectAsync
         _batchProxy = null;
     }
 
+    @Override
     public void
     ice_invoke_async(Ice.AMD_Object_ice_invoke amdCb, byte[] inEncaps, Ice.Current current)
     {

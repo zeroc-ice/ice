@@ -11,6 +11,7 @@ package test.IceDiscovery.simple;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         int num;

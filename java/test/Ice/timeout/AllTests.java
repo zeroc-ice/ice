@@ -62,6 +62,7 @@ public class AllTests
 
     private static class CallbackSuccess extends Ice.Callback
     {
+        @Override
         public void
         completed(Ice.AsyncResult result)
         {
@@ -95,6 +96,7 @@ public class AllTests
 
     private static class CallbackFail extends Ice.Callback
     {
+        @Override
         public void
         completed(Ice.AsyncResult result)
         {
@@ -314,7 +316,6 @@ public class AllTests
             // Test Ice.Override.Timeout. This property overrides all
             // endpoint timeouts.
             //
-            String[] args = new String[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.Timeout", "250");
@@ -351,7 +352,6 @@ public class AllTests
             //
             // Test Ice.Override.ConnectTimeout.
             //
-            String[] args = new String[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
@@ -409,7 +409,7 @@ public class AllTests
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.CloseTimeout", "200");
             Ice.Communicator comm = app.initialize(initData);
-            Ice.Connection connection = comm.stringToProxy(sref).ice_getConnection();
+            comm.stringToProxy(sref).ice_getConnection();
             timeout.holdAdapter(750);
             long now = System.nanoTime();
             comm.destroy();

@@ -33,6 +33,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
         return copy;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -53,6 +54,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -73,17 +75,20 @@ class DbEnv extends TreeNode implements DescriptorHolder
         return actions;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void paste()
     {
         ((TreeNode)_parent).paste();
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -94,11 +99,13 @@ class DbEnv extends TreeNode implements DescriptorHolder
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new DbEnvEditor();
     }
 
+    @Override
     public Object getDescriptor()
     {
         return _descriptor;
@@ -109,11 +116,13 @@ class DbEnv extends TreeNode implements DescriptorHolder
         return copyDescriptor(_descriptor);
     }
 
+    @Override
     public Object saveDescriptor()
     {
         return copyDescriptor(_descriptor);
     }
 
+    @Override
     public void restoreDescriptor(Object savedDescriptor)
     {
         DbEnvDescriptor clone = (DbEnvDescriptor)savedDescriptor;
@@ -123,11 +132,13 @@ class DbEnv extends TreeNode implements DescriptorHolder
         _descriptor.properties = clone.properties;
     }
 
+    @Override
     public void destroy()
     {
         ((Communicator)_parent).getDbEnvs().destroyChild(this);
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
@@ -152,6 +163,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
         }
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {

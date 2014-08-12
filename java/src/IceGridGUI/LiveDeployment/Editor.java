@@ -10,7 +10,6 @@
 package IceGridGUI.LiveDeployment;
 
 import IceGridGUI.*;
-import IceGrid.*;
 
 public abstract class Editor extends EditorBase
 {

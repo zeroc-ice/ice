@@ -19,6 +19,7 @@ public final class IAI extends _IADisp
     {
     }
 
+    @Override
     public IAPrx
     iaop(IAPrx p, Ice.Current current)
     {

@@ -33,6 +33,7 @@ class CommunicatorEditor extends Editor
         _properties.setSortedMap(properties);
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Description");

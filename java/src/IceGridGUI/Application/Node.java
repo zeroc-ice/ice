@@ -13,14 +13,11 @@ import java.awt.Component;
 import java.util.Enumeration;
 
 import javax.swing.Icon;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import javax.swing.JTree;
 
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.*;
@@ -50,10 +47,12 @@ class Node extends TreeNode implements PropertySetParent
         return copy;
     }
 
+    @Override
     public Enumeration children()
     {
         return new Enumeration()
             {
+                @Override
                 public boolean hasMoreElements()
                 {
                     if(!_p.hasNext())
@@ -69,6 +68,7 @@ class Node extends TreeNode implements PropertySetParent
                     return true;
                 }
 
+                @Override
                 public Object nextElement()
                 {
                     return _p.next();
@@ -79,11 +79,13 @@ class Node extends TreeNode implements PropertySetParent
             };
     }
 
+    @Override
     public boolean getAllowsChildren()
     {
         return true;
     }
 
+    @Override
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
         if(childIndex < 0)
@@ -104,11 +106,13 @@ class Node extends TreeNode implements PropertySetParent
         }
     }
 
+    @Override
     public int getChildCount()
     {
         return _propertySets.size() + _servers.size();
     }
 
+    @Override
     public int getIndex(javax.swing.tree.TreeNode node)
     {
         if(node instanceof PropertySet)
@@ -126,6 +130,7 @@ class Node extends TreeNode implements PropertySetParent
         }
     }
 
+    @Override
     public boolean isLeaf()
     {
         return _propertySets.isEmpty() && _servers.isEmpty();
@@ -201,6 +206,7 @@ class Node extends TreeNode implements PropertySetParent
         getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
     }
 
+    @Override
     public void insertPropertySet(PropertySet child, boolean fireEvent)
         throws UpdateFailedException
     {
@@ -212,6 +218,7 @@ class Node extends TreeNode implements PropertySetParent
         }
     }
 
+    @Override
     public void removePropertySet(PropertySet child)
     {
         int index = getIndex(child);
@@ -220,16 +227,19 @@ class Node extends TreeNode implements PropertySetParent
         getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
     }
 
+    @Override
     public void removeDescriptor(String id)
     {
         _descriptor.propertySets.remove(id);
     }
 
+    @Override
     public Editable getEditable()
     {
         return _editable;
     }
 
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -258,6 +268,7 @@ class Node extends TreeNode implements PropertySetParent
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -274,12 +285,14 @@ class Node extends TreeNode implements PropertySetParent
         return _popup;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
+    @Override
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
@@ -321,20 +334,24 @@ class Node extends TreeNode implements PropertySetParent
         }
     }
 
+    @Override
     public void newPropertySet()
     {
         newPropertySet(new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>()));
     }
 
+    @Override
     public void newServer()
     {
         newServer(PlainServer.newServerDescriptor());
     }
 
+    @Override
     public void newServerIceBox()
     {
         newServer(PlainServer.newIceBoxDescriptor());
     }
+    @Override
     public void newServerFromTemplate()
     {
         ServerInstanceDescriptor descriptor =
@@ -348,6 +365,7 @@ class Node extends TreeNode implements PropertySetParent
         newServer(descriptor);
     }
 
+    @Override
     public void destroy()
     {
         Nodes nodes = (Nodes)_parent;
@@ -364,6 +382,7 @@ class Node extends TreeNode implements PropertySetParent
         }
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -387,6 +406,7 @@ class Node extends TreeNode implements PropertySetParent
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -397,16 +417,19 @@ class Node extends TreeNode implements PropertySetParent
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         return new NodeEditor();
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptor;
@@ -424,6 +447,7 @@ class Node extends TreeNode implements PropertySetParent
         _descriptor.variables = copy.variables;
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {
@@ -1073,11 +1097,13 @@ class Node extends TreeNode implements PropertySetParent
         }
     }
 
+    @Override
     Utils.Resolver getResolver()
     {
         return _resolver;
     }
 
+    @Override
     public void tryAdd(String id, PropertySetDescriptor descriptor)
         throws UpdateFailedException
     {
@@ -1085,6 +1111,7 @@ class Node extends TreeNode implements PropertySetParent
         _descriptor.propertySets.put(id, descriptor);
     }
 
+    @Override
     public void tryRename(String oldId, String oldId2, String newId)
         throws UpdateFailedException
     {

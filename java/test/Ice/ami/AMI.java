@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import test.Ice.ami.Test.TestIntfPrx;
 import test.Ice.ami.Test.TestIntfPrxHelper;
 import test.Ice.ami.Test.TestIntfControllerPrx;
-import test.Ice.ami.Test.TestIntfControllerPrxHelper;
 import test.Ice.ami.Test.TestIntfException;
 import test.Ice.ami.Test.Callback_TestIntf_op;
 import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
@@ -619,6 +618,7 @@ public class AMI
 
             p.begin_ice_isA("::Test::TestIntf", new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -629,6 +629,7 @@ public class AMI
 
             p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -639,6 +640,7 @@ public class AMI
 
             p.begin_ice_ping(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -648,6 +650,7 @@ public class AMI
             cb.check();
             p.begin_ice_ping(ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -658,6 +661,7 @@ public class AMI
 
             p.begin_ice_id(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -667,6 +671,7 @@ public class AMI
             cb.check();
             p.begin_ice_id(ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -677,6 +682,7 @@ public class AMI
 
             p.begin_ice_ids(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -686,6 +692,7 @@ public class AMI
             cb.check();
             p.begin_ice_ids(ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -696,6 +703,7 @@ public class AMI
 
             p.begin_op(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -705,6 +713,7 @@ public class AMI
             cb.check();
             p.begin_op(ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -715,6 +724,7 @@ public class AMI
 
             p.begin_opWithResult(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -724,6 +734,7 @@ public class AMI
             cb.check();
             p.begin_opWithResult(ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -734,6 +745,7 @@ public class AMI
 
             p.begin_opWithUE(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -743,6 +755,7 @@ public class AMI
             cb.check();
             p.begin_opWithUE(ctx, new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -761,12 +774,14 @@ public class AMI
 
             p.begin_ice_isA("::Test::TestIntf", new Ice.Callback_Object_ice_isA()
                 {
+                    @Override
                     public void
                     response(boolean r)
                     {
                         cb.isA(r);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -776,12 +791,14 @@ public class AMI
             cb.check();
             p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.Callback_Object_ice_isA()
                 {
+                    @Override
                     public void
                     response(boolean r)
                     {
                         cb.isA(r);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -792,12 +809,14 @@ public class AMI
 
             p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
                 {
+                    @Override
                     public void
                     response()
                     {
                         cb.ping();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -807,12 +826,14 @@ public class AMI
             cb.check();
             p.begin_ice_ping(ctx, new Ice.Callback_Object_ice_ping()
                 {
+                    @Override
                     public void
                     response()
                     {
                         cb.ping();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -823,12 +844,14 @@ public class AMI
 
             p.begin_ice_id(new Ice.Callback_Object_ice_id()
                 {
+                    @Override
                     public void
                     response(String id)
                     {
                         cb.id(id);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -838,12 +861,14 @@ public class AMI
             cb.check();
             p.begin_ice_id(ctx, new Ice.Callback_Object_ice_id()
                 {
+                    @Override
                     public void
                     response(String id)
                     {
                         cb.id(id);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -854,12 +879,14 @@ public class AMI
 
             p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
                 {
+                    @Override
                     public void
                     response(String[] ids)
                     {
                         cb.ids(ids);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -869,12 +896,14 @@ public class AMI
             cb.check();
             p.begin_ice_ids(ctx, new Ice.Callback_Object_ice_ids()
                 {
+                    @Override
                     public void
                     response(String[] ids)
                     {
                         cb.ids(ids);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -885,12 +914,14 @@ public class AMI
 
             p.begin_op(new Callback_TestIntf_op()
                 {
+                    @Override
                     public void
                     response()
                     {
                         cb.op();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -900,12 +931,14 @@ public class AMI
             cb.check();
             p.begin_op(ctx, new Callback_TestIntf_op()
                 {
+                    @Override
                     public void
                     response()
                     {
                         cb.op();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -916,12 +949,14 @@ public class AMI
 
             p.begin_opWithResult(new Callback_TestIntf_opWithResult()
                 {
+                    @Override
                     public void
                     response(int r)
                     {
                         cb.opWithResult(r);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -931,12 +966,14 @@ public class AMI
             cb.check();
             p.begin_opWithResult(ctx, new Callback_TestIntf_opWithResult()
                 {
+                    @Override
                     public void
                     response(int r)
                     {
                         cb.opWithResult(r);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -947,18 +984,21 @@ public class AMI
 
             p.begin_opWithUE(new Callback_TestIntf_opWithUE()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.UserException ex)
                     {
                         cb.opWithUE(ex);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -968,18 +1008,21 @@ public class AMI
             cb.check();
             p.begin_opWithUE(ctx, new Callback_TestIntf_opWithUE()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.UserException ex)
                     {
                         cb.opWithUE(ex);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -1046,6 +1089,7 @@ public class AMI
 
             i.begin_ice_isA("::Test::TestIntf", new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -1056,6 +1100,7 @@ public class AMI
 
             i.begin_ice_ping(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -1066,6 +1111,7 @@ public class AMI
 
             i.begin_ice_id(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -1076,6 +1122,7 @@ public class AMI
 
             i.begin_ice_ids(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -1086,6 +1133,7 @@ public class AMI
 
             i.begin_op(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult r)
                     {
@@ -1104,12 +1152,14 @@ public class AMI
 
             i.begin_ice_isA("::Test::TestIntf", new Ice.Callback_Object_ice_isA()
                 {
+                    @Override
                     public void
                     response(boolean r)
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -1120,12 +1170,14 @@ public class AMI
 
             i.begin_ice_ping(new Ice.Callback_Object_ice_ping()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -1136,12 +1188,14 @@ public class AMI
 
             i.begin_ice_id(new Ice.Callback_Object_ice_id()
                 {
+                    @Override
                     public void
                     response(String id)
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -1152,12 +1206,14 @@ public class AMI
 
             i.begin_ice_ids(new Ice.Callback_Object_ice_ids()
                 {
+                    @Override
                     public void
                     response(String[] ids)
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -1168,12 +1224,14 @@ public class AMI
 
             i.begin_op(new Callback_TestIntf_op()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -1191,18 +1249,21 @@ public class AMI
 
             p.begin_ice_isA("", new Ice.Callback_Object_ice_isA()
                 {
+                    @Override
                     public void
                     response(boolean r)
                     {
                         cb.isA(r);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.ex(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean ss)
                     {
@@ -1213,18 +1274,21 @@ public class AMI
 
             p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
                 {
+                    @Override
                     public void
                     response()
                     {
                         cb.ping();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.ex(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean ss)
                     {
@@ -1235,18 +1299,21 @@ public class AMI
 
             p.begin_ice_id(new Ice.Callback_Object_ice_id()
                 {
+                    @Override
                     public void
                     response(String id)
                     {
                         cb.id(id);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.ex(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean ss)
                     {
@@ -1257,18 +1324,21 @@ public class AMI
 
             p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
                 {
+                    @Override
                     public void
                     response(String[] ids)
                     {
                         cb.ids(ids);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.ex(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean ss)
                     {
@@ -1279,18 +1349,21 @@ public class AMI
 
             p.begin_op(new Callback_TestIntf_op()
                 {
+                    @Override
                     public void
                     response()
                     {
                         cb.op();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         cb.ex(ex);
                     }
 
+                    @Override
                     public void
                     sent(boolean ss)
                     {
@@ -1301,12 +1374,14 @@ public class AMI
 
             p.begin_op(new Ice.Callback()
                 {
+                    @Override
                     public void
                     completed(Ice.AsyncResult result)
                     {
                         cb.opAsync(result);
                     }
 
+                    @Override
                     public void
                     sent(Ice.AsyncResult result)
                     {
@@ -1327,17 +1402,20 @@ public class AMI
                     final SentCallback cb2 = new SentCallback();
                     r = p.begin_opWithPayload(seq, new Callback_TestIntf_opWithPayload()
                         {
+                            @Override
                             public void
                             response()
                             {
                             }
 
+                            @Override
                             public void
                             exception(Ice.LocalException ex)
                             {
                                     cb2.ex(ex);
                             }
 
+                            @Override
                             public void
                             sent(boolean ss)
                             {
@@ -1426,6 +1504,7 @@ public class AMI
 
                 p.begin_op(new Ice.Callback()
                     {
+                        @Override
                         public void
                         completed(Ice.AsyncResult result)
                         {
@@ -1436,12 +1515,14 @@ public class AMI
 
                 p.begin_op(new Callback_TestIntf_op()
                     {
+                        @Override
                         public void
                         response()
                         {
                             cb.op();
                         }
 
+                        @Override
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -1451,12 +1532,14 @@ public class AMI
 
                 q.begin_op(new Callback_TestIntf_op()
                     {
+                        @Override
                         public void
                         response()
                         {
                             cb.op();
                         }
 
+                        @Override
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -1467,16 +1550,19 @@ public class AMI
 
                 p.begin_op(new Callback_TestIntf_op()
                     {
+                        @Override
                         public void
                         response()
                         {
                         }
 
+                        @Override
                         public void
                         exception(Ice.LocalException ex)
                         {
                         }
 
+                        @Override
                         public void
                         sent(boolean ss)
                         {

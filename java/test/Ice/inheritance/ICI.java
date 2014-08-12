@@ -22,24 +22,28 @@ public final class ICI extends _ICDisp
     {
     }
 
+    @Override
     public IAPrx
     iaop(IAPrx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public ICPrx
     icop(ICPrx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public IB1Prx
     ib1op(IB1Prx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public IB2Prx
     ib2op(IB2Prx p, Ice.Current current)
     {

@@ -10,18 +10,7 @@
 package IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-
-import com.jgoodies.looks.Options;
-import com.jgoodies.looks.HeaderStyle;
-import com.jgoodies.looks.BorderStyle;
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-
 import IceGrid.*;
-import IceGridGUI.*;
 
 //
 // Base class for ServerEditor and ServerInstanceEditor
@@ -32,12 +21,14 @@ abstract class AbstractServerEditor extends Editor
     abstract protected void writeDescriptor();
     abstract protected boolean isSimpleUpdate();
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Server Properties");
     }
 
+    @Override
     protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
@@ -90,7 +81,7 @@ abstract class AbstractServerEditor extends Editor
                 //
                 // Success
                 //
-                _target = (TreeNode)node.findChildWithDescriptor(server.getDescriptor());
+                _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
 
                 if(refresh)

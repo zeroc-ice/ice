@@ -11,6 +11,7 @@ package test.IceDiscovery.simple;
 
 public class Server extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();

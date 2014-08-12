@@ -29,8 +29,6 @@ import test.Ice.objects.Test.InitialPrxHelper;
 import test.Ice.objects.Test.J;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
-import test.Ice.objects.Test.Compact;
-import test.Ice.objects.Test.CompactExt;
 
 public class AllTests
 {
@@ -98,7 +96,7 @@ public class AllTests
         test(((B)b1.theA).theA == b1.theA);
         test(((B)b1.theA).theB == b1);
         test(((B)b1.theA).theC instanceof C);
-        test(((C)(((B)b1.theA).theC)).theB == b1.theA);
+        test((((B)b1.theA).theC).theB == b1.theA);
         test(b1.preMarshalInvoked);
         test(b1.postUnmarshalInvoked(null));
         test(b1.theA.preMarshalInvoked);

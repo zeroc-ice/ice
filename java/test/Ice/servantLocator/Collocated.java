@@ -11,6 +11,7 @@ package test.Ice.servantLocator;
 
 public class Collocated extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
@@ -23,6 +24,7 @@ public class Collocated extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

@@ -26,7 +26,6 @@ class Oneways
     static void
     oneways(test.Util.Application app, MyClassPrx p)
     {
-        Ice.Communicator communicator = app.communicator();
         p = MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {
@@ -48,10 +47,9 @@ class Oneways
         {
 
             Ice.ByteHolder b = new Ice.ByteHolder();
-            byte r;
             try
             {
-                r = p.opByte((byte)0xff, (byte)0x0f, b);
+                p.opByte((byte)0xff, (byte)0x0f, b);
                 test(false);
             }
             catch(Ice.TwowayOnlyException ex)

@@ -9,24 +9,16 @@
 
 package IceGridGUI.Application;
 
-import IceGrid.*;
 import IceGridGUI.*;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
 
 //
 // A special field used to show/edit parameter values
@@ -84,7 +76,7 @@ public class ParameterValuesField extends JTable
             }
             else
             {
-                row.add(Utils.substitute((String)val, resolver));
+                row.add(Utils.substitute(val, resolver));
             }
             vector.add(row);
             i++;
@@ -92,6 +84,7 @@ public class ParameterValuesField extends JTable
 
         _model = new DefaultTableModel(vector, _columnNames)
             {
+                @Override
                 public boolean isCellEditable(int row, int column)
                 {
                     if(resolver == null)
@@ -107,6 +100,7 @@ public class ParameterValuesField extends JTable
 
         _model.addTableModelListener(new TableModelListener()
             {
+                @Override
                 public void tableChanged(TableModelEvent e)
                 {
                     _editor.updated();
@@ -132,7 +126,7 @@ public class ParameterValuesField extends JTable
         }
 
         java.util.Vector<java.util.Vector<String>> vector =
-            (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
+            _model.getDataVector();
 
         for(java.util.Vector<String> row : vector)
         {
@@ -156,6 +150,7 @@ public class ParameterValuesField extends JTable
         return values;
     }
 
+    @Override
     public TableCellEditor getCellEditor(int row, int column)
     {
         if(column == 1)

@@ -71,6 +71,7 @@ public class Utils
         dialog.getRootPane().registerKeyboardAction(
             new ActionListener()
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         dialog.dispose();
@@ -209,6 +210,7 @@ public class Utils
 
         Stringifier stringifier = new Stringifier()
             {
+                @Override
                 public String toString(Object obj)
                 {
                     return (String)obj;
@@ -231,6 +233,7 @@ public class Utils
     {
         Stringifier stringifier = new Stringifier()
             {
+                @Override
                 public String toString(Object obj)
                 {
                     @SuppressWarnings("unchecked")

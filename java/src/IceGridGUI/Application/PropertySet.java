@@ -26,6 +26,7 @@ class PropertySet extends TreeNode
         return psd;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -47,6 +48,7 @@ class PropertySet extends TreeNode
     //
     // Actions
     //
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -66,6 +68,7 @@ class PropertySet extends TreeNode
         return actions;
     }
 
+    @Override
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
@@ -73,11 +76,13 @@ class PropertySet extends TreeNode
 
     }
 
+    @Override
     public void paste()
     {
         ((TreeNode)_parent).paste();
     }
 
+    @Override
     public void destroy()
     {
         PropertySetParent parent = (PropertySetParent)_parent;
@@ -98,6 +103,7 @@ class PropertySet extends TreeNode
         }
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -115,6 +121,7 @@ class PropertySet extends TreeNode
         return _editor;
     }
 
+    @Override
     protected Editor createEditor()
     {
         if(_inServerInstance)
@@ -127,6 +134,7 @@ class PropertySet extends TreeNode
         }
     }
 
+    @Override
     public boolean isEphemeral()
     {
         return _ephemeral;
@@ -137,6 +145,7 @@ class PropertySet extends TreeNode
         return _unsubstitutedId;
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptor;
@@ -205,6 +214,7 @@ class PropertySet extends TreeNode
         rebuild(descriptor);
     }
 
+    @Override
     void write(XMLWriter writer)
         throws java.io.IOException
     {

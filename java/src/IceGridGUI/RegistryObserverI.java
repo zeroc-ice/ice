@@ -20,6 +20,7 @@ class RegistryObserverI extends _RegistryObserverDisp
         _trace = _coordinator.traceObservers();
     }
 
+    @Override
     public void registryInit(final RegistryInfo[] registryInfos, Ice.Current current)
     {
         if(_trace)
@@ -43,6 +44,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     for(RegistryInfo info : registryInfos)
@@ -53,6 +55,7 @@ class RegistryObserverI extends _RegistryObserverDisp
             });
     }
 
+    @Override
     public void registryUp(final RegistryInfo registryInfo, Ice.Current current)
     {
         if(_trace)
@@ -62,6 +65,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.registryUp(registryInfo);
@@ -69,6 +73,7 @@ class RegistryObserverI extends _RegistryObserverDisp
             });
     }
 
+    @Override
     public void registryDown(final String registryName, Ice.Current current)
     {
         if(_trace)
@@ -78,6 +83,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.registryDown(registryName);

@@ -20,6 +20,7 @@ class ObjectObserverI extends _ObjectObserverDisp
         _trace = coordinator.traceObservers();
     }
 
+    @Override
     public synchronized void objectInit(final ObjectInfo[] objects, Ice.Current current)
     {
         if(_trace)
@@ -42,6 +43,7 @@ class ObjectObserverI extends _ObjectObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.objectInit(objects);
@@ -49,6 +51,7 @@ class ObjectObserverI extends _ObjectObserverDisp
             });
     }
 
+    @Override
     public void objectAdded(final ObjectInfo info, Ice.Current current)
     {
         if(_trace)
@@ -58,6 +61,7 @@ class ObjectObserverI extends _ObjectObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.objectAdded(info);
@@ -65,6 +69,7 @@ class ObjectObserverI extends _ObjectObserverDisp
             });
     }
 
+    @Override
     public void objectUpdated(final ObjectInfo info, Ice.Current current)
     {
         if(_trace)
@@ -74,6 +79,7 @@ class ObjectObserverI extends _ObjectObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.objectUpdated(info);
@@ -81,6 +87,7 @@ class ObjectObserverI extends _ObjectObserverDisp
             });
     }
 
+    @Override
     public void objectRemoved(final Ice.Identity id, Ice.Current current)
     {
         if(_trace)
@@ -90,6 +97,7 @@ class ObjectObserverI extends _ObjectObserverDisp
 
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     _coordinator.objectRemoved(id);

@@ -14,16 +14,12 @@ import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-
-import java.util.Enumeration;
-
 import IceGrid.*;
 import IceGridGUI.*;
 
 class Adapter extends TreeNode
 {
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
@@ -34,6 +30,7 @@ class Adapter extends TreeNode
         return _editor;
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,

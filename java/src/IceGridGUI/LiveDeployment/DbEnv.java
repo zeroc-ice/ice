@@ -12,15 +12,12 @@ package IceGridGUI.LiveDeployment;
 import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import java.util.Enumeration;
-
 import IceGrid.*;
 import IceGridGUI.*;
 
 class DbEnv extends TreeNode
 {
+    @Override
     public Component getTreeCellRendererComponent(
         JTree tree,
         Object value,
@@ -38,6 +35,7 @@ class DbEnv extends TreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)

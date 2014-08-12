@@ -11,6 +11,7 @@ package test.Ice.invoke;
 
 public class Server extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         boolean async = false;
@@ -29,6 +30,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

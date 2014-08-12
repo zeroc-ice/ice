@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="ant/|test/**/lambda/*|test/android/|test/ejb/|test/Ice/translator/|test/Ice/translator/Test/" kind="src" path="src"/>
+	<classpathentry kind="src" path="generated"/>
+	<classpathentry kind="src" path="generated.test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Ice3rdPartyWin"/>
+	<classpathentry kind="output" path="lib"/>
+</classpath>

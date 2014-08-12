@@ -8,7 +8,6 @@
 // **********************************************************************
 package test.Ice.background;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import test.Ice.background.Test.BackgroundControllerPrx;
@@ -142,12 +141,6 @@ public class AllTests
             }
         }
 
-        public void responseAndSent()
-        {
-            _sent.check();
-            _response.check();
-        }
-
         private Callback _response = new Callback();
         private Callback _sent = new Callback();
     }
@@ -223,6 +216,7 @@ public class AllTests
             start();
         }
 
+        @Override
         public void
         run()
         {

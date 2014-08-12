@@ -11,6 +11,7 @@ package test.Ice.location;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         try
@@ -36,6 +37,7 @@ public class Client extends test.Util.Application
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();

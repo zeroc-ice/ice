@@ -33,6 +33,7 @@ import IceGridGUI.*;
 
 class ServerEditor extends CommunicatorEditor
 {
+    @Override
     public JToolBar getToolBar()
     {
         if(_toolBar == null)
@@ -69,6 +70,7 @@ class ServerEditor extends CommunicatorEditor
 
         Action refresh = new AbstractAction("Refresh")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _buildId.setText("Retrieving...");
@@ -81,6 +83,7 @@ class ServerEditor extends CommunicatorEditor
 
         Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.openDefinition();
@@ -165,6 +168,7 @@ class ServerEditor extends CommunicatorEditor
         Ice.StringHolder toolTipHolder = new Ice.StringHolder();
         Utils.Stringifier stringifier =  new Utils.Stringifier()
             {
+                @Override
                 public String toString(Object obj)
                 {
                     return resolver.substitute((String)obj);
@@ -240,6 +244,7 @@ class ServerEditor extends CommunicatorEditor
         //
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("Runtime Status");
@@ -341,6 +346,7 @@ class ServerEditor extends CommunicatorEditor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();

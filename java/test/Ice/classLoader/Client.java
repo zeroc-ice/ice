@@ -11,12 +11,14 @@ package test.Ice.classLoader;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         AllTests.allTests(this, false);
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         _initData = new Ice.InitializationData();

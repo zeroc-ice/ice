@@ -9,7 +9,6 @@
 
 package IceGridGUI.Application;
 
-import IceGrid.*;
 import IceGridGUI.*;
 
 import javax.swing.JTextField;
@@ -30,6 +29,7 @@ public class ListTextField extends JTextField
     {
         Utils.Stringifier stringifier =  new Utils.Stringifier()
             {
+                @Override
                 public String toString(Object obj)
                 {
                     return Utils.substitute((String)obj, resolver);

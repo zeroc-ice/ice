@@ -18,17 +18,20 @@ class ServiceTemplateEditor extends TemplateEditor
         _subEditor = new ServiceSubEditor(this);
     }
 
+    @Override
     void writeDescriptor()
     {
         super.writeDescriptor();
         _subEditor.writeDescriptor();
     }
 
+    @Override
     boolean isSimpleUpdate()
     {
         return super.isSimpleUpdate() && _subEditor.isSimpleUpdate();
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         super.appendProperties(builder);
@@ -37,12 +40,14 @@ class ServiceTemplateEditor extends TemplateEditor
         _subEditor.appendProperties(builder);
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Service Template Properties");
     }
 
+    @Override
     protected boolean validate()
     {
         return super.validate() && _subEditor.validate();

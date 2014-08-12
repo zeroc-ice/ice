@@ -21,18 +21,21 @@ public final class CCI extends CC
     {
     }
 
+    @Override
     public CAPrx
     caop(CAPrx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public CCPrx
     ccop(CCPrx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public CBPrx
     cbop(CBPrx p, Ice.Current current)
     {

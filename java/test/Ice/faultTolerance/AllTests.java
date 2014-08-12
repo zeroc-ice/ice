@@ -9,7 +9,6 @@
 
 package test.Ice.faultTolerance;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import test.Ice.faultTolerance.Test.TestIntfPrx;
@@ -124,6 +123,7 @@ public class AllTests
     
     private static class AbortCallback extends Ice.Callback
     {
+        @Override
         public void
         completed(Ice.AsyncResult result)
         {

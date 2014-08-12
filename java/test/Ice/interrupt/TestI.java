@@ -11,15 +11,6 @@ package test.Ice.interrupt;
 
 public class TestI extends test.Ice.interrupt.Test._TestIntfDisp
 {
-    private static void
-    test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
     TestI(TestControllerI controller)
     {
         _controller = controller;

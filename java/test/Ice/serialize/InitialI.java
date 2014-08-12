@@ -46,6 +46,7 @@ public final class InitialI extends _InitialDisp
         _d.p = _s.p;
     }
 
+    @Override
     public byte[]
     getStruct1(Ice.Current current)
     {
@@ -64,6 +65,7 @@ public final class InitialI extends _InitialDisp
         }
     }
 
+    @Override
     public byte[]
     getBase(Ice.Current current)
     {
@@ -82,6 +84,7 @@ public final class InitialI extends _InitialDisp
         }
     }
 
+    @Override
     public byte[]
     getEx(Ice.Current current)
     {
@@ -104,6 +107,7 @@ public final class InitialI extends _InitialDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

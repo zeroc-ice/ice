@@ -9,7 +9,6 @@
 
 package test.Ice.slicing.objects;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import test.Ice.slicing.objects.client.Test.*;
@@ -62,6 +61,7 @@ public class AllTests
 
     private static class Callback_TestIntf_SBaseAsObjectI extends Callback_TestIntf_SBaseAsObject
     {
+        @Override
         public void
         response(Ice.Object o)
         {
@@ -73,14 +73,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -96,6 +91,7 @@ public class AllTests
 
     private static class Callback_TestIntf_SBaseAsSBaseI extends Callback_TestIntf_SBaseAsSBase
     {
+        @Override
         public void
         response(SBase sb)
         {
@@ -103,14 +99,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -126,6 +117,7 @@ public class AllTests
 
     private static class Callback_TestIntf_SBSKnownDerivedAsSBaseI extends Callback_TestIntf_SBSKnownDerivedAsSBase
     {
+        @Override
         public void
         response(SBase sb)
         {
@@ -136,14 +128,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -160,6 +147,7 @@ public class AllTests
     private static class Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI
         extends Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerived
     {
+        @Override
         public void
         response(SBSKnownDerived sbskd)
         {
@@ -167,14 +155,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -190,6 +173,7 @@ public class AllTests
 
     private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseI extends Callback_TestIntf_SBSUnknownDerivedAsSBase
     {
+        @Override
         public void
         response(SBase sb)
         {
@@ -197,14 +181,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -221,6 +200,7 @@ public class AllTests
     private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI
         extends Callback_TestIntf_SBSUnknownDerivedAsSBaseCompact
     {
+        @Override
         public void
         response(SBase sb)
         {
@@ -228,6 +208,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -236,12 +217,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -257,12 +232,14 @@ public class AllTests
     private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI
         extends Callback_TestIntf_SBSUnknownDerivedAsSBaseCompact
     {
+        @Override
         public void
         response(SBase sb)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -276,12 +253,6 @@ public class AllTests
         }
 
         public void
-        exception(Ice.UserException exc)
-        {
-            test(false);
-        }
-
-        public void
         check()
         {
             callback.check();
@@ -292,23 +263,19 @@ public class AllTests
 
     private static class Callback_TestIntf_SUnknownAsObjectI1 extends Callback_TestIntf_SUnknownAsObject
     {
+        @Override
         public void
         response(Ice.Object o)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(exc.ice_name().equals("Ice::NoObjectFactoryException"));
             callback.called();
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
-            test(false);
         }
 
         public void
@@ -322,6 +289,7 @@ public class AllTests
 
     private static class Callback_TestIntf_SUnknownAsObjectI2 extends Callback_TestIntf_SUnknownAsObject
     {
+        @Override
         public void
         response(Ice.Object o)
         {
@@ -330,14 +298,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -353,6 +316,7 @@ public class AllTests
 
     private static class Callback_TestIntf_oneElementCycleI extends Callback_TestIntf_oneElementCycle
     {
+        @Override
         public void
         response(B b)
         {
@@ -363,14 +327,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -386,6 +345,7 @@ public class AllTests
 
     private static class Callback_TestIntf_twoElementCycleI extends Callback_TestIntf_twoElementCycle
     {
+        @Override
         public void
         response(B b1)
         {
@@ -401,14 +361,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -424,6 +379,7 @@ public class AllTests
 
     private static class Callback_TestIntf_D1AsBI extends Callback_TestIntf_D1AsB
     {
+        @Override
         public void
         response(B b1)
         {
@@ -447,14 +403,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -470,6 +421,7 @@ public class AllTests
 
     private static class Callback_TestIntf_D1AsD1I extends Callback_TestIntf_D1AsD1
     {
+        @Override
         public void
         response(D1 d1)
         {
@@ -487,14 +439,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -510,6 +457,7 @@ public class AllTests
 
     private static class Callback_TestIntf_D2AsBI extends Callback_TestIntf_D2AsB
     {
+        @Override
         public void
         response(B b2)
         {
@@ -531,14 +479,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -554,6 +497,7 @@ public class AllTests
 
     private static class Callback_TestIntf_paramTest1I extends Callback_TestIntf_paramTest1
     {
+        @Override
         public void
         response(B b1, B b2)
         {
@@ -573,14 +517,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -596,6 +535,7 @@ public class AllTests
 
     private static class Callback_TestIntf_paramTest2I extends Callback_TestIntf_paramTest2
     {
+        @Override
         public void
         response(B b2, B b1)
         {
@@ -615,14 +555,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -638,6 +573,7 @@ public class AllTests
 
     private static class Callback_TestIntf_returnTest1I extends Callback_TestIntf_returnTest1
     {
+        @Override
         public void
         response(B r, B p1, B p2)
         {
@@ -645,14 +581,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -668,6 +599,7 @@ public class AllTests
 
     private static class Callback_TestIntf_returnTest2I extends Callback_TestIntf_returnTest2
     {
+        @Override
         public void
         response(B r, B p1, B p2)
         {
@@ -675,14 +607,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -698,6 +625,7 @@ public class AllTests
 
     private static class Callback_TestIntf_returnTest3I extends Callback_TestIntf_returnTest3
     {
+        @Override
         public void
         response(B b)
         {
@@ -705,14 +633,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -730,6 +653,7 @@ public class AllTests
 
     private static class Callback_TestIntf_paramTest3I extends Callback_TestIntf_paramTest3
     {
+        @Override
         public void
         response(B ret, B p1, B p2)
         {
@@ -750,14 +674,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -773,6 +692,7 @@ public class AllTests
 
     private static class Callback_TestIntf_paramTest4I extends Callback_TestIntf_paramTest4
     {
+        @Override
         public void
         response(B ret, B b)
         {
@@ -788,14 +708,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -811,6 +726,7 @@ public class AllTests
 
     private static class Callback_TestIntf_sequenceTestI extends Callback_TestIntf_sequenceTest
     {
+        @Override
         public void
         response(SS3 ss)
         {
@@ -818,14 +734,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -843,6 +754,7 @@ public class AllTests
 
     private static class Callback_TestIntf_dictionaryTestI extends Callback_TestIntf_dictionaryTest
     {
+        @Override
         public void
         response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
         {
@@ -851,14 +763,9 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -877,18 +784,21 @@ public class AllTests
 
     private static class Callback_TestIntf_throwBaseAsBaseI extends Callback_TestIntf_throwBaseAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -919,18 +829,21 @@ public class AllTests
 
     private static class Callback_TestIntf_throwDerivedAsBaseI extends Callback_TestIntf_throwDerivedAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -967,18 +880,21 @@ public class AllTests
 
     private static class Callback_TestIntf_throwDerivedAsDerivedI extends Callback_TestIntf_throwDerivedAsDerived
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -1016,18 +932,21 @@ public class AllTests
     private static class Callback_TestIntf_throwUnknownDerivedAsBaseI 
         extends Callback_TestIntf_throwUnknownDerivedAsBase
     {
+        @Override
         public void
         response()
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
             test(false);
         }
 
+        @Override
         public void
         exception(Ice.UserException exc)
         {
@@ -1058,6 +977,7 @@ public class AllTests
 
     private static class Callback_TestIntf_useForwardI extends Callback_TestIntf_useForward
     {
+        @Override
         public void
         response(Forward f)
         {
@@ -1065,14 +985,9 @@ public class AllTests
              callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
-        {
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -1088,6 +1003,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseI1 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1098,6 +1014,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1106,12 +1023,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1126,6 +1037,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseI2 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1134,6 +1046,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1142,12 +1055,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1162,6 +1069,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseI3 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1170,6 +1078,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1178,12 +1087,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1198,6 +1101,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseI4 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1207,6 +1111,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1215,12 +1120,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1235,6 +1134,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseICompact1 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1243,6 +1143,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1251,12 +1152,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1271,6 +1166,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseICompact2 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1280,6 +1176,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1288,12 +1185,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1308,6 +1199,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseI5 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1317,6 +1209,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1325,12 +1218,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1345,6 +1232,7 @@ public class AllTests
 
     private static class Callback_TestIntf_exchangePBaseI6 extends Callback_TestIntf_exchangePBase
     {
+        @Override
         public void
         response(PBase r)
         {
@@ -1363,6 +1251,7 @@ public class AllTests
             callback.called();
         }
 
+        @Override
         public void
         exception(Ice.LocalException exc)
         {
@@ -1371,12 +1260,6 @@ public class AllTests
                 callback.called();
                 return;
             }
-            test(false);
-        }
-
-        public void
-        exception(Ice.UserException exc)
-        {
             test(false);
         }
 
@@ -1401,6 +1284,7 @@ public class AllTests
 
     private static class NodeFactoryI implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object create(String id)
         {
             if(id.equals(PNode.ice_staticId()))
@@ -1410,6 +1294,7 @@ public class AllTests
             return null;
         }
 
+        @Override
         public void destroy()
         {
         }
@@ -1427,6 +1312,7 @@ public class AllTests
 
     private static class PreservedFactoryI implements Ice.ObjectFactory
     {
+        @Override
         public Ice.Object create(String id)
         {
             if(id.equals(Preserved.ice_staticId()))
@@ -1436,6 +1322,7 @@ public class AllTests
             return null;
         }
 
+        @Override
         public void destroy()
         {
         }
@@ -1604,7 +1491,7 @@ public class AllTests
                 // This test fails when using the compact format because the instance cannot
                 // be sliced to a known type.
                 //
-                SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
+                test.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             }
             catch(Ice.NoObjectFactoryException ex)
@@ -2030,6 +1917,7 @@ public class AllTests
                 try
                 {
                     D3 p3 = (D3)b2;
+                    test(p3 != null);
                     test(false);
                 }
                 catch(ClassCastException ex)
@@ -2083,6 +1971,7 @@ public class AllTests
             try
             {
                 D3 p3 = (D3)b2;
+                test(p3 != null);
                 test(false);
             }
             catch(ClassCastException ex)
@@ -2121,6 +2010,7 @@ public class AllTests
                 try
                 {
                     D3 p1 = (D3)b1;
+                    test(p1 != null);
                     test(false);
                 }
                 catch(ClassCastException ex)
@@ -2175,6 +2065,7 @@ public class AllTests
             try
             {
                 D3 p1 = (D3)b1;
+                test(p1 != null);
                 test(false);
             }
             catch(ClassCastException ex)
@@ -3194,7 +3085,7 @@ public class AllTests
                 c.next.next.next = c;
 
                 test(PNodeI.counter == 0);
-                PNode n = test.exchangePNode(c);
+                test.exchangePNode(c);
 
                 test(PNodeI.counter == 3);
                 PNodeI.counter = 0;

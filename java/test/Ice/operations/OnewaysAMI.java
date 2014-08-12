@@ -64,12 +64,14 @@ class OnewaysAMI
 
     private static class AMI_MyClass_opVoidI extends AMI_MyClass_opVoid
     {
+        @Override
         public void
         ice_response()
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -79,12 +81,14 @@ class OnewaysAMI
 
     private static class AMI_MyClass_opIdempotentI extends AMI_MyClass_opIdempotent
     {
+        @Override
         public void
         ice_response()
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -94,12 +98,14 @@ class OnewaysAMI
 
     private static class AMI_MyClass_opNonmutatingI extends AMI_MyClass_opNonmutating
     {
+        @Override
         public void
         ice_response()
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -109,12 +115,14 @@ class OnewaysAMI
 
     private static class AMI_MyClass_opVoidExI extends AMI_MyClass_opVoid
     {
+        @Override
         public void
         ice_response()
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -133,12 +141,14 @@ class OnewaysAMI
 
     private static class AMI_MyClass_opByteExI extends AMI_MyClass_opByte
     {
+        @Override
         public void
         ice_response(byte r, byte b)
         {
             test(false);
         }
 
+        @Override
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -158,7 +168,6 @@ class OnewaysAMI
     static void
     onewaysAMI(test.Util.Application app, MyClassPrx p)
     {
-        Ice.Communicator communicator = app.communicator();
         p = MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {

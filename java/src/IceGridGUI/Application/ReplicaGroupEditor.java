@@ -9,15 +9,9 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,6 +28,7 @@ import IceGridGUI.*;
 @SuppressWarnings("unchecked")
 class ReplicaGroupEditor extends Editor
 {
+    @Override
     protected boolean applyUpdate(boolean refresh)
     {
         ReplicaGroup replicaGroup = (ReplicaGroup)_target;
@@ -158,6 +153,7 @@ class ReplicaGroupEditor extends Editor
         }
     }
 
+    @Override
     Utils.Resolver getDetailResolver()
     {
         Root root = _target.getRoot();
@@ -181,6 +177,7 @@ class ReplicaGroupEditor extends Editor
         //
         _loadBalancing.addItemListener(new ItemListener()
             {
+                @Override
                 public void itemStateChanged(ItemEvent e)
                 {
                     if(e.getStateChange() == ItemEvent.SELECTED)
@@ -264,6 +261,7 @@ class ReplicaGroupEditor extends Editor
         return descriptor.id.equals(_id.getText().trim());
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Replica Group ID");
@@ -312,12 +310,14 @@ class ReplicaGroupEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Replica Group Properties");
     }
 
+    @Override
     protected boolean validate()
     {
         //

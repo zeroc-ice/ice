@@ -21,11 +21,9 @@ import test.Ice.interrupt.Test.TestIntfControllerPrx;
 import test.Ice.interrupt.Test.TestIntfControllerPrxHelper;
 import test.Ice.interrupt.Test.TestIntfPrx;
 import test.Ice.interrupt.Test.TestIntfPrxHelper;
-import Ice.CommunicatorDestroyedException;
 import Ice.LocalException;
 import Ice.OperationInterruptedException;
 import Ice.UserException;
-import IceInternal.Time;
 
 public class AllTests
 {

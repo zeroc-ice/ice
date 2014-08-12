@@ -20,12 +20,14 @@ public final class IB1I extends _IB1Disp
     {
     }
 
+    @Override
     public IAPrx
     iaop(IAPrx p, Ice.Current current)
     {
         return p;
     }
 
+    @Override
     public IB1Prx
     ib1op(IB1Prx p, Ice.Current current)
     {

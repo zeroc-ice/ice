@@ -91,6 +91,7 @@ public class AllTests
 
             OpCallback cb = new OpCallback()
                 {
+                    @Override
                     public void
                     response()
                     {
@@ -98,6 +99,7 @@ public class AllTests
                         called();
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -111,12 +113,14 @@ public class AllTests
             TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
             cb = new OpCallback()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -135,12 +139,14 @@ public class AllTests
                 TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
                 class Callback_TestIntf_sleepImpl extends Callback_TestIntf_sleep
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(false);
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -149,6 +155,7 @@ public class AllTests
                         called();
                     }
 
+                    @Override
                     public void
                     sent(boolean sentSynchronously)
                     {
@@ -186,18 +193,21 @@ public class AllTests
             testController.holdAdapter();
             Callback_TestIntf_opWithPayload callback = new Callback_TestIntf_opWithPayload()
                 {
+                    @Override
                     public void
                     response()
                     {
                         test(dispatcher.isDispatcherThread());
                     }
 
+                    @Override
                     public void
                     exception(Ice.LocalException ex)
                     {
                         test(ex instanceof Ice.CommunicatorDestroyedException);
                     }
 
+                    @Override
                     public void
                     sent(boolean sentSynchronously)
                     {

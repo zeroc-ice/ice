@@ -18,6 +18,7 @@ public final class EI extends _EDisp
     {
     }
 
+    @Override
     public String
     callE(Ice.Current current)
     {

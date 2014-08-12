@@ -13,6 +13,7 @@ import test.Ice.invoke.Test.MyException;
 
 public class BlobjectAsyncI extends Ice.BlobjectAsync
 {
+    @Override
     public void
     ice_invoke_async(Ice.AMD_Object_ice_invoke cb, byte[] inParams, Ice.Current current)
     {

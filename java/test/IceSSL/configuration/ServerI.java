@@ -17,6 +17,7 @@ class ServerI extends _ServerDisp
         _communicator = communicator;
     }
 
+    @Override
     public void
     noCert(Ice.Current current)
     {
@@ -31,6 +32,7 @@ class ServerI extends _ServerDisp
         }
     }
 
+    @Override
     public void
     checkCert(String subjectDN, String issuerDN, Ice.Current current)
     {
@@ -48,6 +50,7 @@ class ServerI extends _ServerDisp
         }
     }
 
+    @Override
     public void
     checkCipher(String cipher, Ice.Current current)
     {

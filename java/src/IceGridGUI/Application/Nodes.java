@@ -9,13 +9,8 @@
 
 package IceGridGUI.Application;
 
-import java.awt.Component;
-
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTree;
-
 import IceGrid.*;
 import IceGridGUI.*;
 
@@ -32,6 +27,7 @@ class Nodes extends ListTreeNode
         return copy;
     }
 
+    @Override
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
@@ -45,6 +41,7 @@ class Nodes extends ListTreeNode
         return actions;
     }
 
+    @Override
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -57,6 +54,7 @@ class Nodes extends ListTreeNode
         return _popup;
     }
 
+    @Override
     public void paste()
     {
         Object descriptor = getCoordinator().getClipboard();
@@ -98,6 +96,7 @@ class Nodes extends ListTreeNode
         newNode(nd);
     }
 
+    @Override
     public void newNode()
     {
         newNode(new NodeDescriptor(
@@ -300,6 +299,7 @@ class Nodes extends ListTreeNode
         _descriptors.remove(nodeName);
     }
 
+    @Override
     Object getDescriptor()
     {
         return _descriptors;

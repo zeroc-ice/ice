@@ -11,12 +11,14 @@ package test.Ice.dispatcher;
 
 public class Client extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         AllTests.allTests(communicator(), getWriter(), _dispatcher);
         return 0;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         assert(_dispatcher == null);

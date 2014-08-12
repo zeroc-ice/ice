@@ -17,8 +17,8 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
@@ -26,15 +26,12 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
-import IceGrid.*;
-import IceGridGUI.*;
-
 class ShowLogPrefsDialog extends JDialog
 {
     ShowLogPrefsDialog(final ShowLogDialog sld)
     {
         super(sld, "Preferences - IceGrid Admin", true);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final JTextField maxLinesField = new JTextField(10);
         maxLinesField.setText(Integer.toString(sld.getMaxLines()));
@@ -59,6 +56,7 @@ class ShowLogPrefsDialog extends JDialog
         JButton okButton = new JButton("OK");
         ActionListener okListener = new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     try
@@ -84,6 +82,7 @@ class ShowLogPrefsDialog extends JDialog
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener = new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     dispose();

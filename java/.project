@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ice</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/Slice.launch</value>
+				</dictionary>
+				<dictionary>
+					<key>incclean</key>
+					<value>true</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.zeroc.Slice2JavaPlugin.Slice2JavaNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>slice</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/slice</locationURI>
+		</link>
+		<link>
+			<name>src/test</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/test</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>

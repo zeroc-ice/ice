@@ -15,11 +15,6 @@ import test.Ice.ami.Test.TestIntfPrx;
 import test.Ice.ami.Test.TestIntfPrxHelper;
 import test.Ice.ami.Test.TestIntfControllerPrx;
 import test.Ice.ami.Test.TestIntfControllerPrxHelper;
-import test.Ice.ami.Test.TestIntfException;
-import test.Ice.ami.Test.Callback_TestIntf_op;
-import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
-import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
-import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
 import test.Util.Application;
 
 public class AllTests

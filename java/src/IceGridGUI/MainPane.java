@@ -9,8 +9,6 @@
 
 package IceGridGUI;
 
-import java.awt.Component;
-
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -24,6 +22,7 @@ public class MainPane extends JTabbedPane
         super.addTab(computeTitle(root.getId()), getIcon(root), application);
     }
 
+    @Override
     public void setTitleAt(int index, String title)
     {
         super.setTitleAt(index, computeTitle(title));
@@ -93,6 +92,7 @@ public class MainPane extends JTabbedPane
 
         addChangeListener(new ChangeListener()
             {
+                @Override
                 public void stateChanged(ChangeEvent evt)
                 {
                     Tab tab = (Tab)getSelectedComponent();

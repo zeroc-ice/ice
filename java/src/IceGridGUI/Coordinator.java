@@ -16,7 +16,6 @@ import java.util.Enumeration;
 import java.util.Collection;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.File;
@@ -24,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import javax.swing.*;
-import javax.swing.text.Keymap;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
@@ -36,21 +34,12 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.util.LayoutStyle;
 
-import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.MessageDigest;
-
-import javax.security.auth.x500.X500Principal;
-
-import Ice.LocatorFinderPrx;
 import Ice.LocatorFinderPrxHelper;
 import IceGrid.*;
 
@@ -89,11 +78,13 @@ public class Coordinator
             add(_connectedLabel, BorderLayout.LINE_END);
         }
 
+        @Override
         public void setText(String text)
         {
             _text.setText(text);
         }
 
+        @Override
         public void setConnected(boolean connected)
         {
             if(connected)
@@ -118,6 +109,7 @@ public class Coordinator
             setEnabled(false);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             if(_target != null)
@@ -126,6 +118,7 @@ public class Coordinator
             }
         }
 
+        @Override
         public void propertyChange(java.beans.PropertyChangeEvent e)
         {
             //
@@ -171,6 +164,7 @@ public class Coordinator
             super(name);
         }
 
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             if(_target != null)
@@ -193,6 +187,7 @@ public class Coordinator
 
     private class FocusListener implements java.beans.PropertyChangeListener
     {
+        @Override
         public void propertyChange(java.beans.PropertyChangeEvent e)
         {
             Object o = e.getNewValue();
@@ -605,12 +600,14 @@ public class Coordinator
             _clientProxy = proxy;
         }
 
+        @Override
         public Ice.ObjectPrx
         getClientProxy(Ice.Current current)
         {
             return _clientProxy;
         }
 
+        @Override
         public Ice.ObjectPrx
         getServerProxy(Ice.Current current)
         {
@@ -618,11 +615,14 @@ public class Coordinator
         }
 
         /** @deprecated **/
+        @Deprecated
+        @Override
         public void
         addProxy(Ice.ObjectPrx proxy, Ice.Current current)
         {
         }
 
+        @Override
         public Ice.ObjectPrx[]
         addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
         {
@@ -939,6 +939,7 @@ public class Coordinator
                             JOptionPane.ERROR_MESSAGE);
                     }
 
+                    @Override
                     public void run()
                     {
                         getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -947,6 +948,7 @@ public class Coordinator
                         final String prefix = "Deleting application '" + name + "'...";
                         Callback_Admin_removeApplication cb = new Callback_Admin_removeApplication()
                             {
+                                @Override
                                 public void response()
                                 {
                                     if(_traceSaveToRegistry)
@@ -956,6 +958,7 @@ public class Coordinator
 
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 release();
@@ -964,6 +967,7 @@ public class Coordinator
                                         });
                                 }
 
+                                @Override
                                 public void exception(final Ice.UserException e)
                                 {
                                     if(_traceSaveToRegistry)
@@ -973,6 +977,7 @@ public class Coordinator
 
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 handleFailure(prefix, "Delete failed",
@@ -982,6 +987,7 @@ public class Coordinator
                                         });
                                 }
 
+                                @Override
                                 public void exception(final Ice.LocalException e)
                                 {
                                     if(_traceSaveToRegistry)
@@ -991,6 +997,7 @@ public class Coordinator
 
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 handleFailure(prefix, "Delete failed",
@@ -1272,10 +1279,8 @@ public class Coordinator
         //
         // Keep certificates arround for connection retry
         //
-        _trasientCert = null;
+        _transientCert = null;
         _liveDeploymentRoot.clear();
-
-        AdminSessionPrx session = null;
 
         destroyCommunicator();
 
@@ -1385,6 +1390,7 @@ public class Coordinator
                     return _decision;
                 }
 
+                @Override
                 public void 
                 run()
                 {
@@ -1410,6 +1416,7 @@ public class Coordinator
                 private TrustDecision _decision = TrustDecision.No;
             }
 
+            @Override
             public boolean verify(IceSSL.NativeConnectionInfo info)
             {
                 if(!(info.nativeCerts[0] instanceof X509Certificate))
@@ -1430,14 +1437,14 @@ public class Coordinator
 
                 //
                 // Compare the server certificate with a previous accepted certificate if
-                // any, the trasient certificate is reset by Coordinator.login, and is only 
-                // ussefull in case the connection is retry, because a timeout or ACM closed
-                // it while the certificate verifier was waiting for the user decission.
+                // any, the transient certificate is reset by Coordinator.login, and is only 
+                // useful in case the connection is retry, because a timeout or ACM closed
+                // it while the certificate verifier was waiting for the user decision.
                 //
                 // This avoids to show the dialog again if the user already granted the cert for
                 // this login operation.
                 //
-                if(_trasientCert != null && _trasientCert.equals(cert))
+                if(_transientCert != null && _transientCert.equals(cert))
                 {
                     return true;
                 }
@@ -1447,9 +1454,9 @@ public class Coordinator
                 //
                 try
                 {
-                    for(Enumeration e = _trustedServerKeyStore.aliases(); e.hasMoreElements() ;)
+                    for(Enumeration<String> e = _trustedServerKeyStore.aliases(); e.hasMoreElements() ;)
                     {
-                        String alias = e.nextElement().toString();
+                        String alias = e.nextElement();
                         if(!_trustedServerKeyStore.isCertificateEntry(alias))
                         {
                             continue;
@@ -1478,6 +1485,7 @@ public class Coordinator
                         {
                             SwingUtilities.invokeAndWait(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
@@ -1516,12 +1524,11 @@ public class Coordinator
                 //
                 try
                 {
-                    Collection altNames = cert.getSubjectAlternativeNames();
+                    Collection<java.util.List<?>> altNames = cert.getSubjectAlternativeNames();
                     if(altNames != null)
                     {
-                        for(Object o : altNames)
+                        for(java.util.List<?> l : altNames)
                         {
-                            java.util.List l = (java.util.List)o;
                             Integer kind = (Integer)l.get(0);
                             if(kind != 2 && kind != 7)
                             {
@@ -1546,9 +1553,9 @@ public class Coordinator
                 //
                 try
                 {
-                    for(Enumeration e = _trustedCaKeyStore.aliases(); e.hasMoreElements() ;)
+                    for(Enumeration<String> e = _trustedCaKeyStore.aliases(); e.hasMoreElements() ;)
                     {
-                        String alias = e.nextElement().toString();
+                        String alias = e.nextElement();
                         if(!_trustedCaKeyStore.isCertificateEntry(alias))
                         {
                             continue;
@@ -1575,6 +1582,7 @@ public class Coordinator
                         {
                             SwingUtilities.invokeAndWait(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         JOptionPane.showMessageDialog(parent, ex.toString(), "Error loading keystore",
@@ -1604,7 +1612,7 @@ public class Coordinator
 
                 if(decision == TrustDecision.YesThisTime)
                 {
-                    _trasientCert = (X509Certificate) info.nativeCerts[0];
+                    _transientCert = (X509Certificate) info.nativeCerts[0];
                     return true;
                 }
                 else if(decision == TrustDecision.YesAlways)
@@ -1635,6 +1643,7 @@ public class Coordinator
                             {
                                 SwingUtilities.invokeAndWait(new Runnable()
                                     {
+                                        @Override
                                         public void run()
                                         {
                                             JOptionPane.showMessageDialog(parent, ex.toString(), "Error saving certificate",
@@ -1673,6 +1682,7 @@ public class Coordinator
                 {
                     SwingUtilities.invokeAndWait(new Runnable()
                         {
+                            @Override
                             public void run()
                             {
                                 JOptionPane.showMessageDialog(parent, ex.toString(), 
@@ -1803,6 +1813,7 @@ public class Coordinator
             final ConnectionCallback cb = new ConnectionCallback();
             new Thread(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         try
@@ -1840,6 +1851,7 @@ public class Coordinator
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 JOptionPane.showMessageDialog(
@@ -1867,6 +1879,7 @@ public class Coordinator
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 JOptionPane.showMessageDialog(
@@ -1894,6 +1907,7 @@ public class Coordinator
                             }
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         cb.loginSuccess();
@@ -1904,6 +1918,7 @@ public class Coordinator
                         {
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         String msg = e.reason;
@@ -1933,6 +1948,7 @@ public class Coordinator
                         {
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         JOptionPane.showMessageDialog(parent, "Could not create session: "
@@ -1948,7 +1964,8 @@ public class Coordinator
         	            {
         		        	  SwingUtilities.invokeLater(new Runnable()
                               {
-                                  public void run()
+                                  @Override
+                                public void run()
                                   {
                                 	 JOptionPane.showMessageDialog(
                                 			 getMainFrame(),
@@ -1963,6 +1980,7 @@ public class Coordinator
                         {
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         JOptionPane.showMessageDialog(parent,
@@ -2032,6 +2050,7 @@ public class Coordinator
 
             new Thread(new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         synchronized(Coordinator.this)
@@ -2061,6 +2080,7 @@ public class Coordinator
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 JOptionPane.showMessageDialog(
@@ -2081,7 +2101,8 @@ public class Coordinator
             	            {
             		        	  SwingUtilities.invokeLater(new Runnable()
                                   {
-                                      public void run()
+                                      @Override
+                                    public void run()
                                       {
                                     	 JOptionPane.showMessageDialog(
                                     			 getMainFrame(),
@@ -2096,6 +2117,7 @@ public class Coordinator
                             {
                                 SwingUtilities.invokeLater(new Runnable()
                                     {
+                                        @Override
                                         public void run()
                                         {
                                             JOptionPane.showMessageDialog(
@@ -2172,6 +2194,7 @@ public class Coordinator
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 String msg = e.reason;
@@ -2205,6 +2228,7 @@ public class Coordinator
                                     {
                                         SwingUtilities.invokeLater(new Runnable()
                                             {
+                                                @Override
                                                 public void run()
                                                 {
                                                     JOptionPane.showMessageDialog(parent,
@@ -2221,6 +2245,7 @@ public class Coordinator
                                     {
                                         SwingUtilities.invokeLater(new Runnable()
                                             {
+                                                @Override
                                                 public void run()
                                                 {
                                                     if(JOptionPane.showConfirmDialog(
@@ -2249,6 +2274,7 @@ public class Coordinator
 
                             SwingUtilities.invokeLater(new Runnable()
                                 {
+                                    @Override
                                     public void run()
                                     {
                                         cb.loginSuccess();
@@ -2277,14 +2303,17 @@ public class Coordinator
 
                 Glacier2.Callback_Router_destroySession cb = new Glacier2.Callback_Router_destroySession()
                     {
+                        @Override
                         public void response()
                         {
                         }
 
+                        @Override
                         public void exception(Ice.LocalException ex)
                         {
                         }
 
+                        @Override
                         public void exception(Ice.UserException ex)
                         {
                         }
@@ -2607,6 +2636,7 @@ public class Coordinator
 
         _shutdownHook = new Thread("Shutdown hook")
             {
+                @Override
                 public void run()
                 {
                     destroyIceGridAdmin();
@@ -2630,11 +2660,13 @@ public class Coordinator
 
         _saveXMLChooser.addChoosableFileFilter(new FileFilter()
             {
+                @Override
                 public boolean accept(File f)
                 {
                     return f.isDirectory() || f.getName().endsWith(".xml");
                 }
 
+                @Override
                 public String getDescription()
                 {
                     return ".xml files";
@@ -2645,6 +2677,7 @@ public class Coordinator
 
         _saveLogChooser.addChoosableFileFilter(new FileFilter()
             {
+                @Override
                 public boolean accept(File f)
                 {
                     return f.isDirectory() ||
@@ -2654,6 +2687,7 @@ public class Coordinator
                         f.getName().endsWith(".txt");
                 }
 
+                @Override
                 public String getDescription()
                 {
                     return ".out .err .log .txt files";
@@ -2673,6 +2707,7 @@ public class Coordinator
         //
         _newApplication = new AbstractAction("Application")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     newApplication();
@@ -2682,6 +2717,7 @@ public class Coordinator
         _newApplicationWithDefaultTemplates =
             new AbstractAction("Application with Default Templates from Registry")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     newApplicationWithDefaultTemplates();
@@ -2691,6 +2727,7 @@ public class Coordinator
 
         _login = new AbstractAction("Login...")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _sessionKeeper.connectionManager();
@@ -2700,6 +2737,7 @@ public class Coordinator
 
         _logout = new AbstractAction("Logout")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(_graphViews.size() > 0)
@@ -2726,6 +2764,7 @@ public class Coordinator
 
         _acquireExclusiveWriteAccess = new AbstractAction("Acquire Exclusive Write Access")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     try
@@ -2746,6 +2785,7 @@ public class Coordinator
 
         _releaseExclusiveWriteAccess = new AbstractAction("Release Exclusive Write Access")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     releaseExclusiveWriteAccess();
@@ -2759,6 +2799,7 @@ public class Coordinator
 
         _newGraph = new AbstractAction("Metrics Graph")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     createGraphView();
@@ -2768,6 +2809,7 @@ public class Coordinator
 
         _showLiveDeploymentFilters = new AbstractAction("Filter live deployment")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
 
@@ -2811,6 +2853,7 @@ public class Coordinator
 
         _openApplicationFromFile = new AbstractAction("Application from File")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     int result = _openChooser.showOpenDialog(_mainFrame);
@@ -2850,6 +2893,7 @@ public class Coordinator
 
         _openApplicationFromRegistry = new AbstractAction("Application from Registry")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
@@ -2890,6 +2934,7 @@ public class Coordinator
 
         _closeApplication = new AbstractAction("Close Application")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     Tab tab = getCurrentTab();
@@ -2916,6 +2961,7 @@ public class Coordinator
 
         _save = new AbstractAction("Save")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     try
@@ -2936,6 +2982,7 @@ public class Coordinator
 
         _saveToRegistry = new AbstractAction("Save to Registry (Servers may restart)")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().saveToRegistry(true);
@@ -2947,6 +2994,7 @@ public class Coordinator
 
         _saveToRegistryWithoutRestart = new AbstractAction("Save to Registry (No server restart)")
             {
+                @Override
                 public void actionPerformed(ActionEvent e) 
                 {
                     getCurrentTab().saveToRegistry(false);
@@ -2957,6 +3005,7 @@ public class Coordinator
 
         _saveToFile = new AbstractAction("Save to File")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     try
@@ -2975,6 +3024,7 @@ public class Coordinator
 
         _discardUpdates = new AbstractAction("Discard Updates")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().discardUpdates();
@@ -2985,6 +3035,7 @@ public class Coordinator
 
         _certificateManager = new AbstractAction("Certificate Manager...")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     SessionKeeper.CertificateManagerDialog d = _sessionKeeper.certificateManager(getMainFrame());
@@ -2998,6 +3049,7 @@ public class Coordinator
 
         _exit = new AbstractAction("Exit")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     exit(0);
@@ -3007,6 +3059,7 @@ public class Coordinator
 
         _back = new AbstractAction("Go Back to the Previous Node")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().back();
@@ -3017,6 +3070,7 @@ public class Coordinator
 
         _forward =  new AbstractAction("Go to the Next Node")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().forward();
@@ -3027,6 +3081,7 @@ public class Coordinator
 
         _helpContents = new AbstractAction("Contents")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     helpContents();
@@ -3035,6 +3090,7 @@ public class Coordinator
 
         _about = new AbstractAction("About")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     about();
@@ -3043,6 +3099,7 @@ public class Coordinator
 
         _patchApplication = new AbstractAction("Patch Distribution")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getPatchableApplicationNames();
@@ -3074,6 +3131,7 @@ public class Coordinator
 
         _showApplicationDetails = new AbstractAction("Show details")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
@@ -3109,6 +3167,7 @@ public class Coordinator
 
         _removeApplicationFromRegistry = new AbstractAction("Remove from Registry")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
@@ -3182,7 +3241,7 @@ public class Coordinator
 
         _mainFrame.getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
 
-        _mainFrame.getContentPane().add((StatusBarI)_statusBar, BorderLayout.PAGE_END);
+        _mainFrame.getContentPane().add(_statusBar, BorderLayout.PAGE_END);
 
         java.awt.KeyboardFocusManager kbm = java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager();
         kbm.addPropertyChangeListener("permanentFocusOwner", new FocusListener());
@@ -3195,6 +3254,7 @@ public class Coordinator
             new java.util.concurrent.ScheduledThreadPoolExecutor(1,
                 new java.util.concurrent.ThreadFactory()
                 {
+                    @Override
                     public Thread newThread(Runnable r)
                     {
                         Thread t = new Thread(r);
@@ -3236,7 +3296,7 @@ public class Coordinator
 
             try
             {
-                Constructor ctor = c1.getConstructor(new Class[] { Coordinator.class, String.class });
+                Constructor<?> ctor = c1.getConstructor(new Class[] { Coordinator.class, String.class });
                 view = (IGraphView)ctor.newInstance(new Object[] { Coordinator.this, title.toString() });
                 _graphViews.add(view);
             }
@@ -3786,6 +3846,7 @@ public class Coordinator
 
             JButton yesAlwaysButton = new JButton(new AbstractAction("Yes, Always Trust")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         _decision = TrustDecision.YesAlways;
@@ -3795,6 +3856,7 @@ public class Coordinator
 
             JButton yesButton = new JButton(new AbstractAction("Yes, Just This Time")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         _decision = TrustDecision.YesThisTime;
@@ -3804,6 +3866,7 @@ public class Coordinator
 
             JButton noButton = new JButton(new AbstractAction("No")
                 {
+                    @Override
                     public void actionPerformed(ActionEvent e)
                     {
                         _decision = TrustDecision.No;
@@ -3955,11 +4018,9 @@ public class Coordinator
     private String _fileParser;
     private boolean _connected;
 
-    private X509Certificate _trasientCert;
+    private X509Certificate _transientCert;
 
     private java.util.List<IGraphView> _graphViews = new java.util.ArrayList<IGraphView>();
 
     private java.util.concurrent.ScheduledExecutorService _executor;
-
-    static private final int HISTORY_MAX_SIZE = 20;
 }

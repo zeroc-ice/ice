@@ -11,6 +11,7 @@ package test.Ice.metrics;
 
 class ChildInvocationObserverI extends ObserverI implements Ice.Instrumentation.ChildInvocationObserver
 {
+    @Override
     public synchronized void 
     reset()
     {
@@ -18,6 +19,7 @@ class ChildInvocationObserverI extends ObserverI implements Ice.Instrumentation.
         replySize = 0;
     }
 
+    @Override
     public synchronized void
     reply(int s)
     {

@@ -9,33 +9,27 @@
 
 package IceGridGUI.LiveDeployment;
 
-import java.awt.Cursor;
-import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Frame;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -47,7 +41,7 @@ class WriteMessageDialog extends JDialog
     WriteMessageDialog(final Root root)
     {
         super(root.getCoordinator().getMainFrame(), "Write Message - IceGrid Admin", true);
-        setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         _mainFrame = root.getCoordinator().getMainFrame();
 
@@ -61,6 +55,7 @@ class WriteMessageDialog extends JDialog
         JButton okButton = new JButton("OK");
         ActionListener okListener = new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     final Coordinator c = root.getCoordinator();
@@ -87,10 +82,12 @@ class WriteMessageDialog extends JDialog
 
                         Ice.Callback_Process_writeMessage cb = new Ice.Callback_Process_writeMessage()
                             {
+                                @Override
                                 public void response()
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 c.getStatusBar().setText(prefix + "done.");
@@ -98,10 +95,12 @@ class WriteMessageDialog extends JDialog
                                         });
                                 }
 
+                                @Override
                                 public void exception(final Ice.LocalException e)
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
+                                            @Override
                                             public void run()
                                             {
                                                 handleFailure("Communication exception: " + e.toString());
@@ -147,6 +146,7 @@ class WriteMessageDialog extends JDialog
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener = new ActionListener()
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     setVisible(false);
@@ -162,8 +162,8 @@ class WriteMessageDialog extends JDialog
 
         _message.setLineWrap(true);
         JScrollPane scrollPane = new JScrollPane(_message,
-                                                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                                                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         builder.append(scrollPane, 3);
         builder.nextLine();
         builder.append(_stdOut);

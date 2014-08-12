@@ -9,11 +9,6 @@
 
 package IceGridGUI.Application;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -22,7 +17,6 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.*;
-import IceGridGUI.*;
 
 class TemplateEditor extends Editor
 {
@@ -39,6 +33,7 @@ class TemplateEditor extends Editor
         return (TemplateDescriptor)_target.getDescriptor();
     }
 
+    @Override
     Object getSubDescriptor()
     {
         return getDescriptor().descriptor;
@@ -61,6 +56,7 @@ class TemplateEditor extends Editor
         return descriptor.parameters.equals(parameters) && descriptor.parameterDefaults.equals(defaultValues);
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Template ID");
@@ -83,6 +79,7 @@ class TemplateEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected boolean validate()
     {
         return check(new String[]{"Template ID", _template.getText().trim()});
@@ -97,6 +94,7 @@ class TemplateEditor extends Editor
         _parameters.set(descriptor.parameters, descriptor.parameterDefaults);
     }
 
+    @Override
     protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();

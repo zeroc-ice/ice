@@ -12,7 +12,6 @@ package IceGridGUI.LiveDeployment;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 
-import IceGrid.*;
 import IceGridGUI.*;
 
 public abstract class TreeNode extends TreeNodeBase
@@ -136,6 +135,7 @@ public abstract class TreeNode extends TreeNodeBase
     {
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     getCoordinator().getStatusBar().setText(prefix + "done.");
@@ -201,6 +201,7 @@ public abstract class TreeNode extends TreeNodeBase
     {
         SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     failure(prefix, title, message);

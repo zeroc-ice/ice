@@ -32,6 +32,7 @@ import IceGridGUI.*;
 
 class ServiceEditor extends CommunicatorEditor
 {
+    @Override
     public JToolBar getToolBar()
     {
         if(_toolBar == null)
@@ -51,6 +52,7 @@ class ServiceEditor extends CommunicatorEditor
 
         Action refresh = new AbstractAction("Refresh")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     _buildId.setText("Retrieving...");
@@ -96,6 +98,7 @@ class ServiceEditor extends CommunicatorEditor
         }
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("Runtime Status");
@@ -132,6 +135,7 @@ class ServiceEditor extends CommunicatorEditor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -159,7 +163,7 @@ class ServiceEditor extends CommunicatorEditor
         {
             _properties.setSortedMap(map);
 
-            String buildString = (String)map.get("BuildId");
+            String buildString = map.get("BuildId");
             if(buildString == null)
             {
                 _buildId.setText("");

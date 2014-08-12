@@ -28,6 +28,7 @@ class InterceptorI extends Ice.DispatchInterceptor
     }
 
     
+    @Override
     public Ice.DispatchStatus
     dispatch(Ice.Request request)
     {

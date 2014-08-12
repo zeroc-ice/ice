@@ -10,15 +10,10 @@
 package IceGridGUI.LiveDeployment;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -40,6 +35,7 @@ class RegistryEditor extends Editor
 
         Action openDefinition = new AbstractAction("Open definition")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
@@ -58,6 +54,7 @@ class RegistryEditor extends Editor
 
         Action showDetails = new AbstractAction("Show details")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
@@ -71,6 +68,7 @@ class RegistryEditor extends Editor
 
         final Action patch = new AbstractAction("Patch distribution")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
@@ -84,6 +82,7 @@ class RegistryEditor extends Editor
 
         Action removeApplication = new AbstractAction("Remove from registry")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
@@ -121,6 +120,7 @@ class RegistryEditor extends Editor
 
         _applications.addMouseListener(new MouseAdapter()
             {
+                @Override
                 public void mouseClicked(MouseEvent e)
                 {
                     if(e.getClickCount() == 2)
@@ -134,11 +134,13 @@ class RegistryEditor extends Editor
                     }
                 }
 
+                @Override
                 public void mousePressed(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
 
+                @Override
                 public void mouseReleased(MouseEvent e)
                 {
                     maybeShowPopup(e);
@@ -160,6 +162,7 @@ class RegistryEditor extends Editor
 
         Action deleteObject = new AbstractAction("Remove selected object")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(_target.getCoordinator().connectedToMaster())
@@ -179,6 +182,7 @@ class RegistryEditor extends Editor
 
         Action showObject = new AbstractAction("Show details")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _objects.getSelectedRow();
@@ -193,6 +197,7 @@ class RegistryEditor extends Editor
 
         Action addObject = new AbstractAction("Add a new well-known object")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(_target.getCoordinator().connectedToMaster())
@@ -219,6 +224,7 @@ class RegistryEditor extends Editor
 
         _objects.addMouseListener(new MouseAdapter()
             {
+                @Override
                 public void mouseClicked(MouseEvent e)
                 {
                     if(e.getClickCount() == 2)
@@ -233,11 +239,13 @@ class RegistryEditor extends Editor
                     }
                 }
 
+                @Override
                 public void mousePressed(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
 
+                @Override
                 public void mouseReleased(MouseEvent e)
                 {
                     maybeShowPopup(e);
@@ -256,6 +264,7 @@ class RegistryEditor extends Editor
 
         Action deleteAdapter = new AbstractAction("Remove selected adapter")
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     if(_target.getCoordinator().connectedToMaster())
@@ -279,11 +288,13 @@ class RegistryEditor extends Editor
 
         _adapters.addMouseListener(new MouseAdapter()
             {
+                @Override
                 public void mousePressed(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
 
+                @Override
                 public void mouseReleased(MouseEvent e)
                 {
                     maybeShowPopup(e);
@@ -299,6 +310,7 @@ class RegistryEditor extends Editor
             });
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         CellConstraints cc = new CellConstraints();
@@ -377,6 +389,7 @@ class RegistryEditor extends Editor
         builder.nextLine();
     }
 
+    @Override
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();

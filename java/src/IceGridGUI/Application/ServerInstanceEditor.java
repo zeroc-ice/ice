@@ -16,8 +16,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -30,6 +28,7 @@ import IceGridGUI.*;
 @SuppressWarnings("unchecked")
 class ServerInstanceEditor extends AbstractServerEditor
 {
+    @Override
     protected void writeDescriptor()
     {
         ServerInstanceDescriptor descriptor = getDescriptor();
@@ -38,13 +37,14 @@ class ServerInstanceEditor extends AbstractServerEditor
         descriptor.template = t.getId();
         descriptor.parameterValues = _parameters.getValues();
 
-        descriptor.propertySet.references = (String[])_propertySets.getList().toArray(new String[0]);
+        descriptor.propertySet.references = _propertySets.getList().toArray(new String[0]);
         descriptor.propertySet.properties = _properties.getProperties();
 
         ((ServerInstance)_target).isIceBox(
             ((TemplateDescriptor)t.getDescriptor()).descriptor instanceof IceBoxDescriptor);
     }
 
+    @Override
     protected boolean isSimpleUpdate()
     {
         ServerInstanceDescriptor descriptor = getDescriptor();
@@ -63,6 +63,7 @@ class ServerInstanceEditor extends AbstractServerEditor
         Action gotoTemplate = new AbstractAction(
             "", Utils.getIcon("/icons/16x16/goto.png"))
             {
+                @Override
                 public void actionPerformed(ActionEvent e)
                 {
                     TreeNode t = (TreeNode)_template.getSelectedItem();
@@ -92,6 +93,7 @@ class ServerInstanceEditor extends AbstractServerEditor
     // From Editor:
     //
 
+    @Override
     Utils.Resolver getDetailResolver()
     {
         if(_target.getCoordinator().substitute())
@@ -104,6 +106,7 @@ class ServerInstanceEditor extends AbstractServerEditor
         }
     }
 
+    @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.append("Template", _template);
@@ -171,6 +174,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 
         ListDataListener templateListener = new ListDataListener()
             {
+                @Override
                 public void contentsChanged(ListDataEvent e)
                 {
                     updated();
@@ -187,10 +191,12 @@ class ServerInstanceEditor extends AbstractServerEditor
                                     td.parameterDefaults, null);
                 }
 
+                @Override
                 public void intervalAdded(ListDataEvent e)
                 {
                 }
 
+                @Override
                 public void intervalRemoved(ListDataEvent e)
                 {
                 }

@@ -11,6 +11,7 @@ package test.Ice.metrics;
 
 class ConnectionObserverI extends ObserverI implements Ice.Instrumentation.ConnectionObserver
 {
+    @Override
     public synchronized void 
     reset()
     {
@@ -19,12 +20,14 @@ class ConnectionObserverI extends ObserverI implements Ice.Instrumentation.Conne
         sent = 0;
     }
 
+    @Override
     public synchronized void 
     sentBytes(int s)
     {
         sent += s;
     }
 
+    @Override
     public synchronized void 
     receivedBytes(int s)
     {

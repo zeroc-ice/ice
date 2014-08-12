@@ -16,11 +16,13 @@ public class TestI extends _TestIntfDisp
     {
     }
 
+    @Override
     public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
 
+    @Override
     public java.util.Map<String, String> getEndpointInfoAsContext(Ice.Current c)
     {
         java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
@@ -45,6 +47,7 @@ public class TestI extends _TestIntfDisp
         return ctx;
     }
 
+    @Override
     public java.util.Map<String, String> getConnectionInfoAsContext(Ice.Current c)
     {
         java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();

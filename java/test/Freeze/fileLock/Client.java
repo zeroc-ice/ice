@@ -12,8 +12,6 @@ package test.Freeze.fileLock;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import Freeze.*;
-
 public class Client
 {
     private static void
@@ -53,7 +51,7 @@ public class Client
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             try
             {
-                String dummy = br.readLine();
+                br.readLine();
             }
             catch(java.io.IOException ex)
             {

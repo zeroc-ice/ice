@@ -28,6 +28,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         _requestId = -1;
     }
 
+    @Override
     protected synchronized void
     finalize()
         throws Throwable
@@ -44,6 +45,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         }
     }
 
+    @Override
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie) throws Ice.UserException
     {
@@ -76,6 +78,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         return new TestI();
     }
 
+    @Override
     public void
     finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie) throws Ice.UserException
     {
@@ -102,6 +105,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         test(co.message().equals("blahblah"));
     }
 
+    @Override
     public synchronized void
     deactivate(String category)
     {

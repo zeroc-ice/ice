@@ -11,6 +11,7 @@ package test.Ice.optional;
 
 public class AMDServer extends test.Util.Application
 {
+    @Override
     public int run(String[] args)
     {
         communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
@@ -20,6 +21,7 @@ public class AMDServer extends test.Util.Application
         return WAIT;
     }
 
+    @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
