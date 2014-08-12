@@ -17,15 +17,6 @@ SUBDIRS		= IceUtil\winrt \
 		  Glacier2Lib\winrt \
 		  IceStormLib\winrt \
 		  IceGridLib\winrt
-
-!elseif "$(CPP_COMPILER)" == "VC90"
-SUBDIRS		= IceUtil \
-		  Slice \
-		  slice2cpp \
-		  slice2cs \
-		  slice2php \
-		  Ice \
-		  IceSSL \
 !else
 SUBDIRS		= IceUtil \
 		  Slice \
