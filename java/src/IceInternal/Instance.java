@@ -795,9 +795,15 @@ public final class Instance
             ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
             _endpointFactoryManager.add(tcpEndpointFactory);
+            
             ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
             EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
             _endpointFactoryManager.add(udpEndpointFactory);
+            
+            ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
+            EndpointFactory wsEndpointFactory = new WSEndpointFactoryI(wsProtocolInstance, 
+                                                                       tcpEndpointFactory.clone(wsProtocolInstance));
+            _endpointFactoryManager.add(wsEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator, this);
 

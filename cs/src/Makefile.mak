@@ -13,7 +13,7 @@ top_srcdir	= ..
 
 SUBDIRS		= Ice IceStorm Glacier2 IcePatch2 IceGrid
 !if "$(COMPACT)" != "yes" && "$(SILVERLIGHT)" != "yes"
-SUBDIRS		= $(SUBDIRS) IceSSL IceDiscovery IceWS
+SUBDIRS		= $(SUBDIRS) IceSSL IceDiscovery
 !endif
 
 !if "$(SILVERLIGHT)" != "yes"

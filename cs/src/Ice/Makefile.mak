@@ -117,7 +117,12 @@ SRCS		= Acceptor.cs \
 		  UnknownSlicedObject.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
-		  ValueWriter.cs
+		  ValueWriter.cs \
+		  HttpParser.cs \
+		  WSAcceptorI.cs \
+		  WSConnectorI.cs \
+		  WSEndpointI.cs \
+		  WSTransceiverI.cs
 
 GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Communicator.cs \

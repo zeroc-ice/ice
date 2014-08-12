@@ -109,7 +109,12 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\UdpConnector.obj \
 		  $(ARCH)\$(CONFIG)\UdpEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\UdpTransceiver.obj \
-		  $(ARCH)\$(CONFIG)\Version.obj
+		  $(ARCH)\$(CONFIG)\Version.obj \
+		  $(ARCH)\$(CONFIG)\WSAcceptorI.obj \
+                  $(ARCH)\$(CONFIG)\WSConnectorI.obj \
+                  $(ARCH)\$(CONFIG)\WSEndpointI.obj \
+                  $(ARCH)\$(CONFIG)\WSTransceiverI.obj \
+                  $(ARCH)\$(CONFIG)\HttpParser.obj
 
 LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamConnector.obj \
@@ -117,16 +122,6 @@ LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\EndpointInfo.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionInfo.obj \
-
-WS_OBJS		= $(ARCH)\$(CONFIG)\IceWS\AcceptorI.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\ConnectorI.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\ConnectionInfo.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\EndpointInfo.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\EndpointI.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\PluginI.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\Instance.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\TransceiverI.obj \
-                  $(ARCH)\$(CONFIG)\IceWS\Util.obj
 
 SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\CommunicatorF.ice \
@@ -183,16 +178,8 @@ LOCAL_SRCS	= $(LOCAL_SRCS:arm\=)
 LOCAL_SRCS	= $(LOCAL_SRCS:Retail\=.\)
 LOCAL_SRCS	= $(LOCAL_SRCS:Debug\=.\)
 
-WS_SRCS		= $(WS_OBJS:.obj=.cpp)
-WS_SRCS		= $(WS_SRCS:x86\=)
-WS_SRCS		= $(WS_SRCS:x64\=)
-WS_SRCS		= $(WS_SRCS:arm\=)
-WS_SRCS		= $(WS_SRCS:Retail\=..\..\)
-WS_SRCS		= $(WS_SRCS:Debug\=..\..\)
-
 SRCS		= $(SRCS) \
 		  $(LOCAL_SRCS) \
-		  $(WS_SRCS) \
 		  ..\CommunicatorF.cpp \
 		  ..\ConnectionF.cpp \
 		  ..\EndpointF.cpp \
@@ -217,8 +204,8 @@ SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLIC
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-$(LIBNAME): $(LOCAL_OBJS) $(OBJS) $(WS_OBJS) sdks
-	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) $(WS_OBJS) /out:$(LIBNAME)
+$(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
+	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
 
 Service.obj: $(SOURCE_DIR)\EventLoggerMsg.h
 
@@ -227,10 +214,6 @@ Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
 .cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
 	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
-
-{..\..\IceWS\}.cpp{$(ARCH)\$(CONFIG)\IceWS\}.obj::
-	@if not exist "$(ARCH)\$(CONFIG)\IceWS" mkdir $(ARCH)\$(CONFIG)\IceWS
-	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\IceWS\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(slicedir)\Ice}.ice.cpp:
 	@echo c
@@ -299,7 +282,6 @@ clean::
 	-del /q EndpointInfo.cpp $(headerdir)\IceSSL\EndpointInfo.h
 	-del /q ConnectionInfo.cpp $(headerdir)\IceSSL\ConnectionInfo.h
 	-del /q $(ARCH)\$(CONFIG)\*.obj
-	-del /q $(ARCH)\$(CONFIG)\IceWS\*.obj
 	-del /q $(PDBNAME)
 
 install:: all

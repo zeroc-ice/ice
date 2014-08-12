@@ -27,8 +27,3 @@ Ice.Warn.Connections=1
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
-
-#
-# Websocket transport plugin
-#
-Ice.Plugin.IceWS=IceWS:createIceWS

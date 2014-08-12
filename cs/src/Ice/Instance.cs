@@ -837,14 +837,18 @@ namespace IceInternal
                 }
 
                 _endpointFactoryManager = new EndpointFactoryManager(this);
-                ProtocolInstance tcpProtocolInstance =
-                    new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
+                ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
                 EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
                 _endpointFactoryManager.add(tcpEndpointFactory);
+                
                 ProtocolInstance udpProtocolInstance =
                     new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
                 EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
                 _endpointFactoryManager.add(udpEndpointFactory);
+                
+                ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
+                _endpointFactoryManager.add(new WSEndpointFactoryI(wsProtocolInstance, 
+                                                                   tcpEndpointFactory.clone(wsProtocolInstance)));
 
 #if !SILVERLIGHT
                 _pluginManager = new Ice.PluginManagerI(communicator);

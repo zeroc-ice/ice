@@ -26,8 +26,3 @@ Ice.ACM.Client.Timeout=0
 Ice.Admin.InstanceName=client
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
-
-#
-# Install WebSocket transport plug-in
-#
-Ice.Plugin.IceWS=IceWS:IceWS.PluginFactory

@@ -102,18 +102,15 @@ void
 IceUtil::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
 {
 #if defined(ICE_OS_WINRT)
-    auto dataA = ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(&data[0]), 
-                                                        static_cast<unsigned int>(data.size()));
+    auto dataA = ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(data), length);
     auto hasher = Windows::Security::Cryptography::Core::HashAlgorithmProvider::OpenAlgorithm("SHA1");
     auto hashed = hasher->HashData(Windows::Security::Cryptography::CryptographicBuffer::CreateFromByteArray(dataA));
     auto reader = ::Windows::Storage::Streams::DataReader::FromBuffer(hashed);
     md.resize(reader->UnconsumedBufferLength);
     if(!md.empty())
     {
-        reader->ReadBytes(::Platform::ArrayReference<unsigned char>(&result[0],
-                                                                    static_cast<unsigned int>(result.size())));
+        reader->ReadBytes(::Platform::ArrayReference<unsigned char>(&md[0], static_cast<unsigned int>(md.size())));
     }
-    return md;
 #elif defined(_WIN32)
     SHA1 hasher;
     hasher.update(data, length);

@@ -60,8 +60,3 @@ IceSSL.Password=password
 Ice.Admin.InstanceName=client
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
-
-#
-# Install WebSocket transport plug-in
-#
-Ice.Plugin.IceWS=IceWS.PluginFactory

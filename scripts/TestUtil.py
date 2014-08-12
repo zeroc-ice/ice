@@ -716,31 +716,6 @@ sslConfigTree["py"] = sslConfigTree["cpp"]
 sslConfigTree["rb"] = sslConfigTree["cpp"]
 sslConfigTree["php"] = sslConfigTree["cpp"]
 
-wsConfigTree = {
-        "cpp" : {
-            "plugin" : " --Ice.Plugin.IceWS=IceWS:createIceWS ",
-            "client" : " ",
-            "server" : " ",
-            "colloc" : " ",
-            },
-        "java" : {
-            "plugin" : " --Ice.Plugin.IceWS=IceWS.PluginFactory ",
-            "client" : " ",
-            "server" : " ",
-            "colloc" : " ",
-            },
-        "cs" : {
-            "plugin" : " --Ice.Plugin.IceWS=%(icewscs)s:IceWS.PluginFactory ",
-            "client" : " ",
-            "server" : " ",
-            "colloc" : " ",
-            },
-        }
-wsConfigTree["py"] = wsConfigTree["cpp"]
-wsConfigTree["rb"] = wsConfigTree["cpp"]
-wsConfigTree["php"] = wsConfigTree["cpp"]
-wsConfigTree["js"] = wsConfigTree["cpp"]
-
 def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
     here = os.getcwd().split(os.sep)
@@ -863,12 +838,6 @@ def getCommandLineProperties(exe, config):
             sslenv["verifyPeer"] = "2"
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
-
-    if config.protocol == "ws" or config.protocol == "wss":
-        wsenv = {}
-        wsenv["icewscs"] = quoteArgument("\\\"" + os.path.join(getIceDir("cs"), "Assemblies", "IceWS.dll") + "\\\"")
-        components.append(wsConfigTree[config.lang]["plugin"] % wsenv)
-        components.append(wsConfigTree[config.lang][config.type] % wsenv)
 
     components.append("--Ice.Default.Protocol=" + config.protocol)
 

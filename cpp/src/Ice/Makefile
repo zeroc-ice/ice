@@ -118,7 +118,12 @@ OBJS		= Acceptor.o \
 		  UdpConnector.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
-		  Version.o
+		  Version.o \
+		  HttpParser.o \
+		  WSEndpointI.o \
+		  WSAcceptorI.o \
+		  WSConnectorI.o \
+		  WSTransceiverI.o
 
 ifeq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \

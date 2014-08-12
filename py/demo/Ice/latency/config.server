@@ -37,8 +37,3 @@ IceSSL.VerifyPeer=0
 Ice.Admin.InstanceName=server
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
-
-#
-# Websocket transport plugin
-#
-Ice.Plugin.IceWS=IceWS:createIceWS

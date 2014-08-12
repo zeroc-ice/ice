@@ -34,6 +34,20 @@ const short UDPEndpointType = 3;
 
 /**
  *
+ * Uniquely identifies TCP-based WebSocket endpoints.
+ *
+ **/
+const short WSEndpointType = 4;
+
+/**
+ *
+ * Uniquely identifies SSL-based WebSocket endpoints.
+ *
+ **/
+const short WSSEndpointType = 5;
+
+/**
+ *
  * Base class providing access to the endpoint details.
  *
  **/
@@ -167,6 +181,21 @@ local class UDPEndpointInfo extends IPEndpointInfo
      *
      **/
      int mcastTtl;
+};
+
+/**
+ *
+ * Provides access to a WebSocket endpoint information.
+ *
+ **/
+local class WSEndpointInfo extends IPEndpointInfo
+{
+    /**
+     *
+     * The URI configured with the endpoint.
+     *
+     **/
+    string resource;
 };
 
 /**

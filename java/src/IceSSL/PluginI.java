@@ -22,8 +22,17 @@ class PluginI implements Plugin
         // in initialize, because the communicator may need to interpret
         // proxies before the plug-in is fully initialized.
         //
-        facade.addEndpointFactory(
-            new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl")));
+        IceInternal.EndpointFactory sslEndpointFactory =
+                                    new EndpointFactoryI(new Instance(_engine, IceSSL.EndpointType.value, "ssl"));
+        facade.addEndpointFactory(sslEndpointFactory);
+            
+            
+        IceInternal.ProtocolInstance wssProtocolInstance = 
+                                    new IceInternal.ProtocolInstance(communicator, Ice.WSSEndpointType.value, "wss");
+        IceInternal.EndpointFactory wssEndpointFactory = 
+                                    new IceInternal.WSEndpointFactoryI(wssProtocolInstance, 
+                                                                       sslEndpointFactory.clone(wssProtocolInstance));
+        facade.addEndpointFactory(wssEndpointFactory);
     }
 
     @Override

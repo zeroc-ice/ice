@@ -34,7 +34,8 @@ OBJS		= $(ARCH)\$(CONFIG)\ArgVector.obj \
 		  $(ARCH)\$(CONFIG)\UUID.obj \
 		  $(ARCH)\$(CONFIG)\Unicode.obj \
 		  $(ARCH)\$(CONFIG)\MutexProtocol.obj \
-	          $(ARCH)\$(CONFIG)\StringConverter.obj
+	          $(ARCH)\$(CONFIG)\StringConverter.obj \
+	          $(ARCH)\$(CONFIG)\SHA1.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)

@@ -302,5 +302,14 @@ local class UDPConnectionInfo extends IPConnectionInfo
     int mcastPort = -1;
 };
 
+/**
+ *
+ * Provides access to the connection details of a WebSocket connection
+ *
+ **/
+local class WSConnectionInfo extends IPConnectionInfo
+{
+};
+
 };
 

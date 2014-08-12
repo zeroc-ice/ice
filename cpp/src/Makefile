@@ -17,8 +17,7 @@ ifneq ($(findstring MINGW,$(UNAME)),)
 			  slice2cpp \
 			  slice2rb \
 			  Ice \
-			  IceSSL \
-			  IceWS
+			  IceSSL
 else
     SUBDIRS		= IceUtil \
 			  Slice \
@@ -35,7 +34,6 @@ else
 			  Ice \
 			  IceXML \
 			  IceSSL \
-			  IceWS \
 			  IceDiscovery \
 			  Freeze \
 			  FreezeScript \
@@ -63,7 +61,7 @@ slice2cpp slice2cs slice2freeze slice2freezej slice2java slice2js slice2php slic
 
 Ice: slice2cpp
 
-IceXML IceSSL IceWS Freeze FreezeScript IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
+IceXML IceSSL Freeze FreezeScript IceBox Glacier2Lib IcePatch2Lib IceStormLib IceGridLib: Ice
 
 Freeze: slice2freeze
 

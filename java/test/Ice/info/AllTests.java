@@ -48,12 +48,12 @@ public class AllTests
             test(!ipEndpoint.datagram());
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure() ||
-                 ipEndpoint.type() == IceWS.WSEndpointType.value && !ipEndpoint.secure() ||
-                 ipEndpoint.type() == IceWS.WSSEndpointType.value && ipEndpoint.secure());
+                 ipEndpoint.type() == Ice.WSEndpointType.value && !ipEndpoint.secure() ||
+                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint.secure());
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint instanceof Ice.TCPEndpointInfo ||
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint instanceof IceSSL.EndpointInfo ||
-                 ipEndpoint.type() == IceWS.WSEndpointType.value && ipEndpoint instanceof IceWS.EndpointInfo ||
-                 ipEndpoint.type() == IceWS.WSSEndpointType.value && ipEndpoint instanceof IceWS.EndpointInfo);
+                 ipEndpoint.type() == Ice.WSEndpointType.value && ipEndpoint instanceof Ice.WSEndpointInfo ||
+                 ipEndpoint.type() == Ice.WSSEndpointType.value && ipEndpoint instanceof Ice.WSEndpointInfo);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.equals("udphost"));
@@ -86,7 +86,7 @@ public class AllTests
 
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
             test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value ||
-                 ipEndpoint.type() == IceWS.WSEndpointType.value || ipEndpoint.type() == IceWS.WSSEndpointType.value);
+                 ipEndpoint.type() == Ice.WSEndpointType.value || ipEndpoint.type() == Ice.WSSEndpointType.value);
             test(ipEndpoint.host.equals(defaultHost));
             test(ipEndpoint.port > 0);
             test(ipEndpoint.timeout == 15000);

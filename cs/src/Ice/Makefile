@@ -116,7 +116,12 @@ SRCS		= Acceptor.cs \
 		  UnknownSlicedObject.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
-		  ValueWriter.cs
+		  ValueWriter.cs \
+		  HttpParser.cs \
+		  WSAcceptorI.cs \
+		  WSConnectorI.cs \
+		  WSEndpointI.cs \
+		  WSTransceiverI.cs
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Communicator.ice \

@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
-#include <IceWS/IceWS.h>
 #include <TestCommon.h>
 #include <TestI.h>
 
@@ -38,12 +37,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(!ipEndpoint->datagram());
         test((ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
              (ipEndpoint->type() == IceSSL::EndpointType && ipEndpoint->secure()) ||
-             (ipEndpoint->type() == IceWS::WSEndpointType && !ipEndpoint->secure()) ||
-             (ipEndpoint->type() == IceWS::WSSEndpointType && ipEndpoint->secure()));
+             (ipEndpoint->type() == Ice::WSEndpointType && !ipEndpoint->secure()) ||
+             (ipEndpoint->type() == Ice::WSSEndpointType && ipEndpoint->secure()));
         test((ipEndpoint->type() == Ice::TCPEndpointType && Ice::TCPEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
              (ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
-             (ipEndpoint->type() == IceWS::WSEndpointType && IceWS::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
-             (ipEndpoint->type() == IceWS::WSSEndpointType && IceWS::EndpointInfoPtr::dynamicCast(ipEndpoint)));
+             (ipEndpoint->type() == Ice::WSEndpointType && Ice::EndpointInfoPtr::dynamicCast(ipEndpoint)) ||
+             (ipEndpoint->type() == Ice::WSSEndpointType && Ice::EndpointInfoPtr::dynamicCast(ipEndpoint)));
 
         Ice::UDPEndpointInfoPtr udpEndpoint = Ice::UDPEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
         test(udpEndpoint);
@@ -81,7 +80,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::IPEndpointInfoPtr ipEndpoint = Ice::IPEndpointInfoPtr::dynamicCast(endpoints[0]->getInfo());
         test(ipEndpoint);
         test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == IceSSL::EndpointType ||
-             ipEndpoint->type() == IceWS::WSEndpointType || ipEndpoint->type() == IceWS::WSSEndpointType);
+             ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
         test(ipEndpoint->host == defaultHost);
         test(ipEndpoint->port > 0);
         test(ipEndpoint->timeout == 15000);

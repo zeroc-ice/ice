@@ -69,6 +69,8 @@
 #   include <Ice/winrt/StreamEndpointI.h>
 #endif
 
+#include <Ice/WSEndpointI.h>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -1165,17 +1167,28 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
         _endpointFactoryManager->add(tcpEndpointFactory);
 #else
-        ProtocolInstancePtr tcpInstance = new ProtocolInstance(this, TCPEndpointType, "tcp");
-        EndpointFactoryPtr tcpFactory = new StreamEndpointFactory(tcpInstance);
-        _endpointFactoryManager->add(tcpFactory);
+        ProtocolInstancePtr tcpProtocolInstance = new ProtocolInstance(this, TCPEndpointType, "tcp");
+        EndpointFactoryPtr tcpEndpointFactory = new StreamEndpointFactory(tcpProtocolInstance);
+        _endpointFactoryManager->add(tcpEndpointFactory);
 
-        ProtocolInstancePtr sslInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl");
-        EndpointFactoryPtr sslFactory = new StreamEndpointFactory(sslInstance);
-        _endpointFactoryManager->add(sslFactory);
+        ProtocolInstancePtr sslProtocolInstance = new ProtocolInstance(this, IceSSL::EndpointType, "ssl");
+        EndpointFactoryPtr sslEndpointFactory = new StreamEndpointFactory(sslProtocolInstance);
+        _endpointFactoryManager->add(sslEndpointFactory);
+
+        ProtocolInstancePtr wssProtocolInstance = new ProtocolInstance(this, WSSEndpointType, "wss");
+        EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactoryI(wssProtocolInstance, 
+                                                                       sslEndpointFactory->clone(wssProtocolInstance));
+        _endpointFactoryManager->add(wssEndpointFactory);
 #endif
         ProtocolInstancePtr udpProtocolInstance = new ProtocolInstance(this, UDPEndpointType, "udp");
         EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
         _endpointFactoryManager->add(udpEndpointFactory);
+
+        ProtocolInstancePtr wsProtocolInstance = new ProtocolInstance(this, WSEndpointType, "ws");
+        EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactoryI(wsProtocolInstance, 
+                                                                      tcpEndpointFactory->clone(wsProtocolInstance));
+        
+        _endpointFactoryManager->add(wsEndpointFactory);
 
         _dynamicLibraryList = new DynamicLibraryList;
 
