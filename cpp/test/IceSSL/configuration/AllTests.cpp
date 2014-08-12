@@ -647,10 +647,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
 
         //
         // This should succeed because the self signed certificate used by the server is
-        // trusted. The IceSSL.DefaultDir setting in the client allows OpenSSL to find 
-        // the server's CA certificate.
+        // trusted.
         //
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert2.pem");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
