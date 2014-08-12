@@ -57,6 +57,13 @@ extern "C"
 }
 #endif
 
+#ifdef _WIN32
+#  if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x602)
+#    include <mstcpip.h>
+#    define HAS_LOOPBACK_FAST_PATH 1
+#  endif
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -141,6 +148,28 @@ setKeepAlive(SOCKET fd)
 }
 #endif
 
+#ifdef HAS_LOOPBACK_FAST_PATH
+void
+setTcpLoopbackFastPath(SOCKET fd)
+{
+    int OptionValue = 1;
+    DWORD NumberOfBytesReturned = 0;
+    int status =
+        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
+    if(status == SOCKET_ERROR)
+    {
+        DWORD LastError = ::GetLastError();
+        if(LastError != WSAEOPNOTSUPP)
+        {
+            closeSocketNoThrow(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+    }
+}
+#endif
+
 #ifdef ICE_OS_WINRT
 SOCKET
 createSocketImpl(bool udp, int)
@@ -187,6 +216,9 @@ createSocketImpl(bool udp, int family)
     {
         setTcpNoDelay(fd);
         setKeepAlive(fd);
+#ifdef HAS_LOOPBACK_FAST_PATH
+        setTcpLoopbackFastPath(fd);
+#endif
     }
 
     return fd;

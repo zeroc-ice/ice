@@ -445,6 +445,9 @@ namespace IceInternal
                     setTcpNoDelay(socket);
 #if !SILVERLIGHT
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
+#  if !__MonoCS__
+                    setTcpLoopbackFastPath(socket);
+#  endif
 #endif
                 }
                 catch(SocketException ex)
@@ -530,6 +533,21 @@ namespace IceInternal
         }
 
 #if !SILVERLIGHT
+        public static void setTcpLoopbackFastPath(Socket socket)
+        {
+            const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
+
+            Byte[] OptionInValue = BitConverter.GetBytes(1);
+            try
+            {
+                socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
+            }
+            catch(System.Exception ex)
+            {
+                // Expected on platforms that do not support TCP Loopback Fast Path
+            }
+        }
+
         public static void setBlock(Socket socket, bool block)
         {
             try

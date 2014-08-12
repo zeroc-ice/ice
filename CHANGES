@@ -155,6 +155,9 @@ General Changes
 C++ Changes
 ===========
 
+- Added support for TCP Loopback Fast Path on Windows platforms that
+  support it.
+
 - Fixed a bug where the communicator destruction could raise an
   Ice::NullHandleException if a custom observer was setup.
 
@@ -185,6 +188,9 @@ C++ Changes
 
 C# Changes
 ==========
+
+- Added support for TCP Loopback Fast Path on Windows platforms that
+  support it.
 
 - The Ice.Communicator type now implements IDisposable, which allows
   communicator objects to be used as resources in using() statements.
