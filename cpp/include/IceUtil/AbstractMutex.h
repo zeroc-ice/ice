@@ -17,7 +17,7 @@
 namespace IceUtil
 {
 
-class AbstractMutex
+class ICE_UTIL_API AbstractMutex
 {
 public:
     
