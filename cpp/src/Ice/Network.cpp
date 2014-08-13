@@ -57,7 +57,7 @@ extern "C"
 }
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
 #  if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x602)
 #    include <mstcpip.h>
 #    define HAS_LOOPBACK_FAST_PATH 1
