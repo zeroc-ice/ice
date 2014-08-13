@@ -27,6 +27,7 @@ SUBDIRS         = binding \
                 optional \
                 optionalBidir \
                 promise \
+                properties \
                 proxy \
                 retry \
                 slicing \
