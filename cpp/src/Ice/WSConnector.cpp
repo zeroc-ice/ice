@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#include <Ice/WSConnectorI.h>
-#include <Ice/WSTransceiverI.h>
-#include <Ice/WSEndpointI.h>
+#include <Ice/WSConnector.h>
+#include <Ice/WSTransceiver.h>
+#include <Ice/WSEndpoint.h>
 #include <Ice/HttpParser.h>
 
 using namespace std;
@@ -17,27 +17,27 @@ using namespace Ice;
 using namespace IceInternal;
 
 TransceiverPtr
-IceInternal::WSConnectorI::connect()
+IceInternal::WSConnector::connect()
 {
-    return new WSTransceiverI(_instance, _delegate->connect(), _host, _port, _resource);
+    return new WSTransceiver(_instance, _delegate->connect(), _host, _port, _resource);
 }
 
 Short
-IceInternal::WSConnectorI::type() const
+IceInternal::WSConnector::type() const
 {
     return _delegate->type();
 }
 
 string
-IceInternal::WSConnectorI::toString() const
+IceInternal::WSConnector::toString() const
 {
     return _delegate->toString();
 }
 
 bool
-IceInternal::WSConnectorI::operator==(const Connector& r) const
+IceInternal::WSConnector::operator==(const Connector& r) const
 {
-    const WSConnectorI* p = dynamic_cast<const WSConnectorI*>(&r);
+    const WSConnector* p = dynamic_cast<const WSConnector*>(&r);
     if(!p)
     {
         return false;
@@ -62,15 +62,15 @@ IceInternal::WSConnectorI::operator==(const Connector& r) const
 }
 
 bool
-IceInternal::WSConnectorI::operator!=(const Connector& r) const
+IceInternal::WSConnector::operator!=(const Connector& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::WSConnectorI::operator<(const Connector& r) const
+IceInternal::WSConnector::operator<(const Connector& r) const
 {
-    const WSConnectorI* p = dynamic_cast<const WSConnectorI*>(&r);
+    const WSConnector* p = dynamic_cast<const WSConnector*>(&r);
     if(!p)
     {
         return type() < r.type();
@@ -102,12 +102,12 @@ IceInternal::WSConnectorI::operator<(const Connector& r) const
     return false;
 }
 
-IceInternal::WSConnectorI::WSConnectorI(const ProtocolInstancePtr& instance, const ConnectorPtr& del, const string& host, 
+IceInternal::WSConnector::WSConnector(const ProtocolInstancePtr& instance, const ConnectorPtr& del, const string& host, 
                                         int port, const string& resource) :
     _instance(instance), _delegate(del), _host(host), _port(port), _resource(resource)
 {
 }
 
-IceInternal::WSConnectorI::~WSConnectorI()
+IceInternal::WSConnector::~WSConnector()
 {
 }

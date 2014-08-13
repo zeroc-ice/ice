@@ -11,7 +11,7 @@ package IceInternal;
 
 import java.security.*;
 
-final class WSTransceiverI implements Transceiver
+final class WSTransceiver implements Transceiver
 {
     @Override
     public java.nio.channels.SelectableChannel fd()
@@ -467,7 +467,7 @@ final class WSTransceiverI implements Transceiver
         _delegate.checkSendSize(buf, messageSizeMax);
     }
 
-    WSTransceiverI(ProtocolInstance instance, Transceiver del, String host, int port, String resource)
+    WSTransceiver(ProtocolInstance instance, Transceiver del, String host, int port, String resource)
     {
         init(instance, del);
         _host = host;
@@ -490,7 +490,7 @@ final class WSTransceiverI implements Transceiver
         assert(_readBufferSize > 256);
     }
 
-    WSTransceiverI(ProtocolInstance instance, Transceiver del)
+    WSTransceiver(ProtocolInstance instance, Transceiver del)
     {
         init(instance, del);
         _host = "";

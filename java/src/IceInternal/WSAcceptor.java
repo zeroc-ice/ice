@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class WSAcceptorI implements IceInternal.Acceptor
+final class WSAcceptor implements IceInternal.Acceptor
 {
     @Override
     public java.nio.channels.ServerSocketChannel fd()
@@ -36,7 +36,7 @@ final class WSAcceptorI implements IceInternal.Acceptor
         // WebSocket handshaking is performed in TransceiverI::initialize, since
         // accept must not block.
         //
-        return new WSTransceiverI(_instance, _delegate.accept());
+        return new WSTransceiver(_instance, _delegate.accept());
     }
 
     @Override
@@ -51,7 +51,7 @@ final class WSAcceptorI implements IceInternal.Acceptor
         return _delegate.toString();
     }
 
-    WSAcceptorI(ProtocolInstance instance, IceInternal.Acceptor del)
+    WSAcceptor(ProtocolInstance instance, IceInternal.Acceptor del)
     {
         _instance = instance;
         _delegate = del;

@@ -20,13 +20,13 @@
 namespace IceInternal
 {
 
-class WSEndpointI : public EndpointI
+class WSEndpoint : public EndpointI
 {
 public:
 
-    WSEndpointI(const ProtocolInstancePtr&, const EndpointIPtr&, const std::string&);
-    WSEndpointI(const ProtocolInstancePtr&, const EndpointIPtr&, std::vector<std::string>&);
-    WSEndpointI(const ProtocolInstancePtr&, const EndpointIPtr&, BasicStream*);
+    WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, const std::string&);
+    WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, std::vector<std::string>&);
+    WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, BasicStream*);
 
     virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
@@ -68,12 +68,12 @@ private:
     const std::string _resource;
 };
 
-class ICE_API WSEndpointFactoryI : public EndpointFactory
+class ICE_API WSEndpointFactory : public EndpointFactory
 {
 public:
 
-    WSEndpointFactoryI(const ProtocolInstancePtr&, const EndpointFactoryPtr&);
-    virtual ~WSEndpointFactoryI();
+    WSEndpointFactory(const ProtocolInstancePtr&, const EndpointFactoryPtr&);
+    virtual ~WSEndpointFactory();
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;

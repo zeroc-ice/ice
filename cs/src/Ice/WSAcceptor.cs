@@ -9,7 +9,7 @@
 
 namespace IceInternal
 {
-    class WSAcceptorI : IceInternal.Acceptor
+    class WSAcceptor : IceInternal.Acceptor
     {
         public void close()
         {
@@ -33,7 +33,7 @@ namespace IceInternal
 
         public IceInternal.Transceiver accept()
         {
-            return new WSTransceiverI(_instance, _delegate.accept());
+            return new WSTransceiver(_instance, _delegate.accept());
         }
 
         public string protocol()
@@ -46,7 +46,7 @@ namespace IceInternal
             return _delegate.ToString();
         }
 
-        internal WSAcceptorI(ProtocolInstance instance, IceInternal.Acceptor del)
+        internal WSAcceptor(ProtocolInstance instance, IceInternal.Acceptor del)
         {
             _instance = instance;
             _delegate = del;

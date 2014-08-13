@@ -24,7 +24,7 @@ namespace IceInternal
 class ConnectorI;
 class AcceptorI;
 
-class WSTransceiverI : public Transceiver
+class WSTransceiver : public Transceiver
 {
 public:
 
@@ -53,9 +53,9 @@ public:
 
 private:
 
-    WSTransceiverI(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, int, const std::string&);
-    WSTransceiverI(const ProtocolInstancePtr&, const TransceiverPtr&);
-    virtual ~WSTransceiverI();
+    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, int, const std::string&);
+    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
+    virtual ~WSTransceiver();
 
     void handleRequest(Buffer&);
     void handleResponse();
@@ -69,8 +69,8 @@ private:
     bool readBuffered(Buffer::Container::size_type);
     void prepareWriteHeader(Ice::Byte, Buffer::Container::size_type);
 
-    friend class WSConnectorI;
-    friend class WSAcceptorI;
+    friend class WSConnector;
+    friend class WSAcceptor;
 
     const ProtocolInstancePtr _instance;
     const TransceiverPtr _delegate;
@@ -140,7 +140,7 @@ private:
 
     std::vector<Ice::Byte> _pingPayload;
 };
-typedef IceUtil::Handle<WSTransceiverI> WSTransceiverIPtr;
+typedef IceUtil::Handle<WSTransceiver> WSTransceiverPtr;
 
 }
 

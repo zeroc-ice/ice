@@ -110,10 +110,10 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\UdpEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\UdpTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\Version.obj \
-		  $(ARCH)\$(CONFIG)\WSAcceptorI.obj \
-                  $(ARCH)\$(CONFIG)\WSConnectorI.obj \
-                  $(ARCH)\$(CONFIG)\WSEndpointI.obj \
-                  $(ARCH)\$(CONFIG)\WSTransceiverI.obj \
+		  $(ARCH)\$(CONFIG)\WSAcceptor.obj \
+                  $(ARCH)\$(CONFIG)\WSConnector.obj \
+                  $(ARCH)\$(CONFIG)\WSEndpoint.obj \
+                  $(ARCH)\$(CONFIG)\WSTransceiver.obj \
                   $(ARCH)\$(CONFIG)\HttpParser.obj
 
 LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \

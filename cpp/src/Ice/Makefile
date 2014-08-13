@@ -120,10 +120,10 @@ OBJS		= Acceptor.o \
 		  UdpTransceiver.o \
 		  Version.o \
 		  HttpParser.o \
-		  WSEndpointI.o \
-		  WSAcceptorI.o \
-		  WSConnectorI.o \
-		  WSTransceiverI.o
+		  WSEndpoint.o \
+		  WSAcceptor.o \
+		  WSConnector.o \
+		  WSTransceiver.o
 
 ifeq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \

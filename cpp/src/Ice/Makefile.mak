@@ -121,10 +121,10 @@ OBJS		= Acceptor.obj \
 		  UdpTransceiver.obj \
 		  Version.obj \
 		  HttpParser.obj \
-		  WSEndpointI.obj \
-		  WSAcceptorI.obj \
-		  WSConnectorI.obj \
-		  WSTransceiverI.obj
+		  WSEndpoint.obj \
+		  WSAcceptor.obj \
+		  WSConnector.obj \
+		  WSTransceiver.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

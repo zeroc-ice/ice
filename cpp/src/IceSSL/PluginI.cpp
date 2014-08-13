@@ -13,7 +13,7 @@
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/EndpointInfo.h>
 
-#include <Ice/WSEndpointI.h>
+#include <Ice/WSEndpoint.h>
 #include <Ice/ProtocolPluginFacade.h>
 #include <Ice/ProtocolInstance.h>
 #include <Ice/LocalException.h>
@@ -61,7 +61,7 @@ IceSSL::PluginI::PluginI(const Ice::CommunicatorPtr& communicator)
     facade->addEndpointFactory(sslFactory);
     
     IceInternal::ProtocolInstancePtr wssInstance = new IceInternal::ProtocolInstance(communicator, WSSEndpointType, "wss");
-    facade->addEndpointFactory(new IceInternal::WSEndpointFactoryI(wssInstance, sslFactory->clone(wssInstance)));
+    facade->addEndpointFactory(new IceInternal::WSEndpointFactory(wssInstance, sslFactory->clone(wssInstance)));
 }
 
 void

@@ -19,6 +19,7 @@ SRCS		= LocatorI.cs \
 		  PluginI.cs
 
 SLICE_SRCS	= $(SDIR)/IceDiscovery.ice
+SDIR		= $(slicedir)/IceDiscovery
 GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs

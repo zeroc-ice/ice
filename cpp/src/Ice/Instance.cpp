@@ -69,7 +69,7 @@
 #   include <Ice/winrt/StreamEndpointI.h>
 #endif
 
-#include <Ice/WSEndpointI.h>
+#include <Ice/WSEndpoint.h>
 
 using namespace std;
 using namespace Ice;
@@ -1176,8 +1176,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _endpointFactoryManager->add(sslEndpointFactory);
 
         ProtocolInstancePtr wssProtocolInstance = new ProtocolInstance(this, WSSEndpointType, "wss");
-        EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactoryI(wssProtocolInstance, 
-                                                                       sslEndpointFactory->clone(wssProtocolInstance));
+        EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactory(wssProtocolInstance, 
+                                                                      sslEndpointFactory->clone(wssProtocolInstance));
         _endpointFactoryManager->add(wssEndpointFactory);
 #endif
         ProtocolInstancePtr udpProtocolInstance = new ProtocolInstance(this, UDPEndpointType, "udp");
@@ -1185,8 +1185,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _endpointFactoryManager->add(udpEndpointFactory);
 
         ProtocolInstancePtr wsProtocolInstance = new ProtocolInstance(this, WSEndpointType, "ws");
-        EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactoryI(wsProtocolInstance, 
-                                                                      tcpEndpointFactory->clone(wsProtocolInstance));
+        EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance, 
+                                                                     tcpEndpointFactory->clone(wsProtocolInstance));
         
         _endpointFactoryManager->add(wsEndpointFactory);
 

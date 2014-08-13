@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/WSTransceiverI.h>
+#include <Ice/WSTransceiver.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Connection.h>
 #include <Ice/ProtocolInstance.h>
@@ -175,27 +175,27 @@ Short ntohs(Short value)
 }
 
 NativeInfoPtr
-IceInternal::WSTransceiverI::getNativeInfo()
+IceInternal::WSTransceiver::getNativeInfo()
 {
     return _delegate->getNativeInfo();
 }
 
 #if defined(ICE_USE_IOCP)
 AsyncInfo*
-IceInternal::WSTransceiverI::getAsyncInfo(SocketOperation status)
+IceInternal::WSTransceiver::getAsyncInfo(SocketOperation status)
 {
     return _delegate->getNativeInfo()->getAsyncInfo(status);
 }
 #elif defined(ICE_OS_WINRT)
 void
-IceInternal::WSTransceiverI::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
+IceInternal::WSTransceiver::setCompletedHandler(IceInternal::SocketOperationCompletedHandler^ handler)
 {
     _delegate->getNativeInfo()->setCompletedHandler(handler);
 }
 #endif
 
 SocketOperation
-IceInternal::WSTransceiverI::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& hasMoreData)
+IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer, bool& hasMoreData)
 {
     //
     // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
@@ -409,7 +409,7 @@ IceInternal::WSTransceiverI::initialize(Buffer& readBuffer, Buffer& writeBuffer,
 }
 
 SocketOperation
-IceInternal::WSTransceiverI::closing(bool initiator, const Ice::LocalException& reason)
+IceInternal::WSTransceiver::closing(bool initiator, const Ice::LocalException& reason)
 {
     if(_instance->traceLevel() >= 1)
     {
@@ -470,14 +470,14 @@ IceInternal::WSTransceiverI::closing(bool initiator, const Ice::LocalException& 
 }
 
 void
-IceInternal::WSTransceiverI::close()
+IceInternal::WSTransceiver::close()
 {
     _delegate->close();
     _state = StateClosed;
 }
 
 SocketOperation
-IceInternal::WSTransceiverI::write(Buffer& buf)
+IceInternal::WSTransceiver::write(Buffer& buf)
 {
     if(_writePending)
     {
@@ -529,7 +529,7 @@ IceInternal::WSTransceiverI::write(Buffer& buf)
 }
 
 SocketOperation
-IceInternal::WSTransceiverI::read(Buffer& buf, bool& hasMoreData)
+IceInternal::WSTransceiver::read(Buffer& buf, bool& hasMoreData)
 {
     if(_readPending)
     {
@@ -620,7 +620,7 @@ IceInternal::WSTransceiverI::read(Buffer& buf, bool& hasMoreData)
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
-IceInternal::WSTransceiverI::startWrite(Buffer& buf)
+IceInternal::WSTransceiver::startWrite(Buffer& buf)
 {
     _writePending = true;
     if(_state < StateOpened)
@@ -656,7 +656,7 @@ IceInternal::WSTransceiverI::startWrite(Buffer& buf)
 }
 
 void
-IceInternal::WSTransceiverI::finishWrite(Buffer& buf)
+IceInternal::WSTransceiver::finishWrite(Buffer& buf)
 {
     _writePending = false;
     if(_state < StateOpened)
@@ -686,7 +686,7 @@ IceInternal::WSTransceiverI::finishWrite(Buffer& buf)
 }
 
 void
-IceInternal::WSTransceiverI::startRead(Buffer& buf)
+IceInternal::WSTransceiver::startRead(Buffer& buf)
 {
     _readPending = true;
     if(_state < StateOpened)
@@ -736,7 +736,7 @@ IceInternal::WSTransceiverI::startRead(Buffer& buf)
 }
 
 void
-IceInternal::WSTransceiverI::finishRead(Buffer& buf, bool& hasMoreData)
+IceInternal::WSTransceiver::finishRead(Buffer& buf, bool& hasMoreData)
 {
     _readPending = false;
     if(_state < StateOpened)
@@ -769,19 +769,19 @@ IceInternal::WSTransceiverI::finishRead(Buffer& buf, bool& hasMoreData)
 #endif
 
 string
-IceInternal::WSTransceiverI::protocol() const
+IceInternal::WSTransceiver::protocol() const
 {
     return _instance->protocol();
 }
 
 string
-IceInternal::WSTransceiverI::toString() const
+IceInternal::WSTransceiver::toString() const
 {
     return _delegate->toString();
 }
 
 Ice::ConnectionInfoPtr
-IceInternal::WSTransceiverI::getInfo() const
+IceInternal::WSTransceiver::getInfo() const
 {
     IPConnectionInfoPtr di = IPConnectionInfoPtr::dynamicCast(_delegate->getInfo());
     assert(di);
@@ -794,12 +794,12 @@ IceInternal::WSTransceiverI::getInfo() const
 }
 
 void
-IceInternal::WSTransceiverI::checkSendSize(const Buffer& buf, size_t messageSizeMax)
+IceInternal::WSTransceiver::checkSendSize(const Buffer& buf, size_t messageSizeMax)
 {
     _delegate->checkSendSize(buf, messageSizeMax);
 }
 
-IceInternal::WSTransceiverI::WSTransceiverI(const ProtocolInstancePtr& instance, const TransceiverPtr& del,
+IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del,
                                             const string& host, int port, const string& resource) :
     _instance(instance),
     _delegate(del),
@@ -838,7 +838,7 @@ IceInternal::WSTransceiverI::WSTransceiverI(const ProtocolInstancePtr& instance,
     assert(_readBufferSize > 256);
 }
 
-IceInternal::WSTransceiverI::WSTransceiverI(const ProtocolInstancePtr& instance, const TransceiverPtr& del) :
+IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del) :
     _instance(instance),
     _delegate(del),
     _port(-1),
@@ -867,12 +867,12 @@ IceInternal::WSTransceiverI::WSTransceiverI(const ProtocolInstancePtr& instance,
     assert(_readBufferSize > 256);
 }
 
-IceInternal::WSTransceiverI::~WSTransceiverI()
+IceInternal::WSTransceiver::~WSTransceiver()
 {
 }
 
 void
-IceInternal::WSTransceiverI::handleRequest(Buffer& responseBuffer)
+IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
 {
     string val;
 
@@ -1001,7 +1001,7 @@ IceInternal::WSTransceiverI::handleRequest(Buffer& responseBuffer)
 }
 
 void
-IceInternal::WSTransceiverI::handleResponse()
+IceInternal::WSTransceiver::handleResponse()
 {
     string val;
 
@@ -1097,7 +1097,7 @@ IceInternal::WSTransceiverI::handleResponse()
 }
 
 bool
-IceInternal::WSTransceiverI::preRead(Buffer& buf)
+IceInternal::WSTransceiver::preRead(Buffer& buf)
 {
     while(true)
     {
@@ -1363,7 +1363,7 @@ IceInternal::WSTransceiverI::preRead(Buffer& buf)
 }
 
 bool
-IceInternal::WSTransceiverI::postRead(Buffer& buf)
+IceInternal::WSTransceiver::postRead(Buffer& buf)
 {
     if(_readState != ReadStatePayload)
     {
@@ -1401,7 +1401,7 @@ IceInternal::WSTransceiverI::postRead(Buffer& buf)
 }
 
 bool
-IceInternal::WSTransceiverI::preWrite(Buffer& buf)
+IceInternal::WSTransceiver::preWrite(Buffer& buf)
 {
     if(_writeState == WriteStateHeader)
     {
@@ -1526,7 +1526,7 @@ IceInternal::WSTransceiverI::preWrite(Buffer& buf)
 }
 
 bool
-IceInternal::WSTransceiverI::postWrite(Buffer& buf)
+IceInternal::WSTransceiver::postWrite(Buffer& buf)
 {
     if(_state > StateOpened && _writeState == WriteStateControlFrame)
     {
@@ -1612,7 +1612,7 @@ IceInternal::WSTransceiverI::postWrite(Buffer& buf)
 }
 
 bool
-IceInternal::WSTransceiverI::readBuffered(IceInternal::Buffer::Container::size_type sz)
+IceInternal::WSTransceiver::readBuffered(IceInternal::Buffer::Container::size_type sz)
 {
     if(_readI == _readBuffer.i)
     {
@@ -1644,7 +1644,7 @@ IceInternal::WSTransceiverI::readBuffered(IceInternal::Buffer::Container::size_t
 }
 
 void
-IceInternal::WSTransceiverI::prepareWriteHeader(Byte opCode, IceInternal::Buffer::Container::size_type payloadLength)
+IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer::Container::size_type payloadLength)
 {
     //
     // We need to prepare the frame header.

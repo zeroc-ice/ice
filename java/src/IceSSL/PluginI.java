@@ -30,8 +30,8 @@ class PluginI implements Plugin
         IceInternal.ProtocolInstance wssProtocolInstance = 
                                     new IceInternal.ProtocolInstance(communicator, Ice.WSSEndpointType.value, "wss");
         IceInternal.EndpointFactory wssEndpointFactory = 
-                                    new IceInternal.WSEndpointFactoryI(wssProtocolInstance, 
-                                                                       sslEndpointFactory.clone(wssProtocolInstance));
+                                    new IceInternal.WSEndpointFactory(wssProtocolInstance, 
+                                                                      sslEndpointFactory.clone(wssProtocolInstance));
         facade.addEndpointFactory(wssEndpointFactory);
     }
 

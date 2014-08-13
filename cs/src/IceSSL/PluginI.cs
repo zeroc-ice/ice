@@ -51,7 +51,7 @@ namespace IceSSL
             
             IceInternal.ProtocolInstance wssProtocolInstance = 
                                     new IceInternal.ProtocolInstance(communicator, Ice.WSSEndpointType.value, "wss");
-            facade.addEndpointFactory(new IceInternal.WSEndpointFactoryI(wssProtocolInstance, 
+            facade.addEndpointFactory(new IceInternal.WSEndpointFactory(wssProtocolInstance, 
                                                              sslEndpointFactory.clone(wssProtocolInstance)));
         }
 

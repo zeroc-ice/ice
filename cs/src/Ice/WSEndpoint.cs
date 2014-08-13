@@ -14,16 +14,16 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Globalization;
 
-    sealed class WSEndpointI : IceInternal.EndpointI
+    sealed class WSEndpoint : IceInternal.EndpointI
     {
-        internal WSEndpointI(ProtocolInstance instance, IceInternal.EndpointI del, string res)
+        internal WSEndpoint(ProtocolInstance instance, IceInternal.EndpointI del, string res)
         {
             _instance = instance;
             _delegate = (IceInternal.IPEndpointI)del;
             _resource = res;
         }
 
-        internal WSEndpointI(ProtocolInstance instance, IceInternal.EndpointI del, List<string> args)
+        internal WSEndpoint(ProtocolInstance instance, IceInternal.EndpointI del, List<string> args)
         {
             _instance = instance;
             _delegate = (IceInternal.IPEndpointI)del;
@@ -36,7 +36,7 @@ namespace IceInternal
             }
         }
 
-        internal WSEndpointI(ProtocolInstance instance, IceInternal.EndpointI del, IceInternal.BasicStream s)
+        internal WSEndpoint(ProtocolInstance instance, IceInternal.EndpointI del, IceInternal.BasicStream s)
         {
             _instance = instance;
             _delegate = (IceInternal.IPEndpointI)del;
@@ -110,7 +110,7 @@ namespace IceInternal
             }
             else
             {
-                return new WSEndpointI(_instance, _delegate.timeout(timeout), _resource);
+                return new WSEndpoint(_instance, _delegate.timeout(timeout), _resource);
             }
         }
 
@@ -127,7 +127,7 @@ namespace IceInternal
             }
             else
             {
-                return new WSEndpointI(_instance, _delegate.connectionId(connectionId), _resource);
+                return new WSEndpoint(_instance, _delegate.connectionId(connectionId), _resource);
             }
         }
 
@@ -144,7 +144,7 @@ namespace IceInternal
             }
             else
             {
-                return new WSEndpointI(_instance, _delegate.compress(compress), _resource);
+                return new WSEndpoint(_instance, _delegate.compress(compress), _resource);
             }
         }
 
@@ -170,7 +170,7 @@ namespace IceInternal
             List<IceInternal.Connector> l = new List<IceInternal.Connector>();
             foreach(IceInternal.Connector c in connectors)
             {
-                l.Add(new WSConnectorI(_instance, c, _delegate.host(), _delegate.port(), _resource));
+                l.Add(new WSConnector(_instance, c, _delegate.host(), _delegate.port(), _resource));
             }
             return l;
         }
@@ -192,7 +192,7 @@ namespace IceInternal
                 List<IceInternal.Connector> l = new List<IceInternal.Connector>();
                 foreach(IceInternal.Connector c in connectors)
                 {
-                    l.Add(new WSConnectorI(_instance, c, _host, _port, _resource));
+                    l.Add(new WSConnector(_instance, c, _host, _port, _resource));
                 }
                 _callback.connectors(l);
             }
@@ -223,9 +223,9 @@ namespace IceInternal
             IceInternal.Acceptor delAcc = _delegate.acceptor(ref delEndp, adapterName);
             if(delEndp != null)
             {
-                endpoint = new WSEndpointI(_instance, delEndp, _resource);
+                endpoint = new WSEndpoint(_instance, delEndp, _resource);
             }
-            return new WSAcceptorI(_instance, delAcc);
+            return new WSAcceptor(_instance, delAcc);
         }
 
         public override List<IceInternal.EndpointI> expand()
@@ -234,18 +234,18 @@ namespace IceInternal
             List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
             foreach(IceInternal.EndpointI e in endps)
             {
-                l.Add(e == _delegate ? this : new WSEndpointI(_instance, e, _resource));
+                l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
             }
             return l;
         }
 
         public override bool equivalent(IceInternal.EndpointI endpoint)
         {
-            if(!(endpoint is WSEndpointI))
+            if(!(endpoint is WSEndpoint))
             {
                 return false;
             }
-            WSEndpointI wsEndpointI = (WSEndpointI)endpoint;
+            WSEndpoint wsEndpointI = (WSEndpoint)endpoint;
             return _delegate.equivalent(wsEndpointI._delegate);
         }
 
@@ -292,7 +292,7 @@ namespace IceInternal
                 return type() < obj.type() ? -1 : 1;
             }
 
-            WSEndpointI p = (WSEndpointI)obj;
+            WSEndpoint p = (WSEndpoint)obj;
             if(this == p)
             {
                 return 0;
@@ -335,9 +335,9 @@ namespace IceInternal
         private string _resource;
     }
 
-    public class WSEndpointFactoryI : IceInternal.EndpointFactory
+    public class WSEndpointFactory : IceInternal.EndpointFactory
     {
-        public WSEndpointFactoryI(ProtocolInstance instance, IceInternal.EndpointFactory del)
+        public WSEndpointFactory(ProtocolInstance instance, IceInternal.EndpointFactory del)
         {
             _instance = instance;
             _delegate = del;
@@ -355,12 +355,12 @@ namespace IceInternal
 
         public IceInternal.EndpointI create(List<string> args, bool oaEndpoint)
         {
-            return new WSEndpointI(_instance, _delegate.create(args, oaEndpoint), args);
+            return new WSEndpoint(_instance, _delegate.create(args, oaEndpoint), args);
         }
 
         public IceInternal.EndpointI read(IceInternal.BasicStream s)
         {
-            return new WSEndpointI(_instance, _delegate.read(s), s);
+            return new WSEndpoint(_instance, _delegate.read(s), s);
         }
 
         public void destroy()

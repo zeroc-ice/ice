@@ -801,8 +801,8 @@ public final class Instance
             _endpointFactoryManager.add(udpEndpointFactory);
             
             ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
-            EndpointFactory wsEndpointFactory = new WSEndpointFactoryI(wsProtocolInstance, 
-                                                                       tcpEndpointFactory.clone(wsProtocolInstance));
+            EndpointFactory wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance, 
+                                                                      tcpEndpointFactory.clone(wsProtocolInstance));
             _endpointFactoryManager.add(wsEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator, this);

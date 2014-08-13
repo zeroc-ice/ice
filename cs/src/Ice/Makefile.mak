@@ -119,10 +119,10 @@ SRCS		= Acceptor.cs \
 		  Util.cs \
 		  ValueWriter.cs \
 		  HttpParser.cs \
-		  WSAcceptorI.cs \
-		  WSConnectorI.cs \
-		  WSEndpointI.cs \
-		  WSTransceiverI.cs
+		  WSAcceptor.cs \
+		  WSConnector.cs \
+		  WSEndpoint.cs \
+		  WSTransceiver.cs
 
 GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Communicator.cs \

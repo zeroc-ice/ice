@@ -19,9 +19,9 @@
 namespace IceInternal
 {
 
-class WSEndpointI;
+class WSEndpoint;
 
-class WSAcceptorI : public Acceptor, public NativeInfo
+class WSAcceptor : public Acceptor, public NativeInfo
 {
 public:
 
@@ -44,9 +44,9 @@ public:
 
 private:
 
-    WSAcceptorI(const ProtocolInstancePtr&, const AcceptorPtr&);
-    virtual ~WSAcceptorI();
-    friend class WSEndpointI;
+    WSAcceptor(const ProtocolInstancePtr&, const AcceptorPtr&);
+    virtual ~WSAcceptor();
+    friend class WSEndpoint;
 
     const ProtocolInstancePtr _instance;
     const AcceptorPtr _delegate;

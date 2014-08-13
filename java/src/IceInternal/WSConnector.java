@@ -9,12 +9,12 @@
 
 package IceInternal;
 
-final class WSConnectorI implements Connector
+final class WSConnector implements Connector
 {
     @Override
     public Transceiver connect()
     {
-        return new WSTransceiverI(_instance, _delegate.connect(), _host, _port, _resource);
+        return new WSTransceiver(_instance, _delegate.connect(), _host, _port, _resource);
     }
 
     @Override
@@ -35,7 +35,7 @@ final class WSConnectorI implements Connector
         return _delegate.hashCode();
     }
 
-    WSConnectorI(ProtocolInstance instance, Connector del, String host, int port, String resource)
+    WSConnector(ProtocolInstance instance, Connector del, String host, int port, String resource)
     {
         _instance = instance;
         _delegate = del;
@@ -47,7 +47,7 @@ final class WSConnectorI implements Connector
     @Override
     public boolean equals(java.lang.Object obj)
     {
-        if(!(obj instanceof WSConnectorI))
+        if(!(obj instanceof WSConnector))
         {
             return false;
         }
@@ -57,7 +57,7 @@ final class WSConnectorI implements Connector
             return true;
         }
 
-        WSConnectorI p = (WSConnectorI)obj;
+        WSConnector p = (WSConnector)obj;
         if(!_delegate.equals(p._delegate))
         {
             return false;

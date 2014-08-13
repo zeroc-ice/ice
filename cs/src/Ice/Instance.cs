@@ -845,10 +845,10 @@ namespace IceInternal
                     new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
                 EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
                 _endpointFactoryManager.add(udpEndpointFactory);
-                
+
                 ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
-                _endpointFactoryManager.add(new WSEndpointFactoryI(wsProtocolInstance, 
-                                                                   tcpEndpointFactory.clone(wsProtocolInstance)));
+                _endpointFactoryManager.add(new WSEndpointFactory(wsProtocolInstance, 
+                                                                  tcpEndpointFactory.clone(wsProtocolInstance)));
 
 #if !SILVERLIGHT
                 _pluginManager = new Ice.PluginManagerI(communicator);

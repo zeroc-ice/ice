@@ -9,16 +9,16 @@
 
 package IceInternal;
 
-final class WSEndpointI extends IceInternal.EndpointI
+final class WSEndpoint extends IceInternal.EndpointI
 {
-    public WSEndpointI(ProtocolInstance instance, IceInternal.EndpointI del, String res)
+    public WSEndpoint(ProtocolInstance instance, IceInternal.EndpointI del, String res)
     {
         _instance = instance;
         _delegate = (IceInternal.IPEndpointI)del;
         _resource = res;
     }
 
-    public WSEndpointI(ProtocolInstance instance, IceInternal.EndpointI del, java.util.ArrayList<String> args)
+    public WSEndpoint(ProtocolInstance instance, IceInternal.EndpointI del, java.util.ArrayList<String> args)
     {
         _instance = instance;
         _delegate = (IceInternal.IPEndpointI)del;
@@ -31,7 +31,7 @@ final class WSEndpointI extends IceInternal.EndpointI
         }
     }
 
-    public WSEndpointI(ProtocolInstance instance, IceInternal.EndpointI del, IceInternal.BasicStream s)
+    public WSEndpoint(ProtocolInstance instance, IceInternal.EndpointI del, IceInternal.BasicStream s)
     {
         _instance = instance;
         _delegate = (IceInternal.IPEndpointI)del;
@@ -47,19 +47,19 @@ final class WSEndpointI extends IceInternal.EndpointI
                 @Override
                 public short type()
                 {
-                    return WSEndpointI.this.type();
+                    return WSEndpoint.this.type();
                 }
 
                 @Override
                 public boolean datagram()
                 {
-                    return WSEndpointI.this.datagram();
+                    return WSEndpoint.this.datagram();
                 }
 
                 @Override
                 public boolean secure()
                 {
-                    return WSEndpointI.this.secure();
+                    return WSEndpoint.this.secure();
                 }
             };
 
@@ -106,7 +106,7 @@ final class WSEndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new WSEndpointI(_instance, _delegate.timeout(timeout), _resource);
+            return new WSEndpoint(_instance, _delegate.timeout(timeout), _resource);
         }
     }
 
@@ -125,7 +125,7 @@ final class WSEndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new WSEndpointI(_instance, _delegate.connectionId(connectionId), _resource);
+            return new WSEndpoint(_instance, _delegate.connectionId(connectionId), _resource);
         }
     }
 
@@ -144,7 +144,7 @@ final class WSEndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new WSEndpointI(_instance, _delegate.compress(compress), _resource);
+            return new WSEndpoint(_instance, _delegate.compress(compress), _resource);
         }
     }
 
@@ -174,7 +174,7 @@ final class WSEndpointI extends IceInternal.EndpointI
         java.util.List<IceInternal.Connector> l = new java.util.ArrayList<IceInternal.Connector>();
         for(IceInternal.Connector c : connectors)
         {
-            l.add(new WSConnectorI(_instance, c, _delegate.host(), _delegate.port(), _resource));
+            l.add(new WSConnector(_instance, c, _delegate.host(), _delegate.port(), _resource));
         }
         return l;
     }
@@ -190,7 +190,7 @@ final class WSEndpointI extends IceInternal.EndpointI
                 java.util.List<IceInternal.Connector> l = new java.util.ArrayList<IceInternal.Connector>();
                 for(IceInternal.Connector c : connectors)
                 {
-                    l.add(new WSConnectorI(_instance, c, _delegate.host(), _delegate.port(), _resource));
+                    l.add(new WSConnector(_instance, c, _delegate.host(), _delegate.port(), _resource));
                 }
                 callback.connectors(l);
             }
@@ -211,9 +211,9 @@ final class WSEndpointI extends IceInternal.EndpointI
         IceInternal.Acceptor delAcc = _delegate.acceptor(delEndp, adapterName);
         if(delEndp.value != null)
         {
-            endpoint.value = new WSEndpointI(_instance, delEndp.value, _resource);
+            endpoint.value = new WSEndpoint(_instance, delEndp.value, _resource);
         }
-        return new WSAcceptorI(_instance, delAcc);
+        return new WSAcceptor(_instance, delAcc);
     }
 
     @Override
@@ -223,7 +223,7 @@ final class WSEndpointI extends IceInternal.EndpointI
         java.util.List<IceInternal.EndpointI> l = new java.util.ArrayList<IceInternal.EndpointI>();
         for(IceInternal.EndpointI e : endps)
         {
-            l.add(e == _delegate ? this : new WSEndpointI(_instance, e, _resource));
+            l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
         }
         return l;
     }
@@ -231,11 +231,11 @@ final class WSEndpointI extends IceInternal.EndpointI
     @Override
     public boolean equivalent(IceInternal.EndpointI endpoint)
     {
-        if(!(endpoint instanceof WSEndpointI))
+        if(!(endpoint instanceof WSEndpoint))
         {
             return false;
         }
-        WSEndpointI wsEndpointI = (WSEndpointI)endpoint;
+        WSEndpoint wsEndpointI = (WSEndpoint)endpoint;
         return _delegate.equivalent(wsEndpointI._delegate);
     }
 
@@ -280,12 +280,12 @@ final class WSEndpointI extends IceInternal.EndpointI
     @Override
     public int compareTo(IceInternal.EndpointI obj) // From java.lang.Comparable
     {
-        if(!(obj instanceof WSEndpointI))
+        if(!(obj instanceof WSEndpoint))
         {
             return type() < obj.type() ? -1 : 1;
         }
 
-        WSEndpointI p = (WSEndpointI)obj;
+        WSEndpoint p = (WSEndpoint)obj;
         if(this == p)
         {
             return 0;

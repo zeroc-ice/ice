@@ -18,9 +18,9 @@
 namespace IceInternal
 {
 
-class WSEndpointI;
+class WSEndpoint;
 
-class WSConnectorI : public Connector
+class WSConnector : public Connector
 {
 public:
 
@@ -35,9 +35,9 @@ public:
 
 private:
 
-    WSConnectorI(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, int, const std::string&);
-    virtual ~WSConnectorI();
-    friend class WSEndpointI;
+    WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, int, const std::string&);
+    virtual ~WSConnector();
+    friend class WSEndpoint;
 
     const ProtocolInstancePtr _instance;
     const ConnectorPtr _delegate;

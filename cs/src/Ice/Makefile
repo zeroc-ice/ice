@@ -118,10 +118,10 @@ SRCS		= Acceptor.cs \
 		  Util.cs \
 		  ValueWriter.cs \
 		  HttpParser.cs \
-		  WSAcceptorI.cs \
-		  WSConnectorI.cs \
-		  WSEndpointI.cs \
-		  WSTransceiverI.cs
+		  WSAcceptor.cs \
+		  WSConnector.cs \
+		  WSEndpoint.cs \
+		  WSTransceiver.cs
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Communicator.ice \

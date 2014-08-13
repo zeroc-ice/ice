@@ -9,11 +9,11 @@
 
 namespace IceInternal
 {
-    sealed class WSConnectorI : IceInternal.Connector
+    sealed class WSConnector : IceInternal.Connector
     {
         public IceInternal.Transceiver connect()
         {
-            return new WSTransceiverI(_instance, _delegate.connect(), _host, _port, _resource);
+            return new WSTransceiver(_instance, _delegate.connect(), _host, _port, _resource);
         }
 
         public short type()
@@ -21,7 +21,7 @@ namespace IceInternal
             return _delegate.type();
         }
 
-        internal WSConnectorI(ProtocolInstance instance, IceInternal.Connector del, string host, int port, string resource)
+        internal WSConnector(ProtocolInstance instance, IceInternal.Connector del, string host, int port, string resource)
         {
             _instance = instance;
             _delegate = del;
@@ -32,7 +32,7 @@ namespace IceInternal
 
         public override bool Equals(object obj)
         {
-            if(!(obj is WSConnectorI))
+            if(!(obj is WSConnector))
             {
                 return false;
             }
@@ -42,7 +42,7 @@ namespace IceInternal
                 return true;
             }
 
-            WSConnectorI p = (WSConnectorI)obj;
+            WSConnector p = (WSConnector)obj;
             if(!_delegate.Equals(p._delegate))
             {
                 return false;
