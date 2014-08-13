@@ -107,7 +107,7 @@ public final class Outgoing implements OutgoingMessageCallback
                 }
                 catch(Ice.OperationInterruptedException ex)
                 {
-                    if(_handler.requestCanceled(this, new Ice.OperationInterruptedException()))
+                    if(_handler.requestCanceled(this, ex))
                     {
                         //
                         // Wait for the exception to propagate. It's possible the request handler ignores
@@ -133,6 +133,10 @@ public final class Outgoing implements OutgoingMessageCallback
                                 Thread.currentThread().interrupt();
                             }
                         }
+                    }
+                    else
+                    {
+                        throw ex;
                     }
                 }
 
@@ -183,7 +187,8 @@ public final class Outgoing implements OutgoingMessageCallback
 
                 if(timedOut)
                 {
-                    if(_handler.requestCanceled(this, new Ice.InvocationTimeoutException()))
+                    Ice.InvocationTimeoutException ex = new Ice.InvocationTimeoutException();
+                    if(_handler.requestCanceled(this, ex))
                     {
                         //
                         // Wait for the exception to propagate. It's possible the request handler ignores
@@ -199,7 +204,7 @@ public final class Outgoing implements OutgoingMessageCallback
                                 {
                                     wait();
                                 }
-                                catch(InterruptedException ex)
+                                catch(InterruptedException e)
                                 {
                                     interrupted = true;
                                 }
@@ -209,6 +214,10 @@ public final class Outgoing implements OutgoingMessageCallback
                                 Thread.currentThread().interrupt();
                             }
                         }
+                    }
+                    else
+                    {
+                        throw ex;
                     }
                 }
 

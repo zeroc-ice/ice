@@ -397,6 +397,7 @@ generated from the section label.
         <property name="Warn.UnknownProperties" />
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
+        <property name="BackgroundIO" />
     </section>
 
     <section name="IceMX">

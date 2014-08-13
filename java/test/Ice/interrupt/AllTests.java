@@ -31,7 +31,6 @@ public class AllTests
     {
         CallbackBase()
         {
-            _called = false;
         }
 
         public synchronized void check()
@@ -57,7 +56,31 @@ public class AllTests
             notify();
         }
 
-        private boolean _called;
+        public synchronized void checkResponse()
+        {
+            while(!_response)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+
+            _response = false;
+        }
+
+        public synchronized void response()
+        {
+            assert(!_response);
+            _response = true;
+            notify();
+        }
+
+        private boolean _called = false;
+        private boolean _response = false;
     }
     
     private static void
@@ -93,7 +116,13 @@ public class AllTests
             try
             {
                 p.op();
-                test(false);
+                //
+                // It is possible that the thread isn't interrupted. However, it shouldn't
+                // be possible for the call to return and the interrupt swallowed.
+                //
+                test(mainThread.isInterrupted());
+                // Clear the interrupt at this point.
+                Thread.interrupted();
             }
             catch(Ice.OperationInterruptedException ex)
             {
@@ -102,13 +131,15 @@ public class AllTests
 
             final CallbackBase cb = new CallbackBase();
             mainThread.interrupt();
+            final boolean responseCalled[] = new boolean[1]; 
+            responseCalled[0] = false;
             p.begin_sleep(500, new Callback_TestIntf_sleep()
             {
-                
                 @Override
                 public void response()
                 {
-                    test(false);
+                    responseCalled[1] = true;
+                    cb.called();
                 }
                 
                 @Override
@@ -124,7 +155,20 @@ public class AllTests
                     test(false);
                 }
             });
+            boolean interrupted = false;
+            if(mainThread.isInterrupted())
+            {
+                //
+                // The AMI request will receive a response.
+                //
+                Thread.interrupted();
+                interrupted = true;
+            }
             cb.check();
+            if(interrupted)
+            {
+                test(responseCalled[0]);
+            }
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             executor.submit(new Runnable() {
@@ -162,7 +206,7 @@ public class AllTests
 
             try
             {
-                Ice.AsyncResult r = p.begin_op();
+                Ice.AsyncResult r = p.begin_sleep(250);
                 Thread.currentThread().interrupt();
                 r.waitForCompleted();
                 test(false);
@@ -174,14 +218,18 @@ public class AllTests
 
             try
             {
-                Ice.AsyncResult r = p.begin_op();
+                Ice.AsyncResult r = p.begin_sleep(250);
                 Thread.currentThread().interrupt();
-                p.end_op(r);
+                p.end_sleep(r);
                 test(false);
             }
             catch(Ice.OperationInterruptedException ex)
             {
                 // Expected
+            }
+            catch(test.Ice.interrupt.Test.InterruptedException e)
+            {
+                test(false);
             }
 
             //
