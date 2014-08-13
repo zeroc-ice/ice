@@ -41,6 +41,7 @@ tests = [
     ("Ice/optional", ["core"]),
     ("Ice/optionalBidir", ["once"]),
     ("Ice/promise", ["once"]),
+    ("Ice/properties", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/retry", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),
