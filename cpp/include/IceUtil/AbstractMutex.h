@@ -25,7 +25,8 @@ public:
     typedef TryLockT<AbstractMutex> TryLock;
 
     virtual ~AbstractMutex()
-    {};
+    {
+    }
 
     virtual void lock() const = 0;
     virtual void unlock() const = 0;
