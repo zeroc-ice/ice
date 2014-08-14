@@ -33,7 +33,7 @@ public:
     {
     }
 
-    virtual void 
+    virtual void
     dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
     {
         //
@@ -125,7 +125,7 @@ CHelloClientDlg::CHelloClientDlg(CWnd* pParent /*=NULL*/) : CDialog(CHelloClient
 
     //
     // Create AMI callbacks.
-    // 
+    //
     CallbackPtr cb = new Callback(this);
     _sayHelloCallback = newCallback_Hello_sayHello(cb, &Callback::response, &Callback::exception, &Callback::sent);
     _shutdownCallback = newCallback_Hello_shutdown(cb, &Callback::response, &Callback::exception);
@@ -216,7 +216,7 @@ CHelloClientDlg::OnClose()
 // this is automatically done for you by the framework.
 
 void
-CHelloClientDlg::OnPaint() 
+CHelloClientDlg::OnPaint()
 {
     if(IsIconic())
     {
@@ -431,13 +431,13 @@ CHelloClientDlg::createProxy()
     int timeout = _timeout->GetPos() * 100;
     if(timeout != 0)
     {
-        prx = prx->ice_timeout(timeout);
+        prx = prx->ice_invocationTimeout(timeout);
     }
 
     return Demo::HelloPrx::uncheckedCast(prx);
 }
 
-BOOL 
+BOOL
 CHelloClientDlg::deliveryModeIsBatch()
 {
     return _mode->GetCurSel() == ONEWAY_BATCH ||

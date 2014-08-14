@@ -246,7 +246,7 @@ namespace Ice.wpf.client
             int timeout =(int)timeoutSlider.Value;
             if(timeout != 0)
             {
-                prx = prx.ice_timeout(timeout);
+                prx = prx.ice_invocationTimeout(timeout);
             }
             return Demo.HelloPrxHelper.uncheckedCast(prx);
         }
