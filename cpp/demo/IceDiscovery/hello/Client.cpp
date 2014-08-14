@@ -56,7 +56,7 @@ HelloClient::run(int argc, char* argv[])
     // only includes the Ice object identity. It's resolved using the Ice locator 
     // implementation.
     //
-    HelloPrx twoway = HelloPrx::checkedCast(communicator()->stringToProxy("hello")->ice_timeout(-1));
+    HelloPrx twoway = HelloPrx::checkedCast(communicator()->stringToProxy("hello"));
     if(!twoway)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
@@ -129,9 +129,9 @@ HelloClient::run(int argc, char* argv[])
                     timeout = -1;
                 }
                 
-                twoway = twoway->ice_timeout(timeout);
-                oneway = oneway->ice_timeout(timeout);
-                batchOneway = batchOneway->ice_timeout(timeout);
+                twoway = twoway->ice_invocationTimeout(timeout);
+                oneway = oneway->ice_invocationTimeout(timeout);
+                batchOneway = batchOneway->ice_invocationTimeout(timeout);
                 
                 if(timeout == -1)
                 {

@@ -28,7 +28,7 @@ function createProxy()
     // Set or clear the timeout.
     //
     var timeout = $("#timeout").val();
-    proxy = proxy.ice_timeout(timeout > 0 ? timeout : -1);
+    proxy = proxy.ice_invocationTimeout(timeout > 0 ? timeout : -1);
 
     //
     // Set the mode and protocol
