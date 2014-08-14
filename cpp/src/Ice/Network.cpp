@@ -58,10 +58,7 @@ extern "C"
 #endif
 
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
-#  if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x602)
-#    include <mstcpip.h>
-#    define HAS_LOOPBACK_FAST_PATH 1
-#  endif
+#  define HAS_LOOPBACK_FAST_PATH 1
 #endif
 
 using namespace std;
@@ -152,6 +149,10 @@ setKeepAlive(SOCKET fd)
 void
 setTcpLoopbackFastPath(SOCKET fd)
 {
+    // We define SIO_LOOPBACK_FAST_PATH ourselves rather than get it from mstcpip.h since
+    // code needs to compile on platforms that do not support this feature. On those platforms
+    // the WSAIoctl call will just return WSAEOPNOTSUPP.
+    const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
     int OptionValue = 1;
     DWORD NumberOfBytesReturned = 0;
     int status =
