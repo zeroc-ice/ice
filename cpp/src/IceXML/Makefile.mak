@@ -20,7 +20,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= $(CPPFLAGS) -DICE_XML_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 
 LINKWITH        = $(EXPAT_LIBS) $(BASELIBS)
 

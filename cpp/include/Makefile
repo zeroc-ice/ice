@@ -23,8 +23,7 @@ SUBDIRS		:= $(SUBDIRS) \
 		IceBox \
 		IceGrid \
 		IcePatch2 \
-		IceStorm \
-		IceXML
+		IceStorm
 endif
 
 

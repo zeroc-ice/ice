@@ -23,7 +23,6 @@ SUBDIRS		= $(SUBDIRS) \
 		  IceBox \
 		  IcePatch2 \
 		  IceSSL \
-		  IceXML \
 		  Slice
 !endif
 
