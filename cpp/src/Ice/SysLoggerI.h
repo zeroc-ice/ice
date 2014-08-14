@@ -27,6 +27,7 @@ public:
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
     virtual void error(const std::string&);
+    virtual std::string getPrefix();
     virtual LoggerPtr cloneWithPrefix(const std::string&);
 
 private:
@@ -34,6 +35,7 @@ private:
     SysLoggerI(const std::string&, int);
 
     int _facility;
+    const std::string _prefix;
 };
 
 }

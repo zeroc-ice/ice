@@ -29,13 +29,15 @@ public:
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
     virtual void error(const std::string&);
+    virtual std::string getPrefix();
     virtual LoggerPtr cloneWithPrefix(const std::string&);
 
 private:
 
     void write(const std::string&, bool);
 
-    std::string _prefix;
+    const std::string _prefix;
+    std::string _formattedPrefix;
     const bool _convert;
     const IceUtil::StringConverterPtr _converter;
     IceUtilInternal::ofstream _out;

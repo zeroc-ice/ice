@@ -15,11 +15,23 @@ using namespace std;
 using namespace Test;
 
 static void
-testFacets(const Ice::CommunicatorPtr& com)
+testFacets(const Ice::CommunicatorPtr& com, bool optionalBuiltInFacets = true)
 {
+    //
+    // Properties and Process are always created,
+    // and findAdminFacet also returns "filtered out" facets
+    //
     test(com->findAdminFacet("Properties"));
     test(com->findAdminFacet("Process"));
 
+    if(optionalBuiltInFacets)
+    {
+        //
+        // Optional built-in facets like Logger
+        // 
+        test(com->findAdminFacet("Logger"));
+    }
+    
     TestFacetPtr f1 = new TestFacetI;
     TestFacetPtr f2 = new TestFacetI;
     TestFacetPtr f3 = new TestFacetI;
@@ -68,6 +80,91 @@ testFacets(const Ice::CommunicatorPtr& com)
     }
 }
 
+class RemoteLoggerI : public Ice::RemoteLogger
+{
+public:
+    
+    RemoteLoggerI();
+
+    virtual void init(const string&, const Ice::LogMessageSeq&, const Ice::Current&);
+    virtual void log(const Ice::LogMessage&, const Ice::Current&);
+
+    void checkNextInit(const string&, const Ice::LogMessageSeq&);
+    void checkNextLog(Ice::LogMessageType, const string&, const string& = "");
+
+    void wait(int);
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+
+    int _receivedCalls;
+
+    string _expectedPrefix;
+    Ice::LogMessageSeq _expectedInitMessages;
+    
+    Ice::LogMessageSeq _expectedLogMessages;
+};
+
+typedef IceUtil::Handle<RemoteLoggerI> RemoteLoggerIPtr;
+
+RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
+{
+}
+
+void
+RemoteLoggerI::init(const string& prefix, const Ice::LogMessageSeq& logMessages, const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    test(prefix == _expectedPrefix);
+    test(logMessages == _expectedInitMessages);
+    _receivedCalls++;
+    _monitor.notifyAll();
+}
+
+void
+RemoteLoggerI::log(const Ice::LogMessage& logMessage, const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    Ice::LogMessage front = _expectedLogMessages.front();
+    
+    test(front.type == logMessage.type && front.message == logMessage.message &&
+         front.traceCategory == logMessage.traceCategory);
+
+    _expectedLogMessages.pop_front();
+    _receivedCalls++;
+    _monitor.notifyAll();
+}
+
+void
+RemoteLoggerI::checkNextInit(const string& prefix, const Ice::LogMessageSeq& logMessages)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    _expectedPrefix = prefix;
+    _expectedInitMessages = logMessages;
+}
+
+void
+RemoteLoggerI::checkNextLog(Ice::LogMessageType messageType, const string& message, 
+                            const string& category)
+{
+    Ice::LogMessage logMessage = { messageType, 0, category, message };
+
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    _expectedLogMessages.push_back(logMessage);
+}
+
+void
+RemoteLoggerI::wait(int calls)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    _receivedCalls -= calls;
+    while(_receivedCalls < 0)
+    {
+        _monitor.wait();
+    }
+}
+
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -94,7 +191,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.Facets", "Properties");
         Ice::CommunicatorPtr com = Ice::initialize(init);
-        testFacets(com);
+        testFacets(com, false);
         com->destroy();
     }
     {
@@ -102,7 +199,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Test: Verify that the operations work correctly with the Admin object disabled.
         //
         Ice::CommunicatorPtr com = Ice::initialize();
-        testFacets(com);
+        testFacets(com, false);
         com->destroy();
     }
     {
@@ -199,6 +296,176 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pa->setProperties(setProps);
         changes = com->getChanges();
         test(changes.empty());
+
+        com->destroy();
+    }
+    cout << "ok" << endl;
+
+    cout << "testing logger facet... " << flush;
+    {
+        Ice::PropertyDict props;
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
+        props["Ice.Admin.InstanceName"] = "Test";
+        props["NullLogger"] = "1";
+        RemoteCommunicatorPrx com = factory->createCommunicator(props);
+
+        com->trace("testCat", "trace");
+        com->warning("warning");
+        com->error("error");
+        com->print("print");
+       
+        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::LoggerAdminPrx logger = Ice::LoggerAdminPrx::checkedCast(obj, "Logger");
+        test(logger);
+
+        string prefix;   
+
+        //
+        // Get all
+        //
+        Ice::LogMessageSeq logMessages = 
+            logger->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1, prefix);
+        
+        test(logMessages.size() == 4);
+        test(prefix == "NullLogger");
+        Ice::LogMessageSeq::const_iterator p = logMessages.begin();
+        test(p->traceCategory == "testCat" && p++->message == "trace"); 
+        test(p++->message == "warning");
+        test(p++->message == "error");
+        test(p++->message == "print");
+       
+        //
+        // Get only errors and warnings
+        //
+        com->error("error2");
+        com->print("print2");
+        com->trace("testCat", "trace2");
+        com->warning("warning2");
+        
+        Ice::LogMessageTypeSeq messageTypes;
+        messageTypes.push_back(Ice::ErrorMessage);
+        messageTypes.push_back(Ice::WarningMessage);
+
+        logMessages = 
+            logger->getLog(messageTypes, Ice::StringSeq(), -1, prefix);
+        test(logMessages.size() == 4);
+        test(prefix == "NullLogger");
+
+        p = logMessages.begin();
+        while(p != logMessages.end())
+        {
+            test(p->type == Ice::ErrorMessage || p->type == Ice::WarningMessage);
+            ++p;
+        }
+        
+        //
+        // Get only errors and traces with Cat = "testCat"
+        //
+        com->trace("testCat2", "A");
+        com->trace("testCat", "trace3");
+        com->trace("testCat2", "B");
+        
+        messageTypes.clear();
+        messageTypes.push_back(Ice::ErrorMessage);
+        messageTypes.push_back(Ice::TraceMessage);
+        
+        Ice::StringSeq categories;
+        categories.push_back("testCat");
+
+        logMessages = 
+            logger->getLog(messageTypes, categories, -1, prefix);
+        test(logMessages.size() == 5);
+        test(prefix == "NullLogger");
+
+        p = logMessages.begin();
+        while(p != logMessages.end())
+        {
+            test(p->type == Ice::ErrorMessage || 
+                 (p->type == Ice::TraceMessage && p->traceCategory == "testCat"));
+            ++p;
+        }
+
+        //
+        // Same, but limited to last 2 messages (trace3 + error3)
+        //
+        com->error("error3");
+        
+        logMessages = 
+            logger->getLog(messageTypes, categories, 2, prefix);
+        test(logMessages.size() == 2);
+        test(prefix == "NullLogger");
+
+        p = logMessages.begin();
+        test(p++->message == "trace3");
+        test(p->message == "error3");
+
+        //
+        // Now, test RemoteLogger
+        //
+
+        Ice::ObjectAdapterPtr adapter = 
+            communicator->createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
+   
+        RemoteLoggerIPtr remoteLogger = new RemoteLoggerI;
+        
+        Ice::RemoteLoggerPrx myProxy = 
+            Ice::RemoteLoggerPrx::uncheckedCast(adapter->addWithUUID(remoteLogger));
+        
+        adapter->activate();
+         
+        //
+        // No filtering
+        //
+        logMessages = logger->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1, prefix);
+        remoteLogger->checkNextInit(prefix, logMessages);
+       
+        logger->attachRemoteLogger(myProxy, Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1);
+        remoteLogger->wait(1);
+
+        remoteLogger->checkNextLog(Ice::TraceMessage, "rtrace", "testCat");
+        remoteLogger->checkNextLog(Ice::WarningMessage, "rwarning");
+        remoteLogger->checkNextLog(Ice::ErrorMessage, "rerror");
+        remoteLogger->checkNextLog(Ice::PrintMessage, "rprint");
+
+        com->trace("testCat", "rtrace");
+        com->warning("rwarning");
+        com->error("rerror");
+        com->print("rprint");
+        remoteLogger->wait(4);
+
+        logger->detachRemoteLogger(myProxy);
+
+        //
+        // Use Error + Trace with "traceCat" filter with 4 limit
+        //
+        logMessages = logger->getLog(messageTypes, categories, 4, prefix);
+        test(logMessages.size() == 4);
+        remoteLogger->checkNextInit(prefix, logMessages);
+        logger->attachRemoteLogger(myProxy, messageTypes, categories, 4);
+        remoteLogger->wait(1);
+
+        remoteLogger->checkNextLog(Ice::TraceMessage, "rtrace2", "testCat");
+        remoteLogger->checkNextLog(Ice::ErrorMessage, "rerror2");
+     
+        com->warning("rwarning2");
+        com->trace("testCat", "rtrace2");
+        com->warning("rwarning3");
+        com->error("rerror2");
+        com->print("rprint2");
+        remoteLogger->wait(2);
+
+        //
+        // Attempt reconnection with slightly different proxy
+        //
+        try
+        {
+            logger->attachRemoteLogger(myProxy->ice_oneway(), messageTypes, categories, 4);
+            test(false);
+        }
+        catch(const Ice::RemoteLoggerAlreadyAttachedException&)
+        {
+            // expected
+        }
 
         com->destroy();
     }

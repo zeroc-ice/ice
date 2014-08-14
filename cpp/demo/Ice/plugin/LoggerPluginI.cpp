@@ -42,14 +42,20 @@ public:
         cout << "ERROR: " << message << endl;
     }
 
+    virtual string
+    getPrefix()
+    {
+        return "";
+    }
+
     virtual Ice::LoggerPtr
     cloneWithPrefix(const std::string&)
     {
-        return new LoggerI();   
+        return new LoggerI;   
     }
 };
 
-};
+}
 
 extern "C"
 {

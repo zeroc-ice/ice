@@ -60,6 +60,12 @@ LogI::error(const string& msg)
     message("error: " + msg);
 }
 
+string
+LogI::getPrefix()
+{
+    return "";
+}
+
 Ice::LoggerPtr
 LogI::cloneWithPrefix(const string&)
 {

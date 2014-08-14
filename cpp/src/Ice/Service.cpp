@@ -187,6 +187,12 @@ public:
         _logger->error(_prefix, message);
     }
     
+    virtual string
+    getPrefix()
+    {
+        return _prefix;
+    }
+
     virtual Ice::LoggerPtr
     cloneWithPrefix(const string& prefix)
     {
@@ -196,10 +202,10 @@ public:
 private:
     
     SMEventLoggerPtr _logger;
-    string _prefix;
+    const string _prefix;
 };
 
-class SMEventLoggerI : public Ice::Logger, public SMEventLogger
+class SMEventLoggerI : public SMEventLogger
 {
 public:
 
@@ -317,14 +323,14 @@ public:
         print(s);
     }
     
-    virtual void
+    void
     print(const string& message)
     {
         //
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-		wstring msg = IceUtil::stringToWstring(message, _stringConverter);
+        wstring msg = IceUtil::stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -347,7 +353,7 @@ public:
         trace(prefix, s);
     }
     
-    virtual void
+    void
     trace(const string& category, const string& message)
     {
         string s;
@@ -362,7 +368,7 @@ public:
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-		wstring msg = IceUtil::stringToWstring(s, _stringConverter);
+        wstring msg = IceUtil::stringToWstring(s, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -385,14 +391,14 @@ public:
         warning(s);
     }
     
-    virtual void
+    void
     warning(const string& message)
     {
         //
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-		wstring msg = IceUtil::stringToWstring(message, _stringConverter);
+        wstring msg = IceUtil::stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -415,14 +421,14 @@ public:
         error(s);
     }
 
-    virtual void
+    void
     error(const string& message)
     {
         //
         // Don't need to use a wide string converter as the wide string is passed
         // to Windows API.
         //
-		wstring msg = IceUtil::stringToWstring(message, _stringConverter);
+        wstring msg = IceUtil::stringToWstring(message, _stringConverter);
         const wchar_t* messages[1];
         messages[0] = msg.c_str();
         //
@@ -432,12 +438,6 @@ public:
         ReportEventW(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
     }
     
-    virtual Ice::LoggerPtr
-    cloneWithPrefix(const string& prefix)
-    {
-        return new SMEventLoggerIWrapper(this, prefix);
-    }
-
     static void
     setModuleHandle(HMODULE module)
     {

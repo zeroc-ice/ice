@@ -15,7 +15,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::SysLoggerI::SysLoggerI(const string& prefix, const string& facilityString)
+Ice::SysLoggerI::SysLoggerI(const string& prefix, const string& facilityString) :
+    _facility(0),
+    _prefix(prefix)
 {
     if(facilityString == "LOG_KERN")
     {
@@ -111,7 +113,8 @@ Ice::SysLoggerI::SysLoggerI(const string& prefix, const string& facilityString)
 }
 
 Ice::SysLoggerI::SysLoggerI(const string& prefix, int facility) :
-    _facility(facility)
+    _facility(facility),
+    _prefix(prefix)
 {
     int logopt = LOG_PID | LOG_CONS;
     openlog(prefix.c_str(), logopt, facility);
@@ -149,6 +152,12 @@ Ice::SysLoggerI::error(const string& message)
 {
     IceUtil::Mutex::Lock sync(*this);
     syslog(LOG_ERR, "%s", message.c_str());
+}
+
+string
+Ice::SysLoggerI::getPrefix()
+{
+    return _prefix;
 }
 
 Ice::LoggerPtr

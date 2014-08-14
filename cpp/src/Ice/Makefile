@@ -58,8 +58,9 @@ OBJS		= Acceptor.o \
 		  LocalObject.o \
 		  LocatorInfo.o \
 		  Locator.o \
-		  LoggerI.o \
 		  Logger.o \
+                  LoggerAdminI.o \
+                  LoggerI.o \
 		  LoggerUtil.o \
 		  Metrics.o \
 		  MetricsAdminI.o \
@@ -92,6 +93,7 @@ OBJS		= Acceptor.o \
 		  Proxy.o \
 		  ReferenceFactory.o \
 		  Reference.o \
+                  RemoteLogger.o \
 		  ResponseHandler.o \
 		  RetryQueue.o \
 		  RequestHandler.o \

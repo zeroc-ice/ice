@@ -59,6 +59,7 @@ OBJS		= Acceptor.obj \
 		  LocalObject.obj \
 		  LocatorInfo.obj \
 		  Locator.obj \
+                  LoggerAdminI.obj \
 		  LoggerI.obj \
 		  Logger.obj \
 		  LoggerUtil.obj \
@@ -93,6 +94,7 @@ OBJS		= Acceptor.obj \
 		  Proxy.obj \
 		  ReferenceFactory.obj \
 		  Reference.obj \
+                  RemoteLogger.obj \
 		  RetryQueue.obj \
 		  RequestHandler.obj \
 		  ResponseHandler.obj \
@@ -195,6 +197,7 @@ clean::
 	-del /q PropertiesF.cpp $(HDIR)\PropertiesF.h
 	-del /q PropertiesAdmin.cpp $(HDIR)\PropertiesAdmin.h
 	-del /q Properties.cpp $(HDIR)\Properties.h
+        -del /q RemoteLogger.cpp $(HDIR)\RemoteLogger.h
 	-del /q RouterF.cpp $(HDIR)\RouterF.h
 	-del /q Router.cpp $(HDIR)\Router.h
 	-del /q ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h

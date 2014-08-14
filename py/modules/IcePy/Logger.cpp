@@ -88,6 +88,22 @@ IcePy::LoggerWrapper::error(const string& message)
     }
 }
 
+string
+IcePy::LoggerWrapper::getPrefix()
+{
+    AdoptThread adoptThread;
+    
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("getPrefix"), 0);
+    if(!tmp.get())
+    {
+        throwPythonException();
+    }
+    return getString(tmp.get());
+    
+}
+
+
+
 Ice::LoggerPtr
 IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
 {

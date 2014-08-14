@@ -1,10 +1,9 @@
-
-/* A Bison parser, made by GNU Bison 2.4.1.  */
+/* A Bison parser, made by GNU Bison 2.4.2.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2006, 2009-2010 Free Software
+   Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -46,7 +45,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.4.1"
+#define YYBISON_VERSION "2.4.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -104,7 +103,7 @@ yyerror(const char* s)
 
 
 /* Line 189 of yacc.c  */
-#line 108 "Grammar.tab.c"
+#line 107 "Grammar.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -188,7 +187,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 192 "Grammar.tab.c"
+#line 191 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -238,7 +237,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -1355,9 +1354,18 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  */
+   Once GCC version 2 has supplanted version 1, this can go.  However,
+   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
+   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
+   discussed.  */
 
 #define YYFAIL		goto yyerrlab
+#if defined YYFAIL
+  /* This is here to suppress warnings from the GCC cpp's
+     -Wunused-macros.  Normally we don't worry about that warning, but
+     some users do, and we want to make it easy for users to remove
+     YYFAIL uses, which will produce warnings from Bison 2.5.  */
+#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
@@ -1414,7 +1422,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -2152,7 +2160,7 @@ yyreduce:
     {
         case 2:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 89 "Grammar.y"
     {
 ;}
@@ -2160,7 +2168,7 @@ yyreduce:
 
   case 3:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 92 "Grammar.y"
     {
 ;}
@@ -2168,7 +2176,7 @@ yyreduce:
 
   case 4:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 100 "Grammar.y"
     {
 ;}
@@ -2176,7 +2184,7 @@ yyreduce:
 
   case 5:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 103 "Grammar.y"
     {
 ;}
@@ -2184,7 +2192,7 @@ yyreduce:
 
   case 6:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 109 "Grammar.y"
     {
     parser->checkInterrupted();
@@ -2193,7 +2201,7 @@ yyreduce:
 
   case 7:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 118 "Grammar.y"
     {
     parser->usage();
@@ -2202,7 +2210,7 @@ yyreduce:
 
   case 8:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 122 "Grammar.y"
     {
     return 0;
@@ -2211,7 +2219,7 @@ yyreduce:
 
   case 9:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 126 "Grammar.y"
     {
     parser->addApplication((yyvsp[(3) - (4)]));
@@ -2220,7 +2228,7 @@ yyreduce:
 
   case 10:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 130 "Grammar.y"
     {
     parser->usage("application", "add");
@@ -2229,7 +2237,7 @@ yyreduce:
 
   case 11:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 134 "Grammar.y"
     {
     parser->removeApplication((yyvsp[(3) - (4)]));
@@ -2238,7 +2246,7 @@ yyreduce:
 
   case 12:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 138 "Grammar.y"
     {
     parser->usage("application", "remove");
@@ -2247,7 +2255,7 @@ yyreduce:
 
   case 13:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 142 "Grammar.y"
     {
     parser->diffApplication((yyvsp[(3) - (4)]));
@@ -2256,7 +2264,7 @@ yyreduce:
 
   case 14:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 146 "Grammar.y"
     {
     parser->usage("application", "diff");
@@ -2265,7 +2273,7 @@ yyreduce:
 
   case 15:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 150 "Grammar.y"
     {
     parser->updateApplication((yyvsp[(3) - (4)]));
@@ -2274,7 +2282,7 @@ yyreduce:
 
   case 16:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 154 "Grammar.y"
     {
     parser->usage("application", "update");
@@ -2283,7 +2291,7 @@ yyreduce:
 
   case 17:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 158 "Grammar.y"
     {
     parser->describeApplication((yyvsp[(3) - (4)]));
@@ -2292,7 +2300,7 @@ yyreduce:
 
   case 18:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 162 "Grammar.y"
     {
     parser->usage("application", "describe");
@@ -2301,7 +2309,7 @@ yyreduce:
 
   case 19:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 166 "Grammar.y"
     {
     parser->patchApplication((yyvsp[(3) - (4)]));
@@ -2310,7 +2318,7 @@ yyreduce:
 
   case 20:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 170 "Grammar.y"
     {
     parser->usage("application", "patch");
@@ -2319,7 +2327,7 @@ yyreduce:
 
   case 21:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 174 "Grammar.y"
     {
     parser->listAllApplications((yyvsp[(3) - (4)]));
@@ -2328,7 +2336,7 @@ yyreduce:
 
   case 22:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 178 "Grammar.y"
     {
     parser->usage("application", "list");
@@ -2337,7 +2345,7 @@ yyreduce:
 
   case 23:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 182 "Grammar.y"
     {
     parser->describeServerTemplate((yyvsp[(4) - (5)]));
@@ -2346,7 +2354,7 @@ yyreduce:
 
   case 24:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 186 "Grammar.y"
     {
     parser->usage("server template", "describe");
@@ -2355,7 +2363,7 @@ yyreduce:
 
   case 25:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 190 "Grammar.y"
     {
     parser->instantiateServerTemplate((yyvsp[(4) - (5)]));
@@ -2364,7 +2372,7 @@ yyreduce:
 
   case 26:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 194 "Grammar.y"
     {
     parser->usage("server template", "instantiate");
@@ -2373,7 +2381,7 @@ yyreduce:
 
   case 27:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 198 "Grammar.y"
     {
     parser->usage("server template");
@@ -2382,7 +2390,7 @@ yyreduce:
 
   case 28:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 202 "Grammar.y"
     {
     parser->describeServiceTemplate((yyvsp[(4) - (5)]));
@@ -2391,7 +2399,7 @@ yyreduce:
 
   case 29:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 206 "Grammar.y"
     {
     parser->usage("service template", "describe");
@@ -2400,7 +2408,7 @@ yyreduce:
 
   case 30:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 210 "Grammar.y"
     {
     parser->usage("service template");
@@ -2409,7 +2417,7 @@ yyreduce:
 
   case 31:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 214 "Grammar.y"
     {
     parser->describeNode((yyvsp[(3) - (4)]));
@@ -2418,7 +2426,7 @@ yyreduce:
 
   case 32:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 218 "Grammar.y"
     {
     parser->usage("node", "describe");
@@ -2427,7 +2435,7 @@ yyreduce:
 
   case 33:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 222 "Grammar.y"
     {
     parser->pingNode((yyvsp[(3) - (4)]));
@@ -2436,7 +2444,7 @@ yyreduce:
 
   case 34:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 226 "Grammar.y"
     {
     parser->usage("node", "ping");
@@ -2445,7 +2453,7 @@ yyreduce:
 
   case 35:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 230 "Grammar.y"
     {
     parser->printLoadNode((yyvsp[(3) - (4)]));
@@ -2454,7 +2462,7 @@ yyreduce:
 
   case 36:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 234 "Grammar.y"
     {
     parser->usage("node", "load");
@@ -2463,7 +2471,7 @@ yyreduce:
 
   case 37:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 238 "Grammar.y"
     {
     parser->printNodeProcessorSockets((yyvsp[(3) - (4)]));
@@ -2472,7 +2480,7 @@ yyreduce:
 
   case 38:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 242 "Grammar.y"
     {
     parser->usage("node", "sockets");
@@ -2481,7 +2489,7 @@ yyreduce:
 
   case 39:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 246 "Grammar.y"
     {
     parser->shutdownNode((yyvsp[(3) - (4)]));
@@ -2490,7 +2498,7 @@ yyreduce:
 
   case 40:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 250 "Grammar.y"
     {
     parser->usage("node", "shutdown");
@@ -2499,7 +2507,7 @@ yyreduce:
 
   case 41:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 254 "Grammar.y"
     {
     parser->listAllNodes((yyvsp[(3) - (4)]));
@@ -2508,7 +2516,7 @@ yyreduce:
 
   case 42:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 258 "Grammar.y"
     {
     parser->usage("node", "list");
@@ -2517,16 +2525,16 @@ yyreduce:
 
   case 43:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 262 "Grammar.y"
     {
-    parser->showFile("node", (yyvsp[(3) - (4)]));
+    parser->show("node", (yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 44:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 266 "Grammar.y"
     {
     parser->usage("node", "show");
@@ -2535,7 +2543,7 @@ yyreduce:
 
   case 45:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 270 "Grammar.y"
     {
     parser->describeRegistry((yyvsp[(3) - (4)]));
@@ -2544,7 +2552,7 @@ yyreduce:
 
   case 46:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 274 "Grammar.y"
     {
     parser->usage("registry", "describe");
@@ -2553,7 +2561,7 @@ yyreduce:
 
   case 47:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 278 "Grammar.y"
     {
     parser->pingRegistry((yyvsp[(3) - (4)]));
@@ -2562,7 +2570,7 @@ yyreduce:
 
   case 48:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 282 "Grammar.y"
     {
     parser->usage("registry", "ping");
@@ -2571,7 +2579,7 @@ yyreduce:
 
   case 49:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 286 "Grammar.y"
     {
     parser->shutdownRegistry((yyvsp[(3) - (4)]));
@@ -2580,7 +2588,7 @@ yyreduce:
 
   case 50:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 290 "Grammar.y"
     {
     parser->usage("registry", "shutdown");
@@ -2589,7 +2597,7 @@ yyreduce:
 
   case 51:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 294 "Grammar.y"
     {
     parser->listAllRegistries((yyvsp[(3) - (4)]));
@@ -2598,7 +2606,7 @@ yyreduce:
 
   case 52:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 298 "Grammar.y"
     {
     parser->usage("registry", "list");
@@ -2607,16 +2615,16 @@ yyreduce:
 
   case 53:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 302 "Grammar.y"
     {
-    parser->showFile("registry", (yyvsp[(3) - (4)]));
+    parser->show("registry", (yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 54:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 306 "Grammar.y"
     {
     parser->usage("registry", "show");
@@ -2625,7 +2633,7 @@ yyreduce:
 
   case 55:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 310 "Grammar.y"
     {
     parser->removeServer((yyvsp[(3) - (4)]));
@@ -2634,7 +2642,7 @@ yyreduce:
 
   case 56:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 314 "Grammar.y"
     {
     parser->usage("server", "remove");
@@ -2643,7 +2651,7 @@ yyreduce:
 
   case 57:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 318 "Grammar.y"
     {
     parser->describeServer((yyvsp[(3) - (4)]));
@@ -2652,7 +2660,7 @@ yyreduce:
 
   case 58:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 322 "Grammar.y"
     {
     parser->usage("server", "describe");
@@ -2661,7 +2669,7 @@ yyreduce:
 
   case 59:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 326 "Grammar.y"
     {
     parser->startServer((yyvsp[(3) - (4)]));
@@ -2670,7 +2678,7 @@ yyreduce:
 
   case 60:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 330 "Grammar.y"
     {
     parser->usage("server", "start");
@@ -2679,7 +2687,7 @@ yyreduce:
 
   case 61:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 334 "Grammar.y"
     {
     parser->stopServer((yyvsp[(3) - (4)]));
@@ -2688,7 +2696,7 @@ yyreduce:
 
   case 62:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 338 "Grammar.y"
     {
     parser->usage("server", "stop");
@@ -2697,7 +2705,7 @@ yyreduce:
 
   case 63:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 342 "Grammar.y"
     {
     parser->patchServer((yyvsp[(3) - (4)]));
@@ -2706,7 +2714,7 @@ yyreduce:
 
   case 64:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 346 "Grammar.y"
     {
     parser->usage("server", "patch");
@@ -2715,7 +2723,7 @@ yyreduce:
 
   case 65:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 350 "Grammar.y"
     {
     parser->signalServer((yyvsp[(3) - (4)]));
@@ -2724,7 +2732,7 @@ yyreduce:
 
   case 66:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 354 "Grammar.y"
     {
     parser->usage("server", "signal");
@@ -2733,7 +2741,7 @@ yyreduce:
 
   case 67:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 358 "Grammar.y"
     {
     parser->writeMessage((yyvsp[(3) - (4)]), 1);
@@ -2742,7 +2750,7 @@ yyreduce:
 
   case 68:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 362 "Grammar.y"
     {
     parser->usage("server", "stdout");
@@ -2751,7 +2759,7 @@ yyreduce:
 
   case 69:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 366 "Grammar.y"
     {
     parser->writeMessage((yyvsp[(3) - (4)]), 2);
@@ -2760,7 +2768,7 @@ yyreduce:
 
   case 70:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 370 "Grammar.y"
     {
     parser->usage("server", "stderr");
@@ -2769,7 +2777,7 @@ yyreduce:
 
   case 71:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 374 "Grammar.y"
     {
     parser->stateServer((yyvsp[(3) - (4)]));
@@ -2778,7 +2786,7 @@ yyreduce:
 
   case 72:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 378 "Grammar.y"
     {
     parser->usage("server", "start");
@@ -2787,7 +2795,7 @@ yyreduce:
 
   case 73:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 382 "Grammar.y"
     {
     parser->pidServer((yyvsp[(3) - (4)]));
@@ -2796,7 +2804,7 @@ yyreduce:
 
   case 74:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 386 "Grammar.y"
     {
     parser->usage("server", "pid");
@@ -2805,7 +2813,7 @@ yyreduce:
 
   case 75:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 390 "Grammar.y"
     {
     parser->propertiesServer((yyvsp[(3) - (4)]), false);
@@ -2814,7 +2822,7 @@ yyreduce:
 
   case 76:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 394 "Grammar.y"
     {
     parser->usage("server", "properties");
@@ -2823,7 +2831,7 @@ yyreduce:
 
   case 77:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 398 "Grammar.y"
     {
     parser->propertiesServer((yyvsp[(3) - (4)]), true);
@@ -2832,7 +2840,7 @@ yyreduce:
 
   case 78:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 402 "Grammar.y"
     {
     parser->usage("server", "property");
@@ -2841,7 +2849,7 @@ yyreduce:
 
   case 79:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 406 "Grammar.y"
     {
     parser->enableServer((yyvsp[(3) - (4)]), true);
@@ -2850,7 +2858,7 @@ yyreduce:
 
   case 80:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 410 "Grammar.y"
     {
     parser->usage("server", "enable");
@@ -2859,7 +2867,7 @@ yyreduce:
 
   case 81:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 414 "Grammar.y"
     {
     parser->enableServer((yyvsp[(3) - (4)]), false);
@@ -2868,7 +2876,7 @@ yyreduce:
 
   case 82:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 418 "Grammar.y"
     {
     parser->usage("server", "disable");
@@ -2877,7 +2885,7 @@ yyreduce:
 
   case 83:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 422 "Grammar.y"
     {
     parser->listAllServers((yyvsp[(3) - (4)]));
@@ -2886,7 +2894,7 @@ yyreduce:
 
   case 84:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 426 "Grammar.y"
     {
     parser->usage("server", "list");
@@ -2895,16 +2903,16 @@ yyreduce:
 
   case 85:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 430 "Grammar.y"
     {
-    parser->showFile("server", (yyvsp[(3) - (4)]));
+    parser->show("server", (yyvsp[(3) - (4)]));
 ;}
     break;
 
   case 86:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 434 "Grammar.y"
     {
     parser->usage("server", "show");
@@ -2913,7 +2921,7 @@ yyreduce:
 
   case 87:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 438 "Grammar.y"
     {
     parser->startService((yyvsp[(3) - (4)]));
@@ -2922,7 +2930,7 @@ yyreduce:
 
   case 88:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 442 "Grammar.y"
     {
     parser->usage("service", "start");
@@ -2931,7 +2939,7 @@ yyreduce:
 
   case 89:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 446 "Grammar.y"
     {
     parser->stopService((yyvsp[(3) - (4)]));
@@ -2940,7 +2948,7 @@ yyreduce:
 
   case 90:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 450 "Grammar.y"
     {
     parser->usage("service", "stop");
@@ -2949,7 +2957,7 @@ yyreduce:
 
   case 91:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 454 "Grammar.y"
     {
     parser->describeService((yyvsp[(3) - (4)]));
@@ -2958,7 +2966,7 @@ yyreduce:
 
   case 92:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 458 "Grammar.y"
     {
     parser->usage("service", "describe");
@@ -2967,7 +2975,7 @@ yyreduce:
 
   case 93:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 462 "Grammar.y"
     {
     parser->propertiesService((yyvsp[(3) - (4)]), false);
@@ -2976,7 +2984,7 @@ yyreduce:
 
   case 94:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 466 "Grammar.y"
     {
     parser->usage("service", "properties");
@@ -2985,7 +2993,7 @@ yyreduce:
 
   case 95:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 470 "Grammar.y"
     {
     parser->propertiesService((yyvsp[(3) - (4)]), true);
@@ -2994,7 +3002,7 @@ yyreduce:
 
   case 96:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 474 "Grammar.y"
     {
     parser->usage("service", "property");
@@ -3003,7 +3011,7 @@ yyreduce:
 
   case 97:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 478 "Grammar.y"
     {
     parser->listServices((yyvsp[(3) - (4)]));
@@ -3012,7 +3020,7 @@ yyreduce:
 
   case 98:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 482 "Grammar.y"
     {
     parser->usage("service", "list");
@@ -3021,7 +3029,7 @@ yyreduce:
 
   case 99:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 486 "Grammar.y"
     {
     parser->endpointsAdapter((yyvsp[(3) - (4)]));
@@ -3030,7 +3038,7 @@ yyreduce:
 
   case 100:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 490 "Grammar.y"
     {
     parser->usage("adapter", "endpoints");
@@ -3039,7 +3047,7 @@ yyreduce:
 
   case 101:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 494 "Grammar.y"
     {
     parser->removeAdapter((yyvsp[(3) - (4)]));
@@ -3048,7 +3056,7 @@ yyreduce:
 
   case 102:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 498 "Grammar.y"
     {
     parser->usage("adapter", "remove");
@@ -3057,7 +3065,7 @@ yyreduce:
 
   case 103:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 502 "Grammar.y"
     {
     parser->listAllAdapters((yyvsp[(3) - (4)]));
@@ -3066,7 +3074,7 @@ yyreduce:
 
   case 104:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 506 "Grammar.y"
     {
     parser->usage("adapter", "list");
@@ -3075,7 +3083,7 @@ yyreduce:
 
   case 105:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 510 "Grammar.y"
     {
     parser->addObject((yyvsp[(3) - (4)]));
@@ -3084,7 +3092,7 @@ yyreduce:
 
   case 106:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 514 "Grammar.y"
     {
     parser->usage("object", "add");
@@ -3093,7 +3101,7 @@ yyreduce:
 
   case 107:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 518 "Grammar.y"
     {
     parser->removeObject((yyvsp[(3) - (4)]));
@@ -3102,7 +3110,7 @@ yyreduce:
 
   case 108:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 522 "Grammar.y"
     {
     parser->usage("object", "remove");
@@ -3111,7 +3119,7 @@ yyreduce:
 
   case 109:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 526 "Grammar.y"
     {
     parser->findObject((yyvsp[(3) - (4)]));
@@ -3120,7 +3128,7 @@ yyreduce:
 
   case 110:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 530 "Grammar.y"
     {
     parser->usage("object", "find");
@@ -3129,7 +3137,7 @@ yyreduce:
 
   case 111:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 534 "Grammar.y"
     {
     parser->listObject((yyvsp[(3) - (4)]));
@@ -3138,7 +3146,7 @@ yyreduce:
 
   case 112:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 538 "Grammar.y"
     {
     parser->usage("object", "list");
@@ -3147,7 +3155,7 @@ yyreduce:
 
   case 113:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 542 "Grammar.y"
     {
     parser->describeObject((yyvsp[(3) - (4)]));
@@ -3156,7 +3164,7 @@ yyreduce:
 
   case 114:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 546 "Grammar.y"
     {
     parser->usage("object", "describe");
@@ -3165,7 +3173,7 @@ yyreduce:
 
   case 115:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 550 "Grammar.y"
     {
     parser->showCopying();
@@ -3174,7 +3182,7 @@ yyreduce:
 
   case 116:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 554 "Grammar.y"
     {
     parser->showWarranty();
@@ -3183,7 +3191,7 @@ yyreduce:
 
   case 117:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 558 "Grammar.y"
     {
     parser->usage((yyvsp[(2) - (3)]).front());
@@ -3192,7 +3200,7 @@ yyreduce:
 
   case 118:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 562 "Grammar.y"
     {
     if(((yyvsp[(2) - (4)]).front() == "server" || (yyvsp[(2) - (4)]).front() == "service") && (yyvsp[(3) - (4)]).front() == "template")
@@ -3208,7 +3216,7 @@ yyreduce:
 
   case 119:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 573 "Grammar.y"
     {
     parser->usage((yyvsp[(2) - (5)]).front(), (yyvsp[(3) - (5)]).front());
@@ -3217,7 +3225,7 @@ yyreduce:
 
   case 120:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 577 "Grammar.y"
     {
     if(((yyvsp[(2) - (5)]).front() == "server" || (yyvsp[(2) - (5)]).front() == "service") && (yyvsp[(3) - (5)]).front() == "template")
@@ -3233,7 +3241,7 @@ yyreduce:
 
   case 121:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 588 "Grammar.y"
     {
     if(((yyvsp[(2) - (6)]).front() == "server" || (yyvsp[(2) - (6)]).front() == "service") && (yyvsp[(3) - (6)]).front() == "template")
@@ -3249,7 +3257,7 @@ yyreduce:
 
   case 122:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 599 "Grammar.y"
     {
     parser->usage((yyvsp[(2) - (4)]).front());
@@ -3258,7 +3266,7 @@ yyreduce:
 
   case 123:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 603 "Grammar.y"
     {
     parser->usage();
@@ -3267,7 +3275,7 @@ yyreduce:
 
   case 124:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 607 "Grammar.y"
     {
     parser->usage((yyvsp[(1) - (3)]).front());
@@ -3276,7 +3284,7 @@ yyreduce:
 
   case 125:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 611 "Grammar.y"
     {
     (yyvsp[(1) - (4)]).push_back((yyvsp[(2) - (4)]).front());
@@ -3287,7 +3295,7 @@ yyreduce:
 
   case 126:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 617 "Grammar.y"
     {
     parser->invalidCommand((yyvsp[(1) - (3)]));
@@ -3297,7 +3305,7 @@ yyreduce:
 
   case 127:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 622 "Grammar.y"
     {
     parser->invalidCommand((yyvsp[(1) - (3)]));
@@ -3307,7 +3315,7 @@ yyreduce:
 
   case 128:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 627 "Grammar.y"
     {
     yyerrok;
@@ -3316,7 +3324,7 @@ yyreduce:
 
   case 129:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 631 "Grammar.y"
     {
 ;}
@@ -3324,7 +3332,7 @@ yyreduce:
 
   case 130:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 640 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -3334,7 +3342,7 @@ yyreduce:
 
   case 131:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 645 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -3344,7 +3352,7 @@ yyreduce:
 
   case 132:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 650 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
@@ -3355,7 +3363,7 @@ yyreduce:
 
   case 133:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 656 "Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
@@ -3366,7 +3374,7 @@ yyreduce:
 
   case 134:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 662 "Grammar.y"
     {
     (yyval) = YYSTYPE();
@@ -3375,7 +3383,7 @@ yyreduce:
 
   case 135:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 671 "Grammar.y"
     {
 ;}
@@ -3383,7 +3391,7 @@ yyreduce:
 
   case 136:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 674 "Grammar.y"
     {
 ;}
@@ -3391,7 +3399,7 @@ yyreduce:
 
   case 137:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 677 "Grammar.y"
     {
 ;}
@@ -3399,7 +3407,7 @@ yyreduce:
 
   case 138:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 680 "Grammar.y"
     {
 ;}
@@ -3407,7 +3415,7 @@ yyreduce:
 
   case 139:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 683 "Grammar.y"
     {
 ;}
@@ -3415,7 +3423,7 @@ yyreduce:
 
   case 140:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 686 "Grammar.y"
     {
 ;}
@@ -3423,7 +3431,7 @@ yyreduce:
 
   case 141:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 689 "Grammar.y"
     {
 ;}
@@ -3431,7 +3439,7 @@ yyreduce:
 
   case 142:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 692 "Grammar.y"
     {
 ;}
@@ -3439,7 +3447,7 @@ yyreduce:
 
   case 143:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 695 "Grammar.y"
     {
 ;}
@@ -3447,7 +3455,7 @@ yyreduce:
 
   case 144:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 698 "Grammar.y"
     {
 ;}
@@ -3455,7 +3463,7 @@ yyreduce:
 
   case 145:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 701 "Grammar.y"
     {
 ;}
@@ -3463,7 +3471,7 @@ yyreduce:
 
   case 146:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 704 "Grammar.y"
     {
 ;}
@@ -3471,7 +3479,7 @@ yyreduce:
 
   case 147:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 707 "Grammar.y"
     {
 ;}
@@ -3479,7 +3487,7 @@ yyreduce:
 
   case 148:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 710 "Grammar.y"
     {
 ;}
@@ -3487,7 +3495,7 @@ yyreduce:
 
   case 149:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 713 "Grammar.y"
     {
 ;}
@@ -3495,7 +3503,7 @@ yyreduce:
 
   case 150:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 716 "Grammar.y"
     {
 ;}
@@ -3503,7 +3511,7 @@ yyreduce:
 
   case 151:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 719 "Grammar.y"
     {
 ;}
@@ -3511,7 +3519,7 @@ yyreduce:
 
   case 152:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 722 "Grammar.y"
     {
 ;}
@@ -3519,7 +3527,7 @@ yyreduce:
 
   case 153:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 725 "Grammar.y"
     {
 ;}
@@ -3527,7 +3535,7 @@ yyreduce:
 
   case 154:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 728 "Grammar.y"
     {
 ;}
@@ -3535,7 +3543,7 @@ yyreduce:
 
   case 155:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 731 "Grammar.y"
     {
 ;}
@@ -3543,7 +3551,7 @@ yyreduce:
 
   case 156:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 734 "Grammar.y"
     {
 ;}
@@ -3551,7 +3559,7 @@ yyreduce:
 
   case 157:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 737 "Grammar.y"
     {
 ;}
@@ -3559,7 +3567,7 @@ yyreduce:
 
   case 158:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 740 "Grammar.y"
     {
 ;}
@@ -3567,7 +3575,7 @@ yyreduce:
 
   case 159:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 743 "Grammar.y"
     {
 ;}
@@ -3575,7 +3583,7 @@ yyreduce:
 
   case 160:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 746 "Grammar.y"
     {
 ;}
@@ -3583,7 +3591,7 @@ yyreduce:
 
   case 161:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 749 "Grammar.y"
     {
 ;}
@@ -3591,7 +3599,7 @@ yyreduce:
 
   case 162:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 752 "Grammar.y"
     {
 ;}
@@ -3599,7 +3607,7 @@ yyreduce:
 
   case 163:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 755 "Grammar.y"
     {
 ;}
@@ -3607,7 +3615,7 @@ yyreduce:
 
   case 164:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 758 "Grammar.y"
     {
 ;}
@@ -3615,7 +3623,7 @@ yyreduce:
 
   case 165:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 761 "Grammar.y"
     {
 ;}
@@ -3623,7 +3631,7 @@ yyreduce:
 
   case 166:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 764 "Grammar.y"
     {
 ;}
@@ -3631,7 +3639,7 @@ yyreduce:
 
   case 167:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 767 "Grammar.y"
     {
 ;}
@@ -3639,7 +3647,7 @@ yyreduce:
 
   case 168:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 770 "Grammar.y"
     {
 ;}
@@ -3647,7 +3655,7 @@ yyreduce:
 
   case 169:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 773 "Grammar.y"
     {
 ;}
@@ -3655,7 +3663,7 @@ yyreduce:
 
   case 170:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 776 "Grammar.y"
     {
 ;}
@@ -3663,7 +3671,7 @@ yyreduce:
 
   case 171:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 779 "Grammar.y"
     {
 ;}
@@ -3671,7 +3679,7 @@ yyreduce:
 
   case 172:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 782 "Grammar.y"
     {
 ;}
@@ -3679,8 +3687,8 @@ yyreduce:
 
 
 
-/* Line 1455 of yacc.c  */
-#line 3684 "Grammar.tab.c"
+/* Line 1464 of yacc.c  */
+#line 3692 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

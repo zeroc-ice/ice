@@ -120,7 +120,7 @@ private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
     virtual ~Instance();
-    void finishSetup(int&, char*[]);
+    void finishSetup(int&, char*[], const Ice::CommunicatorPtr&);
     void destroy();
     friend class Ice::CommunicatorI;
 

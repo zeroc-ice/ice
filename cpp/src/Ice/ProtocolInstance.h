@@ -18,6 +18,7 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/NetworkF.h>
+#include <Ice/Instance.h>
 
 namespace IceInternal
 {
@@ -40,7 +41,7 @@ public:
 
     const Ice::LoggerPtr& logger() const
     {
-        return _logger;
+        return _instance->initializationData().logger;
     }
 
     const std::string& protocol() const
@@ -81,7 +82,6 @@ protected:
 
     const int _traceLevel;
     const std::string _traceCategory;
-    const Ice::LoggerPtr _logger;
     const Ice::PropertiesPtr _properties;
     const std::string _protocol;
     const Ice::Short _type;

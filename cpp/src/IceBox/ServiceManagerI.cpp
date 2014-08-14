@@ -17,6 +17,7 @@
 #include <Ice/PropertiesAdminI.h>
 #include <Ice/MetricsAdminI.h>
 #include <Ice/InstrumentationI.h>
+#include <Ice/LoggerAdminI.h>
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
@@ -597,6 +598,10 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 #endif
                )
             {
+                //
+                // When _logger is a LoggerAdminLogger, cloneWithPrefix returns a clone of the 
+                // underlying local logger, not of the LoggerAdminLogger itself
+                //
                 initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
             }
 
@@ -611,11 +616,37 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             }
 
             //
+            // If the Logger is enabled on the IceBox communicator, we tell the service 
+            // to create a LoggerAdmin's Logger, by setting the property Ice.Admin.Logger
+            // 
+            if(_communicator->findAdminFacet("Logger") != 0)
+            {
+                if(initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger") == "Logger")
+                {
+                    initData.properties->setProperty("Ice.Admin.Logger", string("IceBox.Service.") + service + ".Logger");
+                }
+            }
+
+            //
             // Remaining command line options are passed to the communicator. This is
             // necessary for Ice plug-in properties (e.g.: IceSSL).
             //
             info.communicator = initialize(info.args, initData);
             communicator = info.communicator;
+
+            if(_communicator->findAdminFacet("Logger") != 0)
+            {
+                Ice::LoggerAdminLoggerPtr logger = Ice::LoggerAdminLoggerPtr::dynamicCast(communicator->getLogger());
+                assert(logger != 0); // a plugin reset Ice.Admin.Logger to its default??
+                if(logger != 0)
+                {
+                    //
+                    // We add this admin facet to the IceBox main communicator, even though the associated logger
+                    // "works" for the service's communicator
+                    //
+                    logger->addAdminFacet(_communicator);
+                }
+            }
 
             //
             // Ensure the metrics admin plugin uses the same property set as the

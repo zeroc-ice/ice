@@ -260,7 +260,7 @@ command
 }
 | ICE_GRID_NODE ICE_GRID_SHOW strings ';'
 {
-    parser->showFile("node", $3);
+    parser->show("node", $3);
 }
 | ICE_GRID_NODE ICE_GRID_SHOW ICE_GRID_HELP ';'
 {
@@ -300,7 +300,7 @@ command
 }
 | ICE_GRID_REGISTRY ICE_GRID_SHOW strings ';'
 {
-    parser->showFile("registry", $3);
+    parser->show("registry", $3);
 }
 | ICE_GRID_REGISTRY ICE_GRID_SHOW ICE_GRID_HELP ';'
 {
@@ -428,7 +428,7 @@ command
 }
 | ICE_GRID_SERVER ICE_GRID_SHOW strings ';'
 {
-    parser->showFile("server", $3);
+    parser->show("server", $3);
 }
 | ICE_GRID_SERVER ICE_GRID_SHOW ICE_GRID_HELP ';'
 {

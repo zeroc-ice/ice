@@ -63,6 +63,20 @@ local interface Logger
      **/
     void error(string message);
     
+
+// Temporary
+
+#ifdef __SLICE2CPP__
+    /**
+     *
+     * Returns this logger's prefix.
+     *
+     * @return The prefix.
+     *
+     **/
+    string getPrefix();
+#endif
+
     /**
      *
      * Returns a clone of the logger with a new prefix.

@@ -24,7 +24,6 @@ IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, Shor
     _instance(getInstance(com)),
     _traceLevel(_instance->traceLevels()->network),
     _traceCategory(_instance->traceLevels()->networkCat),
-    _logger(_instance->initializationData().logger),
     _properties(_instance->initializationData().properties),
     _protocol(protocol),
     _type(type)
@@ -35,7 +34,6 @@ IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, Sho
     _instance(instance),
     _traceLevel(_instance->traceLevels()->network),
     _traceCategory(_instance->traceLevels()->networkCat),
-    _logger(_instance->initializationData().logger),
     _properties(_instance->initializationData().properties),
     _protocol(protocol),
     _type(type)

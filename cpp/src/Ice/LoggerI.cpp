@@ -50,6 +50,7 @@ Init init;
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file, 
                       bool convert, const IceUtil::StringConverterPtr& converter) :
+    _prefix(prefix),
     _convert(convert),
     _converter(converter)
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
@@ -59,7 +60,7 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file,
 {
     if(!prefix.empty())
     {
-        _prefix = prefix + ": ";
+        _formattedPrefix = prefix + ": ";
     }
 
     if(!file.empty())
@@ -90,7 +91,7 @@ Ice::LoggerI::print(const string& message)
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    string s = "-- " + IceUtil::Time::now().toDateTime() + " " + _prefix;
+    string s = "-- " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix;
     if(!category.empty())
     {
         s += category + ": ";
@@ -103,13 +104,19 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    write("-! " + IceUtil::Time::now().toDateTime() + " " + _prefix + "warning: " + message, true);
+    write("-! " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix + "warning: " + message, true);
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    write("!! " + IceUtil::Time::now().toDateTime() + " " + _prefix + "error: " + message, true);
+    write("!! " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix + "error: " + message, true);
+}
+
+string
+Ice::LoggerI::getPrefix()
+{
+    return _prefix;
 }
 
 LoggerPtr

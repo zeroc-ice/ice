@@ -39,7 +39,7 @@
 #include <Ice/MetricsAdminI.h>
 #include <Ice/InstrumentationI.h>
 #include <Ice/ProtocolInstance.h>
-
+#include <Ice/LoggerAdminI.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -1207,44 +1207,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _wstringConverter = new IceUtil::UnicodeWstringConverter();
         }
 
-        //
-        // Add Process and Properties facets
-        //
-
-        StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
-
-        if(!facetSeq.empty())
-        {
-            _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
-        }
-
-        _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
-
-        PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
-        _adminFacets.insert(FacetMap::value_type("Properties",props));
-
-        _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
-        _adminFacets.insert(FacetMap::value_type("Metrics", _metricsAdmin));
-
-        //
-        // Setup the communicator observer only if the user didn't already set an
-        // Ice observer resolver and if the admininistrative endpoints are set.
-        //
-        if((_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()) &&
-           _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
-        {
-            _observer = new CommunicatorObserverI(_metricsAdmin, _initData.observer);
-
-            //
-            // Make sure the admin plugin receives property updates.
-            //
-            props->addUpdateCallback(_metricsAdmin);
-        }
-        else
-        {
-            _observer = _initData.observer;
-        }
-
         __setNoDelete(false);
     }
     catch(...)
@@ -1303,7 +1265,7 @@ IceInternal::Instance::~Instance()
 }
 
 void
-IceInternal::Instance::finishSetup(int& argc, char* argv[])
+IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     //
     // Load plug-ins.
@@ -1312,6 +1274,70 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+    //
+    // Add admin facets
+    // Note that any logger-dependent admin facet must be created after we load all plugins,
+    // since one of these plugins can be a Logger plugin that sets a new logger during loading
+    //
+
+    StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
+    
+    if(!facetSeq.empty())
+    {
+        _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+    }
+    _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+        
+    string loggerFacetName = _initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
+    
+    bool insertLoggerFacet = 
+        (_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end()) &&
+        _initData.properties->getProperty("Ice.Admin.Endpoints") != "";
+    
+    if(loggerFacetName != "Logger" || insertLoggerFacet)
+    {
+        //
+        // Set up a new Logger
+        // 
+        Ice::LoggerAdminLoggerPtr logger = createLoggerAdminLogger(loggerFacetName,
+                                                                   _initData.properties, 
+                                                                   _initData.logger);
+        setLogger(logger);
+                                                                  
+        if(insertLoggerFacet)
+        {
+            logger->addAdminFacet(communicator);
+        }
+        //
+        // Else, this new logger & facet is useful for "slave" communicators like IceBox services.
+        //
+    }
+    
+    PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+    _adminFacets.insert(FacetMap::value_type("Properties", props));
+    
+    _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
+    _adminFacets.insert(FacetMap::value_type("Metrics", _metricsAdmin));
+    
+    //
+    // Setup the communicator observer only if the user didn't already set an
+    // Ice observer resolver and if the admininistrative endpoints are set.
+    //
+    if((_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()) &&
+       _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
+    {
+        _observer = new CommunicatorObserverI(_metricsAdmin, _initData.observer);
+        
+        //
+        // Make sure the admin plugin receives property updates.
+        //
+        props->addUpdateCallback(_metricsAdmin);
+    }
+    else
+    {
+        _observer = _initData.observer;
+    }
 
     //
     // Set observer updater
@@ -1490,6 +1516,15 @@ IceInternal::Instance::destroy()
             }
             _observer->setObserverUpdater(0); // Break cyclic reference count.
         }
+    }
+    
+    Ice::LoggerAdminLoggerPtr logger = Ice::LoggerAdminLoggerPtr::dynamicCast(_initData.logger);
+    if(logger)
+    {
+        //
+        // This only disables the remote logging; we don't set or reset _initData.logger
+        //
+        logger->destroy();
     }
 
     ThreadPoolPtr serverThreadPool;

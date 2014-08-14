@@ -12,6 +12,44 @@
 
 using namespace std;
 
+namespace
+{
+
+//
+// A no-op Logger, used when testing the Logger Admin
+//
+
+class NullLogger : public Ice::Logger
+{
+public:
+
+    virtual void print(const string&)
+    {}
+
+    virtual void trace(const string&, const string&)
+    {}
+
+    virtual void warning(const string&)
+    {}
+
+    virtual void error(const string&)
+    {}
+
+    virtual string getPrefix()
+    {
+        return "NullLogger";
+    }
+    
+    virtual Ice::LoggerPtr cloneWithPrefix(const string&)
+    {
+        return new NullLogger;
+    }
+};
+
+}
+
+
+
 RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator), _called(false)
 {
@@ -43,6 +81,28 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
     _called = false;
 
     return _changes;
+}
+
+void
+RemoteCommunicatorI::print(const std::string& message, const Ice::Current&)
+{
+    _communicator->getLogger()->print(message);
+}
+void
+RemoteCommunicatorI::trace(const std::string& category,
+                           const std::string& message, const Ice::Current&)
+{
+    _communicator->getLogger()->trace(category, message);
+}
+void
+RemoteCommunicatorI::warning(const std::string& message, const Ice::Current&)
+{
+    _communicator->getLogger()->warning(message);
+}
+void
+RemoteCommunicatorI::error(const std::string& message, const Ice::Current&)
+{
+    _communicator->getLogger()->error(message);
 }
 
 void
@@ -88,6 +148,11 @@ RemoteCommunicatorFactoryI::createCommunicator(const Ice::PropertyDict& props, c
     for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         init.properties->setProperty(p->first, p->second);
+    }
+
+    if(init.properties->getPropertyAsInt("NullLogger") != 0)
+    {
+        init.logger = new NullLogger;
     }
 
     //

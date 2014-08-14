@@ -85,6 +85,12 @@ public:
         }
     }
 
+    virtual string
+    getPrefix()
+    {
+        return "";
+    }
+
     virtual Ice::LoggerPtr
     cloneWithPrefix(const std::string&)
     {

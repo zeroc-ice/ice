@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#include <IceUtil/OutputUtil.h>
+#include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceXML/Parser.h>
@@ -101,12 +101,12 @@ const char* _commandsHelp[][3] = {
 "                          node NAME or all the nodes if NAME is omitted.\n" 
 },
 { "node", "show",
-"node show [OPTIONS] NAME [stderr | stdout]\n"
-"                          Show node NAME stderr or stdout.\n"
+"node show [OPTIONS] NAME [log | stderr | stdout]\n"
+"                          Show node NAME Ice log, stderr or stdout.\n"
 "                          Options:\n"
 "                           -f | --follow: Wait for new data to be available\n"
-"                           -t N | --tail N: Print the last N lines\n"
-"                           -h N | --head N: Print the first N lines\n"
+"                           -t N | --tail N: Print the last N log messages or lines\n"
+"                           -h N | --head N: Print the first N lines (stderr and stdout only)\n"
 },
 { "node", "shutdown",
 "node shutdown NAME        Shutdown node NAME.\n" 
@@ -121,12 +121,12 @@ const char* _commandsHelp[][3] = {
 "registry ping NAME        Ping registry NAME.\n" 
 },
 { "registry", "show",
-"registry show [OPTIONS] NAME [stderr | stdout]\n" 
-"                          Show registry NAME stderr or stdout.\n" 
+"registry show [OPTIONS] NAME [log | stderr | stdout ]\n" 
+"                          Show registry NAME Ice log, stderr or stdout.\n" 
 "                          Options:\n"
-"                           -f | --follow: Wait for new data to be available\n"
-"                           -t N | --tail N: Print the last N lines\n"
-"                           -h N | --head N: Print the first N lines\n"
+"                           -f | --follow: Wait for new log or data to be available\n"
+"                           -t N | --tail N: Print the last N log messages or lines\n"
+"                           -h N | --head N: Print the first N lines (stderr and stdout only)\n"
 },
 { "registry", "shutdown",
 "registry shutdown NAME    Shutdown registry NAME.\n" 
@@ -171,12 +171,12 @@ const char* _commandsHelp[][3] = {
 "server stderr ID MESSAGE  Write MESSAGE on server ID's stderr.\n" 
 },
 { "server", "show",
-"server show [OPTIONS] ID [stderr | stdout | LOGFILE ]\n"
-"                          Show server ID stderr, stdout or log file LOGFILE.\n"
+"server show [OPTIONS] ID [log | stderr | stdout | LOGFILE ]\n"
+"                          Show server ID Ice log, stderr, stdout or log file LOGFILE.\n"
 "                          Options:\n"
 "                           -f | --follow: Wait for new data to be available\n"
-"                           -t N | --tail N: Print the last N lines\n"
-"                           -h N | --head N: Print the first N lines\n"
+"                           -t N | --tail N: Print the last N log messages or lines\n"
+"                           -h N | --head N: Print the first N lines (not available for Ice log)\n"
 },
 { "server", "enable",
 "server enable ID          Enable server ID.\n" 
@@ -242,6 +242,141 @@ const char* _commandsHelp[][3] = {
 },
 { 0, 0, 0 }
 };
+
+
+void writeMessage(const string& message, bool indent)
+{
+    string s = message;
+
+    if(indent)
+    {
+        string::size_type idx = 0;
+        while((idx = s.find("\n", idx)) != string::npos)
+        {
+            s.insert(idx + 1, "   ");
+            ++idx;
+        }
+    }
+    
+    // TODO: Console handling on Windows
+
+    cout << s << endl;
+}
+
+void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
+{
+    string prefix = p;
+
+    if(!prefix.empty())
+    {
+        prefix += ": ";
+    }
+
+    string timestamp = IceUtil::Time::microSeconds(logMessage.timestamp).toDateTime();
+            
+    switch(logMessage.type)
+    {
+        case Ice::PrintMessage:
+        {
+            writeMessage(timestamp + " " + logMessage.message, false);
+            break;
+        }
+        case Ice::TraceMessage:
+        {
+            string s = "-- " + timestamp + " " + prefix;
+            if(!logMessage.traceCategory.empty())
+            {
+                s += logMessage.traceCategory + ": ";
+            }
+            s += logMessage.message;
+            writeMessage(s, true);
+            break;
+        }
+        case Ice::WarningMessage:
+        {
+            writeMessage("!- " + timestamp + " " + prefix + "warning: " + logMessage.message, true);
+            break;
+        }
+        case Ice::ErrorMessage:
+        {
+            writeMessage("!! " + timestamp + " " + prefix + "error: " + logMessage.message, true);
+            break;
+        }
+        default:
+        {
+            assert(0);
+        }
+    }
+}
+
+
+
+class RemoteLoggerI : public Ice::RemoteLogger
+{                                               
+public:
+
+    RemoteLoggerI();
+
+    virtual void init(const string&, const Ice::LogMessageSeq&, const Ice::Current&);
+    virtual void log(const Ice::LogMessage&, const Ice::Current&);
+    
+    void destroy();
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    bool _initDone;
+    bool _destroyed;
+    string _prefix;
+};
+
+typedef IceUtil::Handle<RemoteLoggerI> RemoteLoggerIPtr;
+
+RemoteLoggerI::RemoteLoggerI() :
+    _initDone(false),
+    _destroyed(false)
+{
+}
+
+void
+RemoteLoggerI::init(const string& prefix, const Ice::LogMessageSeq& logMessages, const Ice::Current&)
+{    
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    if(!_destroyed)
+    {
+        _prefix = prefix;
+        
+        for(Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        {
+            printLogMessage(_prefix, *p);
+        }
+        
+        _initDone = true;
+        _monitor.notifyAll();
+    }
+}
+
+void 
+RemoteLoggerI::log(const Ice::LogMessage& logMessage, const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    while(!_initDone && !_destroyed)
+    {
+        _monitor.wait();
+    }
+    if(!_destroyed)
+    {
+        printLogMessage(_prefix, logMessage);
+    }
+}
+
+void
+RemoteLoggerI::destroy()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    _destroyed = true;
+    _monitor.notifyAll();
+}
 
 }
 
@@ -1975,7 +2110,7 @@ Parser::listObject(const list<string>& args)
 }
 
 void
-Parser::showFile(const string& reader, const list<string>& origArgs)
+Parser::show(const string& reader, const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
@@ -2022,8 +2157,13 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
             invalidCommand("can't specify both -h | --head and -t | --tail options");
             return;
         }
+        if(head && reader == "log")
+        {
+            invalidCommand("can't specify -h | --head option with log");
+            return;
+        }
+
         int lineCount = 20;
-        int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
         if(head || tail)
         {
             if(head)
@@ -2042,8 +2182,41 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
                 return;
             }
         }
+        
+        bool follow = opts.isSet("follow");
+     
+        if(head && follow)
+        {
+            invalidCommand("can't use -f | --follow option with -h | --head option");
+            return;
+        }
 
-        FileIteratorPrx it;
+        if(filename == "log")
+        {
+            showLog(id, reader, tail, follow, lineCount);
+        }
+        else
+        {
+            showFile(id, reader, filename, head, tail, follow, lineCount);
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        exception(ex);
+    }
+}
+
+void
+Parser::showFile(const string& id, const string& reader, const string& filename, 
+                 bool head, bool tail, bool follow, int lineCount)
+{
+    
+    int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
+    
+    FileIteratorPrx it;
+
+    try
+    {
         if(reader == "node")
         {
             if(filename == "stderr")
@@ -2091,17 +2264,13 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
                 it = _session->openServerLog(id, filename, tail ? lineCount : -1);
             }
         }
-
-        bool follow = opts.isSet("follow");
+        
         resetInterrupt();
+        Ice::StringSeq lines;
         if(head)
         {
-            if(follow)
-            {
-                invalidCommand("can't use -f | --follow option with -h | --head option");
-                return;
-            }
-
+            assert(!follow);
+            
             int i = 0;
             bool eof = false;
             while(!interrupted() && !eof && i < lineCount)
@@ -2125,7 +2294,7 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
                 }
             }
         }
-
+        
         if(follow)
         {
             while(!interrupted())
@@ -2143,7 +2312,7 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
                         cout << flush;
                     }
                 }
-
+                
                 if(eof)
                 {
                     Lock sync(*this);
@@ -2155,17 +2324,136 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
                 }
             }
         }
-
+        
         if(lines.empty() || !lines.back().empty())
         {
             cout << endl;
         }
-
+        
         it->destroy();
     }
-    catch(const Ice::Exception& ex)
+    catch(...)
     {
-        exception(ex);
+        if(it != 0)
+        {
+            try
+            {
+                it->destroy();
+            }
+            catch(...)
+            {
+            }
+        }
+        throw;
+    }
+}
+
+void
+Parser::showLog(const string& id, const string& reader, bool tail, bool follow, int lineCount)
+{
+    cout << endl;
+
+    if(reader == "server")
+    {
+        Ice::ObjectPrx serverAdmin = _admin->getServerAdmin(id);
+
+        Ice::LoggerAdminPrx loggerAdmin;
+        try
+        {
+             loggerAdmin = Ice::LoggerAdminPrx::checkedCast(serverAdmin, "Logger");
+        }
+        catch(const Ice::Exception&)
+        {
+            loggerAdmin = 0;
+        }
+        
+        if(loggerAdmin == 0)
+        {
+            error("cannot retrieve Logger facet for server '" + id + "'");
+            return;
+        }
+        
+        if(follow)
+        {
+            Ice::ObjectPrx adminCallbackTemplate = _session->getAdminCallbackTemplate();
+            
+            if(adminCallbackTemplate == 0)
+            {
+                error("cannot retriever Callback template from IceGrid registry");
+                return;
+            }
+            
+            const Ice::EndpointSeq endpoints = adminCallbackTemplate->ice_getEndpoints(); 
+            string publishedEndpoints;
+            
+            for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            {
+                if(publishedEndpoints.empty())
+                {
+                    publishedEndpoints = (*p)->toString();
+                }
+                else
+                {
+                    publishedEndpoints += ":" + (*p)->toString();
+                }
+            }
+
+            _communicator->getProperties()->setProperty("RemoteLoggerAdapter.PublishedEndpoints", publishedEndpoints);
+            
+            Ice::ObjectAdapterPtr adapter = 
+                _communicator->createObjectAdapter("RemoteLoggerAdapter");
+            
+            _session->ice_getConnection()->setAdapter(adapter);
+
+            Ice::Identity id;
+            id.name = "RemoteLogger-" + IceUtil::generateUUID();
+            id.category = adminCallbackTemplate->ice_getIdentity().category;
+
+            RemoteLoggerIPtr servant = new RemoteLoggerI;
+            Ice::RemoteLoggerPrx prx = 
+                Ice::RemoteLoggerPrx::uncheckedCast(adapter->add(servant, id));
+            adapter->activate();
+            
+            loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(),
+                                            tail ? lineCount : -1);
+            
+            resetInterrupt();
+            {
+                Lock lock(*this);
+                while(!_interrupted)
+                {
+                    wait();
+                }
+            }
+
+            servant->destroy();
+            adapter->destroy();
+            
+            try
+            {
+                loggerAdmin->detachRemoteLogger(prx);
+            }
+            catch(const Ice::ObjectNotExistException&)
+            {
+                // ignored
+            }
+            catch(const Ice::RemoteLoggerNotAttachedException&)
+            {
+                // ignored
+            }
+        }
+        else
+        {
+            string prefix;
+            const Ice::LogMessageSeq logMessages = 
+                loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), 
+                                    tail ? lineCount : -1, prefix);
+            
+            for(Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+            {
+                printLogMessage(prefix, *p);
+            }
+        }
     }
 }
 

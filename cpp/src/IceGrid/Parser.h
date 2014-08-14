@@ -120,8 +120,8 @@ public:
     void describeObject(const std::list<std::string>&);
     void listObject(const std::list<std::string>&);
 
-    void showFile(const std::string&, const std::list<std::string>&);
-
+    void show(const std::string&, const std::list<std::string>&);
+    
     void showBanner();
     void showCopying();
     void showWarranty();
@@ -150,6 +150,10 @@ private:
 
     Parser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&, bool);
     void exception(const Ice::Exception&);
+
+    void showFile(const std::string&, const std::string&, const std::string&, bool, bool, bool, int);
+    void showLog(const std::string&, const std::string&, bool, bool, int);
+    
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;

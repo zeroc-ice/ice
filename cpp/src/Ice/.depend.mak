@@ -148,3 +148,12 @@ $(HDIR)\ServantLocatorF.h ServantLocatorF.cpp: "$(slicedir)/Ice/ServantLocatorF.
 $(HDIR)\ServantLocator.h ServantLocator.cpp: "$(slicedir)/Ice/ServantLocator.ice" "$(slicedir)/Ice/ObjectAdapterF.ice" "$(slicedir)/Ice/Current.ice" "$(slicedir)/Ice/ConnectionF.ice" "$(slicedir)/Ice/Identity.ice" "$(slicedir)/Ice/Version.ice" "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
 $(HDIR)\SliceChecksumDict.h SliceChecksumDict.cpp: "$(slicedir)/Ice/SliceChecksumDict.ice" "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
 $(HDIR)\Version.h Version.cpp: "$(slicedir)/Ice/Version.ice" "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
+
+RemoteLogger$(OBJEXT): RemoteLogger.cpp "$(includedir)/Ice/RemoteLogger.h" 
+$(HDIR)\RemoteLogger.h RemoteLogger.cpp: "$(slicedir)/Ice/RemoteLogger.ice" "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
+
+
+
+
+
+

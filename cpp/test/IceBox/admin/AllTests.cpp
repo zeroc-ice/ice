@@ -47,12 +47,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Test: PropertiesAdmin::getProperties()
         //
         Ice::PropertyDict pd = pa->getPropertiesForPrefix("");
-        test(pd.size() == 5);
+        test(pd.size() == 6);
         test(pd["Prop1"] == "1");
         test(pd["Prop2"] == "2");
         test(pd["Prop3"] == "3");
         test(pd["Ice.Config"] == "config.service");
         test(pd["Ice.ProgramName"] == "IceBox-TestService");
+        test(pd["Ice.Admin.Logger"] == "IceBox.Service.TestService.Logger");
 
         Ice::PropertyDict changes;
 

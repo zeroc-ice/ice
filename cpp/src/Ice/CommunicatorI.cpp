@@ -361,7 +361,7 @@ Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
 {
     try
     {
-        _instance->finishSetup(argc, argv);
+        _instance->finishSetup(argc, argv, this);
     }
     catch(...)
     {
