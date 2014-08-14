@@ -138,7 +138,7 @@ public class AllTests
                 @Override
                 public void response()
                 {
-                    responseCalled[1] = true;
+                    responseCalled[0] = true;
                     cb.called();
                 }
                 
@@ -364,6 +364,14 @@ public class AllTests
                 }
             });
             
+            try
+            {
+                waitSignal.await();
+            }
+            catch(InterruptedException e)
+            {
+                test(false);
+            }
             ic.destroy();
 
             cb.check();
