@@ -144,6 +144,7 @@ $(HDIR)/Process.h Process.cpp: $(slicedir)/Ice/Process.ice $(SLICE2CPP) $(SLICEP
 $(HDIR)/PropertiesF.h PropertiesF.cpp: $(slicedir)/Ice/PropertiesF.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 $(HDIR)/PropertiesAdmin.h PropertiesAdmin.cpp: $(slicedir)/Ice/PropertiesAdmin.ice $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 $(HDIR)/Properties.h Properties.cpp: $(slicedir)/Ice/Properties.ice $(slicedir)/Ice/PropertiesAdmin.ice $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+$(HDIR)/RemoteLogger.h RemoteLogger.cpp: $(slicedir)/Ice/RemoteLogger.ice $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 $(HDIR)/RouterF.h RouterF.cpp: $(slicedir)/Ice/RouterF.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 $(HDIR)/Router.h Router.cpp: $(slicedir)/Ice/Router.ice $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 $(HDIR)/ServantLocatorF.h ServantLocatorF.cpp: $(slicedir)/Ice/ServantLocatorF.ice $(SLICE2CPP) $(SLICEPARSERLIB)

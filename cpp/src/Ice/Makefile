@@ -167,6 +167,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/PropertiesF.ice \
 		  $(SDIR)/PropertiesAdmin.ice \
 		  $(SDIR)/Properties.ice \
+                  $(SDIR)/RemoteLogger.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/ServantLocatorF.ice \
