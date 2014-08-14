@@ -12,23 +12,25 @@
 <project name="demo" default="all" basedir=".">
 
     <target name="all">
-        <ant dir="Ice"/>
-        <ant dir="Freeze"/>
-        <ant dir="IceBox"/>
-        <ant dir="IceStorm"/>
-        <ant dir="Glacier2"/>
-        <ant dir="IceGrid"/>
         <ant dir="book"/>
+        <ant dir="Freeze"/>
+        <ant dir="Glacier2"/>
+        <ant dir="Ice"/>
+        <ant dir="IceBox"/>
+        <ant dir="IceDiscovery"/>
+        <ant dir="IceGrid"/>
+        <ant dir="IceStorm"/>
     </target>
 
     <target name="clean">
-        <ant dir="Ice" target="clean"/>
-        <ant dir="Freeze" target="clean"/>
-        <ant dir="IceBox" target="clean"/>
-        <ant dir="IceStorm" target="clean"/>
-        <ant dir="Glacier2" target="clean"/>
-        <ant dir="IceGrid" target="clean"/>
         <ant dir="book" target="clean"/>
+        <ant dir="Freeze" target="clean"/>
+        <ant dir="Glacier2" target="clean"/>
+        <ant dir="Ice" target="clean"/>
+        <ant dir="IceBox" target="clean"/>
+        <ant dir="IceDiscovery" target="clean"/>
+        <ant dir="IceGrid" target="clean"/>
+        <ant dir="IceStorm" target="clean"/>
     </target>
 
 </project>
