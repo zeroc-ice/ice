@@ -19,6 +19,7 @@ public class FileI extends _FileDisp
         _envName = envName;
     }
 
+    @Override
     public String
     name(Ice.Current c)
     {
@@ -54,6 +55,7 @@ public class FileI extends _FileDisp
         }
     }
 
+    @Override
     public String[]
     read(Ice.Current c)
     {
@@ -89,6 +91,7 @@ public class FileI extends _FileDisp
         }
     }
 
+    @Override
     public void
     write(String[] text, Ice.Current c)
         throws GenericError
@@ -127,6 +130,7 @@ public class FileI extends _FileDisp
         }
     }
 
+    @Override
     public void
     destroy(Ice.Current c)
         throws PermissionDenied
@@ -153,7 +157,7 @@ public class FileI extends _FileDisp
                         throw new Ice.ObjectNotExistException();
                     }
 
-                    DirectoryEntry dirEntry = (DirectoryEntry)dirDB.get(entry.parent);
+                    DirectoryEntry dirEntry = dirDB.get(entry.parent);
                     if(dirEntry == null)
                     {
                         halt(new Freeze.DatabaseException("consistency error: file without parent"));

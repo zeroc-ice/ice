@@ -9,6 +9,7 @@
 
 class BookFactory implements Ice.ObjectFactory
 {
+    @Override
     public Ice.Object
     create(String type)
     {
@@ -16,6 +17,7 @@ class BookFactory implements Ice.ObjectFactory
         return new BookI(_library);
     }
 
+    @Override
     public void
     destroy()
     {

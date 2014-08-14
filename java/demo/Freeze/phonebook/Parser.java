@@ -11,9 +11,8 @@ import Demo.*;
 
 class Parser
 {
-    Parser(Ice.Communicator communicator, PhoneBookPrx phoneBook)
+    Parser(PhoneBookPrx phoneBook)
     {
-        _communicator = communicator;
         _phoneBook = phoneBook;
     }
 
@@ -343,7 +342,6 @@ class Parser
     private ContactPrx[] _foundContacts;
     private int _current;
 
-    private Ice.Communicator _communicator;
     private PhoneBookPrx _phoneBook;
 
     private java.io.BufferedReader _in;

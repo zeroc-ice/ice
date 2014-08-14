@@ -9,6 +9,7 @@
 
 class ObjectFactory implements Ice.ObjectFactory
 {
+    @Override
     public Ice.Object
     create(String type)
     {
@@ -31,6 +32,7 @@ class ObjectFactory implements Ice.ObjectFactory
         return null;
     }
 
+    @Override
     public void
     destroy()
     {

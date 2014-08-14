@@ -19,6 +19,7 @@ class SessionI extends _SessionDisp
         System.out.println("The session " + _name + " is now created.");
     }
 
+    @Override
     synchronized public HelloPrx
     createHello(Ice.Current c)
     {
@@ -31,6 +32,7 @@ class SessionI extends _SessionDisp
         return hello;
     }
 
+    @Override
     synchronized public void
     refresh(Ice.Current c)
     {
@@ -41,6 +43,7 @@ class SessionI extends _SessionDisp
         _timestamp = System.currentTimeMillis();
     }
 
+    @Override
     synchronized public String
     getName(Ice.Current c)
     {
@@ -51,6 +54,7 @@ class SessionI extends _SessionDisp
         return _name;
     }
     
+    @Override
     synchronized public void
     destroy(Ice.Current c)
     {

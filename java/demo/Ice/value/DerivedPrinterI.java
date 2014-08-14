@@ -11,6 +11,7 @@ import Demo.*;
 
 class DerivedPrinterI extends DerivedPrinter
 {
+    @Override
     public void
     printBackwards(Ice.Current current)
     {
@@ -24,6 +25,7 @@ class DerivedPrinterI extends DerivedPrinter
         System.out.println(new String(arr));
     }
 
+    @Override
     public void
     printUppercase(Ice.Current current)
     {

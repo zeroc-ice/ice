@@ -11,6 +11,7 @@ import Demo.*;
 
 public class HelloI extends _HelloDisp
 {
+    @Override
     public void
     sayHello(Ice.Current current)
     {

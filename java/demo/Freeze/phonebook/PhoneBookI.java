@@ -11,6 +11,7 @@ import Demo.*;
 
 class PhoneBookI extends _PhoneBookDisp
 {
+    @Override
     public ContactPrx
     createContact(Ice.Current current)
         throws DatabaseException
@@ -36,6 +37,7 @@ class PhoneBookI extends _PhoneBookDisp
         return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
     }
 
+    @Override
     public ContactPrx[]
     findContacts(String name, Ice.Current current)
         throws DatabaseException
@@ -60,6 +62,7 @@ class PhoneBookI extends _PhoneBookDisp
         }
     }
 
+    @Override
     public void
     setEvictorSize(int size, Ice.Current current)
         throws DatabaseException
@@ -70,6 +73,7 @@ class PhoneBookI extends _PhoneBookDisp
         _evictor.setSize(size);
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

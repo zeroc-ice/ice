@@ -70,11 +70,13 @@ class RunParser
             final Glacier2SessionPrx sess = Glacier2SessionPrxHelper.uncheckedCast(glacier2session);
             session = new SessionAdapter()
             {
+                @Override
                 public LibraryPrx getLibrary()
                 {
                     return sess.getLibrary();
                 }
 
+                @Override
                 public void destroy()
                 {
                     try
@@ -92,11 +94,13 @@ class RunParser
                     }
                 }
 
+                @Override
                 public void refresh()
                 {
                     sess.refresh();
                 }
 
+                @Override
                 public long getTimeout()
                 {
                     return to;
@@ -117,22 +121,26 @@ class RunParser
             final long timeout = factory.getSessionTimeout()/2;
             session = new SessionAdapter()
             {
+                @Override
                 public LibraryPrx getLibrary()
                 {
                     return sess.getLibrary();
                 }
 
+                @Override
                 public void destroy()
                 {
                     sess.destroy();
                 }
 
+                @Override
                 public void refresh()
                 {
                     sess.refresh();
                 }
 
-                 public long getTimeout()
+                 @Override
+                public long getTimeout()
                  {
                     return timeout;
                 }
@@ -153,6 +161,7 @@ class RunParser
         java.util.concurrent.ScheduledExecutorService executor = java.util.concurrent.Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(new Runnable()
             {
+                @Override
                 public void
                 run()
                 {

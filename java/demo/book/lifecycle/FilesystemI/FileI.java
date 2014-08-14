@@ -11,7 +11,6 @@ package FilesystemI;
 
 import Ice.*;
 import Filesystem.*;
-import FilesystemI.*;
 
 public class FileI extends _FileDisp implements NodeI
 {

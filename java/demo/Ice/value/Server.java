@@ -9,6 +9,7 @@
 
 public class Server extends Ice.Application
 {
+    @Override
     public int
     run(String[] args)
     {

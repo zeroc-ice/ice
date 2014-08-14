@@ -18,6 +18,7 @@ public final class DirectoryI extends PersistentDirectory
         nodes = new java.util.HashMap<java.lang.String, NodeDesc>();
     }
 
+    @Override
     public synchronized String
     name(Ice.Current current)
     {
@@ -29,6 +30,7 @@ public final class DirectoryI extends PersistentDirectory
         return nodeName;
     }
 
+    @Override
     public void
     destroy(Ice.Current current)
         throws PermissionDenied
@@ -58,6 +60,7 @@ public final class DirectoryI extends PersistentDirectory
         _evictor.remove(current.id);
     }
 
+    @Override
     public synchronized NodeDesc[]
     list(Ice.Current current)
     {
@@ -68,14 +71,15 @@ public final class DirectoryI extends PersistentDirectory
 
         NodeDesc[] result = new NodeDesc[nodes.size()];
         int i = 0;
-        java.util.Iterator p = nodes.values().iterator();
+        java.util.Iterator<NodeDesc> p = nodes.values().iterator();
         while(p.hasNext())
         {
-            result[i++] = (NodeDesc)p.next();
+            result[i++] = p.next();
         }
         return result;
     }
 
+    @Override
     public synchronized NodeDesc
     find(String name, Ice.Current current)
         throws NoSuchName
@@ -90,9 +94,10 @@ public final class DirectoryI extends PersistentDirectory
             throw new NoSuchName(name);
         }
 
-        return (NodeDesc)nodes.get(name);
+        return nodes.get(name);
     }
 
+    @Override
     public synchronized DirectoryPrx
     createDirectory(String name, Ice.Current current)
         throws NameInUse
@@ -122,6 +127,7 @@ public final class DirectoryI extends PersistentDirectory
         return proxy;
     }
 
+    @Override
     public synchronized FilePrx
     createFile(String name, Ice.Current current)
         throws NameInUse
@@ -151,6 +157,7 @@ public final class DirectoryI extends PersistentDirectory
         return proxy;
     }
 
+    @Override
     public synchronized void
     removeNode(String name, Ice.Current current)
     {

@@ -11,6 +11,7 @@ import Demo.*;
 
 public class DiscoverReplyI extends _DiscoverReplyDisp
 {
+    @Override
     public synchronized void
     reply(Ice.ObjectPrx obj, Ice.Current current)
     {

@@ -14,6 +14,7 @@ import javax.swing.event.*;
 
 public class HelloApplet extends JApplet
 {
+    @Override
     public void init()
     {
         //
@@ -23,6 +24,7 @@ public class HelloApplet extends JApplet
         {
             SwingUtilities.invokeAndWait(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     initUI();
@@ -45,6 +47,7 @@ public class HelloApplet extends JApplet
             initData.properties.load("config.applet");
             initData.dispatcher = new Ice.Dispatcher()
             {
+                @Override
                 public void
                 dispatch(Runnable runnable, Ice.Connection connection)
                 {
@@ -59,16 +62,19 @@ public class HelloApplet extends JApplet
         }
     }
 
+    @Override
     public void start()
     {
         // Nothing to do.
     }
 
+    @Override
     public void stop()
     {
         // Nothing to do.
     }
 
+    @Override
     public void destroy()
     {
         //
@@ -95,7 +101,7 @@ public class HelloApplet extends JApplet
         JLabel l1 = new JLabel("Hostname");
         _hostname = new JTextField();
         JLabel l2 = new JLabel("Mode");
-        _mode = new JComboBox();
+        _mode = new JComboBox<String>();
         JLabel l3 = new JLabel("Timeout");
         _timeoutSlider = new JSlider(0, MAX_TIME);
         _timeoutLabel = new JLabel("0.0");
@@ -107,7 +113,6 @@ public class HelloApplet extends JApplet
         _shutdown = new JButton("Shutdown");
         _flush = new JButton("Flush");
         _flush.setEnabled(false);
-        JPanel statusPanel = new JPanel();
         JSeparator statusPanelSeparator = new JSeparator();
         _status = new JLabel();
         _status.setText("Ready");
@@ -122,10 +127,11 @@ public class HelloApplet extends JApplet
             "Twoway", "Twoway Secure", "Oneway", "Oneway Batch", "Oneway Secure", "Oneway Secure Batch", "Datagram",
             "Datagram Batch"
         };
-        _mode.setModel(new DefaultComboBoxModel(modes));
+        _mode.setModel(new DefaultComboBoxModel<String>(modes));
 
         _hello.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 sayHello();
@@ -133,6 +139,7 @@ public class HelloApplet extends JApplet
         });
         _shutdown.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 shutdown();
@@ -140,6 +147,7 @@ public class HelloApplet extends JApplet
         });
         _flush.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 flush();
@@ -147,6 +155,7 @@ public class HelloApplet extends JApplet
         });
         _mode.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 changeDeliveryMode(_mode.getSelectedIndex());
@@ -340,7 +349,7 @@ public class HelloApplet extends JApplet
         int timeout = _timeoutSlider.getValue();
         if(timeout != 0)
         {
-            prx = prx.ice_timeout(timeout);
+            prx = prx.ice_invocationTimeout(timeout);
         }
         return Demo.HelloPrxHelper.uncheckedCast(prx);
     }
@@ -464,6 +473,7 @@ public class HelloApplet extends JApplet
     {
         _communicator.begin_flushBatchRequests(new Ice.Callback_Communicator_flushBatchRequests()
             {
+                @Override
                 public void exception(final Ice.LocalException ex)
                 {
                     handleException(ex);
@@ -519,6 +529,7 @@ public class HelloApplet extends JApplet
             _label = label;
         }
 
+        @Override
         public void stateChanged(ChangeEvent ce)
         {
             float value = (float)(_slider.getValue() / 1000.0);
@@ -532,7 +543,7 @@ public class HelloApplet extends JApplet
     private static final int MAX_TIME = 5000; // 5 seconds
 
     private JTextField _hostname;
-    private JComboBox _mode;
+    private JComboBox<String> _mode;
     private JSlider _timeoutSlider;
     private JLabel _timeoutLabel;
     private JSlider _delaySlider;

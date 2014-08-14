@@ -23,12 +23,14 @@ class InitialI extends _InitialDisp
         adapter.addWithUUID(_derivedPrinter);
     }
 
+    @Override
     public Simple
     getSimple(Ice.Current current)
     {
         return _simple;
     }
 
+    @Override
     public void
     getPrinter(PrinterHolder impl, PrinterPrxHolder proxy, Ice.Current current)
     {
@@ -36,12 +38,14 @@ class InitialI extends _InitialDisp
         proxy.value = _printerProxy;
     }
 
+    @Override
     public Printer
     getDerivedPrinter(Ice.Current current)
     {
         return _derivedPrinter;
     }
 
+    @Override
     public Printer
     updatePrinterMessage(Printer printer, Ice.Current current)
     {
@@ -49,6 +53,7 @@ class InitialI extends _InitialDisp
         return printer;
     }
 
+    @Override
     public void
     throwDerivedPrinter(Ice.Current current)
         throws DerivedPrinterException
@@ -58,6 +63,7 @@ class InitialI extends _InitialDisp
         throw ex;
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

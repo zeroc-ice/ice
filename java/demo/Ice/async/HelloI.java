@@ -17,6 +17,7 @@ public class HelloI extends _HelloDisp
         _workQueue = workQueue;
     }
 
+    @Override
     public void
     sayHello_async(AMD_Hello_sayHello cb, int delay, Ice.Current current)
     {
@@ -31,6 +32,7 @@ public class HelloI extends _HelloDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

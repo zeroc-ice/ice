@@ -119,7 +119,7 @@ class Grammar
                     }
                     else
                     {
-                        _parser.cd((String)s.get(0));
+                        _parser.cd(s.get(0));
                     }
                 }
                 else if(_token.type == Token.TOK_CAT)
@@ -133,7 +133,7 @@ class Grammar
                     {
                         throw new ParseError("usage: cat FILE");
                     }
-                    _parser.cat((String)s.get(0));
+                    _parser.cat(s.get(0));
                 }
                 else if(_token.type == Token.TOK_WRITE)
                 {

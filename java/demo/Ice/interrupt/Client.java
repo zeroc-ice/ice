@@ -21,6 +21,7 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {

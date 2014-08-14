@@ -54,6 +54,7 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
+    @Override
     public String
     name(Ice.Current c)
     {
@@ -89,6 +90,7 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
+    @Override
     public NodeDesc[]
     list(Ice.Current c)
     {
@@ -130,6 +132,7 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
+    @Override
     public NodeDesc
     find(String name, Ice.Current c)
         throws NoSuchName
@@ -171,6 +174,7 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
+    @Override
     public FilePrx
     createFile(String name, Ice.Current c)
         throws NameInUse
@@ -238,6 +242,7 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
+    @Override
     public DirectoryPrx
     createDirectory(String name, Ice.Current c)
         throws NameInUse
@@ -304,6 +309,7 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
+    @Override
     public void
     destroy(Ice.Current c)
         throws PermissionDenied

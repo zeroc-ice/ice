@@ -9,12 +9,14 @@
 
 class BetI extends CasinoStore.PersistentBet
 {
+    @Override
     public int
     getAmount(Ice.Current current)
     {
         return amount;
     }
 
+    @Override
     public void
     accept(Casino.PlayerPrx p, Ice.Current current)
         throws Casino.OutOfChipsException
@@ -37,18 +39,21 @@ class BetI extends CasinoStore.PersistentBet
         }
     }
 
+    @Override
     public int
     getChipsInPlay(Ice.Current current)
     {
         return amount * potentialWinners.size();
     }
 
+    @Override
     public long
     getCloseTime(Ice.Current current)
     {
         return closeTime;
     }
 
+    @Override
     public void
     complete(int random, Ice.Current current)
     {

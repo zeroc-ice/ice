@@ -54,7 +54,7 @@ class Parser
                 authors.add(st.nextToken().trim());
             }
 
-            BookPrx book = _library.createBook(isbn, title, authors);
+            _library.createBook(isbn, title, authors);
             System.out.println("added new book with isbn " + isbn);
         }
         catch(BookExistsException ex)
@@ -281,7 +281,7 @@ class Parser
             if(_current != null)
             {
                 _current.proxy.rentBook(args.get(0));
-                System.out.println("the book is now rented by `" + (String)args.get(0) + "'");
+                System.out.println("the book is now rented by `" + args.get(0) + "'");
                 _current = _current.proxy.describe();
             }
             else
@@ -443,5 +443,4 @@ class Parser
     private LibraryPrx _library;
 
     private java.io.BufferedReader _in;
-    private boolean _interactive;
 }

@@ -17,6 +17,7 @@ public final class FileI extends PersistentFile
         _destroyed = false;
     }
 
+    @Override
     public synchronized String
     name(Ice.Current current)
     {
@@ -28,6 +29,7 @@ public final class FileI extends PersistentFile
         return nodeName;
     }
 
+    @Override
     public void
     destroy(Ice.Current current)
         throws PermissionDenied
@@ -48,6 +50,7 @@ public final class FileI extends PersistentFile
         _evictor.remove(current.id);
     }
 
+    @Override
     public synchronized String[]
     read(Ice.Current current)
     {
@@ -56,9 +59,10 @@ public final class FileI extends PersistentFile
             throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
         }
 
-        return (String[])text.clone();
+        return text.clone();
     }
 
+    @Override
     public synchronized void
     write(String[] text, Ice.Current current)
         throws GenericError

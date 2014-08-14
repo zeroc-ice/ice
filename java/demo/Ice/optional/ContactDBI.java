@@ -13,6 +13,7 @@ public class ContactDBI extends _ContactDBDisp
 {
     private java.util.Map<String, Contact> _contacts = new java.util.HashMap<String, Contact>();
 
+    @Override
     public final void
     addContact(String name, Ice.Optional<NumberType> type, Ice.Optional<String> number, Ice.IntOptional dialGroup,
                Ice.Current current)
@@ -34,6 +35,7 @@ public class ContactDBI extends _ContactDBDisp
         _contacts.put(name, contact);
     }
 
+    @Override
     public final void
     updateContact(String name, Ice.Optional<NumberType> type, Ice.Optional<String> number, Ice.IntOptional dialGroup,
                   Ice.Current current)
@@ -56,12 +58,14 @@ public class ContactDBI extends _ContactDBDisp
         }
     }
 
+    @Override
     public final Contact
     query(String name, Ice.Current current)
     {
         return _contacts.get(name);
     }
 
+    @Override
     public final void
     queryDialgroup(String name, Ice.IntOptional dialGroup, Ice.Current current)
     {
@@ -72,6 +76,7 @@ public class ContactDBI extends _ContactDBDisp
         }
     }
 
+    @Override
     public final Ice.Optional<String>
     queryNumber(String name, Ice.Current current)
     {
@@ -84,6 +89,7 @@ public class ContactDBI extends _ContactDBDisp
         return ret;
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -16,6 +16,7 @@ public class HelloI extends _HelloDisp
         _serviceName = serviceName;
     }
 
+    @Override
     public void
     sayHello(Ice.Current current)
     {

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-import Filesystem.*;
 import FilesystemDB.*;
 
 public class Server extends Ice.Application
@@ -18,6 +17,7 @@ public class Server extends Ice.Application
         _envName = envName;
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -35,9 +35,8 @@ public class Server extends Ice.Application
             // application for performance reasons.
             //
             connection = Freeze.Util.createConnection(communicator(), _envName);
-            IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, FileI.filesDB(), true);
-            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(
-                connection, DirectoryI.directoriesDB(), true);
+            new IdentityFileEntryMap(connection, FileI.filesDB(), true);
+            new IdentityDirectoryEntryMap(connection, DirectoryI.directoriesDB(), true);
 
             //
             // Add default servants for the file and directory.

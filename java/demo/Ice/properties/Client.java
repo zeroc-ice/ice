@@ -13,6 +13,7 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -52,6 +53,7 @@ public class Client extends Ice.Application
         }
     }
 
+    @Override
     public int
     run(String[] args)
     {

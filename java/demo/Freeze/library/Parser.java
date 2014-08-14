@@ -50,7 +50,7 @@ class Parser
             desc.title = args.get(1);
             desc.authors = args.get(2);
 
-            BookPrx book = _library.createBook(desc);
+            _library.createBook(desc);
             System.out.println("added new book with isbn " + desc.isbn);
         }
         catch(DatabaseException ex)
@@ -362,5 +362,4 @@ class Parser
     private LibraryPrx _library;
 
     private java.io.BufferedReader _in;
-    private boolean _interactive;
 }

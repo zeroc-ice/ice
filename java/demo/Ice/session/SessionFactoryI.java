@@ -16,6 +16,7 @@ class SessionFactoryI extends _SessionFactoryDisp
         _reaper = reaper;
     }
 
+    @Override
     public synchronized SessionPrx
     create(String name, Ice.Current c)
     {
@@ -25,6 +26,7 @@ class SessionFactoryI extends _SessionFactoryDisp
         return proxy;
     }
 
+    @Override
     public void
     shutdown(Ice.Current c)
     {

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-import Demo.*;
+
 
 public class Server extends Ice.Application
 {
@@ -22,6 +22,7 @@ public class Server extends Ice.Application
             _called = false;
         }
 
+        @Override
         public synchronized java.util.Map<String, String> getChanges(Ice.Current current)
         {
             //
@@ -43,11 +44,13 @@ public class Server extends Ice.Application
             return _changes;
         }
 
+        @Override
         public void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
         }
 
+        @Override
         public synchronized void updated(java.util.Map<String, String> changes)
         {
             _changes = changes;
@@ -59,6 +62,7 @@ public class Server extends Ice.Application
         private boolean _called;
     }
 
+    @Override
     public int
     run(String[] args)
     {

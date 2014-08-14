@@ -16,12 +16,14 @@ class ContactI extends Contact
     // synchronization.
     //
 
+    @Override
     synchronized public String
     getName(Ice.Current current)
     {
         return name;
     }
 
+    @Override
     synchronized public void
     setName(String name, Ice.Current current)
         throws DatabaseException
@@ -29,30 +31,35 @@ class ContactI extends Contact
         this.name = name;
     }
 
+    @Override
     synchronized public String
     getAddress(Ice.Current current)
     {
         return address;
     }
 
+    @Override
     synchronized public void
     setAddress(String address, Ice.Current current)
     {
         this.address = address;
     }
 
+    @Override
     synchronized public String
     getPhone(Ice.Current current)
     {
         return phone;
     }
 
+    @Override
     synchronized public void
     setPhone(String phone, Ice.Current current)
     {
         this.phone = phone;
     }
 
+    @Override
     public void
     destroy(Ice.Current current)
         throws DatabaseException

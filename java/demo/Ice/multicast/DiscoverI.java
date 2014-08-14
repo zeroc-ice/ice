@@ -16,6 +16,7 @@ public class DiscoverI extends _DiscoverDisp
         _obj = obj;
     }
 
+    @Override
     public void
     lookup(DiscoverReplyPrx reply, Ice.Current current)
     {

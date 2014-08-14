@@ -17,6 +17,7 @@ public class Publisher extends Ice.Application
         System.out.println("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]");
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -122,7 +123,8 @@ public class Publisher extends Ice.Application
 
                 try
                 {
-                    Thread.currentThread().sleep(1000);
+                    Thread.currentThread();
+                    Thread.sleep(1000);
                 }
                 catch(java.lang.InterruptedException e)
                 {

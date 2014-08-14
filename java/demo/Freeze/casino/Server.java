@@ -11,11 +11,12 @@ class Server extends Ice.Application
 {
     static class ObjectFactory implements Ice.ObjectFactory
     {
-        ObjectFactory(Class factoryClass)
+        ObjectFactory(Class<?> factoryClass)
         {
             _factoryClass = factoryClass;
         }
 
+        @Override
         public Ice.Object
         create(String type)
         {
@@ -33,12 +34,13 @@ class Server extends Ice.Application
             }
         }
 
+        @Override
         public void
         destroy()
         {
         }
 
-        private Class _factoryClass;
+        private Class<?> _factoryClass;
     }
 
     private java.util.Map<String, String>
@@ -49,6 +51,7 @@ class Server extends Ice.Application
         return result;
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -89,6 +92,7 @@ class Server extends Ice.Application
 
         Freeze.ServantInitializer bankInitializer = new Freeze.ServantInitializer()
             {
+                @Override
                 public void
                 initialize(Ice.ObjectAdapter adapter, Ice.Identity identity, String facet, Ice.Object servant)
                 {
@@ -115,6 +119,7 @@ class Server extends Ice.Application
 
         Freeze.ServantInitializer playerInitializer = new Freeze.ServantInitializer()
             {
+                @Override
                 public void
                 initialize(Ice.ObjectAdapter adapter, Ice.Identity identity, String facet, Ice.Object servant)
                 {
@@ -143,6 +148,7 @@ class Server extends Ice.Application
 
         Freeze.ServantInitializer betInitializer = new Freeze.ServantInitializer()
             {
+                @Override
                 public void
                 initialize(Ice.ObjectAdapter adapter, Ice.Identity identity, String facet, Ice.Object servant)
                 {

@@ -18,6 +18,7 @@ public class HelloI extends _HelloDisp
         _id = id;
     }
 
+    @Override
     public void
     sayHello(Ice.Current current)
     {

@@ -9,6 +9,7 @@
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -18,6 +19,7 @@ public class Client extends JFrame
     {
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 try
@@ -72,6 +74,7 @@ public class Client extends JFrame
             initData.properties.load("config.client");
             initData.dispatcher = new Ice.Dispatcher()
             {
+                @Override
                 public void
                 dispatch(Runnable runnable, Ice.Connection connection)
                 {
@@ -90,7 +93,7 @@ public class Client extends JFrame
         JLabel l1 = new JLabel("Hostname");
         _hostname = new JTextField();
         JLabel l2 = new JLabel("Mode");
-        _mode = new JComboBox();
+        _mode = new JComboBox<String>();
         JLabel l3 = new JLabel("Timeout");
         _timeoutSlider = new JSlider(0, MAX_TIME);
         _timeoutLabel = new JLabel("0.0");
@@ -102,7 +105,6 @@ public class Client extends JFrame
         _shutdown = new JButton("Shutdown");
         _flush = new JButton("Flush");
         _flush.setEnabled(false);
-        JPanel statusPanel = new JPanel();
         JSeparator statusPanelSeparator = new JSeparator();
         _status = new JLabel();
         _status.setText("Ready");
@@ -117,10 +119,11 @@ public class Client extends JFrame
             "Twoway", "Twoway Secure", "Oneway", "Oneway Batch", "Oneway Secure", "Oneway Secure Batch", "Datagram",
             "Datagram Batch"
         };
-        _mode.setModel(new DefaultComboBoxModel(modes));
+        _mode.setModel(new DefaultComboBoxModel<String>(modes));
 
         _hello.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 sayHello();
@@ -128,6 +131,7 @@ public class Client extends JFrame
         });
         _shutdown.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 shutdown();
@@ -135,6 +139,7 @@ public class Client extends JFrame
         });
         _flush.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 flush();
@@ -142,6 +147,7 @@ public class Client extends JFrame
         });
         _mode.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent e)
             {
                 changeDeliveryMode(_mode.getSelectedIndex());
@@ -270,10 +276,11 @@ public class Client extends JFrame
         gridBagConstraints.insets = new Insets(0, 5, 5, 5);
         cp.add(_status, gridBagConstraints);
 
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         _shutdownHook = new Thread("Shutdown hook")
             {
+                @Override
                 public void run()
                 {
                     destroyCommunicator();
@@ -293,6 +300,7 @@ public class Client extends JFrame
 
         addWindowListener(new WindowAdapter()
         {
+            @Override
             public void windowClosing(WindowEvent e)
             {
                 destroyCommunicator();
@@ -389,7 +397,7 @@ public class Client extends JFrame
         int timeout = _timeoutSlider.getValue();
         if(timeout != 0)
         {
-            prx = prx.ice_timeout(timeout);
+            prx = prx.ice_invocationTimeout(timeout);
         }
         return Demo.HelloPrxHelper.uncheckedCast(prx);
     }
@@ -510,6 +518,7 @@ public class Client extends JFrame
     {
         _communicator.begin_flushBatchRequests(new Ice.Callback_Communicator_flushBatchRequests()
             {
+                @Override
                 public void exception(final Ice.LocalException ex)
                 {
                     handleException(ex);
@@ -571,6 +580,7 @@ public class Client extends JFrame
             _label = label;
         }
 
+        @Override
         public void stateChanged(ChangeEvent ce)
         {
             float value = (float)(_slider.getValue() / 1000.0);
@@ -591,7 +601,7 @@ public class Client extends JFrame
     private static final int MAX_TIME = 5000; // 5 seconds
 
     private JTextField _hostname;
-    private JComboBox _mode;
+    private JComboBox<String> _mode;
     private JSlider _timeoutSlider;
     private JLabel _timeoutLabel;
     private JSlider _delaySlider;

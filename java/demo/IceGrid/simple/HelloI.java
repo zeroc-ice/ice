@@ -16,12 +16,14 @@ public class HelloI extends _HelloDisp
         _name = name;
     }
 
+    @Override
     public void
     sayHello(Ice.Current current)
     {
         System.out.println(_name + " says Hello World!");
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

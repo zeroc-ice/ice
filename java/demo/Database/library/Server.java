@@ -7,12 +7,13 @@
 //
 // **********************************************************************
 
-import Demo.*;
+
 
 class Server extends Ice.Application
 {
     static class LocatorI implements Ice.ServantLocator
     {
+        @Override
         public Ice.Object
         locate(Ice.Current c, Ice.LocalObjectHolder cookie)
         {
@@ -20,11 +21,13 @@ class Server extends Ice.Application
             return _servant;
         }
 
+        @Override
         public void
         finished(Ice.Current c, Ice.Object servant, Object cookie)
         {
         }
 
+        @Override
         public void
         deactivate(String category)
         {
@@ -38,6 +41,7 @@ class Server extends Ice.Application
         private Ice.Object _servant;
     }
 
+    @Override
     public int
     run(String[] args)
     {

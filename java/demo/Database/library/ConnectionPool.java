@@ -69,6 +69,7 @@ class ConnectionPool
                 // Probe the connection with the database.
                 java.sql.PreparedStatement stmt = conn.prepareStatement("SELECT 1");
                 java.sql.ResultSet rs = stmt.executeQuery();
+                rs.close();
                 stmt.close();
             }
         }

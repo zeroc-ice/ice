@@ -13,6 +13,7 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -40,6 +41,7 @@ public class Client extends Ice.Application
         }
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -84,7 +86,6 @@ public class Client extends Ice.Application
 
         PrinterHolder printer = new PrinterHolder();
         PrinterPrxHolder printerProxy = new PrinterPrxHolder();
-        boolean gotException = false;
         try
         {
             initial.getPrinter(printer, printerProxy);

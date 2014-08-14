@@ -7,12 +7,13 @@
 //
 // **********************************************************************
 
-import Demo.*;
+
 
 public class Server extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -21,6 +22,7 @@ public class Server extends Ice.Application
         }
     }
 
+    @Override
     public int
     run(String[] args)
     {

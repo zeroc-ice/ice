@@ -15,6 +15,7 @@ import Demo.*;
 //
 class BookI extends _BookDisp
 {
+    @Override
     public void
     ice_ping(Ice.Current current)
     {
@@ -40,6 +41,7 @@ class BookI extends _BookDisp
         }
     }
 
+    @Override
     public BookDescription
     describe(Ice.Current current)
     {
@@ -66,6 +68,7 @@ class BookI extends _BookDisp
         }
     }
 
+    @Override
     public void
     setTitle(String title, Ice.Current current)
     {
@@ -89,6 +92,7 @@ class BookI extends _BookDisp
         }
     }
 
+    @Override
     public void
     setAuthors(java.util.List<String> authors, Ice.Current current)
     {
@@ -156,6 +160,7 @@ class BookI extends _BookDisp
         }
     }
 
+    @Override
     public void
     destroy(Ice.Current current)
     {
@@ -181,6 +186,7 @@ class BookI extends _BookDisp
         }
     }
 
+    @Override
     public String
     getRenter(Ice.Current current)
         throws BookNotRentedException
@@ -220,6 +226,12 @@ class BookI extends _BookDisp
         }
     }
 
+    //
+    // The context automatically closes the associated statements at the end of
+    // the request.
+    //
+    @SuppressWarnings("resource")
+    @Override
     public void
     rentBook(String name, Ice.Current current)
         throws InvalidCustomerException, BookRentedException
@@ -290,6 +302,7 @@ class BookI extends _BookDisp
         }
     }
 
+    @Override
     public void
     returnBook(Ice.Current current)
         throws BookNotRentedException
@@ -306,7 +319,7 @@ class BookI extends _BookDisp
             {
                 throw new Ice.ObjectNotExistException();
             }
-            Integer renterId = rs.getInt("renter_id");
+            rs.getInt("renter_id");
             if(rs.wasNull())
             {
                 throw new BookNotRentedException();

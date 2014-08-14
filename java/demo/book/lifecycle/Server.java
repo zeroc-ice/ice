@@ -11,6 +11,7 @@ import FilesystemI.*;
 
 class Server extends Ice.Application
 {
+    @Override
     public int
     run(String[] args)
     {
@@ -18,7 +19,6 @@ class Server extends Ice.Application
         // Terminate cleanly on receipt of a signal.
         //
         shutdownOnInterrupt();
-        Ice.Properties properties = communicator().getProperties();
 
         //
         // Create an object adapter

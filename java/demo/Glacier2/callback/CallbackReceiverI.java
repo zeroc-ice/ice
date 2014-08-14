@@ -11,6 +11,7 @@ import Demo.*;
 
 public final class CallbackReceiverI extends _CallbackReceiverDisp
 {
+    @Override
     public void
     callback(Ice.Current current)
     {

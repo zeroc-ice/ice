@@ -11,6 +11,7 @@ import Demo.*;
 
 class LibraryI extends _LibraryDisp
 {
+    @Override
     public synchronized BookPrx
     createBook(BookDescription description, Ice.Current current)
         throws DatabaseException, BookExistsException
@@ -81,6 +82,7 @@ class LibraryI extends _LibraryDisp
     // No locking is necessary since no internal mutable state is
     // accessed.
     //
+    @Override
     public BookPrx
     findByIsbn(String isbn, Ice.Current current)
         throws DatabaseException
@@ -101,6 +103,7 @@ class LibraryI extends _LibraryDisp
         }
     }
 
+    @Override
     public synchronized BookPrx[]
     findByAuthors(String authors, Ice.Current current)
         throws DatabaseException
@@ -134,6 +137,7 @@ class LibraryI extends _LibraryDisp
         }
     }
 
+    @Override
     public void
     setEvictorSize(int size, Ice.Current current)
         throws DatabaseException
@@ -144,6 +148,7 @@ class LibraryI extends _LibraryDisp
         _evictor.setSize(size);
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

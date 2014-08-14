@@ -21,7 +21,7 @@ class RunParser
             return 1;
         }
 
-        Parser parser = new Parser(communicator, phoneBook);
+        Parser parser = new Parser(phoneBook);
         return parser.parse();
     }
 }

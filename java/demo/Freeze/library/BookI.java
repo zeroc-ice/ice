@@ -16,6 +16,7 @@ class BookI extends Book
     // synchronization.
     //
 
+    @Override
     synchronized public BookDescription
     getBookDescription(Ice.Current current)
     {
@@ -30,6 +31,7 @@ class BookI extends Book
         return description;
     }
 
+    @Override
     synchronized public String
     getRenterName(Ice.Current current)
         throws BookNotRentedException
@@ -46,6 +48,7 @@ class BookI extends Book
         return rentalCustomerName;
     }
 
+    @Override
     synchronized public void
     rentBook(String name, Ice.Current current)
         throws BookRentedException
@@ -62,6 +65,7 @@ class BookI extends Book
         rentalCustomerName = name;
     }
 
+    @Override
     synchronized public void
     returnBook(Ice.Current current)
         throws BookNotRentedException
@@ -78,6 +82,7 @@ class BookI extends Book
         rentalCustomerName = new String();;
     }
 
+    @Override
     synchronized public void
     destroy(Ice.Current current)
         throws DatabaseException

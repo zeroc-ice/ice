@@ -9,12 +9,14 @@
 
 class PlayerI extends CasinoStore.PersistentPlayer
 {
+    @Override
     public int
     getChips(Ice.Current current)
     {
         return chips;
     }
 
+    @Override
     public void
     destroy(Ice.Current current)
     {
@@ -22,6 +24,7 @@ class PlayerI extends CasinoStore.PersistentPlayer
         _evictor.remove(current.id);
     }
 
+    @Override
     public void
     withdraw(int count, Ice.Current current)
         throws Casino.OutOfChipsException
@@ -34,6 +37,7 @@ class PlayerI extends CasinoStore.PersistentPlayer
         chips = newBalance;
     }
 
+    @Override
     public void
     win(int count, Ice.Current current)
     {

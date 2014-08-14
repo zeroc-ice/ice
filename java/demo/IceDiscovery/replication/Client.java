@@ -13,6 +13,7 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -27,6 +28,7 @@ public class Client extends Ice.Application
         }
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -97,7 +99,8 @@ public class Client extends Ice.Application
                     System.out.println(hello.getGreeting());
                     try
                     {
-                        Thread.currentThread().sleep(delay);
+                        Thread.currentThread();
+                        Thread.sleep(delay);
                     }
                     catch(InterruptedException ex1)
                     {

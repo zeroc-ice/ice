@@ -14,6 +14,7 @@ import Demo.*;
 //
 class LibraryI extends _LibraryDisp
 {
+    @Override
     public void
     queryByIsbn(String isbn, int n, BookDescriptionSeqHolder first, Ice.IntHolder nrows,
                 BookQueryResultPrxHolder result, Ice.Current current)
@@ -64,6 +65,7 @@ class LibraryI extends _LibraryDisp
         }
     }
 
+    @Override
     public void
     queryByAuthor(String author, int n, BookDescriptionSeqHolder first, Ice.IntHolder nrows,
                   BookQueryResultPrxHolder result, Ice.Current current)
@@ -146,6 +148,7 @@ class LibraryI extends _LibraryDisp
         }
     }
 
+    @Override
     public void
     queryByTitle(String title, int n, BookDescriptionSeqHolder first, Ice.IntHolder nrows,
                 BookQueryResultPrxHolder result, Ice.Current current)
@@ -196,6 +199,7 @@ class LibraryI extends _LibraryDisp
         }
     }
 
+    @Override
     public BookPrx
     createBook(String isbn, String title, java.util.List<String> authors, Ice.Current current)
         throws BookExistsException, InvalidISBNException

@@ -11,6 +11,7 @@ import Demo.*;
 
 class SessionI implements _SessionOperations, _Glacier2SessionOperations
 {
+    @Override
     synchronized public LibraryPrx
     getLibrary(Ice.Current c)
     {
@@ -21,6 +22,7 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         return _library;
     }
 
+    @Override
     synchronized public void
     refresh(Ice.Current c)
     {
@@ -41,6 +43,7 @@ class SessionI implements _SessionOperations, _Glacier2SessionOperations
         return 5000;
     }
 
+    @Override
     synchronized public void
     destroy(Ice.Current c)
     {

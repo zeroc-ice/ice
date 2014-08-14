@@ -9,6 +9,7 @@
 
 public class HelloServiceI implements IceBox.Service
 {
+    @Override
     public void
     start(String name, Ice.Communicator communicator, String[] args)
     {
@@ -19,6 +20,7 @@ public class HelloServiceI implements IceBox.Service
         _adapter.activate();
     }
 
+    @Override
     public void
     stop()
     {

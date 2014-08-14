@@ -9,6 +9,7 @@
 
 class BankI extends CasinoStore.PersistentBank
 {
+    @Override
     public boolean
     buyChips(int chips, Casino.PlayerPrx p, Ice.Current current)
     {
@@ -30,6 +31,7 @@ class BankI extends CasinoStore.PersistentBank
         return true;
     }
 
+    @Override
     public Casino.PlayerPrx[]
     getPlayers(Ice.Current current)
     {
@@ -46,24 +48,28 @@ class BankI extends CasinoStore.PersistentBank
         return result.toArray(new Casino.PlayerPrx[0]);
     }
 
+    @Override
     public int
     getOutstandingChips(Ice.Current current)
     {
         return outstandingChips;
     }
 
+    @Override
     public int
     getEarnings(Ice.Current current)
     {
         return chipsSold - outstandingChips;
     }
 
+    @Override
     public int
     getLiveBetCount(Ice.Current current)
     {
         return _betResolver.getBetCount();
     }
 
+    @Override
     public boolean
     checkAllChips(Ice.Current current)
     {
@@ -92,6 +98,7 @@ class BankI extends CasinoStore.PersistentBank
         return (playerTotal + betTotal) == outstandingChips;
     }
 
+    @Override
     public Casino.BetPrx
     createBet(int amount, int lifetime, Ice.Current current)
     {
@@ -108,12 +115,14 @@ class BankI extends CasinoStore.PersistentBank
         return newBet;
     }
 
+    @Override
     public void
     win(int count, Ice.Current current)
     {
         outstandingChips -= count;
     }
 
+    @Override
     public void
     returnAllChips(CasinoStore.PersistentPlayerPrx p, Ice.Current current)
     {
@@ -151,6 +160,7 @@ class BankI extends CasinoStore.PersistentBank
         }
     }
 
+    @Override
     public void
     reloadBets(Ice.Current current)
     {

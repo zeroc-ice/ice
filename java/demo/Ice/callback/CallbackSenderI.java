@@ -11,6 +11,7 @@ import Demo.*;
 
 public final class CallbackSenderI extends _CallbackSenderDisp
 {
+    @Override
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
@@ -25,6 +26,7 @@ public final class CallbackSenderI extends _CallbackSenderDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

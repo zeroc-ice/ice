@@ -13,6 +13,7 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -41,6 +42,7 @@ public class Client extends Ice.Application
             "?:     help\n");
     }
 
+    @Override
     public int
     run(String[] args)
     {
@@ -88,6 +90,7 @@ public class Client extends Ice.Application
             _session = factory.create(name);
             _executor.scheduleAtFixedRate(new Runnable()
             {
+                @Override
                 public void
                 run()
                 {

@@ -9,6 +9,7 @@
 
 class ContactFactory implements Ice.ObjectFactory
 {
+    @Override
     public Ice.Object
     create(String type)
     {
@@ -16,6 +17,7 @@ class ContactFactory implements Ice.ObjectFactory
         return new ContactI(this);
     }
 
+    @Override
     public void
     destroy()
     {

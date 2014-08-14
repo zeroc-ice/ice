@@ -13,6 +13,7 @@ public class Client extends Glacier2.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -44,11 +45,13 @@ public class Client extends Glacier2.Application
             "?: help\n");
     }
 
+    @Override
     public void sessionDestroyed()
     {
         System.out.println("The Glacier2 session has been destroyed.");
     }
 
+    @Override
     public Glacier2.SessionPrx createSession()
     {
         Glacier2.SessionPrx session;
@@ -92,6 +95,7 @@ public class Client extends Glacier2.Application
         return session;
     }
 
+    @Override
     public int
     runWithSession(String[] args)
         throws RestartSessionException

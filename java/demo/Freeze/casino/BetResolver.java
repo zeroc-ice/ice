@@ -20,6 +20,7 @@ class BetResolver
     {
         Runnable task = new Runnable()
             {
+                @Override
                 public void
                 run()
                 {

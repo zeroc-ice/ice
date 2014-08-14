@@ -11,6 +11,7 @@ import Demo.*;
 
 public class GreetI extends _GreetDisp
 {
+    @Override
     public void
     sendGreeting(MyGreeting greeting, Ice.Current current)
     {
@@ -24,6 +25,7 @@ public class GreetI extends _GreetDisp
         }
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

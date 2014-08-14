@@ -24,6 +24,7 @@ class BookQueryResultI extends _BookQueryResultDisp
         }
     }
 
+    @Override
     synchronized public java.util.List<BookDescription>
     next(int n, Ice.BooleanHolder destroyed, Ice.Current current)
     {
@@ -59,6 +60,7 @@ class BookQueryResultI extends _BookQueryResultDisp
         return l;
     }
 
+    @Override
     synchronized public void
     destroy(Ice.Current current)
     {

@@ -38,7 +38,10 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
@@ -62,6 +65,7 @@ public class Client extends JFrame
     {
         SwingUtilities.invokeLater(new Runnable()
         {
+            @Override
             public void
             run()
             {
@@ -96,6 +100,7 @@ public class Client extends JFrame
 
         _output.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void
             mousePressed(MouseEvent e)
             {
@@ -112,6 +117,7 @@ public class Client extends JFrame
         _input.setEditable(true);
         _input.addKeyListener(new KeyListener()
         {
+            @Override
             public void
             keyTyped(KeyEvent e)
             {
@@ -148,11 +154,13 @@ public class Client extends JFrame
                 }
             }
 
+            @Override
             public void
             keyPressed(KeyEvent e)
             {
             }
 
+            @Override
             public void
             keyReleased(KeyEvent e)
             {
@@ -160,7 +168,7 @@ public class Client extends JFrame
         });
 
         _outputScroll = new JScrollPane(_output);
-        _outputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        _outputScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         _outputScroll.setBorder(null);
 
         _outputScroll.setMinimumSize(new Dimension(100, 100));
@@ -170,7 +178,7 @@ public class Client extends JFrame
         verticalSplit.setTopComponent(_outputScroll);
 
         JScrollPane conversationInputScroll = new JScrollPane(_input);
-        conversationInputScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        conversationInputScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         conversationInputScroll.setBorder(null);
         
         conversationInputScroll.setMinimumSize(new Dimension(100, 100));
@@ -181,22 +189,26 @@ public class Client extends JFrame
 
         _output.addComponentListener(new ComponentListener()
         {
+            @Override
             public void
             componentResized(ComponentEvent e)
             {
                 JScrollBar vertivalScrollbar = _outputScroll.getVerticalScrollBar();
                 vertivalScrollbar.setValue(vertivalScrollbar.getMaximum());
             }
+            @Override
             public void
             componentHidden(ComponentEvent e)
             {
             }
 
+            @Override
             public void
             componentMoved(ComponentEvent e)
             {
             }
 
+            @Override
             public void
             componentShown(ComponentEvent e)
             {
@@ -220,6 +232,7 @@ public class Client extends JFrame
 
         _login = new AbstractAction("Login")
         {
+            @Override
             public void
             actionPerformed(ActionEvent e) 
             {
@@ -229,6 +242,7 @@ public class Client extends JFrame
 
         _logout = new AbstractAction("Logout")
         {
+            @Override
             public void
             actionPerformed(ActionEvent e) 
             {
@@ -242,6 +256,7 @@ public class Client extends JFrame
 
         _exit = new AbstractAction("Exit")
         {
+            @Override
             public void
             actionPerformed(ActionEvent e) 
             {
@@ -260,10 +275,11 @@ public class Client extends JFrame
 
         setJMenuBar(menuBar);
 
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         addWindowListener(new WindowAdapter()
         {
+            @Override
             public void
             windowClosing(WindowEvent e)
             {
@@ -277,13 +293,13 @@ public class Client extends JFrame
         setVisible(true);
 
         // Create the labels and text fields.
-        JLabel hostLabel = new JLabel("Host:   ", JLabel.RIGHT);
+        JLabel hostLabel = new JLabel("Host:   ", SwingConstants.RIGHT);
         _hostField = new JTextField("", 12);
         _hostField.setText("127.0.0.1");
-        JLabel userNameLabel = new JLabel("Username:   ", JLabel.RIGHT);
+        JLabel userNameLabel = new JLabel("Username:   ", SwingConstants.RIGHT);
         _userNameField = new JTextField("", 12);
         _userNameField.setText("test");
-        JLabel passwordLabel = new JLabel("Password:   ", JLabel.RIGHT);
+        JLabel passwordLabel = new JLabel("Password:   ", SwingConstants.RIGHT);
         _passwordField = new JPasswordField("", 12);
         _connectionPanel = new JPanel(false);
         _connectionPanel.setLayout(new BoxLayout(_connectionPanel, BoxLayout.X_AXIS));
@@ -314,6 +330,7 @@ public class Client extends JFrame
         // Setup a dispatcher to dispath Ice and Glacier2 helper callbacks to the GUI thread.
         initData.dispatcher = new Ice.Dispatcher()
         {
+            @Override
             public void
             dispatch(Runnable runnable, Ice.Connection connection)
             {
@@ -323,6 +340,7 @@ public class Client extends JFrame
 
         _factory = new SessionFactoryHelper(initData, new SessionCallback()
         {
+            @Override
             public void
             connected(SessionHelper session)
                 throws SessionNotExistException
@@ -338,6 +356,7 @@ public class Client extends JFrame
                 // simple.
                 Demo._ChatCallbackDisp servant = new Demo._ChatCallbackDisp()
                 {
+                    @Override
                     public void
                     message(final String data, Current current)
                     {                            
@@ -374,6 +393,7 @@ public class Client extends JFrame
                 });
             }
 
+            @Override
             public void
             disconnected(SessionHelper session)
             {
@@ -398,6 +418,7 @@ public class Client extends JFrame
                 _status.setText("Not connected");
             }
 
+            @Override
             public void
             connectFailed(SessionHelper session, Throwable ex)
             {
@@ -415,6 +436,7 @@ public class Client extends JFrame
                 _status.setText(ex.getClass().getName());
             }
 
+            @Override
             public void
             createdCommunicator(SessionHelper session)
             {
@@ -476,7 +498,7 @@ public class Client extends JFrame
     public void
     appendMessage(String message)
     {
-        Document doc = (Document) _output.getDocument();
+        Document doc = _output.getDocument();
         Element e = doc.getDefaultRootElement();
         AttributeSet attr = e.getAttributes().copyAttributes();
         try

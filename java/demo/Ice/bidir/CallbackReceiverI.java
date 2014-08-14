@@ -15,6 +15,7 @@ class CallbackReceiverI extends _CallbackReceiverDisp
     {
     }
 
+    @Override
     public void
     callback(int num, Ice.Current current)
     {

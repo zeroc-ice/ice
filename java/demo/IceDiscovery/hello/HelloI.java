@@ -11,6 +11,7 @@ import Demo.*;
 
 public class HelloI extends _HelloDisp
 {
+    @Override
     public void
     sayHello(int delay, Ice.Current current)
     {
@@ -18,7 +19,8 @@ public class HelloI extends _HelloDisp
         {
             try
             {
-                Thread.currentThread().sleep(delay);
+                Thread.currentThread();
+                Thread.sleep(delay);
             }
             catch(InterruptedException ex1)
             {
@@ -27,6 +29,7 @@ public class HelloI extends _HelloDisp
         System.out.println("Hello World!");
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

@@ -13,6 +13,7 @@ public class Subscriber extends Ice.Application
 {
     public class ClockI extends _ClockDisp
     {
+        @Override
         public void
         tick(String date, Ice.Current current)
         {
@@ -27,6 +28,7 @@ public class Subscriber extends Ice.Application
                            "[--retryCount count] [--id id] [topic]");
     }
 
+    @Override
     public int
     run(String[] args)
     {

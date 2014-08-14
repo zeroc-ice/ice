@@ -11,6 +11,7 @@ class Collocated extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
+        @Override
         public void
         run()
         {
@@ -25,6 +26,7 @@ class Collocated extends Ice.Application
         }
     }
 
+    @Override
     public int
     run(String[] args)
     {

@@ -11,6 +11,7 @@ import Demo.*;
 
 class SessionFactoryI extends _SessionFactoryDisp
 {
+    @Override
     public synchronized SessionPrx
     create(Ice.Current c)
     {
@@ -27,6 +28,7 @@ class SessionFactoryI extends _SessionFactoryDisp
         return proxy;
     }
 
+    @Override
     public long
     getSessionTimeout(Ice.Current c)
     {

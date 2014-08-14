@@ -16,6 +16,7 @@ class NestedI extends _NestedDisp
         _self = self;
     }
 
+    @Override
     public void
     nestedCall(int level, NestedPrx proxy, Ice.Current current)
     {

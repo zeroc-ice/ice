@@ -25,6 +25,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
         this.notify();
     }
 
+    @Override
     synchronized public void
     addClient(Ice.Identity ident, Ice.Current current)
     {
@@ -35,6 +36,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
         _clients.add(client);
     }
 
+    @Override
     public void
     run()
     {

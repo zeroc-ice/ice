@@ -11,6 +11,7 @@ import Demo.*;
 
 class ClientPrinterI extends ClientPrinter
 {
+    @Override
     public void
     printBackwards(Ice.Current current)
     {

@@ -17,6 +17,7 @@ public class WorkQueue extends Thread
         int delay;
     }
 
+    @Override
     public synchronized void
     run()
     {
@@ -38,7 +39,7 @@ public class WorkQueue extends Thread
                 //
                 // Get next work item.
                 //
-                CallbackEntry entry = (CallbackEntry)_callbacks.getFirst();
+                CallbackEntry entry = _callbacks.getFirst();
 
                 //
                 // Wait for the amount of time indicated in delay to

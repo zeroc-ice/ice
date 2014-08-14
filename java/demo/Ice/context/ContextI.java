@@ -11,6 +11,7 @@ import Demo.*;
 
 public class ContextI extends _ContextDisp
 {
+    @Override
     public void
     call(Ice.Current current)
     {
@@ -27,6 +28,7 @@ public class ContextI extends _ContextDisp
         System.out.println();
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

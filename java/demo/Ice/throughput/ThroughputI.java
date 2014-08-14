@@ -40,6 +40,7 @@ public final class ThroughputI extends _ThroughputDisp
         }
     }
 
+    @Override
     public boolean
     needsWarmup(Ice.Current current)
     {
@@ -47,12 +48,14 @@ public final class ThroughputI extends _ThroughputDisp
         return _needsWarmup;
     }
 
+    @Override
     public void
     startWarmup(Ice.Current current)
     {
         _warmup = true;
     }
 
+    @Override
     public void
     endWarmup(Ice.Current current)
     {
@@ -60,11 +63,13 @@ public final class ThroughputI extends _ThroughputDisp
         _needsWarmup = false;
     }
 
+    @Override
     public void
     sendByteSeq(byte[] seq, Ice.Current current)
     {
     }
 
+    @Override
     public byte[]
     recvByteSeq(Ice.Current current)
     {
@@ -78,17 +83,20 @@ public final class ThroughputI extends _ThroughputDisp
         }
     }
 
+    @Override
     public byte[]
     echoByteSeq(byte[] seq, Ice.Current current)
     {
         return seq;
     }
 
+    @Override
     public void
     sendStringSeq(String[] seq, Ice.Current current)
     {
     }
 
+    @Override
     public String[]
     recvStringSeq(Ice.Current current)
     {
@@ -102,17 +110,20 @@ public final class ThroughputI extends _ThroughputDisp
         }
     }
 
+    @Override
     public String[]
     echoStringSeq(String[] seq, Ice.Current current)
     {
         return seq;
     }
 
+    @Override
     public void
     sendStructSeq(StringDouble[] seq, Ice.Current current)
     {
     }
 
+    @Override
     public StringDouble[]
     recvStructSeq(Ice.Current current)
     {
@@ -126,17 +137,20 @@ public final class ThroughputI extends _ThroughputDisp
         }
     }
 
+    @Override
     public StringDouble[]
     echoStructSeq(StringDouble[] seq, Ice.Current current)
     {
         return seq;
     }
 
+    @Override
     public void
     sendFixedSeq(Fixed[] seq, Ice.Current current)
     {
     }
 
+    @Override
     public Fixed[]
     recvFixedSeq(Ice.Current current)
     {
@@ -150,12 +164,14 @@ public final class ThroughputI extends _ThroughputDisp
         }
     }
 
+    @Override
     public Fixed[]
     echoFixedSeq(Fixed[] seq, Ice.Current current)
     {
         return seq;
     }
 
+    @Override
     public void
     shutdown(Ice.Current current)
     {

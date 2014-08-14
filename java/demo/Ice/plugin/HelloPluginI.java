@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-import Demo.*;
+
 
 public class HelloPluginI implements Ice.Plugin
 {
@@ -17,6 +17,7 @@ public class HelloPluginI implements Ice.Plugin
         _communicator = communicator;
     }
 
+    @Override
     public void
     initialize()
     {
@@ -25,6 +26,7 @@ public class HelloPluginI implements Ice.Plugin
         adapter.activate();
     }
 
+    @Override
     public void
     destroy()
     {

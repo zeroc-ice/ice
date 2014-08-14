@@ -12,6 +12,7 @@ import Freeze.*;
 
 class Create extends Ice.Application
 {
+    @Override
     public int
     run(String[] args)
     {
@@ -29,6 +30,7 @@ class Create extends Ice.Application
 
         final java.util.Comparator<String> less = new java.util.Comparator<String>()
         {
+            @Override
             public int compare(String s1, String s2)
             {
                 if(s1 == s2)

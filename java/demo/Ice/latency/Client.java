@@ -11,6 +11,7 @@ import Demo.*;
 
 class Client extends Ice.Application
 {
+    @Override
     public int
     run(String[] args)
     {
@@ -53,7 +54,7 @@ if((i % 100) == 0) System.out.println("" + i);
         }
 
         long tv2 = System.currentTimeMillis();
-        double total = (double)(tv2 - tv1);
+        double total = tv2 - tv1;
         double perPing = total / repetitions;
 
         System.out.println("time for " + repetitions + " pings: " + total + "ms");
