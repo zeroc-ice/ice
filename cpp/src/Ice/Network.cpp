@@ -38,6 +38,7 @@
 #   endif
 #   include <iphlpapi.h>
 #   include <Mswsock.h>
+#   include <mstcpip.h>
 #else
 #   include <net/if.h>
 #   include <sys/ioctl.h>
@@ -50,8 +51,14 @@
 #endif
 
 #if defined(__MINGW32__)
+//
+// Work-around for missing definitions in MinGW Windows headers
+//
 #   ifndef IPV6_V6ONLY
 #       define IPV6_V6ONLY 27
+#   endif
+#   ifndef SIO_LOOPBACK_FAST_PATH
+#       define SIO_LOOPBACK_FAST_PATH _WSAIOW(IOC_VENDOR,16)
 #   endif
 
 extern "C"
@@ -60,9 +67,6 @@ extern "C"
 }
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
-#  include <mstcpip.h>
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -154,6 +158,7 @@ setTcpLoopbackFastPath(SOCKET fd)
 {
     int OptionValue = 1;
     DWORD NumberOfBytesReturned = 0;
+
     int status =
         WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
     if(status == SOCKET_ERROR)
