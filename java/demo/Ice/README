@@ -99,5 +99,5 @@ Demos in this directory:
 
 - interrupt
 
-  This demo shows to use Thread.interrupt to interrupt blocking client
-  side invocations, and forcably shutdown servers.
+  This demo shows how to use Thread.interrupt to interrupt blocking
+  client-side invocations, and forcibly shutdown servers.

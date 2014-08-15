@@ -1640,11 +1640,12 @@ public final class ObjectAdapterI implements ObjectAdapter
         return noProps;
     }
 
-    private enum DeactivatedState {
+    private enum DeactivatedState
+    {
         Steady,
         Deactivating,
         Deactivated
-    };
+    }
     private DeactivatedState _deactivated;
     private IceInternal.Instance _instance;
     private Communicator _communicator;

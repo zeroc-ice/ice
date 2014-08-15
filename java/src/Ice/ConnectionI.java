@@ -3076,7 +3076,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
         // This is similar to a mutex lock in that the flag is
         // only true for a short time period. As such we don't permit the
-        // wait to be interrupted. Instead the interrupted status is saved\
+        // wait to be interrupted. Instead the interrupted status is saved
         // and restored.
         //
         boolean interrupted = false;
