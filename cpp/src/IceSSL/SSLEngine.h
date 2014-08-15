@@ -177,28 +177,6 @@ private:
 #      define SP_PROT_TLS1_2_CLIENT 0x00000800
 #   endif
 
-//
-// CERT_CHAIN_ENGINE_CONFIG struct in mingw headers doesn't include
-// new members added in Windows 7, we add our ouwn definition and 
-// then cast it to CERT_CHAIN_ENGINE_CONFIG this works because the 
-// linked libraries include the new version.
-//
-struct CertChainEngineConfig
-{
-    DWORD cbSize;
-    HCERTSTORE hRestrictedRoot;
-    HCERTSTORE hRestrictedTrust;
-    HCERTSTORE hRestrictedOther;
-    DWORD cAdditionalStore;
-    HCERTSTORE *rghAdditionalStore;
-    DWORD dwFlags;
-    DWORD dwUrlRetrievalTimeout;
-    DWORD MaximumCachedCertificates;
-    DWORD CycleDetectionModulus;
-    HCERTSTORE hExclusiveRoot;
-    HCERTSTORE hExclusiveTrustedPeople;
-};
-
 #endif
 class SChannelEngine : public SSLEngine
 {
@@ -229,6 +207,7 @@ private:
     void parseCiphers(const std::string&);
     
     bool _initialized;
+    std::vector<PCCERT_CONTEXT> _allCerts;
     std::vector<PCCERT_CONTEXT> _certs;
     DWORD _protocols;
     IceUtil::Mutex _mutex;

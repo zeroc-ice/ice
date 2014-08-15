@@ -1903,6 +1903,141 @@ public class AllTests
                 certStore.Remove(new X509Certificate2(defaultDir + "/cacert1.pem"));
             }
             Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing IceSSL.FindCerts properties... ");
+            Console.Out.Flush();
+            {
+                string[] clientFindCertProperties = new string[]
+                {
+                    "SUBJECTDN:'CN=Client, E=info@zeroc.com, OU=Ice, O=\"ZeroC, Inc.\", S=Florida, C=US'",
+                    "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:01",
+                    "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
+                        " L=Palm Beach Gardens, S=Florida, C=US' SUBJECT:Client",
+                    "THUMBPRINT:'5b d5 e5 92 2b 0e ee 24 38 93 87 f2 c4 a4 bd bd d4 f3 be ee'",
+                    "SUBJECTKEYID:'87 fc ae 41 a0 c9 34 e7 05 43 c9 89 96 2c a9 8d 10 56 14 62'"
+                };
+
+                string[] serverFindCertProperties = new string[]
+                {
+                    "SUBJECTDN:'CN=Server, E=info@zeroc.com, OU=Ice, O=\"ZeroC, Inc.\", S=Florida, C=US'",
+                    "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
+                    "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
+                        " L=Palm Beach Gardens, S=Florida, C=US' SUBJECT:Server",
+                    "THUMBPRINT:'ad 53 5b a8 d9 17 f8 7f bd f5 2a 35 7a 77 b2 f2 9a 8d ca 84'",
+                    "SUBJECTKEYID:'13 1c 98 41 95 f7 35 bd 34 03 0c 2f 0e 5f d7 8d 05 d5 1e 5e'"
+                };
+
+                string[] failFindCertProperties = new string[]
+                {
+                    "SUBJECTDN:'CN=Client, E=infox@zeroc.com, OU=Ice, O=\"ZeroC, Inc.\", S=Florida, C=US'",
+                    "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'01 02'",
+                    "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
+                        " L=Palm Beach Gardens, S=Florida, C=ES' SUBJECT:Client",
+                    "THUMBPRINT:'5b d5 e5 92 2b 0e ee 24 38 93 87 f2 c4 a4 bd bd d4 f3 be XX'",
+                    "SUBJECTKEYID:'87 fc ae 41 a0 c9 34 e7 05 43 c9 89 96 2c a9 8d 10 56 14 XX'"
+                };
+
+                string[] certificates = new string[] {"/s_rsa_nopass_ca1.pfx", "/c_rsa_nopass_ca1.pfx"};
+
+                X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
+                certStore.Open(OpenFlags.ReadWrite);
+                try
+                {
+                    foreach(string cert in certificates)
+                    {
+                        certStore.Add(new X509Certificate2(defaultDir + cert, "password"));
+                    }
+
+                    for(int i = 0; i < clientFindCertProperties.Length; ++i)
+                    {
+                        Ice.InitializationData initData = createClientProps(defaultProperties, testDir, defaultHost);
+                        initData.properties.setProperty("IceSSL.DefaultDir", defaultDir);
+                        initData.properties.setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+                        initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
+                        //
+                        // Use TrustOnly to ensure the peer has pick the expected certificate.
+                        //
+                        initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
+                        Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+
+                        Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        Dictionary<string, string> d = createServerProps(defaultProperties, testDir, defaultHost);
+                        d["IceSSL.DefaultDir"] = defaultDir;
+                        d["IceSSL.CertAuthFile"] = "cacert1.pem";
+                        d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
+                        //
+                        // Use TrustOnly to ensure the peer has pick the expected certificate.
+                        //
+                        d["IceSSL.TrustOnly"] = "CN=Client";
+
+                        Test.ServerPrx server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+
+                    //
+                    // These must fail because the search criteria does not match any certificates.
+                    //
+                    foreach(string s in failFindCertProperties)
+                    {
+                        try
+                        {
+                            Ice.InitializationData initData = createClientProps(defaultProperties, testDir, defaultHost);
+                            initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", s);
+                            Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                            test(false);
+                        }
+                        catch(Ice.PluginInitializationException)
+                        {
+                            // Expected
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                    }
+
+                }
+                finally
+                {
+                    foreach(string cert in certificates)
+                    {
+                        certStore.Remove(new X509Certificate2(defaultDir + cert, "password"));
+                    }
+                    certStore.Close();
+                }
+
+                //
+                // These must fail because we have already remove the certificates.
+                //
+                foreach(string s in clientFindCertProperties)
+                {
+                    try
+                    {
+                        Ice.InitializationData initData = createClientProps(defaultProperties, testDir, defaultHost);
+                        initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", s);
+                        Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                        test(false);
+                    }
+                    catch(Ice.PluginInitializationException)
+                    {
+                        // Expected
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        test(false);
+                    }
+                }
+            }
+            Console.Out.WriteLine("ok");         
         }
         finally
         {
