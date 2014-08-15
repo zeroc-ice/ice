@@ -35,9 +35,25 @@
 			<locationURI>PARENT-1-PROJECT_LOC/slice</locationURI>
 		</link>
 		<link>
+			<name>slice.test</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/test</locationURI>
+		</link>
+		<link>
 			<name>src/test</name>
 			<type>2</type>
 			<locationURI>PROJECT_LOC/test</locationURI>
 		</link>
 	</linkedResources>
+	<filteredResources>
+		<filter>
+			<id>0</id>
+			<name>slice.test</name>
+			<type>21</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-true-(.*).ice</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
