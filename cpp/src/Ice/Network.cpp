@@ -61,7 +61,7 @@ extern "C"
 #endif
 
 #if defined(_WIN32) && !defined(ICE_OS_WINRT)
-#  define HAS_LOOPBACK_FAST_PATH 1
+#  include <mstcpip.h>
 #endif
 
 using namespace std;
@@ -148,20 +148,17 @@ setKeepAlive(SOCKET fd)
 }
 #endif
 
-#ifdef HAS_LOOPBACK_FAST_PATH
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
 void
 setTcpLoopbackFastPath(SOCKET fd)
 {
-    // We define SIO_LOOPBACK_FAST_PATH ourselves rather than get it from mstcpip.h since
-    // code needs to compile on platforms that do not support this feature. On those platforms
-    // the WSAIoctl call will just return WSAEOPNOTSUPP.
-    const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
     int OptionValue = 1;
     DWORD NumberOfBytesReturned = 0;
     int status =
         WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
     if(status == SOCKET_ERROR)
     {
+	// On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
         DWORD LastError = ::GetLastError();
         if(LastError != WSAEOPNOTSUPP)
         {
@@ -220,7 +217,7 @@ createSocketImpl(bool udp, int family)
     {
         setTcpNoDelay(fd);
         setKeepAlive(fd);
-#ifdef HAS_LOOPBACK_FAST_PATH
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
         setTcpLoopbackFastPath(fd);
 #endif
     }
