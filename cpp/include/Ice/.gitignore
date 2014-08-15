@@ -33,6 +33,7 @@ Process.h
 PropertiesF.h
 PropertiesAdmin.h
 Properties.h
+RemoteLogger.h
 RouterF.h
 Router.h
 ServantLocatorF.h

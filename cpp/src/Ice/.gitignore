@@ -33,6 +33,7 @@ Process.cpp
 PropertiesF.cpp
 PropertiesAdmin.cpp
 Properties.cpp
+RemoteLogger.cpp
 RouterF.cpp
 Router.cpp
 ServantLocatorF.cpp
@@ -71,6 +72,7 @@ Process.h
 PropertiesF.h
 PropertiesAdmin.h
 Properties.h
+RemoteLogger.h
 RouterF.h
 Router.h
 ServantLocatorF.h

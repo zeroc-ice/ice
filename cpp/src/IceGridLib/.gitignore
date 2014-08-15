@@ -14,6 +14,7 @@ Descriptor.cpp
 UserAccountMapper.cpp
 PluginFacade.cpp
 Admin.h
+Discovery.h
 Exception.h
 FileParser.h
 Locator.h
