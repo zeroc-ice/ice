@@ -46,7 +46,7 @@ public:
         }
         _called = false;
     }
-    
+
 protected:
 
     void called()
@@ -503,8 +503,28 @@ class AMI_MyClass_opBoolSSI : public Test::AMI_MyClass_opBoolSS, public Callback
 {
 public:
 
-    virtual void ice_response(const ::Test::BoolSS&, const ::Test::BoolSS&)
+    virtual void ice_response(const ::Test::BoolSS& rso, const ::Test::BoolSS& bso)
     {
+        test(bso.size() == 4);
+        test(bso[0].size() == 1);
+        test(!bso[1][0]);
+        test(!bso[3][0]);
+        test(!bso[3][1]);
+        test(!rso[1][0]);
+        test(bso[0][0]);
+        test(bso[1].size() == 1);
+        test(bso[2].size() == 2);
+        test(bso[2][0]);
+        test(bso[2][1]);
+        test(bso[3].size() == 3);
+        test(bso[3][2]);
+        test(rso.size() == 3);
+        test(rso[0].size() == 2);
+        test(rso[0][0]);
+        test(rso[0][1]);
+        test(rso[1].size() == 1);
+        test(rso[2].size() == 1);
+        test(rso[2][0]);
         called();
     }
 
@@ -520,9 +540,34 @@ class AMI_MyClass_opShortIntLongSSI : public Test::AMI_MyClass_opShortIntLongSS,
 {
 public:
 
-    virtual void ice_response(const ::Test::LongSS&, const ::Test::ShortSS&, const ::Test::IntSS&,
-                              const ::Test::LongSS&)
+    virtual void ice_response(const ::Test::LongSS& rso, const ::Test::ShortSS& sso, const ::Test::IntSS& iso,
+                              const ::Test::LongSS& lso)
     {
+        test(rso.size() == 1);
+        test(rso[0].size() == 2);
+        test(rso[0][0] == 496);
+        test(rso[0][1] == 1729);
+        test(sso.size() == 3);
+        test(sso[0].size() == 3);
+        test(sso[0][0] == 1);
+        test(sso[0][1] == 2);
+        test(sso[0][2] == 5);
+        test(sso[1].size() == 1);
+        test(sso[1][0] == 13);
+        test(sso[2].size() == 0);
+        test(iso.size() == 2);
+        test(iso[0].size() == 1);
+        test(iso[0][0] == 42);
+        test(iso[1].size() == 2);
+        test(iso[1][0] == 24);
+        test(iso[1][1] == 98);
+        test(lso.size() == 2);
+        test(lso[0].size() == 2);
+        test(lso[0][0] == 496);
+        test(lso[0][1] == 1729);
+        test(lso[1].size() == 2);
+        test(lso[1][0] == 496);
+        test(lso[1][1] == 1729);
         called();
     }
 
@@ -972,7 +1017,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         // in the ice_exception() callback instead of at the point of call.
         Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
         AMI_MyClass_opVoidExIPtr cb = new AMI_MyClass_opVoidExI;
-        try 
+        try
         {
             test(!indirect->opVoid_async(cb));
         }
@@ -1021,7 +1066,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(obj);
 
         ic->destroy();
-    
+
         AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
         try
         {
@@ -1088,7 +1133,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         si2.p = 0;
         si2.e = Test::enum2;
         si2.s.s = "def";
-        
+
         AMI_MyClass_opStructIPtr cb = new AMI_MyClass_opStructI(communicator);
         p->opStruct_async(cb, si1, si2);
         cb->check();
@@ -1201,6 +1246,48 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         p->opByteSS_async(cb, bsi1, bsi2);
         cb->check();
     }
+
+    {
+        Test::BoolSS bsi1;
+        bsi1.resize(3);
+        Test::BoolSS bsi2;
+        bsi2.resize(1);
+
+        bsi1[0].push_back(true);
+        bsi1[1].push_back(false);
+        bsi1[2].push_back(true);
+        bsi1[2].push_back(true);
+
+        bsi2[0].push_back(false);
+        bsi2[0].push_back(false);
+        bsi2[0].push_back(true);
+        AMI_MyClass_opBoolSSIPtr cb = new AMI_MyClass_opBoolSSI;
+        p->opBoolSS_async(cb, bsi1, bsi2);
+        cb->check();
+    }
+
+    {
+        Test::ShortSS ssi;
+        ssi.resize(3);
+        Test::IntSS isi;
+        isi.resize(2);
+        Test::LongSS lsi;
+        lsi.resize(1);
+        ssi[0].push_back(1);
+        ssi[0].push_back(2);
+        ssi[0].push_back(5);
+        ssi[1].push_back(13);
+        isi[0].push_back(24);
+        isi[0].push_back(98);
+        isi[1].push_back(42);
+        lsi[0].push_back(496);
+        lsi[0].push_back(1729);
+
+        AMI_MyClass_opShortIntLongSSIPtr cb = new AMI_MyClass_opShortIntLongSSI;
+        p->opShortIntLongSS_async(cb, ssi, isi, lsi);
+        cb->check();
+    }
+
 
     {
         Test::FloatSS fsi;
@@ -1390,14 +1477,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             //
             // Test implicit context propagation
             //
-            
+
             string impls[] = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
-                
+
                 Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
                 Ice::Context ctx;
@@ -1408,8 +1495,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
                 Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
                                         ic->stringToProxy("test:default -p 12010"));
-                
-                
+
+
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {
@@ -1419,24 +1506,24 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 }
 
                 ic->getImplicitContext()->put("zero", "ZERO");
-          
+
                 ctx = ic->getImplicitContext()->getContext();
                 {
                     AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
                     p->opContext_async(cb);
                     cb->check();
                 }
-                
+
                 Ice::Context prxContext;
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
-                
+
                 Ice::Context combined = prxContext;
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
-                
+
                 p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
-                
+
                 ic->getImplicitContext()->setContext(Ice::Context());
                 {
                     AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(prxContext);

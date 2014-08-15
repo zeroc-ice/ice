@@ -668,6 +668,26 @@ class TwowaysAMI
         public void
         ice_response(boolean[][] rso, boolean[][] bso)
         {
+            test(bso.length == 4);
+            test(bso[0].length == 1);
+            test(bso[0][0] == true);
+            test(bso[1].length == 1);
+            test(bso[1][0] == false);
+            test(bso[2].length == 2);
+            test(bso[2][0] == true);
+            test(bso[2][1] == true);
+            test(bso[3].length == 3);
+            test(bso[3][0] == false);
+            test(bso[3][1] == false);
+            test(bso[3][2] == true);
+            test(rso.length == 3);
+            test(rso[0].length == 2);
+            test(rso[0][0] == true);
+            test(rso[0][1] == true);
+            test(rso[1].length == 1);
+            test(rso[1][0] == false);
+            test(rso[2].length == 1);
+            test(rso[2][0] == true);
             callback.called();
         }
 
@@ -693,6 +713,31 @@ class TwowaysAMI
         public void
         ice_response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
         {
+            test(rso.length == 1);
+            test(rso[0].length == 2);
+            test(rso[0][0] == 496);
+            test(rso[0][1] == 1729);
+            test(sso.length == 3);
+            test(sso[0].length == 3);
+            test(sso[0][0] == 1);
+            test(sso[0][1] == 2);
+            test(sso[0][2] == 5);
+            test(sso[1].length == 1);
+            test(sso[1][0] == 13);
+            test(sso[2].length == 0);
+            test(iso.length == 2);
+            test(iso[0].length == 1);
+            test(iso[0][0] == 42);
+            test(iso[1].length == 2);
+            test(iso[1][0] == 24);
+            test(iso[1][1] == 98);
+            test(lso.length == 2);
+            test(lso[0].length == 2);
+            test(lso[0][0] == 496);
+            test(lso[0][1] == 1729);
+            test(lso[1].length == 2);
+            test(lso[1][0] == 496);
+            test(lso[1][1] == 1729);
             callback.called();
         }
 
@@ -1139,7 +1184,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_response(java.util.Map r)
+        ice_response(java.util.Map<String, String> r)
         {
             test(r.equals(_d));
             callback.called();
@@ -1171,7 +1216,7 @@ class TwowaysAMI
 
         @Override
         public void
-        ice_response(java.util.Map r)
+        ice_response(java.util.Map<String, String> r)
         {
             test(!r.equals(_d));
             callback.called();
@@ -1498,6 +1543,46 @@ class TwowaysAMI
 
             AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
             p.opByteSS_async(cb, bsi1, bsi2);
+            cb.check();
+        }
+
+        {
+            final boolean[][] bsi1 =
+                {
+                    { true },
+                    { false },
+                    { true, true}
+                };
+
+            final boolean[][] bsi2 =
+                {
+                    { false, false, true }
+                };
+
+            AMI_MyClass_opBoolSSI cb = new AMI_MyClass_opBoolSSI();
+            p.opBoolSS_async(cb, bsi1, bsi2);
+            cb.check();
+        }
+
+        {
+            final short[][] ssi=
+                {
+                    {1, 2, 5},
+                    {13},
+                    {}
+                };
+            final int[][] isi =
+                {
+                    {24, 98},
+                    {42}
+                };
+            final long[][] lsi =
+                {
+                    {496, 1729},
+                };
+
+            AMI_MyClass_opShortIntLongSSI cb = new AMI_MyClass_opShortIntLongSSI();
+            p.opShortIntLongSS_async(cb, ssi, isi, lsi);
             cb.check();
         }
 
