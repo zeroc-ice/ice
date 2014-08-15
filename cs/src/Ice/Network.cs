@@ -542,7 +542,7 @@ namespace IceInternal
             {
                 socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
             }
-            catch(System.Exception ex)
+            catch(System.Exception)
             {
                 // Expected on platforms that do not support TCP Loopback Fast Path
             }
