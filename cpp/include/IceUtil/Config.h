@@ -83,25 +83,6 @@
 #      define ICE_STATIC_LIBS
 #   endif
 
-//
-// Windows provides native condition variables on Vista and later,
-// and Visual Studio 2012 with the default Platform Toolset (vc100) no 
-// longer supports Windows XP or Windows Server 2003.
-//
-// You can "switch-on" this macro to use native condition variables with
-// other C++ compilers on Windows.
-//
-#   define ICE_HAS_WIN32_CONDVAR 
-#endif
-
-#ifdef __MINGW32__
-#   ifdef _WIN32_WINNT
-#        if (_WIN32_WINNT < 0x600)
-#            error "Ice MinGW build requires _WIN32_WINNT >= 0x600"
-#        endif
-#   else
-#        define _WIN32_WINNT 0x600
-#   endif
 #endif
 
 //
@@ -171,6 +152,9 @@
 #   include <windows.h>
 
 #   if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x600)
+//
+// Windows provides native condition variables on Vista and later
+//
 #      ifndef ICE_HAS_WIN32_CONDVAR
 #          define ICE_HAS_WIN32_CONDVAR
 #      endif

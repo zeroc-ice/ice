@@ -17,18 +17,6 @@
 #   define VC_EXTRALEAN                 // Exclude rarely-used stuff from Windows headers
 #endif
 
-#ifndef _WIN32_WINNT
-#    define _WIN32_WINNT 0x0501
-#endif
-
-#ifndef WINVER
-#   define WINVER 0x0501
-#endif
-
-#ifndef _WIN32_IE                           // Allow use of features specific to IE 5.0 or later.
-#   define _WIN32_IE 0x0500
-#endif
-
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
 
 // turns off MFC's hiding of some common and often safely ignored warning messages

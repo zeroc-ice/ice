@@ -1242,6 +1242,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     _instance(instance),
     _engine(SChannelEnginePtr::dynamicCast(instance->engine())),
     _addr(IceInternal::Address()),
+    _sourceAddr(IceInternal::Address()),
     _adapterName(adapterName),
     _incoming(true),
     _state(StateHandshakeReadContinue),

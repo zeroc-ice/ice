@@ -18,7 +18,13 @@ ifeq ($(CXX),)
    CXX          = c++
 endif
 
-CXXFLAGS       	= $(CXXARCHFLAGS) -mthreads -fvisibility=hidden -Wall -Werror -DWIN32_LEAN_AND_MEAN
+# ICE_WIN32_WINNT sets the minimum version of Windows supported by this build
+# 0x600 = Windows Vista / Windows Server 2008
+# 0x601 = Windows 7 / Windows Server 2008 R2
+# 0x602 = Windows 8 / Windows Server 2012
+ICE_WIN32_WINNT := 0x601
+
+CXXFLAGS       	= $(CXXARCHFLAGS) -mthreads -fvisibility=hidden -Wall -Werror -D_WIN32_WINNT=$(ICE_WIN32_WINNT) -DWIN32_LEAN_AND_MEAN
 LDFLAGS         = -Wl,-no-undefined 
 
 ifeq ($(CXX), i686-pc-mingw32-c++)

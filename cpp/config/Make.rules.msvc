@@ -39,7 +39,14 @@ CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
 #
 ARFLAGS		= $(ARFLAGS) /ignore:4264 /ignore:4221
 !else
-CPPFLAGS	= $(CPPFLAGS) -D_CONSOLE
+#
+# ICE_WIN32_WINNT sets the minimum version of Windows supported by this build
+# 0x600 = Windows Vista / Windows Server 2008
+# 0x601 = Windows 7 / Windows Server 2008 R2
+# 0x602 = Windows 8 / Windows Server 2012
+#
+ICE_WIN32_WINNT = 0x601
+CPPFLAGS	= $(CPPFLAGS) -D_CONSOLE -D_WIN32_WINNT=$(ICE_WIN32_WINNT)
 !endif
 
 CPPFLAGS        = $(CPPFLAGS) -MP
