@@ -108,11 +108,9 @@ NODEJS_SRCS = \
 
 BROWSER_SRCS = \
 	browser\Buffer.js \
-	browser\EndpointInfo.js \
-	browser\ConnectionInfo.js \
-	browser\Transceiver.js \
-	browser\EndpointI.js \
-	browser\EndpointFactory.js
+	browser\WSTransceiver.js \
+	browser\WSEndpoint.js \
+	browser\WSEndpointFactory.js
 
 !if "$(OPTIMIZE)" != "yes"
 NODEJS_SRCS	= $(NODEJS_SRCS) Debug.js
@@ -139,17 +137,6 @@ ObjectFactory.js:
 	
 
 SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)"
-
-# IceWS slice files
-browser\EndpointInfo.js: "$(SLICE2JS)" "$(SLICEPARSERLIB)"
-	del /q browser\EndpointInfo.js
-	"$(SLICE2JS)" $(SLICE2JSFLAGS) "$(slicedir)\IceWS\EndpointInfo.ice"
-	move EndpointInfo.js browser
-
-browser\ConnectionInfo.js: "$(SLICE2JS)" "$(SLICEPARSERLIB)"
-	-del /q browser\ConnectionInfo.js
-	"$(SLICE2JS)" $(SLICE2JSFLAGS) "$(slicedir)\IceWS\ConnectionInfo.ice"
-	move ConnectionInfo.js browser
 
 MODULEDIR	= $(install_moduledir)\$(LIBNAME)
 

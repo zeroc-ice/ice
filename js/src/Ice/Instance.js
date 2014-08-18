@@ -40,7 +40,7 @@
     // file for the web browser includes the IceWS endpoint factory.
     //
     //require("Ice/TcpEndpointFactory");
-    //require("IceWS/EndpointFactory");
+    //require("Ice/WSEndpointFactory");
 
     var Ice = global.Ice || {};
 
@@ -337,10 +337,10 @@
                     this._endpointFactoryManager.add(new Ice.TcpEndpointFactory(this));
                 }
                 
-                if(typeof(IceWS) !== "undefined" && typeof(IceWS.EndpointFactory) !== "undefined")
+                if(typeof(Ice.WSEndpointFactory) !== "undefined")
                 {
-                    this._endpointFactoryManager.add(new IceWS.EndpointFactory(this, false));
-                    this._endpointFactoryManager.add(new IceWS.EndpointFactory(this, true));
+                    this._endpointFactoryManager.add(new Ice.WSEndpointFactory(this, false));
+                    this._endpointFactoryManager.add(new Ice.WSEndpointFactory(this, true));
                 }
 
                 this._outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);

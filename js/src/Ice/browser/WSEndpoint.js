@@ -15,20 +15,18 @@
     require("Ice/Endpoint");
     require("Ice/LocalException");
     
-    require("Ice/browser/Transceiver");
-    require("Ice/browser/EndpointInfo");
+    require("Ice/browser/WSTransceiver");
     
     var Ice = global.Ice || {};
-    var IceWS = global.IceWS || {};
     
     var Address = Ice.Address;
     var HashUtil = Ice.HashUtil;
     var StringUtil = Ice.StringUtil;
-    var Transceiver = IceWS.Transceiver;
+    var WSTransceiver = Ice.WSTransceiver;
 
     var Class = Ice.Class;
     
-    var EndpointI = Class(Ice.Endpoint, {
+    var WSEndpoint = Class(Ice.Endpoint, {
         __init__: function(instance, secure, ho, po, ti, conId, co, re)
         {
             this._instance = instance;
@@ -90,7 +88,7 @@
         //
         streamWrite: function(s)
         {
-            s.writeShort(this._secure ? IceWS.WSSEndpointType : IceWS.WSEndpointType);
+            s.writeShort(this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType);
             s.startWriteEncaps();
             s.writeString(this._host);
             s.writeInt(this._port);
@@ -104,7 +102,7 @@
         //
         type: function()
         {
-            return this._secure ? IceWS.WSSEndpointType : IceWS.WSEndpointType;
+            return this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType;
         },
         //
         // Return the timeout for the endpoint in milliseconds. 0 means
@@ -127,7 +125,7 @@
             }
             else
             {
-                return new EndpointI(this._instance, this._secure, this._host, this._port, timeout, this._connectionId, this._compress, this._resource);
+                return new WSEndpoint(this._instance, this._secure, this._host, this._port, timeout, this._connectionId, this._compress, this._resource);
             }
         },
         //
@@ -141,7 +139,7 @@
             }
             else
             {
-                return new EndpointI(this._instance, this._secure, this._host, this._port, this._timeout, connectionId, this._compress, this._resource);
+                return new WSEndpoint(this._instance, this._secure, this._host, this._port, this._timeout, connectionId, this._compress, this._resource);
             }
         },
         //
@@ -165,7 +163,7 @@
             }
             else
             {
-                return new EndpointI(this._instance, this._secure, this._host, this._port, this._timeout, this._connectionId, compress, this._resource);
+                return new WSEndpoint(this._instance, this._secure, this._host, this._port, this._timeout, this._connectionId, compress, this._resource);
             }
         },
         //
@@ -213,7 +211,7 @@
                     this._port);
             }
 
-            return Transceiver.createOutgoing(this._instance, this._secure, new Address(this._host, this._port), 
+            return WSTransceiver.createOutgoing(this._instance, this._secure, new Address(this._host, this._port), 
                                               this._resource);
         },
         hashCode: function()
@@ -225,7 +223,7 @@
         //
         equals: function(p)
         {
-            if(!(p instanceof EndpointI))
+            if(!(p instanceof WSEndpoint))
             {
                 return false;
             }
@@ -279,7 +277,7 @@
                 return 1;
             }
 
-            if(!(p instanceof EndpointI))
+            if(!(p instanceof WSEndpoint))
             {
                 return this.type() < p.type() ? -1 : 1;
             }
@@ -337,7 +335,7 @@
         calcHashValue: function()
         {
             var h = 5381;
-            h = HashUtil.addNumber(h, this._secure ? IceWS.WSSEndpointType : IceWS.WSEndpointType);
+            h = HashUtil.addNumber(h, this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType);
             h = HashUtil.addString(h, this._host);
             h = HashUtil.addNumber(h, this._port);
             h = HashUtil.addNumber(h, this._timeout);
@@ -348,7 +346,7 @@
         }
     });
     
-    EndpointI.fromString = function(instance, secure, str, oaEndpoint)
+    WSEndpoint.fromString = function(instance, secure, str, oaEndpoint)
     {
         var host = null;
         var port = 0;
@@ -503,10 +501,10 @@
         {
             host = "";
         }
-        return new EndpointI(instance, secure, host, port, timeout, "", compress, resource);
+        return new WSEndpoint(instance, secure, host, port, timeout, "", compress, resource);
     };
 
-    EndpointI.fromStream = function(s, secure)
+    WSEndpoint.fromStream = function(s, secure)
     {
         s.startReadEncaps();
         var host = s.readString();
@@ -515,21 +513,21 @@
         var compress = s.readBool();
         var resource = s.readString();
         s.endReadEncaps();
-        return new EndpointI(s.instance, secure, host, port, timeout, "", compress, resource);
+        return new WSEndpoint(s.instance, secure, host, port, timeout, "", compress, resource);
     };
     
-    IceWS.EndpointI = EndpointI;
-    global.IceWS = IceWS;
+    Ice.WSEndpoint = WSEndpoint;
+    global.Ice = Ice;
     
-    var EndpointInfoI = Class(IceWS.EndpointInfo, {
+    var EndpointInfoI = Class(Ice.WSEndpointInfo, {
         __init__: function(secure, timeout, compress, host, port, resource)
         {
-            IceWS.EndpointInfo.call(this, timeout, compress, host, port, resource);
+            Ice.WSEndpointInfo.call(this, timeout, compress, host, port, resource);
             this.secure = secure;
         },
         type: function()
         {
-            return this._secure ? IceWS.WSSEndpointType : IceWS.WSEndpointType;
+            return this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType;
         },
         datagram: function()
         {

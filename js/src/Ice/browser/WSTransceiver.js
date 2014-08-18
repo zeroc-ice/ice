@@ -17,10 +17,7 @@
     require("Ice/Exception");
     require("Ice/LocalException");
     
-    require("Ice/browser/ConnectionInfo");
-    
     var Ice = global.Ice || {};
-    var IceWS = global.IceWS || {};
     
     var Debug = Ice.Debug;
     var ExUtil = Ice.ExUtil;
@@ -38,7 +35,7 @@
 
     var IsFirefox = navigator.userAgent.indexOf("Firefox") !== -1;
     
-    var Transceiver = Ice.Class({
+    var WSTransceiver = Ice.Class({
         __init__: function(instance)
         {
             var id = instance.initializationData();
@@ -326,7 +323,7 @@
         },
         createInfo: function()
         {
-            return new IceWS.ConnectionInfo();
+            return new Ice.WSConnectionInfo();
         },
         checkSendSize: function(stream, messageSizeMax)
         {
@@ -407,9 +404,9 @@
         }
     }
     
-    Transceiver.createOutgoing = function(instance, secure, addr, resource)
+    WSTransceiver.createOutgoing = function(instance, secure, addr, resource)
     {
-        var transceiver = new Transceiver(instance);
+        var transceiver = new WSTransceiver(instance);
 
         var url = secure ? "wss" : "ws";
         url += "://" + addr.host;
@@ -429,6 +426,6 @@
         return transceiver;
     };
 
-    IceWS.Transceiver = Transceiver;
-    global.IceWS = IceWS;
+    Ice.WSTransceiver = WSTransceiver;
+    global.Ice = Ice;
 }(typeof (global) === "undefined" ? window : global));

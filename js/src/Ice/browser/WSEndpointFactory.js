@@ -10,16 +10,13 @@
 (function(global){
     require("Ice/Class");
     require("Ice/Endpoint");
-
-    require("Ice/browser/EndpointInfo");
-    require("Ice/browser/EndpointI");
+    require("Ice/browser/WSEndpoint");
     
     var Ice = global.Ice || {};
-    var IceWS = global.IceWS || {};
     
-    var EndpointI = IceWS.EndpointI;
+    var WSEndpoint = Ice.WSEndpoint;
 
-    var EndpointFactory = Ice.Class({
+    var WSEndpointFactory = Ice.Class({
         __init__:function(instance, secure)
         {
             this._instance = instance;
@@ -27,7 +24,7 @@
         },
         type: function()
         {
-            return this._secure ? IceWS.WSSEndpointType : IceWS.WSEndpointType;
+            return this._secure ? Ice.WSSEndpointType : Ice.WSEndpointType;
         },
         protocol: function()
         {
@@ -35,17 +32,17 @@
         },
         create: function(str, oaEndpoint)
         {
-            return EndpointI.fromString(this._instance, this._secure, str, oaEndpoint);
+            return WSEndpoint.fromString(this._instance, this._secure, str, oaEndpoint);
         },
         read: function(s)
         {
-            return EndpointI.fromStream(s, this._secure);
+            return WSEndpoint.fromStream(s, this._secure);
         },
         destroy: function()
         {
             this._instance = null;
         }
     });
-    IceWS.EndpointFactory = EndpointFactory;
-    global.IceWS = IceWS;
+    Ice.WSEndpointFactory = WSEndpointFactory;
+    global.Ice = Ice;
 }(typeof (global) === "undefined" ? window : global));

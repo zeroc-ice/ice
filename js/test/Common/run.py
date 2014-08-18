@@ -164,7 +164,6 @@ initData.properties.setProperty("IceSSL.CertAuthFile", "cacert.pem");
 initData.properties.setProperty("IceSSL.CertFile", "s_rsa1024_pub.pem");
 initData.properties.setProperty("IceSSL.KeyFile", "s_rsa1024_priv.pem");
 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-initData.properties.setProperty("Ice.Plugin.IceWS", "IceWS:createIceWS")
 initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10")
 initData.properties.setProperty("ControllerAdapter.Endpoints", "ws -p 12009:wss -p 12008")
 sys.exit(app.main(sys.argv, initData=initData))

@@ -434,7 +434,7 @@
         // than 6 connections.
         //
         if(typeof(navigator) !== "undefined" && 
-           (navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.indexOf("Trident/7.0")))
+           (navigator.userAgent.indexOf("MSIE") != -1 || navigator.userAgent.indexOf("Trident/7.0") != -1))
         {
             return;
         }
@@ -512,14 +512,17 @@
             {
                 id.properties.setProperty("Ice.Warn.Connections", "0");
                 var c = Ice.initialize(id);
-                return allTests(out, c).finally(
-                    function()
+                var p = allTests(out, c);
+                if(p !== undefined)
+                {
+                    p.finally(function()
                     {
                         if(c)
                         {
                             return c.destroy();
                         }
                     });
+                }
             });
     };
     global.__test__ = run;

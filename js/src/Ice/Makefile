@@ -114,11 +114,9 @@ NODEJS_SRCS = \
 
 BROWSER_SRCS = \
 	browser/Buffer.js \
-	browser/EndpointInfo.js \
-	browser/ConnectionInfo.js \
-	browser/Transceiver.js \
-	browser/EndpointI.js \
-	browser/EndpointFactory.js
+	browser/WSTransceiver.js \
+	browser/WSEndpoint.js \
+	browser/WSEndpointFactory.js
 
 ifneq ($(OPTIMIZE),yes)
     NODEJS_SRCS := $(NODEJS_SRCS) Debug.js
@@ -143,12 +141,6 @@ ObjectFactory.js:
 	
 
 SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir)
-
-# IceWS slice files
-browser/%.js: $(slicedir)/IceWS/%.ice $(SLICE2JS) $(SLICEPARSERLIB)
-	rm -f browser/$(*F).js
-	$(SLICE2JS) $(SLICE2JSFLAGS) $<
-	mv $(*F).js browser/
 
 lint:: $(SRCS)
 	jshint $(LINTFLAGS) $(NODEJS_SRCS) $(BROWSER_SRCS) $(GEN_SRCS) $(COMMON_SRCS)
