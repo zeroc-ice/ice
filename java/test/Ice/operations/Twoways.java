@@ -445,7 +445,7 @@ class Twoways
             test(rso[0][0]);
             test(rso[0][1]);
             test(rso[1].length == 1);
-            test(!rso[1][0])
+            test(!rso[1][0]);
             test(rso[2].length == 1);
             test(rso[2][0]);
         }
