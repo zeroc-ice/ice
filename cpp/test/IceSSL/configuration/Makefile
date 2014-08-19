@@ -37,6 +37,10 @@ ifeq ($(UNAME),Darwin)
 LINK_WITH = -framework Security -framework CoreFoundation
 endif
 
+ifeq ($(UNAME),MINGW)
+LINK_WITH = $(SSL_OS_LIBS)
+endif
+
 $(CLIENT): $(COBJS)
 	rm -f $@
 	$(call mktest,$@,$(COBJS),$(ICESSL_LIBS) $(LINK_WITH) $(LIBS))
