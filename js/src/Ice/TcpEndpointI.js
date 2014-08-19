@@ -30,7 +30,7 @@
             this._instance = instance;
             this._host = ho;
             this._port = po;
-            this._sourceAddress = sif;
+            this._sourceAddr = sif;
             this._timeout = ti;
             this._connectionId = conId;
             this._compress = co;
@@ -67,9 +67,9 @@
 
             s += " -p " + this._port;
 
-            if(this._sourceAddress.length > 0)
+            if(this._sourceAddr !== null && this._sourceAddr.length > 0)
             {
-                s += " --sourceAddress " + this._sourceAddress;
+                s += " --sourceAddr " + this._sourceAddr;
             }
 
             if(this._timeout == -1)
@@ -92,7 +92,7 @@
         //
         getInfo: function()
         {
-            return new TCPEndpointInfoI(this._timeout, this._compress, this._host, this._port, this._sourceAddress);
+            return new TCPEndpointInfoI(this._timeout, this._compress, this._host, this._port, this._sourceAddr);
         },
         //
         // Marshal the endpoint
@@ -135,7 +135,7 @@
             }
             else
             {
-                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddress, timeout,
+                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, timeout,
                                         this._connectionId, this._compress);
             }
         },
@@ -150,7 +150,7 @@
             }
             else
             {
-                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddress, this._timeout,
+                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
                                         connectionId, this._compress);
             }
         },
@@ -175,7 +175,7 @@
             }
             else
             {
-                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddress, this._timeout,
+                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddr, this._timeout,
                                         this._connectionId, compress);
             }
         },
@@ -213,7 +213,8 @@
                 this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, msg);
             }
 
-            return TcpTransceiver.createOutgoing(this._instance, new Address(this._host, this._port));
+            return TcpTransceiver.createOutgoing(this._instance, new Address(this._host, this._port),
+                                                 this._sourceAddr);
         },
         hashCode: function()
         {
@@ -240,6 +241,11 @@
             }
 
             if(this._port !== p._port)
+            {
+                return false;
+            }
+
+            if(this._sourceAddr !== p._sourceAddr)
             {
                 return false;
             }
@@ -318,6 +324,15 @@
             {
                 return this._host < p._host ? -1 : 1;
             }
+
+            if(this._sourceAddr == p._sourceAddr)
+            {
+                return 0;
+            }
+            else
+            {
+                return this._sourceAddr < p._sourceAddr ? -1 : 1;
+            }
         },
         calcHashValue: function()
         {
@@ -325,6 +340,7 @@
             h = HashUtil.addNumber(h, Ice.TCPEndpointType);
             h = HashUtil.addString(h, this._host);
             h = HashUtil.addNumber(h, this._port);
+            h = HashUtil.addString(h, this._sourceAddr);
             h = HashUtil.addNumber(h, this._timeout);
             h = HashUtil.addString(h, this._connectionId);
             h = HashUtil.addBoolean(h, this._compress);
@@ -336,7 +352,7 @@
     {
         var host = null;
         var port = 0;
-        var sourceAddress = "";
+        var sourceAddr = null;
         var timeout = -2;
         var compress = false;
 
@@ -444,7 +460,7 @@
                         "no argument provided for --sourceAddress option in endpoint `tcp " + str + "'");
                 }
 
-                sourceAddress = argument;
+                sourceAddr = argument;
             }
             else
             {
@@ -473,12 +489,25 @@
             host = "";
         }
 
+        if(sourceAddr === null)
+        {
+            if(!oaEndpoint)
+            {
+                sourceAddr = instance.defaultsAndOverrides().defaultSourceAddress;
+            }
+        }
+        else if(oaEndpoint)
+        {
+            throw new Ice.EndpointParseException("`--sourceAddress not valid for object adapter endpoint `tcp " +
+                                                 str + "'");
+        }
+
         if(timeout == -2)
         {
             timeout = instance.defaultsAndOverrides().defaultTimeout
         }
 
-        return new TcpEndpointI(instance, host, port, sourceAddress, timeout, "", compress);
+        return new TcpEndpointI(instance, host, port, sourceAddr, timeout, "", compress);
     };
 
     TcpEndpointI.fromStream = function(s)
@@ -489,16 +518,16 @@
         var timeout = s.readInt();
         var compress = s.readBool();
         s.endReadEncaps();
-        return new TcpEndpointI(s.instance, host, port, "", timeout, "", compress);
+        return new TcpEndpointI(s.instance, host, port, null, timeout, "", compress);
     };
 
     Ice.TcpEndpointI = TcpEndpointI;
     global.Ice = Ice;
 
     var TCPEndpointInfoI = Class(Ice.TCPEndpointInfo, {
-        __init__: function(timeout, compress, host, port, sourceAddress)
+        __init__: function(timeout, compress, host, port, sourceAddr)
         {
-            Ice.TCPEndpointInfo.call(this, timeout, compress, host, port, sourceAddress);
+            Ice.TCPEndpointInfo.call(this, timeout, compress, host, port, sourceAddr);
         },
         type: function()
         {

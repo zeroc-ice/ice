@@ -49,12 +49,6 @@
             this._connectedCallback = connectedCallback;
             this._bytesAvailableCallback = bytesAvailableCallback;
             this._bytesWrittenCallback = bytesWrittenCallback;
-
-            var self = this;
-            this._fd.on("connect", function() { self.socketConnected(); });
-            this._fd.on("close", function(err) { self.socketClosed(err); });
-            this._fd.on("error", function(err) { self.socketError(err); });
-            this._fd.on("data", function(buf) { self.socketBytesAvailable(buf); });
         },
         //
         // Returns SocketOperation.None when initialization is complete.
@@ -71,7 +65,16 @@
                 if(this._state === StateNeedConnect)
                 {
                     this._state = StateConnectPending;
-                    this._fd.connect(this._addr.port, this._addr.host);
+                    this._fd = net.createConnection({port: this._addr.port,
+                                                     host: this._addr.host,
+                                                     localAddress: this._sourceAddr});
+
+                    var self = this;
+                    this._fd.on("connect", function() { self.socketConnected(); });
+                    this._fd.on("close", function(err) { self.socketClosed(err); });
+                    this._fd.on("error", function(err) { self.socketError(err); });
+                    this._fd.on("data", function(buf) { self.socketBytesAvailable(buf); });
+
                     return SocketOperation.Connect; // Waiting for connect to complete.
                 }
                 else if(this._state === StateConnectPending)
@@ -433,12 +436,13 @@
         return s.join("");
     };
 
-    TcpTransceiver.createOutgoing = function(instance, addr)
+    TcpTransceiver.createOutgoing = function(instance, addr, sourceAddr)
     {
         var transceiver = new TcpTransceiver(instance);
 
-        transceiver._fd = new net.Socket();
+        transceiver._fd = null;
         transceiver._addr = addr;
+        transceiver._sourceAddr = sourceAddr;
         transceiver._desc = "remote address: " + addr.host + ":" + addr.port + " <not connected>";
         transceiver._state = StateNeedConnect;
         transceiver._registered = false;
@@ -453,6 +457,7 @@
 
         transceiver._fd = fd;
         transceiver._addr = null;
+        transceiver._sourceAddr = null;
         transceiver._desc = fdToString(fd);
         transceiver._state = StateConnected;
         transceiver._registered = false;

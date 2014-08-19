@@ -30,10 +30,7 @@
         this.defaultHost = value.length > 0 ? value : null;
 
         value = properties.getProperty("Ice.Default.SourceAddress");
-        if(value.length > 0)
-        {
-            logger.warning("Ice.Default.SourceAddress property is not supported in this language");
-        }
+        this.defaultSourceAddress = value.length > 0 ? value : null;
 
         value = properties.getProperty("Ice.Override.Timeout");
         if(value.length > 0)
