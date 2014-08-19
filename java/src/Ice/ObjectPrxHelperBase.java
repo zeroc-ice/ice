@@ -1837,6 +1837,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final ObjectPrx
     ice_locatorCacheTimeout(int newTimeout)
     {
+        if(newTimeout < -1)
+        {
+            throw new IllegalArgumentException("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
+        }
         if(newTimeout == _reference.getLocatorCacheTimeout())
         {
             return this;
@@ -1856,6 +1860,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final ObjectPrx
     ice_invocationTimeout(int newTimeout)
     {
+        if(newTimeout < 1 && newTimeout != -1)
+        {
+            throw new IllegalArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
+        }
         if(newTimeout == _reference.getInvocationTimeout())
         {
             return this;
@@ -2317,6 +2325,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final ObjectPrx
     ice_timeout(int t)
     {
+        if(t < 1 && t != -1)
+        {
+            throw new IllegalArgumentException("invalid value passed to ice_timeout: " + t);
+        }
         IceInternal.Reference ref = _reference.changeTimeout(t);
         if(ref.equals(_reference))
         {

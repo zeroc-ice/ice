@@ -838,10 +838,40 @@ public final class ReferenceFactory
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+            String value = properties.getProperty(property);
+            if(!value.isEmpty())
+            {
+                locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+                if(locatorCacheTimeout < -1)
+                {
+                    locatorCacheTimeout = -1;
+
+                    StringBuffer msg = new StringBuffer("invalid value for ");
+                    msg.append(property);
+                    msg.append(" '");
+                    msg.append(properties.getProperty(property));
+                    msg.append("': defaulting to -1");
+                    _instance.initializationData().logger.warning(msg.toString());
+                }
+            }
 
             property = propertyPrefix + ".InvocationTimeout";
-            invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+            value = properties.getProperty(property);
+            if(!value.isEmpty())
+            {
+                invocationTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+                if(invocationTimeout < 1 && invocationTimeout != -1)
+                {
+                    invocationTimeout = -1;
+
+                    StringBuffer msg = new StringBuffer("invalid value for ");
+                    msg.append(property);
+                    msg.append(" '");
+                    msg.append(properties.getProperty(property));
+                    msg.append("': defaulting to -1");
+                    _instance.initializationData().logger.warning(msg.toString());
+                }
+            }
 
             property = propertyPrefix + ".Context.";
             java.util.Map<String, String> contexts = properties.getPropertiesForPrefix(property);

@@ -376,6 +376,57 @@ def allTests(communicator, collocated):
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() == Ice.Encoding_1_0)
     test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion() == Ice.Encoding_1_1)
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() != Ice.Encoding_1_1)
+
+    try:
+        base.ice_timeout(0)
+        test(False)
+    except RuntimeError:
+        pass
+
+    try:
+        base.ice_timeout(-1)
+    except RuntimeError:
+        test(False)
+
+    try:
+        base.ice_timeout(-2)
+        test(False)
+    except RuntimeError:
+        pass
+
+    try:
+        base.ice_invocationTimeout(0)
+        test(False)
+    except RuntimeError:
+        pass
+
+    try:
+        base.ice_invocationTimeout(-1)
+    except RuntimeError:
+        test(False)
+
+    try:
+        base.ice_invocationTimeout(-2)
+        test(False)
+    except RuntimeError:
+        pass
+
+    try:
+        base.ice_locatorCacheTimeout(0)
+    except RuntimeError:
+        test(False)
+
+    try:
+        base.ice_locatorCacheTimeout(-1)
+    except RuntimeError:
+        test(False)
+
+    try:
+        base.ice_locatorCacheTimeout(-2)
+        test(False)
+    except RuntimeError:
+        pass
+
     print("ok")
 
     sys.stdout.write("testing proxy comparison... ")

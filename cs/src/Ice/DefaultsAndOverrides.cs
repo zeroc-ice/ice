@@ -9,13 +9,14 @@
 
 using System;
 using System.Net;
+using System.Text;
 
 namespace IceInternal
 {
 
     public sealed class DefaultsAndOverrides
     {
-        internal DefaultsAndOverrides(Ice.Properties properties)
+        internal DefaultsAndOverrides(Ice.Properties properties, Ice.Logger logger)
         {
             string val;
 
@@ -51,6 +52,14 @@ namespace IceInternal
             {
                 overrideTimeout = true;
                 overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+                if(overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
+                {
+                    overrideTimeoutValue = -1;
+                    StringBuilder msg = new StringBuilder("invalid value for Ice.Override.Timeout `");
+                    msg.Append(properties.getProperty("Ice.Override.Timeout"));
+                    msg.Append("': defaulting to -1");
+                    logger.warning(msg.ToString());
+                }
             }
             else
             {
@@ -63,6 +72,14 @@ namespace IceInternal
             {
                 overrideConnectTimeout = true;
                 overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+                if(overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
+                {
+                    overrideConnectTimeoutValue = -1;
+                    StringBuilder msg = new StringBuilder("invalid value for Ice.Override.ConnectTimeout `");
+                    msg.Append(properties.getProperty("Ice.Override.ConnectTimeout"));
+                    msg.Append("': defaulting to -1");
+                    logger.warning(msg.ToString());
+                }
             }
             else
             {
@@ -75,6 +92,14 @@ namespace IceInternal
             {
                 overrideCloseTimeout = true;
                 overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+                if(overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
+                {
+                    overrideCloseTimeoutValue = -1;
+                    StringBuilder msg = new StringBuilder("invalid value for Ice.Override.CloseTimeout `");
+                    msg.Append(properties.getProperty("Ice.Override.CloseTimeout"));
+                    msg.Append("': defaulting to -1");
+                    logger.warning(msg.ToString());
+                }
             }
             else
             {
@@ -139,11 +164,32 @@ namespace IceInternal
             defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
             if(defaultTimeout < 1 && defaultTimeout != -1)
             {
-                throw new Ice.InitializationException("invalid value for Ice.Default.Timeout: `" +
-                                                      properties.getProperty("Ice.Default.Timeout") + "'");
+                defaultTimeout = 60000;
+                StringBuilder msg = new StringBuilder("invalid value for Ice.Default.Timeout `");
+                msg.Append(properties.getProperty("Ice.Default.Timeout"));
+                msg.Append("': defaulting to 60000");
+                logger.warning(msg.ToString());
             }
+
             defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+            if(defaultLocatorCacheTimeout < -1)
+            {
+                defaultLocatorCacheTimeout = -1;
+                StringBuilder msg = new StringBuilder("invalid value for Ice.Default.LocatorCacheTimeout `");
+                msg.Append(properties.getProperty("Ice.Default.LocatorCacheTimeout"));
+                msg.Append("': defaulting to -1");
+                logger.warning(msg.ToString());
+            }
+
             defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+            if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
+            {
+                defaultInvocationTimeout = -1;
+                StringBuilder msg = new StringBuilder("invalid value for Ice.Default.InvocationTimeout `");
+                msg.Append(properties.getProperty("Ice.Default.InvocationTimeout"));
+                msg.Append("': defaulting to -1");
+                logger.warning(msg.ToString());
+            }
 
             defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 

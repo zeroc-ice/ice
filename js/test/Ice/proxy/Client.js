@@ -329,7 +329,7 @@
                 var id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
                 var id2 = communicator.stringToIdentity(communicator.identityToString(id));
                 test(id.equals(id2));
-                
+
                 id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
                 id2 = communicator.stringToIdentity(communicator.identityToString(id));
                 test(id.equals(id2));
@@ -504,6 +504,89 @@
                 test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_0));
                 test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
                 test(!base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
+
+                try
+                {
+                    base.ice_timeout(0);
+                    test(false);
+                }
+                catch(ex)
+                {
+                }
+
+                try
+                {
+                    base.ice_timeout(-1);
+                }
+                catch(ex)
+                {
+                    test(false);
+                }
+
+                try
+                {
+                    base.ice_timeout(-2);
+                    test(false);
+                }
+                catch(ex)
+                {
+                }
+
+                try
+                {
+                    base.ice_invocationTimeout(0);
+                    test(false);
+                }
+                catch(ex)
+                {
+                }
+
+                try
+                {
+                    base.ice_invocationTimeout(-1);
+                }
+                catch(ex)
+                {
+                    test(false);
+                }
+
+                try
+                {
+                    base.ice_invocationTimeout(-2);
+                    test(false);
+                }
+                catch(ex)
+                {
+                }
+
+                try
+                {
+                    base.ice_locatorCacheTimeout(0);
+                }
+                catch(ex)
+                {
+                    test(false);
+                }
+
+                try
+                {
+                    base.ice_locatorCacheTimeout(-1);
+                }
+                catch(ex)
+                {
+                    test(false);
+                }
+
+                try
+                {
+                    base.ice_locatorCacheTimeout(-2);
+                    test(false);
+                }
+                catch(ex)
+                {
+                }
+
+
                 out.writeLine("ok");
 
                 out.write("testing proxy comparison... ");

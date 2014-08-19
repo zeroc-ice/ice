@@ -827,6 +827,11 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
     {
         newProxy = (*self->proxy)->ice_locatorCacheTimeout(timeout);
     }
+    catch(const IceUtil::IllegalArgumentException& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        return 0;
+    }
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
@@ -854,6 +859,11 @@ proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
     try
     {
         newProxy = (*self->proxy)->ice_invocationTimeout(timeout);
+    }
+    catch(const IceUtil::IllegalArgumentException& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        return 0;
     }
     catch(const Ice::Exception& ex)
     {
@@ -1585,6 +1595,11 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
     try
     {
         newProxy = (*self->proxy)->ice_timeout(timeout);
+    }
+    catch(const IceUtil::IllegalArgumentException& ex)
+    {
+    	PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+	   return 0;
     }
     catch(const Ice::Exception& ex)
     {

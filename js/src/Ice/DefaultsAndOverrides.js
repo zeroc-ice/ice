@@ -12,28 +12,40 @@
     require("Ice/EndpointTypes");
     require("Ice/Protocol");
     require("Ice/LocalException");
-    
+
     var Ice = global.Ice || {};
-    
+
     var FormatType = Ice.FormatType;
     var EndpointSelectionType = Ice.EndpointSelectionType;
     var Protocol = Ice.Protocol;
 
-    var DefaultsAndOverrides = function(properties)
+    var DefaultsAndOverrides = function(properties, logger)
     {
         var value;
-        
-        this.defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", 
+
+        this.defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol",
                                                                  Ice.TcpEndpointFactory !== undefined ? "tcp" : "ws");
 
         value = properties.getProperty("Ice.Default.Host");
         this.defaultHost = value.length > 0 ? value : null;
+
+        value = properties.getProperty("Ice.Default.SourceAddress");
+        if(value.length > 0)
+        {
+            logger.warning("Ice.Default.SourceAddress property is not supported in this language");
+        }
 
         value = properties.getProperty("Ice.Override.Timeout");
         if(value.length > 0)
         {
             this.overrideTimeout = true;
             this.overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+            if(this.overrideTimeoutValue < 1 && this.overrideTimeoutValue !== -1)
+            {
+                this.overrideTimeoutValue = -1;
+                logger.warning("invalid value for Ice.Override.Timeout `" +
+                               properties.getProperty("Ice.Override.Timeout") + "': defaulting to -1");
+            }
         }
         else
         {
@@ -46,6 +58,12 @@
         {
             this.overrideConnectTimeout = true;
             this.overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+            if(this.overrideConnectTimeoutValue < 1 && this.overrideConnectTimeoutValue !== -1)
+            {
+                this.overrideConnectTimeoutValue = -1;
+                logger.warning("invalid value for Ice.Override.ConnectTimeout `" +
+                               properties.getProperty("Ice.Override.ConnectTimeout") + "': defaulting to -1");
+            }
         }
         else
         {
@@ -58,6 +76,12 @@
         {
             this.overrideCloseTimeout = true;
             this.overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+            if(this.overrideCloseTimeoutValue < 1 && this.overrideCloseTimeoutValue !== -1)
+            {
+                this.overrideCloseTimeoutValue = -1;
+                logger.warning("invalid value for Ice.Override.CloseTimeout `" +
+                               properties.getProperty("Ice.Override.CloseTimeout") + "': defaulting to -1");
+            }
         }
         else
         {
@@ -84,8 +108,29 @@
             throw ex;
         }
 
+        this.defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+        if(this.defaultTimeout < 1 && this.defaultTimeout !== -1)
+        {
+            this.defaultTimeout = 60000;
+            logger.warning("invalid value for Ice.Default.Timeout `" + properties.getProperty("Ice.Default.Timeout") +
+                           "': defaulting to 60000");
+        }
+
         this.defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+        if(this.defaultLocatorCacheTimeout < -1)
+        {
+            this.defaultLocatorCacheTimeout = -1;
+            logger.warning("invalid value for Ice.Default.LocatorCacheTimeout `" +
+                           properties.getProperty("Ice.Default.LocatorCacheTimeout") + "': defaulting to -1");
+        }
+
         this.defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+        if(this.defaultInvocationTimeout < 1 && this.defaultInvocationTimeout !== -1)
+        {
+            this.defaultInvocationTimeout = -1;
+            logger.warning("invalid value for Ice.Default.InvocationTimeout `" +
+                           properties.getProperty("Ice.Default.InvocationTimeout") + "': defaulting to -1");
+        }
 
         this.defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 

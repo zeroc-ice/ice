@@ -446,9 +446,16 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
-        long t = getInteger(timeout);
-        return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+        try
+        {
+            Ice::ObjectPrx p = getProxy(self);
+            long t = getInteger(timeout);
+            return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+        }
+        catch(const IceUtil::IllegalArgumentException& ex)
+        {
+            throw RubyException(rb_eArgError, ex.reason().c_str());
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -460,9 +467,16 @@ IceRuby_ObjectPrx_ice_invocationTimeout(VALUE self, VALUE timeout)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
-        long t = getInteger(timeout);
-        return createProxy(p->ice_invocationTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+        try
+        {
+            Ice::ObjectPrx p = getProxy(self);
+            long t = getInteger(timeout);
+            return createProxy(p->ice_invocationTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+        }
+        catch(const IceUtil::IllegalArgumentException& ex)
+        {
+            throw RubyException(rb_eArgError, ex.reason().c_str());
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -852,9 +866,16 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
 {
     ICE_RUBY_TRY
     {
-        Ice::ObjectPrx p = getProxy(self);
-        Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
-        return createProxy(p->ice_timeout(timeout), rb_class_of(self));
+        try
+        {
+            Ice::ObjectPrx p = getProxy(self);
+            Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
+            return createProxy(p->ice_timeout(timeout), rb_class_of(self));
+        }
+        catch(const IceUtil::IllegalArgumentException& ex)
+        {
+            throw RubyException(rb_eArgError, ex.reason().c_str());
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;

@@ -27,9 +27,9 @@
     require("Ice/LocalException");
     require("Ice/Version");
     require("Ice/PropertyNames");
-    
+
     var Ice = global.Ice || {};
-    
+
     var ArrayUtil = Ice.ArrayUtil;
     var Debug = Ice.Debug;
     var HashMap = Ice.HashMap;
@@ -46,9 +46,9 @@
     var RouterPrx = Ice.RouterPrx;
     var LocatorPrx = Ice.LocatorPrx;
     var PropertyNames = Ice.PropertyNames;
-    
+
     var Class = Ice.Class;
-    
+
     var suffixes =
     [
         "EndpointSelection",
@@ -61,7 +61,7 @@
         "Router",
         "CollocationOptimized"
     ];
-    
+
     //
     // Only for use by Instance
     //
@@ -609,7 +609,7 @@
                 protocol = Ice.Protocol_1_0;
                 encoding = Ice.Encoding_1_0;
             }
-            
+
             var endpoints = null; // EndpointI[]
             var adapterId = null;
 
@@ -809,10 +809,32 @@
                 }
 
                 property = propertyPrefix + ".LocatorCacheTimeout";
-                locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+                var value = properties.getProperty(property);
+                if(value.length !== 0)
+                {
+                    locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+                    if(locatorCacheTimeout < -1)
+                    {
+                        locatorCacheTimeout = -1;
+                        var s = "invalid value for" + property + "`" + properties.getProperty(property) +
+                                "': defaulting to -1";
+                        this._instance.initializationData().logger.warning(s);
+                    }
+                }
 
                 property = propertyPrefix + ".InvocationTimeout";
-                invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+                value = properties.getProperty(property);
+                if(value.length !== 0)
+                {
+                    invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+                    if(invocationTimeout < 1 && invocationTimeout !== -1)
+                    {
+                        invocationTimeout = -1;
+                        var s = "invalid value for" + property + "`" + properties.getProperty(property) +
+                                "': defaulting to -1";
+                        this._instance.initializationData().logger.warning(s);
+                    }
+                }
             }
 
             //
@@ -837,9 +859,9 @@
                                          invocationTimeout);
         }
     });
-    
+
     Ice.ReferenceFactory = ReferenceFactory;
-    
+
     var Reference = Class({
         __init__: function(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
         {
@@ -1396,7 +1418,7 @@
             r._compress = this._compress;
         }
     });
-    
+
     Reference._emptyContext = new HashMap();
     Reference._emptyEndpoints = [];
 
@@ -1612,7 +1634,7 @@
                            adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
                            locatorCacheTimeout, invocationTimeout)
         {
-            Reference.call(this, instance, communicator, identity, facet, mode, secure, protocol, encoding, 
+            Reference.call(this, instance, communicator, identity, facet, mode, secure, protocol, encoding,
                            invocationTimeout);
             this._endpoints = endpoints;
             this._adapterId = adapterId;
@@ -2124,11 +2146,11 @@
         },
         clone: function()
         {
-            var r = new RoutableReference(this.getInstance(), 
-                                          this.getCommunicator(), 
-                                          this.getIdentity(), 
+            var r = new RoutableReference(this.getInstance(),
+                                          this.getCommunicator(),
+                                          this.getIdentity(),
                                           this.getFacet(),
-                                          this.getMode(), 
+                                          this.getMode(),
                                           this.getSecure(),
                                           this.getProtocol(),
                                           this.getEncoding(),
@@ -2330,10 +2352,10 @@
             return promise;
         }
     });
-    
+
     Ice.RoutableReference = RoutableReference;
     global.Ice = Ice;
-    
+
     var CreateConnectionCallback = Class({
         __init__: function(r, endpoints, promise)
         {

@@ -26,7 +26,7 @@ class DefaultsAndOverrides : public ::IceUtil::Shared
 {
 public:
 
-    DefaultsAndOverrides(const ::Ice::PropertiesPtr&);
+    DefaultsAndOverrides(const ::Ice::PropertiesPtr&, const ::Ice::LoggerPtr&);
 
     std::string defaultHost;
     Address defaultSourceAddress;

@@ -479,6 +479,88 @@ public class AllTests
         test(base.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
         test(base.ice_encodingVersion(Ice.Util.Encoding_1_1).ice_getEncodingVersion().equals(Ice.Util.Encoding_1_1));
         test(!base.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Util.Encoding_1_1));
+
+        try
+        {
+            base.ice_timeout(0);
+            test(false);
+        }
+        catch(IllegalArgumentException e)
+        {
+        }
+
+        try
+        {
+            base.ice_timeout(-1);
+        }
+        catch(IllegalArgumentException e)
+        {
+            test(false);
+        }
+
+        try
+        {
+            base.ice_timeout(-2);
+            test(false);
+        }
+        catch(IllegalArgumentException e)
+        {
+        }
+
+        try
+        {
+            base.ice_invocationTimeout(0);
+            test(false);
+        }
+        catch(IllegalArgumentException e)
+        {
+        }
+
+        try
+        {
+            base.ice_invocationTimeout(-1);
+        }
+        catch(IllegalArgumentException e)
+        {
+            test(false);
+        }
+
+        try
+        {
+            base.ice_invocationTimeout(-2);
+            test(false);
+        }
+        catch(IllegalArgumentException e)
+        {
+        }
+
+        try
+        {
+            base.ice_locatorCacheTimeout(0);
+        }
+        catch(IllegalArgumentException e)
+        {
+            test(false);
+        }
+
+        try
+        {
+            base.ice_locatorCacheTimeout(-1);
+        }
+        catch(IllegalArgumentException e)
+        {
+            test(false);
+        }
+
+        try
+        {
+            base.ice_locatorCacheTimeout(-2);
+            test(false);
+        }
+        catch(IllegalArgumentException e)
+        {
+        }
+
         out.println("ok");
 
         out.print("testing proxy comparison... ");

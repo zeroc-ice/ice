@@ -79,13 +79,13 @@ IceInternal::Cpp11FnCallbackNC::Cpp11FnCallbackNC(const ::std::function<void (co
 {
 }
 
-IceInternal::CallbackBasePtr 
+IceInternal::CallbackBasePtr
 IceInternal::Cpp11FnCallbackNC::verify(const ::Ice::LocalObjectPtr&)
 {
     return this;
 }
 
-void 
+void
 IceInternal::Cpp11FnCallbackNC::sent(const ::Ice::AsyncResultPtr& result) const
 {
     if(_sent != nullptr)
@@ -94,13 +94,13 @@ IceInternal::Cpp11FnCallbackNC::sent(const ::Ice::AsyncResultPtr& result) const
     }
 }
 
-bool 
+bool
 IceInternal::Cpp11FnCallbackNC::hasSentCallback() const
 {
     return _sent != nullptr;
 }
 
-void 
+void
 IceInternal::Cpp11FnCallbackNC::exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const
 {
     if(_exception != nullptr)
@@ -117,7 +117,7 @@ IceInternal::Cpp11FnOnewayCallbackNC::Cpp11FnOnewayCallbackNC(const ::std::funct
 {
     CallbackBase::checkCallback(true, cb || excb != nullptr);
 }
-    
+
 void
 IceInternal::Cpp11FnOnewayCallbackNC::completed(const ::Ice::AsyncResultPtr& result) const
 {
@@ -231,27 +231,27 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
 
 #ifdef ICE_CPP11
 
-Ice::AsyncResultPtr 
+Ice::AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_isA(
-    const ::std::string& typeId, 
+    const ::std::string& typeId,
     const ::Ice::Context* ctx,
-    const ::IceInternal::Function<void (bool)>& response, 
+    const ::IceInternal::Function<void (bool)>& response,
     const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
     const ::IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
     public:
-        
-        Cpp11CB(const ::std::function<void (bool)>& responseFunc, 
-                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+
+        Cpp11CB(const ::std::function<void (bool)>& responseFunc,
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc,
                 const ::std::function<void (bool)>& sentFunc) :
             ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
             _response(responseFunc)
         {
             CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
         }
-        
+
         virtual void completed(const ::Ice::AsyncResultPtr& __result) const
         {
             ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
@@ -270,35 +270,35 @@ IceProxy::Ice::Object::__begin_ice_isA(
                 _response(__ret);
             }
         }
-        
+
     private:
-        
+
         ::std::function<void (bool)> _response;
     };
 
     return begin_ice_isA(typeId, ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
-Ice::AsyncResultPtr 
+Ice::AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_id(
     const ::Ice::Context* ctx,
-    const ::IceInternal::Function<void (const ::std::string&)>& response, 
+    const ::IceInternal::Function<void (const ::std::string&)>& response,
     const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
     const ::IceInternal::Function<void (bool)>& sent)
 {
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
     public:
-        
-        Cpp11CB(const ::std::function<void (const ::std::string&)>& responseFunc, 
-                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+
+        Cpp11CB(const ::std::function<void (const ::std::string&)>& responseFunc,
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc,
                 const ::std::function<void (bool)>& sentFunc) :
             ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
             _response(responseFunc)
         {
             CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
         }
-        
+
         virtual void completed(const ::Ice::AsyncResultPtr& __result) const
         {
             ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
@@ -317,15 +317,15 @@ IceProxy::Ice::Object::__begin_ice_id(
                 _response(__ret);
             }
         }
-        
+
     private:
-        
+
         ::std::function<void (const ::std::string&)> _response;
     };
     return begin_ice_id(ctx, new Cpp11CB(response, exception, sent), 0);
 }
-   
-Ice::AsyncResultPtr 
+
+Ice::AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_ids(
     const ::Ice::Context* ctx,
     const ::IceInternal::Function<void (const ::std::vector< ::std::string>&)>& response,
@@ -335,16 +335,16 @@ IceProxy::Ice::Object::__begin_ice_ids(
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
     public:
-        
-        Cpp11CB(const ::std::function<void (const ::std::vector< ::std::string>&)>& responseFunc, 
-                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+
+        Cpp11CB(const ::std::function<void (const ::std::vector< ::std::string>&)>& responseFunc,
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc,
                 const ::std::function<void (bool)>& sentFunc) :
             ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
             _response(responseFunc)
         {
             CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
         }
-        
+
         virtual void completed(const ::Ice::AsyncResultPtr& __result) const
         {
             ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
@@ -363,18 +363,18 @@ IceProxy::Ice::Object::__begin_ice_ids(
                 _response(__ret);
             }
         }
-        
+
     private:
-        
+
         ::std::function<void (const ::std::vector< ::std::string>&)> _response;
     };
     return begin_ice_ids(ctx, new Cpp11CB(response, exception, sent), 0);
 }
 
-Ice::AsyncResultPtr 
+Ice::AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_invoke(
-    const ::std::string& operation, 
-    ::Ice::OperationMode mode, 
+    const ::std::string& operation,
+    ::Ice::OperationMode mode,
     const ::std::vector< ::Ice::Byte>& inParams,
     const ::Ice::Context* ctx,
     const ::IceInternal::Function<void (bool, const ::std::vector< ::Ice::Byte>&)>& response,
@@ -384,16 +384,16 @@ IceProxy::Ice::Object::__begin_ice_invoke(
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
     public:
-        
-        Cpp11CB(const ::std::function<void (bool, const ::std::vector< ::Ice::Byte>&)>& responseFunc, 
-                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+
+        Cpp11CB(const ::std::function<void (bool, const ::std::vector< ::Ice::Byte>&)>& responseFunc,
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc,
                 const ::std::function<void (bool)>& sentFunc) :
             ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
             _response(responseFunc)
         {
             CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
         }
-        
+
         virtual void completed(const ::Ice::AsyncResultPtr& __result) const
         {
             ::Ice::ObjectPrx __proxy = ::Ice::ObjectPrx::uncheckedCast(__result->getProxy());
@@ -413,19 +413,19 @@ IceProxy::Ice::Object::__begin_ice_invoke(
                 _response(__ret, p1);
             }
         }
-        
+
     private:
-        
+
         ::std::function<void (bool, const ::std::vector< ::Ice::Byte>&)> _response;
     };
-    
+
     return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
 }
-    
-Ice::AsyncResultPtr 
+
+Ice::AsyncResultPtr
 IceProxy::Ice::Object::__begin_ice_invoke(
     const ::std::string& operation,
-    ::Ice::OperationMode mode, 
+    ::Ice::OperationMode mode,
     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
     const ::Ice::Context* ctx,
     const ::IceInternal::Function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>& response,
@@ -435,17 +435,17 @@ IceProxy::Ice::Object::__begin_ice_invoke(
     class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
     {
     public:
-        
-        Cpp11CB(const ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*, 
+
+        Cpp11CB(const ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*,
                                             const ::Ice::Byte*>&)>& responseFunc,
-                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, 
+                const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc,
                 const ::std::function<void (bool)>& sentFunc) :
             ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
             _response(responseFunc)
         {
             CallbackBase::checkCallback(true, _response || _exception != nullptr);
         }
-        
+
         virtual void completed(const ::Ice::AsyncResultPtr& __result) const
         {
             bool __ret;
@@ -464,9 +464,9 @@ IceProxy::Ice::Object::__begin_ice_invoke(
                 _response(__ret, p1);
             }
         }
-        
+
     private:
-        
+
         ::std::function<void (bool, const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)> _response;
     };
     return begin_ice_invoke(operation, mode, inParams, ctx, new Cpp11CB(response, exception, sent), 0);
@@ -522,7 +522,7 @@ IceProxy::Ice::Object::ice_ping(const Context* context)
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_ping(const Context* ctx, 
+IceProxy::Ice::Object::begin_ice_ping(const Context* ctx,
                                       const ::IceInternal::CallbackBasePtr& del,
                                       const ::Ice::LocalObjectPtr& cookie)
 {
@@ -595,7 +595,7 @@ IceProxy::Ice::Object::ice_id(const Context* context)
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_ids(const Context* ctx, 
+IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
                                      const ::IceInternal::CallbackBasePtr& del,
                                      const ::Ice::LocalObjectPtr& cookie)
 {
@@ -638,7 +638,7 @@ IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& __result)
 }
 
 AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_id(const Context* ctx, 
+IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
                                     const ::IceInternal::CallbackBasePtr& del,
                                     const ::Ice::LocalObjectPtr& cookie)
 {
@@ -710,14 +710,14 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
     Callback_Object_ice_invokePtr del;
     if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Object_ice_invoke::__response,
                                             &AMI_Object_ice_invoke::__exception,
                                             &AMI_Object_ice_invoke::__sent);
     }
     else
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Object_ice_invoke::__response,
                                             &AMI_Object_ice_invoke::__exception);
     }
@@ -735,14 +735,14 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
     Callback_Object_ice_invokePtr del;
     if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Object_ice_invoke::__response,
                                             &AMI_Object_ice_invoke::__exception,
                                             &AMI_Object_ice_invoke::__sent);
     }
     else
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Object_ice_invoke::__response,
                                             &AMI_Object_ice_invoke::__exception);
     }
@@ -754,7 +754,7 @@ AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
                                         OperationMode mode,
                                         const vector<Byte>& inEncaps,
-                                        const Context* ctx, 
+                                        const Context* ctx,
                                         const ::IceInternal::CallbackBasePtr& del,
                                         const ::Ice::LocalObjectPtr& cookie)
 {
@@ -822,14 +822,14 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
     Callback_Object_ice_invokePtr del;
     if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Array_Object_ice_invoke::__response,
                                             &AMI_Array_Object_ice_invoke::__exception,
                                             &AMI_Array_Object_ice_invoke::__sent);
     }
     else
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Array_Object_ice_invoke::__response,
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
@@ -847,14 +847,14 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
     Callback_Object_ice_invokePtr del;
     if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Array_Object_ice_invoke::__response,
                                             &AMI_Array_Object_ice_invoke::__exception,
                                             &AMI_Array_Object_ice_invoke::__sent);
     }
     else
     {
-        del = newCallback_Object_ice_invoke(cb, 
+        del = newCallback_Object_ice_invoke(cb,
                                             &AMI_Array_Object_ice_invoke::__response,
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
@@ -866,7 +866,7 @@ AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
                                         OperationMode mode,
                                         const pair<const Byte*, const Byte*>& inEncaps,
-                                        const Context* ctx, 
+                                        const Context* ctx,
                                         const ::IceInternal::CallbackBasePtr& del,
                                         const ::Ice::LocalObjectPtr& cookie)
 {
@@ -1021,6 +1021,12 @@ IceProxy::Ice::Object::ice_getLocatorCacheTimeout() const
 ObjectPrx
 IceProxy::Ice::Object::ice_locatorCacheTimeout(Int newTimeout) const
 {
+    if(newTimeout < -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
+    }
     if(newTimeout == _reference->getLocatorCacheTimeout())
     {
         return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -1214,6 +1220,12 @@ IceProxy::Ice::Object::ice_getInvocationTimeout() const
 ObjectPrx
 IceProxy::Ice::Object::ice_invocationTimeout(Int newTimeout) const
 {
+    if(newTimeout < 1 && newTimeout != -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
+    }
     if(newTimeout == _reference->getInvocationTimeout())
     {
         return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -1350,6 +1362,12 @@ IceProxy::Ice::Object::ice_compress(bool b) const
 ObjectPrx
 IceProxy::Ice::Object::ice_timeout(int t) const
 {
+    if(t < 1 && t != -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_timeout: " << t;
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
+    }
     ReferencePtr ref = _reference->changeTimeout(t);
     if(ref == _reference)
     {
@@ -1457,8 +1475,8 @@ IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBa
     Callback_Object_ice_flushBatchRequestsPtr __del;
     if(dynamic_cast< AMISentCallback*>(cb.get()))
     {
-        __del = newCallback_Object_ice_flushBatchRequests(cb, 
-                                                          &AMI_Object_ice_flushBatchRequests::__exception, 
+        __del = newCallback_Object_ice_flushBatchRequests(cb,
+                                                          &AMI_Object_ice_flushBatchRequests::__exception,
                                                           &AMI_Object_ice_flushBatchRequests::__sent);
     }
     else
@@ -1473,7 +1491,7 @@ IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBa
 IceProxy::Ice::Object::begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr& del,
                                                             const ::Ice::LocalObjectPtr& cookie)
 {
-    ::IceInternal::ProxyBatchOutgoingAsyncPtr __result = 
+    ::IceInternal::ProxyBatchOutgoingAsyncPtr __result =
         new ::IceInternal::ProxyBatchOutgoingAsync(this, ice_flushBatchRequests_name, del, cookie);
     try
     {
@@ -1508,14 +1526,14 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 }
 
 int
-IceProxy::Ice::Object::__handleException(const Exception& ex, 
-                                         const RequestHandlerPtr& handler, 
+IceProxy::Ice::Object::__handleException(const Exception& ex,
+                                         const RequestHandlerPtr& handler,
                                          OperationMode mode,
                                          bool sent,
                                          int& cnt)
 {
     __setRequestHandler(handler, 0); // Clear the request handler
-    
+
     //
     // We only retry local exception, system exceptions aren't retried.
     //
@@ -1528,7 +1546,7 @@ IceProxy::Ice::Object::__handleException(const Exception& ex,
     // "at-most-once" (see the implementation of the checkRetryAfterException method
     //  of the ProxyFactory class for the reasons why it can be useful).
     //
-    // If the request didn't get sent or if it's non-mutating or idempotent it can 
+    // If the request didn't get sent or if it's non-mutating or idempotent it can
     // also always be retried if the retry count isn't reached.
     //
     const LocalException* localEx = dynamic_cast<const LocalException*>(&ex);
@@ -1578,8 +1596,8 @@ IceProxy::Ice::Object::__checkAsyncTwowayOnly(const string& name) const
     //
     if(!ice_isTwoway())
     {
-        throw IceUtil::IllegalArgumentException(__FILE__, 
-                                                __LINE__, 
+        throw IceUtil::IllegalArgumentException(__FILE__,
+                                                __LINE__,
                                                 "`" + name + "' can only be called with a twoway proxy");
     }
 }
@@ -1804,7 +1822,7 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();
         Identity rhsIdentity = rhs->ice_getIdentity();
-        
+
         if(lhsIdentity < rhsIdentity)
         {
             return true;
@@ -1813,10 +1831,10 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
         {
             return false;
         }
-        
+
         string lhsFacet = lhs->ice_getFacet();
         string rhsFacet = rhs->ice_getFacet();
-        
+
         if(lhsFacet < rhsFacet)
         {
             return true;
@@ -1825,7 +1843,7 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
         {
             return false;
         }
-        
+
         return false;
     }
 }
@@ -1849,18 +1867,18 @@ Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();
         Identity rhsIdentity = rhs->ice_getIdentity();
-        
+
         if(lhsIdentity == rhsIdentity)
         {
             string lhsFacet = lhs->ice_getFacet();
             string rhsFacet = rhs->ice_getFacet();
-            
+
             if(lhsFacet == rhsFacet)
             {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

@@ -715,7 +715,7 @@ public final class Instance
 
             _traceLevels = new TraceLevels(_initData.properties);
 
-            _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
+            _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties, _initData.logger);
 
             _clientACM = new ACMConfig(_initData.properties,
                                        _initData.logger,
@@ -795,13 +795,13 @@ public final class Instance
             ProtocolInstance tcpProtocolInstance = new ProtocolInstance(this, Ice.TCPEndpointType.value, "tcp");
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(tcpProtocolInstance);
             _endpointFactoryManager.add(tcpEndpointFactory);
-            
+
             ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp");
             EndpointFactory udpEndpointFactory = new UdpEndpointFactory(udpProtocolInstance);
             _endpointFactoryManager.add(udpEndpointFactory);
-            
+
             ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws");
-            EndpointFactory wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance, 
+            EndpointFactory wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance,
                                                                       tcpEndpointFactory.clone(wsProtocolInstance));
             _endpointFactoryManager.add(wsEndpointFactory);
 

@@ -25,11 +25,12 @@
 
     var Class = Ice.Class;
     var TcpEndpointI = Class(Ice.Endpoint, {
-        __init__: function(instance, ho, po, ti, conId, co)
+        __init__: function(instance, ho, po, sif, ti, conId, co)
         {
             this._instance = instance;
             this._host = ho;
             this._port = po;
+            this._sourceAddress = sif;
             this._timeout = ti;
             this._connectionId = conId;
             this._compress = co;
@@ -66,10 +67,20 @@
 
             s += " -p " + this._port;
 
-            if(this._timeout != -1)
+            if(this._sourceAddress.length > 0)
+            {
+                s += " --sourceAddress " + this._sourceAddress;
+            }
+
+            if(this._timeout == -1)
+            {
+                s += " -t infinite";
+            }
+            else
             {
                 s += " -t " + this._timeout;
             }
+
             if(this._compress)
             {
                 s += " -z";
@@ -81,7 +92,7 @@
         //
         getInfo: function()
         {
-            return new TCPEndpointInfoI(this._timeout, this._compress, this._host, this._port);
+            return new TCPEndpointInfoI(this._timeout, this._compress, this._host, this._port, this._sourceAddress);
         },
         //
         // Marshal the endpoint
@@ -124,8 +135,8 @@
             }
             else
             {
-                return new TcpEndpointI(this._instance, this._host, this._port, timeout, this._connectionId,
-                                        this._compress);
+                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddress, timeout,
+                                        this._connectionId, this._compress);
             }
         },
         //
@@ -139,8 +150,8 @@
             }
             else
             {
-                return new TcpEndpointI(this._instance, this._host, this._port, this._timeout, connectionId,
-                                        this._compress);
+                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddress, this._timeout,
+                                        connectionId, this._compress);
             }
         },
         //
@@ -164,8 +175,8 @@
             }
             else
             {
-                return new TcpEndpointI(this._instance, this._host, this._port, this._timeout, this._connectionId,
-                                        compress);
+                return new TcpEndpointI(this._instance, this._host, this._port, this._sourceAddress, this._timeout,
+                                        this._connectionId, compress);
             }
         },
         //
@@ -320,12 +331,13 @@
             this._hashCode = h;
         }
     });
-    
+
     TcpEndpointI.fromString = function(instance, str, oaEndpoint)
     {
         var host = null;
         var port = 0;
-        var timeout = -1;
+        var sourceAddress = "";
+        var timeout = -2;
         var compress = false;
 
         var arr = str.split(/[ \t\n\r]+/);
@@ -340,12 +352,6 @@
             }
 
             var option = arr[i++];
-            if(option.length != 2 && option.charAt(0) != '-')
-            {
-                throw new Ice.EndpointParseException("expected an endpoint option but found `" + option +
-                                                        "' in endpoint `tcp " + str + "'");
-            }
-
             var argument = null;
             if(i < arr.length && arr[i].charAt(0) != '-')
             {
@@ -356,84 +362,93 @@
                 }
             }
 
-            switch(option.charAt(1))
+            if(option === "-h")
             {
-                case 'h':
+                if(argument === null)
                 {
-                    if(argument === null)
-                    {
-                        throw new Ice.EndpointParseException(
-                            "no argument provided for -h option in endpoint `tcp " + str + "'");
-                    }
-
-                    host = argument;
-                    break;
+                    throw new Ice.EndpointParseException(
+                        "no argument provided for -h option in endpoint `tcp " + str + "'");
                 }
 
-                case 'p':
+                host = argument;
+            }
+            else if(option === "-p")
+            {
+                if(argument === null)
                 {
-                    if(argument === null)
-                    {
-                        throw new Ice.EndpointParseException(
-                            "no argument provided for -p option in endpoint `tcp " + str + "'");
-                    }
-
-                    try
-                    {
-                        port = StringUtil.toInt(argument);
-                    }
-                    catch(ex)
-                    {
-                        throw new Ice.EndpointParseException("invalid port value `" + argument +
-                                                                "' in endpoint `tcp " + str + "'");
-                    }
-
-                    if(port < 0 || port > 65535)
-                    {
-                        throw new Ice.EndpointParseException("port value `" + argument +
-                                                                "' out of range in endpoint `tcp " + str + "'");
-                    }
-
-                    break;
+                    throw new Ice.EndpointParseException(
+                        "no argument provided for -p option in endpoint `tcp " + str + "'");
                 }
 
-                case 't':
+                try
                 {
-                    if(argument === null)
-                    {
-                        throw new Ice.EndpointParseException(
-                            "no argument provided for -t option in endpoint `tcp " + str + "'");
-                    }
+                    port = StringUtil.toInt(argument);
+                }
+                catch(ex)
+                {
+                    throw new Ice.EndpointParseException("invalid port value `" + argument +
+                                                            "' in endpoint `tcp " + str + "'");
+                }
 
+                if(port < 0 || port > 65535)
+                {
+                    throw new Ice.EndpointParseException("port value `" + argument +
+                                                            "' out of range in endpoint `tcp " + str + "'");
+                }
+            }
+            else if(option === "-t")
+            {
+                if(argument === null)
+                {
+                    throw new Ice.EndpointParseException(
+                        "no argument provided for -t option in endpoint `tcp " + str + "'");
+                }
+
+                if(argument == "infinite")
+                {
+                    timeout = -1;
+                }
+                else
+                {
+                    var invalid = false
                     try
                     {
                         timeout = StringUtil.toInt(argument);
                     }
                     catch(ex)
                     {
+                        invalid = true
+                    }
+                    if(invalid || timeout < 1)
+                    {
                         throw new Ice.EndpointParseException(
                             "invalid timeout value `" + argument + "' in endpoint `tcp " + str + "'");
                     }
-
-                    break;
                 }
-
-                case 'z':
+            }
+            else if(option === "-z")
+            {
+                if(argument !== null)
                 {
-                    if(argument !== null)
-                    {
-                        throw new Ice.EndpointParseException("unexpected argument `" + argument +
-                                                                "' provided for -z option in `tcp " + str + "'");
-                    }
-
-                    compress = true;
-                    break;
+                    throw new Ice.EndpointParseException("unexpected argument `" + argument +
+                                                            "' provided for -z option in `tcp " + str + "'");
                 }
 
-                default:
+                compress = true;
+            }
+            else if(option === "--sourceAddress")
+            {
+                if(argument === null)
                 {
-                    throw new Ice.EndpointParseException("unknown option `" + option + "' in `tcp " + str + "'");
+                    throw new Ice.EndpointParseException(
+                        "no argument provided for --sourceAddress option in endpoint `tcp " + str + "'");
                 }
+
+                sourceAddress = argument;
+            }
+            else
+            {
+                throw new Ice.EndpointParseException("unknown option `" + option + "' in `tcp " + str + "'");
             }
         }
 
@@ -458,7 +473,12 @@
             host = "";
         }
 
-        return new TcpEndpointI(instance, host, port, timeout, "", compress);
+        if(timeout == -2)
+        {
+            timeout = instance.defaultsAndOverrides().defaultTimeout
+        }
+
+        return new TcpEndpointI(instance, host, port, sourceAddress, timeout, "", compress);
     };
 
     TcpEndpointI.fromStream = function(s)
@@ -469,16 +489,16 @@
         var timeout = s.readInt();
         var compress = s.readBool();
         s.endReadEncaps();
-        return new TcpEndpointI(s.instance, host, port, timeout, "", compress);
+        return new TcpEndpointI(s.instance, host, port, "", timeout, "", compress);
     };
-    
+
     Ice.TcpEndpointI = TcpEndpointI;
     global.Ice = Ice;
 
     var TCPEndpointInfoI = Class(Ice.TCPEndpointInfo, {
-        __init__: function(timeout, compress, host, port)
+        __init__: function(timeout, compress, host, port, sourceAddress)
         {
-            Ice.TCPEndpointInfo.call(this, timeout, compress, host, port);
+            Ice.TCPEndpointInfo.call(this, timeout, compress, host, port, sourceAddress);
         },
         type: function()
         {

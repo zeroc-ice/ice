@@ -297,8 +297,8 @@
                 }
 
                 this._traceLevels = new TraceLevels(this._initData.properties);
-                
-                this._defaultsAndOverrides = new DefaultsAndOverrides(this._initData.properties);
+
+                this._defaultsAndOverrides = new DefaultsAndOverrides(this._initData.properties, this._initData.logger);
 
                 var defMessageSizeMax = 1024;
                 var num = this._initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defMessageSizeMax);
@@ -318,8 +318,8 @@
                 this._clientACM = new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM.Client",
                                                 new ACMConfig(this._initData.properties, this._initData.logger,
                                                               "Ice.ACM", new ACMConfig()));
-                
-                this._implicitContext = 
+
+                this._implicitContext =
                     ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));
 
                 this._routerManager = new RouterManager();
@@ -336,7 +336,7 @@
                 {
                     this._endpointFactoryManager.add(new Ice.TcpEndpointFactory(this));
                 }
-                
+
                 if(typeof(Ice.WSEndpointFactory) !== "undefined")
                 {
                     this._endpointFactoryManager.add(new Ice.WSEndpointFactory(this, false));
@@ -422,7 +422,7 @@
             // ObjectAdapterI::deactivate() will cause an exception.
             //
             this._state = StateDestroyInProgress;
-            
+
             var self = this;
             Ice.Promise.try(
                 function()
@@ -533,7 +533,7 @@
             return promise;
         },
     });
-    
+
     Ice.Instance = Instance;
     global.Ice = Ice;
 }(typeof (global) === "undefined" ? window : global));

@@ -157,6 +157,10 @@
         },
         ice_locatorCacheTimeout: function(newTimeout)
         {
+            if(newTimeout < -1)
+            {
+                throw new Error("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
+            }
             if(newTimeout === this._reference.getLocatorCacheTimeout())
             {
                 return this;
@@ -172,6 +176,10 @@
         },
         ice_invocationTimeout: function(newTimeout)
         {
+            if(newTimeout < 1 && newTimeout !== -1)
+            {
+                throw new Error("invalid value passed to ice_invocationTimeout: " + newTimeout);
+            }
             if(newTimeout === this._reference.getInvocationTimeout())
             {
                 return this;
@@ -379,6 +387,10 @@
         },
         ice_timeout: function(t)
         {
+            if(t < 1 && t !== -1)
+            {
+                throw new Error("invalid value passed to ice_timeout: " + t);
+            }
             var ref = this._reference.changeTimeout(t);
             if(ref.equals(this._reference))
             {
@@ -477,19 +489,19 @@
             // "at-most-once" (see the implementation of the checkRetryAfterException method
             //  of the ProxyFactory class for the reasons why it can be useful).
             //
-            // If the request didn't get sent or if it's non-mutating or idempotent it can 
+            // If the request didn't get sent or if it's non-mutating or idempotent it can
             // also always be retried if the retry count isn't reached.
             //
-            if(ex instanceof Ice.LocalException && 
+            if(ex instanceof Ice.LocalException &&
                (!sent ||
                 mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent ||
                 ex instanceof Ice.CloseConnectionException || ex instanceof Ice.ObjectNotExistException))
             {
                 try
                 {
-                    return this._reference.getInstance().proxyFactory().checkRetryAfterException(ex, 
+                    return this._reference.getInstance().proxyFactory().checkRetryAfterException(ex,
                                                                                                  this._reference,
-                                                                                                 sleep, 
+                                                                                                 sleep,
                                                                                                  cnt);
                 }
                 catch(exc)

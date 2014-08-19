@@ -55,7 +55,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         return 0;
     }
 
-    return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(), 
+    return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
                   endpoints, "", "");
 }
 
@@ -70,7 +70,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         return 0;
     }
 
-    return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(), 
+    return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
                   vector<EndpointIPtr>(), adapterId, "");
 }
 
@@ -85,9 +85,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
     //
     // Create new reference
     //
-    return new FixedReference(_instance, 
-                              _communicator, 
-                              ident, 
+    return new FixedReference(_instance,
+                              _communicator,
+                              ident,
                               "",  // Facet
                               connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
                               connection->endpoint()->secure(),
@@ -116,7 +116,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         ex.str = "no non-whitespace characters found in `" + s + "'";
         throw ex;
     }
-    
+
     //
     // Extract the identity, which may be enclosed in single
     // or double quotation marks.
@@ -205,7 +205,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         {
             break;
         }
-        
+
         end = s.find_first_of(delim + ":@", beg);
         if(end == string::npos)
         {
@@ -216,7 +216,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         {
             break;
         }
-        
+
         string option = s.substr(beg, end - beg);
         if(option.length() != 2 || option[0] != '-')
         {
@@ -372,7 +372,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                     ex.str = "no argument provided for -e option in `" + s + "'";
                     throw ex;
                 }
-                
+
                 try
                 {
                     encoding = Ice::stringToEncodingVersion(argument);
@@ -394,7 +394,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                     ex.str = "no argument provided for -p option in `" + s + "'";
                     throw ex;
                 }
-                
+
                 try
                 {
                     protocol = Ice::stringToProtocolVersion(argument);
@@ -429,11 +429,11 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         {
             vector<string> unknownEndpoints;
             end = beg;
-            
+
             while(end < s.length() && s[end] == ':')
             {
                 beg = end + 1;
-                
+
                 end = beg;
                 while(true)
                 {
@@ -476,7 +476,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                         ++end;
                     }
                 }
-                
+
                 string es = s.substr(beg, end - beg);
                 EndpointIPtr endp = _instance->endpointFactoryManager()->create(es, false);
                 if(endp != 0)
@@ -641,7 +641,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     string adapterId;
 
     Ice::Int sz = s->readSize();
-    
+
     if(sz > 0)
     {
         endpoints.reserve(sz);
@@ -843,7 +843,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                 routerInfo = _instance->routerManager()->get(router);
             }
         }
-    
+
         property = propertyPrefix + ".CollocationOptimized";
         collocationOptimized = properties->getPropertyAsIntWithDefault(property, collocationOptimized) > 0;
 
@@ -860,7 +860,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             if(type == "Random")
             {
                 endpointSelection = Random;
-            } 
+            }
             else if(type == "Ordered")
             {
                 endpointSelection = Ordered;
@@ -872,25 +872,49 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                 throw ex;
             }
         }
-        
+
         property = propertyPrefix + ".LocatorCacheTimeout";
-        locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+        string value = properties->getProperty(property);
+        if(!value.empty())
+        {
+            locatorCacheTimeout = properties->getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+            if(locatorCacheTimeout < -1)
+            {
+                locatorCacheTimeout = -1;
+
+                Warning out(_instance->initializationData().logger);
+                out << "invalid value for " << property << "`" << properties->getProperty(property) << "'"
+                    << ": defaulting to -1";
+            }
+        }
 
         property = propertyPrefix + ".InvocationTimeout";
-        invocationTimeout = properties->getPropertyAsIntWithDefault(property, invocationTimeout);
+        value = properties->getProperty(property);
+        if(!value.empty())
+        {
+            invocationTimeout = properties->getPropertyAsIntWithDefault(property, invocationTimeout);
+            if(invocationTimeout < 1 && invocationTimeout != -1)
+            {
+                invocationTimeout = -1;
+
+                Warning out(_instance->initializationData().logger);
+                out << "invalid value for " << property << "`" << properties->getProperty(property) << "'"
+                    << ": defaulting to -1";
+            }
+        }
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);
         for(PropertyDict::const_iterator p = contexts.begin(); p != contexts.end(); ++p)
         {
-            ctx.insert(make_pair(p->first.substr(property.length()), p->second)); 
+            ctx.insert(make_pair(p->first.substr(property.length()), p->second));
         }
     }
 
     //
     // Create new reference
     //
-    return new RoutableReference(_instance, 
+    return new RoutableReference(_instance,
                                  _communicator,
                                  ident,
                                  facet,

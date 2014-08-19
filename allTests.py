@@ -15,7 +15,7 @@ import TestUtil
 
 testGroups = []
 
-for d in [ "cpp", "java", "cs", "py", "rb", "php" ]:
+for d in [ "cpp", "java", "cs", "py", "rb", "php", "js" ]:
     
     filename = os.path.abspath(os.path.join(os.path.dirname(__file__), d, "allTests.py"))
     f = open(filename, "r")

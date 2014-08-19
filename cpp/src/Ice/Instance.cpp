@@ -1071,7 +1071,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
 
-        const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_initData.properties);
+        const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) =
+            new DefaultsAndOverrides(_initData.properties, _initData.logger);
 
         const ACMConfig defaultClientACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(false));
         const ACMConfig defaultServerACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(true));
@@ -1176,7 +1177,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _endpointFactoryManager->add(sslEndpointFactory);
 
         ProtocolInstancePtr wssProtocolInstance = new ProtocolInstance(this, WSSEndpointType, "wss");
-        EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactory(wssProtocolInstance, 
+        EndpointFactoryPtr wssEndpointFactory = new WSEndpointFactory(wssProtocolInstance,
                                                                       sslEndpointFactory->clone(wssProtocolInstance));
         _endpointFactoryManager->add(wssEndpointFactory);
 #endif
@@ -1185,9 +1186,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _endpointFactoryManager->add(udpEndpointFactory);
 
         ProtocolInstancePtr wsProtocolInstance = new ProtocolInstance(this, WSEndpointType, "ws");
-        EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance, 
+        EndpointFactoryPtr wsEndpointFactory = new WSEndpointFactory(wsProtocolInstance,
                                                                      tcpEndpointFactory->clone(wsProtocolInstance));
-        
+
         _endpointFactoryManager->add(wsEndpointFactory);
 
         _dynamicLibraryList = new DynamicLibraryList;
@@ -1282,29 +1283,29 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     //
 
     StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
-    
+
     if(!facetSeq.empty())
     {
         _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
     }
     _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
-        
+
     string loggerFacetName = _initData.properties->getPropertyWithDefault("Ice.Admin.Logger", "Logger");
-    
-    bool insertLoggerFacet = 
+
+    bool insertLoggerFacet =
         (_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end()) &&
         _initData.properties->getProperty("Ice.Admin.Endpoints") != "";
-    
+
     if(loggerFacetName != "Logger" || insertLoggerFacet)
     {
         //
         // Set up a new Logger
-        // 
+        //
         Ice::LoggerAdminLoggerPtr logger = createLoggerAdminLogger(loggerFacetName,
-                                                                   _initData.properties, 
+                                                                   _initData.properties,
                                                                    _initData.logger);
         setLogger(logger);
-                                                                  
+
         if(insertLoggerFacet)
         {
             logger->addAdminFacet(communicator);
@@ -1313,13 +1314,13 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
         // Else, this new logger & facet is useful for "slave" communicators like IceBox services.
         //
     }
-    
+
     PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
     _adminFacets.insert(FacetMap::value_type("Properties", props));
-    
+
     _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
     _adminFacets.insert(FacetMap::value_type("Metrics", _metricsAdmin));
-    
+
     //
     // Setup the communicator observer only if the user didn't already set an
     // Ice observer resolver and if the admininistrative endpoints are set.
@@ -1328,7 +1329,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
        _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
     {
         _observer = new CommunicatorObserverI(_metricsAdmin, _initData.observer);
-        
+
         //
         // Make sure the admin plugin receives property updates.
         //
@@ -1517,7 +1518,7 @@ IceInternal::Instance::destroy()
             _observer->setObserverUpdater(0); // Break cyclic reference count.
         }
     }
-    
+
     Ice::LoggerAdminLoggerPtr logger = Ice::LoggerAdminLoggerPtr::dynamicCast(_initData.logger);
     if(logger)
     {

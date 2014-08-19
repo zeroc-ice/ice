@@ -461,6 +461,88 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() == Ice::Encoding_1_0);
     test(base->ice_encodingVersion(Ice::Encoding_1_1)->ice_getEncodingVersion() == Ice::Encoding_1_1);
     test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() != Ice::Encoding_1_1);
+
+    try
+    {
+        base->ice_timeout(0);
+        test(false);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+    }
+
+    try
+    {
+        base->ice_timeout(-1);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        base->ice_timeout(-2);
+        test(false);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+    }
+
+    try
+    {
+        base->ice_invocationTimeout(0);
+        test(false);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+    }
+
+    try
+    {
+        base->ice_invocationTimeout(-1);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        base->ice_invocationTimeout(-2);
+        test(false);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+    }
+
+    try
+    {
+        base->ice_locatorCacheTimeout(0);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        base->ice_locatorCacheTimeout(-1);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+        test(false);
+    }
+
+    try
+    {
+        base->ice_locatorCacheTimeout(-2);
+        test(false);
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
+    }
+
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;

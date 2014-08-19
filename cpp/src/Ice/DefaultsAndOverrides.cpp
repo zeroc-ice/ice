@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -18,7 +19,7 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(DefaultsAndOverrides* p) { return p; }
 
-IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) :
+IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties, const LoggerPtr& logger) :
     overrideTimeout(false),
     overrideTimeoutValue(-1),
     overrideConnectTimeout(false),
@@ -61,6 +62,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     {
         const_cast<bool&>(overrideTimeout) = true;
         const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
+        if(overrideTimeoutValue < 1 && overrideTimeoutValue != -1)
+        {
+            const_cast<Int&>(overrideTimeoutValue) = -1;
+            Warning out(logger);
+            out << "invalid value for Ice.Override.Timeout `" << properties->getProperty("Ice.Override.Timeout")
+                << "': defaulting to -1";
+        }
     }
 
     value = properties->getProperty("Ice.Override.ConnectTimeout");
@@ -68,6 +76,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     {
         const_cast<bool&>(overrideConnectTimeout) = true;
         const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
+        if(overrideConnectTimeoutValue < 1 && overrideConnectTimeoutValue != -1)
+        {
+            const_cast<Int&>(overrideConnectTimeoutValue) = -1;
+            Warning out(logger);
+            out << "invalid value for Ice.Override.ConnectTimeout `"
+                << properties->getProperty("Ice.Override.ConnectTimeout") << "': defaulting to -1";
+        }
     }
 
     value = properties->getProperty("Ice.Override.CloseTimeout");
@@ -75,6 +90,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     {
         const_cast<bool&>(overrideCloseTimeout) = true;
         const_cast<Int&>(overrideCloseTimeoutValue) = properties->getPropertyAsInt("Ice.Override.CloseTimeout");
+        if(overrideCloseTimeoutValue < 1 && overrideCloseTimeoutValue != -1)
+        {
+            const_cast<Int&>(overrideCloseTimeoutValue) = -1;
+            Warning out(logger);
+            out << "invalid value for Ice.Override.CloseTimeout `"
+                << properties->getProperty("Ice.Override.CloseTimeout") << "': defaulting to -1";
+        }
     }
 
     value = properties->getProperty("Ice.Override.Compress");
@@ -114,16 +136,31 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         properties->getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
     if(defaultTimeout < 1 && defaultTimeout != -1)
     {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "invalid value for Ice.Default.Timeout: `" + properties->getProperty("Ice.Default.Timeout") + "'";
-        throw ex;
+        const_cast<Int&>(defaultTimeout) = 60000;
+        Warning out(logger);
+        out << "invalid value for Ice.Default.Timeout `" << properties->getProperty("Ice.Default.Timeout")
+            << "': defaulting to 60000";
     }
 
     const_cast<int&>(defaultInvocationTimeout) =
         properties->getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+    if(defaultInvocationTimeout < 1 && defaultInvocationTimeout != -1)
+    {
+        const_cast<Int&>(defaultInvocationTimeout) = -1;
+        Warning out(logger);
+        out << "invalid value for Ice.Default.InvocationTimeout `"
+            << properties->getProperty("Ice.Default.InvocationTimeout") << "': defaulting to -1";
+    }
 
     const_cast<int&>(defaultLocatorCacheTimeout) =
         properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+    if(defaultLocatorCacheTimeout < -1)
+    {
+        const_cast<Int&>(defaultLocatorCacheTimeout) = -1;
+        Warning out(logger);
+        out << "invalid value for Ice.Default.LocatorCacheTimeout `"
+            << properties->getProperty("Ice.Default.LocatorCacheTimeout") << "': defaulting to -1";
+    }
 
     const_cast<bool&>(defaultPreferSecure) =
         properties->getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;

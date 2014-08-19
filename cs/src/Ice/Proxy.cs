@@ -1678,6 +1678,10 @@ namespace Ice
         /// <param name="newTimeout">The new locator cache timeout (in seconds).</param>
         public ObjectPrx ice_locatorCacheTimeout(int newTimeout)
         {
+            if(newTimeout < -1)
+            {
+                throw new System.ArgumentException("invalid value passed to ice_locatorCacheTimeout: " + newTimeout);
+            }
             if(newTimeout == _reference.getLocatorCacheTimeout())
             {
                 return this;
@@ -1703,6 +1707,10 @@ namespace Ice
         /// <param name="newTimeout">The new invocation timeout (in seconds).</param>
         public ObjectPrx ice_invocationTimeout(int newTimeout)
         {
+            if(newTimeout < 1 && newTimeout != -1)
+            {
+                throw new System.ArgumentException("invalid value passed to ice_invocationTimeout: " + newTimeout);
+            }
             if(newTimeout == _reference.getInvocationTimeout())
             {
                 return this;
@@ -2080,6 +2088,10 @@ namespace Ice
         /// <returns>A new proxy with the specified timeout.</returns>
         public ObjectPrx ice_timeout(int t)
         {
+            if(t < 1 && t != -1)
+            {
+                throw new System.ArgumentException("invalid value passed to ice_timeout: " + t);
+            }
             IceInternal.Reference @ref = _reference.changeTimeout(t);
             if(@ref.Equals(_reference))
             {
@@ -2345,7 +2357,7 @@ namespace Ice
             // "at-most-once" (see the implementation of the checkRetryAfterException method
             //  of the ProxyFactory class for the reasons why it can be useful).
             //
-            // If the request didn't get sent or if it's non-mutating or idempotent it can 
+            // If the request didn't get sent or if it's non-mutating or idempotent it can
             // also always be retried if the retry count isn't reached.
             //
             if(ex is LocalException && (!sent ||
@@ -2424,7 +2436,7 @@ namespace Ice
                 og__.readEmptyParams();
             }
         }
-        
+
         public void end__(AsyncResult result, string operation)
         {
             IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
@@ -2546,7 +2558,7 @@ namespace Ice
             return proxy;
         }
 
-        protected IceInternal.Outgoing getOutgoing(String operation, OperationMode mode, 
+        protected IceInternal.Outgoing getOutgoing(String operation, OperationMode mode,
                                                    Dictionary<string, string> context, bool explicitCtx)
         {
             IceInternal.Outgoing @out = null;
@@ -2572,7 +2584,7 @@ namespace Ice
             }
             return @out;
         }
-        
+
         protected void reclaimOutgoing(IceInternal.Outgoing @out)
         {
             @out.detach();
@@ -2583,7 +2595,7 @@ namespace Ice
                 // Clear references to Ice objects as soon as possible.
                 //
                 @out.reclaim();
-                
+
                 lock(this)
                 {
                     @out.next = _outgoingCache;
@@ -2591,7 +2603,7 @@ namespace Ice
                 }
             }
         }
-        
+
         private IceInternal.Reference _reference;
         private IceInternal.RequestHandler _requestHandler;
         private IceInternal.Outgoing _outgoingCache;

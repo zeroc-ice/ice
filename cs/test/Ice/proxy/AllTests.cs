@@ -475,6 +475,89 @@ public class AllTests : TestCommon.TestApp
         test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized());
         test(baseProxy.ice_preferSecure(true).ice_isPreferSecure());
         test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure());
+
+        try
+        {
+            baseProxy.ice_timeout(0);
+            test(false);
+        }
+        catch(System.ArgumentException)
+        {
+        }
+
+        try
+        {
+            baseProxy.ice_timeout(-1);
+        }
+        catch(System.ArgumentException)
+        {
+            test(false);
+        }
+
+        try
+        {
+            baseProxy.ice_timeout(-2);
+            test(false);
+        }
+        catch(System.ArgumentException)
+        {
+        }
+
+        try
+        {
+            baseProxy.ice_invocationTimeout(0);
+            test(false);
+        }
+        catch(System.ArgumentException)
+        {
+        }
+
+        try
+        {
+            baseProxy.ice_invocationTimeout(-1);
+        }
+        catch(System.ArgumentException)
+        {
+            test(false);
+        }
+
+        try
+        {
+            baseProxy.ice_invocationTimeout(-2);
+            test(false);
+        }
+        catch(System.ArgumentException)
+        {
+        }
+
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(0);
+        }
+        catch(System.ArgumentException)
+        {
+            test(false);
+        }
+
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(-1);
+        }
+        catch(System.ArgumentException)
+        {
+            test(false);
+        }
+
+        try
+        {
+            baseProxy.ice_locatorCacheTimeout(-2);
+            test(false);
+        }
+        catch(System.ArgumentException)
+        {
+        }
+
+
         WriteLine("ok");
 
         Write("testing proxy comparison... ");

@@ -17,9 +17,9 @@
     require("Ice/Connection");
     require("Ice/Exception");
     require("Ice/LocalException");
-    
+
     var Ice = global.Ice || {};
-    
+
     var Debug = Ice.Debug;
     var ExUtil = Ice.ExUtil;
     var Network = Ice.Network;
@@ -184,7 +184,7 @@
             while(packetSize > 0)
             {
                 var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
-                
+
                 var self = this;
                 var sync = true;
                 sync = this._fd.write(slice, null, function() {
@@ -195,7 +195,7 @@
 
                     if(self._traceLevels.network >= 3)
                     {
-                        var msg = "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " + 
+                        var msg = "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " +
                             self.type() + "\n" + self._desc;
                         self._logger.trace(self._traceLevels.networkCat, msg);
                     }
@@ -216,13 +216,13 @@
                 {
                     if(self._traceLevels.network >= 3)
                     {
-                        var msg = "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " + 
+                        var msg = "sent " + packetSize + " of " + byteBuffer.remaining + " bytes via " +
                             self.type() + "\n" + self._desc;
                         self._logger.trace(self._traceLevels.networkCat, msg);
                     }
-                    
+
                     byteBuffer.position = byteBuffer.position + packetSize;
-                    
+
                     if(this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize)
                     {
                         packetSize = this._maxSendPacketSize;
@@ -370,7 +370,7 @@
             }
         }
     });
-    
+
     function fdToString(fd, targetAddr)
     {
         if(fd === null)
@@ -404,7 +404,7 @@
         }
         return new Ice.SocketException(err.code, err);
     }
-    
+
     function addressesToString(localHost, localPort, remoteHost, remotePort, targetAddr)
     {
         remoteHost = remoteHost === undefined ? null : remoteHost;
@@ -432,7 +432,7 @@
 
         return s.join("");
     };
-    
+
     TcpTransceiver.createOutgoing = function(instance, addr)
     {
         var transceiver = new TcpTransceiver(instance);
@@ -461,7 +461,7 @@
         return transceiver;
     };
 
-    
+
     var ECONNABORTED = "ECONNABORTED";
     var ECONNREFUSED = "ECONNREFUSED";
     var ECONNRESET = "ECONNRESET"
@@ -470,7 +470,7 @@
     var ENOTCONN = "ENOTCONN";
     var EPIPE = "EPIPE";
     var ESHUTDOWN = "ESHUTDOWN"
-    var ETIMEDOUT = "ETIMEDOUT";    
+    var ETIMEDOUT = "ETIMEDOUT";
 
     function connectionRefused(err)
     {

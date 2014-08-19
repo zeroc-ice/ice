@@ -11,9 +11,10 @@ package IceInternal;
 
 public final class DefaultsAndOverrides
 {
-    DefaultsAndOverrides(Ice.Properties properties)
+    DefaultsAndOverrides(Ice.Properties properties, Ice.Logger logger)
     {
         String value;
+        int intValue;
 
         defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
@@ -46,7 +47,19 @@ public final class DefaultsAndOverrides
         if(!value.isEmpty())
         {
             overrideTimeout = true;
-            overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+            intValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+            if(intValue < 0 && intValue != -1)
+            {
+                overrideTimeoutValue = -1;
+                StringBuffer msg = new StringBuffer("invalid value for Ice.Override.Timeout `");
+                msg.append(properties.getProperty("Ice.Override.Timeout"));
+                msg.append("': defaulting to -1");
+                logger.warning(msg.toString());
+            }
+            else
+            {
+               overrideTimeoutValue = intValue;
+            }
         }
         else
         {
@@ -58,7 +71,19 @@ public final class DefaultsAndOverrides
         if(!value.isEmpty())
         {
             overrideConnectTimeout = true;
-            overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+            intValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+            if(intValue < 0 && intValue != -1)
+            {
+                overrideConnectTimeoutValue = -1;
+                StringBuffer msg = new StringBuffer("invalid value for Ice.Override.ConnectTimeout `");
+                msg.append(properties.getProperty("Ice.Override.ConnectTimeout"));
+                msg.append("': defaulting to -1");
+                logger.warning(msg.toString());
+            }
+            else
+            {
+                overrideConnectTimeoutValue = intValue;
+            }
         }
         else
         {
@@ -70,7 +95,19 @@ public final class DefaultsAndOverrides
         if(!value.isEmpty())
         {
             overrideCloseTimeout = true;
-            overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+            intValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+            if(intValue < 0 && intValue != -1)
+            {
+                overrideCloseTimeoutValue = -1;
+                StringBuffer msg = new StringBuffer("invalid value for Ice.Override.CloseTimeout `");
+                msg.append(properties.getProperty("Ice.Override.CloseTimeout"));
+                msg.append("': defaulting to -1");
+                logger.warning(msg.toString());
+            }
+            else
+            {
+                overrideCloseTimeoutValue = intValue;
+            }
         }
         else
         {
@@ -127,14 +164,47 @@ public final class DefaultsAndOverrides
             throw ex;
         }
 
-        defaultTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
-        if(defaultTimeout < 1 && defaultTimeout != -1)
+        intValue = properties.getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);
+        if(intValue < 1 && intValue != -1)
         {
-            throw new Ice.InitializationException("invalid value for Ice.Default.Timeout: `" +
-                                                      properties.getProperty("Ice.Default.Timeout") + "'");
+            defaultTimeout = 60000;
+            StringBuffer msg = new StringBuffer("invalid value for Ice.Default.Timeout `");
+            msg.append(properties.getProperty("Ice.Default.Timeout"));
+            msg.append("': defaulting to 60000");
+            logger.warning(msg.toString());
         }
-        defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
-        defaultInvocationTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+        else
+        {
+            defaultTimeout = intValue;
+        }
+
+        intValue = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+        if(intValue < -1)
+        {
+            defaultLocatorCacheTimeout = -1;
+            StringBuffer msg = new StringBuffer("invalid value for Ice.Default.LocatorCacheTimeout `");
+            msg.append(properties.getProperty("Ice.Default.LocatorCacheTimeout"));
+            msg.append("': defaulting to -1");
+            logger.warning(msg.toString());
+        }
+        else
+        {
+            defaultLocatorCacheTimeout = intValue;
+        }
+
+        intValue = properties.getPropertyAsIntWithDefault("Ice.Default.InvocationTimeout", -1);
+        if(intValue < 1 && intValue != -1)
+        {
+            defaultInvocationTimeout = -1;
+            StringBuffer msg = new StringBuffer("invalid value for Ice.Default.InvocationTimeout `");
+            msg.append(properties.getProperty("Ice.Default.InvocationTimeout"));
+            msg.append("': defaulting to -1");
+            logger.warning(msg.toString());
+        }
+        else
+        {
+            defaultInvocationTimeout = intValue;
+        }
 
         defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 

@@ -38,7 +38,7 @@ namespace IceInternal
             {
                 return null;
             }
-            
+
             //
             // Create new reference
             //
@@ -52,13 +52,13 @@ namespace IceInternal
             {
                 return null;
             }
-            
+
             //
             // Create new reference
             //
             return new FixedReference(
-                instance_, 
-                _communicator, 
+                instance_,
+                _communicator,
                 ident,
                 "", // Facet
                 connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
@@ -350,7 +350,7 @@ namespace IceInternal
                         {
                             throw new Ice.ProxyParseException("no argument provided for -e option `" + s + "'");
                         }
-            
+
                         try
                         {
                             encoding = Ice.Util.stringToEncodingVersion(argument);
@@ -369,7 +369,7 @@ namespace IceInternal
                         {
                             throw new Ice.ProxyParseException("no argument provided for -p option `" + s + "'");
                         }
-            
+
                         try
                         {
                             protocol = Ice.Util.stringToProtocolVersion(argument);
@@ -406,7 +406,7 @@ namespace IceInternal
                 while(end < s.Length && s[end] == ':')
                 {
                     beg = end + 1;
-                    
+
                     end = beg;
                     while(true)
                     {
@@ -449,7 +449,7 @@ namespace IceInternal
                             ++end;
                         }
                     }
-                    
+
                     string es = s.Substring(beg, end - beg);
                     EndpointI endp = instance_.endpointFactoryManager().create(es, false);
                     if(endp != null)
@@ -620,7 +620,7 @@ namespace IceInternal
             {
                 adapterId = s.readString();
             }
-            
+
             return create(ident, facet, (Reference.Mode)mode, secure, protocol, encoding, endpoints, adapterId, null);
         }
 
@@ -630,7 +630,7 @@ namespace IceInternal
             {
                 return this;
             }
-            
+
             ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
             factory._defaultLocator = _defaultLocator;
             factory._defaultRouter = defaultRouter;
@@ -648,7 +648,7 @@ namespace IceInternal
             {
                 return this;
             }
-            
+
             ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
             factory._defaultLocator = defaultLocator;
             factory._defaultRouter = _defaultRouter;
@@ -768,7 +768,7 @@ namespace IceInternal
             int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
             int invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
             Dictionary<string, string> context = null;
- 
+
             //
             // Override the defaults with the proxy properties if a property prefix is defined.
             //
@@ -783,9 +783,9 @@ namespace IceInternal
                 {
                     checkForUnknownProperties(propertyPrefix);
                 }
-            
+
                 string property;
-            
+
                 property = propertyPrefix + ".Locator";
                 Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
                 if(locator != null)
@@ -816,7 +816,7 @@ namespace IceInternal
                         routerInfo = instance_.routerManager().get(router);
                     }
                 }
-    
+
                 property = propertyPrefix + ".CollocationOptimized";
                 collocOptimized = properties.getPropertyAsIntWithDefault(property, collocOptimized ? 1 : 0) > 0;
 
@@ -833,7 +833,7 @@ namespace IceInternal
                     if(type.Equals("Random"))
                     {
                         endpointSelection = Ice.EndpointSelectionType.Random;
-                    } 
+                    }
                     else if(type.Equals("Ordered"))
                     {
                         endpointSelection = Ice.EndpointSelectionType.Ordered;
@@ -844,12 +844,42 @@ namespace IceInternal
                                                                           "'; expected `Random' or `Ordered'");
                     }
                 }
-        
+
                 property = propertyPrefix + ".LocatorCacheTimeout";
-                locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+                string val = properties.getProperty(property);
+                if(val.Length > 0)
+                {
+                    locatorCacheTimeout = properties.getPropertyAsIntWithDefault(property, locatorCacheTimeout);
+                    if(locatorCacheTimeout < -1)
+                    {
+                        locatorCacheTimeout = -1;
+
+                        StringBuilder msg = new StringBuilder("invalid value for ");
+                        msg.Append(property);
+                        msg.Append(" `");
+                        msg.Append(properties.getProperty(property));
+                        msg.Append("': defaulting to -1");
+                        instance_.initializationData().logger.warning(msg.ToString());
+                    }
+                }
 
                 property = propertyPrefix + ".InvocationTimeout";
-                invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+                val = properties.getProperty(property);
+                if(val.Length > 0)
+                {
+                    invocationTimeout = properties.getPropertyAsIntWithDefault(property, invocationTimeout);
+                    if(invocationTimeout < 1 && invocationTimeout != -1)
+                    {
+                        invocationTimeout = -1;
+
+                        StringBuilder msg = new StringBuilder("invalid value for ");
+                        msg.Append(property);
+                        msg.Append(" `");
+                        msg.Append(properties.getProperty(property));
+                        msg.Append("': defaulting to -1");
+                        instance_.initializationData().logger.warning(msg.ToString());
+                    }
+                }
 
                 property = propertyPrefix + ".Context.";
                 Dictionary<string, string> contexts = properties.getPropertiesForPrefix(property);
@@ -858,15 +888,15 @@ namespace IceInternal
                     context = new Dictionary<string, string>();
                     foreach(KeyValuePair<string, string> e in contexts)
                     {
-                        context.Add(e.Key.Substring(property.Length), e.Value); 
+                        context.Add(e.Key.Substring(property.Length), e.Value);
                     }
                 }
             }
-        
+
             //
             // Create new reference
             //
-            return new RoutableReference(instance_, 
+            return new RoutableReference(instance_,
                                          _communicator,
                                          ident,
                                          facet,
