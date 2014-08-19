@@ -220,7 +220,6 @@ namespace IceInternal
                 for(int i = 0; i < _size; ++i)
                 {
                     WorkerThread thread = new WorkerThread(this, _threadPrefix + "-" + _threadIndex++);
-                    _threads.Add(thread);
 #if !SILVERLIGHT
                     if(_hasPriority)
                     {
@@ -233,6 +232,7 @@ namespace IceInternal
 #else
                     thread.start();
 #endif
+                    _threads.Add(thread);
                 }
             }
             catch(System.Exception ex)

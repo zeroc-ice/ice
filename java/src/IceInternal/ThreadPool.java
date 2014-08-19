@@ -206,7 +206,6 @@ public final class ThreadPool
             for(int i = 0; i < _size; i++)
             {
                 EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
-                _threads.add(thread);
                 if(_hasPriority)
                 {
                     thread.start(_priority);
@@ -215,6 +214,7 @@ public final class ThreadPool
                 {
                     thread.start(java.lang.Thread.NORM_PRIORITY);
                 }
+                _threads.add(thread);
             }
         }
         catch(RuntimeException ex)
