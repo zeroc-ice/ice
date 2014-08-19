@@ -1437,7 +1437,7 @@ public class AllTests
             catch(Ice.IllegalIdentityException ex)
             {
                 test(ex.id.name.equals(""));
-            } 
+            }
             try
             {
                 adapter.add(null, communicator.stringToIdentity("x"));
@@ -1446,7 +1446,7 @@ public class AllTests
             catch(Ice.IllegalServantException ex)
             {
             }
-            
+
             adapter.remove(communicator.stringToIdentity("x"));
             try
             {
@@ -1787,7 +1787,7 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-            
+
             try
             {
                 thrower.end_throwMemoryLimitException(
@@ -2219,13 +2219,26 @@ public class AllTests
             out.println("ok");
         }
 
+        if(thrower.supportsAssertException())
+        {
+            out.print("catching assert in the server with new AMI mapping... ");
+            out.flush();
+
+            Callback_Thrower_throwAssertExceptionI cb = new Callback_Thrower_throwAssertExceptionI();
+            thrower.begin_throwAssertException(cb);
+            cb.check();
+
+            out.println("ok");
+        }
+
+
         out.print("catching object not exist exception with new AMI mapping... ");
         out.flush();
 
         {
             Ice.Identity id = communicator.stringToIdentity("does not exist");
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
-            AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
+            Callback_Thrower_throwAasAObjectNotExistI cb = new Callback_Thrower_throwAasAObjectNotExistI(communicator);
             thrower2.begin_throwAasA(1, cb);
             cb.check();
         }
