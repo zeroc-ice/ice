@@ -1032,6 +1032,19 @@ IceSSL::SecureTransportEngine::initialize()
                     }
                 }
             }
+
+            if(!cert)
+            {
+                const string prop = propPrefix + "SecureTransport.FindCert";
+                string val = properties->getProperty(prop);
+                if(!val.empty())
+                {
+                    if(!(cert = findCertificates(keychain, prop, val)))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no certificates found");
+                    }
+                }
+            }
             
             if(cert)
             {

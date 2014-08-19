@@ -114,7 +114,10 @@ void loadCertificate(SecCertificateRef*, CFDataRef*, SecKeyRef*, SecKeychainRef,
                      const std::string& = "", const PasswordPromptPtr& = 0, int = 0);
 
 CFArrayRef loadCACertificates(const std::string&, const std::string& = "", const PasswordPromptPtr& = 0, int = 0);
-
+SecCertificateRef findCertificates(SecKeychainRef, const std::string&, const std::string&);
+#elif defined(ICE_USE_SCHANNEL)
+std::vector<PCCERT_CONTEXT>
+findCertificates(const std::string&, const std::string&, const std::string&, std::vector<HCERTSTORE>&);
 #endif
 
 //

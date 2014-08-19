@@ -50,6 +50,48 @@ IceSSL::readFile(const string& file, vector<char>& buffer)
     }
 }
 
+namespace
+{
+bool
+parseBytes(const string& arg, vector<unsigned char>& buffer)
+{
+    string v = IceUtilInternal::toUpper(arg);
+
+    //
+    // Check for any invalid characters.
+    //
+    size_t pos = v.find_first_not_of(" :0123456789ABCDEF");
+    if(pos != string::npos)
+    {
+        return false;
+    }
+
+    //
+    // Remove any separator characters.
+    //
+    ostringstream s;
+    for(string::const_iterator i = v.begin(); i != v.end(); ++i)
+    {
+        if(*i == ' ' || *i == ':')
+        {
+            continue;
+        }
+        s << *i;
+    }
+    v = s.str();
+
+    //
+    // Convert the bytes.
+    //
+    for(size_t i = 0, length = v.size(); i + 2 <= length;)
+    {
+        buffer.push_back(static_cast<unsigned char>(strtol(v.substr(i, 2).c_str(), 0, 16)));
+        i += 2;
+    }
+    return true;
+}
+}
+
 #ifdef ICE_USE_OPENSSL
 namespace
 {
@@ -950,6 +992,397 @@ IceSSL::loadCACertificates(const string& file, const string& passphrase, const P
         CFRelease(items);
     }
     return certificateAuthorities;
+}
+
+SecCertificateRef
+IceSSL::findCertificates(SecKeychainRef keychain, const string& prop, const string& value)
+{
+    //
+    //  Search the keychain using key:value pairs. The following keys are supported:
+    //
+    //   Label
+    //   Serial
+    //   Subject
+    //   SubjectKeyId
+    //
+    //   A value must be enclosed in single or double quotes if it contains whitespace.
+    //
+    CFMutableDictionaryRef query =
+        CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    
+    const void* values[] = { keychain };
+    CFArrayRef searchList = CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks);
+    
+    CFDictionarySetValue(query, kSecMatchLimit, kSecMatchLimitOne);
+    CFDictionarySetValue(query, kSecMatchSearchList, searchList);
+    CFDictionarySetValue(query, kSecClass, kSecClassCertificate);
+    CFDictionarySetValue(query, kSecReturnRef, kCFBooleanTrue);
+    CFDictionarySetValue(query, kSecMatchCaseInsensitive, kCFBooleanTrue);
+
+    size_t start = 0;
+    size_t pos;
+    while((pos = value.find(':', start)) != string::npos)
+    {
+        string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
+        string arg;
+        try
+        {
+            if(field != "LABEL" && field != "SERIAL" && field != "SUBJECT" && field != "SUBJECTKEYID")
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unknown key in `" + value + "'");
+            }
+
+            start = pos + 1;
+            while(start < value.size() && (value[start] == ' ' || value[start] == '\t'))
+            {
+                ++start;
+            }
+            
+            if(start == value.size())
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: missing argument in `" + value + "'");
+            }
+
+            if(value[start] == '"' || value[start] == '\'')
+            {
+                size_t end = start;
+                ++end;
+                while(end < value.size())
+                {
+                    if(value[end] == value[start] && value[end - 1] != '\\')
+                    {
+                        break;
+                    }
+                    ++end;
+                }
+                if(end == value.size() || value[end] != value[start])
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, 
+                                                        "IceSSL: unmatched quote in `" + value + "'");
+                }
+                ++start;
+                arg = value.substr(start, end - start);
+                start = end + 1;
+            }
+            else
+            {
+                size_t end = value.find_first_of(" \t", start);
+                if(end == string::npos)
+                {
+                    arg = value.substr(start);
+                    start = value.size();
+                }
+                else
+                {
+                    arg = value.substr(start, end - start);
+                    start = end + 1;
+                }
+            }
+        }
+        catch(...)
+        {
+            CFRelease(searchList);
+            CFRelease(query);
+            throw;
+        }
+
+        if(field == "SUBJECT" || field == "LABEL")
+        {
+            CFDictionarySetValue(query, field == "LABEL" ? kSecAttrLabel : kSecMatchSubjectContains, toCFString(arg));
+        }
+        else if(field == "SUBJECTKEYID" || field == "SERIAL")
+        {
+            vector<unsigned char> buffer;
+            if(!parseBytes(arg, buffer))
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, 
+                                            "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
+            }
+            CFDataRef data = CFDataCreate(kCFAllocatorDefault, &buffer[0], buffer.size());
+            CFDictionarySetValue(query, field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber, data);
+        }
+    }
+
+    SecKeychainItemRef item = 0;
+    OSStatus err = SecItemCopyMatching(query, (CFTypeRef*)&item);
+    CFRelease(searchList);
+    CFRelease(query);
+    if(err != noErr && err != errSecItemNotFound)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, 
+                                            "Error searching for keychain items\n" + errorToString(err));
+    }
+    return (SecCertificateRef)item;
+}
+#elif defined(ICE_USE_SCHANNEL)
+
+namespace
+{
+//
+// Parse a string of the form "location.name" into two parts.
+//
+void
+parseStore(const string& prop, const string& store, DWORD& loc, string& sname)
+{
+    size_t pos = store.find('.');
+    if(pos == string::npos)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: property `" + prop + "' has invalid format");
+    }
+
+    const string sloc = IceUtilInternal::toUpper(store.substr(0, pos));
+    if(sloc == "CURRENTUSER")
+    {
+        loc = CERT_SYSTEM_STORE_CURRENT_USER;
+    }
+    else if(sloc == "LOCALMACHINE")
+    {
+        loc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
+    }
+    else
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, 
+                                            "IceSSL: unknown store location `" + sloc + "' in " + prop);
+    }
+
+    sname = store.substr(pos + 1);
+    if(sname.empty())
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid store name in " + prop);
+    }
+}
+
+void
+addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, const void* findParam)
+{
+    PCCERT_CONTEXT next = 0;
+    do
+    { 
+        if((next = CertFindCertificateInStore(source, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, 
+                                              findType, findParam, next)))
+        {
+            if(!CertAddCertificateContextToStore(target, next, CERT_STORE_ADD_ALWAYS, 0))
+            {
+                throw PluginInitializationException(__FILE__, __LINE__, 
+                    "IceSSL: error adding certificate to store:\n" + IceUtilInternal::lastErrorToString());
+            }
+        }
+    }
+    while(next);
+}
+
+}
+
+vector<PCCERT_CONTEXT> 
+IceSSL::findCertificates(const string& prop, const string& storeSpec, const string& value, vector<HCERTSTORE>& stores)
+{
+    DWORD storeLoc = 0;
+    string storeName;
+    parseStore(prop, storeSpec, storeLoc, storeName);
+
+    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, stringToWstring(storeName).c_str());
+    if(!store)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, 
+            "IceSSL: failure while opening store specified by " + prop + ":\n" + IceUtilInternal::lastErrorToString());
+    }
+
+    //
+    // Start with all of the certificates in the collection and filter as necessary.
+    //
+    // - If the value is "*", return all certificates.
+    // - Otherwise, search using key:value pairs. The following keys are supported:
+    //
+    //   Issuer
+    //   IssuerDN
+    //   Serial
+    //   Subject
+    //   SubjectDN
+    //   SubjectKeyId
+    //   Thumbprint
+    //
+    //   A value must be enclosed in single or double quotes if it contains whitespace.
+    //
+    HCERTSTORE tmpStore = 0;
+    try
+    {
+        if(value != "*")
+        {
+            size_t start = 0;
+            size_t pos;
+            while((pos = value.find(':', start)) != string::npos)
+            {
+                string field = IceUtilInternal::toUpper(IceUtilInternal::trim(value.substr(start, pos - start)));
+                if(field != "SUBJECT" && field != "SUBJECTDN" && field != "ISSUER" && field != "ISSUERDN" && 
+                   field != "THUMBPRINT" && field != "SUBJECTKEYID" && field != "SERIAL")
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unknown key in `" + value + "'");
+                }
+
+                start = pos + 1;
+                while(start < value.size() && (value[start] == ' ' || value[start] == '\t'))
+                {
+                    ++start;
+                }
+                
+                if(start == value.size())
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: missing argument in `" + value + "'");
+                }
+
+                string arg;
+                if(value[start] == '"' || value[start] == '\'')
+                {
+                    size_t end = start;
+                    ++end;
+                    while(end < value.size())
+                    {
+                        if(value[end] == value[start] && value[end - 1] != '\\')
+                        {
+                            break;
+                        }
+                        ++end;
+                    }
+                    if(end == value.size() || value[end] != value[start])
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, 
+                                                            "IceSSL: unmatched quote in `" + value + "'");
+                    }
+                    ++start;
+                    arg = value.substr(start, end - start);
+                    start = end + 1;
+                }
+                else
+                {
+                    size_t end = value.find_first_of(" \t", start);
+                    if(end == string::npos)
+                    {
+                        arg = value.substr(start);
+                        start = value.size();
+                    }
+                    else
+                    {
+                        arg = value.substr(start, end - start);
+                        start = end + 1;
+                    }
+                }
+
+                tmpStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
+                if(!tmpStore)
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__, 
+                                "IceSSL: error adding certificate to store:\n" + IceUtilInternal::lastErrorToString());
+                }
+
+                if(field == "SUBJECT" || field == "ISSUER")
+                {
+                    const wstring argW = stringToWstring(arg);
+                    DWORD findType = field == "SUBJECT" ? CERT_FIND_SUBJECT_STR : CERT_FIND_ISSUER_STR;
+                    addMatchingCertificates(store, tmpStore, findType, argW.c_str());
+                }
+                else if(field == "SUBJECTDN" || field == "ISSUERDN")
+                {
+                    const wstring argW = stringToWstring(arg);
+                    DWORD length = 0;
+                    if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
+                                       0, 0, &length, 0))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, 
+                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
+                                                IceUtilInternal::lastErrorToString());
+                    }
+
+                    vector<BYTE> buffer(length);
+                    if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
+                                       0, &buffer[0], &length, 0))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, 
+                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
+                                                IceUtilInternal::lastErrorToString());
+                    }
+
+                    CERT_NAME_BLOB name = { length, &buffer[0] };
+                    DWORD findType = field == "SUBJECTDN" ? CERT_FIND_SUBJECT_NAME : CERT_FIND_ISSUER_NAME;
+                    addMatchingCertificates(store, tmpStore, findType, &name);
+                }
+                else if(field == "THUMBPRINT" || field == "SUBJECTKEYID")
+                {
+                    vector<BYTE> buffer;
+                    if(!parseBytes(arg, buffer))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, 
+                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
+                    }
+
+                    CRYPT_HASH_BLOB hash = { static_cast<DWORD>(buffer.size()), &buffer[0] };
+                    DWORD findType = field == "THUMBPRINT" ? CERT_FIND_HASH : CERT_FIND_KEY_IDENTIFIER;
+                    addMatchingCertificates(store, tmpStore, findType, &hash);
+                }
+                else if(field == "SERIAL")
+                {
+                    vector<BYTE> buffer;
+                    if(!parseBytes(arg, buffer))
+                    {
+                        throw PluginInitializationException(__FILE__, __LINE__, 
+                                                "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
+                    }
+                    
+                    CRYPT_INTEGER_BLOB serial = { static_cast<DWORD>(buffer.size()), &buffer[0] };
+                    PCCERT_CONTEXT next = 0;
+                    do
+                    {
+                        if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, 
+                                                              CERT_FIND_ANY, 0, next)))
+                        {
+                            if(CertCompareIntegerBlob(&serial, &next->pCertInfo->SerialNumber))
+                            {
+                                if(!CertAddCertificateContextToStore(tmpStore, next, CERT_STORE_ADD_ALWAYS, 0))
+                                {
+                                    throw PluginInitializationException(__FILE__, __LINE__, 
+                                                                    "IceSSL: error adding certificate to store:\n" +
+                                                                    IceUtilInternal::lastErrorToString());
+                                }
+                            }
+                        }
+                    }
+                    while(next);
+                }
+                CertCloseStore(store, 0);
+                store = tmpStore;
+            }
+        }
+    }
+    catch(...)
+    {
+        if(store && store != tmpStore)
+        {
+            CertCloseStore(store, 0);
+        }
+
+        if(tmpStore)
+        {
+            CertCloseStore(tmpStore, 0);
+            tmpStore = 0;
+        }
+        throw;
+    }
+
+    vector<PCCERT_CONTEXT> certs;
+    if(store)
+    {
+        PCCERT_CONTEXT next = 0;
+        do
+        { 
+            if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0, 
+                                                  next)))
+            {
+                certs.push_back(next);
+            }
+        }
+        while(next);
+        stores.push_back(store);
+    }
+    return certs;
 }
 #endif
 

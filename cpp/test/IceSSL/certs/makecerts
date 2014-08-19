@@ -145,9 +145,6 @@ if ! [ -f cakey1.pem ]; then
     #
     # Create a client certificate and key (no password).
     #
-    rm -rf $TMP
-    mkdir $TMP
-    echo '01' > $TMP/serial
     touch $TMP/index.txt
     openssl req -config client.cnf -newkey rsa:1024 -nodes -keyout c_rsa_nopass_ca1_priv.pem \
         -keyform PEM -out $TMP/req.pem

@@ -565,8 +565,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
                  info->nativeCerts[0]->getSubjectDN() == serverCert->getSubjectDN() &&
                  info->nativeCerts[0]->getIssuerDN() == serverCert->getIssuerDN());
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3484,18 +3485,18 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
         comm->destroy();
     }
     cout << "ok" << endl;
-
-#ifdef ICE_USE_SCHANNEL
-    cerr << "testing IceSSL.FindCerts properties... " << flush;
+    
     {
+#if defined(ICE_USE_SCHANNEL)
+        cerr << "testing IceSSL.SChannel.FindCert... " << flush;
         const char* clientFindCertProperties[] =
         {
             "SUBJECTDN:'CN = Client, E = info@zeroc.com, OU = Ice, O = \"ZeroC, Inc.\", S = Florida, C = US'",
-            "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:01",
+            "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'E = info@zeroc.com, CN = \"ZeroC Test CA 1\", OU = Ice, O = \"ZeroC, Inc.\","
                 " L = \"Palm Beach Gardens\", S = Florida, C = US' SUBJECT:Client",
-            "THUMBPRINT:'64 55 c8 55 16 72 f5 e1 0d fc 74 25 83 30 46 1e 9e d1 21 48'",
-            "SUBJECTKEYID:'54 72 19 52 20 4a a8 aa b7 37 6a bf da b9 87 e2 47 51 03 4b'",
+            "THUMBPRINT:'54 26 20 f0 93 a9 b6 bc 2a 8c 83 ef 14 d4 49 18 a3 18 67 46'",
+            "SUBJECTKEYID:'58 77 81 07 55 2a 0c 10 19 88 13 47 6f 27 6e 21 75 5f 85 ca'",
             0
         };
 
@@ -3505,19 +3506,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'E = info@zeroc.com, CN = \"ZeroC Test CA 1\", OU = Ice, O = \"ZeroC, Inc.\","
                 " L = \"Palm Beach Gardens\", S = Florida, C = US' SUBJECT:Server",
-            "THUMBPRINT:'fc dd 8d c3 20 2e c2 fc 89 57 16 38 3c 76 5a 91 0a 3e f2 3d'",
-            "SUBJECTKEYID:'bf d3 42 a7 69 2f 12 f5 0d c7 38 31 0e 2e 71 b5 9d d2 19 93'",
+            "THUMBPRINT:'27 e0 18 c9 23 12 6c f0 5c da fa 36 5a 4c 63 5a e2 53 07 1a'",
+            "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef a4'",
             0
         };
 
         const char* failFindCertProperties[] =
         {
             "SUBJECTDN:'CN = Client, E = infox@zeroc.com, OU = Ice, O = \"ZeroC, Inc.\", S = Florida, C = US'",
-            "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'01 02'",
+            "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'02 02'",
             "ISSUERDN:'E = info@zeroc.com, CN = \"ZeroC Test CA 1\", OU = Ice, O = \"ZeroC, Inc.\","
                 " L = \"Palm Beach Gardens\", S = Florida, C = ES' SUBJECT:Client",
-            "THUMBPRINT:'64 55 c8 55 16 72 f5 e1 0d fc 74 25 83 30 46 1e 9e d1 21 XX'",
-            "SUBJECTKEYID:'54 72 19 52 20 4a a8 aa b7 37 6a bf da b9 87 e2 47 51 03 XX'",
+            "THUMBPRINT:'27 e0 18 c9 23 12 6c f0 5c da fa 36 5a 4c 63 5a e2 53 07 ff'",
+            "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             0
         };
 
@@ -3566,7 +3567,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
             initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
+            initData.properties->setProperty("IceSSL.SChannel.FindCert.CurrentUser.My", clientFindCertProperties[i]);
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
@@ -3578,7 +3579,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             test(fact);
             Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
             d["IceSSL.CertAuthFile"] = "cacert1.pem";
-            d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
+            d["IceSSL.SChannel.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
             //
             // Use TrustOnly to ensure the peer has pick the expected certificate.
             //
@@ -3607,7 +3608,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
             initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", failFindCertProperties[i]);
+            initData.properties->setProperty("IceSSL.SChannel.FindCert.CurrentUser.My", failFindCertProperties[i]);
             try
             {
                 CommunicatorPtr comm = initialize(initData);
@@ -3636,7 +3637,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
             InitializationData initData;
             initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
             initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.FindCert.CurrentUser.My", clientFindCertProperties[i]);
+            initData.properties->setProperty("IceSSL.SChannel.FindCert.CurrentUser.My", clientFindCertProperties[i]);
             try
             {
                 CommunicatorPtr comm = initialize(initData);
@@ -3652,9 +3653,105 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool pfx, b
                 test(false);
             }
         }
-    }
-    cerr << "ok" << endl;
+        cerr << "ok" << endl;
+#elif defined(ICE_USE_SECURE_TRANSPORT)
+        cerr << "testing IceSSL.SecureTransport.FindCert... " << flush;
+        const char* clientFindCertProperties[] =
+        {
+            "SUBJECT:Client",
+            "LABEL:'Client'",
+            "SUBJECTKEYID:'58 77 81 07 55 2a 0c 10 19 88 13 47 6f 27 6e 21 75 5f 85 ca'",
+            "SERIAL:02",
+            "SERIAL:02 LABEL:Client",
+            0
+        };
+
+        const char* serverFindCertProperties[] =
+        {
+            "SUBJECT:Server",
+            "LABEL:'Server'",
+            "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef a4'",
+            "SERIAL:01",
+            "SERIAL:01 LABEL:Server",
+            0
+        };
+
+        const char* failFindCertProperties[] =
+        {
+            "SUBJECT:ServerX",
+            "LABEL:'ServerX'",
+            "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
+            "SERIAL:03",
+            "SERIAL:01 LABEL:Client",
+            0
+        };
+
+        for(int i = 0; clientFindCertProperties[i] != 0; i++)
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+            initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
+            initData.properties->setProperty("IceSSL.KeychainPassword", "password");
+            initData.properties->setProperty("IceSSL.SecureTransport.FindCert", clientFindCertProperties[i]);
+            //
+            // Use TrustOnly to ensure the peer has pick the expected certificate.
+            //
+            initData.properties->setProperty("IceSSL.TrustOnly", "CN=Server");
+
+            CommunicatorPtr comm = initialize(initData);
+
+            Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+            test(fact);
+            Test::Properties d = createServerProps(defaultProperties, defaultDir, defaultHost, pfx);
+            d["IceSSL.CertAuthFile"] = "cacert1.pem";
+            d["IceSSL.Keychain"] = "../certs/Find.keychain";
+            d["IceSSL.KeychainPassword"] = "password";
+            d["IceSSL.SecureTransport.FindCert"] = serverFindCertProperties[i];
+            //
+            // Use TrustOnly to ensure the peer has pick the expected certificate.
+            //
+            d["IceSSL.TrustOnly"] = "CN=Client";
+
+            Test::ServerPrx server = fact->createServer(d);
+            try
+            {
+                server->ice_ping();
+            }
+            catch(const LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+            fact->destroyServer(server);
+            comm->destroy();
+        }
+
+        for(int i = 0; failFindCertProperties[i] != 0; i++)
+        {
+            InitializationData initData;
+            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost, pfx);
+            initData.properties->setProperty("IceSSL.Keychain", "../certs/Find.keychain");
+            initData.properties->setProperty("IceSSL.KeychainPassword", "password");
+            initData.properties->setProperty("IceSSL.SecureTransport.FindCert", failFindCertProperties[i]);
+            try
+            {
+                CommunicatorPtr comm = initialize(initData);
+                test(false);
+            }
+            catch(const PluginInitializationException&)
+            {
+                // expected
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+        cerr << "ok" << endl;
 #endif
+    }
 
     if(shutdown)
     {
