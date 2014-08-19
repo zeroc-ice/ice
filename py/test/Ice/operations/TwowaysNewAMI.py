@@ -244,6 +244,57 @@ class Callback(CallbackBase):
             test(rso[3][1] == 0xf1)
         self.called()
 
+    def opBoolSS(self, rso, bso):
+        test(len(bso) == 4);
+        test(len(bso[0]) == 1);
+        test(bso[0][0]);
+        test(len(bso[1]) == 1);
+        test(not bso[1][0]);
+        test(len(bso[2]) == 2);
+        test(bso[2][0]);
+        test(bso[2][1]);
+        test(len(bso[3]) == 3);
+        test(not bso[3][0]);
+        test(not bso[3][1]);
+        test(bso[3][2]);
+        test(len(rso) == 3);
+        test(len(rso[0]) == 2);
+        test(rso[0][0]);
+        test(rso[0][1]);
+        test(len(rso[1]) == 1);
+        test(not rso[1][0]);
+        test(len(rso[2]) == 1);
+        test(rso[2][0]);
+        self.called();
+
+    def opShortIntLongSS(self, rso, sso, iso, lso):
+        test(len(rso) == 1);
+        test(len(rso[0]) == 2);
+        test(rso[0][0] == 496);
+        test(rso[0][1] == 1729);
+        test(len(sso) == 3);
+        test(len(sso[0]) == 3);
+        test(sso[0][0] == 1);
+        test(sso[0][1] == 2);
+        test(sso[0][2] == 5);
+        test(len(sso[1]) == 1);
+        test(sso[1][0] == 13);
+        test(len(sso[2]) == 0);
+        test(len(iso) == 2);
+        test(len(iso[0]) == 1);
+        test(iso[0][0] == 42);
+        test(len(iso[1]) == 2);
+        test(iso[1][0] == 24);
+        test(iso[1][1] == 98);
+        test(len(lso) == 2);
+        test(len(lso[0]) == 2);
+        test(lso[0][0] == 496);
+        test(lso[0][1] == 1729);
+        test(len(lso[1]) == 2);
+        test(lso[1][0] == 496);
+        test(lso[1][1] == 1729);
+        self.called();
+
     def opFloatDoubleSS(self, rso, fso, dso):
         test(len(fso) == 3)
         test(len(fso[0]) == 1)
@@ -497,6 +548,21 @@ def twowaysNewAMI(communicator, p):
 
     cb = Callback()
     p.begin_opByteSS(bsi1, bsi2, cb.opByteSS, cb.exCB)
+    cb.check()
+
+    bsi1 = ((True,), (False,), (True, True),)
+    bsi2 = ((False, False, True),)
+
+    cb = Callback()
+    p.begin_opBoolSS(bsi1, bsi2, cb.opBoolSS, cb.exCB)
+    cb.check();
+
+    ssi = ((1,2,5), (13,), ())
+    isi = ((24, 98), (42,))
+    lsi = ((496, 1729),)
+
+    cb = Callback()
+    p.begin_opShortIntLongSS(ssi, isi, lsi, cb.opShortIntLongSS, cb.exCB)
     cb.check()
 
     fsi = ((3.14,), (1.11,), ())

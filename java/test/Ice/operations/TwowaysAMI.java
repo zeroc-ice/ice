@@ -670,24 +670,24 @@ class TwowaysAMI
         {
             test(bso.length == 4);
             test(bso[0].length == 1);
-            test(bso[0][0] == true);
+            test(bso[0][0]);
             test(bso[1].length == 1);
-            test(bso[1][0] == false);
+            test(!bso[1][0]);
             test(bso[2].length == 2);
-            test(bso[2][0] == true);
-            test(bso[2][1] == true);
+            test(bso[2][0]);
+            test(bso[2][1]);
             test(bso[3].length == 3);
-            test(bso[3][0] == false);
-            test(bso[3][1] == false);
-            test(bso[3][2] == true);
+            test(!bso[3][0]);
+            test(!bso[3][1]);
+            test(bso[3][2]);
             test(rso.length == 3);
             test(rso[0].length == 2);
-            test(rso[0][0] == true);
-            test(rso[0][1] == true);
+            test(rso[0][0]);
+            test(rso[0][1]);
             test(rso[1].length == 1);
-            test(rso[1][0] == false);
+            test(!rso[1][0]);
             test(rso[2].length == 1);
-            test(rso[2][0] == true);
+            test(rso[2][0]);
             callback.called();
         }
 

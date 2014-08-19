@@ -12,6 +12,7 @@ package test.Ice.operations;
 
 import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.BoolSHolder;
+import test.Ice.operations.Test.BoolSSHolder;
 import test.Ice.operations.Test.ByteBoolDHolder;
 import test.Ice.operations.Test.ByteSHolder;
 import test.Ice.operations.Test.ByteSSHolder;
@@ -20,8 +21,10 @@ import test.Ice.operations.Test.DoubleSSHolder;
 import test.Ice.operations.Test.FloatSHolder;
 import test.Ice.operations.Test.FloatSSHolder;
 import test.Ice.operations.Test.IntSHolder;
+import test.Ice.operations.Test.IntSSHolder;
 import test.Ice.operations.Test.LongFloatDHolder;
 import test.Ice.operations.Test.LongSHolder;
+import test.Ice.operations.Test.LongSSHolder;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
@@ -34,6 +37,7 @@ import test.Ice.operations.Test.MyEnumHolder;
 import test.Ice.operations.Test.MyStructMyEnumDHolder;
 import test.Ice.operations.Test.ShortIntDHolder;
 import test.Ice.operations.Test.ShortSHolder;
+import test.Ice.operations.Test.ShortSSHolder;
 import test.Ice.operations.Test.StringMyEnumDHolder;
 import test.Ice.operations.Test.MyEnumStringDHolder;
 import test.Ice.operations.Test.StringSHolder;
@@ -71,7 +75,7 @@ class Twoways
             _proxy.ice_getCommunicator().getImplicitContext().setContext(ctx);
             test(_proxy.opContext().equals(ctx));
         }
-        
+
         final private MyClassPrx _proxy;
     }
 
@@ -405,6 +409,95 @@ class Twoways
             test(rso[3].length == 2);
             test(rso[3][0] == (byte)0xf2);
             test(rso[3][1] == (byte)0xf1);
+        }
+
+        {
+            final boolean[][] bsi1 =
+                {
+                    { true },
+                    { false },
+                    { true, true}
+                };
+
+            final boolean[][] bsi2 =
+                {
+                    { false, false, true }
+                };
+
+            BoolSSHolder bso = new BoolSSHolder();
+            boolean [][] rso;
+
+            rso = p.opBoolSS(bsi1, bsi2, bso);
+            test(bso.value.length == 4);
+            test(bso.value[0].length == 1);
+            test(bso.value[0][0]);
+            test(bso.value[1].length == 1);
+            test(!bso.value[1][0]);
+            test(bso.value[2].length == 2);
+            test(bso.value[2][0]);
+            test(bso.value[2][1]);
+            test(bso.value[3].length == 3);
+            test(!bso.value[3][0]);
+            test(!bso.value[3][1]);
+            test(bso.value[3][2]);
+            test(rso.length == 3);
+            test(rso[0].length == 2);
+            test(rso[0][0]);
+            test(rso[0][1]);
+            test(rso[1].length == 1);
+            test(!rso[1][0])
+            test(rso[2].length == 1);
+            test(rso[2][0]);
+        }
+
+        {
+            final short[][] ssi=
+                {
+                    {1, 2, 5},
+                    {13},
+                    {}
+                };
+            final int[][] isi =
+                {
+                    {24, 98},
+                    {42}
+                };
+            final long[][] lsi =
+                {
+                    {496, 1729},
+                };
+
+            ShortSSHolder sso = new ShortSSHolder();
+            IntSSHolder iso = new IntSSHolder();
+            LongSSHolder lso = new LongSSHolder();
+            long[][] rso;
+
+            rso = p.opShortIntLongSS(ssi, isi, lsi, sso, iso, lso);
+            test(rso.length == 1);
+            test(rso[0].length == 2);
+            test(rso[0][0] == 496);
+            test(rso[0][1] == 1729);
+            test(sso.value.length == 3);
+            test(sso.value[0].length == 3);
+            test(sso.value[0][0] == 1);
+            test(sso.value[0][1] == 2);
+            test(sso.value[0][2] == 5);
+            test(sso.value[1].length == 1);
+            test(sso.value[1][0] == 13);
+            test(sso.value[2].length == 0);
+            test(iso.value.length == 2);
+            test(iso.value[0].length == 1);
+            test(iso.value[0][0] == 42);
+            test(iso.value[1].length == 2);
+            test(iso.value[1][0] == 24);
+            test(iso.value[1][1] == 98);
+            test(lso.value.length == 2);
+            test(lso.value[0].length == 2);
+            test(lso.value[0][0] == 496);
+            test(lso.value[0][1] == 1729);
+            test(lso.value[1].length == 2);
+            test(lso.value[1][0] == 496);
+            test(lso.value[1][1] == 1729);
         }
 
         {

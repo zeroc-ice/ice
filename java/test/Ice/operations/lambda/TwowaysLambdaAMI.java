@@ -12,7 +12,6 @@ package test.Ice.operations.lambda;
 import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
 import test.Ice.operations.Test.MyDerivedClass;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrxHelper;
@@ -73,11 +72,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -92,11 +86,6 @@ public class TwowaysLambdaAMI
         {
             test(r);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -115,11 +104,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -136,11 +120,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -154,11 +133,6 @@ public class TwowaysLambdaAMI
         public void response()
         {
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -178,11 +152,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -198,11 +167,6 @@ public class TwowaysLambdaAMI
             test(b);
             test(!r);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -224,11 +188,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -245,11 +204,6 @@ public class TwowaysLambdaAMI
             test(d == 1.1E10);
             test(r == 1.1E10);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -269,11 +223,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -289,11 +238,6 @@ public class TwowaysLambdaAMI
             test(e == MyEnum.enum2);
             test(r == MyEnum.enum3);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -333,11 +277,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -367,11 +306,6 @@ public class TwowaysLambdaAMI
                 so.p.opVoid();
             }
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -404,11 +338,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -431,11 +360,6 @@ public class TwowaysLambdaAMI
             test(rso[1]);
             test(rso[2]);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -473,11 +397,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -506,11 +425,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -533,11 +447,6 @@ public class TwowaysLambdaAMI
             test(rso[1].equals("de"));
             test(rso[2].equals("abc"));
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -574,11 +483,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -591,12 +495,27 @@ public class TwowaysLambdaAMI
     {
         public void response(boolean[][] rso, boolean[][] bso)
         {
+            test(bso.length == 4);
+            test(bso[0].length == 1);
+            test(bso[0][0]);
+            test(bso[1].length == 1);
+            test(!bso[1][0]);
+            test(bso[2].length == 2);
+            test(bso[2][0]);
+            test(bso[2][1]);
+            test(bso[3].length == 3);
+            test(!bso[3][0]);
+            test(!bso[3][1]);
+            test(bso[3][2]);
+            test(rso.length == 3);
+            test(rso[0].length == 2);
+            test(rso[0][0]);
+            test(rso[0][1]);
+            test(rso[1].length == 1);
+            test(!rso[1][0]);
+            test(rso[2].length == 1);
+            test(rso[2][0]);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -611,12 +530,32 @@ public class TwowaysLambdaAMI
     {
         public void response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
         {
+            test(rso.length == 1);
+            test(rso[0].length == 2);
+            test(rso[0][0] == 496);
+            test(rso[0][1] == 1729);
+            test(sso.length == 3);
+            test(sso[0].length == 3);
+            test(sso[0][0] == 1);
+            test(sso[0][1] == 2);
+            test(sso[0][2] == 5);
+            test(sso[1].length == 1);
+            test(sso[1][0] == 13);
+            test(sso[2].length == 0);
+            test(iso.length == 2);
+            test(iso[0].length == 1);
+            test(iso[0][0] == 42);
+            test(iso[1].length == 2);
+            test(iso[1][0] == 24);
+            test(iso[1][1] == 98);
+            test(lso.length == 2);
+            test(lso[0].length == 2);
+            test(lso[0][0] == 496);
+            test(lso[0][1] == 1729);
+            test(lso[1].length == 2);
+            test(lso[1][0] == 496);
+            test(lso[1][1] == 1729);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -654,11 +593,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -687,11 +621,6 @@ public class TwowaysLambdaAMI
             test(rso[1].length == 0);
             test(rso[2].length == 0);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -741,11 +670,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -768,11 +692,6 @@ public class TwowaysLambdaAMI
             test(ro.get((byte)100).booleanValue() == false);
             test(ro.get((byte)101).booleanValue() == true);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -799,11 +718,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -826,11 +740,6 @@ public class TwowaysLambdaAMI
             test(ro.get(999999111L).floatValue() == 123123.2f);
             test(ro.get(999999130L).floatValue() == 0.5f);
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -857,11 +766,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -886,11 +790,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -911,11 +810,6 @@ public class TwowaysLambdaAMI
             test(ro.get(MyEnum.enum2).equals("Hello!!"));
             test(ro.get(MyEnum.enum3).equals("qwerty"));
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -946,11 +840,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -976,11 +865,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -995,11 +879,6 @@ public class TwowaysLambdaAMI
         public void response()
         {
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -1017,11 +896,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -1037,11 +911,6 @@ public class TwowaysLambdaAMI
             callback.called();
         }
 
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
         public void check()
         {
             callback.check();
@@ -1055,11 +924,6 @@ public class TwowaysLambdaAMI
         public void response()
         {
             callback.called();
-        }
-
-        public void exception(Ice.Exception ex)
-        {
-            test(false);
         }
 
         public void check()
@@ -1086,13 +950,13 @@ public class TwowaysLambdaAMI
             p.begin_ice_isA(MyClass.ice_staticId(), (boolean r) -> cb.response(r), (Ice.Exception ex) -> test(false));
             cb.check();
         }
-    
+
         {
             idI cb = new idI();
             p.begin_ice_id((String id) -> cb.response(id), (Ice.Exception ex) -> test(false));
             cb.check();
         }
-    
+
         {
             idsI cb = new idsI();
             p.begin_ice_ids((String[] ids) -> cb.response(ids), (Ice.Exception ex) -> test(false));
@@ -1107,15 +971,15 @@ public class TwowaysLambdaAMI
 
         {
             opByteI cb = new opByteI();
-            p.begin_opByte((byte)0xff, (byte)0x0f, 
-                (byte p1, byte p2) -> cb.response(p1, p2), 
+            p.begin_opByte((byte)0xff, (byte)0x0f,
+                (byte p1, byte p2) -> cb.response(p1, p2),
                 (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
         {
             opBoolI cb = new opBoolI();
-            p.begin_opBool(true, false, 
+            p.begin_opBool(true, false,
                 (boolean p1, boolean p2) -> cb.response(p1, p2),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -1231,7 +1095,7 @@ public class TwowaysLambdaAMI
             final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 };
 
             opFloatDoubleSI cb = new opFloatDoubleSI();
-            p.begin_opFloatDoubleS(fsi, dsi, 
+            p.begin_opFloatDoubleS(fsi, dsi,
                 (double[] p1, float[] p2, double[] p3) -> cb.response(p1, p2, p3),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -1242,7 +1106,7 @@ public class TwowaysLambdaAMI
             final String[] ssi2 = { "xyz" };
 
             opStringSI cb = new opStringSI();
-            p.begin_opStringS(ssi1, ssi2, 
+            p.begin_opStringS(ssi1, ssi2,
                 (String[] p1, String[] p2) -> cb.response(p1, p2),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -1268,6 +1132,50 @@ public class TwowaysLambdaAMI
         }
 
         {
+            final boolean[][] bsi1 =
+                {
+                    { true },
+                    { false },
+                    { true, true}
+                };
+
+            final boolean[][] bsi2 =
+                {
+                    { false, false, true }
+                };
+
+            opBoolSSI cb = new opBoolSSI();
+            p.begin_opBoolSS(bsi1, bsi2,
+                    (boolean[][] rso, boolean[][] bso) -> cb.response(rso, bso),
+                    (Ice.Exception ex) -> test(false));
+            cb.check();
+        }
+
+        {
+            final short[][] ssi=
+                {
+                    {1, 2, 5},
+                    {13},
+                    {}
+                };
+            final int[][] isi =
+                {
+                    {24, 98},
+                    {42}
+                };
+            final long[][] lsi =
+                {
+                    {496, 1729},
+                };
+
+            opShortIntLongSSI cb = new opShortIntLongSSI();
+            p.begin_opShortIntLongSS(ssi, isi, lsi,
+                    (long[][] rso, short[][] sso, int[][] iso, long lso[][]) -> cb.response(rso, sso, iso, lso),
+                    (Ice.Exception ex) -> test(false));
+            cb.check();
+        }
+
+        {
             final float[][] fsi =
                 {
                     { 3.14f },
@@ -1280,7 +1188,7 @@ public class TwowaysLambdaAMI
                 };
 
             opFloatDoubleSSI cb = new opFloatDoubleSSI();
-            p.begin_opFloatDoubleSS(fsi, dsi, 
+            p.begin_opFloatDoubleSS(fsi, dsi,
                 (double[][] p1, float[][] p2, double[][] p3) -> cb.response(p1, p2, p3),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -1360,7 +1268,7 @@ public class TwowaysLambdaAMI
             di2.put((byte)101, Boolean.TRUE);
 
             opByteBoolDI cb = new opByteBoolDI();
-            p.begin_opByteBoolD(di1, di2, 
+            p.begin_opByteBoolD(di1, di2,
                 (Map<Byte, Boolean> p1, Map<Byte, Boolean> p2) -> cb.response(p1, p2),
                 (Ice.Exception ex) -> test(false));
             cb.check();
@@ -1475,7 +1383,7 @@ public class TwowaysLambdaAMI
                     s[i] = i;
                 }
                 opIntSI cb = new opIntSI(l);
-                p.begin_opIntS(s, 
+                p.begin_opIntS(s,
                     (int[] p1) -> cb.response(p1),
                     (Ice.Exception ex) -> test(false));
                 cb.check();

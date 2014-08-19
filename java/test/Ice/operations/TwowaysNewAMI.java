@@ -12,6 +12,7 @@ package test.Ice.operations;
 import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.Callback_MyClass_opBool;
 import test.Ice.operations.Test.Callback_MyClass_opBoolS;
+import test.Ice.operations.Test.Callback_MyClass_opBoolSS;
 import test.Ice.operations.Test.Callback_MyClass_opByte;
 import test.Ice.operations.Test.Callback_MyClass_opByteBoolD;
 import test.Ice.operations.Test.Callback_MyClass_opByteS;
@@ -28,6 +29,7 @@ import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntD;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntLong;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntLongS;
+import test.Ice.operations.Test.Callback_MyClass_opShortIntLongSS;
 import test.Ice.operations.Test.Callback_MyClass_opString;
 import test.Ice.operations.Test.Callback_MyClass_opStringMyEnumD;
 import test.Ice.operations.Test.Callback_MyClass_opMyEnumStringD;
@@ -653,6 +655,101 @@ class TwowaysNewAMI
         private Callback callback = new Callback();
     }
 
+    private static class opBoolSSI extends Callback_MyClass_opBoolSS
+    {
+        @Override
+        public void
+        response(boolean[][] rso, boolean[][] bso)
+        {
+            test(bso.length == 4);
+            test(bso[0].length == 1);
+            test(bso[0][0]);
+            test(bso[1].length == 1);
+            test(!bso[1][0]);
+            test(bso[2].length == 2);
+            test(bso[2][0]);
+            test(bso[2][1]);
+            test(bso[3].length == 3);
+            test(!bso[3][0]);
+            test(!bso[3][1]);
+            test(bso[3][2]);
+            test(rso.length == 3);
+            test(rso[0].length == 2);
+            test(rso[0][0]);
+            test(rso[0][1]);
+            test(rso[1].length == 1);
+            test(!rso[1][0]);
+            test(rso[2].length == 1);
+            test(rso[2][0]);
+            callback.called();
+        }
+
+        @Override
+        public void
+        exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class opShortIntLongSSI extends Callback_MyClass_opShortIntLongSS
+    {
+        @Override
+        public void
+        response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
+        {
+            test(rso.length == 1);
+            test(rso[0].length == 2);
+            test(rso[0][0] == 496);
+            test(rso[0][1] == 1729);
+            test(sso.length == 3);
+            test(sso[0].length == 3);
+            test(sso[0][0] == 1);
+            test(sso[0][1] == 2);
+            test(sso[0][2] == 5);
+            test(sso[1].length == 1);
+            test(sso[1][0] == 13);
+            test(sso[2].length == 0);
+            test(iso.length == 2);
+            test(iso[0].length == 1);
+            test(iso[0][0] == 42);
+            test(iso[1].length == 2);
+            test(iso[1][0] == 24);
+            test(iso[1][1] == 98);
+            test(lso.length == 2);
+            test(lso[0].length == 2);
+            test(lso[0][0] == 496);
+            test(lso[0][1] == 1729);
+            test(lso[1].length == 2);
+            test(lso[1][0] == 496);
+            test(lso[1][1] == 1729);
+            callback.called();
+        }
+
+        @Override
+        public void
+        exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     private static class opFloatDoubleSSI extends Callback_MyClass_opFloatDoubleSS
     {
         @Override
@@ -1142,13 +1239,13 @@ class TwowaysNewAMI
             p.begin_ice_isA(MyClass.ice_staticId(), cb);
             cb.check();
         }
-    
+
         {
             idI cb = new idI();
             p.begin_ice_id(cb);
             cb.check();
         }
-    
+
         {
             idsI cb = new idsI();
             p.begin_ice_ids(cb);
@@ -1305,6 +1402,46 @@ class TwowaysNewAMI
 
             opByteSSI cb = new opByteSSI();
             p.begin_opByteSS(bsi1, bsi2, cb);
+            cb.check();
+        }
+
+        {
+            final boolean[][] bsi1 =
+                {
+                    { true },
+                    { false },
+                    { true, true}
+                };
+
+            final boolean[][] bsi2 =
+                {
+                    { false, false, true }
+                };
+
+            opBoolSSI cb = new opBoolSSI();
+            p.begin_opBoolSS(bsi1, bsi2, cb);
+            cb.check();
+        }
+
+        {
+            final short[][] ssi=
+                {
+                    {1, 2, 5},
+                    {13},
+                    {}
+                };
+            final int[][] isi =
+                {
+                    {24, 98},
+                    {42}
+                };
+            final long[][] lsi =
+                {
+                    {496, 1729},
+                };
+
+            opShortIntLongSSI cb = new opShortIntLongSSI();
+            p.begin_opShortIntLongSS(ssi, isi, lsi, cb);
             cb.check();
         }
 

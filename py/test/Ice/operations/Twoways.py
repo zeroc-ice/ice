@@ -37,10 +37,10 @@ def twoways(communicator, p):
     # ice_id
     #
     test(p.ice_id() == Test.MyDerivedClass.ice_staticId())
-    
+
     #
-    # Prx ice_staticId 
-    # 
+    # Prx ice_staticId
+    #
     test(Test.MyClassPrx.ice_staticId() == Test.MyClass.ice_staticId())
     test(Test.MyDerivedClassPrx.ice_staticId() == Test.MyDerivedClass.ice_staticId())
     test(Ice.ObjectPrx.ice_staticId() == Ice.Object.ice_staticId())
@@ -72,13 +72,13 @@ def twoways(communicator, p):
     test(i == 11)
     test(l == 12)
     test(r == 12)
-    
+
     r, s, i, l = p.opShortIntLong(-32768, -2147483648, -9223372036854775808)
     test(s == -32768)
     test(i == -2147483648)
     test(l == -9223372036854775808)
     test(r == -9223372036854775808)
-    
+
     r, s, i, l = p.opShortIntLong(32767, 2147483647, 9223372036854775807)
     test(s == 32767)
     test(i == 2147483647)
@@ -148,7 +148,7 @@ def twoways(communicator, p):
     si2.e = Test.MyEnum.enum2
     si2.s = Test.AnotherStruct()
     si2.s.s = "def"
-    
+
     rso, so = p.opStruct(si1, si2)
     test(not rso.p)
     test(rso.e == Test.MyEnum.enum2)
@@ -430,6 +430,68 @@ def twoways(communicator, p):
         test(rso[3][1] == 0xf1)
 
     #
+    # opBoolSS
+    #
+    bsi1 = ((True,), (False,), (True, True),)
+    bsi2 = ((False, False, True),)
+
+    rso, bso = p.opBoolSS(bsi1, bsi2)
+    test(len(bso) == 4);
+    test(len(bso[0]) == 1);
+    test(bso[0][0]);
+    test(len(bso[1]) == 1);
+    test(not bso[1][0]);
+    test(len(bso[2]) == 2);
+    test(bso[2][0]);
+    test(bso[2][1]);
+    test(len(bso[3]) == 3);
+    test(not bso[3][0]);
+    test(not bso[3][1]);
+    test(bso[3][2]);
+    test(len(rso) == 3);
+    test(len(rso[0]) == 2);
+    test(rso[0][0]);
+    test(rso[0][1]);
+    test(len(rso[1]) == 1);
+    test(not rso[1][0]);
+    test(len(rso[2]) == 1);
+    test(rso[2][0]);
+
+    #
+    # opShortIntLongSS
+    #
+    ssi = ((1,2,5), (13,), ())
+    isi = ((24, 98), (42,))
+    lsi = ((496, 1729),)
+
+    rso, sso, iso, lso = p.opShortIntLongSS(ssi, isi, lsi)
+    test(len(rso) == 1);
+    test(len(rso[0]) == 2);
+    test(rso[0][0] == 496);
+    test(rso[0][1] == 1729);
+    test(len(sso) == 3);
+    test(len(sso[0]) == 3);
+    test(sso[0][0] == 1);
+    test(sso[0][1] == 2);
+    test(sso[0][2] == 5);
+    test(len(sso[1]) == 1);
+    test(sso[1][0] == 13);
+    test(len(sso[2]) == 0);
+    test(len(iso) == 2);
+    test(len(iso[0]) == 1);
+    test(iso[0][0] == 42);
+    test(len(iso[1]) == 2);
+    test(iso[1][0] == 24);
+    test(iso[1][1] == 98);
+    test(len(lso) == 2);
+    test(len(lso[0]) == 2);
+    test(lso[0][0] == 496);
+    test(lso[0][1] == 1729);
+    test(len(lso[1]) == 2);
+    test(lso[1][0] == 496);
+    test(lso[1][1] == 1729);
+
+    #
     # opFloatDoubleSS
     #
     fsi = ((3.14,), (1.11,), ())
@@ -650,7 +712,7 @@ def twoways(communicator, p):
         for j in range(len(r)):
             test(r[j] == -j)
 
-   
+
     #
     # opContext
     #
@@ -680,11 +742,11 @@ def twoways(communicator, p):
         initData.properties = communicator.getProperties().clone()
         initData.properties.setProperty('Ice.ImplicitContext', i)
         ic = Ice.initialize(data=initData)
-        
+
         ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
-        
+
         p1 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010'))
-        
+
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)
         test(p1.opContext() == ctx)
@@ -694,24 +756,24 @@ def twoways(communicator, p):
         test(r == '');
         test(ic.getImplicitContext().containsKey('zero') == True);
         test(ic.getImplicitContext().get('zero') == 'ZERO');
-        
+
         ctx = ic.getImplicitContext().getContext()
         test(p1.opContext() == ctx)
-        
+
         prxContext = {'one': 'UN', 'four': 'QUATRE'}
-        
+
         combined = ctx.copy()
         combined.update(prxContext)
         test(combined['one'] == 'UN')
-        
+
         p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
-       
+
         ic.getImplicitContext().setContext({})
         test(p2.opContext() == prxContext)
-        
+
         ic.getImplicitContext().setContext(ctx)
         test(p2.opContext() == combined)
-        
+
         test(ic.getImplicitContext().remove('one') == 'ONE');
 
         ic.destroy()

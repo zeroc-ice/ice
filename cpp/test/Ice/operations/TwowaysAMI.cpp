@@ -507,22 +507,22 @@ public:
     {
         test(bso.size() == 4);
         test(bso[0].size() == 1);
-        test(!bso[1][0]);
-        test(!bso[3][0]);
-        test(!bso[3][1]);
-        test(!rso[1][0]);
         test(bso[0][0]);
         test(bso[1].size() == 1);
+        test(!bso[1][0]);
         test(bso[2].size() == 2);
         test(bso[2][0]);
         test(bso[2][1]);
         test(bso[3].size() == 3);
+        test(!bso[3][0]);
+        test(!bso[3][1]);
         test(bso[3][2]);
         test(rso.size() == 3);
         test(rso[0].size() == 2);
         test(rso[0][0]);
         test(rso[0][1]);
         test(rso[1].size() == 1);
+        test(!rso[1][0]);
         test(rso[2].size() == 1);
         test(rso[2][0]);
         called();

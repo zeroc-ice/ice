@@ -37,11 +37,11 @@ namespace
 class PerThreadContextInvokeThread : public IceUtil::Thread
 {
 public:
-    
+
 PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) : _proxy(proxy)
 {
 }
-    
+
 virtual void
 run()
 {
@@ -51,14 +51,14 @@ run()
     _proxy->ice_getCommunicator()->getImplicitContext()->setContext(ctx);
     test(_proxy->opContext() == ctx);
 }
-    
+
 private:
-    
+
     Test::MyClassPrx _proxy;
 };
 
 }
-    
+
 void
 twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
@@ -120,14 +120,14 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         test(i == 11);
         test(l == 12);
         test(r == 12);
-        
+
         r = p->opShortIntLong(numeric_limits<Ice::Short>::min(), numeric_limits<Ice::Int>::min(),
                               numeric_limits<Ice::Long>::min(), s, i, l);
         test(s == numeric_limits<Ice::Short>::min());
         test(i == numeric_limits<Ice::Int>::min());
         test(l == numeric_limits<Ice::Long>::min());
         test(r == numeric_limits<Ice::Long>::min());
-        
+
         r = p->opShortIntLong(numeric_limits<Ice::Short>::max(), numeric_limits<Ice::Int>::max(),
                               numeric_limits<Ice::Long>::max(), s, i, l);
         test(s == numeric_limits<Ice::Short>::max());
@@ -140,7 +140,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Ice::Float f;
         Ice::Double d;
         Ice::Double r;
-        
+
         r = p->opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), f, d);
         test(f == Ice::Float(3.14));
         test(d == Ice::Double(1.1E10));
@@ -169,7 +169,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     {
         Test::MyEnum e;
         Test::MyEnum r;
-        
+
         r = p->opMyEnum(Test::enum2, e);
         test(e == Test::enum2);
         test(r == Test::enum3);
@@ -179,7 +179,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::MyClassPrx c1;
         Test::MyClassPrx c2;
         Test::MyClassPrx r;
-        
+
         r = p->opMyClass(p, c1, c2);
         test(Ice::proxyIdentityAndFacetEqual(c1, p));
         test(!Ice::proxyIdentityAndFacetEqual(c2, p));
@@ -215,7 +215,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         si2.p = 0;
         si2.e = Test::enum2;
         si2.s.s = "def";
-        
+
         Test::Structure so;
         Test::Structure rso = p->opStruct(si1, si2, so);
         test(rso.p == 0);
@@ -426,6 +426,97 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         test(rso[3].size() == 2);
         test(rso[3][0] == Ice::Byte(0xf2));
         test(rso[3][1] == Ice::Byte(0xf1));
+    }
+
+    {
+        Test::BoolSS bsi1;
+        bsi1.resize(3);
+        Test::BoolSS bsi2;
+        bsi2.resize(1);
+
+        bsi1[0].push_back(true);
+        bsi1[1].push_back(false);
+        bsi1[2].push_back(true);
+        bsi1[2].push_back(true);
+
+        bsi2[0].push_back(false);
+        bsi2[0].push_back(false);
+        bsi2[0].push_back(true);
+
+        Test::BoolSS bso;
+        Test::BoolSS rso;
+
+        rso = p->opBoolSS(bsi1, bsi2, bso);
+        test(bso.size() == 4);
+        test(bso[0].size() == 1);
+        test(bso[0][0]);
+        test(bso[1].size() == 1);
+        test(!bso[1][0]);
+        test(bso[2].size() == 2);
+        test(bso[2][0]);
+        test(bso[2][1]);
+        test(bso[3].size() == 3);
+        test(!bso[3][0]);
+        test(!bso[3][1]);
+        test(bso[3][2]);
+        test(rso.size() == 3);
+        test(rso[0].size() == 2);
+        test(rso[0][0]);
+        test(rso[0][1]);
+        test(rso[1].size() == 1);
+        test(!rso[1][0]);
+        test(rso[2].size() == 1);
+        test(rso[2][0]);
+    }
+
+    {
+        Test::ShortSS ssi;
+        ssi.resize(3);
+        Test::IntSS isi;
+        isi.resize(2);
+        Test::LongSS lsi;
+        lsi.resize(1);
+        ssi[0].push_back(1);
+        ssi[0].push_back(2);
+        ssi[0].push_back(5);
+        ssi[1].push_back(13);
+        isi[0].push_back(24);
+        isi[0].push_back(98);
+        isi[1].push_back(42);
+        lsi[0].push_back(496);
+        lsi[0].push_back(1729);
+
+        Test::LongSS rso;
+        Test::ShortSS sso;
+        Test::IntSS iso;
+        Test::LongSS lso;
+
+        rso = p->opShortIntLongSS(ssi, isi, lsi, sso, iso, lso);
+        test(rso.size() == 1);
+        test(rso[0].size() == 2);
+        test(rso[0][0] == 496);
+        test(rso[0][1] == 1729);
+        test(sso.size() == 3);
+        test(sso[0].size() == 3);
+        test(sso[0][0] == 1);
+        test(sso[0][1] == 2);
+        test(sso[0][2] == 5);
+        test(sso[1].size() == 1);
+        test(sso[1][0] == 13);
+        test(sso[2].size() == 0);
+        test(iso.size() == 2);
+        test(iso[0].size() == 1);
+        test(iso[0][0] == 42);
+        test(iso[1].size() == 2);
+        test(iso[1][0] == 24);
+        test(iso[1][1] == 98);
+        test(lso.size() == 2);
+        test(lso[0].size() == 2);
+        test(lso[0][0] == 496);
+        test(lso[0][1] == 1729);
+        test(lso[1].size() == 2);
+        test(lso[1][0] == 496);
+        test(lso[1][1] == 1729);
     }
 
     {
@@ -748,14 +839,14 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             //
             // Test implicit context propagation
             //
-            
+
             string impls[] = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
-                
+
                 Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
                 Ice::Context ctx;
@@ -765,11 +856,11 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
                 Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
                                         ic->stringToProxy("test:default -p 12010 -t 10000"));
-                
+
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 test(p->opContext() == ctx);
-                
+
                 test(ic->getImplicitContext()->containsKey("zero") == false);
                 string r = ic->getImplicitContext()->put("zero", "ZERO");
                 test(r == "");
@@ -781,11 +872,11 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 Ice::Context prxContext;
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
-                
+
                 Ice::Context combined = prxContext;
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
-                
+
                 p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
 
                 ic->getImplicitContext()->setContext(Ice::Context());

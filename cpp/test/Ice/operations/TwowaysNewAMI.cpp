@@ -315,6 +315,64 @@ public:
         called();
     }
 
+    void opBoolSS(const Test::BoolSS& rso, const Test::BoolSS& bso)
+    {
+        test(bso.size() == 4);
+        test(bso[0].size() == 1);
+        test(bso[0][0]);
+        test(bso[1].size() == 1);
+        test(!bso[1][0]);
+        test(bso[2].size() == 2);
+        test(bso[2][0]);
+        test(bso[2][1]);
+        test(bso[3].size() == 3);
+        test(!bso[3][0]);
+        test(!bso[3][1]);
+        test(bso[3][2]);
+        test(rso.size() == 3);
+        test(rso[0].size() == 2);
+        test(rso[0][0]);
+        test(rso[0][1]);
+        test(rso[1].size() == 1);
+        test(!rso[1][0]);
+        test(rso[2].size() == 1);
+        test(rso[2][0]);
+        called();
+    }
+
+    void opShortIntLongSS(const Test::LongSS& rso,
+                          const Test::ShortSS& sso,
+                          const Test::IntSS& iso,
+                          const Test::LongSS& lso)
+    {
+        test(rso.size() == 1);
+        test(rso[0].size() == 2);
+        test(rso[0][0] == 496);
+        test(rso[0][1] == 1729);
+        test(sso.size() == 3);
+        test(sso[0].size() == 3);
+        test(sso[0][0] == 1);
+        test(sso[0][1] == 2);
+        test(sso[0][2] == 5);
+        test(sso[1].size() == 1);
+        test(sso[1][0] == 13);
+        test(sso[2].size() == 0);
+        test(iso.size() == 2);
+        test(iso[0].size() == 1);
+        test(iso[0][0] == 42);
+        test(iso[1].size() == 2);
+        test(iso[1][0] == 24);
+        test(iso[1][1] == 98);
+        test(lso.size() == 2);
+        test(lso[0].size() == 2);
+        test(lso[0][0] == 496);
+        test(lso[0][1] == 1729);
+        test(lso[1].size() == 2);
+        test(lso[1][0] == 496);
+        test(lso[1][1] == 1729);
+        called();
+    }
+
     void opFloatDoubleSS(const Test::DoubleSS& rso, const Test::FloatSS& fso, const Test::DoubleSS& dso)
     {
         test(fso.size() == 3);
@@ -766,6 +824,54 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     }
 
     {
+        Test::BoolSS bsi1;
+        bsi1.resize(3);
+        Test::BoolSS bsi2;
+        bsi2.resize(1);
+
+        bsi1[0].push_back(true);
+        bsi1[1].push_back(false);
+        bsi1[2].push_back(true);
+        bsi1[2].push_back(true);
+
+        bsi2[0].push_back(false);
+        bsi2[0].push_back(false);
+        bsi2[0].push_back(true);
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opBoolSSPtr callback = Test::newCallback_MyClass_opBoolSS(cb,
+                                                                                         &Callback::opBoolSS,
+                                                                                         &Callback::exCB);
+        p->begin_opBoolSS(bsi1, bsi2, callback);
+        cb->check();
+    }
+
+    {
+        Test::ShortSS ssi;
+        ssi.resize(3);
+        Test::IntSS isi;
+        isi.resize(2);
+        Test::LongSS lsi;
+        lsi.resize(1);
+        ssi[0].push_back(1);
+        ssi[0].push_back(2);
+        ssi[0].push_back(5);
+        ssi[1].push_back(13);
+        isi[0].push_back(24);
+        isi[0].push_back(98);
+        isi[1].push_back(42);
+        lsi[0].push_back(496);
+        lsi[0].push_back(1729);
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opShortIntLongSSPtr callback = Test::newCallback_MyClass_opShortIntLongSS(cb,
+                                                                                         &Callback::opShortIntLongSS,
+                                                                                         &Callback::exCB);
+        p->begin_opShortIntLongSS(ssi, isi, lsi, callback);
+        cb->check();
+    }
+
+    {
         Test::FloatSS fsi;
         fsi.resize(3);
         Test::DoubleSS dsi;
@@ -1096,8 +1202,8 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
     {
         CallbackPtr cb = new Callback;
-        p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), 
-                        [=](const Ice::Byte& p1, const Ice::Byte& p2){ cb->opByte(p1, p2); }, 
+        p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f),
+                        [=](const Ice::Byte& p1, const Ice::Byte& p2){ cb->opByte(p1, p2); },
                         [=](const Ice::Exception& ex){ cb->exCB(ex); });
         cb->check();
     }
@@ -1113,7 +1219,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
     {
         CallbackPtr cb = new Callback;
-        p->begin_opShortIntLong(10, 11, 12, 
+        p->begin_opShortIntLong(10, 11, 12,
                                 [=](Ice::Long p1, Ice::Short p2, Ice::Int p3, Ice::Long p4){ cb->opShortIntLong(p1, p2, p3, p4); },
                                 [=](const Ice::Exception& ex){ cb->exCB(ex); });
         cb->check();
@@ -1121,7 +1227,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
     {
         CallbackPtr cb = new Callback;
-        p->begin_opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), 
+        p->begin_opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10),
                                [=](Ice::Double p1, Ice::Float p2, Ice::Double p3){ cb->opFloatDouble(p1, p2, p3); },
                                [=](const Ice::Exception& ex){ cb->exCB(ex); });
         cb->check();
@@ -1129,7 +1235,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
     {
         CallbackPtr cb = new Callback;
-        p->begin_opString("hello", "world", 
+        p->begin_opString("hello", "world",
                           [=](const string& p1, const string& p2){ cb->opString(p1, p2); },
                           [=](const Ice::Exception& ex){ cb->exCB(ex); });
         cb->check();
@@ -1148,7 +1254,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         p->begin_opMyClass(p,
                         [=](const Test::MyClassPrx& p1, const Test::MyClassPrx p2, const Test::MyClassPrx p3)
                             {
-                                cb->opMyClass(p1, p2, p3); 
+                                cb->opMyClass(p1, p2, p3);
                             },
                         [=](const Ice::Exception& ex){ cb->exCB(ex); });
         cb->check();
@@ -1192,7 +1298,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         Test::Callback_MyClass_opByteSPtr callback = Test::newCallback_MyClass_opByteS(cb,
                                                                                        &Callback::opByteS,
                                                                                        &Callback::exCB);
-        p->begin_opByteS(bsi1, bsi2, 
+        p->begin_opByteS(bsi1, bsi2,
                         [=](const Test::ByteS& p1, const Test::ByteS& p2)
                             {
                                 cb->opByteS(p1, p2);
@@ -1306,7 +1412,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         bsi2[1].push_back(Ice::Byte(0xf1));
 
         CallbackPtr cb = new Callback;
-        p->begin_opByteSS(bsi1, bsi2, 
+        p->begin_opByteSS(bsi1, bsi2,
                             [=](const Test::ByteSS& p1, const Test::ByteSS& p2)
                                 {
                                     cb->opByteSS(p1, p2);
@@ -1370,7 +1476,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2[101] = true;
 
         CallbackPtr cb = new Callback;
-        p->begin_opByteBoolD(di1, di2, 
+        p->begin_opByteBoolD(di1, di2,
                                 [=](const Test::ByteBoolD& p1, const Test::ByteBoolD& p2)
                                     {
                                         cb->opByteBoolD(p1, p2);
@@ -1508,7 +1614,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
                 s.push_back(i);
             }
             CallbackPtr cb = new Callback;
-            p->begin_opIntS(s, 
+            p->begin_opIntS(s,
                             [=](const Test::IntS& p1)
                                 {
                                     cb->opIntS(p1);

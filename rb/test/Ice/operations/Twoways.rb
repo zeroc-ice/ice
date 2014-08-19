@@ -268,6 +268,68 @@ def twoways(communicator, p)
     test(rso[3].unpack("C*") == [0xf2, 0xf1])
 
     #
+    # opBoolSS
+    #
+    bsi1 = [[true], [false], [true, true]];
+    bsi2 = [[false, false, true]];
+
+    rso, bso = p.opBoolSS(bsi1, bsi2);
+    test(bso.length == 4);
+    test(bso[0].length == 1);
+    test(bso[0][0]);
+    test(bso[1].length == 1);
+    test(!bso[1][0]);
+    test(bso[2].length == 2);
+    test(bso[2][0]);
+    test(bso[2][1]);
+    test(bso[3].length == 3);
+    test(!bso[3][0]);
+    test(!bso[3][1]);
+    test(bso[3][2]);
+    test(rso.length == 3);
+    test(rso[0].length == 2);
+    test(rso[0][0]);
+    test(rso[0][1]);
+    test(rso[1].length == 1);
+    test(!rso[1][0]);
+    test(rso[2].length == 1);
+    test(rso[2][0]);
+
+    #
+    # opShortIntLongSS
+    #
+    ssi = [[1, 2, 5], [13], []];
+    isi = [[24, 98], [42]];
+    lsi = [[496, 1729]];
+
+    rso, sso, iso, lso = p.opShortIntLongSS(ssi, isi, lsi);
+    test(rso.length == 1);
+    test(rso[0].length == 2);
+    test(rso[0][0] == 496);
+    test(rso[0][1] == 1729);
+    test(sso.length == 3);
+    test(sso[0].length == 3);
+    test(sso[0][0] == 1);
+    test(sso[0][1] == 2);
+    test(sso[0][2] == 5);
+    test(sso[1].length == 1);
+    test(sso[1][0] == 13);
+    test(sso[2].length == 0);
+    test(iso.length == 2);
+    test(iso[0].length == 1);
+    test(iso[0][0] == 42);
+    test(iso[1].length == 2);
+    test(iso[1][0] == 24);
+    test(iso[1][1] == 98);
+    test(lso.length == 2);
+    test(lso[0].length == 2);
+    test(lso[0][0] == 496);
+    test(lso[0][1] == 1729);
+    test(lso[1].length == 2);
+    test(lso[1][0] == 496);
+    test(lso[1][1] == 1729);
+
+    #
     # opFloatDoubleSS
     #
     fsi = [[3.14], [1.11], []]

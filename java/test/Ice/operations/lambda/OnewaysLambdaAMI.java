@@ -9,11 +9,7 @@
 
 package test.Ice.operations.lambda;
 
-import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyClassPrxHelper;
-import test.Ice.operations.Test.Callback_MyClass_opVoid;
-import test.Ice.operations.Test.Callback_MyClass_opByte;
 
 public class OnewaysLambdaAMI
 {
@@ -73,7 +69,6 @@ public class OnewaysLambdaAMI
     public static void
     onewaysLambdaAMI(test.Util.Application app, MyClassPrx proxy)
     {
-        Ice.Communicator communicator = app.communicator();
         MyClassPrx p = (MyClassPrx)proxy.ice_oneway();
 
         {

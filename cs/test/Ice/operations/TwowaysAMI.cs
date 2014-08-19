@@ -1293,19 +1293,13 @@ public class TwowaysAMI
         }
 
         {
-            Test.BoolSS bsi1 = new Test.BoolSS();
-            bsi1.Add(new Test.BoolS());
-            bsi1.Add(new Test.BoolS());
-            bsi1.Add(new Test.BoolS());
-            bsi1[0].Add(true);
-            bsi1[1].Add(false);
-            bsi1[2].Add(true);
-            bsi1[2].Add(true);
-            Test.BoolSS bsi2 = new Test.BoolSS();
-            bsi2.Add(new Test.BoolS());
-            bsi2[0].Add(false);
-            bsi2[0].Add(false);
-            bsi2[0].Add(true);
+            Test.BoolS s11 = new Test.BoolS(new bool[] {true});
+            Test.BoolS s12 = new Test.BoolS(new bool[] {false});
+            Test.BoolS s13 = new Test.BoolS(new bool[] {true, true});
+            Test.BoolSS bsi1 = new Test.BoolSS(new Test.BoolS[] {s11, s12, s13});
+
+            Test.BoolS s21 = new Test.BoolS(new bool[] {false, false, true});
+            Test.BoolSS bsi2 = new Test.BoolSS(new Test.BoolS[] {s21});
 
             AMI_MyClass_opBoolSSI cb = new AMI_MyClass_opBoolSSI();
             p.opBoolSS_async(cb, bsi1, bsi2);
@@ -1313,24 +1307,17 @@ public class TwowaysAMI
         }
 
         {
-            Test.ShortSS ssi = new Test.ShortSS();
-            ssi.Add(new Test.ShortS());
-            ssi.Add(new Test.ShortS());
-            ssi.Add(new Test.ShortS());
-            ssi[0].Add(1);
-            ssi[0].Add(2);
-            ssi[0].Add(5);
-            ssi[1].Add(13);
-            Test.IntSS isi = new Test.IntSS();
-            isi.Add(new Test.IntS());
-            isi.Add(new Test.IntS());
-            isi[0].Add(24);
-            isi[0].Add(98);
-            isi[1].Add(42);
-            Test.LongSS lsi = new Test.LongSS();
-            lsi.Add(new Test.LongS());
-            lsi[0].Add(496);
-            lsi[0].Add(1729);
+            Test.ShortS s11 = new Test.ShortS(new short[] {1, 2, 5});
+            Test.ShortS s12 = new Test.ShortS(new short[] {13});
+            Test.ShortS s13 = new Test.ShortS(new short[] {});
+            Test.ShortSS ssi = new Test.ShortSS(new Test.ShortS[] {s11, s12, s13});
+
+            Test.IntS i11 = new Test.IntS(new int[] {24, 98});
+            Test.IntS i12 = new Test.IntS(new int[] {42});
+            Test.IntSS isi = new Test.IntSS(new Test.IntS[] {i11, i12});
+
+            Test.LongS l11 = new Test.LongS(new long[] {496, 1729});
+            Test.LongSS lsi = new Test.LongSS(new Test.LongS[] {l11});
 
             AMI_MyClass_opShortIntLongSSI cb = new AMI_MyClass_opShortIntLongSSI();
             p.opShortIntLongSS_async(cb, ssi, isi, lsi);

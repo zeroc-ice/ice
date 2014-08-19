@@ -310,6 +310,61 @@ public class TwowaysNewAMI
             called();
         }
 
+        public void opBoolSS(Test.BoolSS rso, Test.BoolSS bso)
+        {
+            test(bso.Count == 4);
+            test(bso[0].Count == 1);
+            test(bso[0][0]);
+            test(bso[1].Count == 1);
+            test(!bso[1][0]);
+            test(bso[2].Count == 2);
+            test(bso[2][0]);
+            test(bso[2][1]);
+            test(bso[3].Count == 3);
+            test(!bso[3][0]);
+            test(!bso[3][1]);
+            test(bso[3][2]);
+            test(rso.Count == 3);
+            test(rso[0].Count == 2);
+            test(rso[0][0]);
+            test(rso[0][1]);
+            test(rso[1].Count == 1);
+            test(!rso[1][0]);
+            test(rso[2].Count == 1);
+            test(rso[2][0]);
+            called();
+        }
+
+        public void opShortIntLongSS(Test.LongSS rso, Test.ShortSS sso, Test.IntSS iso, Test.LongSS lso)
+        {
+            test(rso.Count == 1);
+            test(rso[0].Count == 2);
+            test(rso[0][0] == 496);
+            test(rso[0][1] == 1729);
+            test(sso.Count == 3);
+            test(sso[0].Count == 3);
+            test(sso[0][0] == 1);
+            test(sso[0][1] == 2);
+            test(sso[0][2] == 5);
+            test(sso[1].Count == 1);
+            test(sso[1][0] == 13);
+            test(sso[2].Count == 0);
+            test(iso.Count == 2);
+            test(iso[0].Count == 1);
+            test(iso[0][0] == 42);
+            test(iso[1].Count == 2);
+            test(iso[1][0] == 24);
+            test(iso[1][1] == 98);
+            test(lso.Count == 2);
+            test(lso[0].Count == 2);
+            test(lso[0][0] == 496);
+            test(lso[0][1] == 1729);
+            test(lso[1].Count == 2);
+            test(lso[1][0] == 496);
+            test(lso[1][1] == 1729);
+            called();
+        }
+
         public void opFloatDoubleSS(Test.DoubleSS rso, Test.FloatSS fso, Test.DoubleSS dso)
         {
             test(fso.Count == 3);
@@ -556,7 +611,7 @@ public class TwowaysNewAMI
         {
             Callback cb = new Callback();
             p.begin_ice_ping().whenCompleted(
-                () => 
+                () =>
                 {
                     cb.ice_ping();
                 },
@@ -581,7 +636,7 @@ public class TwowaysNewAMI
         {
             Callback cb = new Callback();
             p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(
-                (bool v) => 
+                (bool v) =>
                 {
                     cb.ice_isA(v);
                 },
@@ -631,7 +686,7 @@ public class TwowaysNewAMI
         {
             Callback cb = new Callback();
             p.begin_ice_id().whenCompleted(
-                (string id) => 
+                (string id) =>
                 {
                     cb.ice_id(id);
                 },
@@ -1039,6 +1094,86 @@ public class TwowaysNewAMI
                 (Test.ByteSS rso, Test.ByteSS bso) =>
                 {
                     cb.opByteSS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Test.BoolS s11 = new Test.BoolS(new bool[] {true});
+            Test.BoolS s12 = new Test.BoolS(new bool[] {false});
+            Test.BoolS s13 = new Test.BoolS(new bool[] {true, true});
+            Test.BoolSS bsi1 = new Test.BoolSS(new Test.BoolS[] {s11, s12, s13});
+
+            Test.BoolS s21 = new Test.BoolS(new bool[] {false, false, true});
+            Test.BoolSS bsi2 = new Test.BoolSS(new Test.BoolS[] {s21});
+
+            Callback cb = new Callback();
+            p.begin_opBoolSS(bsi1, bsi2).whenCompleted(cb.opBoolSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.BoolS s11 = new Test.BoolS(new bool[] {true});
+            Test.BoolS s12 = new Test.BoolS(new bool[] {false});
+            Test.BoolS s13 = new Test.BoolS(new bool[] {true, true});
+            Test.BoolSS bsi1 = new Test.BoolSS(new Test.BoolS[] {s11, s12, s13});
+
+            Test.BoolS s21 = new Test.BoolS(new bool[] {false, false, true});
+            Test.BoolSS bsi2 = new Test.BoolSS(new Test.BoolS[] {s21});
+
+            Callback cb = new Callback();
+            p.begin_opBoolSS(bsi1, bsi2).whenCompleted(
+                (Test.BoolSS rso, Test.BoolSS bso) =>
+                {
+                    cb.opBoolSS(rso, bso);
+                },
+                (Ice.Exception ex) =>
+                {
+                     cb.exCB(ex);
+                });
+            cb.check();
+        }
+
+        {
+            Test.ShortS s11 = new Test.ShortS(new short[] {1, 2, 5});
+            Test.ShortS s12 = new Test.ShortS(new short[] {13});
+            Test.ShortS s13 = new Test.ShortS(new short[] {});
+            Test.ShortSS ssi = new Test.ShortSS(new Test.ShortS[] {s11, s12, s13});
+
+            Test.IntS i11 = new Test.IntS(new int[] {24, 98});
+            Test.IntS i12 = new Test.IntS(new int[] {42});
+            Test.IntSS isi = new Test.IntSS(new Test.IntS[] {i11, i12});
+
+            Test.LongS l11 = new Test.LongS(new long[] {496, 1729});
+            Test.LongSS lsi = new Test.LongSS(new Test.LongS[] {l11});
+
+            Callback cb = new Callback();
+            p.begin_opShortIntLongSS(ssi, isi, lsi).whenCompleted(cb.opShortIntLongSS, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Test.ShortS s11 = new Test.ShortS(new short[] {1, 2, 5});
+            Test.ShortS s12 = new Test.ShortS(new short[] {13});
+            Test.ShortS s13 = new Test.ShortS(new short[] {});
+            Test.ShortSS ssi = new Test.ShortSS(new Test.ShortS[] {s11, s12, s13});
+
+            Test.IntS i11 = new Test.IntS(new int[] {24, 98});
+            Test.IntS i12 = new Test.IntS(new int[] {42});
+            Test.IntSS isi = new Test.IntSS(new Test.IntS[] {i11, i12});
+
+            Test.LongS l11 = new Test.LongS(new long[] {496, 1729});
+            Test.LongSS lsi = new Test.LongSS(new Test.LongS[] {l11});
+
+            Callback cb = new Callback();
+            p.begin_opShortIntLongSS(ssi, isi, lsi).whenCompleted(
+                (Test.LongSS rso, Test.ShortSS sso, Test.IntSS iso, Test.LongSS lso) =>
+                {
+                    cb.opShortIntLongSS(rso, sso, iso, lso);
                 },
                 (Ice.Exception ex) =>
                 {
