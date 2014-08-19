@@ -34,8 +34,8 @@ namespace
 #   ifdef __MINGW32__
 //
 // CERT_CHAIN_ENGINE_CONFIG struct in mingw headers doesn't include
-// new members added in Windows 7, we add our ouwn definition and 
-// then cast it to CERT_CHAIN_ENGINE_CONFIG this works because the 
+// new members added in Windows 7, we add our ouwn definition and
+// then cast it to CERT_CHAIN_ENGINE_CONFIG this works because the
 // linked libraries include the new version.
 //
 struct CertChainEngineConfig
@@ -63,8 +63,8 @@ addCertificateToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert
     vector<BYTE> outBuffer;
     outBuffer.resize(buffer.size());
     DWORD outLength = static_cast<DWORD>(outBuffer.size());
-            
-    if(!CryptStringToBinary(&buffer[0], static_cast<DWORD>(buffer.size()), CRYPT_STRING_BASE64HEADER, 
+
+    if(!CryptStringToBinary(&buffer[0], static_cast<DWORD>(buffer.size()), CRYPT_STRING_BASE64HEADER,
                             &outBuffer[0], &outLength, 0, 0))
     {
         //
@@ -75,12 +75,12 @@ addCertificateToStore(const string& file, HCERTSTORE store, PCCERT_CONTEXT* cert
                                 "IceSSL: error decoding certificate:\n" + lastErrorToString());
     }
 
-    if(!CertAddEncodedCertificateToStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, &outBuffer[0], 
+    if(!CertAddEncodedCertificateToStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, &outBuffer[0],
                                             outLength, CERT_STORE_ADD_NEW, cert))
     {
         if(GetLastError() != static_cast<DWORD>(CRYPT_E_EXISTS))
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                 "IceSSL: error decoding certificate:\n" + lastErrorToString());
         }
     }
@@ -235,13 +235,13 @@ addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, co
 {
     PCCERT_CONTEXT next = 0;
     do
-    { 
-        if((next = CertFindCertificateInStore(source, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, 
+    {
+        if((next = CertFindCertificateInStore(source, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
                                               findType, findParam, next)))
         {
             if(!CertAddCertificateContextToStore(target, next, CERT_STORE_ADD_ALWAYS, 0))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                     "IceSSL: error adding certificate to store:\n" + lastErrorToString());
             }
         }
@@ -249,7 +249,7 @@ addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, co
     while(next);
 }
 
-vector<PCCERT_CONTEXT> 
+vector<PCCERT_CONTEXT>
 findCertificates(const string& prop, const string& storeSpec, const string& value, vector<HCERTSTORE>& stores)
 {
     DWORD storeLoc = 0;
@@ -259,7 +259,7 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
     HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, stringToWstring(storeName).c_str());
     if(!store)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, 
+        throw PluginInitializationException(__FILE__, __LINE__,
             "IceSSL: failure while opening store specified by " + prop + ":\n" + lastErrorToString());
     }
 
@@ -290,7 +290,7 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
             while((pos = value.find(':', start)) != string::npos)
             {
                 string field = toUpper(trim(value.substr(start, pos - start)));
-                if(field != "SUBJECT" && field != "SUBJECTDN" && field != "ISSUER" && field != "ISSUERDN" && 
+                if(field != "SUBJECT" && field != "SUBJECTDN" && field != "ISSUER" && field != "ISSUERDN" &&
                    field != "THUMBPRINT" && field != "SUBJECTKEYID" && field != "SERIAL")
                 {
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unknown key in `" + value + "'");
@@ -301,7 +301,7 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                 {
                     ++start;
                 }
-                
+
                 if(start == value.size())
                 {
                     throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: missing argument in `" + value + "'");
@@ -322,7 +322,7 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                     }
                     if(end == value.size() || value[end] != value[start])
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: unmatched quote in `" + value + "'");
                     }
                     ++start;
@@ -344,12 +344,10 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                     }
                 }
 
-                DWORD findType = 0;
-
                 tmpStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
                 if(!tmpStore)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: error adding certificate to store:\n" + lastErrorToString());
                 }
 
@@ -366,8 +364,8 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                     if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
                                        0, 0, &length, 0))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
-                            "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" + 
+                        throw PluginInitializationException(__FILE__, __LINE__,
+                            "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
                             lastErrorToString());
                     }
 
@@ -375,8 +373,8 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                     if(!CertStrToNameW(X509_ASN_ENCODING, argW.c_str(), CERT_OID_NAME_STR | CERT_NAME_STR_REVERSE_FLAG,
                                        0, &buffer[0], &length, 0))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
-                            "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" + 
+                        throw PluginInitializationException(__FILE__, __LINE__,
+                            "IceSSL: invalid value `" + value + "' for property `" + prop + "'\n" +
                             lastErrorToString());
                     }
 
@@ -389,11 +387,11 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                     vector<BYTE> buffer;
                     if(!parseBytes(arg, buffer))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
                     }
 
-                    CRYPT_HASH_BLOB hash = { buffer.size(), &buffer[0] };
+                    CRYPT_HASH_BLOB hash = { static_cast<DWORD>(buffer.size()), &buffer[0] };
                     DWORD findType = field == "THUMBPRINT" ? CERT_FIND_HASH : CERT_FIND_KEY_IDENTIFIER;
                     addMatchingCertificates(store, tmpStore, findType, &hash);
                 }
@@ -402,22 +400,22 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
                     vector<BYTE> buffer;
                     if(!parseBytes(arg, buffer))
                     {
-                        throw PluginInitializationException(__FILE__, __LINE__, 
+                        throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: invalid value `" + value + "' for property `" + prop + "'");
                     }
-                    
-                    CRYPT_INTEGER_BLOB serial = { buffer.size(), &buffer[0] };
+
+                    CRYPT_INTEGER_BLOB serial = { static_cast<DWORD>(buffer.size()), &buffer[0] };
                     PCCERT_CONTEXT next = 0;
                     do
                     {
-                        if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, 
+                        if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
                                                               CERT_FIND_ANY, 0, next)))
                         {
                             if(CertCompareIntegerBlob(&serial, &next->pCertInfo->SerialNumber))
                             {
                                 if(!CertAddCertificateContextToStore(tmpStore, next, CERT_STORE_ADD_ALWAYS, 0))
                                 {
-                                    throw PluginInitializationException(__FILE__, __LINE__, 
+                                    throw PluginInitializationException(__FILE__, __LINE__,
                                         "IceSSL: error adding certificate to store:\n" + lastErrorToString());
                                 }
                             }
@@ -450,8 +448,8 @@ findCertificates(const string& prop, const string& storeSpec, const string& valu
     {
         PCCERT_CONTEXT next = 0;
         do
-        { 
-            if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0, 
+        {
+            if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0,
                                                   next)))
             {
                 certs.push_back(next);
@@ -481,9 +479,9 @@ SChannelEngine::initialize()
     {
         return;
     }
-    
+
     SSLEngine::initialize();
-    
+
     const string prefix = "IceSSL.";
     const PropertiesPtr properties = communicator()->getProperties();
 
@@ -497,7 +495,7 @@ SChannelEngine::initialize()
     // files mentioned in the configuration.
     //
     string defaultDir = properties->getProperty(prefix + "DefaultDir");
-    
+
     int passwordRetryMax = properties->getPropertyAsIntWithDefault(prefix + "PasswordRetryMax", 3);
     PasswordPromptPtr passwordPrompt = getPasswordPrompt();
     setPassword(properties->getProperty(prefix + "Password"));
@@ -507,7 +505,7 @@ SChannelEngine::initialize()
     {
         parseCiphers(ciphers);
     }
-    
+
     if(securityTraceLevel() >= 1)
     {
         ostringstream os;
@@ -528,7 +526,7 @@ SChannelEngine::initialize()
         }
         getLogger()->trace(securityTraceCategory(), os.str());
     }
-    
+
     string certStore = properties->getPropertyWithDefault(prefix + "CertStore", "CurrentUser");
     if(certStore != "CurrentUser" && certStore != "LocalMachine")
     {
@@ -545,13 +543,13 @@ SChannelEngine::initialize()
         _rootStore = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, 0, 0);
         if(!_rootStore)
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                     "IceSSL: error creating in memory certificate store:\n" + lastErrorToString());
         }
 
         if(!checkPath(caFile, defaultDir, false))
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: CA certificate file not found:\n" + caFile);
         }
 
@@ -570,9 +568,9 @@ SChannelEngine::initialize()
         config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
 #endif
         config.hExclusiveRoot = _rootStore;
-        
+
         //
-        // Build the chain using the LocalMachine registry location as opposed 
+        // Build the chain using the LocalMachine registry location as opposed
         // to the CurrentUser location.
         //
         if(certStore == "LocalMachine")
@@ -586,7 +584,7 @@ SChannelEngine::initialize()
         if(!CertCreateCertificateChainEngine(&config, &_chainEngine))
 #endif
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                     "IceSSL: error creating certificate chain engine:\n" + lastErrorToString());
         }
     }
@@ -594,7 +592,7 @@ SChannelEngine::initialize()
     {
         _chainEngine = (certStore == "LocalMachine") ? HCCE_LOCAL_MACHINE : HCCE_CURRENT_USER;
     }
-        
+
     //
     // Import the application certificate and private keys.
     //
@@ -604,7 +602,7 @@ SChannelEngine::initialize()
         getLogger()->warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet'");
         keySet = "DefaultKeySet";
     }
-    
+
     DWORD importFlags = (keySet == "MachineKeySet") ? CRYPT_MACHINE_KEYSET : CRYPT_USER_KEYSET;
 
     string certFile = properties->getProperty(prefix + "CertFile");
@@ -615,20 +613,20 @@ SChannelEngine::initialize()
         vector<string> certFiles;
         if(!splitString(certFile, IceUtilInternal::pathsep, certFiles) || certFiles.size() > 2)
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: invalid value for " + prefix + "CertFile:\n" + certFile);
         }
 
         vector<string> keyFiles;
         if(!splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: invalid value for " + prefix + "KeyFile:\n" + keyFile);
         }
 
         if(certFiles.size() != keyFiles.size())
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                         "IceSSL: " + prefix + "KeyFile does not agree with " + prefix + "CertFile");
         }
 
@@ -637,13 +635,13 @@ SChannelEngine::initialize()
             string certFile = certFiles[i];
             if(!checkPath(certFile, defaultDir, false))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                                     "IceSSL: certificate file not found:\n" + certFile);
             }
-            
+
             vector<char> buffer;
             readFile(certFile, buffer);
-        
+
             CRYPT_DATA_BLOB pfxBlob;
             pfxBlob.cbData = static_cast<DWORD>(buffer.size());
             pfxBlob.pbData = reinterpret_cast<BYTE*>(&buffer[0]);
@@ -659,28 +657,28 @@ SChannelEngine::initialize()
                 err = store ? 0 : GetLastError();
             }
             while(err == ERROR_INVALID_PASSWORD && passwordPrompt && ++count < passwordRetryMax);
-            
+
             if(store)
             {
                 _stores.push_back(store);
                 cert = CertFindCertificateInStore(store, X509_ASN_ENCODING, 0, CERT_FIND_ANY, 0, cert);
                 if(!cert)
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: certificate error:\n" + lastErrorToString());
                 }
                 _certs.push_back(cert);
                 continue;
             }
-            
+
             assert(err);
-            
+
             if(err != CRYPT_E_BAD_ENCODE)
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                     "IceSSL: error decoding certificate:\n" + lastErrorToString());
             }
-                
+
             //
             // Try to load certificate & key as PEM files.
             //
@@ -690,34 +688,34 @@ SChannelEngine::initialize()
             {
                 throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: key file not found:\n" + keyFile);
             }
-            
+
             readFile(keyFile, buffer);
-                
+
             vector<BYTE> outBuffer;
             outBuffer.resize(buffer.size());
             DWORD outLength = static_cast<DWORD>(buffer.size());
-            
+
             //
             // Convert the PEM encoded buffer to DER binary format.
             //
-            if(!CryptStringToBinary(&buffer[0], static_cast<DWORD>(buffer.size()), CRYPT_STRING_BASE64HEADER, 
+            if(!CryptStringToBinary(&buffer[0], static_cast<DWORD>(buffer.size()), CRYPT_STRING_BASE64HEADER,
                                     &outBuffer[0], &outLength, 0, 0))
             {
-                throw PluginInitializationException(__FILE__, __LINE__, 
+                throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: error decoding key:\n" + lastErrorToString());
             }
-            
+
             PCRYPT_PRIVATE_KEY_INFO keyInfo = 0;
             BYTE* key = 0;
             HCRYPTKEY hKey = 0;
-            
+
             try
             {
                 DWORD decodedLength = 0;
-                if(!CryptDecodeObjectEx(X509_ASN_ENCODING, PKCS_PRIVATE_KEY_INFO, &outBuffer[0], outLength, 
+                if(!CryptDecodeObjectEx(X509_ASN_ENCODING, PKCS_PRIVATE_KEY_INFO, &outBuffer[0], outLength,
                                         CRYPT_DECODE_ALLOC_FLAG, 0, &keyInfo, &decodedLength))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: error decoding key:\n" + lastErrorToString());
                 }
 
@@ -726,49 +724,49 @@ SChannelEngine::initialize()
                 //
                 if(strcmp(keyInfo->Algorithm.pszObjId, szOID_RSA_RSA))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                 string("IceSSL: error unknow key algorithm: `") + keyInfo->Algorithm.pszObjId + "'");
                 }
-                
+
                 //
                 // Create a new RSA key set to store our key
                 //
                 const wstring keySetName = stringToWstring(generateUUID());
                 HCRYPTPROV cryptProv = 0;
-                
+
                 DWORD contextFlags = (keySet == "MachineKeySet") ? CRYPT_MACHINE_KEYSET | CRYPT_NEWKEYSET :
                                                                    CRYPT_NEWKEYSET;
-                                                                    
+
                 if(!CryptAcquireContextW(&cryptProv, keySetName.c_str(), MS_DEF_PROV_W, PROV_RSA_FULL, contextFlags))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                             "IceSSL: error acquiring cryptographic context:\n" + lastErrorToString());
                 }
-                
+
                 //
                 // Decode the private key BLOB
                 //
-                if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, PKCS_RSA_PRIVATE_KEY, 
-                                        keyInfo->PrivateKey.pbData, keyInfo->PrivateKey.cbData, 
+                if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, PKCS_RSA_PRIVATE_KEY,
+                                        keyInfo->PrivateKey.pbData, keyInfo->PrivateKey.cbData,
                                         CRYPT_DECODE_ALLOC_FLAG, 0, &key, &outLength))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: error decoding key:\n" + lastErrorToString());
                 }
                 LocalFree(keyInfo);
                 keyInfo = 0;
-                
+
                 //
                 // Import the private key
                 //
                 if(!CryptImportKey(cryptProv, key, outLength, 0, 0, &hKey))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                             "IceSSL: error importing key:\n" + lastErrorToString());
                 }
                 LocalFree(key);
                 key = 0;
-                
+
                 CryptDestroyKey(hKey);
                 hKey = 0;
 
@@ -781,9 +779,9 @@ SChannelEngine::initialize()
                     throw PluginInitializationException(__FILE__, __LINE__,
                                 "IceSSL: error creating certificate store:\n" + lastErrorToString());
                 }
-                
+
                 addCertificateToStore(certFile, store, &cert);
-                
+
                 //
                 // Associate key & certificate
                 //
@@ -796,10 +794,10 @@ SChannelEngine::initialize()
 
                 if(!CertSetCertificateContextProperty(cert, CERT_KEY_PROV_INFO_PROP_ID, 0, &keyProvInfo))
                 {
-                    throw PluginInitializationException(__FILE__, __LINE__, 
+                    throw PluginInitializationException(__FILE__, __LINE__,
                                 "IceSSL: error seting certificate property:\n" + lastErrorToString());
                 }
-                
+
                 _certs.push_back(cert);
                 _stores.push_back(store);
             }
@@ -809,17 +807,17 @@ SChannelEngine::initialize()
                 {
                     LocalFree(keyInfo);
                 }
-                
+
                 if(key)
                 {
                     LocalFree(key);
                 }
-                
+
                 if(hKey)
                 {
                     CryptDestroyKey(hKey);
                 }
-                
+
                 if(cert)
                 {
                     CertFreeCertificateContext(cert);
@@ -870,7 +868,7 @@ SChannelEngine::getCipherName(ALG_ID cipher) const
             return "RSA_KEYX";
         case CALG_RSA_SIGN:
             return "RSA_SIGN";
-        case CALG_DSS_SIGN: 
+        case CALG_DSS_SIGN:
             return "DSS_SIGN";
         case CALG_KEA_KEYX:
             return "KEA_KEYX";
@@ -922,8 +920,8 @@ SChannelEngine::newCredentialsHandle(bool incoming)
     if(incoming)
     {
         //
-        // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with 
-        // Java certificate validation and SChannel doesn't seems to send 
+        // Don't set SCH_SEND_ROOT_CERT as it seems to cause problems with
+        // Java certificate validation and SChannel doesn't seems to send
         // the root certificate either way.
         //
         cred.dwFlags = SCH_CRED_NO_SYSTEM_MAPPER;
@@ -932,7 +930,7 @@ SChannelEngine::newCredentialsHandle(bool incoming)
     {
         cred.dwFlags = SCH_CRED_MANUAL_CRED_VALIDATION | SCH_CRED_NO_SERVERNAME_CHECK | SCH_CRED_NO_DEFAULT_CREDS;
     }
-    
+
     if(!_ciphers.empty())
     {
         cred.cSupportedAlgs = static_cast<DWORD>(_ciphers.size());
@@ -941,14 +939,14 @@ SChannelEngine::newCredentialsHandle(bool incoming)
 
     CredHandle credHandle;
     memset(&credHandle, 0, sizeof(credHandle));
-    
-    SECURITY_STATUS err =  
+
+    SECURITY_STATUS err =
         AcquireCredentialsHandle(0, const_cast<char*>(UNISP_NAME), (incoming ? SECPKG_CRED_INBOUND : SECPKG_CRED_OUTBOUND), 0, &cred, 0,
                                  0, &credHandle, 0);
 
     if(err != SEC_E_OK)
     {
-        throw SecurityException(__FILE__, __LINE__, 
+        throw SecurityException(__FILE__, __LINE__,
                         "IceSSL: failed to acquire credentials handle:\n" + lastErrorToString());
     }
     return credHandle;
@@ -982,7 +980,7 @@ SChannelEngine::destroy()
     {
         CertFreeCertificateChainEngine(_chainEngine);
     }
-    
+
     if(_rootStore)
     {
         CertCloseStore(_rootStore, 0);
@@ -1009,10 +1007,10 @@ SChannelEngine::destroy()
                 {
                     CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
                     HCRYPTPROV cryptProv = 0;
-                    if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName, 
+                    if(CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
                                             keyProvInfo->dwProvType, 0))
                     {
-                        CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName, 
+                        CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
                                              keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
                     }
                 }
