@@ -27,8 +27,8 @@ namespace Ice
         // causes problems for the Compact Framework.
         //
         [DllImport("kernel32.dll")]
-        [return: MarshalAsAttribute(UnmanagedType.Bool)] 
-        internal static extern bool 
+        [return: MarshalAsAttribute(UnmanagedType.Bool)]
+        internal static extern bool
         SetConsoleCtrlHandler(CtrlCEventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
 #endif
     }
@@ -203,7 +203,7 @@ namespace Ice
             {
                 initData = new InitializationData();
             }
-            
+
             try
             {
                 initData.properties = Util.createProperties(ref args, initData.properties);
@@ -227,7 +227,6 @@ namespace Ice
 #if COMPACT || UNITY
             status = doMain(args, initData);
 #else
-
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
                 if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
@@ -456,7 +455,7 @@ namespace Ice
                 // If the process logger is the default logger, we replace it with a
                 // a logger which is using the program name for the prefix.
                 //
-                if(initData.properties.getProperty("Ice.ProgramName").Length > 0 && 
+                if(initData.properties.getProperty("Ice.ProgramName").Length > 0 &&
                    Util.getProcessLogger() is ConsoleLoggerI)
                 {
                     Util.setProcessLogger(new ConsoleLoggerI(initData.properties.getProperty("Ice.ProgramName")));
@@ -496,11 +495,11 @@ namespace Ice
                 ignoreInterrupt();
             }
 
-            lock(this)
+            lock(mutex__)
             {
                 while(callbackInProgress__)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    System.Threading.Monitor.Wait(mutex__);
                 }
                 if(destroyed__)
                 {
@@ -923,7 +922,7 @@ namespace Ice
         }
 #endif
     }
-    
+
     delegate bool CtrlCEventHandler(int sig);
 }
 #endif
