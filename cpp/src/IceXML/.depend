@@ -1,0 +1,1 @@
+Parser$(OBJEXT): Parser.cpp ../IceXML/Parser.h $(includedir)/IceUtil/Shared.h $(includedir)/IceUtil/Config.h $(includedir)/IceUtil/Handle.h $(includedir)/IceUtil/Exception.h $(includedir)/IceUtil/FileUtil.h
