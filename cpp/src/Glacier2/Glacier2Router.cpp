@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/FileUtil.h>
@@ -16,7 +15,7 @@
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
-#include <Glacier2/CryptPermissionsVerifierI.h>
+#include <Glacier2/CryptPermissionsVerifierPlugin.h>
 
 using namespace std;
 using namespace Ice;
@@ -257,41 +256,18 @@ RouterService::start(int argc, char* argv[], int& status)
     }
     else if(!passwordsProperty.empty())
     {
-        IceUtilInternal::ifstream passwordFile(passwordsProperty);
-
-        if(!passwordFile)
+        try
         {
-            string err = strerror(errno);
-            error("cannot open `" + passwordsProperty + "' for reading: " + err);
+            CryptPermissionsVerifierPluginPtr plugin = CryptPermissionsVerifierPluginPtr::dynamicCast(
+                                            communicator()->getPluginManager()->getPlugin("CryptPermissionsVerifier"));
+            verifier = PermissionsVerifierPrx::uncheckedCast(
+                                                    verifierAdapter->addWithUUID(plugin->create(passwordsProperty)));
+        }
+        catch(const Ice::NotRegisteredException&)
+        {
+            error("CryptPermissionsVerifier plugin has not been initialized");
             return false;
         }
-
-        map<string, string> passwords;
-
-        while(true)
-        {
-            string userId;
-            passwordFile >> userId;
-            if(!passwordFile)
-            {
-                break;
-            }
-
-            string password;
-            passwordFile >> password;
-            if(!passwordFile)
-            {
-                break;
-            }
-
-            assert(!userId.empty());
-            assert(!password.empty());
-            passwords.insert(make_pair(userId, password));
-        }
-
-        PermissionsVerifierPtr verifierImpl = new CryptPermissionsVerifierI(passwords);
-
-        verifier = PermissionsVerifierPrx::uncheckedCast(verifierAdapter->addWithUUID(verifierImpl));
     }
 
     //

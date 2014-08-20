@@ -283,6 +283,7 @@ for testcase in testcases:
           ' --Glacier2.Client.Endpoints="default -p 12347"' + \
           ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
           ' --Ice.Admin.InstanceName=Glacier2' + \
+          ' --Ice.Plugin.CryptPermissionsVerifier=CryptPermissionsVerifier:createCryptPermissionsVerifier' + \
           ' --Glacier2.CryptPasswords="'  + os.path.join(os.getcwd(), "passwords") + '"'
 
     routerConfig = open(os.path.join(os.getcwd(), "router.cfg"), "w")

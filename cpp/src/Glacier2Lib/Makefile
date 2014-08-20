@@ -21,7 +21,8 @@ OBJS		= PermissionsVerifier.o \
 		  Session.o \
 		  Application.o \
 		  Metrics.o \
-		  SessionHelper.o
+		  SessionHelper.o \
+		  CryptPermissionsVerifierPlugin.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

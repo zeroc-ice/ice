@@ -30,6 +30,7 @@ args = ' --Glacier2.RoutingTable.MaxSize=10' + \
        ' --Glacier2.Client.Endpoints="default -p 12347"' + \
        ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
        ' --Ice.Admin.InstanceName=Glacier2' + \
+       ' --Ice.Plugin.CryptPermissionsVerifier=CryptPermissionsVerifier:createCryptPermissionsVerifier' + \
        ' --Glacier2.CryptPasswords="' + os.path.join(testdir, "passwords")  + '"'
 
 sys.stdout.write("starting router... ")

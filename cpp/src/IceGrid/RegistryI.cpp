@@ -17,6 +17,7 @@
 #include <IceStorm/Service.h>
 #include <IceSSL/IceSSL.h>
 #include <Glacier2/PermissionsVerifier.h>
+#include <Glacier2/CryptPermissionsVerifierPlugin.h>
 
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Database.h>
@@ -39,10 +40,6 @@
 #include <IceGrid/RegistryServerAdminRouter.h>
 
 #include <fstream>
-
-#ifndef __APPLE__
-#   include <openssl/des.h> // For crypt() passwords
-#endif
 
 #include <sys/types.h>
 
@@ -72,42 +69,6 @@ public:
     {
         return true;
     }
-};
-
-class CryptPermissionsVerifierI : public Glacier2::PermissionsVerifier
-{
-public:
-
-    CryptPermissionsVerifierI(const map<string, string>& passwords) : _passwords(passwords)
-    {
-    }
-
-    bool checkPermissions(const string& userId, const string& password, string&, const Current&) const 
-    {
-        map<string, string>::const_iterator p = _passwords.find(userId);
-        if(p == _passwords.end())
-        {
-            return false;
-        }
-        
-        if(p->second.size() != 13) // Crypt passwords are 13 characters long.
-        {
-            return false;
-        }
-        
-        char buff[14];
-        string salt = p->second.substr(0, 2);
-#if defined(__APPLE__)
-        return p->second == crypt(password.c_str(), salt.c_str());
-#else
-        DES_fcrypt(password.c_str(), salt.c_str(), buff);
-#endif
-        return p->second == buff;
-    }
-
-private:
-
-    const std::map<std::string, std::string> _passwords;
 };
 
 class DefaultServantLocator : public Ice::ServantLocator
@@ -1296,39 +1257,19 @@ RegistryI::getPermissionsVerifier(const IceGrid::LocatorPrx& locator,
     }
     else if(!passwordsProperty.empty())
     {
-        IceUtilInternal::ifstream passwordFile(passwordsProperty);
-        if(!passwordFile)
+        try
+        {
+            Glacier2::CryptPermissionsVerifierPluginPtr plugin = 
+                                        Glacier2::CryptPermissionsVerifierPluginPtr::dynamicCast(
+                                            _communicator->getPluginManager()->getPlugin("CryptPermissionsVerifier"));
+            verifier = _registryAdapter->addWithUUID(plugin->create(passwordsProperty));
+        }
+        catch(const Ice::NotRegisteredException&)
         {
             Error out(_communicator->getLogger());
-            string err = strerror(errno);
-            out << "cannot open `" + passwordsProperty + "' for reading: " + err;
+            out << "CryptPermissionsVerifier plugin has not been initialized";
             return 0;
         }
-
-        map<string, string> passwords;
-
-        while(true)
-        {
-            string userId;
-            passwordFile >> userId;
-            if(!passwordFile)
-            {
-                break;
-            }
-
-            string password;
-            passwordFile >> password;
-            if(!passwordFile)
-            {
-                break;
-            }
-
-            assert(!userId.empty());
-            assert(!password.empty());
-            passwords.insert(make_pair(userId, password));
-        }
-
-        verifier = _registryAdapter->addWithUUID(new CryptPermissionsVerifierI(passwords));
     }
     else
     {

@@ -14,7 +14,6 @@ TARGETS         = $(ROUTER)
 
 OBJS		= Blobject.obj \
 		  ClientBlobject.obj \
-		  CryptPermissionsVerifierI.obj \
 		  Glacier2Router.obj \
 		  Instance.obj \
                   Instrumentation.obj \
@@ -35,7 +34,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --include-dir Glacier2 $(SLICE2CPPFLAGS)
 
-LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib  libeay32.lib
+LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(ROUTER:.exe=.pdb)
@@ -63,5 +62,13 @@ install:: all
 	copy $(ROUTER:.exe=.pdb) "$(install_bindir)"
 
 !endif
+
+SUBDIRS = CryptPermissionsVerifier
+
+$(EVERYTHING)::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @if exist %i \
+	        @echo "making $@ in %i" && \
+	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
 !include .depend.mak

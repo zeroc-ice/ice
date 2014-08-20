@@ -14,7 +14,6 @@ TARGETS         = $(ROUTER)
 
 OBJS		= Blobject.o \
 		  ClientBlobject.o \
-		  CryptPermissionsVerifierI.o \
 		  Glacier2Router.o \
 		  Instance.o \
 		  Instrumentation.o \
@@ -45,5 +44,17 @@ $(ROUTER): $(OBJS)
 install:: all
 	$(call installprogram,$(ROUTER),$(DESTDIR)$(install_bindir))
 	$(call installdata,$(top_srcdir)/../man/man1/glacier2router.1,$(DESTDIR)$(install_mandir))
+
+SUBDIRS = CryptPermissionsVerifier
+
+$(EVERYTHING)::
+	@for subdir in $(SUBDIRS); \
+	do \
+	    if test -d $$subdir ; \
+	    then \
+		echo "making $@ in $$subdir"; \
+		( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	    fi; \
+	done
 
 include .depend

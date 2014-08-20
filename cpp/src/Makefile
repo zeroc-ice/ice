@@ -39,6 +39,7 @@ else
 			  FreezeScript \
 			  IceBox \
 			  Glacier2Lib \
+			  CryptPermissionsVerifier \
 			  Glacier2 \
 			  IcePatch2Lib \
 			  IcePatch2 \
@@ -67,7 +68,9 @@ Freeze: slice2freeze
 
 FreezeScript: Freeze
 
-Glacier2 IceGridLib: Glacier2Lib
+CryptPermissionsVerifier: Glacier2Lib
+
+Glacier2 IceGridLib: Glacier2Lib CryptPermissionsVerifier
 
 IcePatch2: IcePatch2Lib
 
