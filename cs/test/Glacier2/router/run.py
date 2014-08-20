@@ -31,7 +31,6 @@ args = ' --Ice.Warn.Dispatch=0' + \
        ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1"' \
        ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
        ' --Ice.Admin.InstanceName=Glacier2' + \
-       ' --Ice.Plugin.CryptPermissionsVerifier=CryptPermissionsVerifier:createCryptPermissionsVerifier' + \
        ' --Glacier2.CryptPasswords="' + os.path.join(os.getcwd(), "passwords") + '"'
 
 sys.stdout.write("starting router... ")

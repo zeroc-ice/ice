@@ -36,7 +36,6 @@ def startRouter(buffered):
            ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1"' \
            ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
            ' --Ice.Admin.InstanceName="Glacier2"' + \
-           ' --Ice.Plugin.CryptPermissionsVerifier=CryptPermissionsVerifier:createCryptPermissionsVerifier' + \
            ' --Glacier2.CryptPasswords="%s"' % os.path.join(os.getcwd(), "passwords")
 
     if buffered:

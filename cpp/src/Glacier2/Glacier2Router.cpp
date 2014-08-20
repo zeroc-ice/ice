@@ -535,6 +535,15 @@ RouterService::initializeCommunicator(int& argc, char* argv[],
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
+    
+    //
+    // If Glacier2.CryptPasswords is set configure the CryptPermissionsVerifier plug-in
+    //
+    if(!initData.properties->getProperty("Glacier2.CryptPasswords").empty())
+    {
+        initData.properties->setProperty("Ice.Plugin.CryptPermissionsVerifier",
+                                         "CryptPermissionsVerifier:createCryptPermissionsVerifier");
+    }
  
     //
     // Make sure that Glacier2 doesn't use a router.

@@ -165,6 +165,17 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     initData.properties = createProperties(argc, argv, initData.properties);
     
     //
+    // If IceGrid.CryptPasswords or IceGrid.AdminCryptPasswords are set configure the 
+    // CryptPermissionsVerifier plug-in
+    //
+    if(!initData.properties->getProperty("IceGrid.CryptPasswords").empty() ||
+       !initData.properties->getProperty("IceGrid.AdminCryptPasswords").empty())
+    {
+        initData.properties->setProperty("Ice.Plugin.CryptPermissionsVerifier",
+                                         "CryptPermissionsVerifier:createCryptPermissionsVerifier");
+    }
+    
+    //
     // Setup the client thread pool size.
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
