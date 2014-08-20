@@ -709,7 +709,11 @@ sslConfigTree = {
         
 if isDarwin():
     sslConfigTree["cpp"]["client"] += " --IceSSL.Keychain=client.keychain --IceSSL.KeychainPassword=password"
-    sslConfigTree["cpp"]["server"] += " --IceSSL.Keychain=server.keychain --IceSSL.KeychainPassword=password"
+    #
+    # Run OS X server with TLS 1.1 to workaround a bug in Secure Transport TLS 1.2 implementation.
+    #
+    sslConfigTree["cpp"]["server"] += " --IceSSL.Keychain=server.keychain --IceSSL.KeychainPassword=password " + \
+        "--IceSSL.ProtocolVersionMax=tls1_1"
     sslConfigTree["cpp"]["colloc"] += " --IceSSL.Keychain=colloc.keychain --IceSSL.KeychainPassword=password"
     
 sslConfigTree["py"] = sslConfigTree["cpp"]
