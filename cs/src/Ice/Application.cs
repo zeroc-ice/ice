@@ -821,10 +821,10 @@ namespace Ice
 
             public void destroy()
             {
-                lock(this)
+                lock(_m)
                 {
                     _destroyed = true;
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.Pulse(_m);
                 }
 
                 if(_thread != null)
@@ -836,10 +836,10 @@ namespace Ice
 
             private void callback(int sig)
             {
-                lock(this)
+                lock(_m)
                 {
                     _signals.Add(sig);
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.Pulse(_m);
                 }
             }
 
@@ -850,11 +850,11 @@ namespace Ice
                     List<int> signals = null;
                     bool destroyed = false;
 
-                    lock(this)
+                    lock(_m)
                     {
                         if(!_destroyed && _signals.Count == 0)
                         {
-                            System.Threading.Monitor.Wait(this);
+                            System.Threading.Monitor.Wait(_m);
                         }
 
                         if(_signals.Count > 0)
@@ -881,10 +881,11 @@ namespace Ice
                 }
             }
 
-            private SignalHandler _handler;
-            private bool _destroyed;
-            private Thread _thread;
-            private List<int> _signals = new List<int>();
+            private static SignalHandler _handler;
+            private static bool _destroyed;
+            private static object _m = new object();
+            private static Thread _thread;
+            private static List<int> _signals = new List<int>();
         }
 
         private class WindowsSignals : Signals
@@ -892,9 +893,16 @@ namespace Ice
 #if MANAGED
             public void register(SignalHandler handler)
             {
-                //
-                // Signals aren't supported in managed code on Windows.
-                //
+                _handler = handler;
+                Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs args)
+                {
+                    args.Cancel = true;
+                    _handler(0);
+                };
+            }
+
+            public void destroy()
+            {
             }
 #else
             public void register(SignalHandler handler)
@@ -911,7 +919,6 @@ namespace Ice
             }
 
             private CtrlCEventHandler _callback;
-            private SignalHandler _handler;
 
             private bool callback(int sig)
             {
@@ -919,6 +926,7 @@ namespace Ice
                 return true;
             }
 #endif
+            private SignalHandler _handler;
         }
 #endif
     }
