@@ -894,6 +894,12 @@ namespace Ice.VisualStudio
                     }
                 }
             }
+            catch(System.NotImplementedException)
+            { 
+                //
+                // Some project items doesn't implement ContainingProject property
+                //
+            }
             catch(Exception ex)
             {
                 Util.unexpectedExceptionWarning(ex);
