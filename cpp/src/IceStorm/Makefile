@@ -14,9 +14,9 @@ SONAME       = $(call mksoname,IceStormService,$(SOVERSION))
 LIBNAME	= $(call mklibname,IceStormService)
 
 ADMIN		= $(bindir)/icestormadmin
-
+MIGRATE		= $(bindir)/icestormmigrate
 LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
-TARGETS         = $(LIBTARGETS) $(ADMIN)
+TARGETS         = $(LIBTARGETS) $(ADMIN) $(MIGRATE)
 
 OBJS		= NodeI.o \
 		  Observers.o \
@@ -52,8 +52,18 @@ AOBJS		= Admin.o \
 		  SubscriberRecord.o \
 		  IceStormInternal.o
 
+MOBJS		= Migrate.o \
+		  SubscriberMap.o \
+		  LLUMap.o \
+		  LinkRecord.o \
+		  V32FormatDB.o \
+		  V31FormatDB.o \
+		  V32Format.o \
+		  V31Format.o
+
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
+		  $(MOBJS:.o=.cpp)
 
 SLICE_SRCS	= ../IceStorm/Instrumentation.ice \
 		  ../IceStorm/Election.ice \
@@ -97,7 +107,11 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(READLINE_LIBS) $(LIBS)
-	
+
+$(MIGRATE): $(MOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStormService -lIceStorm -lFreeze $(LIBS)
+
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.
 ../IceStorm/LLUMap.h: LLUMap.cpp

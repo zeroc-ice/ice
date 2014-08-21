@@ -13,8 +13,9 @@ LIBNAME		= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
+MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 
-TARGETS         = $(LIBNAME) $(DLLNAME) $(ADMIN)
+TARGETS         = $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE)
 
 OBJS		= NodeI.obj \
 		  Observers.obj \
@@ -50,8 +51,18 @@ AOBJS		= Admin.obj \
 		  SubscriberRecord.obj \
 		  IceStormInternal.obj
 
+MOBJS		= Migrate.obj \
+		  SubscriberMap.obj \
+		  LLUMap.obj \
+		  LinkRecord.obj \
+		  V32FormatDB.obj \
+		  V31FormatDB.obj \
+		  V32Format.obj \
+		  V31Format.obj
+
 SRCS		= $(OBJS:.obj=.cpp) \
-		  $(AOBJS:.obj=.cpp)
+		  $(AOBJS:.obj=.cpp) \
+		  $(MOBJS:.obj=.cpp)
 
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
@@ -65,28 +76,36 @@ ICECPPFLAGS	= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib
+MLINKWITH 	= freeze$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
+MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
 RES_FILE        = IceStormService.res
 ARES_FILE       = IceStormAdmin.res
+MRES_FILE       = IceStormMigrate.res
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS) IceStormService.res
+$(DLLNAME): $(OBJS) $(RES_FILE)
 	$(LINK) $(BASE):0x2C000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(ADMIN): $(AOBJS) IceStormAdmin.res 
+$(ADMIN): $(AOBJS) $(ARES_FILE) 
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+$(MIGRATE): $(MOBJS) $(MRES_FILE)
+        $(LINK) $(LD_EXEFLAGS) $(MPDBFLAGS) $(MOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(MLINKWITH) $(MRES_FILE)
+        @if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+            $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 # Implicit rule to build the private IceStorm .ice files.
 {..\IceStorm\}.ice{..\IceStorm\}.h:
