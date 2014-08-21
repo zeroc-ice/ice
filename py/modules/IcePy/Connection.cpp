@@ -71,10 +71,10 @@ private:
     void invoke(const string& methodName, const Ice::ConnectionPtr& con)
     {
         AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
+#ifndef NDEBUG
         ConnectionObject* c = reinterpret_cast<ConnectionObject*>(_con);
         assert(con == *(c->connection));
-
+#endif
         if(!PyObject_HasAttrString(_cb, STRCAST(methodName.c_str())))
         {
             ostringstream ostr;
