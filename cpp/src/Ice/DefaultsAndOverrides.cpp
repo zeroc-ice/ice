@@ -37,9 +37,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     string value;
 
-#ifdef ICE_OS_WINRT
-    const_cast<Address&>(defaultSourceAddress) = Address();
-#else
+#ifndef ICE_OS_WINRT
     value = properties->getProperty("Ice.Default.SourceAddress");
     if(!value.empty())
     {
@@ -50,10 +48,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
             ex.reason = "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'";
             throw ex;
         }
-    }
-    else
-    {
-        const_cast<Address&>(defaultSourceAddress) = Address();
     }
 #endif
 
