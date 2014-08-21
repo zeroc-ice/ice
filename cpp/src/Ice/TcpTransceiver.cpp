@@ -576,7 +576,7 @@ IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance,
     NativeInfo(fd),
     _instance(instance),
     _addr(Address()),
-    _sourceAddr(getInvalidAddress()),
+    _sourceAddr(Address()),
     _state(StateConnected),
     _desc(fdToString(_fd))
 #ifdef ICE_USE_IOCP

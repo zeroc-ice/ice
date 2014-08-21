@@ -482,7 +482,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, const
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) :
     _instance(instance),
     _port(0),
-    _sourceAddr(getInvalidAddress()),
+    _sourceAddr(Address()),
     _hashInitialized(false)
 {
 }
@@ -490,7 +490,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) :
 IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, BasicStream* s) :
     _instance(instance),
     _port(0),
-    _sourceAddr(getInvalidAddress()),
+    _sourceAddr(Address()),
     _hashInitialized(false)
 {
     s->read(const_cast<string&>(_host), false);

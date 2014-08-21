@@ -1524,19 +1524,6 @@ IceInternal::isAddressValid(const Address& addr)
 #endif
 }
 
-Address
-IceInternal::getInvalidAddress()
-{
-#ifndef ICE_OS_WINRT
-    Address addr;
-    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
-    addr.saStorage.ss_family = AF_UNSPEC;
-    return addr;
-#else
-    return Address();
-#endif
-}
-
 #ifdef ICE_OS_WINRT
 vector<string>
 IceInternal::getHostsForEndpointExpand(const string&, ProtocolSupport, bool)
@@ -2104,7 +2091,7 @@ IceInternal::getNumericAddress(const std::string& address)
     vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::Ordered, false, false);
     if(addrs.empty())
     {
-        return getInvalidAddress();
+        return Address();
     }
     else
     {
@@ -2483,10 +2470,10 @@ IceInternal::createPipe(SOCKET fds[2])
     {
         setBlock(fds[0], true);
 #  ifndef NDEBUG
-        bool connected = doConnect(fds[0], addr, getInvalidAddress());
+        bool connected = doConnect(fds[0], addr, Address());
         assert(connected);
 #  else
-        doConnect(fds[0], addr, getInvalidAddress());
+        doConnect(fds[0], addr, Address());
 #  endif
     }
     catch(...)

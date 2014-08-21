@@ -327,10 +327,10 @@ repeat:
         assert(_incoming); // Client connections should always be connected at this point.
 
 #   ifndef NDEBUG
-        bool connected = doConnect(_fd, _peerAddr, getInvalidAddress());
+        bool connected = doConnect(_fd, _peerAddr, Address());
         assert(connected);
 #   else
-        doConnect(_fd, _peerAddr, getInvalidAddress());
+        doConnect(_fd, _peerAddr, Address());
 #   endif
         _state = StateConnected;
 

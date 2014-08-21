@@ -64,7 +64,7 @@ private:
 
 IceInternal::StreamEndpointI::StreamEndpointI(const ProtocolInstancePtr& instance, const string& ho, Int po, Int ti,
                                               const string& conId, bool co) :
-    IPEndpointI(instance, ho, po, getInvalidAddress(), conId),
+    IPEndpointI(instance, ho, po, Address(), conId),
     _timeout(ti),
     _compress(co)
 {
@@ -327,7 +327,7 @@ IceInternal::StreamEndpointI::checkOption(const string& option, const string& ar
             ex.str = "no argument provided for -t option in endpoint " + endpoint;
             throw ex;
         }
-        
+
         if(argument == "infinite")
         {
             const_cast<Int&>(_timeout) = -1;

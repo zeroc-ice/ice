@@ -38,7 +38,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     string value;
 
 #ifdef ICE_OS_WINRT
-    const_cast<Address&>(defaultSourceAddress) = getInvalidAddress();
+    const_cast<Address&>(defaultSourceAddress) = Address();
 #else
     value = properties->getProperty("Ice.Default.SourceAddress");
     if(!value.empty())
@@ -53,7 +53,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
     else
     {
-        const_cast<Address&>(defaultSourceAddress) = getInvalidAddress();
+        const_cast<Address&>(defaultSourceAddress) = Address();
     }
 #endif
 

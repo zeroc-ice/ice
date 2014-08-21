@@ -121,6 +121,12 @@ struct ICE_API Address
 #else
 union Address
 {
+    Address()
+    {
+        memset(&saStorage, 0, sizeof(sockaddr_storage));
+        saStorage.ss_family = AF_UNSPEC;
+    }
+
     sockaddr sa;
     sockaddr_in saIn;
     sockaddr_in6 saIn6;
@@ -288,7 +294,6 @@ ICE_API void fdToAddressAndPort(SOCKET, std::string&, int&, std::string&, int&);
 ICE_API void addrToAddressAndPort(const Address&, std::string&, int&);
 ICE_API std::string addressesToString(const Address&, const Address&, bool);
 ICE_API bool isAddressValid(const Address&);
-ICE_API Address getInvalidAddress();
 
 ICE_API std::vector<std::string> getHostsForEndpointExpand(const std::string&, ProtocolSupport, bool);
 
