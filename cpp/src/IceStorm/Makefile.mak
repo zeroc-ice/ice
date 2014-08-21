@@ -160,17 +160,20 @@ clean::
 	-del /q V32Format.cpp V32Format.h
 	-del /q V31Format.cpp V31Format.h
 	-del /q $(ADMIN:.exe=.*)
+	-del /q $(MIGRATE:.exe=.*)
 	-del /q IceStormAdmin.res IceStormDB.res IceStormService.res
 
 install:: all
 	copy $(LIBNAME) "$(install_libdir)"
 	copy $(DLLNAME) "$(install_bindir)"
 	copy $(ADMIN) "$(install_bindir)"
+	copy $(MIGRATE) "$(install_bindir)"
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
         copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
+        copy $(MIGRATE:.exe=.pdb) "$(install_bindir)"
         copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
