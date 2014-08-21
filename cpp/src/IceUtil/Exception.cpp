@@ -9,7 +9,7 @@
 
 #if defined(_MSC_VER) && _MSC_VER >= 1700
 //
-// DbgHelp.dll on Windows XP does not contain Unicode functions, so we 
+// DbgHelp.dll on Windows XP does not contain Unicode functions, so we
 // "switch on" Unicode only with VS2012 and up
 //
 #  ifndef UNICODE
@@ -108,10 +108,10 @@ getStackTrace()
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(process == 0)
     {
-        
+
         //
         // Compute Search path (best effort)
-        // consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH% 
+        // consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH%
         //
         basic_string<TCHAR> searchPath;
         const TCHAR pathSeparator = _T('\\');
@@ -130,7 +130,7 @@ getStackTrace()
         //
         // If GetModuleHandleEx fails, myModule is NULL, i.e. we'll locate the current exe's directory.
         //
-        
+
         TCHAR myFilename[MAX_PATH];
         DWORD len = GetModuleFileName(myModule, myFilename, MAX_PATH);
         if(len != 0 && len < MAX_PATH)
@@ -142,7 +142,7 @@ getStackTrace()
             if(pos != basic_string<TCHAR>::npos)
             {
                 myPath = myPath.substr(0, pos);
-           
+
                 if(!searchPath.empty())
                 {
                     searchPath += searchPathSeparator;
@@ -162,7 +162,7 @@ getStackTrace()
             }
             searchPath += symbolPath;
         }
- 
+
         process = GetCurrentProcess();
 
         SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
@@ -176,7 +176,7 @@ getStackTrace()
 
     const int stackSize = 61;
     void* stack[stackSize];
-    
+
     //
     // 1: skip the first frame (the call to getStackTrace)
     // 1 + stackSize < 63 on XP according to the documentation for CaptureStackBackTrace
@@ -186,7 +186,7 @@ getStackTrace()
     if(frames > 0)
     {
 #if defined(_MSC_VER) && (_MSC_VER >= 1600)
-#   if defined(DBGHELP_TRANSLATE_TCHAR) 
+#   if defined(DBGHELP_TRANSLATE_TCHAR)
         static_assert(sizeof(TCHAR) == sizeof(wchar_t), "Bad TCHAR - should be wchar_t");
 #   else
         static_assert(sizeof(TCHAR) == sizeof(char), "Bad TCHAR - should be char");
@@ -198,7 +198,7 @@ getStackTrace()
         SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
         symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
         symbol->MaxNameLen = MAX_SYM_NAME;
-        
+
         IMAGEHLP_LINE64 line = {};
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
         DWORD displacement = 0;
@@ -238,7 +238,7 @@ getStackTrace()
                 ok = SymGetLineFromAddr64(process, address, &displacement, &line);
                 if(ok)
                 {
-                    s << " at line " << line.LineNumber << " in " 
+                    s << " at line " << line.LineNumber << " in "
 #ifdef DBGHELP_TRANSLATE_TCHAR
                       << IceUtil::wstringToString(line.FileName, converter);
 #else
@@ -255,113 +255,119 @@ getStackTrace()
         lock.release();
     }
 
-#   elif defined(ICE_GCC_STACK_TRACES)    
+#   elif defined(ICE_GCC_STACK_TRACES)
 
     const size_t maxDepth = 100;
     void *stackAddrs[maxDepth];
 
     size_t stackDepth = backtrace(stackAddrs, maxDepth);
     char **stackStrings = backtrace_symbols(stackAddrs, stackDepth);
-
-    //
-    // Start at 1 to skip the top frame (== call to this function)
-    //
-    for (size_t i = 1; i < stackDepth; i++)
+    if(stackStrings != NULL)
     {
-        string line(stackStrings[i]);
-
-        if(i > 1)
-        {
-            stackTrace += "\n";
-        }
-
-        stringstream s;
-        s << setw(3) << i - 1 << " ";
-        
         //
-        // For each line attempt to parse the mangled function name as well
-        // as the source library/executable.
+        // Start at 1 to skip the top frame (== call to this function)
         //
-        string mangled;
-        string source;
-        string::size_type openParen = line.find_first_of('(');
-        if(openParen != string::npos)
+        for (size_t i = 1; i < stackDepth; i++)
         {
-            //
-            // Format: "/opt/Ice/lib/libIceUtil.so.33(_ZN7IceUtil9ExceptionC2EPKci+0x51) [0x73b267]"
-            //
-            string::size_type closeParen = line.find_first_of(')', openParen);
-            if(closeParen != string::npos)
+            string line(stackStrings[i]);
+
+            if(i > 1)
             {
-                string tmp = line.substr(openParen + 1, closeParen - openParen - 1);
-                string::size_type plus = tmp.find_last_of('+');
-                if(plus != string::npos)
-                {
-                    mangled = tmp.substr(0 , plus);
+                stackTrace += "\n";
+            }
 
-                    source = line.substr(0, openParen); 
+            stringstream s;
+            s << setw(3) << i - 1 << " ";
+
+            //
+            // For each line attempt to parse the mangled function name as well
+            // as the source library/executable.
+            //
+            string mangled;
+            string source;
+            string::size_type openParen = line.find_first_of('(');
+            if(openParen != string::npos)
+            {
+                //
+                // Format: "/opt/Ice/lib/libIceUtil.so.33(_ZN7IceUtil9ExceptionC2EPKci+0x51) [0x73b267]"
+                //
+                string::size_type closeParen = line.find_first_of(')', openParen);
+                if(closeParen != string::npos)
+                {
+                    string tmp = line.substr(openParen + 1, closeParen - openParen - 1);
+                    string::size_type plus = tmp.find_last_of('+');
+                    if(plus != string::npos)
+                    {
+                        mangled = tmp.substr(0 , plus);
+
+                        source = line.substr(0, openParen);
+                    }
                 }
             }
-        }
-        else
-        {
-            //
-            // Format: "1    libIce.3.3.1.dylib   0x000933a1 _ZN7IceUtil9ExceptionC2EPKci + 71"
-            //
-            string::size_type plus = line.find_last_of('+');
-            if(plus != string::npos)
+            else
             {
-                string tmp = line.substr(0, plus - 1);
-                string::size_type space = tmp.find_last_of(" \t");
-                if(space != string::npos)
+                //
+                // Format: "1    libIce.3.3.1.dylib   0x000933a1 _ZN7IceUtil9ExceptionC2EPKci + 71"
+                //
+                string::size_type plus = line.find_last_of('+');
+                if(plus != string::npos)
                 {
-                    tmp = tmp.substr(space + 1, tmp.size() - space);
-
-                    string::size_type start = line.find_first_not_of(" \t", 3);
-                    if(start != string::npos)
+                    string tmp = line.substr(0, plus - 1);
+                    string::size_type space = tmp.find_last_of(" \t");
+                    if(space != string::npos)
                     {
-                        string::size_type finish = line.find_first_of(" \t", start);
-                        if(finish != string::npos)
-                        {
-                            mangled = tmp;
+                        tmp = tmp.substr(space + 1, tmp.size() - space);
 
-                            source = line.substr(start, finish - start);
+                        string::size_type start = line.find_first_not_of(" \t", 3);
+                        if(start != string::npos)
+                        {
+                            string::size_type finish = line.find_first_of(" \t", start);
+                            if(finish != string::npos)
+                            {
+                                mangled = tmp;
+
+                                source = line.substr(start, finish - start);
+                            }
                         }
                     }
                 }
             }
-        }
-        if(mangled.size() != 0)
-        {
-            //
-            // Unmangle the function name
-            //
-            int status;
-            char* unmangled = abi::__cxa_demangle(mangled.c_str(), 0, 0, &status);
-            if(unmangled)
+            if(mangled.size() != 0)
             {
-                s << unmangled;
-                free(unmangled);
+                //
+                // Unmangle the function name
+                //
+                int status;
+                char* unmangled = abi::__cxa_demangle(mangled.c_str(), 0, 0, &status);
+                if(unmangled)
+                {
+                    s << unmangled;
+                    free(unmangled);
+                }
+                else
+                {
+                    s << mangled << "()";
+                }
+
+                if(!source.empty())
+                {
+                    s << " in " << source;
+                }
             }
             else
             {
-                s << mangled << "()";
+                s << line;
             }
-            
-            if(!source.empty())
-            {
-                s << " in " << source;
-            }
-        }
-        else
-        {
-            s << line;
-        }
 
-        stackTrace += s.str();
+            stackTrace += s.str();
 
+        }
+        free(stackStrings);
     }
-    free(stackStrings);
+    else
+    {
+        stackTrace += "<stack trace unavailable>";
+    }
 
 #   endif
 
@@ -379,7 +385,7 @@ IceUtil::Exception::Exception() :
 #endif
 {
 }
-    
+
 IceUtil::Exception::Exception(const char* file, int line) :
     _file(file),
     _line(line)
@@ -388,7 +394,7 @@ IceUtil::Exception::Exception(const char* file, int line) :
 #endif
 {
 }
-    
+
 IceUtil::Exception::~Exception() throw()
 {
 }
@@ -561,8 +567,8 @@ IceUtil::IllegalConversionException::IllegalConversionException(const char* file
     Exception(file, line)
 {}
 
-IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line, 
-                                                                const string& reason): 
+IceUtil::IllegalConversionException::IllegalConversionException(const char* file, int line,
+                                                                const string& reason):
     Exception(file, line),
     _reason(reason)
 {}
@@ -581,7 +587,7 @@ IceUtil::IllegalConversionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ": " << _reason;
-    
+
 }
 
 IceUtil::IllegalConversionException*
@@ -604,12 +610,12 @@ IceUtil::IllegalConversionException::reason() const
 
 
 
-IceUtil::SyscallException::SyscallException(const char* file, int line, int err ): 
+IceUtil::SyscallException::SyscallException(const char* file, int line, int err ):
     Exception(file, line),
     _error(err)
 {
 }
-    
+
 const char* IceUtil::SyscallException::_name = "IceUtil::SyscallException";
 
 string
@@ -647,7 +653,7 @@ IceUtil::SyscallException::error() const
 }
 
 
-IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path): 
+IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path):
     Exception(file, line),
     _error(err),
     _path(path)
@@ -670,7 +676,7 @@ void
 IceUtil::FileLockException::ice_print(ostream& os) const
 {
     Exception::ice_print(os);
-    os << ":\ncould not lock file: `" << _path << "'"; 
+    os << ":\ncould not lock file: `" << _path << "'";
     if(_error != 0)
     {
         os << "\nsyscall exception: " << IceUtilInternal::errorToString(_error);
