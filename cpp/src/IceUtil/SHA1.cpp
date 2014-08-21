@@ -32,8 +32,8 @@ IceUtil::SHA1::SHA1() :
     {
         throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
     }
-    
-    if(!CryptCreateHash(_ctx, CALG_SHA1, 0, 0, &_hash)) 
+
+    if(!CryptCreateHash(_ctx, CALG_SHA1, 0, 0, &_hash))
     {
         throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
     }
@@ -45,7 +45,7 @@ IceUtil::SHA1::~SHA1()
     {
         CryptDestroyHash(_hash);
     }
-    
+
     if(_ctx)
     {
         CryptReleaseContext(_ctx, 0);
@@ -67,7 +67,7 @@ void
 IceUtil::SHA1::update(const unsigned char* data, size_t length)
 {
 #   if defined(_WIN32)
-    if(!CryptHashData(_hash, data, static_cast<DWORD>(length), 0)) 
+    if(!CryptHashData(_hash, data, static_cast<DWORD>(length), 0))
     {
         throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
     }
@@ -102,7 +102,8 @@ void
 IceUtil::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
 {
 #if defined(ICE_OS_WINRT)
-    auto dataA = ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(data), length);
+    auto dataA =
+        ref new Platform::Array<unsigned char>(const_cast<unsigned char*>(data), static_cast<unsigned int>(length));
     auto hasher = Windows::Security::Cryptography::Core::HashAlgorithmProvider::OpenAlgorithm("SHA1");
     auto hashed = hasher->HashData(Windows::Security::Cryptography::CryptographicBuffer::CreateFromByteArray(dataA));
     auto reader = ::Windows::Storage::Streams::DataReader::FromBuffer(hashed);

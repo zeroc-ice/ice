@@ -80,6 +80,7 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProxyFactoryF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ProxyHandle.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ReferenceF.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\RemoteLogger.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\RequestHandlerF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ResponseHandlerF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Router.h \

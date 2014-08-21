@@ -54,6 +54,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\LocalObject.obj \
 		  $(ARCH)\$(CONFIG)\LocatorInfo.obj \
 		  $(ARCH)\$(CONFIG)\Locator.obj \
+		  $(ARCH)\$(CONFIG)\LoggerAdminI.obj \
 		  $(ARCH)\$(CONFIG)\LoggerI.obj \
 		  $(ARCH)\$(CONFIG)\Logger.obj \
 		  $(ARCH)\$(CONFIG)\LoggerUtil.obj \
@@ -89,6 +90,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Proxy.obj \
 		  $(ARCH)\$(CONFIG)\ReferenceFactory.obj \
 		  $(ARCH)\$(CONFIG)\Reference.obj \
+		  $(ARCH)\$(CONFIG)\RemoteLogger.obj \
 		  $(ARCH)\$(CONFIG)\RetryQueue.obj \
 		  $(ARCH)\$(CONFIG)\RequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\ResponseHandler.obj \
@@ -152,8 +154,9 @@ SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\PropertiesF.ice \
 		  $(slicedir)\Ice\Properties.ice \
 		  $(slicedir)\Ice\PropertiesAdmin.ice \
-		  $(slicedir)\Ice\RouterF.ice \
+		  $(slicedir)\Ice\RemoteLogger.ice \
 		  $(slicedir)\Ice\Router.ice \
+		  $(slicedir)\Ice\RouterF.ice \
 		  $(slicedir)\Ice\ServantLocatorF.ice \
 		  $(slicedir)\Ice\ServantLocator.ice \
 		  $(slicedir)\Ice\SliceChecksumDict.ice \
@@ -274,6 +277,7 @@ clean::
 	-del /q $(SOURCE_DIR)\Process.cpp $(HDIR)\Process.h
 	-del /q $(SOURCE_DIR)\PropertiesF.cpp $(HDIR)\PropertiesF.h
 	-del /q $(SOURCE_DIR)\Properties.cpp $(HDIR)\Properties.h
+	-del /q $(SOURCE_DIR)\RemoteLogger.cpp $(HDIR)\RemoteLogger.h
 	-del /q $(SOURCE_DIR)\RouterF.cpp $(HDIR)\RouterF.h
 	-del /q $(SOURCE_DIR)\Router.cpp $(HDIR)\Router.h
 	-del /q $(SOURCE_DIR)\ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
