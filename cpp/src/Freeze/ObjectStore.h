@@ -41,11 +41,40 @@ public:
     const Ice::ObjectPtr& sampleServant() const;
 
     bool dbHasObject(const Ice::Identity&, const TransactionIPtr&) const;
-    void save(Key& key, Value& value, Ice::Byte status, DbTxn* tx);
+    void save(Dbt&, Dbt&, Ice::Byte, DbTxn*);
 
-    static void marshal(const Ice::Identity&, Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    //
+    // This base class encapsulates a BasicStream, which allows us to avoid
+    // making any extra copies of marshaled data when updating the database.
+    //
+    class Marshaler
+    {
+    public:
+
+        Marshaler(const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+
+        void getDbt(Dbt&) const;
+
+    protected:
+
+        IceInternal::BasicStream _os;
+    };
+
+    class KeyMarshaler : public Marshaler
+    {
+    public:
+
+        KeyMarshaler(const Ice::Identity&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    };
+
+    class ValueMarshaler : public Marshaler
+    {
+    public:
+
+        ValueMarshaler(const ObjectRecord&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&, bool);
+    };
+
     static void unmarshal(Ice::Identity&, const Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
-    static void marshal(const ObjectRecord&, Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&, bool);
     static void unmarshal(ObjectRecord&, const Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&, bool);
 
     bool load(const Ice::Identity&, const TransactionIPtr&, ObjectRecord&);

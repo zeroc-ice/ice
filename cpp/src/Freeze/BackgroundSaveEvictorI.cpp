@@ -889,7 +889,7 @@ Freeze::BackgroundSaveEvictorI::run()
             
             const size_t size = allObjects.size();
             
-            deque<StreamedObject> streamedObjectQueue;
+            deque<StreamedObjectPtr> streamedObjectQueue;
             
             Long streamStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
             
@@ -927,8 +927,8 @@ Freeze::BackgroundSaveEvictorI::run()
                         {
                             size_t index = streamedObjectQueue.size();
                             streamedObjectQueue.resize(index + 1);
-                            StreamedObject& obj = streamedObjectQueue[index];
-                            stream(element, streamStart, obj);
+                            streamedObjectQueue[index] = new StreamedObject;
+                            stream(element, streamStart, streamedObjectQueue[index]);
 
                             element->status = dead;
                             deadObjects.push_back(element);
@@ -993,8 +993,8 @@ Freeze::BackgroundSaveEvictorI::run()
                                     {
                                         size_t index = streamedObjectQueue.size();
                                         streamedObjectQueue.resize(index + 1);
-                                        StreamedObject& obj = streamedObjectQueue[index];
-                                        stream(element, streamStart, obj);
+                                        streamedObjectQueue[index] = new StreamedObject;
+                                        stream(element, streamStart, streamedObjectQueue[index]);
 
                                         element->status = clean;
                                     }
@@ -1010,8 +1010,8 @@ Freeze::BackgroundSaveEvictorI::run()
                                     
                                     size_t index = streamedObjectQueue.size();
                                     streamedObjectQueue.resize(index + 1);
-                                    StreamedObject& obj = streamedObjectQueue[index];
-                                    stream(element, streamStart, obj);
+                                    streamedObjectQueue[index] = new StreamedObject;
+                                    stream(element, streamStart, streamedObjectQueue[index]);
 
                                     element->status = dead;
                                     deadObjects.push_back(element);
@@ -1095,8 +1095,14 @@ Freeze::BackgroundSaveEvictorI::run()
                         {       
                             for(size_t i = 0; i < txSize; i++)
                             {
-                                StreamedObject& obj = streamedObjectQueue[i];
-                                obj.store->save(obj.key, obj.value, obj.status, tx);
+                                StreamedObjectPtr obj = streamedObjectQueue[i];
+                                Dbt key, value;
+                                obj->key->getDbt(key);
+                                if(obj->value)
+                                {
+                                    obj->value->getDbt(value);
+                                }
+                                obj->store->save(key, value, obj->status, tx);
                             }
                         }
                         catch(...)
@@ -1117,9 +1123,7 @@ Freeze::BackgroundSaveEvictorI::run()
                             out << "committed transaction " << hex << txnId << dec;
                         }
 
-                        streamedObjectQueue.erase
-                            (streamedObjectQueue.begin(), 
-                             streamedObjectQueue.begin() + txSize);
+                        streamedObjectQueue.erase(streamedObjectQueue.begin(), streamedObjectQueue.begin() + txSize);
                         
                         if(_trace >= 1)
                         {
@@ -1350,24 +1354,25 @@ Freeze::BackgroundSaveEvictorI::addToModifiedQueue(const BackgroundSaveEvictorEl
 
 
 void
-Freeze::BackgroundSaveEvictorI::stream(const BackgroundSaveEvictorElementPtr& element, Long streamStart, StreamedObject& obj)
+Freeze::BackgroundSaveEvictorI::stream(const BackgroundSaveEvictorElementPtr& element, Long streamStart,
+                                       const StreamedObjectPtr& obj)
 {
     assert(element->status != dead);
     
-    obj.status = element->status;
-    obj.store = &element->store;
+    obj->status = element->status;
+    obj->store = &element->store;
 
     const Identity& ident = element->cachePosition->first;
-    ObjectStoreBase::marshal(ident, obj.key, _communicator, _encoding);
+    obj->key = new ObjectStoreBase::KeyMarshaler(ident, _communicator, _encoding);
 
     if(element->status != destroyed)
     {
-        bool keepStats = obj.store->keepStats();
+        const bool keepStats = obj->store->keepStats();
         if(keepStats)
         {
             EvictorIBase::updateStats(element->rec.stats, streamStart);
         }
-        ObjectStoreBase::marshal(element->rec, obj.value, _communicator, _encoding, keepStats);
+        obj->value = new ObjectStoreBase::ValueMarshaler(element->rec, _communicator, _encoding, keepStats);
     }
 }
 

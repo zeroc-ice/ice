@@ -130,13 +130,30 @@ public:
     //
     virtual void run();
 
-    struct StreamedObject
+    struct StreamedObject : public IceUtil::Shared
     {
-        Key key;
-        Value value;
+        StreamedObject() :
+            key(0), value(0)
+        {
+        }
+
+        ~StreamedObject()
+        {
+            delete key;
+            delete value;
+        }
+
+        ObjectStoreBase::KeyMarshaler* key;
+        ObjectStoreBase::ValueMarshaler* value;
         Ice::Byte status;
         ObjectStore<BackgroundSaveEvictorElement>* store;
+
+    private:
+
+        StreamedObject(const StreamedObject&) {}
+        void operator=(const StreamedObject&) {}
     };
+    typedef IceUtil::Handle<StreamedObject> StreamedObjectPtr;
 
 protected:
    
@@ -154,7 +171,7 @@ private:
     void addToModifiedQueue(const BackgroundSaveEvictorElementPtr&);
     void fixEvictPosition(const BackgroundSaveEvictorElementPtr&);
 
-    void stream(const BackgroundSaveEvictorElementPtr&, Ice::Long, StreamedObject&);
+    void stream(const BackgroundSaveEvictorElementPtr&, Ice::Long, const StreamedObjectPtr&);
   
     //
     // The _evictorList contains a list of all objects we keep,

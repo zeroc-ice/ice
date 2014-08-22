@@ -611,11 +611,10 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
         //
         // Get catalogs
         //
-        _catalog = new MapDb(_communicator, _encoding, catalogName(), CatalogKeyCodec::typeId(),
-                             CatalogValueCodec::typeId(), _env);
+        _catalog = new MapDb(_communicator, _encoding, catalogName(), Catalog::keyTypeId(),
+                             Catalog::valueTypeId(), _env);
         _catalogIndexList = new MapDb(_communicator, _encoding, catalogIndexListName(), 
-                                      CatalogIndexListKeyCodec::typeId(), CatalogIndexListValueCodec::typeId(), _env);
-
+                                      CatalogIndexList::keyTypeId(), CatalogIndexList::valueTypeId(), _env);
     }
     catch(const ::DbException& dx)
     {

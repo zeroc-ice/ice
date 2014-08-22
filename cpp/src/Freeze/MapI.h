@@ -13,7 +13,7 @@
 #include <Freeze/Map.h>
 #include <Freeze/ConnectionI.h>
 #ifdef ICE_CPP11
-#  include <memory> 
+#  include <memory>
 #endif
 
 namespace Freeze
@@ -22,37 +22,42 @@ namespace Freeze
 class MapDb;
 class MapHelperI;
 
-
 class IteratorHelperI : public IteratorHelper
-{  
+{
 public:
 
     IteratorHelperI(const MapHelperI& m, bool readOnly, const MapIndexBasePtr& index, bool onlyDups);
     IteratorHelperI(const IteratorHelperI&);
 
-    virtual 
+    virtual
     ~IteratorHelperI() ICE_NOEXCEPT_FALSE;
-  
-    bool 
+
+    bool
     find(const Key& k) const;
 
-    bool 
+    bool
+    find(const Dbt& k) const;
+
+    bool
     lowerBound(const Key& k) const;
 
-    bool 
+    bool
     upperBound(const Key& k) const;
 
     virtual IteratorHelper*
     clone() const;
-    
+
     virtual const Key*
     get() const;
 
     virtual void
     get(const Key*&, const Value*&) const;
-    
-    virtual  void 
+
+    virtual  void
     set(const Value&);
+
+    virtual  void
+    set(const Dbt&);
 
     virtual void
     erase();
@@ -66,7 +71,7 @@ public:
     close();
 
     class Tx
-#ifndef ICE_CPP11 
+#ifndef ICE_CPP11
         : public IceUtil::SimpleShared
 #endif
     {
@@ -110,20 +115,22 @@ private:
 
     mutable Key _key;
     mutable Value _value;
-}; 
-
+};
 
 class MapHelperI : public MapHelper
 {
 public:
-   
-    MapHelperI(const ConnectionIPtr&, const std::string&, const std::string&, const std::string&, 
+
+    MapHelperI(const ConnectionIPtr&, const std::string&, const std::string&, const std::string&,
                const KeyCompareBasePtr&, const std::vector<MapIndexBasePtr>&, bool);
 
     virtual ~MapHelperI();
 
     virtual IteratorHelper*
     find(const Key&, bool) const;
+
+    virtual IteratorHelper*
+    find(const Dbt&, bool) const;
 
     virtual IteratorHelper*
     lowerBound(const Key&, bool) const;
@@ -134,12 +141,21 @@ public:
     virtual void
     put(const Key&, const Value&);
 
+    virtual void
+    put(const Dbt&, const Dbt&);
+
     virtual size_t
     erase(const Key&);
 
     virtual size_t
+    erase(const Dbt&);
+
+    virtual size_t
     count(const Key&) const;
-    
+
+    virtual size_t
+    count(const Dbt&) const;
+
     virtual void
     clear();
 
@@ -157,7 +173,7 @@ public:
 
     virtual void
     closeDb();
- 
+
     virtual ConnectionPtr
     getConnection() const;
 
@@ -169,9 +185,8 @@ public:
         return _connection;
     }
 
-
     typedef std::map<std::string, MapIndexBasePtr> IndexMap;
-    
+
 private:
 
     virtual void
@@ -186,9 +201,8 @@ private:
     const std::string _dbName;
     IndexMap _indices;
 
-    Ice::Int _trace;    
+    Ice::Int _trace;
 };
-
 
 inline const IteratorHelperI::TxPtr&
 IteratorHelperI::tx() const

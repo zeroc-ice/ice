@@ -20,6 +20,7 @@
 // Berkeley DB's DbEnv
 //
 class DbEnv;
+class Dbt;
 
 namespace Freeze
 {
@@ -35,6 +36,7 @@ class SharedDb;
 class FREEZE_API KeyCompareBase : public IceUtil::Shared
 {
 public:
+
     KeyCompareBase(bool);
 
     bool compareEnabled() const;
@@ -42,6 +44,7 @@ public:
     virtual int compare(const Key&, const Key&) = 0;
 
 private:
+
     const bool _enabled;
 };
 typedef IceUtil::Handle<KeyCompareBase> KeyCompareBasePtr;
@@ -49,7 +52,7 @@ typedef IceUtil::Handle<KeyCompareBase> KeyCompareBasePtr;
 class FREEZE_API MapIndexBase : public KeyCompareBase
 {
 public:
-    
+
     virtual ~MapIndexBase();
 
     const std::string& name() const;
@@ -89,9 +92,9 @@ typedef IceUtil::Handle<MapIndexBase> MapIndexBasePtr;
 class FREEZE_API MapHelper
 {
 public:
-    
+
     static MapHelper*
-    create(const ConnectionPtr& connection, 
+    create(const ConnectionPtr& connection,
            const std::string& dbName,
            const std::string& key,
            const std::string& value,
@@ -99,18 +102,21 @@ public:
            const std::vector<MapIndexBasePtr>&,
            bool createDb);
 
-    static void 
-    recreate(const ConnectionPtr& connection, 
+    static void
+    recreate(const ConnectionPtr& connection,
              const std::string& dbName,
              const std::string& key,
              const std::string& value,
              const KeyCompareBasePtr&,
              const std::vector<MapIndexBasePtr>&);
-    
+
     virtual ~MapHelper() = 0;
 
     virtual IteratorHelper*
     find(const Key&, bool) const = 0;
+
+    virtual IteratorHelper*
+    find(const Dbt&, bool) const = 0;
 
     virtual IteratorHelper*
     lowerBound(const Key&, bool) const = 0;
@@ -121,12 +127,21 @@ public:
     virtual void
     put(const Key&, const Value&) = 0;
 
+    virtual void
+    put(const Dbt&, const Dbt&) = 0;
+
     virtual size_t
     erase(const Key&) = 0;
 
     virtual size_t
+    erase(const Dbt&) = 0;
+
+    virtual size_t
     count(const Key&) const = 0;
-    
+
+    virtual size_t
+    count(const Dbt&) const = 0;
+
     virtual void
     clear() = 0;
 
@@ -149,36 +164,37 @@ public:
     getConnection() const = 0;
 };
 
-
 class FREEZE_API IteratorHelper
-{  
+{
 public:
 
-    static IteratorHelper* 
+    static IteratorHelper*
     create(const MapHelper& m, bool readOnly);
 
-    virtual 
+    virtual
     ~IteratorHelper() ICE_NOEXCEPT_FALSE = 0;
 
     virtual IteratorHelper*
     clone() const = 0;
-    
-    virtual const Key* 
+
+    virtual const Key*
     get() const = 0;
 
     virtual void
     get(const Key*&, const Value*&) const = 0;
-    
-    virtual  void 
+
+    virtual void
     set(const Value&) = 0;
+
+    virtual void
+    set(const Dbt&) = 0;
 
     virtual void
     erase() = 0;
 
     virtual bool
     next() const = 0;
-}; 
-
+};
 
 //
 // Forward declaration
@@ -198,7 +214,7 @@ struct IteratorBase
 
 //
 // Database iterator. This implements a forward iterator with the
-// restriction that it's only possible to explicitely write back into
+// restriction that it's only possible to explicitly write back into
 // the database.
 //
 // Two iterators are equal if they use the same database and their
@@ -275,12 +291,12 @@ public:
         {
             return true;
         }
-        
+
         if(_helper.get() != 0 && rhs._helper.get() != 0)
         {
             const Key* lhsKey = _helper->get();
             const Key* rhsKey = rhs._helper->get();
-            
+
             if(lhsKey != 0 && rhsKey != 0)
             {
                 return *lhsKey == *rhsKey;
@@ -344,9 +360,8 @@ public:
     {
         assert(_helper.get());
 
-        Value v;
-        ValueCodec::write(value, v, _communicator, _encoding);
-        _helper->set(v);
+        ValueCodec v(value, _communicator, _encoding);
+        _helper->set(v.dbt());
         _refValid = false;
     }
 
@@ -418,8 +433,8 @@ public:
 
     typedef value_type& reference;
 
-    ConstIterator(IteratorHelper* helper, 
-                  const Ice::CommunicatorPtr& communicator, 
+    ConstIterator(IteratorHelper* helper,
+                  const Ice::CommunicatorPtr& communicator,
                   const Ice::EncodingVersion& encoding) :
         _helper(helper),
         _communicator(communicator),
@@ -510,12 +525,12 @@ public:
         {
             return true;
         }
-        
+
         if(_helper.get() != 0 && rhs._helper.get() != 0)
         {
             const Key* lhsKey = _helper->get();
             const Key* rhsKey = rhs._helper->get();
-            
+
             if(lhsKey != 0 && rhsKey != 0)
             {
                 return *lhsKey == *rhsKey;
@@ -553,7 +568,7 @@ public:
         {
             key_type key;
             mapped_type value;
-            
+
             getCurrentValue(key, value);
 
             //
@@ -629,8 +644,9 @@ template<typename key_type, typename KeyCodec, typename Compare>
 class KeyCompare : public KeyCompareBase
 {
 public:
+
     KeyCompare(const Compare& mapCompare,
-               const Ice::CommunicatorPtr& communicator, 
+               const Ice::CommunicatorPtr& communicator,
                const Ice::EncodingVersion& encoding) :
         KeyCompareBase(true),
         _compare(mapCompare),
@@ -658,20 +674,23 @@ public:
             return 0;
         }
     }
+
 private:
+
     Compare _compare;
     const Ice::CommunicatorPtr _communicator;
     const Ice::EncodingVersion _encoding;
 };
 
 //
-// Partial template specialization: 
+// Partial template specialization:
 // do nothing for the IceEncodingCompare comparator
 //
 template<typename key_type, typename KeyCodec>
 class KeyCompare<key_type, KeyCodec, IceEncodingCompare> : public KeyCompareBase
 {
 public:
+
     KeyCompare(const IceEncodingCompare&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&):
         KeyCompareBase(false)
     {}
@@ -691,6 +710,7 @@ template<typename key_type, typename KeyCodec, typename Compare>
 class MapIndex : public MapIndexBase
 {
 public:
+
     virtual int compare(const Key& dbKey1, const Key& dbKey2)
     {
         key_type key1;
@@ -713,23 +733,26 @@ public:
     }
 
 protected:
+
     MapIndex(const std::string& mapName, const Compare& mapCompare) :
         MapIndexBase(mapName, true),
         _compare(mapCompare)
     {}
 
 private:
+
     Compare _compare;
 };
 
 //
-// Partial template specialization: 
+// Partial template specialization:
 // do nothing for the IceEncodingCompare comparator
 //
 template<typename key_type, typename KeyCodec>
 class MapIndex<key_type, KeyCodec, IceEncodingCompare> : public MapIndexBase
 {
 public:
+
     virtual int compare(const Key&, const Key&)
     {
         assert(0);
@@ -737,9 +760,160 @@ public:
     }
 
 protected:
+
     MapIndex(const std::string& mapName, const IceEncodingCompare&):
         MapIndexBase(mapName, false)
     {}
+};
+
+class FREEZE_API MapCodecBase
+{
+public:
+
+    const Dbt& dbt() const { return *_dbt; }
+
+protected:
+
+    MapCodecBase(const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    ~MapCodecBase();
+
+    void init();
+
+    IceInternal::BasicStream _stream;
+    Dbt* _dbt;
+};
+
+//
+// Codec template for all key types. Marshaled keys are NOT encapsulated.
+//
+template<typename T>
+class MapKeyCodec : public MapCodecBase
+{
+public:
+
+    //
+    // Use the constructor to marshal a value while avoiding unnecessary copies of the
+    // marshaled data. The inherited dbt() accessor provides a Dbt value initialized with
+    // the marshaled bytes.
+    //
+    MapKeyCodec(const T& v, const Ice::CommunicatorPtr& communicator, const Ice::EncodingVersion& encoding) :
+        MapCodecBase(communicator, encoding)
+    {
+        _stream.write(v);
+        init();
+    }
+
+    template<typename U> static void write(const U& v, std::vector<Ice::Byte>& bytes,
+                                           const Ice::CommunicatorPtr& communicator,
+                                           const Ice::EncodingVersion& encoding)
+    {
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, true);
+        stream.write(v);
+        std::vector<Ice::Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
+    }
+
+    template<typename U> static void read(U& v, const std::vector<Ice::Byte>& bytes,
+                                          const Ice::CommunicatorPtr& communicator,
+                                          const Ice::EncodingVersion& encoding)
+    {
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, &bytes[0],
+                                        &bytes[0] + bytes.size());
+        stream.read(v);
+    }
+};
+
+//
+// Codec template for all value types except those that use classes. Marshaled values are encapsulated.
+//
+template<typename T>
+class MapValueCodec : public MapCodecBase
+{
+public:
+
+    //
+    // Use the constructor to marshal a value while avoiding unnecessary copies of the
+    // marshaled data. The inherited dbt() accessor provides a Dbt value initialized with
+    // the marshaled bytes.
+    //
+    MapValueCodec(const T& v, const Ice::CommunicatorPtr& communicator, const Ice::EncodingVersion& encoding) :
+        MapCodecBase(communicator, encoding)
+    {
+        _stream.startWriteEncaps();
+        _stream.write(v);
+        _stream.endWriteEncaps();
+        init();
+    }
+
+    template<typename U> static void write(const U& v, std::vector<Ice::Byte>& bytes,
+                                           const Ice::CommunicatorPtr& communicator,
+                                           const Ice::EncodingVersion& encoding)
+    {
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, true);
+        stream.startWriteEncaps();
+        stream.write(v);
+        stream.endWriteEncaps();
+        std::vector<Ice::Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
+    }
+
+    template<typename U> static void read(U& v, const std::vector<Ice::Byte>& bytes,
+                                          const Ice::CommunicatorPtr& communicator,
+                                          const Ice::EncodingVersion& encoding)
+    {
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, &bytes[0],
+                                        &bytes[0] + bytes.size());
+        stream.startReadEncaps();
+        stream.read(v);
+        stream.endReadEncaps();
+    }
+};
+
+//
+// Codec template for all value types that use classes. Marshaled values are encapsulated.
+//
+template<typename T>
+class MapObjectValueCodec : public MapCodecBase
+{
+public:
+
+    //
+    // Use the constructor to marshal a value while avoiding unnecessary copies of the
+    // marshaled data. The inherited dbt() accessor provides a Dbt value initialized with
+    // the marshaled bytes.
+    //
+    MapObjectValueCodec(const T& v, const Ice::CommunicatorPtr& communicator, const Ice::EncodingVersion& encoding) :
+        MapCodecBase(communicator, encoding)
+    {
+        _stream.startWriteEncaps();
+        _stream.write(v);
+        _stream.writePendingObjects();
+        _stream.endWriteEncaps();
+        init();
+    }
+
+    template<typename U> static void write(const U& v, std::vector<Ice::Byte>& bytes,
+                                           const Ice::CommunicatorPtr& communicator,
+                                           const Ice::EncodingVersion& encoding)
+    {
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, true);
+        stream.startWriteEncaps();
+        stream.write(v);
+        stream.writePendingObjects();
+        stream.endWriteEncaps();
+        std::vector<Ice::Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
+    }
+
+    template<typename U> static void read(U& v, const std::vector<Ice::Byte>& bytes,
+                                          const Ice::CommunicatorPtr& communicator,
+                                          const Ice::EncodingVersion& encoding)
+    {
+        IceInternal::BasicStream stream(IceInternal::getInstance(communicator).get(), encoding, &bytes[0],
+                                        &bytes[0] + bytes.size());
+        stream.sliceObjects(false);
+        stream.startReadEncaps();
+        stream.read(v);
+        stream.readPendingObjects();
+        stream.endReadEncaps();
+    }
 };
 
 //
@@ -749,7 +923,7 @@ protected:
 //
 // TODO: implement bidirectional iterators.
 //
-template<typename key_type, typename mapped_type, 
+template<typename key_type, typename mapped_type,
          typename KeyCodec, typename ValueCodec,
          typename Compare = IceEncodingCompare>
 class Map
@@ -777,23 +951,26 @@ public:
     //
     // Constructors
     //
-    Map(const Freeze::ConnectionPtr& connection, 
+    Map(const Freeze::ConnectionPtr& connection,
         const std::string& dbName,
+        const std::string& keyTypeId,
+        const std::string& valueTypeId,
         bool createDb = true,
         const Compare& compare = Compare()) :
         _communicator(connection->getCommunicator()),
         _encoding(connection->getEncoding())
-    {   
+    {
         KeyCompareBasePtr keyCompare = new KeyCompare<key_type, KeyCodec, Compare>(compare, _communicator, _encoding);
         std::vector<MapIndexBasePtr> indices;
 
-        _helper.reset(MapHelper::create(connection, dbName, KeyCodec::typeId(), ValueCodec::typeId(), keyCompare, 
-                                        indices, createDb));
+        _helper.reset(MapHelper::create(connection, dbName, keyTypeId, valueTypeId, keyCompare, indices, createDb));
     }
 
     template<class _InputIterator>
-    Map(const Freeze::ConnectionPtr& connection, 
-        const std::string& dbName, 
+    Map(const Freeze::ConnectionPtr& connection,
+        const std::string& dbName,
+        const std::string& keyTypeId,
+        const std::string& valueTypeId,
         bool createDb,
         _InputIterator first, _InputIterator last,
         const Compare& compare = Compare()) :
@@ -804,8 +981,7 @@ public:
 
         std::vector<MapIndexBasePtr> indices;
 
-        _helper.reset(MapHelper::create(connection, dbName, KeyCodec::typeId(), ValueCodec::typeId(), keyCompare,
-                                        indices, createDb));
+        _helper.reset(MapHelper::create(connection, dbName, keyTypeId, valueTypeId, keyCompare, indices, createDb));
 
         while(first != last)
         {
@@ -818,11 +994,11 @@ public:
     {
     }
 
-    // static void recreate(const Freeze::ConnectionPtr& connection, 
+    // static void recreate(const Freeze::ConnectionPtr& connection,
     //                      const std::string& dbName,
     //                      const Compare& compare = Compare())
     // {
-    //     KeyCompareBasePtr keyCompare = new KeyCompare<key_type, KeyCodec, Compare>(compare, 
+    //     KeyCompareBasePtr keyCompare = new KeyCompare<key_type, KeyCodec, Compare>(compare,
     //                                                                                connection->getCommunicator(),
     //                                                                                connection->getEncoding());
 
@@ -863,7 +1039,7 @@ public:
     {
         return !(*this == rhs);
     }
-    
+
     void swap(Map& rhs)
     {
         MapHelper* tmp = _helper.release();
@@ -945,24 +1121,22 @@ public:
     //
     //allocator_type get_allocator() const;
     //
- 
+
     iterator insert(iterator /*position*/, const value_type& key)
     {
         //
         // position is ignored.
         //
-        Key k;
-        KeyCodec::write(key.first, k, _communicator, _encoding);
-        
-        iterator r = iterator(_helper->find(k, false), _communicator, _encoding);
+        KeyCodec k(key.first, _communicator, _encoding);
+
+        iterator r = iterator(_helper->find(k.dbt(), false), _communicator, _encoding);
 
         if(r == end())
         {
-            Value v;
-            ValueCodec::write(key.second, v, _communicator, _encoding);
-            
-            _helper->put(k, v);
-            r = iterator(_helper->find(k, false), _communicator, _encoding);
+            ValueCodec v(key.second, _communicator, _encoding);
+
+            _helper->put(k.dbt(), v.dbt());
+            r = iterator(_helper->find(k.dbt(), false), _communicator, _encoding);
         }
 
         return r;
@@ -970,20 +1144,18 @@ public:
 
     std::pair<iterator, bool> insert(const value_type& key)
     {
-        Key k;
-        KeyCodec::write(key.first, k, _communicator, _encoding);
+        KeyCodec k(key.first, _communicator, _encoding);
 
-        iterator r = iterator(_helper->find(k, false), _communicator, _encoding);
+        iterator r = iterator(_helper->find(k.dbt(), false), _communicator, _encoding);
         bool inserted = false;
 
         if(r == end())
         {
-            Value v;
-            ValueCodec::write(key.second, v, _communicator, _encoding);
-            
-            _helper->put(k, v);
+            ValueCodec v(key.second, _communicator, _encoding);
+
+            _helper->put(k.dbt(), v.dbt());
             inserted = true;
-            r = iterator(_helper->find(k, false), _communicator, _encoding);
+            r = iterator(_helper->find(k.dbt(), false), _communicator, _encoding);
         }
 
         return std::pair<iterator, bool>(r, inserted);
@@ -1004,12 +1176,10 @@ public:
         //
         // insert or replace
         //
-        Key k;
-        Value v;
-        KeyCodec::write(key.first, k, _communicator, _encoding);
-        ValueCodec::write(key.second, v, _communicator, _encoding);
+        KeyCodec k(key.first, _communicator, _encoding);
+        ValueCodec v(key.second, _communicator, _encoding);
 
-        _helper->put(k, v);
+        _helper->put(k.dbt(), v.dbt());
     }
 
     template <typename InputIterator>
@@ -1030,10 +1200,9 @@ public:
 
     size_type erase(const key_type& key)
     {
-        Key k;
-        KeyCodec::write(key, k, _communicator, _encoding);
+        KeyCodec k(key, _communicator, _encoding);
 
-        return _helper->erase(k);
+        return _helper->erase(k.dbt());
     }
 
     void erase(iterator first, iterator last)
@@ -1050,7 +1219,6 @@ public:
         _helper->clear();
     }
 
-    
     //
     // destroy is not a standard function
     //
@@ -1069,26 +1237,23 @@ public:
 
     iterator find(const key_type& key)
     {
-        Key k;
-        KeyCodec::write(key, k, _communicator, _encoding);
+        KeyCodec k(key, _communicator, _encoding);
 
-        return iterator(_helper->find(k, false), _communicator, _encoding);
+        return iterator(_helper->find(k.dbt(), false), _communicator, _encoding);
     }
 
     const_iterator find(const key_type& key) const
     {
-        Key k;
-        KeyCodec::write(key, k, _communicator, _encoding);
+        KeyCodec k(key, _communicator, _encoding);
 
-        return const_iterator(_helper->find(k, true), _communicator, _encoding);
+        return const_iterator(_helper->find(k.dbt(), true), _communicator, _encoding);
     }
 
     size_type count(const key_type& key) const
     {
-        Key k;
-        KeyCodec::write(key, k, _communicator, _encoding);
-        
-        return _helper->count(k);
+        KeyCodec k(key, _communicator, _encoding);
+
+        return _helper->count(k.dbt());
     }
 
     iterator lower_bound(const key_type& key)
@@ -1098,7 +1263,7 @@ public:
 
         return iterator(_helper->lowerBound(k, false), _communicator, _encoding);
     }
-    
+
     const_iterator lower_bound(const key_type& key) const
     {
         Key k;
@@ -1114,7 +1279,7 @@ public:
 
         return iterator(_helper->upperBound(k, false), _communicator, _encoding);
     }
-    
+
     const_iterator upper_bound(const key_type& key) const
     {
         Key k;
@@ -1122,20 +1287,18 @@ public:
 
         return iterator(_helper->upperBound(k, true), _communicator, _encoding);
     }
-    
+
     std::pair<iterator, iterator> equal_range(const key_type& key)
     {
         return std::make_pair(lower_bound(key), upper_bound(key));
     }
 
-    std::pair<const_iterator, const_iterator> 
-    equal_range(const key_type& key) const
+    std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const
     {
         return std::make_pair(lower_bound(key), upper_bound(key));
     }
 
-    const Ice::CommunicatorPtr&
-    communicator() const
+    const Ice::CommunicatorPtr& communicator() const
     {
         return _communicator;
     }
@@ -1164,4 +1327,3 @@ protected:
 }
 
 #endif
-
