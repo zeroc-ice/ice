@@ -22,31 +22,17 @@ public class Fallback extends javax.swing.JApplet
             
             java.util.List<String> command = new java.util.ArrayList<String>();
             command.add("java");
+            command.add("-cp");
+            command.add(jar.getPath());
             command.add("IceGridGUI.Main");
+            
             String[] args = MainProxy.args();
             for(String arg : args)
             {
                 command.add(arg);
             }
+            
             ProcessBuilder pb = new ProcessBuilder(command);
-            
-            java.util.Map<String, String> env = pb.environment();
-            
-            String classPath = env.get("CLASSPATH");
-            classPath = classPath == null ? "" : classPath;
-            
-            if(classPath.indexOf("IceGridGUI.jar") == -1)
-            {
-                if(classPath == "")
-                {
-                    classPath = jar.getPath();
-                }
-                else
-                {
-                    classPath = System.getProperty("path.separator") + jar.getPath();
-                }
-                env.put("CLASSPATH", classPath);
-            }
             
             final Process p = pb.start();
             if(p != null)
