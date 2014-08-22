@@ -11,7 +11,7 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			= C:\IceJS-$(ICEJS_VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Define to yes for an optimized build.
