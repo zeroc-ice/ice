@@ -280,18 +280,18 @@
                 var locator = e.value;
                 try
                 {
-                    locator.deactivate(e.key);
+                    locator.destroy(e.key);
                 }
                 catch(ex)
                 {
-                    var s = "exception during locator deactivation:\n" + "object adapter: `" + this._adapterName +
+                    var s = "exception during locator destruction:\n" + "object adapter: `" + this._adapterName +
                         "'\n" + "locator category: `" + e.key + "'\n" + ExUtil.toString(ex);
                     logger.error(s);
                 }
             }
         }
     });
-    
+
     Ice.ServantManager = ServantManager;
     global.Ice = Ice;
 }(typeof (global) === "undefined" ? window : global));

@@ -44,7 +44,7 @@ public class ServantLocatorI : Ice.ServantLocator
     }
 
     public void
-    deactivate(string category)
+    destroy(string category)
     {
     }
 

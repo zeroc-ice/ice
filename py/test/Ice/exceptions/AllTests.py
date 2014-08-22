@@ -23,7 +23,7 @@ class ServantLocatorI(Ice.ServantLocator):
     def finished(self, current, servant, cookie):
         pass
 
-    def deactivate(self, category):
+    def destroy(self, category):
         pass
 
 class ObjectFactoryI(Ice.ObjectFactory):

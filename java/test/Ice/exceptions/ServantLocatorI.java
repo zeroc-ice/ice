@@ -24,7 +24,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
     }
 
     @Override
-    public void deactivate(String category)
+    public void destroy(String category)
     {
     }
 }

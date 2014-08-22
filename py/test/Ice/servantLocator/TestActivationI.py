@@ -19,7 +19,7 @@ class TestActivationI(Test.TestActivation):
             current.adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         else:
             locator = current.adapter.removeServantLocator("")
-            locator.deactivate("")
+            locator.destroy("")
             locator = current.adapter.removeServantLocator("category")
-            locator.deactivate("category")
+            locator.destroy("category")
 

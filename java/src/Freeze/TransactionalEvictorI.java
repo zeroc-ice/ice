@@ -266,7 +266,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 
     @Override
     public void
-    deactivate(String category)
+    destroy(String category)
     {
         if(_deactivateController.deactivate())
         {

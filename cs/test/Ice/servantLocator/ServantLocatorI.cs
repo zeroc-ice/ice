@@ -16,7 +16,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     public ServantLocatorI(String category)
     {
         _category = category;
-        _deactivated = false;
+        _destroyed = false;
         _requestId = -1;
     }
     
@@ -24,7 +24,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
         lock(this)
         {
-            test(_deactivated);
+            test(_destroyed);
         }
     }
     
@@ -40,7 +40,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
         lock(this)
         {
-            test(!_deactivated);
+            test(!_destroyed);
         }
         
         test(current.id.category.Equals(_category) || _category.Length == 0);
@@ -72,7 +72,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
         lock(this)
         {
-            test(!_deactivated);
+            test(!_destroyed);
         }
 
         //
@@ -93,13 +93,13 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         test(co.message().Equals("blahblah"));
     }
     
-    public void deactivate(string category)
+    public void destroy(string category)
     {
         lock(this)
         {
-            test(!_deactivated);
+            test(!_destroyed);
         
-            _deactivated = true;
+            _destroyed = true;
         }
     }
     
@@ -167,7 +167,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         }
     }
 
-    private bool _deactivated;
+    private bool _destroyed;
     private string _category;
     private int _requestId;
 }

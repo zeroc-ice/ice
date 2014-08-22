@@ -32,7 +32,7 @@ public:
     {
     }
 
-    virtual void deactivate(const string&)
+    virtual void destroy(const string&)
     {
     }
 

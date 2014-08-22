@@ -38,7 +38,7 @@ public class ServantLocatorI implements Ice.ServantLocator
 
     @Override
     public void
-    deactivate(String category)
+    destroy(String category)
     {
     }
 

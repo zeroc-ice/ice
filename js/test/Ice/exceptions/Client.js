@@ -37,7 +37,7 @@
         {
         };
 
-        ServantLocatorI.prototype.deactivate = function(category)
+        ServantLocatorI.prototype.destroy = function(category)
         {
         };
 

@@ -62,7 +62,7 @@ public:
 
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
 
-    virtual void deactivate(const string&);
+    virtual void destroy(const string&);
 
     PyObject* getObject();
 
@@ -251,11 +251,11 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current& current, const Ice::O
 }
 
 void
-IcePy::ServantLocatorWrapper::deactivate(const string& category)
+IcePy::ServantLocatorWrapper::destroy(const string& category)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("deactivate"), STRCAST("s"), category.c_str());
+    PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("destroy"), STRCAST("s"), category.c_str());
     if(PyErr_Occurred())
     {
         PyException ex; // Retrieve the exception before another Python API call clears it.

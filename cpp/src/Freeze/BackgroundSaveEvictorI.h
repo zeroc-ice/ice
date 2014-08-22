@@ -18,16 +18,16 @@ namespace Freeze
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1200) || defined(__IBMCPP__)
 
-    enum 
-    { 
+    enum
+    {
       clean = 0,
       created = 1,
       modified = 2,
       destroyed = 3,
       dead = 4
     };
-    
-#else 
+
+#else
     //
     // Clean object; can become modified or destroyed
     //
@@ -88,24 +88,24 @@ struct BackgroundSaveEvictorElement : public Ice::LocalObject
     int usageCount;
     int keepCount;
     bool stale;
-    
+
     //
     // Protected by mutex
-    // 
+    //
     IceUtil::Mutex mutex;
     ObjectRecord rec;
     Ice::Byte status;
 };
 
 
-class BackgroundSaveEvictorI : public BackgroundSaveEvictor, public EvictorI<BackgroundSaveEvictorElement>, 
+class BackgroundSaveEvictorI : public BackgroundSaveEvictor, public EvictorI<BackgroundSaveEvictorElement>,
                                public IceUtil::Thread
 {
 public:
 
-    BackgroundSaveEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&, 
+    BackgroundSaveEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&,
                            const ServantInitializerPtr&, const std::vector<IndexPtr>&, bool);
- 
+
     virtual Ice::ObjectPrx addFacet(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
     virtual Ice::ObjectPtr removeFacet(const Ice::Identity&, const std::string&);
 
@@ -118,10 +118,10 @@ public:
     virtual bool hasFacet(const Ice::Identity&, const std::string&);
 
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void deactivate(const std::string&);
+    virtual void destroy(const std::string&);
 
     virtual ~BackgroundSaveEvictorI();
-    
+
 
     virtual TransactionIPtr beforeQuery();
 
@@ -139,11 +139,11 @@ public:
     };
 
 protected:
-   
+
     virtual bool hasAnotherFacet(const Ice::Identity&, const std::string&);
-    
+
     virtual Ice::ObjectPtr locateImpl(const Ice::Current&, Ice::LocalObjectPtr&);
-   
+
     virtual void evict();
 
 private:
@@ -155,7 +155,7 @@ private:
     void fixEvictPosition(const BackgroundSaveEvictorElementPtr&);
 
     void stream(const BackgroundSaveEvictorElementPtr&, Ice::Long, StreamedObject&);
-  
+
     //
     // The _evictorList contains a list of all objects we keep,
     // with the most recently used first.
@@ -173,7 +173,7 @@ private:
     bool _savingThreadDone;
     long _streamTimeout;
     IceUtil::TimerPtr _timer;
-    
+
     //
     // Threads that have requested a "saveNow" and are waiting for
     // its completion

@@ -20,7 +20,7 @@ public sealed class ServantManager
         lock(this)
         {
             Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+
             if(facet == null)
             {
                 facet = "";
@@ -46,7 +46,7 @@ public sealed class ServantManager
                     throw ex;
                 }
             }
-            
+
             m[facet] = servant;
         }
     }
@@ -69,13 +69,13 @@ public sealed class ServantManager
             _defaultServantMap[category] = servant;
         }
     }
-    
+
     public Ice.Object removeServant(Ice.Identity ident, string facet)
     {
         lock(this)
         {
             Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+
             if(facet == null)
             {
                 facet = "";
@@ -97,7 +97,7 @@ public sealed class ServantManager
             }
             obj = m[facet];
             m.Remove(facet);
-            
+
             if(m.Count == 0)
             {
                 _servantMapMap.Remove(ident);
@@ -126,7 +126,7 @@ public sealed class ServantManager
             return obj;
         }
     }
-    
+
     public Dictionary<string, Ice.Object> removeAllFacets(Ice.Identity ident)
     {
         lock(this)
@@ -157,9 +157,9 @@ public sealed class ServantManager
             // requests from bidir connections. This method might be called if
             // requests are received over the bidir connection after the
             // adapter was deactivated.
-            //  
+            //
             //Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+
             if(facet == null)
             {
                 facet = "";
@@ -222,7 +222,7 @@ public sealed class ServantManager
             // requests from bidir connections. This method might be called if
             // requests are received over the bidir connection after the
             // adapter was deactivated.
-            //  
+            //
             //
             //Debug.Assert(instance_ != null); // Must not be called after destruction.
 
@@ -239,13 +239,13 @@ public sealed class ServantManager
             }
         }
     }
-    
+
     public void addServantLocator(Ice.ServantLocator locator, string category)
     {
         lock(this)
         {
             Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+
             Ice.ServantLocator l;
             _locatorMap.TryGetValue(category, out l);
             if(l != null)
@@ -255,7 +255,7 @@ public sealed class ServantManager
                 ex.kindOfObject = "servant locator";
                 throw ex;
             }
-            
+
             _locatorMap[category] = locator;
         }
     }
@@ -265,7 +265,7 @@ public sealed class ServantManager
         lock(this)
         {
             Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+
             Ice.ServantLocator l;
             _locatorMap.TryGetValue(category, out l);
             if(l == null)
@@ -279,7 +279,7 @@ public sealed class ServantManager
             return l;
         }
     }
-    
+
     public Ice.ServantLocator findServantLocator(string category)
     {
         lock(this)
@@ -289,16 +289,16 @@ public sealed class ServantManager
             // requests from bidir connections. This method might be called if
             // requests are received over the bidir connection after the
             // adapter was deactivated.
-            //  
+            //
             //
             //Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+
             Ice.ServantLocator result;
             _locatorMap.TryGetValue(category, out result);
             return result;
         }
     }
-    
+
     //
     // Only for use by Ice.ObjectAdapterI.
     //
@@ -307,7 +307,7 @@ public sealed class ServantManager
         instance_ = instance;
         _adapterName = adapterName;
     }
-    
+
     /*
     ~ServantManager()
     {
@@ -322,7 +322,7 @@ public sealed class ServantManager
         //}
     }
     */
-    
+
     //
     // Only for use by Ice.ObjectAdapterI.
     //
@@ -346,17 +346,17 @@ public sealed class ServantManager
             Ice.ServantLocator locator = p.Value;
             try
             {
-                locator.deactivate(p.Key);
+                locator.destroy(p.Key);
             }
             catch(System.Exception ex)
             {
-                string s = "exception during locator deactivation:\n" + "object adapter: `"
+                string s = "exception during locator destruction:\n" + "object adapter: `"
                             + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
                 logger.error(s);
             }
         }
     }
-    
+
     private Instance instance_;
     private readonly string _adapterName;
     private Dictionary <Ice.Identity, Dictionary<string, Ice.Object>> _servantMapMap

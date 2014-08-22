@@ -832,7 +832,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
     @Override
     public void
-    deactivate(String category)
+    destroy(String category)
     {
         if(_deactivateController.deactivate())
         {
