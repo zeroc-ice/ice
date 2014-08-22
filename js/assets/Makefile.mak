@@ -47,7 +47,7 @@ common.min.js.gz: common.min.js
 
 common.css: $(STYLE_SHEETS)
 	-del /q common.css
-	node concat.js $(STYLE_SHEETS) > common.css
+	$(NODE) concat.js $(STYLE_SHEETS) > common.css
 
 !if "$(GZIP_PATH)" != ""
 common.css.gz: common.css

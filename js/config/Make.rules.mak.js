@@ -11,38 +11,45 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			= C:\Ice-$(VERSION)
+prefix		= C:\Ice-$(VERSION)
 
 #
 # Define to yes for an optimized build.
 #
-#OPTIMIZE 		= yes
+#OPTIMIZE	= yes
 
 #
 # Google Closure Compiler
 #
-CLOSURE_PATH		= C:\closure
+CLOSURE_PATH	= C:\closure
 
 #
 # Closure Flags
 #
-CLOSUREFLAGS 		= --language_in ECMASCRIPT5
+CLOSUREFLAGS	= --language_in ECMASCRIPT5
 
 #
 # jsHint location
 #
-JSHINT_PATH 		= $(NODE_PATH)\jshint
+JSHINT_PATH	= $(NODE_PATH)\jshint
 
 #
 # Define to the location of gnu gzip if you want to generate
 # gzip version of JavaScript libraries.
 #
-#GZIP_PATH		= "C:\Program Files (x86)\GnuWin32\bin\gzip.exe"
+#GZIP_PATH	= "C:\Program Files (x86)\GnuWin32\bin\gzip.exe"
 
 #
 # jsHint flags
 #
-LINTFLAGS 		= --verbose
+LINTFLAGS	= --verbose
+
+#
+# NodeJS executable
+#
+!if "$(NODE)" == ""
+NODE		= node
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -127,12 +134,12 @@ index.html: $(GEN_SRCS) $(top_srcdir)\test\Common\index.html
 
 $(libdir)/$(LIBNAME).js: $(SRCS)
 	@del /q $(libdir)\$(LIBNAME).js
-	node $(top_srcdir)\config\makebundle.js $(SRCS) > $(libdir)\$(LIBNAME).js
+	$(NODE) $(top_srcdir)\config\makebundle.js $(SRCS) > $(libdir)\$(LIBNAME).js
 
 !if "$(OPTIMIZE)" == "yes"
 $(libdir)/$(LIBNAME).min.js: $(libdir)/$(LIBNAME).js
 	@del /q $(libdir)\$(LIBNAME).min.js
-	node $(top_srcdir)\config\makebundle.js $(SRCS) > $(libdir)\$(LIBNAME).tmp.js
+	$(NODE) $(top_srcdir)\config\makebundle.js $(SRCS) > $(libdir)\$(LIBNAME).tmp.js
 	java -jar $(CLOSURE_PATH)\compiler.jar $(CLOSUREFLAGS) --js $(libdir)\$(LIBNAME).js --js_output_file $(libdir)\$(LIBNAME).min.js
 	del /q $(libdir)\$(LIBNAME).tmp.js
 !endif
@@ -145,7 +152,7 @@ $(libdir)/$(LIBNAME)$(jslibsuffix).gz: $(libdir)/$(LIBNAME)$(jslibsuffix)
 
 !if "$(INSTALL_SRCS)" != ""
 lint: $(INSTALL_SRCS)
-	node "$(JSHINT_PATH)\bin\jshint" $(LINTFLAGS) $(INSTALL_SRCS)
+	$(NODE) "$(JSHINT_PATH)\bin\jshint" $(LINTFLAGS) $(INSTALL_SRCS)
 !else
 lint::
 !endif

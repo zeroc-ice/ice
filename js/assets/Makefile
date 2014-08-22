@@ -38,5 +38,5 @@ common.min.js common.min.js.gz: $(SCRIPTS)
 
 common.css common.css.gz: $(STYLE_SHEETS)
 	@rm -f common.css common.css.gz
-	node concat.js $(STYLE_SHEETS) > common.css
+	$(NODE) concat.js $(STYLE_SHEETS) > common.css
 	gzip -c9 common.css > common.css.gz

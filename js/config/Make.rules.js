@@ -11,12 +11,12 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			?= /opt/Ice-$(VERSION)
+prefix		?= /opt/Ice-$(VERSION)
 
 #
 # Define to yes for an optimized build.
 #
-OPTIMIZE ?= no
+OPTIMIZE 	?= no
 
 #
 # Google Closure Compiler
@@ -26,12 +26,17 @@ CLOSURE_PATH=/opt/closure
 #
 # Closure Flags
 #
-CLOSUREFLAGS = --language_in ECMASCRIPT5
+CLOSUREFLAGS	= --language_in ECMASCRIPT5
 
 #
 # jslint flags
 #
-LINTFLAGS = --verbose
+LINTFLAGS 	= --verbose
+
+#
+# NodeJS executable
+#
+NODE 		?= node
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -53,7 +58,9 @@ ifeq ($(OPTIMIZE),yes)
 mklibtargets	= $(libdir)/$(1).min.js $(libdir)/$(1).min.js.gz
 
 installlib	= $(INSTALL) $(2)/$(3).min.js $(1); \
-		  $(INSTALL) $(2)/$(3).min.js.gz $(1)
+		  $(INSTALL) $(2)/$(3).min.js.gz $(1) \
+		  $(INSTALL) $(2)/$(3).js $(1); \
+                  $(INSTALL) $(2)/$(3).js.gz $(1)
 else
 mklibtargets	= $(libdir)/$(1).js $(libdir)/$(1).js.gz
 
@@ -119,13 +126,13 @@ index.html: $(GEN_SRCS) $(top_srcdir)/test/Common/index.html
 
 $(libdir)/$(LIBNAME).js $(libdir)/$(LIBNAME).js.gz: $(SRCS)
 	@rm -f $(libdir)/$(LIBNAME).js $(libdir)/$(LIBNAME).js.gz
-	node $(top_srcdir)/config/makebundle.js $(SRCS) > $(libdir)/$(LIBNAME).js
+	$(NODE) $(top_srcdir)/config/makebundle.js $(SRCS) > $(libdir)/$(LIBNAME).js
 	gzip -c9 $(libdir)/$(LIBNAME).js > $(libdir)/$(LIBNAME).js.gz
 
 ifeq ($(OPTIMIZE),yes)
 $(libdir)/$(LIBNAME).min.js $(libdir)/$(LIBNAME).min.js.gz: $(libdir)/$(LIBNAME).js
 	@rm -f $(libdir)/$(LIBNAME).min.js $(libdir)/$(LIBNAME).min.js.gz
-	node $(top_srcdir)/config/makebundle.js $(SRCS) > $(libdir)/$(LIBNAME).tmp.js
+	$(NODE) $(top_srcdir)/config/makebundle.js $(SRCS) > $(libdir)/$(LIBNAME).tmp.js
 	java -jar $(CLOSURE_PATH)/compiler.jar $(CLOSUREFLAGS) --js $(libdir)/$(LIBNAME).js --js_output_file $(libdir)/$(LIBNAME).min.js
 	gzip -c9 $(libdir)/$(LIBNAME).min.js > $(libdir)/$(LIBNAME).min.js.gz
 	rm -f $(libdir)/$(LIBNAME).tmp.js
