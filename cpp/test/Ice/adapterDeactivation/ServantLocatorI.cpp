@@ -16,19 +16,19 @@ using namespace Ice;
 using namespace Test;
 
 ServantLocatorI::ServantLocatorI() :
-    _destroyed(false)
+    _deactivated(false)
 {
 }
 
 ServantLocatorI::~ServantLocatorI()
 {
-    test(_destroyed);
+    test(_deactivated);
 }
 
 Ice::ObjectPtr
 ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
-    test(!_destroyed);
+    test(!_deactivated);
 
     test(current.id.category == "");
     test(current.id.name == "test");
@@ -42,7 +42,7 @@ void
 ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&,
                           const Ice::LocalObjectPtr& cookie)
 {
-    test(!_destroyed);
+    test(!_deactivated);
 
     CookiePtr co = CookiePtr::dynamicCast(cookie);
     test(co);
@@ -50,9 +50,9 @@ ServantLocatorI::finished(const Ice::Current&, const Ice::ObjectPtr&,
 }
 
 void
-ServantLocatorI::destroy(const string&)
+ServantLocatorI::deactivate(const string&)
 {
-    test(!_destroyed);
+    test(!_deactivated);
 
-    _destroyed = true;
+    _deactivated = true;
 }

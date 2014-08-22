@@ -16,14 +16,14 @@ public final class ServantLocatorI implements Ice.ServantLocator
     public
     ServantLocatorI()
     {
-        _destroyed = false;
+        _deactivated = false;
     }
 
     protected synchronized void
     finalize()
         throws Throwable
     {
-        test(_destroyed);
+        test(_deactivated);
     }
 
     private static void
@@ -40,7 +40,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
     {
         synchronized(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         }
 
         test(current.id.category.length() == 0);
@@ -56,7 +56,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
     {
         synchronized(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         }
 
         Cookie co = (Cookie)cookie;
@@ -64,15 +64,15 @@ public final class ServantLocatorI implements Ice.ServantLocator
     }
 
     public synchronized void
-    destroy(String category)
+    deactivate(String category)
     {
         synchronized(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
 
-            _destroyed = true;
+            _deactivated = true;
         }
     }
 
-    private boolean _destroyed;
+    private boolean _deactivated;
 }

@@ -30,7 +30,7 @@ public:
 
     Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    void destroy(const std::string&);
+    void deactivate(const std::string&);
 
     Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string&);
     void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);
@@ -79,7 +79,7 @@ private:
     std::map<Ice::Identity, ServantInfo> _servants;
     std::map<Ice::ObjectPtr, SessionInfo> _sessions;
     std::multiset<Ice::ConnectionPtr> _adminConnections;
-
+    
 };
 typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;
 

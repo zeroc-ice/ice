@@ -102,7 +102,7 @@ public:
     {
     }
 
-    virtual void destroy(const string&)
+    virtual void deactivate(const string&)
     {
     }
 

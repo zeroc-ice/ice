@@ -200,7 +200,7 @@ Evictor::finished(const Ice::Current& /*current*/, const Ice::ObjectPtr& /*serva
 }
 
 void 
-Evictor::destroy(const string& /*category*/)
+Evictor::deactivate(const string& /*category*/)
 {
     Mutex::Lock lock(_mutex);
     _size = 0;

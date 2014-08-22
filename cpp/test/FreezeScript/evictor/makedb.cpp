@@ -123,7 +123,7 @@ run(const Ice::CommunicatorPtr& communicator, const string& envName, const strin
         }
     }
 
-    evictor->destroy("");
+    evictor->deactivate("");
 
     return EXIT_SUCCESS;
 }

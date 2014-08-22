@@ -79,7 +79,7 @@ EvictorBase::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::Loc
 }
 
 void
-EvictorBase::destroy(const std::string& /*category*/)
+EvictorBase::deactivate(const std::string& /*category*/)
 {
     IceUtil::Mutex::Lock lock(_mutex);
 

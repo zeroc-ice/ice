@@ -31,13 +31,13 @@ class CookieI(Test.Cookie):
 
 class ServantLocatorI(Ice.ServantLocator):
     def __init__(self):
-        self._destroyed = False
+        self._deactivated = False
 
     def __del__(self):
-        test(self._destroyed)
+        test(self._deactivated)
 
     def locate(self, current):
-        test(not self._destroyed)
+        test(not self._deactivated)
 
         test(current.id.category == '')
         test(current.id.name == 'test')
@@ -45,12 +45,12 @@ class ServantLocatorI(Ice.ServantLocator):
         return (TestI(), CookieI())
 
     def finished(self, current, servant, cookie):
-        test(not self._destroyed)
+        test(not self._deactivated)
 
         test(isinstance(cookie, Test.Cookie))
         test(cookie.message() == 'blahblah')
 
-    def destroy(self, category):
-        test(not self._destroyed)
+    def deactivate(self, category):
+        test(not self._deactivated)
 
-        self._destroyed = True
+        self._deactivated = True

@@ -24,7 +24,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
     AMDServantLocatorI(String category)
     {
         _category = category;
-        _destroyed = false;
+        _deactivated = false;
         _requestId = -1;
     }
 
@@ -33,7 +33,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
     finalize()
         throws Throwable
     {
-        test(_destroyed);
+        test(_deactivated);
     }
 
     private static void
@@ -51,7 +51,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
     {
         synchronized(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         }
 
         test(current.id.category.equals(_category) || _category.length() == 0);
@@ -84,7 +84,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
     {
         synchronized(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         }
 
         //
@@ -107,13 +107,13 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
 
     @Override
     public synchronized void
-    destroy(String category)
+    deactivate(String category)
     {
         synchronized(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
 
-            _destroyed = true;
+            _deactivated = true;
         }
     }
 
@@ -178,7 +178,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
         }
     }
 
-    private boolean _destroyed;
+    private boolean _deactivated;
     private final String _category;
     private int _requestId;
 }

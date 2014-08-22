@@ -291,11 +291,11 @@ public final class ServantManager
             Ice.ServantLocator locator = p.getValue();
             try
             {
-                locator.destroy(p.getKey());
+                locator.deactivate(p.getKey());
             }
             catch(java.lang.Exception ex)
             {
-                String s = "exception during locator destruction:\n" + "object adapter: `" + _adapterName + "'\n" +
+                String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
                     "locator category: `" + p.getKey() + "'\n" + Ex.toString(ex);
                 logger.error(s);
             }

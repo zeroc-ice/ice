@@ -64,9 +64,9 @@ public:
         else
         {
             ServantLocatorPtr locator = current.adapter->removeServantLocator("");
-            locator->destroy("");
+            locator->deactivate("");
             locator = current.adapter->removeServantLocator("category");
-            locator->destroy("category");
+            locator->deactivate("category");
         }
     }
 };

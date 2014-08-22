@@ -58,7 +58,7 @@ public:
     }
 
     virtual void
-    destroy(const string&)
+    deactivate(const string&)
     {
     }
 

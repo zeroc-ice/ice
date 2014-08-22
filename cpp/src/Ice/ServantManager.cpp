@@ -24,7 +24,7 @@ void
 IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
@@ -89,7 +89,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     ObjectPtr servant = 0;
 
     IceUtil::Mutex::Lock sync(*this);
-
+    
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
@@ -99,7 +99,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     {
         p = _servantMapMap.find(ident);
     }
-
+    
     if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
         NotRegisteredException ex(__FILE__, __LINE__);
@@ -164,7 +164,7 @@ FacetMap
 IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
@@ -173,7 +173,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     {
         p = _servantMapMap.find(ident);
     }
-
+    
     if(p == _servantMapMap.end())
     {
         NotRegisteredException ex(__FILE__, __LINE__);
@@ -201,7 +201,7 @@ ObjectPtr
 IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     //
     // This assert is not valid if the adapter dispatch incoming
     // requests from bidir connections. This method might be called if
@@ -212,14 +212,14 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 
     ServantMapMap::iterator p = _servantMapMapHint;
     FacetMap::iterator q;
-
+    
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
     if(p == servantMapMap.end() || p->first != ident)
     {
         p = servantMapMap.find(ident);
     }
-
+    
     if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
         DefaultServantMap::const_iterator p = _defaultServantMap.find(ident.category);
@@ -267,18 +267,18 @@ FacetMap
 IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
-
+    
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
     if(p == servantMapMap.end() || p->first != ident)
     {
         p = servantMapMap.find(ident);
     }
-
+    
     if(p == servantMapMap.end())
     {
         return FacetMap();
@@ -294,7 +294,7 @@ bool
 IceInternal::ServantManager::hasServant(const Identity& ident) const
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     //
     // This assert is not valid if the adapter dispatch incoming
     // requests from bidir connections. This method might be called if
@@ -310,7 +310,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
     {
         p = servantMapMap.find(ident);
     }
-
+    
     if(p == servantMapMap.end())
     {
         return false;
@@ -338,7 +338,7 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
         ex.id = category;
         throw ex;
     }
-
+    
     _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
 }
 
@@ -381,7 +381,7 @@ ServantLocatorPtr
 IceInternal::ServantManager::findServantLocator(const string& category) const
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     //
     // This assert is not valid if the adapter dispatch incoming
     // requests from bidir connections. This method might be called if
@@ -401,12 +401,12 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
             p = _locatorMapHint;
         }
     }
-
+    
     if(p == locatorMap.end())
     {
         p = locatorMap.find(category);
     }
-
+    
     if(p != locatorMap.end())
     {
         _locatorMapHint = p;
@@ -445,13 +445,13 @@ IceInternal::ServantManager::destroy()
 
     {
         IceUtil::Mutex::Lock sync(*this);
-
+        
         assert(_instance); // Must not be called after destruction.
-
+        
         logger = _instance->initializationData().logger;
         servantMapMap.swap(_servantMapMap);
         _servantMapMapHint = _servantMapMap.end();
-
+        
         locatorMap.swap(_locatorMap);
         _locatorMapHint = _locatorMap.end();
         _instance = 0;
@@ -461,12 +461,12 @@ IceInternal::ServantManager::destroy()
     {
         try
         {
-            p->second->destroy(p->first);
+            p->second->deactivate(p->first);
         }
         catch(const Exception& ex)
         {
             Error out(logger);
-            out << "exception during locator destruction:\n"
+            out << "exception during locator deactivation:\n"
                 << "object adapter: `" << _adapterName << "'\n"
                 << "locator category: `" << p->first << "'\n"
                 << ex;
@@ -474,7 +474,7 @@ IceInternal::ServantManager::destroy()
         catch(...)
         {
             Error out(logger);
-            out << "unknown exception during locator destruction:\n"
+            out << "unknown exception during locator deactivation:\n"
                 << "object adapter: `" << _adapterName << "'\n"
                 << "locator category: `" << p->first << "'";
         }
@@ -483,7 +483,7 @@ IceInternal::ServantManager::destroy()
     //
     // We clear the maps outside the synchronization as we don't want to
     // hold any internal Ice mutex while running user code (such as servant
-    // or servant locator destructors).
+    // or servant locator destructors). 
     //
     servantMapMap.clear();
     locatorMap.clear();

@@ -14,14 +14,14 @@ public sealed class ServantLocatorI : Ice.ServantLocator
 {
     public ServantLocatorI()
     {
-        _destroyed = false;
+        _deactivated = false;
     }
     
     ~ServantLocatorI()
     {
         lock(this)
         {
-            test(_destroyed);
+            test(_deactivated);
         }
     }
     
@@ -37,7 +37,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
         lock(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         }
         
         test(current.id.category.Length == 0);
@@ -52,22 +52,22 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
         lock(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         }
         
         Cookie co = (Cookie) cookie;
         test(co.message().Equals("blahblah"));
     }
     
-    public void destroy(string category)
+    public void deactivate(string category)
     {
         lock(this)
         {
-            test(!_destroyed);
+            test(!_deactivated);
         
-            _destroyed = true;
+            _deactivated = true;
         }
     }
     
-    private bool _destroyed;
+    private bool _deactivated;
 }

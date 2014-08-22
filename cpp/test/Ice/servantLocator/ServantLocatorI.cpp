@@ -19,20 +19,20 @@ using namespace Test;
 
 ServantLocatorI::ServantLocatorI(const string& category) :
     _category(category),
-    _destroyed(false),
+    _deactivated(false),
     _requestId(-1)
 {
 }
 
 ServantLocatorI::~ServantLocatorI()
 {
-    test(_destroyed);
+    test(_deactivated);
 }
 
 Ice::ObjectPtr
 ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
-    test(!_destroyed);
+    test(!_deactivated);
     test(current.id.category == _category || _category.empty());
 
     if(current.id.name == "unknown")
@@ -59,7 +59,7 @@ void
 ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&,
                           const Ice::LocalObjectPtr& cookie)
 {
-    test(!_destroyed);
+    test(!_deactivated);
 
     //
     // Ensure finished() is only called once per request.
@@ -79,11 +79,11 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&,
 }
 
 void
-ServantLocatorI::destroy(const string&)
+ServantLocatorI::deactivate(const string&)
 {
-    test(!_destroyed);
+    test(!_deactivated);
 
-    _destroyed = true;
+    _deactivated = true;
 }
 
 void

@@ -24,7 +24,7 @@ public:
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void destroy(const std::string&);
+    virtual void deactivate(const std::string&);
 
 protected:
 
@@ -37,7 +37,7 @@ private:
     void exception(const Ice::Current&);
 
     const std::string _category;
-    bool _destroyed;
+    bool _deactivated;
     Ice::Int _requestId;
 };
 

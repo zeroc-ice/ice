@@ -100,17 +100,17 @@ local interface ServantLocator
     /**
      *
      * Called when the object adapter in which this servant locator is
-     * installed is destroyed.
+     * installed is deactivated.
      *
      * @param category Indicates for which category the servant locator
-     * is being destroyed.
+     * is being deactivated.
      *
-     * @see ObjectAdapter#destroy
+     * @see ObjectAdapter#deactivate
      * @see Communicator#shutdown
      * @see Communicator#destroy
      *
      **/
-    void destroy(string category);
+    void deactivate(string category);
 };
 
 };

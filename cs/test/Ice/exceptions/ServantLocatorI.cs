@@ -19,7 +19,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
     }
     
-    public void destroy(string category)
+    public void deactivate(string category)
     {
     }
 }

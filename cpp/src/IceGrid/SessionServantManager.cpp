@@ -16,12 +16,12 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapter,
+SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapter, 
                                              const string& instanceName,
                                              bool checkConnection,
                                              const string& serverAdminCategory,
                                              const Ice::ObjectPtr& serverAdminRouter,
-                                             const AdminCallbackRouterPtr& adminCallbackRouter) :
+                                             const AdminCallbackRouterPtr& adminCallbackRouter) : 
     _adapter(adapter),
     _instanceName(instanceName),
     _checkConnection(checkConnection),
@@ -63,7 +63,7 @@ SessionServantManager::finished(const Ice::Current&, const Ice::ObjectPtr&, cons
 }
 
 void
-SessionServantManager::destroy(const std::string&)
+SessionServantManager::deactivate(const std::string&)
 {
     Lock sync(*this);
     assert(_servants.empty());
@@ -95,7 +95,7 @@ SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::Conn
 
 void
 SessionServantManager::setSessionControl(const Ice::ObjectPtr& session,
-                                         const Glacier2::SessionControlPrx& ctl,
+                                         const Glacier2::SessionControlPrx& ctl, 
                                          const Ice::IdentitySeq& ids)
 {
     Lock sync(*this);
@@ -116,7 +116,7 @@ SessionServantManager::setSessionControl(const Ice::ObjectPtr& session,
     //
     // Allow invocations on server admin objects.
     //
-    if(!p->second.category.empty() && _serverAdminRouter)
+    if(!p->second.category.empty() && _serverAdminRouter) 
     {
         Ice::StringSeq seq;
         seq.push_back(_serverAdminCategory);
@@ -211,7 +211,7 @@ SessionServantManager::remove(const Ice::Identity& id)
     assert(p != _servants.end());
 
     //
-    // Find the session associated to the servant and remove the servant identity from the
+    // Find the session associated to the servant and remove the servant identity from the 
     // session identities.
     //
     map<Ice::ObjectPtr, SessionInfo>::iterator q = _sessions.find(p->second.session);

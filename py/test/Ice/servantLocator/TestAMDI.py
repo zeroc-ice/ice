@@ -78,15 +78,15 @@ class CookieI(Test.Cookie):
 
 class ServantLocatorI(Ice.ServantLocator):
     def __init__(self, category):
-        self._destroyed = False
+        self._deactivated = False
         self._category = category
         self._requestId = -1
 
     def __del__(self):
-        test(self._destroyed)
+        test(self._deactivated)
 
     def locate(self, current):
-        test(not self._destroyed)
+        test(not self._deactivated)
 
         test(current.id.category == self._category or self._category == "")
         
@@ -106,7 +106,7 @@ class ServantLocatorI(Ice.ServantLocator):
         return (TestI(), CookieI())
 
     def finished(self, current, servant, cookie):
-        test(not self._destroyed)
+        test(not self._deactivated)
 
         #
         # Ensure finished() is only called once per request.
@@ -123,10 +123,10 @@ class ServantLocatorI(Ice.ServantLocator):
         test(isinstance(cookie, Test.Cookie))
         test(cookie.message() == 'blahblah')
 
-    def destroy(self, category):
-        test(not self._destroyed)
+    def deactivate(self, category):
+        test(not self._deactivated)
 
-        self._destroyed = True
+        self._deactivated = True
 
     def exception(self, current):
         if current.operation == "ice_ids":

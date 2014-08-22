@@ -27,8 +27,6 @@ Changes since version 3.5.1
 General Changes
 ===============
 
-- Renamed ServantLocator::deactivate to ServantLocator::destroy.
-
 - Added Ice.Default.Timeout property to the set the timeout for
   stringified proxy endpoint that do not have timeout explicitly set.
   The default setting for the property is 60 seconds. It is also now

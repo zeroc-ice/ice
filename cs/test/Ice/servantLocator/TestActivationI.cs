@@ -21,9 +21,9 @@ public sealed class TestActivationI : TestActivationDisp_
         else
         {
             Ice.ServantLocator locator = current.adapter.removeServantLocator("");
-            locator.destroy("");
+            locator.deactivate("");
             locator = current.adapter.removeServantLocator("category");
-            locator.destroy("category");
+            locator.deactivate("category");
         }
     }
 }
