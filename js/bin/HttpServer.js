@@ -36,7 +36,7 @@ var MimeTypes =
     png: "image/png",
 };
 
-var iceJsHome = process.env.ICE_JS_HOME;
+var iceHome = process.env.ICE_HOME;
 var useBinDist = process.env.USE_BIN_DIST && process.env.USE_BIN_DIST == "yes";
 var srcDist;
 try
@@ -50,10 +50,10 @@ catch(e)
 var iceJs = process.env.OPTIMIZE == "yes" ? "Ice.min.js" : "Ice.js";
 
 //
-// If this is a source distribution and ICE_JS_HOME isn't set ensure 
+// If this is a source distribution and ICE_HOME isn't set ensure 
 // that Ice libraries has been build.
 //
-if(srcDist && !iceJsHome && !useBinDist)
+if(srcDist && !iceHome && !useBinDist)
 {
     var build;
     try
@@ -67,22 +67,22 @@ if(srcDist && !iceJsHome && !useBinDist)
     if(!build)
     {
         console.error("error Unable to find " + iceJs + " in " + path.join(__dirname, "..", "lib") + ", please verify " +
-                      "that the sources has been build or configure ICE_JS_HOME to use a binary distribution.");
+                      "that the sources has been build or configure ICE_HOME to use a binary distribution.");
         process.exit(1);
     }
 }
 
 //
-// If this is a demo distribution ensure that ICE_JS_HOME is set or install in a default location.
+// If this is a demo distribution ensure that ICE_HOME is set or install in a default location.
 //
 if(!srcDist || useBinDist)
 {
     //
-    // if ICE_JS_HOME is not set check if it is install in the default location.
+    // if ICE_HOME is not set check if it is install in the default location.
     //
-    if(!process.env.ICE_JS_HOME)
+    if(!process.env.ICE_HOME)
     {
-        var dist = "IceJS-0.1.0";
+        var dist = "Ice-3.5.1";
         [
             "C:\\Program Files\\ZeroC",
             "C:\\Program Files (x86)\\ZeroC",
@@ -95,7 +95,7 @@ if(!srcDist || useBinDist)
                 {
                     if(fs.statSync(path.join(basePath, dist, "lib", iceJs)).isFile())
                     {
-                        iceJsHome = path.join(basePath, dist);
+                        iceHome = path.join(basePath, dist);
                         return true;
                     }
                 }
@@ -106,37 +106,35 @@ if(!srcDist || useBinDist)
             });
     }
 
-    if(!iceJsHome)
+    if(!iceHome)
     {
         console.error("error Ice for JavaScript not found in the default installation directories\n" +
-                      "ICE_JS_HOME environment variable must be set, and point to the Ice for\n" +
-                      "JavaScript installation directory.");
+                      "ICE_HOME environment variable must be set, and point to the Ice installation directory.");
         process.exit(1);
     }
 }
 
 //
-// If ICE_JS_HOME is set ensure that Ice libraries exists in that location.
+// If ICE_HOME is set ensure that Ice libraries exists in that location.
 //
-if(iceJsHome)
+if(iceHome)
 {
-    var iceJsHomeValid;
+    var iceHomeValid;
     try
     {
-        iceJsHomeValid = fs.statSync(path.join(iceJsHome, "lib", iceJs)).isFile();
+        iceHomeValid = fs.statSync(path.join(iceHome, "lib", iceJs)).isFile();
     }
     catch(e)
     {
     }
     
-    if(!iceJsHomeValid)
+    if(!iceHomeValid)
     {
-        console.error("error Unable to find " + iceJs + " in " + path.join(iceJsHome, "lib") + 
-                      ", please verify ICE_JS_HOME is properly configured and Ice for JavaScript " +
-                      "is correctly installed");
+        console.error("error Unable to find " + iceJs + " in " + path.join(iceHome, "lib") + 
+                      ", please verify ICE_HOME is properly configured and Ice is correctly installed");
         process.exit(1);
     }
-    console.log("Using Ice libraries from " + path.join(iceJsHome, "lib"));
+    console.log("Using Ice libraries from " + path.join(iceHome, "lib"));
 }
 
 var libraries = ["/lib/Ice.js", "/lib/Ice.min.js", 
@@ -157,11 +155,11 @@ HttpServer.prototype.processRequest = function(req, res)
     
     var iceLib = libraries.indexOf(req.url.pathname) !== -1;
     //
-    // If ICE_JS_HOME has been set resolve Ice libraries paths into ICE_JS_HOME.
+    // If ICE_HOME has been set resolve Ice libraries paths into ICE_HOME.
     //
-    if(iceJsHome && iceLib)
+    if(iceHome && iceLib)
     {
-        filePath = path.join(iceJsHome, req.url.pathname);
+        filePath = path.join(iceHome, req.url.pathname);
     }
     else
     {

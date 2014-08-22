@@ -10,7 +10,6 @@
 var fs = require("fs");
 var path = require("path");
 
-var iceJsDist = "IceJS-0.1.0";
 var iceDist = "Ice-3.5.1";
 
 var defaultInstallLocations = [
@@ -20,8 +19,6 @@ var defaultInstallLocations = [
     "/opt"];
 
 var iceHome = process.env.ICE_HOME;
-
-var iceJsHome = process.env.ICE_JS_HOME;
 var useBinDist = process.env.USE_BIN_DIST == "yes";
 
 var srcDist; 
@@ -99,18 +96,18 @@ if(!srcDist || useBinDist)
     }
     
     //
-    // If ICE_JS_HOME is not set, check if it is installed in the default location.
+    // If ICE_HOME is not set, check if it is installed in the default location.
     //
-    if(!process.env.ICE_JS_HOME)
+    if(!process.env.ICE_HOME)
     {
         defaultInstallLocations.some(
             function(basePath)
             {
                 try
                 {
-                    if(fs.statSync(path.join(basePath, iceJsDist, "bin", slice2js)).isFile())
+                    if(fs.statSync(path.join(basePath, iceDist, "bin", slice2js)).isFile())
                     {
-                        iceJsHome = path.join(basePath, iceJsDist);
+                        iceHome = path.join(basePath, iceDist);
                         return true;
                     }
                 }
@@ -121,10 +118,10 @@ if(!srcDist || useBinDist)
             });
     }
 
-    if(!iceJsHome)
+    if(!iceHome)
     {
-        console.error("error: Ice for JavaScript not found in the default installation directories. Set the ICE_JS_HOME environment\n" +
-                      "variable to point to the Ice for JavaScript installation directory.");
+        console.error("error: Ice not found in the default installation directories. Set the ICE_HOME environment\n" +
+                      "variable to point to the Ice installation directory.");
         process.exit(1);
     }
 }
@@ -133,11 +130,11 @@ if(!srcDist || useBinDist)
 var sliceDir = iceHome ? path.join(iceHome, "slice") :
                          path.join(__dirname, "..", "..", "slice");
                          
-var binDir = iceJsHome ? path.join(iceJsHome, "bin") :
+var binDir = iceHome ? path.join(iceHome, "bin") :
                        path.join(__dirname, "..", "..", "cpp", "bin");
                        
-var libDir = iceJsHome ? path.join(iceJsHome, libSubDir) :
-                         path.join(__dirname, "..", "..", "cpp", libSubDir);
+var libDir = iceHome ? path.join(iceHome, libSubDir) :
+                       path.join(__dirname, "..", "..", "cpp", libSubDir);
 
 module.exports.build = function(basePath, files, args)
 {

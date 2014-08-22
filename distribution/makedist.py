@@ -71,12 +71,14 @@ for l in ["/java", "/py", "/php", "/cs", "/cpp/demo"]:
     ]
 
 #
-# Files from the top-level, cpp, java and cs config directories to include in the demo 
+# Files from the top-level, cpp, java, cs and js config directories to include in the demo 
 # source distribution config directory.
 #
 demoConfigFiles = [ \
     "Make.*", \
     "common.xml", \
+    "build.js", \
+    "makebundle.js", \
 ]
 
 #
@@ -395,8 +397,8 @@ sys.stdout.flush()
 copy("ICE_LICENSE", demoDir)
 copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS"), demoDir)
 
-copyMatchingFiles(os.path.join("certs"), os.path.join(demoDir, "certs"), demoCertsFiles)
-for d in ["", "cpp", "java", "cs"]:
+copyMatchingFiles(os.path.join(srcDir, "certs"), os.path.join(demoDir, "certs"), demoCertsFiles)
+for d in ["", "cpp", "java", "cs", "js"]:
     copyMatchingFiles(os.path.join(d, "config"), os.path.join(demoDir, "config"), demoConfigFiles)
 
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules"), os.path.join(demoDir, "config"), False)
@@ -416,6 +418,18 @@ for d in os.listdir('.'):
 
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copy(os.path.join(d, "demo"), os.path.join(demoDir, getMappingDir("demo", d)))
+
+copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "demojs", "bin"))
+copy(os.path.join(srcDir, "js", "assets"), os.path.join(demoDir, "demojs", "assets"))
+
+FixUtil.fileMatchAndReplace(os.path.join(demoDir, "demojs", "assets", "Makefile"),
+                            [(re.compile("top_srcdir.*= .."), "top_srcdir      = ../..")],
+                            False)
+os.chdir(os.path.join(demoDir, "demojs", "assets"))
+if os.system("make > /dev/null") != 0:
+    print "Error building JS assets"
+    sys.exit(1)
+os.chdir(srcDir)
 
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
 for root, dirnames, filesnames in os.walk(demoDir):
@@ -445,6 +459,18 @@ for sd in os.listdir(winSrcDir):
     d = os.path.join(winSrcDir, sd)
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copy(os.path.join(d, "demo"), os.path.join(winDemoDir, getMappingDir("demo", sd)))
+
+copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "demojs", "bin"))
+copy(os.path.join(winSrcDir, "js", "assets"), os.path.join(winDemoDir, "demojs", "assets"))
+
+for f in ["common.min.js", "common.min.js.gz", "common.css", "common.css.gz"]:
+    copy(os.path.join(demoDir, "demojs", "assets", f),
+         os.path.join(winDemoDir, "demojs", "assets", f))
+
+
+FixUtil.fileMatchAndReplace(os.path.join(winDemoDir, "demojs", "assets", "Makefile.mak"),
+                            [(re.compile("top_srcdir.*= .."), "top_srcdir      = ..\\..")],
+                            False)
 
 rmFiles = []
 
