@@ -740,7 +740,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/IceGridGUI.jar
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/ImportKey.class
-%attr(755,root,root) %{_datadir}/Ice-%{version}/convertssl.py*
 
 %post utils -p /sbin/ldconfig
 %postun utils -p /sbin/ldconfig
