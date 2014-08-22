@@ -14,8 +14,8 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Nrvo.o \
-              MyStringSeq.o
+OBJS		=  MyStringSeq.o \
+		  Nrvo.o
 
 COBJS		= Client.o
 

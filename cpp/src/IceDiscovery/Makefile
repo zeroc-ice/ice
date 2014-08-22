@@ -10,14 +10,14 @@
 top_srcdir	= ../..
 
 LIBFILENAME     = $(call mklibfilename,IceDiscovery,$(VERSION))
-SONAME          = $(call mksoname,IceDiscovery,$(SOVERSION))  
+SONAME          = $(call mksoname,IceDiscovery,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceDiscovery)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= LocatorI.o \
+OBJS		=  IceDiscovery.o \
+		  LocatorI.o \
 		  LookupI.o \
-		  IceDiscovery.o \
 		  PluginI.o
 
 SRCS		= $(OBJS:.o=.cpp)

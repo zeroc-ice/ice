@@ -14,16 +14,16 @@ TARGETS         = $(ROUTER)
 
 OBJS		= Blobject.obj \
 		  ClientBlobject.obj \
+		  FilterI.obj \
+		  FilterManager.obj \
 		  Glacier2Router.obj \
 		  Instance.obj \
-                  Instrumentation.obj \
-                  InstrumentationI.obj \
+		  Instrumentation.obj \
+		  InstrumentationI.obj \
 		  ProxyVerifier.obj \
 		  RequestQueue.obj \
 		  RouterI.obj \
 		  RoutingTable.obj \
-		  FilterI.obj \
-		  FilterManager.obj \
 		  ServerBlobject.obj \
 		  SessionRouterI.obj
 

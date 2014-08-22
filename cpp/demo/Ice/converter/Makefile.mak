@@ -18,12 +18,13 @@ TARGETS		= $(CLIENT1) $(CLIENT2) $(SERVER)
 OBJS		= Greet.obj
 
 C1OBJS		= Client.obj \
-		  StringConverterI.obj \
-		  ClientWithConverter.obj
+		  ClientWithConverter.obj \
+		  StringConverterI.obj
+
 
 C2OBJS		= Client.obj \
 		  ClientWithoutConverter.obj
-		  
+
 SOBJS		= GreetI.obj \
 		  Server.obj
 

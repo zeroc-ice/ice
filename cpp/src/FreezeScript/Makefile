@@ -14,18 +14,18 @@ DUMPDB		= $(bindir)/dumpdb
 
 TARGETS		= $(TRANSFORMDB) $(DUMPDB)
 
-COMMON_OBJS	= ../FreezeScript/Grammar.o \
-		  Scanner.o \
-		  AssignVisitor.o \
+COMMON_OBJS	= AssignVisitor.o \
 		  Data.o \
 		  Error.o \
-		  Functions.o \
 		  Exception.o \
+		  Functions.o \
 		  Parser.o \
 		  Print.o \
-		  Util.o
+		  Scanner.o \
+		  Util.o \
+		  ../FreezeScript/Grammar.o
 
-TRANSFORM_OBJS	= TransformAnalyzer.o \
+TRANSFORM_OBJS = TransformAnalyzer.o \
 		  TransformVisitor.o \
 		  Transformer.o \
 		  transformdb.o
@@ -45,7 +45,7 @@ endif
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) $(DB_FLAGS) 
+CPPFLAGS	:= -I.. $(CPPFLAGS) $(DB_FLAGS)
 BISONFLAGS	:= --name-prefix "freeze_script_" $(BISONFLAGS)
 
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)

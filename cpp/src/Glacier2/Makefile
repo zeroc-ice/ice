@@ -12,8 +12,10 @@ top_srcdir	= ../..
 ROUTER		= $(bindir)/glacier2router
 TARGETS         = $(ROUTER)
 
-OBJS		= Blobject.o \
+OBJS		=  Blobject.o \
 		  ClientBlobject.o \
+		  FilterI.o \
+		  FilterManager.o \
 		  Glacier2Router.o \
 		  Instance.o \
 		  Instrumentation.o \
@@ -22,8 +24,6 @@ OBJS		= Blobject.o \
 		  RequestQueue.o \
 		  RouterI.o \
 		  RoutingTable.o \
-		  FilterI.o \
-		  FilterManager.o \
 		  ServerBlobject.o \
 		  SessionRouterI.o
 

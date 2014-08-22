@@ -21,13 +21,13 @@ OBJS		= HR.o
 COBJS		= Client.o
 
 SOBJS		= DbTypes.o \
-                  DbTypesMap.o \
-                  DeptFactoryI.o \
-                  DeptI.o  \
-                  EmpI.o  \
-                  OCCIServantLocator.o \
-                  Server.o \
-                  Util.o
+		  DbTypesMap.o \
+		  DeptFactoryI.o \
+		  DeptI.o  \
+		  EmpI.o  \
+		  OCCIServantLocator.o \
+		  Server.o \
+		  Util.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

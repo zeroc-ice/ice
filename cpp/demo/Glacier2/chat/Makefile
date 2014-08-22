@@ -18,8 +18,8 @@ OBJS		= Chat.o
 
 COBJS		= Client.o
 
-SOBJS		= Server.o \
-		  ChatSessionI.o
+SOBJS		= ChatSessionI.o \
+		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

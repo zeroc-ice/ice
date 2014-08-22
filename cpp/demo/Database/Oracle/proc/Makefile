@@ -16,12 +16,12 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_SRCS	= HR.ice
 
-PROC_SRCS       = CurrentSqlContext.pc \
-                  Util.pc \
-                  EmpI.pc \
-                  DeptI.pc \
-                  DeptFactoryI.pc \
-                  Server.pc
+PROC_SRCS 	= CurrentSqlContext.pc \
+		  DeptFactoryI.pc \
+		  DeptI.pc \
+		  EmpI.pc \
+		  Server.pc \
+		  Util.pc
 
 OBJS		= HR.o
 
@@ -39,9 +39,9 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(ORACLE_HOME)/precomp/public -DSQLCA_NONE $(CPPFLAGS)
 
-GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
+GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp)
 
-ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh 
+ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh
 
 .SUFFIXES:
 .SUFFIXES:		.pc .cpp .c .o

@@ -16,18 +16,18 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= AcceptorI.obj \
 		  Certificate.obj \
-		  SSLEngine.obj \
-		  ConnectorI.obj \
 		  ConnectionInfo.obj \
-		  EndpointInfo.obj \
+		  ConnectorI.obj \
 		  EndpointI.obj \
+		  EndpointInfo.obj \
 		  Instance.obj \
 		  PluginI.obj \
+		  RFC2253.obj \
 		  SChannelEngine.obj \
 		  SChannelTransceiverI.obj \
-		  Util.obj \
-		  RFC2253.obj \
-		  TrustManager.obj
+		  SSLEngine.obj \
+		  TrustManager.obj \
+		  Util.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

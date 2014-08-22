@@ -12,12 +12,12 @@ top_srcdir	= ..\..
 LIBNAME		= $(top_srcdir)\lib\icepatch2$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icepatch2$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
-TARGETS         = $(LIBNAME) $(DLLNAME)
+TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Util.obj \
-		  ClientUtil.obj \
+OBJS		=  ClientUtil.obj \
 		  FileInfo.obj \
-		  FileServer.obj
+		  FileServer.obj \
+		  Util.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

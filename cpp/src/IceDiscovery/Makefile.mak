@@ -14,9 +14,9 @@ DLLNAME		= $(top_srcdir)\bin\icediscovery$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).d
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= LocatorI.obj \
+OBJS		=  IceDiscovery.obj \
+		  LocatorI.obj \
 		  LookupI.obj \
-		  IceDiscovery.obj \
 		  PluginI.obj
 
 SRCS		= $(OBJS:.obj=.cpp)

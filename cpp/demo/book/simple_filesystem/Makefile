@@ -20,8 +20,8 @@ OBJS		= Filesystem.o
 
 COBJS		= Client.o
 
-SOBJS		= Server.o \
-		  FilesystemI.o
+SOBJS		= FilesystemI.o \
+		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

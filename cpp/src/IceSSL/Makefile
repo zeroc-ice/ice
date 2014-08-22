@@ -10,30 +10,30 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
-SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
+LIBFILENAME	= $(call mklibfilename,IceSSL,$(VERSION))
+SONAME		= $(call mksoname,IceSSL,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceSSL)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= AcceptorI.o \
+OBJS		=  AcceptorI.o \
 		  Certificate.o \
-                  ConnectorI.o \
-		  EndpointInfo.o \
 		  ConnectionInfo.o \
+		  ConnectorI.o \
 		  EndpointI.o \
+		  EndpointInfo.o \
 		  Instance.o \
-		  PluginI.o \
-		  OpenSSLTransceiverI.o \
-		  SecureTransportTransceiverI.o \
-		  Util.o \
-		  RFC2253.o \
-		  TrustManager.o \
-		  SSLEngine.o \
 		  OpenSSLEngine.o \
-		  SecureTransportEngine.o \
+		  OpenSSLTransceiverI.o \
+		  PluginI.o \
+		  RFC2253.o \
 		  SChannelEngine.o \
-		  SChannelTransceiverI.o
+		  SChannelTransceiverI.o \
+		  SecureTransportEngine.o \
+		  SecureTransportTransceiverI.o \
+		  SSLEngine.o \
+		  TrustManager.o \
+		  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -41,11 +41,11 @@ SLICE_SRCS	= $(SDIR)/EndpointInfo.ice \
 		  $(SDIR)/ConnectionInfo.ice
 
 HDIR		= $(headerdir)/IceSSL
-SDIR            = $(slicedir)/IceSSL
+SDIR  		= $(slicedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
+CPPFLAGS		:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(SSL_OS_LIBS) $(CXXLIBS)

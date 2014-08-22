@@ -14,12 +14,12 @@ SOURCE_DIR	= ..
 
 TARGETS         = $(LIBNAME)
 
-OBJS		= $(ARCH)\$(CONFIG)\PermissionsVerifier.obj \
+OBJS		= $(ARCH)\$(CONFIG)\Metrics.obj \
+		  $(ARCH)\$(CONFIG)\PermissionsVerifier.obj \
 		  $(ARCH)\$(CONFIG)\Router.obj \
-		  $(ARCH)\$(CONFIG)\SSLInfo.obj \
 		  $(ARCH)\$(CONFIG)\Session.obj \
 		  $(ARCH)\$(CONFIG)\SessionHelper.obj \
-		  $(ARCH)\$(CONFIG)\Metrics.obj
+		  $(ARCH)\$(CONFIG)\SSLInfo.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -34,13 +34,13 @@ SRCS		= $(SRCS) \
 HDIR		= $(headerdir)\Glacier2
 SDIR		= $(slicedir)\Glacier2
 
-SLICE_SRCS	= $(SDIR)/PermissionsVerifierF.ice \
+SLICE_SRCS	= $(SDIR)/Metrics.ice \
 		  $(SDIR)/PermissionsVerifier.ice \
+		  $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/SSLInfo.ice \
-		  $(SDIR)/Metrics.ice
+		  $(SDIR)/SSLInfo.ice
 
 PDBNAME		= $(LIBNAME:.lib=.pdb)
 CPPFLAGS	= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN

@@ -14,8 +14,8 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Nrvo.obj \
-              MyStringSeq.obj
+OBJS		= MyStringSeq.obj \
+		  Nrvo.obj
 
 COBJS		= Client.obj
 

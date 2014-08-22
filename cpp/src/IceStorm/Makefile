@@ -10,7 +10,7 @@
 top_srcdir	= ../..
 
 LIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
-SONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
+SONAME       = $(call mksoname,IceStormService,$(SOVERSION))
 LIBNAME	= $(call mklibname,IceStormService)
 
 ADMIN		= $(bindir)/icestormadmin
@@ -18,61 +18,61 @@ MIGRATE		= $(bindir)/icestormmigrate
 LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ADMIN) $(MIGRATE)
 
-OBJS		= NodeI.o \
-		  Observers.o \
-		  Instance.o \
-		  TraceLevels.o \
-		  Subscriber.o \
-		  TopicI.o \
-		  TopicManagerI.o \
-		  TransientTopicI.o \
-		  TransientTopicManagerI.o \
-		  Service.o \
-		  LLURecord.o \
-		  Election.o \
-		  SubscriberRecord.o \
+OBJS		= Election.o \
 		  IceStormInternal.o \
+		  Instance.o \
 		  Instrumentation.o \
 		  InstrumentationI.o \
-		  Util.o \
-		  LLUMap.o \
-		  SubscriberMap.o \
-		  V32FormatDB.o \
-		  V31FormatDB.o \
 		  LinkRecord.o \
-		  V32Format.o \
-		  V31Format.o
-
-AOBJS		= Admin.o \
-		  Grammar.o \
-		  Scanner.o \
-		  Parser.o \
+		  LLUMap.o \
 		  LLURecord.o \
-		  Election.o \
-		  SubscriberRecord.o \
-		  IceStormInternal.o
-
-MOBJS		= Migrate.o \
+		  NodeI.o \
+		  Observers.o \
+		  Service.o \
+		  Subscriber.o \
 		  SubscriberMap.o \
-		  LLUMap.o \
-		  LinkRecord.o \
-		  V32FormatDB.o \
+		  SubscriberRecord.o \
+		  TopicI.o \
+		  TopicManagerI.o \
+		  TraceLevels.o \
+		  TransientTopicI.o \
+		  TransientTopicManagerI.o \
+		  Util.o \
+		  V31Format.o \
 		  V31FormatDB.o \
 		  V32Format.o \
-		  V31Format.o
+		  V32FormatDB.o
+
+AOBJS		=  Admin.o \
+		  Election.o \
+		  Grammar.o \
+		  IceStormInternal.o \
+		  LLURecord.o \
+		  Parser.o \
+		  Scanner.o \
+		  SubscriberRecord.o
+
+MOBJS		= LinkRecord.o \
+		  LLUMap.o \
+		  Migrate.o \
+		  SubscriberMap.o \
+		  V31Format.o \
+		  V31FormatDB.o \
+		  V32Format.o \
+		  V32FormatDB.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 		  $(MOBJS:.o=.cpp)
 
-SLICE_SRCS	= ../IceStorm/Instrumentation.ice \
-		  ../IceStorm/Election.ice \
+SLICE_SRCS	= ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
+		  ../IceStorm/Instrumentation.ice \
+		  ../IceStorm/LinkRecord.ice \
 		  ../IceStorm/LLURecord.ice \
 		  ../IceStorm/SubscriberRecord.ice \
-		  ../IceStorm/LinkRecord.ice \
-		  ../IceStorm/V32Format.ice \
 		  ../IceStorm/V31Format.ice \
+		  ../IceStorm/V32Format.ice
 
 HDIR		= $(headerdir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
@@ -144,11 +144,11 @@ V31FormatDB.cpp: ../IceStorm/V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 ../IceStorm/Grammar.y: Grammar.h
 
 clean::
-	-rm -f SubscriberMap.h SubscriberMap.cpp
-	-rm -f V32FormatDB.h V32FormatDB.cpp
-	-rm -f V31FormatDB.h V31FormatDB.cpp
-	-rm -f LLUMap.h LLUMap.cpp
 	-rm -f LinkRecord.h LinkRecord.cpp
+	-rm -f LLUMap.h LLUMap.cpp
+	-rm -f SubscriberMap.h SubscriberMap.cpp
+	-rm -f V31FormatDB.h V31FormatDB.cpp
+	-rm -f V32FormatDB.h V32FormatDB.cpp
 
 install:: all
 	$(call installlib,$(DESTDIR)$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

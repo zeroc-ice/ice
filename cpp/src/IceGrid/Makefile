@@ -15,65 +15,65 @@ REGISTRY_SERVER	= $(bindir)/icegridregistry
 
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-ADMIN_OBJS	= Grammar.o \
-		  Scanner.o \
-		  Parser.o \
-                  DescriptorParser.o \
-                  DescriptorBuilder.o \
+ADMIN_OBJS	=  Client.o \
+		  DescriptorBuilder.o \
 		  DescriptorHelper.o \
-                  FileParserI.o \
-		  Util.o \
+		  DescriptorParser.o \
+		  FileParserI.o \
+		  Grammar.o \
 		  Internal.o \
-		  Client.o
+		  Parser.o \
+		  Scanner.o \
+		  Util.o
 
-COMMON_OBJS	= Internal.o \
-                  DescriptorParser.o \
-                  DescriptorBuilder.o \
-		  TraceLevels.o \
+COMMON_OBJS	=  DescriptorBuilder.o \
+		  DescriptorParser.o \
 		  FileCache.o \
+		  Internal.o \
 		  PlatformInfo.o \
-		  SessionManager.o
+		  SessionManager.o \
+		  TraceLevels.o
 
-NODE_OBJS	= NodeI.o \
-                  NodeServerAdminRouter.o \
-		  ServerI.o \
+NODE_OBJS	=  Activator.o \
+		  NodeI.o \
+		  NodeServerAdminRouter.o \
+		  NodeSessionManager.o \
 		  ServerAdapterI.o \
-	          Activator.o \
-		  NodeSessionManager.o
+		  ServerI.o
 
 REGISTRY_OBJS   = AdminCallbackRouter.o \
-                  RegistryI.o \
-		  PluginFacadeI.o \
-                  RegistryServerAdminRouter.o \
-	  	  InternalRegistryI.o \
-	          Allocatable.o \
 		  AdapterCache.o \
-		  ObjectCache.o \
+		  AdminI.o \
+		  AdminSessionI.o \
+		  Allocatable.o \
 		  AllocatableObjectCache.o \
-		  ServerCache.o \
-		  NodeCache.o \
-		  ReplicaCache.o \
 		  Database.o \
+		  DescriptorHelper.o \
+		  FileUserAccountMapperI.o \
+		  IdentityObjectInfoDict.o \
+		  InternalRegistryI.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
-		  AdminI.o \
-		  Util.o \
-		  DescriptorHelper.o \
+		  NodeCache.o \
 		  NodeSessionI.o \
-		  ReplicaSessionI.o \
-		  ReapThread.o \
-		  SessionI.o \
-		  AdminSessionI.o \
-		  SessionServantManager.o \
-		  Topics.o \
+		  ObjectCache.o \
+		  PluginFacadeI.o \
 		  QueryI.o \
-		  FileUserAccountMapperI.o \
+		  ReapThread.o \
+		  RegistryI.o \
+		  RegistryServerAdminRouter.o \
+		  ReplicaCache.o \
+		  ReplicaSessionI.o \
 		  ReplicaSessionManager.o \
-		  WellKnownObjectsManager.o \
-		  StringApplicationInfoDict.o \
-		  IdentityObjectInfoDict.o \
+		  SerialsDict.o \
+		  ServerCache.o \
+		  SessionI.o \
+		  SessionServantManager.o \
 		  StringAdapterInfoDict.o \
-		  SerialsDict.o
+		  StringApplicationInfoDict.o \
+		  Topics.o \
+		  Util.o \
+		  WellKnownObjectsManager.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \

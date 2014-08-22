@@ -19,9 +19,9 @@ OBJS		= Session.o
 COBJS		= Client.o
 
 SOBJS		= ReapTask.o \
+		  Server.o \
 		  SessionFactoryI.o \
-		  SessionI.o \
-		  Server.o
+		  SessionI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

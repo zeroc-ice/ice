@@ -17,25 +17,25 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= Library.obj
 
-COBJS		= Grammar.obj \
-		  Scanner.obj \
+COBJS		= Client.obj \
+		  Grammar.obj \
 		  Parser.obj \
 		  RunParser.obj \
-		  Client.obj \
+		  Scanner.obj
 
-SOBJS		= LibraryI.obj \
-		  LibraryTypes.obj \
-		  BookFactory.obj \
-		  Server.obj
-
-COLOBJS		= Grammar.obj \
-		  Scanner.obj \
-		  Parser.obj \
-		  RunParser.obj \
+SOBJS		= BookFactory.obj \
 		  LibraryI.obj \
 		  LibraryTypes.obj \
-		  BookFactory.obj \
-		  Collocated.obj
+		  Server.obj
+
+COLOBJS		= BookFactory.obj \
+		  Collocated.obj \
+		  Grammar.obj \
+		  LibraryI.obj \
+		  LibraryTypes.obj \
+		  Parser.obj \
+		  RunParser.obj \
+		  Scanner.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \

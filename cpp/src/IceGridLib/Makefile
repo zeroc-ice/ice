@@ -10,41 +10,41 @@
 top_srcdir	= ../..
 
 LIBFILENAME     = $(call mklibfilename,IceGrid,$(VERSION))
-SONAME          = $(call mksoname,IceGrid,$(SOVERSION))  
+SONAME          = $(call mksoname,IceGrid,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceGrid)
 
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-LIB_OBJS	= Admin.o \
-		  Locator.o \
-		  Discovery.o \
-		  Query.o \
-	 	  Exception.o \
+LIB_OBJS	=  Admin.o \
 		  Descriptor.o \
+		  Discovery.o \
 		  DiscoveryPluginI.o \
-                  FileParser.o \
+		  Exception.o \
+		  FileParser.o \
+		  Locator.o \
 		  Observer.o \
-		  Session.o \
-		  Registry.o \
-		  UserAccountMapper.o \
 		  PluginFacade.o \
 		  PluginFacadeI.o \
+		  Query.o \
+		  Registry.o \
+		  Session.o \
+		  UserAccountMapper.o
 
 SRCS		= $(LIB_OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/Admin.ice \
+		  $(SDIR)/Descriptor.ice \
 		  $(SDIR)/Discovery.ice \
-                  $(SDIR)/Exception.ice \
-                  $(SDIR)/FileParser.ice \
-                  $(SDIR)/Locator.ice \
-                  $(SDIR)/Query.ice \
+		  $(SDIR)/Exception.ice \
+		  $(SDIR)/FileParser.ice \
+		  $(SDIR)/Locator.ice \
+		  $(SDIR)/Observer.ice \
+		  $(SDIR)/PluginFacade.ice \
+		  $(SDIR)/Query.ice \
 		  $(SDIR)/Registry.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/Observer.ice \
-		  $(SDIR)/Descriptor.ice \
-		  $(SDIR)/UserAccountMapper.ice \
-		  $(SDIR)/PluginFacade.ice
+		  $(SDIR)/UserAccountMapper.ice
 
 HDIR		= $(headerdir)/IceGrid
 LOCAL_HDIR	= ../IceGrid

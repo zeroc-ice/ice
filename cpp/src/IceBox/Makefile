@@ -9,21 +9,21 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceBox,$(VERSION))
-SONAME          = $(call mksoname,IceBox,$(SOVERSION))  
+LIBFILENAME	= $(call mklibfilename,IceBox,$(VERSION))
+SONAME    	= $(call mksoname,IceBox,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceBox)
 
 SERVER		= $(bindir)/icebox
 ADMIN		= $(bindir)/iceboxadmin
 
-LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
-TARGETS         = $(LIBTARGETS) $(SERVER) $(ADMIN)
+LIBTARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS   	= $(LIBTARGETS) $(SERVER) $(ADMIN)
 
-OBJS		= IceBox.o \
-		  Exception.o
+OBJS		= Exception.o \
+		  IceBox.o
 
-SOBJS		= ServiceManagerI.o \
-		  Service.o
+SOBJS		= Service.o \
+		  ServiceManagerI.o
 
 AOBJS		= Admin.o
 

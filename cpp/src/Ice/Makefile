@@ -10,34 +10,34 @@
 top_srcdir	= ../..
 
 LIBFILENAME	= $(call mklibfilename,Ice,$(VERSION))
-SONAME		= $(call mksoname,Ice,$(SOVERSION))  
+SONAME		= $(call mksoname,Ice,$(SOVERSION))
 LIBNAME		= $(call mklibname,Ice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= Acceptor.o \
 		  ACM.o \
 		  Application.o \
-                  Base64.o \
-		  Buffer.o \
+		  Base64.o \
 		  BasicStream.o \
+		  Buffer.o \
 		  BuiltinSequences.o \
 		  CollocatedRequestHandler.o \
-		  CommunicatorI.o \
 		  Communicator.o \
-		  ConnectRequestHandler.o \
+		  CommunicatorI.o \
+		  Connection.o \
 		  ConnectionFactory.o \
 		  ConnectionI.o \
-		  Connection.o \
 		  ConnectionRequestHandler.o \
 		  Connector.o \
+		  ConnectRequestHandler.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
-                  DeprecatedStringConverter.o \
-                  DispatchInterceptor.o \
+		  DeprecatedStringConverter.o \
+		  DispatchInterceptor.o \
 		  DynamicLibrary.o \
 		  Endpoint.o \
-		  EndpointFactoryManager.o \
 		  EndpointFactory.o \
+		  EndpointFactoryManager.o \
 		  EndpointI.o \
 		  EndpointTypes.o \
 		  EventHandler.o \
@@ -46,59 +46,60 @@ OBJS		= Acceptor.o \
 		  FactoryTable.o \
 		  FactoryTableInit.o \
 		  GCObject.o \
+		  HttpParser.o \
 		  Identity.o \
-		  ImplicitContextI.o \
 		  ImplicitContext.o \
-		  IncomingAsync.o \
+		  ImplicitContextI.o \
 		  Incoming.o \
+		  IncomingAsync.o \
 		  Initialize.o \
 		  Instance.o \
+		  Instrumentation.o \
+		  InstrumentationI.o \
 		  IPEndpointI.o \
 		  LocalException.o \
 		  LocalObject.o \
-		  LocatorInfo.o \
 		  Locator.o \
+		  LocatorInfo.o \
 		  Logger.o \
-                  LoggerAdminI.o \
-                  LoggerI.o \
+		  LoggerAdminI.o \
+		  LoggerI.o \
 		  LoggerUtil.o \
 		  Metrics.o \
 		  MetricsAdminI.o \
 		  MetricsObserverI.o \
 		  Network.o \
+		  Object.o \
+		  ObjectAdapter.o \
 		  ObjectAdapterFactory.o \
 		  ObjectAdapterI.o \
-		  ObjectAdapter.o \
-		  ObjectFactoryManager.o \
 		  ObjectFactory.o \
-		  Object.o \
-		  Instrumentation.o \
+		  ObjectFactoryManager.o \
 		  ObserverHelper.o \
-		  InstrumentationI.o \
 		  OpaqueEndpointI.o \
-		  OutgoingAsync.o \
 		  Outgoing.o \
-		  PluginManagerI.o \
+		  OutgoingAsync.o \
 		  Plugin.o \
+		  PluginManagerI.o \
 		  Process.o \
+		  Properties.o \
+		  PropertiesAdmin.o \
 		  PropertiesAdminI.o \
 		  PropertiesI.o \
-		  PropertiesAdmin.o \
-		  Properties.o \
 		  PropertyNames.o \
 		  Protocol.o \
 		  ProtocolInstance.o \
 		  ProtocolPluginFacade.o \
-		  ProxyFactory.o \
 		  Proxy.o \
-		  ReferenceFactory.o \
+		  ProxyFactory.o \
 		  Reference.o \
-                  RemoteLogger.o \
+		  ReferenceFactory.o \
+		  RemoteLogger.o \
+		  RequestHandler.o \
 		  ResponseHandler.o \
 		  RetryQueue.o \
-		  RequestHandler.o \
-		  RouterInfo.o \
 		  Router.o \
+		  RouterInfo.o \
 		  Selector.o \
 		  ServantLocator.o \
 		  ServantManager.o \
@@ -106,14 +107,14 @@ OBJS		= Acceptor.o \
 		  SliceChecksumDict.o \
 		  SliceChecksums.o \
 		  SlicedData.o \
-		  StreamI.o \
 		  Stream.o \
+		  StreamI.o \
 		  StringConverterPlugin.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
 		  TcpEndpointI.o \
 		  TcpTransceiver.o \
-	          ThreadPool.o \
+		  ThreadPool.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Transceiver.o \
@@ -121,10 +122,9 @@ OBJS		= Acceptor.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
 		  Version.o \
-		  HttpParser.o \
-		  WSEndpoint.o \
 		  WSAcceptor.o \
 		  WSConnector.o \
+		  WSEndpoint.o \
 		  WSTransceiver.o
 
 ifeq ($(findstring MINGW,$(shell uname)),)
@@ -136,44 +136,44 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  DLLMain.cpp
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Communicator.ice \
-		  $(SDIR)/ConnectionF.ice \
+		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Connection.ice \
+		  $(SDIR)/ConnectionF.ice \
 		  $(SDIR)/Current.ice \
 		  $(SDIR)/Endpoint.ice \
 		  $(SDIR)/EndpointF.ice \
 		  $(SDIR)/EndpointTypes.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
-		  $(SDIR)/ImplicitContextF.ice \
 		  $(SDIR)/ImplicitContext.ice \
-		  $(SDIR)/LocalException.ice \
-		  $(SDIR)/LocatorF.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LoggerF.ice \
-		  $(SDIR)/Logger.ice \
-		  $(SDIR)/Metrics.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/ObjectFactoryF.ice \
-		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/ImplicitContextF.ice \
 		  $(SDIR)/Instrumentation.ice \
 		  $(SDIR)/InstrumentationF.ice \
-		  $(SDIR)/PluginF.ice \
+		  $(SDIR)/LocalException.ice \
+		  $(SDIR)/Locator.ice \
+		  $(SDIR)/LocatorF.ice \
+		  $(SDIR)/Logger.ice \
+		  $(SDIR)/LoggerF.ice \
+		  $(SDIR)/Metrics.ice \
+		  $(SDIR)/ObjectAdapter.ice \
+		  $(SDIR)/ObjectAdapterF.ice \
+		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/ObjectFactoryF.ice \
 		  $(SDIR)/Plugin.ice \
-		  $(SDIR)/ProcessF.ice \
+		  $(SDIR)/PluginF.ice \
 		  $(SDIR)/Process.ice \
-		  $(SDIR)/PropertiesF.ice \
-		  $(SDIR)/PropertiesAdmin.ice \
+		  $(SDIR)/ProcessF.ice \
 		  $(SDIR)/Properties.ice \
-                  $(SDIR)/RemoteLogger.ice \
-		  $(SDIR)/RouterF.ice \
+		  $(SDIR)/PropertiesAdmin.ice \
+		  $(SDIR)/PropertiesF.ice \
+		  $(SDIR)/RemoteLogger.ice \
 		  $(SDIR)/Router.ice \
-		  $(SDIR)/ServantLocatorF.ice \
+		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/ServantLocator.ice \
+		  $(SDIR)/ServantLocatorF.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/Version.ice \
+		  $(SDIR)/Version.ice
 
 HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice

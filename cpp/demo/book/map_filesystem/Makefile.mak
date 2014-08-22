@@ -16,15 +16,15 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Filesystem.obj
 
-COBJS		= Scanner.obj \
+COBJS		= Client.obj \
 		  Grammar.obj \
 		  Parser.obj \
-		  Client.obj
+		  Scanner.obj
 
 SOBJS		= FilesystemDB.obj \
-                  IdentityFileEntryMap.obj \
-                  IdentityDirectoryEntryMap.obj \
 		  FilesystemI.obj \
+		  IdentityDirectoryEntryMap.obj \
+		  IdentityFileEntryMap.obj \
 		  Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \

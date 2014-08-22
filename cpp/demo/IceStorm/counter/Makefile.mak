@@ -19,8 +19,8 @@ OBJS		= Counter.obj
 COBJS		= Client.obj \
 		  CounterObserverI.obj
 
-SOBJS		= Server.obj \
-		  CounterI.obj
+SOBJS		=  CounterI.obj \
+		  Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \

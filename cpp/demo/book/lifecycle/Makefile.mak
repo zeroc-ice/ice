@@ -16,10 +16,10 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Filesystem.obj
 
-COBJS		= Scanner.obj \
-                  Grammar.obj \
-                  Parser.obj \
-                  Client.obj
+COBJS		= Client.obj \
+		  Grammar.obj \
+		  Parser.obj \
+		  Scanner.obj
 
 SOBJS		= FilesystemI.obj \
 		  Server.obj

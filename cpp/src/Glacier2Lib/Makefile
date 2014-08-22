@@ -9,20 +9,20 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,Glacier2,$(VERSION))
-SONAME          = $(call mksoname,Glacier2,$(SOVERSION))  
+LIBFILENAME	= $(call mklibfilename,Glacier2,$(VERSION))
+SONAME		= $(call mksoname,Glacier2,$(SOVERSION))
 LIBNAME		= $(call mklibname,Glacier2)
 
-TARGETS         = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= PermissionsVerifier.o \
-		  Router.o \
-		  SSLInfo.o \
-		  Session.o \
-		  Application.o \
+OBJS		= Application.o \
+		  CryptPermissionsVerifierPlugin.o \
 		  Metrics.o \
+		  PermissionsVerifier.o \
+		  Router.o \
+		  Session.o \
 		  SessionHelper.o \
-		  CryptPermissionsVerifierPlugin.o
+		  SSLInfo.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

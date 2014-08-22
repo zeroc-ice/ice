@@ -13,7 +13,7 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.obj BenchTypes.obj Test.obj
+OBJS		= BenchTypes.obj Client.obj Test.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

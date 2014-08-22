@@ -15,65 +15,65 @@ REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry.exe
 
 TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
 
-ADMIN_OBJS	= Grammar.obj \
-		  Scanner.obj \
-		  Parser.obj \
-		  DescriptorParser.obj \
+ADMIN_OBJS	=  Client.obj \
 		  DescriptorBuilder.obj \
 		  DescriptorHelper.obj \
-		  FileParserI.obj \
-		  Util.obj \
-		  Internal.obj \
-		  Client.obj
-
-COMMON_OBJS	= Internal.obj \
 		  DescriptorParser.obj \
-		  DescriptorBuilder.obj \
+		  FileParserI.obj \
+		  Grammar.obj \
+		  Internal.obj \
+		  Parser.obj \
+		  Scanner.obj \
+		  Util.obj
+
+COMMON_OBJS	=  DescriptorBuilder.obj \
+		  DescriptorParser.obj \
 		  FileCache.obj \
-		  TraceLevels.obj \
+		  Internal.obj \
 		  PlatformInfo.obj \
-		  SessionManager.obj
+		  SessionManager.obj \
+		  TraceLevels.obj
 
-NODE_OBJS	= NodeI.obj \
-                  NodeServerAdminRouter.obj \
-		  ServerI.obj \
+NODE_OBJS	=  Activator.obj \
+		  NodeI.obj \
+		  NodeServerAdminRouter.obj \
+		  NodeSessionManager.obj \
 		  ServerAdapterI.obj \
-		  Activator.obj \
-		  NodeSessionManager.obj
+		  ServerI.obj
 
-REGISTRY_OBJS	= AdminCallbackRouter.obj \
-                  RegistryI.obj \
-		  PluginFacadeI.obj \
-                  RegistryServerAdminRouter.obj \
-		  InternalRegistryI.obj \
-		  Database.obj \
+REGISTRY_OBJS	=  AdapterCache.obj \
+		  AdminCallbackRouter.obj \
+		  AdminI.obj \
+		  AdminSessionI.obj \
 		  Allocatable.obj \
-		  AdapterCache.obj \
-		  ObjectCache.obj \
 		  AllocatableObjectCache.obj \
-		  ServerCache.obj \
-		  NodeCache.obj \
-		  ReplicaCache.obj \
+		  Database.obj \
+		  DescriptorHelper.obj \
+		  FileUserAccountMapperI.obj \
+		  IdentityObjectInfoDict.obj \
+		  InternalRegistryI.obj \
 		  LocatorI.obj \
 		  LocatorRegistryI.obj \
-		  AdminI.obj \
-		  Util.obj \
-		  DescriptorHelper.obj \
+		  NodeCache.obj \
 		  NodeSessionI.obj \
-		  ReplicaSessionI.obj \
-		  ReapThread.obj \
-		  SessionI.obj \
-		  AdminSessionI.obj \
-		  SessionServantManager.obj \
-		  Topics.obj \
+		  ObjectCache.obj \
+		  PluginFacadeI.obj \
 		  QueryI.obj \
-		  FileUserAccountMapperI.obj \
+		  ReapThread.obj \
+		  RegistryI.obj \
+		  RegistryServerAdminRouter.obj \
+		  ReplicaCache.obj \
+		  ReplicaSessionI.obj \
 		  ReplicaSessionManager.obj \
-		  WellKnownObjectsManager.obj \
-		  StringApplicationInfoDict.obj \
-		  IdentityObjectInfoDict.obj \
+		  SerialsDict.obj \
+		  ServerCache.obj \
+		  SessionI.obj \
+		  SessionServantManager.obj \
 		  StringAdapterInfoDict.obj \
-		  SerialsDict.obj
+		  StringApplicationInfoDict.obj \
+		  Topics.obj \
+		  Util.obj \
+		  WellKnownObjectsManager.obj
 
 NODE_SVR_OBJS	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
@@ -123,7 +123,7 @@ $(ADMIN): $(ADMIN_OBJS) IceGridAdmin.res
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) &&\
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) IceGridRegistry.res 
+$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) IceGridRegistry.res
 	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) $(SETARGV) $(PREOUT)$@ \
 		$(PRELIBS)$(NLINKWITH) $(RRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \

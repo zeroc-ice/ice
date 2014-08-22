@@ -13,7 +13,7 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Client.o BenchTypes.o Test.o
+OBJS		= BenchTypes.o Client.o Test.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

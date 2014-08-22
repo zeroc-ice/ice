@@ -14,22 +14,22 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS            = Item.o
+OBJS		= Item.o
 
 COBJS		= Client.o
 
-SOBJS		= ItemInfo.o \
-	          Database.o \
-                  CurrentDatabase.o \
-                  ItemI.o \
-	          Evictor.o \
-                  EvictorBase.o \
-                  SimpleEvictor.o \
-                  Server.o
+SOBJS		= CurrentDatabase.o \
+		  Database.o \
+		  Evictor.o \
+		  EvictorBase.o \
+		  ItemI.o \
+		  ItemInfo.o \
+		  Server.o \
+		  SimpleEvictor.o
 
 SRCS		= $(OBJS:.o=.cpp) \
-                  $(COBJS:.o=.cpp) \
-                  $(SOBJS:.o=.cpp)
+			  $(COBJS:.o=.cpp) \
+			  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Item.ice ItemInfo.ice
 

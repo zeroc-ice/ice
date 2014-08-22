@@ -14,12 +14,12 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-PROC_SRCS       = CurrentSqlContext.pc \
-                  Util.pc \
-                  EmpI.pc \
-                  DeptI.pc \
-                  DeptFactoryI.pc \
-                  Server.pc
+PROC_SRCS   = CurrentSqlContext.pc \
+		  DeptFactoryI.pc \
+		  DeptI.pc \
+		  EmpI.pc \
+		  Server.pc \
+		  Util.pc
 
 OBJS		= HR.obj
 
@@ -35,7 +35,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. -I"$(ORACLE_HOME)\precomp\public" -DSQLCA_NONE $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
+GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp)
 
 #
 # Change to orasql10.lib if you're linking with Oracle 10
@@ -56,12 +56,12 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q HR.cpp HR.h

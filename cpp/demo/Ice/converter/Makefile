@@ -18,9 +18,9 @@ TARGETS		= $(CLIENT1) $(CLIENT2) $(SERVER)
 OBJS		= Greet.o
 
 C1OBJS		= Client.o \
-		  StringConverterI.o \
-		  ClientWithConverter.o
-		  
+		  ClientWithConverter.o \
+		  StringConverterI.o
+
 C2OBJS		= Client.o \
 		  ClientWithoutConverter.o
 
@@ -40,7 +40,7 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 $(CLIENT1): $(OBJS) $(C1OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(C1OBJS) $(LIBS)
-	
+
 $(CLIENT2): $(OBJS) $(C2OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(C2OBJS) $(LIBS)

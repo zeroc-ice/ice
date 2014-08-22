@@ -15,19 +15,19 @@ DLLNAME		= $(top_srcdir)\bin\icegrid$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 TARGETS         = $(LIBNAME) $(DLLNAME)
 
 LIB_OBJS	= Admin.obj \
-		  Locator.obj \
-		  Discovery.obj \
-		  Query.obj \
-		  Exception.obj \
 		  Descriptor.obj \
+		  Discovery.obj \
 		  DiscoveryPluginI.obj \
-                  FileParser.obj \
+		  Exception.obj \
+		  FileParser.obj \
+		  Locator.obj \
 		  Observer.obj \
-		  Session.obj \
-		  Registry.obj \
-		  UserAccountMapper.obj \
 		  PluginFacade.obj \
-		  PluginFacadeI.obj
+		  PluginFacadeI.obj \
+		  Query.obj \
+		  Registry.obj \
+		  Session.obj \
+		  UserAccountMapper.obj
 
 SRCS		= $(LIB_OBJS:.obj=.cpp)
 
@@ -53,20 +53,20 @@ $(DLLNAME): $(LIB_OBJS) IceGrid.res
 	$(LINK) $(BASE):0x2B000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
-	-del /q FileParser.cpp $(HDIR)\FileParser.h
 	-del /q Admin.cpp $(HDIR)\Admin.h
 	-del /q Descriptor.cpp $(HDIR)\Descriptor.h
 	-del /q Discovery.cpp $(HDIR)\Discovery.h
 	-del /q Exception.cpp $(HDIR)\Exception.h
+	-del /q FileParser.cpp $(HDIR)\FileParser.h
 	-del /q Locator.cpp $(HDIR)\Locator.h
 	-del /q Observer.cpp $(HDIR)\Observer.h
 	-del /q Query.cpp $(HDIR)\Query.h
-	-del /q Session.cpp $(HDIR)\Session.h
 	-del /q Registry.cpp $(HDIR)\Registry.h
+	-del /q Session.cpp $(HDIR)\Session.h
 	-del /q UserAccountMapper.cpp $(HDIR)\UserAccountMapper.h
 	-del /q IceGrid.res
 

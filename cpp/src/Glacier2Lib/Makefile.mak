@@ -12,16 +12,16 @@ top_srcdir	= ..\..
 LIBNAME		= $(top_srcdir)\lib\glacier2$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\glacier2$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
-TARGETS         = $(LIBNAME) $(DLLNAME)
+TARGETS 	= $(LIBNAME) $(DLLNAME)
 
-OBJS		= PermissionsVerifier.obj \
-		  Router.obj \
-		  SSLInfo.obj \
-		  Session.obj \
-		  Application.obj \
+OBJS		= Application.obj \
+		  CryptPermissionsVerifierPlugin.obj \
 		  Metrics.obj \
+		  PermissionsVerifier.obj \
+		  Router.obj \
+		  Session.obj \
 		  SessionHelper.obj \
-		  CryptPermissionsVerifierPlugin.obj
+		  SSLInfo.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

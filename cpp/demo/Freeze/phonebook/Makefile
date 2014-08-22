@@ -18,25 +18,25 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= PhoneBook.o
 
-COBJS		= Grammar.o \
-		  Scanner.o \
+COBJS		= Client.o \
+		  Grammar.o \
 		  Parser.o \
 		  RunParser.o \
-		  Client.o \
+		  Scanner.o
 
-SOBJS		= PhoneBookI.o \
-		  ContactFactory.o \
-                  NameIndex.o \
+SOBJS		= ContactFactory.o \
+		  NameIndex.o \
+		  PhoneBookI.o \
 		  Server.o
 
-COLOBJS		= Grammar.o \
-		  Scanner.o \
-		  Parser.o \
-		  RunParser.o \
-		  PhoneBookI.o \
+COLOBJS		= Collocated.o \
 		  ContactFactory.o \
-                  NameIndex.o \
-		  Collocated.o
+		  Grammar.o \
+		  NameIndex.o \
+		  Parser.o \
+		  PhoneBookI.o \
+		  RunParser.o \
+		  Scanner.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

@@ -21,13 +21,13 @@ OBJS		= HR.obj
 COBJS		= Client.obj
 
 SOBJS		= DbTypes.obj \
-                  DbTypesMap.obj \
-                  DeptFactoryI.obj \
-                  DeptI.obj  \
-                  EmpI.obj  \
-                  OCCIServantLocator.obj \
-                  Server.obj \
-                  Util.obj
+		  DbTypesMap.obj \
+		  DeptFactoryI.obj \
+		  DeptI.obj  \
+		  EmpI.obj  \
+		  OCCIServantLocator.obj \
+		  Server.obj \
+		  Util.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
@@ -67,12 +67,12 @@ ORACLE_LIBS = $(ORACLE_LIBS) -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc" oci.lib
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
 	ott userid=scott/tiger@orcl code=cpp hfile=DbTypes.h cppfile=DbTypes.cpp mapfile=DbTypesMap.cpp \

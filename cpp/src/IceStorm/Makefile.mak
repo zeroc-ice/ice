@@ -15,50 +15,50 @@ DLLNAME		= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 
-TARGETS         = $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE)
+TARGETS		= $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE)
 
-OBJS		= NodeI.obj \
-		  Observers.obj \
-		  Instance.obj \
-		  TraceLevels.obj \
-		  Subscriber.obj \
-		  TopicI.obj \
-		  TopicManagerI.obj \
-		  TransientTopicI.obj \
-		  TransientTopicManagerI.obj \
-		  Service.obj \
-		  LLURecord.obj \
-		  Election.obj \
-		  SubscriberRecord.obj \
+OBJS		= Election.obj \
 		  IceStormInternal.obj \
+		  Instance.obj \
 		  Instrumentation.obj \
 		  InstrumentationI.obj \
-		  Util.obj \
-		  LLUMap.obj \
-		  SubscriberMap.obj \
-		  V32FormatDB.obj \
-		  V31FormatDB.obj \
 		  LinkRecord.obj \
+		  LLUMap.obj \
+		  LLURecord.obj \
+		  NodeI.obj \
+		  Observers.obj \
+		  Service.obj \
+		  Subscriber.obj \
+		  SubscriberMap.obj \
+		  SubscriberRecord.obj \
+		  TopicI.obj \
+		  TopicManagerI.obj \
+		  TraceLevels.obj \
+		  TransientTopicI.obj \
+		  TransientTopicManagerI.obj \
+		  Util.obj \
+		  V31Format.obj \
+		  V31FormatDB.obj \
 		  V32Format.obj \
-		  V31Format.obj
+		  V32FormatDB.obj
 
 AOBJS		= Admin.obj \
-		  Grammar.obj \
-		  Scanner.obj \
-		  Parser.obj \
-		  LLURecord.obj \
 		  Election.obj \
-		  SubscriberRecord.obj \
-		  IceStormInternal.obj
+		  Grammar.obj \
+		  IceStormInternal.obj \
+		  LLURecord.obj \
+		  Parser.obj \
+		  Scanner.obj \
+		  SubscriberRecord.obj
 
-MOBJS		= Migrate.obj \
-		  SubscriberMap.obj \
+MOBJS		= LinkRecord.obj \
 		  LLUMap.obj \
-		  LinkRecord.obj \
-		  V32FormatDB.obj \
+		  Migrate.obj \
+		  SubscriberMap.obj \
+		  V31Format.obj \
 		  V31FormatDB.obj \
 		  V32Format.obj \
-		  V31Format.obj
+		  V32FormatDB.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(AOBJS:.obj=.cpp) \
@@ -97,7 +97,7 @@ $(DLLNAME): $(OBJS) $(RES_FILE)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(ADMIN): $(AOBJS) $(ARES_FILE) 
+$(ADMIN): $(AOBJS) $(ARES_FILE)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -148,17 +148,17 @@ V31FormatDB.h V31FormatDB.cpp: V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	V31FormatDB V31Format.ice
 
 clean::
-	-del /q IceStormInternal.cpp IceStormInternal.h
-	-del /q LLURecord.cpp LLURecord.h
 	-del /q Election.cpp Election.h
-	-del /q SubscriberRecord.cpp SubscriberRecord.h
+	-del /q IceStormInternal.cpp IceStormInternal.h
 	-del /q Instrumentation.cpp Instrumentation.h
-	-del /q LLUMap.h LLUMap.cpp
-	-del /q SubscriberMap.h SubscriberMap.cpp
 	-del /q LinkRecord.cpp LinkRecord.h
-	-del /q V32FormatDB.cpp V31FormatDB.cpp V32FormatDB.h V31FormatDB.h
-	-del /q V32Format.cpp V32Format.h
+	-del /q LLUMap.h LLUMap.cpp
+	-del /q LLURecord.cpp LLURecord.h
+	-del /q SubscriberMap.h SubscriberMap.cpp
+	-del /q SubscriberRecord.cpp SubscriberRecord.h
 	-del /q V31Format.cpp V31Format.h
+	-del /q V32Format.cpp V32Format.h
+	-del /q V32FormatDB.cpp V31FormatDB.cpp V32FormatDB.h V31FormatDB.h
 	-del /q $(ADMIN:.exe=.*)
 	-del /q $(MIGRATE:.exe=.*)
 	-del /q IceStormAdmin.res IceStormDB.res IceStormService.res

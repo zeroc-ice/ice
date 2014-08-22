@@ -19,13 +19,13 @@ SERVER		= $(top_srcdir)\bin\icebox$(LIBSUFFIX).exe
 
 ADMIN		= $(top_srcdir)\bin\iceboxadmin.exe
 
-TARGETS         = $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
+TARGETS		= $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
 
-OBJS		= IceBox.obj \
-		  Exception.obj
+OBJS		= Exception.obj \
+		  IceBox.obj
 
-SOBJS		= ServiceManagerI.obj \
-		  Service.obj
+SOBJS		= Service.obj \
+		  ServiceManagerI.obj
 
 AOBJS		= Admin.obj
 

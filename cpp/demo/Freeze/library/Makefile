@@ -17,25 +17,25 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= Library.o
 
-COBJS		= Grammar.o \
-		  Scanner.o \
+COBJS		=  Client.o \
+		  Grammar.o \
 		  Parser.o \
 		  RunParser.o \
-		  Client.o \
+		  Scanner.o
 
-SOBJS		= LibraryI.o \
-		  LibraryTypes.o \
-		  BookFactory.o \
-		  Server.o
-
-COLOBJS		= Grammar.o \
-		  Scanner.o \
-		  Parser.o \
-		  RunParser.o \
+SOBJS		=  BookFactory.o \
 		  LibraryI.o \
 		  LibraryTypes.o \
-		  BookFactory.o \
-		  Collocated.o
+		  Server.o
+
+COLOBJS		= BookFactory.o \
+		  Collocated.o \
+		  Grammar.o \
+		  LibraryI.o \
+		  LibraryTypes.o \
+		  Parser.o \
+		  RunParser.o \
+		  Scanner.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

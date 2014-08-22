@@ -9,16 +9,16 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IcePatch2,$(VERSION))
-SONAME          = $(call mksoname,IcePatch2,$(SOVERSION))  
+LIBFILENAME	= $(call mklibfilename,IcePatch2,$(VERSION))
+SONAME     	= $(call mksoname,IcePatch2,$(SOVERSION))
 LIBNAME		= $(call mklibname,IcePatch2)
 
-TARGETS         = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Util.o \
-		  ClientUtil.o \
+OBJS		= ClientUtil.o \
 		  FileInfo.o \
-		  FileServer.o
+		  FileServer.o \
+		  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

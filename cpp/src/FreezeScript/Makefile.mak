@@ -25,7 +25,7 @@ COMMON_OBJS	= Grammar.obj \
 		  Print.obj \
 		  Util.obj
 
-TRANSFORM_OBJS	= TransformAnalyzer.obj \
+TRANSFORM_OBJS =  TransformAnalyzer.obj \
 		  TransformVisitor.obj \
 		  Transformer.obj \
 		  transformdb.obj

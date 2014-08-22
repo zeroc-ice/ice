@@ -18,18 +18,18 @@ OBJS            = Item.obj
 
 COBJS		= Client.obj
 
-SOBJS		= ItemInfo.obj \
-	          Database.obj \
-                  CurrentDatabase.obj \
-                  ItemI.obj \
-	          Evictor.obj \
-                  EvictorBase.obj \
-                  SimpleEvictor.obj \
-                  Server.obj
+SOBJS		= CurrentDatabase.obj \
+		  Database.obj \
+		  Evictor.obj \
+		  EvictorBase.obj \
+		  ItemI.obj \
+		  ItemInfo.obj \
+		  Server.obj \
+		  SimpleEvictor.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
-                  $(COBJS:.obj=.cpp) \
-                  $(SOBJS:.obj=.cpp)
+				  $(COBJS:.obj=.cpp) \
+				  $(SOBJS:.obj=.cpp)
 
 SLICE_SRCS	= Item.ice ItemInfo.ice
 
@@ -46,12 +46,12 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 Database.h Database.cpp: ItemInfo.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q Database.h Database.cpp

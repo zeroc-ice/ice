@@ -18,11 +18,11 @@ OBJS		= Casino.o
 
 COBJS		= Client.o \
 
-SOBJS		= CasinoStore.o \
-                  BankI.o \
-                  BetI.o \
-                  PlayerI.o \
-                  BetResolver.o \
+SOBJS		=  BankI.o \
+		  BetI.o \
+		  BetResolver.o \
+		  CasinoStore.o \
+		  PlayerI.o \
 		  Server.o
 
 

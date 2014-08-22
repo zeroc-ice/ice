@@ -15,27 +15,27 @@ SOURCE_DIR	= ..
 TARGETS		= $(LIBNAME)
 
 OBJS		= $(ARCH)\$(CONFIG)\ArgVector.obj \
-                  $(ARCH)\$(CONFIG)\Cond.obj \
-                  $(ARCH)\$(CONFIG)\ConvertUTF.obj \
+		  $(ARCH)\$(CONFIG)\Cond.obj \
+		  $(ARCH)\$(CONFIG)\ConvertUTF.obj \
 		  $(ARCH)\$(CONFIG)\CountDownLatch.obj \
 		  $(ARCH)\$(CONFIG)\Exception.obj \
 		  $(ARCH)\$(CONFIG)\FileUtil.obj \
 		  $(ARCH)\$(CONFIG)\InputUtil.obj \
+		  $(ARCH)\$(CONFIG)\MutexProtocol.obj \
 		  $(ARCH)\$(CONFIG)\Options.obj \
 		  $(ARCH)\$(CONFIG)\OutputUtil.obj \
 		  $(ARCH)\$(CONFIG)\Random.obj \
 		  $(ARCH)\$(CONFIG)\RecMutex.obj \
+		  $(ARCH)\$(CONFIG)\SHA1.obj \
 		  $(ARCH)\$(CONFIG)\Shared.obj \
+		  $(ARCH)\$(CONFIG)\StringConverter.obj \
 		  $(ARCH)\$(CONFIG)\StringUtil.obj \
 		  $(ARCH)\$(CONFIG)\Thread.obj \
 		  $(ARCH)\$(CONFIG)\ThreadException.obj \
 		  $(ARCH)\$(CONFIG)\Time.obj \
 		  $(ARCH)\$(CONFIG)\Timer.obj \
-		  $(ARCH)\$(CONFIG)\UUID.obj \
 		  $(ARCH)\$(CONFIG)\Unicode.obj \
-		  $(ARCH)\$(CONFIG)\MutexProtocol.obj \
-	          $(ARCH)\$(CONFIG)\StringConverter.obj \
-	          $(ARCH)\$(CONFIG)\SHA1.obj
+		  $(ARCH)\$(CONFIG)\UUID.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -63,7 +63,7 @@ $(LIBNAME): $(OBJS) sdks
 clean::
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(PDBNAME)
-	
+
 install:: all
 
 !include .depend.mak

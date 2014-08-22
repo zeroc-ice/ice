@@ -18,8 +18,8 @@ OBJS		= Throughput.o
 
 COBJS		= Client.o
 
-SOBJS		= ThroughputI.o \
-		  Server.o
+SOBJS		= Server.o \
+		  ThroughputI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
@@ -30,7 +30,7 @@ SLICE_SRCS	= Throughput.ice
 include $(top_srcdir)/config/Make.rules
 
 ifeq ($(CXX),aCC)
-#                                                                                                          
+#
 # Work-around 'quadrant warning' in aCC A.03.56
 # Puts string literals in read-write memory
 #

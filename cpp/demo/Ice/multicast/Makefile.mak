@@ -14,8 +14,8 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Hello.obj \
-		  Discovery.obj
+OBJS		= Discovery.obj \
+		  Hello.obj
 
 COBJS		= Client.obj
 

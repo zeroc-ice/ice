@@ -12,7 +12,7 @@ top_srcdir	= ..\..
 LIBNAME		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib
 DLLNAME		= $(top_srcdir)\bin\icestorm$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
-TARGETS         = $(LIBNAME) $(DLLNAME)
+TARGETS 	= $(LIBNAME) $(DLLNAME)
 
 OBJS		= IceStorm.obj \
 		  Metrics.obj

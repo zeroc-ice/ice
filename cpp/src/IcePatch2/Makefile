@@ -15,8 +15,8 @@ CALC		= $(bindir)/icepatch2calc
 
 TARGETS         = $(SERVER) $(CLIENT) $(CALC)
 
-SOBJS		= Server.o \
-		  FileServerI.o
+SOBJS		= FileServerI.o \
+		  Server.o
 
 COBJS		= Client.o
 

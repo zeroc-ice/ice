@@ -17,28 +17,28 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 OBJS		= Acceptor.obj \
 		  ACM.obj \
 		  Application.obj \
-                  Base64.obj \
-		  Buffer.obj \
+		  Base64.obj \
 		  BasicStream.obj \
+		  Buffer.obj \
 		  BuiltinSequences.obj \
-		  CommunicatorI.obj \
-		  Communicator.obj \
 		  CollocatedRequestHandler.obj \
-		  ConnectRequestHandler.obj \
+		  Communicator.obj \
+		  CommunicatorI.obj \
+		  Connection.obj \
 		  ConnectionFactory.obj \
 		  ConnectionI.obj \
-		  Connection.obj \
-		  Connector.obj \
 		  ConnectionRequestHandler.obj \
+		  Connector.obj \
+		  ConnectRequestHandler.obj \
 		  Current.obj \
 		  DefaultsAndOverrides.obj \
-                  DeprecatedStringConverter.obj \
-                  DispatchInterceptor.obj \
+		  DeprecatedStringConverter.obj \
+		  DispatchInterceptor.obj \
 		  DLLMain.obj \
 		  DynamicLibrary.obj \
-		  EndpointFactoryManager.obj \
-		  EndpointFactory.obj \
 		  Endpoint.obj \
+		  EndpointFactory.obj \
+		  EndpointFactoryManager.obj \
 		  EndpointI.obj \
 		  EndpointTypes.obj \
 		  EventHandler.obj \
@@ -47,59 +47,60 @@ OBJS		= Acceptor.obj \
 		  FactoryTable.obj \
 		  FactoryTableInit.obj \
 		  GCObject.obj \
+		  HttpParser.obj \
 		  Identity.obj \
-		  ImplicitContextI.obj \
 		  ImplicitContext.obj \
-		  IncomingAsync.obj \
+		  ImplicitContextI.obj \
 		  Incoming.obj \
+		  IncomingAsync.obj \
 		  Initialize.obj \
 		  Instance.obj \
+		  Instrumentation.obj \
+		  InstrumentationI.obj \
 		  IPEndpointI.obj \
 		  LocalException.obj \
 		  LocalObject.obj \
-		  LocatorInfo.obj \
 		  Locator.obj \
-                  LoggerAdminI.obj \
-		  LoggerI.obj \
+		  LocatorInfo.obj \
 		  Logger.obj \
+		  LoggerAdminI.obj \
+		  LoggerI.obj \
 		  LoggerUtil.obj \
 		  Metrics.obj \
 		  MetricsAdminI.obj \
 		  MetricsObserverI.obj \
 		  Network.obj \
+		  Object.obj \
+		  ObjectAdapter.obj \
 		  ObjectAdapterFactory.obj \
 		  ObjectAdapterI.obj \
-		  ObjectAdapter.obj \
-		  ObjectFactoryManager.obj \
 		  ObjectFactory.obj \
-		  Object.obj \
-		  Instrumentation.obj \
+		  ObjectFactoryManager.obj \
 		  ObserverHelper.obj \
-		  InstrumentationI.obj \
 		  OpaqueEndpointI.obj \
-		  OutgoingAsync.obj \
 		  Outgoing.obj \
-		  PluginManagerI.obj \
+		  OutgoingAsync.obj \
 		  Plugin.obj \
+		  PluginManagerI.obj \
 		  Process.obj \
+		  Properties.obj \
+		  PropertiesAdmin.obj \
 		  PropertiesAdminI.obj \
 		  PropertiesI.obj \
-		  PropertiesAdmin.obj \
-		  Properties.obj \
 		  PropertyNames.obj \
 		  Protocol.obj \
 		  ProtocolInstance.obj \
 		  ProtocolPluginFacade.obj \
-		  ProxyFactory.obj \
 		  Proxy.obj \
-		  ReferenceFactory.obj \
+		  ProxyFactory.obj \
 		  Reference.obj \
-                  RemoteLogger.obj \
-		  RetryQueue.obj \
+		  ReferenceFactory.obj \
+		  RemoteLogger.obj \
 		  RequestHandler.obj \
 		  ResponseHandler.obj \
-		  RouterInfo.obj \
+		  RetryQueue.obj \
 		  Router.obj \
+		  RouterInfo.obj \
 		  Selector.obj \
 		  ServantLocator.obj \
 		  ServantManager.obj \
@@ -107,14 +108,14 @@ OBJS		= Acceptor.obj \
 		  SliceChecksumDict.obj \
 		  SliceChecksums.obj \
 		  SlicedData.obj \
-		  StreamI.obj \
 		  Stream.obj \
-                  StringConverterPlugin.obj \
+		  StreamI.obj \
+		  StringConverterPlugin.obj \
 		  TcpAcceptor.obj \
 		  TcpConnector.obj \
 		  TcpEndpointI.obj \
 		  TcpTransceiver.obj \
-	          ThreadPool.obj \
+		  ThreadPool.obj \
 		  TraceLevels.obj \
 		  TraceUtil.obj \
 		  Transceiver.obj \
@@ -122,10 +123,9 @@ OBJS		= Acceptor.obj \
 		  UdpEndpointI.obj \
 		  UdpTransceiver.obj \
 		  Version.obj \
-		  HttpParser.obj \
-		  WSEndpoint.obj \
 		  WSAcceptor.obj \
 		  WSConnector.obj \
+		  WSEndpoint.obj \
 		  WSTransceiver.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
@@ -153,7 +153,7 @@ $(DLLNAME): $(OBJS) Ice.res
 	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 Service.obj: EventLoggerMsg.h
@@ -166,44 +166,44 @@ Ice.res: EventLoggerMsg.rc
 
 clean::
 	-del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
-	-del /q CommunicatorF.cpp $(HDIR)\CommunicatorF.h
 	-del /q Communicator.cpp $(HDIR)\Communicator.h
-	-del /q ConnectionF.cpp $(HDIR)\ConnectionF.h
+	-del /q CommunicatorF.cpp $(HDIR)\CommunicatorF.h
 	-del /q Connection.cpp $(HDIR)\Connection.h
+	-del /q ConnectionF.cpp $(HDIR)\ConnectionF.h
 	-del /q Current.cpp $(HDIR)\Current.h
 	-del /q Endpoint.cpp $(HDIR)\Endpoint.h
 	-del /q EndpointF.cpp $(HDIR)\EndpointF.h
 	-del /q EndpointTypes.cpp $(HDIR)\EndpointTypes.h
 	-del /q FacetMap.cpp $(HDIR)\FacetMap.h
-	-del /q ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h	
-	-del /q ImplicitContext.cpp $(HDIR)\ImplicitContext.h	
 	-del /q Identity.cpp $(HDIR)\Identity.h
-	-del /q LocalException.cpp $(HDIR)\LocalException.h
-	-del /q LocatorF.cpp $(HDIR)\LocatorF.h
-	-del /q Locator.cpp $(HDIR)\Locator.h
-	-del /q LoggerF.cpp $(HDIR)\LoggerF.h
-	-del /q Logger.cpp $(HDIR)\Logger.h
-	-del /q Metrics.cpp $(HDIR)\Metrics.h
-	-del /q ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
-	-del /q ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
+	-del /q ImplicitContext.cpp $(HDIR)\ImplicitContext.h
+	-del /q ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h
 	-del /q Instrumentation.cpp $(HDIR)\Instrumentation.h
 	-del /q InstrumentationF.cpp $(HDIR)\InstrumentationF.h
-	-del /q ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h
+	-del /q LocalException.cpp $(HDIR)\LocalException.h
+	-del /q Locator.cpp $(HDIR)\Locator.h
+	-del /q LocatorF.cpp $(HDIR)\LocatorF.h
+	-del /q Logger.cpp $(HDIR)\Logger.h
+	-del /q LoggerF.cpp $(HDIR)\LoggerF.h
+	-del /q Metrics.cpp $(HDIR)\Metrics.h
+	-del /q ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
+	-del /q ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
 	-del /q ObjectFactory.cpp $(HDIR)\ObjectFactory.h
-	-del /q PluginF.cpp $(HDIR)\PluginF.h
+	-del /q ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h
 	-del /q Plugin.cpp $(HDIR)\Plugin.h
-	-del /q ProcessF.cpp $(HDIR)\ProcessF.h
+	-del /q PluginF.cpp $(HDIR)\PluginF.h
 	-del /q Process.cpp $(HDIR)\Process.h
-	-del /q PropertiesF.cpp $(HDIR)\PropertiesF.h
-	-del /q PropertiesAdmin.cpp $(HDIR)\PropertiesAdmin.h
+	-del /q ProcessF.cpp $(HDIR)\ProcessF.h
 	-del /q Properties.cpp $(HDIR)\Properties.h
-        -del /q RemoteLogger.cpp $(HDIR)\RemoteLogger.h
-	-del /q RouterF.cpp $(HDIR)\RouterF.h
+	-del /q PropertiesAdmin.cpp $(HDIR)\PropertiesAdmin.h
+	-del /q PropertiesF.cpp $(HDIR)\PropertiesF.h
+	-del /q RemoteLogger.cpp $(HDIR)\RemoteLogger.h
 	-del /q Router.cpp $(HDIR)\Router.h
-	-del /q ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
+	-del /q RouterF.cpp $(HDIR)\RouterF.h
 	-del /q ServantLocator.cpp $(HDIR)\ServantLocator.h
+	-del /q ServantLocatorF.cpp $(HDIR)\ServantLocatorF.h
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
-        -del /q Version.cpp $(HDIR)\Version.h
+	-del /q Version.cpp $(HDIR)\Version.h
 	-del /q Ice.res
 
 install:: all

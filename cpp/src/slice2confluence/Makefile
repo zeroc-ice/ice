@@ -13,8 +13,8 @@ NAME		= $(bindir)/slice2confluence
 
 TARGETS		= $(NAME)
 
-OBJS		= Gen.o \
-		  ConfluenceOutput.o \
+OBJS		= ConfluenceOutput.o \
+		  Gen.o \
 		  Main.o
 
 SRCS		= $(OBJS:.o=.cpp)

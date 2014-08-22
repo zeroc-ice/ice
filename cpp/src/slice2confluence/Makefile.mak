@@ -13,8 +13,8 @@ NAME		= $(top_srcdir)\bin\slice2confluence.exe
 
 TARGETS		= $(NAME)
 
-OBJS		= Gen.obj \
-			  ConfluenceOutput.obj \
+OBJS		= ConfluenceOutput.obj \
+		  Gen.obj \
 		  Main.obj
 
 SRCS		= $(OBJS:.obj=.cpp)

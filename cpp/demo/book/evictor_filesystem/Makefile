@@ -16,9 +16,9 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Filesystem.o
 
-COBJS		= Client.o \
-		  Parser.o \
+COBJS		=  Client.o \
 		  Grammar.o \
+		  Parser.o \
 		  Scanner.o
 
 SOBJS		= PersistentFilesystem.o \

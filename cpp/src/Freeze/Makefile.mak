@@ -15,32 +15,32 @@ DLLNAME		= $(top_srcdir)\bin\freeze$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= BackgroundSaveEvictor.obj \
-                  BackgroundSaveEvictorI.obj \
-                  CatalogData.obj \
-                  Catalog.obj \
-                  CatalogIndexList.obj \
-                  ConnectionI.obj \
-                  Connection.obj \
+		  BackgroundSaveEvictorI.obj \
+		  Catalog.obj \
+		  CatalogData.obj \
+		  CatalogIndexList.obj \
+		  Connection.obj \
+		  ConnectionI.obj \
 		  DB.obj \
-		  EvictorI.obj \
-                  EvictorIteratorI.obj \
 		  Evictor.obj \
+		  EvictorI.obj \
+		  EvictorIteratorI.obj \
 		  EvictorStorage.obj \
-                  Exception.obj \
-                  IndexI.obj \
-                  Index.obj \
-                  MapDb.obj \
-	  	  MapI.obj \
-                  ObjectStore.obj \
+		  Exception.obj \
+		  Index.obj \
+		  IndexI.obj \
+		  MapDb.obj \
+		  MapI.obj \
+		  ObjectStore.obj \
 		  PingObject.obj \
-                  SharedDbEnv.obj \
-                  TransactionalEvictor.obj \
-                  TransactionalEvictorI.obj \
-                  TransactionalEvictorContext.obj \
-                  TransactionHolder.obj \
-                  TransactionI.obj \
-                  Transaction.obj \
-                  Util.obj
+		  SharedDbEnv.obj \
+		  Transaction.obj \
+		  TransactionalEvictor.obj \
+		  TransactionalEvictorContext.obj \
+		  TransactionalEvictorI.obj \
+		  TransactionHolder.obj \
+		  TransactionI.obj \
+		  Util.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -65,7 +65,7 @@ $(DLLNAME): $(OBJS) Freeze.res
 	$(LINK) $(BASE):0x25000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
@@ -87,7 +87,7 @@ clean::
 	-del /q BackgroundSaveEvictor.cpp $(HDIR)\BackgroundSaveEvictor.h
 	-del /q CatalogData.cpp $(HDIR)\CatalogData.h
 	-del /q Connection.cpp $(HDIR)\Connection.h
-	-del /q ConnectionF.cpp $(HDIR)\ConnectionF.h 
+	-del /q ConnectionF.cpp $(HDIR)\ConnectionF.h
 	-del /q Exception.cpp $(HDIR)\Exception.h
 	-del /q EvictorF.cpp $(HDIR)\EvictorF.h
 	-del /q Evictor.cpp $(HDIR)\Evictor.h

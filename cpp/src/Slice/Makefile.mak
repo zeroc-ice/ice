@@ -14,22 +14,22 @@ DLLNAME		= $(top_srcdir)\bin\slice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Scanner.obj \
-		  Grammar.obj \
-		  Parser.obj \
+OBJS		= Checksum.obj \
 		  CPlusPlusUtil.obj \
 		  CsUtil.obj \
-		  JavaUtil.obj \
-		  Preprocessor.obj \
-		  Checksum.obj \
-		  PythonUtil.obj \
 		  DotNetNames.obj \
-		  RubyUtil.obj \
-		  PHPUtil.obj \
-		  Util.obj \
 		  FileTracker.obj \
+		  Grammar.obj \
+		  JavaUtil.obj \
 		  MD5.obj \
-		  MD5I.obj
+		  MD5I.obj \
+		  Parser.obj \
+		  PHPUtil.obj \
+		  Preprocessor.obj \
+		  PythonUtil.obj \
+		  RubyUtil.obj \
+		  Scanner.obj \
+		  Util.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -56,10 +56,10 @@ $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Slice.res
 	$(LINK) $(BASE):0x21000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS) $(MCPP_LIBS) \
-	    $(RES_FILE)
+		$(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 !endif

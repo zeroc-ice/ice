@@ -10,33 +10,33 @@
 top_srcdir	= ../..
 
 LIBFILENAME	= $(call mklibfilename,Slice,$(VERSION))
-SONAME		= $(call mksoname,Slice,$(SOVERSION))  
+SONAME		= $(call mksoname,Slice,$(SOVERSION))
 LIBNAME		= $(call mklibname,Slice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Scanner.o \
-		  ../Slice/Grammar.o \
-		  Parser.o \
+OBJS		= Checksum.o \
 		  CPlusPlusUtil.o \
 		  CsUtil.o \
-		  JavaUtil.o \
-		  Preprocessor.o \
-		  Checksum.o \
-		  PythonUtil.o \
 		  DotNetNames.o \
-		  RubyUtil.o \
-		  PHPUtil.o \
-		  Util.o \
 		  FileTracker.o \
+		  JavaUtil.o \
 		  MD5.o \
-		  MD5I.o
+		  MD5I.o \
+		  Parser.o \
+		  PHPUtil.o \
+		  Preprocessor.o \
+		  PythonUtil.o \
+		  RubyUtil.o \
+		  Scanner.o \
+		  Util.o \
+		  ../Slice/Grammar.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS 
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS
 BISONFLAGS	:= --name-prefix "slice_" $(BISONFLAGS)
 
 LINKWITH	:= $(BASELIBS) $(MCPP_LIBS)

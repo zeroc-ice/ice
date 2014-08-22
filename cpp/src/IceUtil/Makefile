@@ -10,7 +10,7 @@
 top_srcdir	= ../..
 
 LIBFILENAME	= $(call mklibfilename,IceUtil,$(VERSION))
-SONAME		= $(call mksoname,IceUtil,$(SOVERSION))  
+SONAME		= $(call mksoname,IceUtil,$(SOVERSION))
 LIBNAME		= $(call mklibname,IceUtil)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
@@ -20,23 +20,23 @@ OBJS		= ArgVector.o \
 		  CountDownLatch.o \
 		  CtrlCHandler.o \
 		  Exception.o \
+		  FileUtil.o \
 		  InputUtil.o \
+		  MutexProtocol.o \
 		  Options.o \
 		  OutputUtil.o \
 		  Random.o \
 		  RecMutex.o \
+		  SHA1.o \
 		  Shared.o \
+		  StringConverter.o \
 		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \
 		  Time.o \
 		  Timer.o \
-		  UUID.o \
 		  Unicode.o \
-		  MutexProtocol.o \
-		  FileUtil.o \
-		  StringConverter.o \
-		  SHA1.o
+		  UUID.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

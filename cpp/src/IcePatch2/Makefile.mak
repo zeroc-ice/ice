@@ -15,8 +15,8 @@ CALC		= $(top_srcdir)\bin\icepatch2calc.exe
 
 TARGETS         = $(SERVER) $(CLIENT) $(CALC)
 
-SOBJS		= Server.obj \
-		  FileServerI.obj
+SOBJS		= FileServerI.obj \
+		  Server.obj
 
 COBJS		= Client.obj
 

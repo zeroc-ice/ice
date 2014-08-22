@@ -10,52 +10,52 @@
 top_srcdir	= ../..
 
 LIBFILENAME     = $(call mklibfilename,Freeze,$(VERSION))
-SONAME          = $(call mksoname,Freeze,$(SOVERSION))  
+SONAME          = $(call mksoname,Freeze,$(SOVERSION))
 LIBNAME		= $(call mklibname,Freeze)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= BackgroundSaveEvictor.o \
-                  BackgroundSaveEvictorI.o \
-                  CatalogData.o \
-                  Catalog.o \
-	          CatalogIndexList.o \
+OBJS		=  BackgroundSaveEvictor.o \
+		  BackgroundSaveEvictorI.o \
+		  Catalog.o \
+		  CatalogData.o \
+		  CatalogIndexList.o \
+		  Connection.o \
 		  ConnectionI.o \
-                  Connection.o \
 		  DB.o \
-		  EvictorI.o \
-                  EvictorIteratorI.o \
-                  EvictorStorage.o \
 		  Evictor.o \
-                  Exception.o \
-                  IndexI.o \
-                  Index.o \
-                  MapDb.o \
-	  	  MapI.o \
-                  ObjectStore.o \
+		  EvictorI.o \
+		  EvictorIteratorI.o \
+		  EvictorStorage.o \
+		  Exception.o \
+		  Index.o \
+		  IndexI.o \
+		  MapDb.o \
+		  MapI.o \
+		  ObjectStore.o \
 		  PingObject.o \
-                  SharedDbEnv.o \
-                  TransactionalEvictor.o \
-                  TransactionalEvictorI.o \
-                  TransactionalEvictorContext.o \
-                  TransactionHolder.o \
-                  TransactionI.o \
-                  Transaction.o \
-                  Util.o
+		  SharedDbEnv.o \
+		  Transaction.o \
+		  TransactionalEvictor.o \
+		  TransactionalEvictorContext.o \
+		  TransactionalEvictorI.o \
+		  TransactionHolder.o \
+		  TransactionI.o \
+		  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/BackgroundSaveEvictor.ice \
-                  $(SDIR)/DB.ice \
-                  $(SDIR)/CatalogData.ice \
-                  $(SDIR)/Connection.ice \
-                  $(SDIR)/ConnectionF.ice \
-                  $(SDIR)/Exception.ice \
+SLICE_SRCS	=  $(SDIR)/BackgroundSaveEvictor.ice \
+		  $(SDIR)/CatalogData.ice \
+		  $(SDIR)/Connection.ice \
+		  $(SDIR)/ConnectionF.ice \
+		  $(SDIR)/DB.ice \
+		  $(SDIR)/Evictor.ice \
 		  $(SDIR)/EvictorF.ice \
 		  $(SDIR)/EvictorStorage.ice \
-		  $(SDIR)/Evictor.ice \
-                  $(SDIR)/TransactionalEvictor.ice \
-                  $(SDIR)/Transaction.ice \
+		  $(SDIR)/Exception.ice \
+		  $(SDIR)/Transaction.ice \
+		  $(SDIR)/TransactionalEvictor.ice \
 		  ../Freeze/PingObject.ice
 
 HDIR		= $(headerdir)/Freeze
@@ -63,7 +63,7 @@ SDIR		= $(slicedir)/Freeze
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS) 
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_LIBS)
 

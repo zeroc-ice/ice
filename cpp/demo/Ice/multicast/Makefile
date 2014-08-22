@@ -14,8 +14,8 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Hello.o \
-		  Discovery.o
+OBJS		= Discovery.o \
+		  Hello.o
 
 COBJS		= Client.o
 
