@@ -13,13 +13,13 @@ LIBNAME = Glacier2
 
 TARGETS	= $(call mklibtargets,$(LIBNAME))
 
-SLICES = $(SDIR)/PermissionsVerifierF.ice \
+SLICES = $(SDIR)/Metrics.ice \
 	$(SDIR)/PermissionsVerifier.ice \
+	$(SDIR)/PermissionsVerifierF.ice \
 	$(SDIR)/Router.ice \
 	$(SDIR)/RouterF.ice \
 	$(SDIR)/Session.ice \
-	$(SDIR)/SSLInfo.ice \
-	$(SDIR)/Metrics.ice
+	$(SDIR)/SSLInfo.ice
 
 SDIR	= $(slicedir)/Glacier2
 

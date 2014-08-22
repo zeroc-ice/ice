@@ -37,16 +37,17 @@ SDIR	= $(slicedir)/Ice
 GEN_SRCS = $(patsubst $(SDIR)/%.ice, %.js, $(SLICES))
 
 COMMON_SRCS = \
+	ACM.js \
 	Address.js \
 	ArrayUtil.js \
-	ACM.js \
-	AsyncResultBase.js \
 	AsyncResult.js \
+	AsyncResultBase.js \
 	AsyncStatus.js \
 	Base64.js \
 	BasicStream.js \
 	Class.js \
 	Communicator.js \
+	CompactIdRegistry.js \
 	ConnectionI.js \
 	ConnectionRequestHandler.js \
 	ConnectRequestHandler.js \
@@ -64,17 +65,16 @@ COMMON_SRCS = \
 	IncomingAsync.js \
 	Initialize.js \
 	Instance.js \
-	RetryException.js \
 	LocatorInfo.js \
 	LocatorManager.js \
 	LocatorTable.js \
 	Logger.js \
 	Long.js \
+	Object.js \
 	ObjectAdapterFactory.js \
 	ObjectAdapterI.js \
 	ObjectFactory.js \
 	ObjectFactoryManager.js \
-	Object.js \
 	ObjectPrx.js \
 	OpaqueEndpointI.js \
 	Operation.js \
@@ -90,6 +90,7 @@ COMMON_SRCS = \
 	ProxyFactory.js \
 	Reference.js \
 	ReferenceMode.js \
+	RetryException.js \
 	RetryQueue.js \
 	RouterInfo.js \
 	RouterManager.js \
@@ -101,7 +102,6 @@ COMMON_SRCS = \
 	Timer.js \
 	TraceLevels.js \
 	TraceUtil.js \
-	CompactIdRegistry.js \
 	UnknownSlicedObject.js \
 	UUID.js
 
@@ -110,13 +110,13 @@ NODEJS_SRCS = \
 	Ice.js \
 	TcpEndpointFactory.js \
 	TcpEndpointI.js \
-	TcpTransceiver.js \
+	TcpTransceiver.js
 
 BROWSER_SRCS = \
 	browser/Buffer.js \
-	browser/WSTransceiver.js \
 	browser/WSEndpoint.js \
-	browser/WSEndpointFactory.js
+	browser/WSEndpointFactory.js \
+	browser/WSTransceiver.js
 
 ifneq ($(OPTIMIZE),yes)
     NODEJS_SRCS := $(NODEJS_SRCS) Debug.js
@@ -130,15 +130,15 @@ include $(top_srcdir)/config/Make.rules.js
 
 # Prevent generation of these files from .ice files
 Communicator.js:
-	
+
 Properties.js:
-	
+
 Logger.js:
-	
+
 ServantLocator.js:
-	
+
 ObjectFactory.js:
-	
+
 
 SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir)
 

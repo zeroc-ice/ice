@@ -9,22 +9,22 @@
 
 top_srcdir	= ../..
 
-PKG		= Glacier2
+PKG			= Glacier2
 LIBNAME		= $(PKG).dll
 TARGETS		= $(assembliesdir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
-SRCS		= SessionFactoryHelper.cs \
-		  SessionHelper.cs \
-		  SessionCallback.cs \
+SRCS		= Application.cs \
 		  AssemblyInfo.cs \
-		  Application.cs
+		  SessionCallback.cs \
+		  SessionFactoryHelper.cs \
+		  SessionHelper.cs
 
-SLICE_SRCS	= $(SDIR)/PermissionsVerifier.ice \
+SLICE_SRCS	=  $(SDIR)/Metrics.ice \
+		  $(SDIR)/PermissionsVerifier.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/SSLInfo.ice \
-		  $(SDIR)/Metrics.ice
+		  $(SDIR)/SSLInfo.ice
 
 SDIR		= $(slicedir)/Glacier2
 GDIR		= generated

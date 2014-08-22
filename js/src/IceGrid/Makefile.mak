@@ -11,16 +11,17 @@ top_srcdir	= ..\..
 
 LIBNAME = IceGrid
 
-GEN_SRCS = Admin.js \
-	   Descriptor.js \
-	   Exception.js \
-	   FileParser.js \
-	   Locator.js \
-	   Observer.js \
-	   Query.js \
-	   Registry.js \
-	   Session.js \
-	   UserAccountMapper.js
+GEN_SRCS = \
+	Admin.js \
+	Descriptor.js \
+	Exception.js \
+	FileParser.js \
+	Locator.js \
+	Observer.js \
+	Query.js \
+	Registry.js \
+	Session.js \
+	UserAccountMapper.js
 
 SDIR		= $(slicedir)\IceGrid
 

@@ -11,13 +11,13 @@ top_srcdir	= ..\..
 
 LIBNAME = Glacier2
 
-GEN_SRCS = PermissionsVerifierF.js \
-	   PermissionsVerifier.js \
-	   Router.js \
-	   RouterF.js \
-	   Session.js \
-	   SSLInfo.js \
-	   Metrics.js
+GEN_SRCS = Metrics.js \
+	PermissionsVerifier.js \
+	PermissionsVerifierF.js \
+	Router.js \
+	RouterF.js \
+	Session.js \
+	SSLInfo.js
 
 SDIR		= $(slicedir)\Glacier2
 

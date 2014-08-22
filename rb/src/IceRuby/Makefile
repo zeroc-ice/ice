@@ -10,15 +10,15 @@
 top_srcdir	= ../..
 
 LIBFILENAME     = $(call mkrblibfilename,IceRuby,$(VERSION))
-SONAME          = $(call mkrbsoname,IceRuby,$(SOVERSION))  
+SONAME          = $(call mkrbsoname,IceRuby,$(SOVERSION))
 LIBNAME		= $(call mkrblibname,IceRuby)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Connection.o \
-		  Communicator.o \
+OBJS		= Communicator.o \
+		  Connection.o \
 		  Endpoint.o \
-		  Init.o \
 		  ImplicitContext.o \
+		  Init.o \
 		  Logger.o \
 		  ObjectFactory.o \
 		  Operation.o \

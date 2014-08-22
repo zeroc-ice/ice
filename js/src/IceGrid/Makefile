@@ -13,7 +13,8 @@ LIBNAME = IceGrid
 
 TARGETS	= $(call mklibtargets,$(LIBNAME))
 
-SLICES = $(SDIR)/Admin.ice \
+SLICES = \
+	$(SDIR)/Admin.ice \
 	$(SDIR)/Descriptor.ice \
 	$(SDIR)/Exception.ice \
 	$(SDIR)/FileParser.ice \

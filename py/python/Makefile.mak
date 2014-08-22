@@ -11,46 +11,47 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-ICE_SRCS	= Ice_LocalException_ice.py \
+ICE_SRCS	= Ice_BuiltinSequences_ice.py \
 		  Ice_Communicator_ice.py \
 		  Ice_CommunicatorF_ice.py \
-		  Ice_Logger_ice.py \
-		  Ice_LoggerF_ice.py \
-		  Ice_BuiltinSequences_ice.py \
-		  Ice_ObjectAdapter_ice.py \
-		  Ice_ObjectAdapterF_ice.py \
-		  Ice_ServantLocator_ice.py \
-		  Ice_ServantLocatorF_ice.py \
-		  Ice_PropertiesAdmin_ice.py \
-		  Ice_Properties_ice.py \
-		  Ice_PropertiesF_ice.py \
-		  Ice_ObjectFactory_ice.py \
-		  Ice_ObjectFactoryF_ice.py \
-		  Ice_Identity_ice.py \
-		  Ice_Current_ice.py \
-		  Ice_ImplicitContextF_ice.py \
-		  Ice_ImplicitContext_ice.py \
-		  Ice_Router_ice.py \
-		  Ice_RouterF_ice.py \
-		  Ice_Plugin_ice.py \
-		  Ice_PluginF_ice.py \
-		  Ice_Locator_ice.py \
-		  Ice_LocatorF_ice.py \
-		  Ice_Process_ice.py \
-		  Ice_ProcessF_ice.py \
-		  Ice_FacetMap_ice.py \
 		  Ice_Connection_ice.py \
 		  Ice_ConnectionF_ice.py \
-		  Ice_SliceChecksumDict_ice.py \
+		  Ice_Current_ice.py \
 		  Ice_Endpoint_ice.py \
 		  Ice_EndpointF_ice.py \
 		  Ice_EndpointTypes_ice.py \
-		  Ice_Version_ice.py \
+		  Ice_FacetMap_ice.py \
+		  Ice_Identity_ice.py \
+		  Ice_ImplicitContext_ice.py \
+		  Ice_ImplicitContextF_ice.py \
 		  Ice_Instrumentation_ice.py \
 		  Ice_InstrumentationF_ice.py \
-		  Ice_Metrics_ice.py
+		  Ice_LocalException_ice.py \
+		  Ice_Locator_ice.py \
+		  Ice_LocatorF_ice.py \
+		  Ice_Logger_ice.py \
+		  Ice_LoggerF_ice.py \
+		  Ice_Metrics_ice.py \
+		  Ice_ObjectAdapter_ice.py \
+		  Ice_ObjectAdapterF_ice.py \
+		  Ice_ObjectFactory_ice.py \
+		  Ice_ObjectFactoryF_ice.py \
+		  Ice_Plugin_ice.py \
+		  Ice_PluginF_ice.py \
+		  Ice_Process_ice.py \
+		  Ice_ProcessF_ice.py \
+		  Ice_Properties_ice.py \
+		  Ice_PropertiesAdmin_ice.py \
+		  Ice_PropertiesF_ice.py \
+		  Ice_Router_ice.py \
+		  Ice_RouterF_ice.py \
+		  Ice_ServantLocator_ice.py \
+		  Ice_ServantLocatorF_ice.py \
+		  Ice_SliceChecksumDict_ice.py \
+		  Ice_Version_ice.py \
 
-GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
+GLACIER2_SRCS	=
+		  Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \

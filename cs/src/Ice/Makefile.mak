@@ -16,40 +16,41 @@ POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= Acceptor.cs \
 		  ACM.cs \
-		  Application.cs \
 		  AMDCallback.cs \
+		  Application.cs \
 		  Arrays.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
 		  AsyncIOThread.cs \
-                  Base64.cs \
+		  Base64.cs \
 		  BasicStream.cs \
 		  Buffer.cs \
 		  ByteBuffer.cs \
-		  CommunicatorI.cs \
-                  Compare.cs \
 		  CollectionBase.cs \
 		  Collections.cs \
 		  CollocatedRequestHandler.cs \
-		  ConnectRequestHandler.cs \
-		  ConnectionI.cs \
+		  CommunicatorI.cs \
+		  Compare.cs \
 		  ConnectionFactory.cs \
+		  ConnectionI.cs \
 		  ConnectionRequestHandler.cs \
 		  Connector.cs \
+		  ConnectRequestHandler.cs \
 		  DefaultsAndOverrides.cs \
 		  DictionaryBase.cs \
-                  DispatchInterceptor.cs \
-		  EndpointI.cs \
+		  DispatchInterceptor.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \
 		  EndpointHostResolver.cs \
+		  EndpointI.cs \
 		  EventHandler.cs \
 		  Exception.cs \
 		  FormatType.cs \
 		  HashSet.cs \
+		  HttpParser.cs \
 		  ImplicitContextI.cs \
-		  IncomingAsync.cs \
 		  Incoming.cs \
+		  IncomingAsync.cs \
 		  Instance.cs \
 		  InstrumentationI.cs \
 		  IPEndpointI.cs \
@@ -59,21 +60,21 @@ SRCS		= Acceptor.cs \
 		  MetricsAdminI.cs \
 		  MetricsObserverI.cs \
 		  Network.cs \
+		  Object.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \
-		  Object.cs \
 		  ObjectFactoryManager.cs \
 		  ObserverHelper.cs \
 		  OpaqueEndpointI.cs \
 		  Optional.cs \
 		  Options.cs \
-		  OutgoingAsync.cs \
 		  Outgoing.cs \
+		  OutgoingAsync.cs \
 		  OutputBase.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
-                  ProcessI.cs \
-                  PropertiesAdminI.cs \
+		  ProcessI.cs \
+		  PropertiesAdminI.cs \
 		  PropertiesI.cs \
 		  Property.cs \
 		  PropertyNames.cs \
@@ -85,18 +86,18 @@ SRCS		= Acceptor.cs \
 		  ProxyIdentityKey.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
-                  ReplyStatus.cs \
-                  RequestHandler.cs \
-	  	  ResponseHandler.cs \
+		  ReplyStatus.cs \
+		  RequestHandler.cs \
+		  ResponseHandler.cs \
 		  RetryQueue.cs \
 		  RouterInfo.cs \
 		  ServantManager.cs \
-		  SocketOperation.cs \
 		  SliceChecksums.cs \
 		  SlicedData.cs \
+		  SocketOperation.cs \
 		  Stream.cs \
 		  StreamI.cs \
-                  StreamWrapper.cs \
+		  StreamWrapper.cs \
 		  StringUtil.cs \
 		  SysLoggerI.cs \
 		  TcpAcceptor.cs \
@@ -118,7 +119,6 @@ SRCS		= Acceptor.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
 		  ValueWriter.cs \
-		  HttpParser.cs \
 		  WSAcceptor.cs \
 		  WSConnector.cs \
 		  WSEndpoint.cs \
@@ -133,17 +133,17 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\FacetMap.cs \
 		  $(GDIR)\Identity.cs \
 		  $(GDIR)\ImplicitContext.cs \
+		  $(GDIR)\Instrumentation.cs \
 		  $(GDIR)\LocalException.cs \
 		  $(GDIR)\Locator.cs \
 		  $(GDIR)\Logger.cs \
 		  $(GDIR)\Metrics.cs \
 		  $(GDIR)\ObjectAdapter.cs \
 		  $(GDIR)\ObjectFactory.cs \
-		  $(GDIR)\Instrumentation.cs \
 		  $(GDIR)\Plugin.cs \
 		  $(GDIR)\Process.cs \
-		  $(GDIR)\PropertiesAdmin.cs \
 		  $(GDIR)\Properties.cs \
+		  $(GDIR)\PropertiesAdmin.cs \
 		  $(GDIR)\Router.cs \
 		  $(GDIR)\ServantLocator.cs \
 		  $(GDIR)\SliceChecksumDict.cs \
