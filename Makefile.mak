@@ -10,11 +10,11 @@
 top_srcdir = cpp
 !include cpp/config/Make.rules.mak
 
-SUBDIRS			= cpp java py
-CLEAN_SUBDIRS		= java py cpp
+SUBDIRS			= cpp java py js
+CLEAN_SUBDIRS		= js java py cpp
 DEPEND_SUBDIRS		= cpp py
-INSTALL_SUBDIRS		= cpp java py
-TEST_SUBDIRS		= cpp java py 
+INSTALL_SUBDIRS		= cpp java py js
+TEST_SUBDIRS		= cpp java py js
 
 !if "$(CPP_COMPILER)" == "VC90"
 SUBDIRS			= $(SUBDIRS) php

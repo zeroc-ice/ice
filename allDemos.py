@@ -16,9 +16,9 @@ from demoscript import *
 demoGroups = []
 
 if os.path.isdir("cpp"):
-    subdirs = [ "cpp", "java", "cs", "py", "rb"]
+    subdirs = [ "cpp", "java", "cs", "py", "rb", "js"]
 else:
-    subdirs = [ "demo", "demoj", "democs", "demopy", "demorb"]
+    subdirs = [ "demo", "demoj", "democs", "demopy", "demorb", "demojs"]
 
 for d in subdirs:
     

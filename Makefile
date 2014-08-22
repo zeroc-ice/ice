@@ -7,10 +7,10 @@
 #
 # **********************************************************************
 
-SUBDIRS			= cpp java cs py rb php
-CLEAN_SUBDIRS		= java cs py rb php cpp
+SUBDIRS			= cpp java cs py rb php js
+CLEAN_SUBDIRS		= js java cs py rb php cpp
 DEPEND_SUBDIRS		= cpp cs py rb php
-INSTALL_SUBDIRS		= cpp java cs py rb php
+INSTALL_SUBDIRS		= cpp java cs py rb php js
 
 all::
 	@for subdir in $(SUBDIRS); \
