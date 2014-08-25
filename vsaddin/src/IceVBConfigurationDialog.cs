@@ -31,7 +31,6 @@ namespace Ice.VisualStudio
             {
                 this.Text = "Ice Configuration - Project: " + _project.Name;
                 bool enabled = Util.isSliceBuilderEnabled(project);
-                _compactFramework = Util.isVBSmartDeviceProject(_project);
                 setEnabled(enabled);
                 chkEnableBuilder.Checked = enabled;
                 load();
@@ -87,17 +86,7 @@ namespace Ice.VisualStudio
         private void loadComponents()
         {
             ComponentList selectedComponents = Util.getIceDotNetComponents(_project);
-            string[] dotNetNames = null;
-            if(_compactFramework)
-            {
-                dotNetNames = Util.getDotNetCompactNames();
-                checkComponent("IceSSL", false);
-            }
-            else
-            {
-                dotNetNames = Util.getDotNetNames();
-            }
-        
+            string[] dotNetNames = Util.getDotNetNames();
             foreach(String s in dotNetNames)
             {
                 if(selectedComponents.Contains(s))
@@ -208,17 +197,7 @@ namespace Ice.VisualStudio
             chkIceBox.Enabled = enabled;
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
-            //
-            // Ice .NET Compact Framework doesn't support SSL
-            //
-            if(_compactFramework)
-            {
-                chkIceSSL.Enabled = false;
-            }
-            else
-            {
-                chkIceSSL.Enabled = enabled;
-            }
+            chkIceSSL.Enabled = enabled;
             chkIceStorm.Enabled = enabled;
         }
 
@@ -323,17 +302,16 @@ namespace Ice.VisualStudio
                         components.Add("IcePatch2");
                     }
                 }
-                if(!_compactFramework)
+
+                if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
                 {
-                    if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+                    componentChanged("IceSSL", chkIceSSL.Checked, development);
+                    if(!chkGlacier2.Checked)
                     {
-                        componentChanged("IceSSL", chkIceSSL.Checked, development);
-                        if(!chkGlacier2.Checked)
-                        {
-                            components.Add("IceSSL");
-                        }
+                        components.Add("IceSSL");
                     }
                 }
+                
                 if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
                 {
                     componentChanged("IceStorm", chkIceStorm.Checked, development);
@@ -396,12 +374,9 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-            if(!_compactFramework)
+            if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
             {
-                if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
-                {
-                    return true;
-                }
+                return true;
             }
             if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
             {
@@ -430,12 +405,9 @@ namespace Ice.VisualStudio
             {
                 components.Add("IcePatch2");
             }
-            if(!_compactFramework)
+            if(chkIceSSL.Checked)
             {
-                if(chkIceSSL.Checked)
-                {
-                    components.Add("IceSSL");
-                }
+                components.Add("IceSSL");
             }
             if(chkIceStorm.Checked)
             {
@@ -519,6 +491,5 @@ namespace Ice.VisualStudio
 
         private bool _initialized;
         private Project _project;
-        private bool _compactFramework = false;
     }
 }

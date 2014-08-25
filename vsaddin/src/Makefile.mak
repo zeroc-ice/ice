@@ -75,7 +75,6 @@ install::$(TARGETS)
 	@reg ADD "$(DOTNET_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
 	echo "Could not add registry keyword $(DOTNET_ASSEMBLIES_KEY)" && exit 1
 
-!if "$(VS)" == "VS2010" || "$(VS)" == "VS2012" || "$(VS)" == "VS2013"
 install::
 	@if not exist $(ALLUSERSPROFILE)\ZeroC \
 	    @echo "Creating $(ALLUSERSPROFILE)\ZeroC ..." && \
@@ -110,25 +109,6 @@ install::
 	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033" \
 		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"
 	devenv.exe /installvstemplates
-!endif
-
-#
-# Registry keywords to locate .NET CF assemblies
-#
-!if "$(VS)" == "VS2008"
-	@echo Adding key "$(POCKETPC_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(POCKETPC_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(POCKETPC_ASSEMBLIES_KEY)" && exit 1
-
-	@echo Adding key "$(SMARTPHONE_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(SMARTPHONE_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(SMARTPHONE_ASSEMBLIES_KEY)" && exit 1
-
-	@echo Adding key "$(WINDOWSCE_ASSEMBLIES_KEY)" in Windows registry
-	@reg ADD "$(WINDOWSCE_ASSEMBLIES_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
-	echo "Could not add registry keyword $(WINDOWSCE_ASSEMBLIES_KEY)" && exit 1
-	devenv.exe /installvstemplates
-!endif
 
 #
 # Ice.props use this registry keyword to define IceHome macro.

@@ -43,7 +43,6 @@ namespace Ice.VisualStudio
             {
                 this.Text = "Ice Configuration - Project: " + _project.Name;
                 bool enabled = Util.isSliceBuilderEnabled(project);
-                _compactFramework = Util.isCSharpSmartDeviceProject(_project);
                 _silverlightFramework = Util.isSilverlightProject(_project);
                 setEnabled(enabled);
                 chkEnableBuilder.Checked = enabled;
@@ -81,12 +80,7 @@ namespace Ice.VisualStudio
         {
             ComponentList selectedComponents = Util.getIceDotNetComponents(_project);
             string[] dotNetNames = null;
-            if(_compactFramework)
-            {
-                dotNetNames = Util.getDotNetCompactNames();
-                checkComponent("IceSSL", false);
-            }
-            else if(_silverlightFramework)
+            if(_silverlightFramework)
             {
                 dotNetNames = Util.getSilverlightNames();
                 checkComponent("IceSSL", false);
@@ -258,16 +252,9 @@ namespace Ice.VisualStudio
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
             //
-            // Ice .NET Compact Framework doesn't support IceSSL
-            //
-            if(_compactFramework)
-            {
-                chkIceSSL.Enabled = false;
-            }
-            //
             // Ice Silverlight doesn't support IceSSL and IceBox
             //
-            else if(_silverlightFramework)
+            if(_silverlightFramework)
             {
                 chkIceSSL.Enabled = false;
                 chkIceBox.Enabled = false;
@@ -420,7 +407,7 @@ namespace Ice.VisualStudio
             {
                 components.Add("IcePatch2");
             }
-            if(!_compactFramework && !_silverlightFramework)
+            if(!_silverlightFramework)
             {
                 if(chkIceSSL.Checked)
                 {
@@ -559,7 +546,7 @@ namespace Ice.VisualStudio
                         components.Add("IcePatch2");
                     }
                 }
-                if(!_compactFramework && !_silverlightFramework)
+                if(!_silverlightFramework)
                 {
                     if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
                     {
@@ -675,7 +662,7 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-            if(!_compactFramework && !_silverlightFramework)
+            if(!_silverlightFramework)
             {
                 if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
                 {
@@ -692,7 +679,6 @@ namespace Ice.VisualStudio
         private bool _initialized;
         private Project _project;
         private bool _changed = false;
-        private bool _compactFramework = false;
         private bool _silverlightFramework = false;
     }
 }

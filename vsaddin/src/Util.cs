@@ -387,17 +387,6 @@ namespace Ice.VisualStudio
             "IceSSL", "IceStorm"
         };
 
-        private static readonly string[] dotNetCompactNames =
-        {
-            "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
-            "IceStorm"
-        };
-
-        public static string[] getDotNetCompactNames()
-        {
-            return (string[])dotNetCompactNames.Clone();
-        }
-
         public static string[] getDotNetNames()
         {
             return (string[])dotNetNames.Clone();
@@ -504,17 +493,7 @@ namespace Ice.VisualStudio
         public static void addIcePropertySheet(Project project)
         {
             VCProject vcProj = (VCProject)project.Object;
-
-            string propSheetFileName = "$(ALLUSERSPROFILE)\\ZeroC\\Ice";
-
-#if VS2008
-            propSheetFileName += ".vsprops";
-#endif
-
-#if VS2010 || VS2012 || VS2013
-            propSheetFileName += ".props";
-#endif
-
+            string propSheetFileName = "$(ALLUSERSPROFILE)\\ZeroC\\Ice.props";
 
             //
             // All project configurations must include ice.vsprops (vc90) or IceCommon.props (vc100 | vc110)
@@ -526,23 +505,7 @@ namespace Ice.VisualStudio
                 VCPropertySheet newSheet = findPropertySheet(vcConfig.PropertySheets as IVCCollection, "ice");
                 if(newSheet == null)
                 {
-#if VS2008
-                    string inhertiedPropertySheets = vcConfig.InheritedPropertySheets;
-                    if(String.IsNullOrEmpty(inhertiedPropertySheets) || !inhertiedPropertySheets.Contains(propSheetFileName))
-                    {
-                        if(!String.IsNullOrEmpty(inhertiedPropertySheets) && !inhertiedPropertySheets.EndsWith(";"))
-                        {
-                            inhertiedPropertySheets += " ; ";
-                        }
-                        inhertiedPropertySheets += propSheetFileName;
-                        vcConfig.InheritedPropertySheets = inhertiedPropertySheets;
-                    }
-#endif
-
-#if VS2010 || VS2012 || VS2013
                     newSheet = vcConfig.AddPropertySheet(propSheetFileName);
-#endif
-
                 }
             }
         }
@@ -550,11 +513,7 @@ namespace Ice.VisualStudio
         public static string getCsBinDir(Project project)
         {
             string binDir = "";
-            if(isVBSmartDeviceProject(project) || isCSharpSmartDeviceProject(project))
-            {
-                binDir = _csCompactFrameworkBinDirs;
-            }
-            else if(isSilverlightProject(project))
+            if(isSilverlightProject(project))
             {
                 binDir = _slBinDirs;
             }
@@ -669,14 +628,6 @@ namespace Ice.VisualStudio
                 return;
             }
 
-#if VS2008
-            ComponentList sheets = new ComponentList(configuration.InheritedPropertySheets);
-            if(sheets.Remove("$(ALLUSERSPROFILE)\\ZeroC\\ice.vsprops"))
-            {
-                configuration.InheritedPropertySheets = sheets.ToString();
-            }
-#endif
-#if VS2010 || VS2012 || VS2013
             VCPropertySheet sheet = null;
             IVCCollection sheets = (IVCCollection)configuration.PropertySheets;
             foreach(VCPropertySheet s in sheets)
@@ -694,11 +645,9 @@ namespace Ice.VisualStudio
             {
                 configuration.RemovePropertySheet(sheet);
             }
-#endif
         }
 
         private static readonly string _csBinDirs = "\\Assemblies\\";
-        private static readonly string _csCompactFrameworkBinDirs = "\\Assemblies\\cf\\";
         private static readonly string _slBinDirs = "\\Assemblies\\sl\\";
 
         public static bool addDotNetReference(Project project, string component, bool development)
@@ -749,26 +698,27 @@ namespace Ice.VisualStudio
             return false;
         }
         
-#if VS2012 || VS2013
         public static void addSdkReference(VCProject project, string component)
         {
             if(!Builder.commandLine)
             {
                 string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
                 VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
-
-#  if VS2012
-                if (reference != null)
+#if VS2012
+                //
+                // VS2012 bug 
+                //
+                if(reference != null)
                 {
                     reference.Remove();
                 }
                 project.AddSdkReference(sdkId);
-#  else
+#else
                 if(reference == null)
                 {
                     project.AddSdkReference(sdkId);
                 }
-#  endif
+#endif
             }
         }
 
@@ -786,7 +736,6 @@ namespace Ice.VisualStudio
             }
             return false;
         }
-#endif
 
         public static void addCppLib(LinkerAdapter tool, string component, bool debug)
         {
@@ -958,16 +907,7 @@ namespace Ice.VisualStudio
 
         public static string cppBinDir(Project project, CPUType arch)
         {
-#if VS2010 || VS2012 || VS2013
             return isWinRTProject(project) ? "$(IceBin)\\winrt" : "$(IceBin)";
-#else
-            string cppBinDir = Path.Combine("$(IceHome)", "bin");
-            if(arch == CPUType.x64CPUType)
-            {
-                cppBinDir = Path.Combine(cppBinDir, "x64");
-            }
-            return cppBinDir;
-#endif
         }
 
         public static void removeIceCppEnvironment(VCDebugSettings debugSettings, string iceHome)
@@ -1015,10 +955,8 @@ namespace Ice.VisualStudio
                 path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), Path.Combine(iceHome, dir));
             }
 
-#if VS2010 || VS2012 || VS2013
             path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), "$(IceBin)\\winrt");
             path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), "$(IceBin)");
-#endif
 
             if(path.Equals("PATH="))
             {
@@ -1066,7 +1004,6 @@ namespace Ice.VisualStudio
                 }
             }
 
-#if VS2010 || VS2012 || VS2013
             if(libs.Remove(quote("$(IceLib)")) || 
                libs.Remove("$(IceLib)") ||
                libs.Remove(quote("$(IceLib)\\winrt")) || 
@@ -1074,7 +1011,7 @@ namespace Ice.VisualStudio
             {
                 changed = true;
             }
-#endif
+            
             if(changed)
             {
                 tool.AdditionalLibraryDirectories = libs.ToString();
@@ -1148,9 +1085,7 @@ namespace Ice.VisualStudio
                     if(isCppProject(project) ||
                        isCSharpProject(project) ||
                        isVBProject(project) ||
-                       isSilverlightProject(project) ||
-                       isCSharpSmartDeviceProject(project) ||
-                       isVBSmartDeviceProject(project))
+                       isSilverlightProject(project))
                     {
                         return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
                     }
@@ -1175,16 +1110,6 @@ namespace Ice.VisualStudio
             }
 
             return project.Kind == VSLangProj.PrjKind.prjKindCSharpProject;
-        }
-
-        public static bool isCSharpSmartDeviceProject(Project project)
-        {
-            return hasProjecType(project, vsSmartDeviceCSharp);
-        }
-
-        public static bool isVBSmartDeviceProject(Project project)
-        {
-            return hasProjecType(project, vsSmartDeviceVB);
         }
 
         public static bool isVBProject(Project project)
@@ -1781,7 +1706,6 @@ namespace Ice.VisualStudio
         // Reference from the project file; this value doesn't change as does CopyLocal.
         //
 
-#if VS2010 || VS2012 || VS2013
         //
         // This method requires .NET 4. Microsoft.Build.BuildEngine is deprecated 
         // in .NET 4, so this method uses the new API Microsoft.Build.Evaluation.
@@ -1831,57 +1755,7 @@ namespace Ice.VisualStudio
             }
             return true;
         }
-#elif VS2008
-        //
-        // This method uses the .NET 3.5 API Microsoft.Build.BuildEngine. This API
-        // should not be used with .NET 4 because it has been deprecated.
-        //
-        private static bool getCopyLocal(Project project, string name)
-        {
-            Microsoft.Build.BuildEngine.BuildItem referenceItem = null;
-            Microsoft.Build.BuildEngine.Project p =
-                Microsoft.Build.BuildEngine.Engine.GlobalEngine.GetLoadedProject(project.FileName);
-
-            foreach(Microsoft.Build.BuildEngine.BuildItemGroup itemGroup in p.ItemGroups)
-            {
-                foreach(Microsoft.Build.BuildEngine.BuildItem item in itemGroup)
-                {
-                    if(!item.Name.Equals("Reference"))
-                    {
-                        continue;
-                    }
-
-                    string[] tokens = item.Include.Split(',');
-                    if(tokens.Length <= 0)
-                    {
-                        continue;
-                    }
-
-                    if(!tokens[0].Trim().Equals(name, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    referenceItem = item;
-
-                    if(referenceItem != null)
-                    {
-                        break;
-                    }
-                }
-                if(referenceItem != null)
-                {
-                    break;
-                }
-            }
-            if(referenceItem != null)
-            {
-                return referenceItem.GetMetadata("Private").Equals(true.ToString(),
-                                                    StringComparison.CurrentCultureIgnoreCase);
-            }
-            return true;
-        }
-#endif
+        
         private static void setCopyLocal(Project project, string name, bool copyLocal)
         {
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
@@ -2054,7 +1928,6 @@ namespace Ice.VisualStudio
                         // Remove ice.props, old property sheet used by VS 2010
                         // from all project configurations.
                         //
-#if VS2010 || VS2012 || VS2013
                         VCPropertySheet sheet = null;
                         IVCCollection sheets = (IVCCollection)conf.PropertySheets;
                         foreach(VCPropertySheet s in sheets)
@@ -2070,7 +1943,6 @@ namespace Ice.VisualStudio
                         {
                             conf.RemovePropertySheet(sheet);
                         }
-#endif
                     }
 
                     //
@@ -2297,11 +2169,7 @@ namespace Ice.VisualStudio
             }
 
             string[] componentNames = null;
-            if(Util.isCSharpSmartDeviceProject(project) || Util.isVBSmartDeviceProject(project))
-            {
-                componentNames = getDotNetCompactNames();
-            }
-            else if (Util.isSilverlightProject(project))
+            if(Util.isSilverlightProject(project))
             {
                 componentNames = getSilverlightNames();
             }
@@ -2335,13 +2203,11 @@ namespace Ice.VisualStudio
             {
                 Util.addIcePropertySheet(project);
             }
-#if VS2012 || VS2013
             if(winrt)
             {
                 VCProject vcProject = (VCProject)project.Object;
                 addSdkReference(vcProject, "Ice");
             }
-#endif
         }
 
         public static void removeIceCppConfigurations(Project project)
@@ -2488,12 +2354,10 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-#if VS2012 || VS2013
             else
             {
                 Util.removeSdkReference((VCProject)project.Object, "Ice");
             }
-#endif
             return removed;
         }
 
@@ -3367,35 +3231,6 @@ namespace Ice.VisualStudio
             _refreshCommand = command;
         }
 
-        static public bool hasProjecType(Project project, string type)
-        {
-            ComponentList types = new ComponentList(getProjectTypeGuids(project), ';');
-            return types.Contains(type);
-        }
-        
-        static public string getProjectTypeGuids(Project proj)
-        {
-            string guids = "";
-            Microsoft.VisualStudio.Shell.Interop.IVsHierarchy hierarchy = null;
-            Microsoft.VisualStudio.Shell.Interop.IVsAggregatableProject aggregatableProject = null;
-            IVsSolution solution = getIVsSolution();
-
-            int result = solution.GetProjectOfUniqueName(proj.UniqueName, out hierarchy);
-
-            if(result == 0)
-            {
-                try
-                {
-                    aggregatableProject = (Microsoft.VisualStudio.Shell.Interop.IVsAggregatableProject)hierarchy;
-                    result = aggregatableProject.GetAggregateProjectTypeGuids(out guids);
-                }
-                catch(InvalidCastException)
-                {
-                }
-            }
-            return guids;
-        }
-
         static private IVsSolution getIVsSolution()
         {
             
@@ -3590,8 +3425,6 @@ namespace Ice.VisualStudio
 
         private static Command _refreshCommand;
         public const string refreshCommandGUID = "{1496A755-94DE-11D0-8C3F-00C04FC2AAE2}";
-        public const string vsSmartDeviceCSharp = "{4D628B5B-2FBC-4AA6-8C16-197242AEB884}";
-        public const string vsSmartDeviceVB = "{68B1623D-7FB9-47D8-8664-7ECEA3297D4F}";
         public const string unloadedProjectGUID = "{67294A52-A4F0-11D2-AA88-00C04F688DDE}";
         public const int refreshCommandID = 222;
     }

@@ -65,23 +65,6 @@ namespace Ice.VisualStudio
                 {
                     if(_builder == null)
                     {
-
-                        //
-                        // This property is set to false to avoid VC++ "no matching rule" dialog, the property
-                        // doesn't exist in VS2010
-                        //
-#if VS2008
-                        try
-                        {
-                            EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
-                            EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
-                            prop.Value = false;
-                        }
-                        catch(System.Runtime.InteropServices.COMException)
-                        {
-                            // Can happen if C++ support is not installed.
-                        }
-#endif
                         Builder.commandLine = connectMode == ext_ConnectMode.ext_cm_CommandLine;
                         _builder = new Builder();
                         _builder.init(_applicationObject, connectMode, _addInInstance);
