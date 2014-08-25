@@ -3771,6 +3771,24 @@ public class Coordinator
         return _executor;
     }
     
+    public boolean needsSaving()
+    {
+        boolean v = false;
+        for(int i = 0, length = _mainPane.getTabCount(); i < length; ++i)
+        {
+            Component component = _mainPane.getComponentAt(i);
+            if(component instanceof ApplicationPane)
+            {
+                if(((ApplicationPane)component).getRoot().needsSaving())
+                {
+                    v = true;
+                    break;
+                }
+            }
+        }
+        return v;
+    }
+    
     //
     // May run in any thread
     //

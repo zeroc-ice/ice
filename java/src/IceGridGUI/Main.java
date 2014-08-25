@@ -90,7 +90,22 @@ public class Main extends JFrame
                 {
                     if(_coordinator != null)
                     {
-                        _coordinator.exit(0);
+                        if(_coordinator.needsSaving()) 
+                        {
+                            if(JOptionPane.showOptionDialog(
+                                            Main.this, 
+                                            "The application has unsave changes, if you exit all unsaved changes will be lost.\n" +
+                                            "Exit and discard changes?",
+                                            "Save application", JOptionPane.YES_NO_OPTION,
+                                            JOptionPane.YES_NO_OPTION, null, null, null) == JOptionPane.YES_OPTION)
+                            {
+                                _coordinator.exit(0);
+                            }
+                        }
+                        else
+                        {
+                            _coordinator.exit(0);
+                        }
                     }
                 }
             });
