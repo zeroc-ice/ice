@@ -29,7 +29,7 @@
 
 #if defined(ICE_OS_WINRT)
 #   include <IceUtil/InputUtil.h>
-#   include <ppltasks.h>            // For Concurrency::task
+#   include <IceUtil/CountDownLatch.h>
 #elif defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
@@ -1154,6 +1154,18 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
     {
         return o;
     }
+    if(addr1.host == addr2.host)
+    {
+        return 0;
+    }
+    if(addr1.host == nullptr)
+    {
+        return -1;
+    }
+    if(addr2.host == nullptr)
+    {
+        return 1;
+    }
     return String::CompareOrdinal(addr1.host->RawName, addr2.host->RawName);
 #else
     if(addr1.saStorage.ss_family < addr2.saStorage.ss_family)
@@ -2016,6 +2028,37 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 }
 #endif
 
+
+#ifdef ICE_OS_WINRT
+void
+checkResultAndWait(IAsyncAction^ action)
+{
+    if(action->Status == Windows::Foundation::AsyncStatus::Started)
+    {
+        IceUtilInternal::CountDownLatch count(1);
+        HRESULT result = 0;
+        action->Completed = ref new AsyncActionCompletedHandler(
+            [&count, &result] (IAsyncAction^ action, Windows::Foundation::AsyncStatus status)
+                {
+                    if(status != Windows::Foundation::AsyncStatus::Completed)
+                    {
+                        result = action->ErrorCode.Value;
+                    }
+                    count.countDown();
+                });
+        count.await();
+        if(result)
+        {
+            checkErrorCode(__FILE__, __LINE__, result);
+        }
+    }
+    else if(action->Status == Windows::Foundation::AsyncStatus::Error)
+    {
+        checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
+    }
+}
+#endif
+
 Address
 IceInternal::doBind(SOCKET fd, const Address& addr)
 {
@@ -2028,11 +2071,11 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         {
             if(addr.host == nullptr) // inaddr_any
             {
-                concurrency::create_task(listener->BindServiceNameAsync(addr.port)).wait();
+                checkResultAndWait(listener->BindServiceNameAsync(addr.port));
             }
             else
             {
-                concurrency::create_task(listener->BindEndpointAsync(addr.host, addr.port)).wait();
+                checkResultAndWait(listener->BindEndpointAsync(addr.host, addr.port)); 
             }
             local.host = addr.host;
             local.port = listener->Information->LocalPort;
@@ -2043,20 +2086,20 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         {
             if(addr.host == nullptr) // inaddr_any
             {
-                concurrency::create_task(datagram->BindServiceNameAsync(addr.port)).wait();
+                checkResultAndWait(datagram->BindServiceNameAsync(addr.port));
             }
             else
             {
-                concurrency::create_task(datagram->BindEndpointAsync(addr.host, addr.port)).wait();
+                checkResultAndWait(datagram->BindEndpointAsync(addr.host, addr.port)); 
             }
             local.host = datagram->Information->LocalAddress;
             local.port = datagram->Information->LocalPort;
         }
     }
-    catch(Platform::Exception^ pex)
+    catch(const Ice::SocketException&)
     {
         closeSocketNoThrow(fd);
-        checkErrorCode(__FILE__, __LINE__, pex->HResult);
+        throw;
     }
     return local;
 #else
