@@ -1818,21 +1818,18 @@ public class Coordinator
                     {
                         try
                         {
-                        	Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
-    		                        _communicator.stringToProxy(finderStr));
-    			        	info.setInstanceName(finder.getRouter().ice_getIdentity().category);
-    			        	info.save();
-    			        	
-    			        	 Ice.Identity routerId = new Ice.Identity();
-    			             routerId.category = info.getInstanceName();
-    			             routerId.name = "router";
-    			             String proxyStr = "\"" + _communicator.identityToString(routerId) + "\":";
-    			             proxyStr += endpointStr;
-    			             System.out.println(endpointStr);
-    			             System.out.println(proxyStr);
-    			             
-    			             Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
-                                                                                 _communicator.stringToProxy(proxyStr));
+                            Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
+                                    _communicator.stringToProxy(finderStr));
+                            info.setInstanceName(finder.getRouter().ice_getIdentity().category);
+                            info.save();
+                            
+                            Ice.Identity routerId = new Ice.Identity();
+                            routerId.category = info.getInstanceName();
+                            routerId.name = "router";
+                            String proxyStr = "\"" + _communicator.identityToString(routerId) + "\":";
+                            proxyStr += endpointStr;                            
+                            Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
+                                                                                _communicator.stringToProxy(proxyStr));
 
                             //
                             // The session must be routed through this router
@@ -1960,22 +1957,22 @@ public class Coordinator
                                 });
                             return;
                         }
-        		        catch(final java.util.prefs.BackingStoreException ex)
-        	            {
-        		        	  SwingUtilities.invokeLater(new Runnable()
-                              {
-                                  @Override
-                                public void run()
-                                  {
-                                	 JOptionPane.showMessageDialog(
-                                			 getMainFrame(),
-                                			 ex.toString(),
-                                			 "Error saving connection",
-                                			 JOptionPane.ERROR_MESSAGE);
-                                  }
-                              });
-        	                return;
-        		        }
+                        catch(final java.util.prefs.BackingStoreException ex)
+                        {
+                            SwingUtilities.invokeLater(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        JOptionPane.showMessageDialog(
+                                                        getMainFrame(),
+                                                        ex.toString(),
+                                                        "Error saving connection",
+                                                        JOptionPane.ERROR_MESSAGE);
+                                    }
+                                });
+                            return;
+                        }
                         catch(final Ice.LocalException e)
                         {
                             SwingUtilities.invokeLater(new Runnable()
@@ -2057,22 +2054,21 @@ public class Coordinator
                         {
                             try
                             {
-        	                   	Ice.LocatorFinderPrx finder = LocatorFinderPrxHelper.uncheckedCast(
-        		                        _communicator.stringToProxy(finderStr));
-        			        	
-        			        	info.setInstanceName(finder.getLocator().ice_getIdentity().category);
-        			        	info.save();
-        			        	
-        			            //
-        			            // The client uses the locator only without routing
-        			            //
-
-        			        	Ice.Identity locatorId = new Ice.Identity();
-        			            locatorId.category = info.getInstanceName();
-        			            locatorId.name = "Locator";
-        			            String proxyStr = "\"" + _communicator.identityToString(locatorId) + "\":";
-        			            proxyStr += endpointStr;
-        			            
+                                Ice.LocatorFinderPrx finder = LocatorFinderPrxHelper.uncheckedCast(
+                                        _communicator.stringToProxy(finderStr));
+                                        
+                                info.setInstanceName(finder.getLocator().ice_getIdentity().category);
+                                info.save();
+                                    
+                                //
+                                // The client uses the locator only without routing
+                                //
+                                Ice.Identity locatorId = new Ice.Identity();
+                                locatorId.category = info.getInstanceName();
+                                locatorId.name = "Locator";
+                                String proxyStr = "\"" + _communicator.identityToString(locatorId) + "\":";
+                                proxyStr += endpointStr;
+                                    
                                 cb.setLocator(
                                         IceGrid.LocatorPrxHelper.checkedCast(_communicator.stringToProxy(proxyStr)));
 
@@ -2098,21 +2094,21 @@ public class Coordinator
                                 _communicator.setDefaultLocator(cb.getLocator());
                             }
                             catch(final java.util.prefs.BackingStoreException ex)
-            	            {
-            		        	  SwingUtilities.invokeLater(new Runnable()
-                                  {
-                                      @Override
-                                    public void run()
-                                      {
-                                    	 JOptionPane.showMessageDialog(
-                                    			 getMainFrame(),
-                                    			 ex.toString(),
-                                    			 "Error saving connection",
-                                    			 JOptionPane.ERROR_MESSAGE);
-                                      }
-                                  });
-            	                return;
-            		        }
+                            {
+                                SwingUtilities.invokeLater(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            JOptionPane.showMessageDialog(
+                                                getMainFrame(),
+                                                ex.toString(),
+                                                "Error saving connection",
+                                                JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    });
+                                return;
+                            }
                             catch(final Ice.LocalException e)
                             {
                                 SwingUtilities.invokeLater(new Runnable()
