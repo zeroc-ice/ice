@@ -138,6 +138,8 @@ enum SocketOperation
 {
     SocketOperationNone = 0,
     SocketOperationRead = 1,
+    // With BSD sockets, write and connect readiness are the same so
+    // we use the same value for both.
     SocketOperationWrite = 2,
     SocketOperationConnect = 2
 };

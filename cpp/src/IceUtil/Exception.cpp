@@ -260,6 +260,8 @@ getStackTrace()
     const size_t maxDepth = 100;
     void *stackAddrs[maxDepth];
 
+    // With some compilers/toolchains this can fail so we must check that
+    // stackStrings is not null.
     size_t stackDepth = backtrace(stackAddrs, maxDepth);
     char **stackStrings = backtrace_symbols(stackAddrs, stackDepth);
     if(stackStrings != NULL)
