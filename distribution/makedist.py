@@ -235,6 +235,14 @@ def createDistfilesDist(platform, whichDestDir):
 
     print "ok"
 
+#
+# Install node http-proxy and esprima.
+#
+os.chdir(distDir)
+for m in ["http-proxy", "esprima"]:
+    if os.system("npm install %s" % m) != 0:
+        print("Error executing command `npm install %s'" % m)
+
 def createSourceDist(platform, destDir):
     if platform == "UNIX":
         prefix = "Ice-" + version
@@ -255,8 +263,6 @@ def createSourceDist(platform, destDir):
 
     fixVersion("RELEASE_NOTES", *versions)
     if os.path.exists("vsaddin"):
-        fixVersion(os.path.join("vsaddin", "config", "Ice-VS2008.AddIn"), *versions)
-        fixVersion(os.path.join("vsaddin", "config", "Ice-VS2010.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2012.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice-VS2013.AddIn"), *versions)
         fixVersion(os.path.join("vsaddin", "config", "Ice.props"), *versions)
@@ -291,6 +297,7 @@ def createSourceDist(platform, destDir):
 
         for d in dirnames:
             os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
+    copy(os.path.join(distDir, "node_modules"), os.path.join(destDir, prefix, "js", "node_modules"));
 
     os.chdir(current)
     print "ok"
@@ -385,6 +392,7 @@ move("allDemos.py", os.path.join(demoscriptDir, "demoscript", "allDemos.py"))
 fixGitAttributes(True, True, excludeFiles + excludeUnixFiles + ["/demoscript", "expect.py", "allDemos.py"])
 createSourceDist("Windows", distDir)
 
+remove(os.path.join(distDir, "node_modules"))
 
 #
 # Consolidate demo, demo scripts distributions.
@@ -421,6 +429,8 @@ for d in os.listdir('.'):
 
 copy(os.path.join(srcDir, "js", "bin"), os.path.join(demoDir, "demojs", "bin"))
 copy(os.path.join(srcDir, "js", "assets"), os.path.join(demoDir, "demojs", "assets"))
+copy(os.path.join(srcDir, "js", "node_modules", "http-proxy"), 
+     os.path.join(demoDir, "demojs", "node_modules", "http-proxy"));
 
 FixUtil.fileMatchAndReplace(os.path.join(demoDir, "demojs", "assets", "Makefile"),
                             [(re.compile("top_srcdir.*= .."), "top_srcdir      = ../..")],
@@ -462,6 +472,8 @@ for sd in os.listdir(winSrcDir):
 
 copy(os.path.join(winSrcDir, "js", "bin"), os.path.join(winDemoDir, "demojs", "bin"))
 copy(os.path.join(winSrcDir, "js", "assets"), os.path.join(winDemoDir, "demojs", "assets"))
+copy(os.path.join(winSrcDir, "js", "node_modules", "http-proxy"), 
+     os.path.join(winDemoDir, "demojs", "node_modules", "http-proxy"));
 
 for f in ["common.min.js", "common.min.js.gz", "common.css", "common.css.gz"]:
     copy(os.path.join(demoDir, "demojs", "assets", f),
