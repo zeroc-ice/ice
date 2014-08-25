@@ -1030,8 +1030,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 }
 #else
                 logStdErrConvert =
-                    initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
-                    initData.properties->getProperty("Ice.StdErr").empty();
+                    _initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) == 1 &&
+                    _initData.properties->getProperty("Ice.StdErr").empty();
 #endif
             }
         }
