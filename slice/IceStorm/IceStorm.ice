@@ -118,6 +118,16 @@ exception AlreadySubscribed
 
 /**
  *
+ * This exception indicates that an attempt was made to subscribe
+ * a proxy that is null.
+ *
+ **/
+exception NullSubscriber
+{
+};
+
+/**
+ *
  * This exception indicates that a subscription failed due to an
  * invalid QoS.
  *
@@ -198,7 +208,8 @@ interface Topic
      *
      **/
     ["deprecate:subscribe is deprecated, use subscribeAndGetPublisher instead"]
-    void subscribe(QoS theQoS, Object* subscriber);
+    void subscribe(QoS theQoS, Object* subscriber)
+        throws NullSubscriber;
 
     /**
      *
@@ -215,6 +226,8 @@ interface Topic
      * @throws AlreadySubscribed Raised if the subscriber object is
      * already subscribed.
      *
+     * @throws NullSubscriber Raised if the subscriber object is null.
+     *
      * @throws BadQoS Raised if the requested quality of service
      * is unavailable or invalid.
      *
@@ -222,7 +235,7 @@ interface Topic
      *
      **/
     Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-        throws AlreadySubscribed, BadQoS;
+        throws AlreadySubscribed, NullSubscriber, BadQoS;
 
     /**
      *
@@ -269,13 +282,13 @@ interface Topic
      *
      **/
     ["nonmutating", "cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
-    
+
     /**
-     * 
+     *
      * Retrieve the list of subscribers for this topic.
-     * 
+     *
      * @return The sequence of Ice identities for the subscriber objects.
-     * 
+     *
      **/
     ["nonmutating", "cpp:const"] Ice::IdentitySeq getSubscribers();
 

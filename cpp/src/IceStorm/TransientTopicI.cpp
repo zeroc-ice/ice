@@ -56,7 +56,7 @@ public:
         //event->data.swap(Ice::ByteSeq(inParams.first, inParams.second));
         Ice::ByteSeq data(inParams.first, inParams.second);
         event->data.swap(data);
-        
+
         EventDataSeq v;
         v.push_back(event);
         _impl->publish(false, v);
@@ -65,7 +65,7 @@ public:
     }
 
 private:
-    
+
     const TransientTopicImplPtr _impl;
 };
 
@@ -168,6 +168,16 @@ TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
 void
 TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, const Ice::Current&)
 {
+    if(!obj)
+    {
+        TraceLevelsPtr traceLevels = _instance->traceLevels();
+        if(traceLevels->topic > 0)
+        {
+            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
+            out << "subscribe with null subscriber.";
+        }
+        throw NullSubscriber();
+    }
     Ice::Identity id = obj->ice_getIdentity();
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     QoS qos = origQoS;
@@ -175,7 +185,7 @@ TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, con
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": subscribe: " << _instance->communicator()->identityToString(id);
-        
+
         if(traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
@@ -260,6 +270,16 @@ TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, con
 Ice::ObjectPrx
 TransientTopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj, const Ice::Current&)
 {
+    if(!obj)
+    {
+        TraceLevelsPtr traceLevels = _instance->traceLevels();
+        if(traceLevels->topic > 0)
+        {
+            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
+            out << "subscribe with null subscriber.";
+        }
+        throw NullSubscriber();
+    }
     Ice::Identity id = obj->ice_getIdentity();
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
@@ -399,7 +419,7 @@ TransientTopicImpl::unlink(const TopicPrx& topic, const Ice::Current&)
     }
 
     Ice::Identity id = topic->ice_getIdentity();
-    
+
     vector<SubscriberPtr>::iterator p = find(_subscribers.begin(), _subscribers.end(), id);
     if(p == _subscribers.end())
     {
@@ -458,7 +478,7 @@ Ice::IdentitySeq
 TransientTopicImpl::getSubscribers(const Ice::Current&) const
 {
     IceUtil::Mutex::Lock sync(*this);
-    
+
     Ice::IdentitySeq subscribers;
     for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)
     {
