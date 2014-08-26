@@ -122,8 +122,14 @@ exception AlreadySubscribed
  * a proxy that is null.
  *
  **/
-exception NullSubscriber
+exception InvalidSubscriber
 {
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
 };
 
 /**
@@ -209,7 +215,7 @@ interface Topic
      **/
     ["deprecate:subscribe is deprecated, use subscribeAndGetPublisher instead"]
     void subscribe(QoS theQoS, Object* subscriber)
-        throws NullSubscriber;
+        throws InvalidSubscriber;
 
     /**
      *
@@ -235,7 +241,7 @@ interface Topic
      *
      **/
     Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-        throws AlreadySubscribed, NullSubscriber, BadQoS;
+        throws AlreadySubscribed, InvalidSubscriber, BadQoS;
 
     /**
      *

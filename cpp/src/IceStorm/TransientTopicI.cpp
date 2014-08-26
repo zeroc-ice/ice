@@ -174,9 +174,9 @@ TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, con
         if(traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << "subscribe with null subscriber.";
+            out << _name << ": subscribe: null proxy";
         }
-        throw NullSubscriber();
+        throw InvalidSubscriber("subscriber is a null proxy");
     }
     Ice::Identity id = obj->ice_getIdentity();
     TraceLevelsPtr traceLevels = _instance->traceLevels();
@@ -276,9 +276,9 @@ TransientTopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPr
         if(traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << "subscribe with null subscriber.";
+            out << _name << ": subscribe: null proxy";
         }
-        throw NullSubscriber();
+        throw InvalidSubscriber("subscriber is a null proxy");
     }
     Ice::Identity id = obj->ice_getIdentity();
 
@@ -334,9 +334,9 @@ TransientTopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Cur
         if(traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << "unsubscribe with null subscriber.";
+            out << _name << ": unsubscribe: null proxy";
         }
-        return;
+        throw InvalidSubscriber("subscriber is a null proxy");
     }
 
     Ice::Identity id = subscriber->ice_getIdentity();

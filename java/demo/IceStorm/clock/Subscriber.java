@@ -235,6 +235,11 @@ public class Subscriber extends Ice.Application
                 System.out.println("reactivating persistent subscriber");
             }
         }
+        catch(IceStorm.InvalidSubscriber e)
+        {
+            e.printStackTrace();
+            return 1;
+        }
         catch(IceStorm.BadQoS e)
         {
             e.printStackTrace();

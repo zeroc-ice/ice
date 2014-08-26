@@ -27,6 +27,10 @@ Changes since version 3.5.1
 General Changes
 ===============
 
+- Added IceStorm::InvalidSubscriber exception which is throw by
+  IceStorm subscribe/unsubscribe methods when an invalid subscriber
+  (eg. null proxy) is passed.
+
 - Added Ice.Default.Timeout property to the set the timeout for
   stringified proxy endpoint that do not have timeout explicitly set.
   The default setting for the property is 60 seconds. It is also now
