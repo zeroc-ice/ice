@@ -12,24 +12,27 @@ top_srcdir	= ../..
 ROUTER		= $(bindir)/glacier2router
 TARGETS         = $(ROUTER)
 
-OBJS		=  Blobject.o \
+SLICE_OBJS      = Instrumentation.o
+
+OBJS		= Blobject.o \
 		  ClientBlobject.o \
 		  FilterI.o \
 		  FilterManager.o \
 		  Glacier2Router.o \
 		  Instance.o \
-		  Instrumentation.o \
 		  InstrumentationI.o \
 		  ProxyVerifier.o \
 		  RequestQueue.o \
 		  RouterI.o \
 		  RoutingTable.o \
 		  ServerBlobject.o \
-		  SessionRouterI.o
+		  SessionRouterI.o \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= Instrumentation.ice
+SLICE_SRCS	= $(SLICE_OBJS:.o=.ice)
+
 RPATH_DIR	= @loader_path/../lib
 
 include $(top_srcdir)/config/Make.rules

@@ -14,14 +14,14 @@ DLLNAME		= $(top_srcdir)\bin\icediscovery$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).d
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		=  IceDiscovery.obj \
-		  LocatorI.obj \
+SLICE_OBJS      = IceDiscovery.obj 
+
+OBJS		= LocatorI.obj \
 		  LookupI.obj \
-		  PluginI.obj
+		  PluginI.obj \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp)
-
-SLICE_SRCS	= $(slicedir)\IceDiscovery\IceDiscovery.ice
 
 !include $(top_srcdir)/config/Make.rules.mak
 

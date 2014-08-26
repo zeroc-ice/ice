@@ -15,33 +15,35 @@ REGISTRY_SERVER	= $(top_srcdir)\bin\icegridregistry.exe
 
 TARGETS         = $(ADMIN) $(NODE_SERVER) $(REGISTRY_SERVER)
 
-ADMIN_OBJS	=  Client.obj \
+SLICE_OBJS      = Internal.obj
+
+ADMIN_OBJS	= Client.obj \
 		  DescriptorBuilder.obj \
 		  DescriptorHelper.obj \
 		  DescriptorParser.obj \
 		  FileParserI.obj \
 		  Grammar.obj \
-		  Internal.obj \
 		  Parser.obj \
 		  Scanner.obj \
-		  Util.obj
+		  Util.obj \
+                  $(SLICE_OBJS)
 
-COMMON_OBJS	=  DescriptorBuilder.obj \
+COMMON_OBJS	= DescriptorBuilder.obj \
 		  DescriptorParser.obj \
 		  FileCache.obj \
-		  Internal.obj \
 		  PlatformInfo.obj \
 		  SessionManager.obj \
-		  TraceLevels.obj
+		  TraceLevels.obj \
+                  $(SLICE_OBJS)
 
-NODE_OBJS	=  Activator.obj \
+NODE_OBJS	= Activator.obj \
 		  NodeI.obj \
 		  NodeServerAdminRouter.obj \
 		  NodeSessionManager.obj \
 		  ServerAdapterI.obj \
 		  ServerI.obj
 
-REGISTRY_OBJS	=  AdapterCache.obj \
+REGISTRY_OBJS	= AdapterCache.obj \
 		  AdminCallbackRouter.obj \
 		  AdminI.obj \
 		  AdminSessionI.obj \

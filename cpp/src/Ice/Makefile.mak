@@ -14,77 +14,98 @@ DLLNAME		= $(top_srcdir)\bin\ice$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Acceptor.obj \
+SLICE_OBJS	= BuiltinSequences.obj \
+                  Communicator.obj \
+                  CommunicatorF.obj \
+                  Connection.obj \
+                  ConnectionF.obj \
+                  Current.obj \
+                  Endpoint.obj \
+                  EndpointF.obj \
+                  EndpointTypes.obj \
+                  FacetMap.obj \
+                  Identity.obj \
+                  ImplicitContext.obj \
+                  ImplicitContextF.obj \
+                  Instrumentation.obj \
+                  InstrumentationF.obj \
+                  LocalException.obj \
+                  Locator.obj \
+                  LocatorF.obj \
+                  Logger.obj \
+                  LoggerF.obj \
+                  Metrics.obj \
+                  ObjectAdapter.obj \
+                  ObjectAdapterF.obj \
+                  ObjectFactory.obj \
+                  ObjectFactoryF.obj \
+                  Plugin.obj \
+                  PluginF.obj \
+                  Process.obj \
+                  ProcessF.obj \
+                  Properties.obj \
+                  PropertiesAdmin.obj \
+                  PropertiesF.obj \
+                  RemoteLogger.obj \
+                  Router.obj \
+                  RouterF.obj \
+                  ServantLocator.obj \
+                  ServantLocatorF.obj \
+                  SliceChecksumDict.obj \
+                  Version.obj
+
+WINDOWS_OBJS   =  DLLMain.obj
+
+OBJS	       =  Acceptor.obj \
 		  ACM.obj \
 		  Application.obj \
-		  Base64.obj \
-		  BasicStream.obj \
+                  Base64.obj \
+                  BasicStream.obj \
 		  Buffer.obj \
-		  BuiltinSequences.obj \
 		  CollocatedRequestHandler.obj \
-		  Communicator.obj \
 		  CommunicatorI.obj \
-		  Connection.obj \
 		  ConnectionFactory.obj \
 		  ConnectionI.obj \
 		  ConnectionRequestHandler.obj \
 		  Connector.obj \
-		  ConnectRequestHandler.obj \
-		  Current.obj \
+                  ConnectRequestHandler.obj \
 		  DefaultsAndOverrides.obj \
-		  DeprecatedStringConverter.obj \
-		  DispatchInterceptor.obj \
-		  DLLMain.obj \
+                  DeprecatedStringConverter.obj \
+                  DispatchInterceptor.obj \
 		  DynamicLibrary.obj \
-		  Endpoint.obj \
-		  EndpointFactory.obj \
+                  EndpointFactory.obj \
 		  EndpointFactoryManager.obj \
 		  EndpointI.obj \
-		  EndpointTypes.obj \
 		  EventHandler.obj \
 		  Exception.obj \
-		  FacetMap.obj \
 		  FactoryTable.obj \
 		  FactoryTableInit.obj \
 		  GCObject.obj \
-		  HttpParser.obj \
-		  Identity.obj \
-		  ImplicitContext.obj \
+                  HttpParser.obj \
 		  ImplicitContextI.obj \
 		  Incoming.obj \
-		  IncomingAsync.obj \
+                  IncomingAsync.obj \
 		  Initialize.obj \
 		  Instance.obj \
-		  Instrumentation.obj \
-		  InstrumentationI.obj \
+                  InstrumentationI.obj \
 		  IPEndpointI.obj \
-		  LocalException.obj \
 		  LocalObject.obj \
-		  Locator.obj \
 		  LocatorInfo.obj \
-		  Logger.obj \
-		  LoggerAdminI.obj \
-		  LoggerI.obj \
+                  LoggerAdminI.obj \
+                  LoggerI.obj \
 		  LoggerUtil.obj \
-		  Metrics.obj \
 		  MetricsAdminI.obj \
 		  MetricsObserverI.obj \
 		  Network.obj \
-		  Object.obj \
-		  ObjectAdapter.obj \
+                  Object.obj \
 		  ObjectAdapterFactory.obj \
 		  ObjectAdapterI.obj \
-		  ObjectFactory.obj \
 		  ObjectFactoryManager.obj \
 		  ObserverHelper.obj \
 		  OpaqueEndpointI.obj \
 		  Outgoing.obj \
-		  OutgoingAsync.obj \
-		  Plugin.obj \
+                  OutgoingAsync.obj \
 		  PluginManagerI.obj \
-		  Process.obj \
-		  Properties.obj \
-		  PropertiesAdmin.obj \
 		  PropertiesAdminI.obj \
 		  PropertiesI.obj \
 		  PropertyNames.obj \
@@ -92,41 +113,38 @@ OBJS		= Acceptor.obj \
 		  ProtocolInstance.obj \
 		  ProtocolPluginFacade.obj \
 		  Proxy.obj \
-		  ProxyFactory.obj \
+                  ProxyFactory.obj \
 		  Reference.obj \
-		  ReferenceFactory.obj \
-		  RemoteLogger.obj \
-		  RequestHandler.obj \
+                  ReferenceFactory.obj \
+                  RequestHandler.obj \
 		  ResponseHandler.obj \
 		  RetryQueue.obj \
-		  Router.obj \
 		  RouterInfo.obj \
 		  Selector.obj \
-		  ServantLocator.obj \
 		  ServantManager.obj \
 		  Service.obj \
-		  SliceChecksumDict.obj \
 		  SliceChecksums.obj \
 		  SlicedData.obj \
 		  Stream.obj \
-		  StreamI.obj \
+                  StreamI.obj \
 		  StringConverterPlugin.obj \
 		  TcpAcceptor.obj \
 		  TcpConnector.obj \
 		  TcpEndpointI.obj \
 		  TcpTransceiver.obj \
-		  ThreadPool.obj \
+	          ThreadPool.obj \
 		  TraceLevels.obj \
 		  TraceUtil.obj \
 		  Transceiver.obj \
 		  UdpConnector.obj \
 		  UdpEndpointI.obj \
 		  UdpTransceiver.obj \
-		  Version.obj \
-		  WSAcceptor.obj \
+                  WSAcceptor.obj \
 		  WSConnector.obj \
 		  WSEndpoint.obj \
-		  WSTransceiver.obj
+		  WSTransceiver.obj \
+                  $(WINDOWS_OBJS) \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp)
 

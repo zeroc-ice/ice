@@ -14,20 +14,22 @@ DLLNAME		= $(top_srcdir)\bin\icegrid$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 
-LIB_OBJS	= Admin.obj \
+SLICE_OBJS	= Admin.obj \
 		  Descriptor.obj \
 		  Discovery.obj \
-		  DiscoveryPluginI.obj \
 		  Exception.obj \
 		  FileParser.obj \
 		  Locator.obj \
 		  Observer.obj \
 		  PluginFacade.obj \
-		  PluginFacadeI.obj \
 		  Query.obj \
 		  Registry.obj \
 		  Session.obj \
 		  UserAccountMapper.obj
+
+LIB_OBJS	= DiscoveryPluginI.obj \
+		  PluginFacadeI.obj \
+                  $(SLICE_OBJS)
 
 SRCS		= $(LIB_OBJS:.obj=.cpp)
 

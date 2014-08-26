@@ -14,33 +14,39 @@ DLLNAME		= $(top_srcdir)\bin\freeze$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= BackgroundSaveEvictor.obj \
-		  BackgroundSaveEvictorI.obj \
-		  Catalog.obj \
+SLICE_OBJS1     = BackgroundSaveEvictor.obj \
 		  CatalogData.obj \
-		  CatalogIndexList.obj \
 		  Connection.obj \
-		  ConnectionI.obj \
+		  ConnectionF.obj \
 		  DB.obj \
 		  Evictor.obj \
-		  EvictorI.obj \
-		  EvictorIteratorI.obj \
+		  EvictorF.obj \
 		  EvictorStorage.obj \
 		  Exception.obj \
+		  Transaction.obj \
+		  TransactionalEvictor.obj
+
+SLICE_OBJS2     = PingObject.obj
+
+OBJS	        = BackgroundSaveEvictorI.obj \
+		  Catalog.obj \
+                  CatalogIndexList.obj \
+		  ConnectionI.obj \
+		  EvictorI.obj \
+		  EvictorIteratorI.obj \
 		  Index.obj \
 		  IndexI.obj \
 		  MapDb.obj \
 		  MapI.obj \
 		  ObjectStore.obj \
-		  PingObject.obj \
 		  SharedDbEnv.obj \
-		  Transaction.obj \
-		  TransactionalEvictor.obj \
 		  TransactionalEvictorContext.obj \
 		  TransactionalEvictorI.obj \
 		  TransactionHolder.obj \
 		  TransactionI.obj \
-		  Util.obj
+		  Util.obj \
+                  $(SLICE_OBJS1) \
+                  $(SLICE_OBJS2)
 
 SRCS		= $(OBJS:.obj=.cpp)
 

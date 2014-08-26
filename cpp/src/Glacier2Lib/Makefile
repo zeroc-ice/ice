@@ -15,24 +15,22 @@ LIBNAME		= $(call mklibname,Glacier2)
 
 TARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Application.o \
-		  CryptPermissionsVerifierPlugin.o \
-		  Metrics.o \
+SLICE_OBJS      = Metrics.o \
+		  PermissionsVerifierF.o \
 		  PermissionsVerifier.o \
 		  Router.o \
+		  RouterF.o \
 		  Session.o \
-		  SessionHelper.o \
 		  SSLInfo.o
+
+OBJS		= Application.o \
+		  CryptPermissionsVerifierPlugin.o \
+		  SessionHelper.o \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/Metrics.ice \
-		  $(SDIR)/PermissionsVerifierF.ice \
-		  $(SDIR)/PermissionsVerifier.ice \
-		  $(SDIR)/Router.ice \
-		  $(SDIR)/RouterF.ice \
-		  $(SDIR)/Session.ice \
-		  $(SDIR)/SSLInfo.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/Glacier2
 SDIR		= $(slicedir)/Glacier2

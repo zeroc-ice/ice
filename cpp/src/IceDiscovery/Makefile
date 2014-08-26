@@ -15,14 +15,19 @@ LIBNAME		= $(call mklibname,IceDiscovery)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		=  IceDiscovery.o \
-		  LocatorI.o \
+SLICE_OBJS      = IceDiscovery.o
+
+OBJS		= LocatorI.o \
 		  LookupI.o \
-		  PluginI.o
+		  PluginI.o \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(slicedir)/IceDiscovery/IceDiscovery.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
+
+HDIR		= $(headerdir)/IceDiscovery
+SDIR		= $(slicedir)/IceDiscovery
 
 include $(top_srcdir)/config/Make.rules
 

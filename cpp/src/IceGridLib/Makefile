@@ -16,35 +16,26 @@ LIBNAME		= $(call mklibname,IceGrid)
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-LIB_OBJS	=  Admin.o \
+SLICE_OBJS	= Admin.o \
 		  Descriptor.o \
 		  Discovery.o \
-		  DiscoveryPluginI.o \
 		  Exception.o \
 		  FileParser.o \
 		  Locator.o \
 		  Observer.o \
 		  PluginFacade.o \
-		  PluginFacadeI.o \
 		  Query.o \
 		  Registry.o \
 		  Session.o \
 		  UserAccountMapper.o
 
+LIB_OBJS	= DiscoveryPluginI.o \
+		  PluginFacadeI.o \
+                  $(SLICE_OBJS)
+
 SRCS		= $(LIB_OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/Admin.ice \
-		  $(SDIR)/Descriptor.ice \
-		  $(SDIR)/Discovery.ice \
-		  $(SDIR)/Exception.ice \
-		  $(SDIR)/FileParser.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/Observer.ice \
-		  $(SDIR)/PluginFacade.ice \
-		  $(SDIR)/Query.ice \
-		  $(SDIR)/Registry.ice \
-		  $(SDIR)/Session.ice \
-		  $(SDIR)/UserAccountMapper.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceGrid
 LOCAL_HDIR	= ../IceGrid

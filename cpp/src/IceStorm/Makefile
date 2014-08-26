@@ -18,61 +18,51 @@ MIGRATE		= $(bindir)/icestormmigrate
 LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ADMIN) $(MIGRATE)
 
-OBJS		= Election.o \
+SLICE_OBJS      = Election.o \
 		  IceStormInternal.o \
-		  Instance.o \
 		  Instrumentation.o \
-		  InstrumentationI.o \
 		  LinkRecord.o \
-		  LLUMap.o \
 		  LLURecord.o \
+		  SubscriberRecord.o \
+		  V31Format.o \
+		  V32Format.o
+
+OBJS		= Instance.o \
+		  InstrumentationI.o \
+		  LLUMap.o \
 		  NodeI.o \
 		  Observers.o \
 		  Service.o \
 		  Subscriber.o \
 		  SubscriberMap.o \
-		  SubscriberRecord.o \
 		  TopicI.o \
 		  TopicManagerI.o \
 		  TraceLevels.o \
 		  TransientTopicI.o \
 		  TransientTopicManagerI.o \
 		  Util.o \
-		  V31Format.o \
 		  V31FormatDB.o \
-		  V32Format.o \
-		  V32FormatDB.o
+		  V32FormatDB.o \
+                  $(SLICE_OBJS)
 
-AOBJS		=  Admin.o \
-		  Election.o \
+AOBJS		= Admin.o \
 		  Grammar.o \
-		  IceStormInternal.o \
-		  LLURecord.o \
 		  Parser.o \
 		  Scanner.o \
-		  SubscriberRecord.o
+                  $(SLICE_OBJS)
 
-MOBJS		= LinkRecord.o \
-		  LLUMap.o \
-		  Migrate.o \
-		  SubscriberMap.o \
-		  V31Format.o \
-		  V31FormatDB.o \
-		  V32Format.o \
-		  V32FormatDB.o
+MOBJS		= LLUMap.o \
+                  Migrate.o \
+                  SubscriberMap.o \
+                  V31FormatDB.o \
+		  V32FormatDB.o \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 		  $(MOBJS:.o=.cpp)
 
-SLICE_SRCS	= ../IceStorm/Election.ice \
-		  ../IceStorm/IceStormInternal.ice \
-		  ../IceStorm/Instrumentation.ice \
-		  ../IceStorm/LinkRecord.ice \
-		  ../IceStorm/LLURecord.ice \
-		  ../IceStorm/SubscriberRecord.ice \
-		  ../IceStorm/V31Format.ice \
-		  ../IceStorm/V32Format.ice
+SLICE_SRCS	= $(addprefix ../IceStorm/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
@@ -110,7 +100,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 $(MIGRATE): $(MOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStormService -lIceStorm -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStorm -lFreeze $(LIBS)
 
 # The slice2freeze rules are structured like this to avoid issues with
 # parallel make.

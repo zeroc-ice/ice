@@ -14,76 +14,96 @@ SONAME		= $(call mksoname,Ice,$(SOVERSION))
 LIBNAME		= $(call mklibname,Ice)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Acceptor.o \
+SLICE_OBJS	= BuiltinSequences.o \
+                  Communicator.o \
+                  CommunicatorF.o \
+                  Connection.o \
+                  ConnectionF.o \
+                  Current.o \
+                  Endpoint.o \
+                  EndpointF.o \
+                  EndpointTypes.o \
+                  FacetMap.o \
+                  Identity.o \
+                  ImplicitContext.o \
+                  ImplicitContextF.o \
+                  Instrumentation.o \
+                  InstrumentationF.o \
+                  LocalException.o \
+                  Locator.o \
+                  LocatorF.o \
+                  Logger.o \
+                  LoggerF.o \
+                  Metrics.o \
+                  ObjectAdapter.o \
+                  ObjectAdapterF.o \
+                  ObjectFactory.o \
+                  ObjectFactoryF.o \
+                  Plugin.o \
+                  PluginF.o \
+                  Process.o \
+                  ProcessF.o \
+                  Properties.o \
+                  PropertiesAdmin.o \
+                  PropertiesF.o \
+                  RemoteLogger.o \
+                  Router.o \
+                  RouterF.o \
+                  ServantLocator.o \
+                  ServantLocatorF.o \
+                  SliceChecksumDict.o \
+                  Version.o
+
+OBJS            = Acceptor.o \
 		  ACM.o \
 		  Application.o \
-		  Base64.o \
-		  BasicStream.o \
+                  Base64.o \
+                  BasicStream.o \
 		  Buffer.o \
-		  BuiltinSequences.o \
 		  CollocatedRequestHandler.o \
-		  Communicator.o \
 		  CommunicatorI.o \
-		  Connection.o \
 		  ConnectionFactory.o \
 		  ConnectionI.o \
 		  ConnectionRequestHandler.o \
 		  Connector.o \
-		  ConnectRequestHandler.o \
-		  Current.o \
+                  ConnectRequestHandler.o \
 		  DefaultsAndOverrides.o \
-		  DeprecatedStringConverter.o \
-		  DispatchInterceptor.o \
+                  DeprecatedStringConverter.o \
+                  DispatchInterceptor.o \
 		  DynamicLibrary.o \
-		  Endpoint.o \
-		  EndpointFactory.o \
+                  EndpointFactory.o \
 		  EndpointFactoryManager.o \
 		  EndpointI.o \
-		  EndpointTypes.o \
 		  EventHandler.o \
 		  Exception.o \
-		  FacetMap.o \
 		  FactoryTable.o \
 		  FactoryTableInit.o \
 		  GCObject.o \
-		  HttpParser.o \
-		  Identity.o \
-		  ImplicitContext.o \
+                  HttpParser.o \
 		  ImplicitContextI.o \
 		  Incoming.o \
-		  IncomingAsync.o \
+                  IncomingAsync.o \
 		  Initialize.o \
 		  Instance.o \
-		  Instrumentation.o \
-		  InstrumentationI.o \
+                  InstrumentationI.o \
 		  IPEndpointI.o \
-		  LocalException.o \
 		  LocalObject.o \
-		  Locator.o \
 		  LocatorInfo.o \
-		  Logger.o \
-		  LoggerAdminI.o \
-		  LoggerI.o \
+                  LoggerAdminI.o \
+                  LoggerI.o \
 		  LoggerUtil.o \
-		  Metrics.o \
 		  MetricsAdminI.o \
 		  MetricsObserverI.o \
 		  Network.o \
-		  Object.o \
-		  ObjectAdapter.o \
+                  Object.o \
 		  ObjectAdapterFactory.o \
 		  ObjectAdapterI.o \
-		  ObjectFactory.o \
 		  ObjectFactoryManager.o \
 		  ObserverHelper.o \
 		  OpaqueEndpointI.o \
 		  Outgoing.o \
-		  OutgoingAsync.o \
-		  Plugin.o \
+                  OutgoingAsync.o \
 		  PluginManagerI.o \
-		  Process.o \
-		  Properties.o \
-		  PropertiesAdmin.o \
 		  PropertiesAdminI.o \
 		  PropertiesI.o \
 		  PropertyNames.o \
@@ -91,41 +111,37 @@ OBJS		= Acceptor.o \
 		  ProtocolInstance.o \
 		  ProtocolPluginFacade.o \
 		  Proxy.o \
-		  ProxyFactory.o \
+                  ProxyFactory.o \
 		  Reference.o \
-		  ReferenceFactory.o \
-		  RemoteLogger.o \
-		  RequestHandler.o \
+                  ReferenceFactory.o \
+                  RequestHandler.o \
 		  ResponseHandler.o \
 		  RetryQueue.o \
-		  Router.o \
 		  RouterInfo.o \
 		  Selector.o \
-		  ServantLocator.o \
 		  ServantManager.o \
 		  Service.o \
-		  SliceChecksumDict.o \
 		  SliceChecksums.o \
 		  SlicedData.o \
 		  Stream.o \
-		  StreamI.o \
+                  StreamI.o \
 		  StringConverterPlugin.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
 		  TcpEndpointI.o \
 		  TcpTransceiver.o \
-		  ThreadPool.o \
+	          ThreadPool.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Transceiver.o \
 		  UdpConnector.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
-		  Version.o \
-		  WSAcceptor.o \
+                  WSAcceptor.o \
 		  WSConnector.o \
 		  WSEndpoint.o \
-		  WSTransceiver.o
+		  WSTransceiver.o \
+                  $(SLICE_OBJS)
 
 ifeq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \
@@ -135,45 +151,7 @@ endif
 SRCS		= $(OBJS:.o=.cpp) \
 		  DLLMain.cpp
 
-SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/Communicator.ice \
-		  $(SDIR)/CommunicatorF.ice \
-		  $(SDIR)/Connection.ice \
-		  $(SDIR)/ConnectionF.ice \
-		  $(SDIR)/Current.ice \
-		  $(SDIR)/Endpoint.ice \
-		  $(SDIR)/EndpointF.ice \
-		  $(SDIR)/EndpointTypes.ice \
-		  $(SDIR)/FacetMap.ice \
-		  $(SDIR)/Identity.ice \
-		  $(SDIR)/ImplicitContext.ice \
-		  $(SDIR)/ImplicitContextF.ice \
-		  $(SDIR)/Instrumentation.ice \
-		  $(SDIR)/InstrumentationF.ice \
-		  $(SDIR)/LocalException.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LocatorF.ice \
-		  $(SDIR)/Logger.ice \
-		  $(SDIR)/LoggerF.ice \
-		  $(SDIR)/Metrics.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
-		  $(SDIR)/ObjectFactory.ice \
-		  $(SDIR)/ObjectFactoryF.ice \
-		  $(SDIR)/Plugin.ice \
-		  $(SDIR)/PluginF.ice \
-		  $(SDIR)/Process.ice \
-		  $(SDIR)/ProcessF.ice \
-		  $(SDIR)/Properties.ice \
-		  $(SDIR)/PropertiesAdmin.ice \
-		  $(SDIR)/PropertiesF.ice \
-		  $(SDIR)/RemoteLogger.ice \
-		  $(SDIR)/Router.ice \
-		  $(SDIR)/RouterF.ice \
-		  $(SDIR)/ServantLocator.ice \
-		  $(SDIR)/ServantLocatorF.ice \
-		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/Version.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice

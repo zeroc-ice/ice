@@ -19,8 +19,10 @@ ADMIN		= $(bindir)/iceboxadmin
 LIBTARGETS 	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS   	= $(LIBTARGETS) $(SERVER) $(ADMIN)
 
+SLICE_OBJS      = IceBox.o
+
 OBJS		= Exception.o \
-		  IceBox.o
+		  $(SLICE_OBJS)
 
 SOBJS		= Service.o \
 		  ServiceManagerI.o
@@ -31,7 +33,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/IceBox.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceBox
 SDIR		= $(slicedir)/IceBox

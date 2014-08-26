@@ -12,20 +12,22 @@ top_srcdir	= ..\..
 ROUTER		= $(top_srcdir)\bin\glacier2router.exe
 TARGETS         = $(ROUTER)
 
+SLICE_OBJS      = Instrumentation.obj
+
 OBJS		= Blobject.obj \
 		  ClientBlobject.obj \
 		  FilterI.obj \
 		  FilterManager.obj \
 		  Glacier2Router.obj \
 		  Instance.obj \
-		  Instrumentation.obj \
 		  InstrumentationI.obj \
 		  ProxyVerifier.obj \
 		  RequestQueue.obj \
 		  RouterI.obj \
 		  RoutingTable.obj \
 		  ServerBlobject.obj \
-		  SessionRouterI.obj
+		  SessionRouterI.obj \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp)
 

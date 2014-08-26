@@ -14,10 +14,12 @@ DLLNAME		= $(top_srcdir)\bin\icepatch2$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		=  ClientUtil.obj \
-		  FileInfo.obj \
-		  FileServer.obj \
-		  Util.obj
+SLICE_OBJS	= FileInfo.obj \
+		  FileServer.obj
+
+OBJS		= ClientUtil.obj \
+		  Util.obj \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp)
 

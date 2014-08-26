@@ -14,12 +14,13 @@ DLLNAME		= $(top_srcdir)\bin\icessl$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
+SLICE_OBJS      = ConnectionInfo.obj \
+                  EndpointInfo.obj
+
 OBJS		= AcceptorI.obj \
 		  Certificate.obj \
-		  ConnectionInfo.obj \
 		  ConnectorI.obj \
 		  EndpointI.obj \
-		  EndpointInfo.obj \
 		  Instance.obj \
 		  PluginI.obj \
 		  RFC2253.obj \
@@ -27,7 +28,8 @@ OBJS		= AcceptorI.obj \
 		  SChannelTransceiverI.obj \
 		  SSLEngine.obj \
 		  TrustManager.obj \
-		  Util.obj
+		  Util.obj \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp)
 

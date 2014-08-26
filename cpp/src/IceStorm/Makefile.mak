@@ -17,48 +17,45 @@ MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 
 TARGETS		= $(LIBNAME) $(DLLNAME) $(ADMIN) $(MIGRATE)
 
-OBJS		= Election.obj \
+SLICE_OBJS      = Election.obj \
 		  IceStormInternal.obj \
-		  Instance.obj \
 		  Instrumentation.obj \
-		  InstrumentationI.obj \
 		  LinkRecord.obj \
-		  LLUMap.obj \
 		  LLURecord.obj \
+		  SubscriberRecord.obj \
+		  V31Format.obj \
+		  V32Format.obj
+
+OBJS		= Instance.obj \
+		  InstrumentationI.obj \
+		  LLUMap.obj \
 		  NodeI.obj \
 		  Observers.obj \
 		  Service.obj \
 		  Subscriber.obj \
 		  SubscriberMap.obj \
-		  SubscriberRecord.obj \
 		  TopicI.obj \
 		  TopicManagerI.obj \
 		  TraceLevels.obj \
 		  TransientTopicI.obj \
 		  TransientTopicManagerI.obj \
 		  Util.obj \
-		  V31Format.obj \
 		  V31FormatDB.obj \
-		  V32Format.obj \
-		  V32FormatDB.obj
+		  V32FormatDB.obj \
+                  $(SLICE_OBJS)
 
 AOBJS		= Admin.obj \
-		  Election.obj \
 		  Grammar.obj \
-		  IceStormInternal.obj \
-		  LLURecord.obj \
 		  Parser.obj \
 		  Scanner.obj \
-		  SubscriberRecord.obj
+                  $(SLICE_OBJS)
 
-MOBJS		= LinkRecord.obj \
-		  LLUMap.obj \
-		  Migrate.obj \
-		  SubscriberMap.obj \
-		  V31Format.obj \
-		  V31FormatDB.obj \
-		  V32Format.obj \
-		  V32FormatDB.obj
+MOBJS		= LLUMap.obj \
+                  Migrate.obj \
+                  SubscriberMap.obj \
+                  V31FormatDB.obj \
+		  V32FormatDB.obj \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(AOBJS:.obj=.cpp) \
@@ -76,7 +73,7 @@ ICECPPFLAGS	= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
 LINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib
 ALINKWITH 	= $(LIBS) icestorm$(LIBSUFFIX).lib
-MLINKWITH 	= freeze$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib $(LIBS)
+MLINKWITH 	= freeze$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)

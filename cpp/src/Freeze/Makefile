@@ -15,48 +15,44 @@ LIBNAME		= $(call mklibname,Freeze)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		=  BackgroundSaveEvictor.o \
-		  BackgroundSaveEvictorI.o \
-		  Catalog.o \
+SLICE_OBJS1     = BackgroundSaveEvictor.o \
 		  CatalogData.o \
-		  CatalogIndexList.o \
 		  Connection.o \
-		  ConnectionI.o \
+		  ConnectionF.o \
 		  DB.o \
 		  Evictor.o \
-		  EvictorI.o \
-		  EvictorIteratorI.o \
+		  EvictorF.o \
 		  EvictorStorage.o \
 		  Exception.o \
+		  Transaction.o \
+		  TransactionalEvictor.o
+
+SLICE_OBJS2     = PingObject.o
+
+OBJS	        = BackgroundSaveEvictorI.o \
+		  Catalog.o \
+                  CatalogIndexList.o \
+		  ConnectionI.o \
+		  EvictorI.o \
+		  EvictorIteratorI.o \
 		  Index.o \
 		  IndexI.o \
 		  MapDb.o \
 		  MapI.o \
 		  ObjectStore.o \
-		  PingObject.o \
 		  SharedDbEnv.o \
-		  Transaction.o \
-		  TransactionalEvictor.o \
 		  TransactionalEvictorContext.o \
 		  TransactionalEvictorI.o \
 		  TransactionHolder.o \
 		  TransactionI.o \
-		  Util.o
+		  Util.o \
+                  $(SLICE_OBJS1) \
+                  $(SLICE_OBJS2)
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	=  $(SDIR)/BackgroundSaveEvictor.ice \
-		  $(SDIR)/CatalogData.ice \
-		  $(SDIR)/Connection.ice \
-		  $(SDIR)/ConnectionF.ice \
-		  $(SDIR)/DB.ice \
-		  $(SDIR)/Evictor.ice \
-		  $(SDIR)/EvictorF.ice \
-		  $(SDIR)/EvictorStorage.ice \
-		  $(SDIR)/Exception.ice \
-		  $(SDIR)/Transaction.ice \
-		  $(SDIR)/TransactionalEvictor.ice \
-		  ../Freeze/PingObject.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS1:.o=.ice)) \
+                  $(addprefix ../Freeze/, $(SLICE_OBJS2:.o=.ice))
 
 HDIR		= $(headerdir)/Freeze
 SDIR		= $(slicedir)/Freeze

@@ -21,8 +21,10 @@ ADMIN		= $(top_srcdir)\bin\iceboxadmin.exe
 
 TARGETS		= $(LIBNAME) $(DLLNAME) $(SERVER) $(ADMIN)
 
+SLICE_OBJS      = IceBox.obj
+
 OBJS		= Exception.obj \
-		  IceBox.obj
+		  $(SLICE_OBJS)
 
 SOBJS		= Service.obj \
 		  ServiceManagerI.obj

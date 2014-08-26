@@ -15,26 +15,28 @@ REGISTRY_SERVER	= $(bindir)/icegridregistry
 
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-ADMIN_OBJS	=  Client.o \
+SLICE_OBJS      = Internal.o
+
+ADMIN_OBJS	= Client.o \
 		  DescriptorBuilder.o \
 		  DescriptorHelper.o \
 		  DescriptorParser.o \
 		  FileParserI.o \
 		  Grammar.o \
-		  Internal.o \
 		  Parser.o \
 		  Scanner.o \
-		  Util.o
+		  Util.o \
+                  $(SLICE_OBJS)
 
-COMMON_OBJS	=  DescriptorBuilder.o \
+COMMON_OBJS	= DescriptorBuilder.o \
 		  DescriptorParser.o \
 		  FileCache.o \
-		  Internal.o \
 		  PlatformInfo.o \
 		  SessionManager.o \
-		  TraceLevels.o
+		  TraceLevels.o \
+                  $(SLICE_OBJS)
 
-NODE_OBJS	=  Activator.o \
+NODE_OBJS	= Activator.o \
 		  NodeI.o \
 		  NodeServerAdminRouter.o \
 		  NodeSessionManager.o \
@@ -92,7 +94,7 @@ SRCS		= $(ADMIN_OBJS:.o=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 
-SLICE_SRCS	= ../IceGrid/Internal.ice
+SLICE_SRCS	= $(addprefix ../IceGrid/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceGrid
 SDIR		= $(slicedir)/IceGrid

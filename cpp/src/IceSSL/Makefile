@@ -16,12 +16,13 @@ LIBNAME		= $(call mklibname,IceSSL)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		=  AcceptorI.o \
+SLICE_OBJS      = ConnectionInfo.o \
+                  EndpointInfo.o
+
+OBJS		= AcceptorI.o \
 		  Certificate.o \
-		  ConnectionInfo.o \
 		  ConnectorI.o \
 		  EndpointI.o \
-		  EndpointInfo.o \
 		  Instance.o \
 		  OpenSSLEngine.o \
 		  OpenSSLTransceiverI.o \
@@ -33,12 +34,12 @@ OBJS		=  AcceptorI.o \
 		  SecureTransportTransceiverI.o \
 		  SSLEngine.o \
 		  TrustManager.o \
-		  Util.o
+		  Util.o \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/EndpointInfo.ice \
-		  $(SDIR)/ConnectionInfo.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IceSSL
 SDIR  		= $(slicedir)/IceSSL

@@ -15,15 +15,16 @@ LIBNAME		= $(call mklibname,IcePatch2)
 
 TARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
+SLICE_OBJS	= FileInfo.o \
+		  FileServer.o
+
 OBJS		= ClientUtil.o \
-		  FileInfo.o \
-		  FileServer.o \
-		  Util.o
+		  Util.o \
+                  $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/FileInfo.ice \
-		  $(SDIR)/FileServer.ice
+SLICE_SRCS	= $(addprefix $(SDIR)/, $(SLICE_OBJS:.o=.ice))
 
 HDIR		= $(headerdir)/IcePatch2
 SDIR		= $(slicedir)/IcePatch2

@@ -14,8 +14,10 @@ DLLNAME		= $(top_srcdir)\bin\icestorm$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS 	= $(LIBNAME) $(DLLNAME)
 
-OBJS		= IceStorm.obj \
+SLICE_OBJS	= IceStorm.obj \
 		  Metrics.obj
+
+OBJS		= $(SLICE_OBJS)
 
 SRCS		= $(OBJS:.obj=.cpp)
 
