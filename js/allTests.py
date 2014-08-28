@@ -25,6 +25,7 @@ import TestUtil
 # List of all basic tests.
 #
 tests = [
+    ("Ice/acm", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/defaultValue", ["once"]),
     ("Ice/enums", ["once"]),

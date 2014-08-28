@@ -727,8 +727,7 @@
                     
                     Debug.assert(self._waitPromise !== null);
                     self._waitPromise.succeed();
-
-                    _monitor.destroy()
+                    self._monitor.destroy()
                 }
             );
         }
