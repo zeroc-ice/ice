@@ -43,7 +43,7 @@ SUBDIRS		= IceUtil \
 		  IceGridLib \
 		  IceBox \
 		  IcePatch2 \
-		  CryptPermissionsVerifier \
+		  Glacier2CryptPermissionsVerifier \
 		  Glacier2 \
 		  IceStorm \
 		  IceGrid \

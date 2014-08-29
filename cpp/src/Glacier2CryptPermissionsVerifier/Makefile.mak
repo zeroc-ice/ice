@@ -9,8 +9,8 @@
 
 top_srcdir	= ..\..
 
-LIBNAME		= $(top_srcdir)\lib\cryptpermissionsverifier$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\cryptpermissionsverifier$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
+LIBNAME		= $(top_srcdir)\lib\glacier2cryptpermissionsverifier$(LIBSUFFIX).lib
+DLLNAME		= $(top_srcdir)\bin\glacier2cryptpermissionsverifier$(SOVERSION)$(LIBSUFFIX)$(COMPSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 

@@ -24,7 +24,7 @@ SLICE_OBJS      = Metrics.o \
 		  SSLInfo.o
 
 OBJS		= Application.o \
-		  CryptPermissionsVerifierPlugin.o \
+		  NullPermissionsVerifier.o \
 		  SessionHelper.o \
                   $(SLICE_OBJS)
 

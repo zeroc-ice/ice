@@ -10,9 +10,9 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,CryptPermissionsVerifier,$(VERSION))
-SONAME          = $(call mksoname,CryptPermissionsVerifier,$(SOVERSION))  
-LIBNAME		= $(call mklibname,CryptPermissionsVerifier)
+LIBFILENAME     = $(call mklibfilename,Glacier2CryptPermissionsVerifier,$(VERSION))
+SONAME          = $(call mksoname,Glacier2CryptPermissionsVerifier,$(SOVERSION))  
+LIBNAME		= $(call mklibname,Glacier2CryptPermissionsVerifier)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 

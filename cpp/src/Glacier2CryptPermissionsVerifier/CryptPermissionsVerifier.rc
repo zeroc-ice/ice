@@ -6,12 +6,12 @@ VS_VERSION_INFO VERSIONINFO
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "cryptpermissionsverifier35d\0"
- #define ORIGINALFILENAME "cryptpermissionsverifier35d.dll\0"
+ #define INTERNALNAME "glacier2cryptpermissionsverifier35d\0"
+ #define ORIGINALFILENAME "glacier2cryptpermissionsverifier35d.dll\0"
 #else
  FILEFLAGS 0x0L
- #define INTERNALNAME "cryptpermissionsverifier35\0"
- #define ORIGINALFILENAME "cryptpermissionsverifier35.dll\0"
+ #define INTERNALNAME "glacier2cryptpermissionsverifier35\0"
+ #define ORIGINALFILENAME "glacier2cryptpermissionsverifier35.dll\0"
 #endif
  FILEOS 0x4L
  FILETYPE VFT_DLL
@@ -22,7 +22,7 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
-            VALUE "FileDescription", "CryptPermissionsVerifier DLL\0"
+            VALUE "FileDescription", "Glacier2CryptPermissionsVerifier DLL\0"
             VALUE "FileVersion", "3.5.1\0"
             VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "Copyright (c) 2003-2014 ZeroC, Inc.  All rights reserved.\0"

@@ -620,6 +620,7 @@ generated from the section label.
         <property name="Client.Trace.Override" />
         <property name="Client.Trace.Reject" />
         <property name="Client.Trace.Request" />
+        <property name="CryptPasswords" />
         <property name="Filter.Address.Reject" />
         <property name="Filter.Address.Accept" />
         <property name="Filter.ProxySizeMax" />
@@ -627,7 +628,6 @@ generated from the section label.
         <property name="Filter.Category.AcceptUser" />
         <property name="Filter.AdapterId.Accept" />
         <property name="Filter.Identity.Accept" />
-        <property name="CryptPasswords" />
         <property name="InstanceName" />
         <property name="PermissionsVerifier" class="proxy" />
         <property name="ReturnClientProxy" />
@@ -645,6 +645,11 @@ generated from the section label.
         <property name="SessionTimeout" />
         <property name="Trace.RoutingTable" />
         <property name="Trace.Session" />
+    </section>
+
+    <section name="Glacier2CryptPermissionsVerifier">
+        <property name="[any].PermissionsVerifier" />
+        <property name="[any].AdminPermissionsVerifier" />
     </section>
 
     <section name="Freeze">

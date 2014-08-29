@@ -88,13 +88,11 @@ private:
     QueryPrx setupQuery();
     RegistryPrx setupRegistry();
     InternalRegistryPrx setupInternalRegistry();
-    void setupNullPermissionsVerifier();
     bool setupUserAccountMapper();
     Ice::ObjectAdapterPtr setupClientSessionFactory(const LocatorPrx&);
     Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectPtr&, const LocatorPrx&);
 
-    Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const LocatorPrx&, const std::string&, const std::string&);
-
+    Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const LocatorPrx&, const std::string&);
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);
 
@@ -121,10 +119,7 @@ private:
     int _sessionTimeout;
     IceUtil::UniquePtr<ReplicaSessionManager> _session;
     mutable PlatformInfo _platform;
-        
-    Glacier2::PermissionsVerifierPrx _nullPermissionsVerifier;
-    Glacier2::SSLPermissionsVerifierPrx _nullSSLPermissionsVerifier;
-
+    
     ClientSessionFactoryPtr _clientSessionFactory;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;

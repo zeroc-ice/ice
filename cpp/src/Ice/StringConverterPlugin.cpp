@@ -7,50 +7,57 @@
 //
 // **********************************************************************
 
-#include <Ice/StringConverterPlugin.h>
+#include <Ice/Config.h>
+
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
 
+#include <Ice/Plugin.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
 
-#ifndef _WIN32
-#  include <IceUtil/IconvStringConverter.h>
-#endif
-
 using namespace IceUtil;
 using namespace IceUtilInternal;
+using namespace Ice;
 using namespace std;
 
 
-Ice::StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& communicator,
-                                                  const StringConverterPtr& stringConverter, 
-                                                  const WstringConverterPtr& wstringConverter)
+namespace
 {
-    if(communicator == 0)
+
+class StringConverterPlugin : public Ice::Plugin
+{
+public:
+
+    StringConverterPlugin(const CommunicatorPtr& communicator,
+                          const StringConverterPtr& stringConverter, 
+                          const WstringConverterPtr& wstringConverter)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+        if(communicator == 0)
+        {
+            throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+        }
+        
+        IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+        
+        IceUtil::setProcessStringConverter(stringConverter);
+        instance->setStringConverter(stringConverter);
+        IceUtil::setProcessWstringConverter(wstringConverter);
+        instance->setWstringConverter(wstringConverter);
     }
-    
-    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
 
-    IceUtil::setProcessStringConverter(stringConverter);
-    instance->setStringConverter(stringConverter);
-    IceUtil::setProcessWstringConverter(wstringConverter);
-    instance->setWstringConverter(wstringConverter);
-}
+    virtual void initialize()
+    {
+    }
 
-void
-Ice::StringConverterPlugin::initialize()
-{
-}
+    virtual void destroy()
+    {
+    }
+};
 
-void
-Ice::StringConverterPlugin::destroy()
-{
 }
 
 //
@@ -59,9 +66,7 @@ Ice::StringConverterPlugin::destroy()
 extern "C"
 {
 
-using namespace Ice;
-
-ICE_DECLSPEC_EXPORT Plugin*
+ICE_API Plugin*
 createStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
     StringConverterPtr stringConverter;

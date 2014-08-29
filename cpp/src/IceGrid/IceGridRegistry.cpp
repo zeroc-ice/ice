@@ -164,15 +164,32 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
     
+
+    // If IceGrid.Registry.[Admin]PermissionsVerifier is not set and 
+    // IceGrid.Registry.[Admin]CryptPasswords is set, load the 
+    // Glacier2CryptPermissionsVerifier plug-in
     //
-    // If IceGrid.CryptPasswords or IceGrid.AdminCryptPasswords are set configure the 
-    // CryptPermissionsVerifier plug-in
-    //
-    if(!initData.properties->getProperty("IceGrid.CryptPasswords").empty() ||
-       !initData.properties->getProperty("IceGrid.AdminCryptPasswords").empty())
+    vector<string> vTypes;
+    vTypes.push_back("");
+    vTypes.push_back("Admin");
+
+    for(vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
     {
-        initData.properties->setProperty("Ice.Plugin.CryptPermissionsVerifier",
-                                         "CryptPermissionsVerifier:createCryptPermissionsVerifier");
+        string verifier = "IceGrid.Registry." + *p + "PermissionsVerifier";
+        
+        if(initData.properties->getProperty(verifier).empty())
+        {
+            string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + *p + "CryptPasswords");
+            
+            if(!cryptPasswords.empty())
+            {
+                initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
+                                                 "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+            
+                initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p + 
+                                                 "PermissionsVerifier", cryptPasswords);
+            }
+        }
     }
     
     //

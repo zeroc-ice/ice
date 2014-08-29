@@ -23,7 +23,7 @@ SLICE_OBJS      = Metrics.obj \
 		  SSLInfo.obj
 
 OBJS		= Application.obj \
-		  CryptPermissionsVerifierPlugin.obj \
+                  NullPermissionsVerifier.obj \
 		  SessionHelper.obj \
                   $(SLICE_OBJS)
 
