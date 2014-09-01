@@ -2,6 +2,7 @@ SDK_HEADERS = \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Application.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Glacier2.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Metrics.h \
+ $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\NullPermissionsVerifier.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PermissionsVerifier.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PermissionsVerifierF.h \
  $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Router.h \

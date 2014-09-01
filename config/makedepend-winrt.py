@@ -64,10 +64,10 @@ for line in fileinput.input("-"):
             if j < 0:
                 j = line.find("cpp\\src\\")
                 if j >= 0 and i > j:
-                    j = i + l
+                    j = j + len("cpp\\src\\")
                     line = line[j:]
                     if not line in includes:
-                        print('"..\\' + line + '"', end = " ", file = dependmak)
+                        print('"..\\..\\' + line + '"', end = " ", file = dependmak)
                         includes.append(line)
                     continue
             if j < 0:
@@ -75,7 +75,8 @@ for line in fileinput.input("-"):
             if j >= 0:
                 line = line[j:]
             line = line.replace("winrt\\", "")
-            line = line.replace("cpp\\src\\", "..\\")
+
+            #line = line.replace("cpp\\src\\", "..\\")
             line = line.replace("..\\..\\..\\include\\", "$(includedir)\\")
             line = line.replace("cpp\\include\\", "$(includedir)\\")
             line = line.strip()

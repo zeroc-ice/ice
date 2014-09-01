@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include "MainPage.xaml.h"
-#include <IceUtil/StringUtil.h>
 #include <TestCommon.h>
 #include <string>
 #include <iostream>
@@ -115,7 +114,9 @@ public:
         _hnd = LoadPackagedLibrary(IceUtil::stringToWstring(_test).c_str(), 0);
         if(_hnd == 0)
         {
-            printLineToConsoleOutput("failed to load `" + _test + "': " + IceUtilInternal::lastErrorToString());
+            ostringstream os;
+            os << "failed to load `" << _test + "': error code: " << GetLastError();
+            printLineToConsoleOutput(os.str());
             completed(-1);
             return;
         }

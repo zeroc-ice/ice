@@ -14,7 +14,7 @@ SOURCE_DIR	= ..
 
 OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ACM.obj \
-                  $(ARCH)\$(CONFIG)\Base64.obj \
+		  $(ARCH)\$(CONFIG)\Base64.obj \
 		  $(ARCH)\$(CONFIG)\Buffer.obj \
 		  $(ARCH)\$(CONFIG)\BasicStream.obj \
 		  $(ARCH)\$(CONFIG)\BuiltinSequences.obj \
@@ -29,7 +29,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ConnectionRequestHandler.obj \
 		  $(ARCH)\$(CONFIG)\Current.obj \
 		  $(ARCH)\$(CONFIG)\DefaultsAndOverrides.obj \
-                  $(ARCH)\$(CONFIG)\DispatchInterceptor.obj \
+		  $(ARCH)\$(CONFIG)\DispatchInterceptor.obj \
 		  $(ARCH)\$(CONFIG)\DynamicLibrary.obj \
 		  $(ARCH)\$(CONFIG)\EndpointFactoryManager.obj \
 		  $(ARCH)\$(CONFIG)\EndpointFactory.obj \
@@ -113,10 +113,10 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\UdpTransceiver.obj \
 		  $(ARCH)\$(CONFIG)\Version.obj \
 		  $(ARCH)\$(CONFIG)\WSAcceptor.obj \
-                  $(ARCH)\$(CONFIG)\WSConnector.obj \
-                  $(ARCH)\$(CONFIG)\WSEndpoint.obj \
-                  $(ARCH)\$(CONFIG)\WSTransceiver.obj \
-                  $(ARCH)\$(CONFIG)\HttpParser.obj
+		  $(ARCH)\$(CONFIG)\WSConnector.obj \
+		  $(ARCH)\$(CONFIG)\WSEndpoint.obj \
+		  $(ARCH)\$(CONFIG)\WSTransceiver.obj \
+		  $(ARCH)\$(CONFIG)\HttpParser.obj
 
 LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamConnector.obj \

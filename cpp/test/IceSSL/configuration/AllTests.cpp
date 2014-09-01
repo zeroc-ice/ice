@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceUtil/FileUtil.h>
 #include <IceSSL/Plugin.h>
 #include <TestCommon.h>
 #include <Test.h>
 #include <Util.h>
+#include <fstream>
 
 using namespace std;
 using namespace Ice;
@@ -21,7 +21,7 @@ using namespace Ice;
 void
 readFile(const string& file, vector<char>& buffer)
 {
-    IceUtilInternal::ifstream is(file, ios::in | ios::binary);
+    ifstream is(file.c_str(), ios::in | ios::binary);
     if(!is.good())
     {
         throw "error opening file " + file;

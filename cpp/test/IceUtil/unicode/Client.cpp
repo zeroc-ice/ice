@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/StringConverter.h>
+#include <IceUtil/IceUtil.h>
 #include <TestCommon.h>
 
 #ifdef _WIN32
@@ -16,6 +15,7 @@
 #else
 #   include <unistd.h>
 #endif
+#include <fstream>
 
 using namespace IceUtil;
 using namespace std;
@@ -69,9 +69,9 @@ main(int argc, char* argv[])
  
     {
         cout << "testing UTF-8 to wstring (" << wstringEncoding << ") conversion... ";
-        IceUtilInternal::ifstream is((dir + "coeur.utf8"));
+        ifstream is((dir + "coeur.utf8").c_str());
         test(is.good());
-        IceUtilInternal::ifstream bis((dir + wcoeurFile), ios_base::binary);
+        ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
         test(bis.good());
         
         int lineNumber = 0;
@@ -129,7 +129,7 @@ main(int argc, char* argv[])
     {
         cout << "testing wstring (" << wstringEncoding << ") to UTF-8 conversion... ";
 
-        IceUtilInternal::ifstream bis((dir + wcoeurFile), ios_base::binary);
+        ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
         test(bis.good());
 
         wstring ws;
@@ -158,7 +158,7 @@ main(int argc, char* argv[])
         
         string s = wstringToString(ws);
         
-        IceUtilInternal::ifstream nbis((dir + "coeur.utf8"), ios_base::binary);
+        ifstream nbis((dir + "coeur.utf8").c_str(), ios_base::binary);
         test(nbis.good());
         
         for(size_t i = 0; i < s.size(); ++i)
@@ -238,80 +238,5 @@ main(int argc, char* argv[])
         cout << "ok" << endl;
        
     }
-
-
-#ifndef __MINGW32__
-    {
-        cout << "testing UTF-8 filename... ";
-        IceUtilInternal::ifstream fn(dir + "filename.txt");
-        string filename;
-        getline(fn, filename);
-        fn.close();
-        
-        string filepath = dir + filename;
-        
-        {
-            IceUtilInternal::ofstream os(filepath);
-            test(os.is_open());
-            os << "dummy";
-            os.close();
-        }
-
-        IceUtilInternal::isAbsolutePath(filepath);
-        IceUtilInternal::structstat st;
-        test(IceUtilInternal::stat(filepath, &st) == 0);
-
-        test(IceUtilInternal::mkdir(filepath + ".directory", 0777) == 0);
-        test(IceUtilInternal::directoryExists(filepath + ".directory"));
-        test(IceUtilInternal::rmdir(filepath + ".directory") == 0);
-
-        int fd = IceUtilInternal::open(filepath, O_RDONLY);
-        test(fd > 0);
-#if defined(_MSC_VER)
-        test(_close(fd) == 0);
-#   else
-        test(::close(fd) == 0);
-#   endif
-
-        FILE* f = IceUtilInternal::fopen(filepath, "r");
-        test(f != 0);
-        test(::fclose(f) == 0);
-        
-        IceUtilInternal::ifstream is(filepath);
-        string str;
-        getline(is, str);
-        test(str == "dummy");
-        is.close();
-
-        IceUtilInternal::ifstream is2;
-        is2.open(filepath);
-        getline(is2, str);
-        test(str == "dummy");
-        is2.close();
-
-        IceUtilInternal::ofstream os(filepath + ".out");
-        os << "dummy" << endl;
-        os.close();
-
-        IceUtilInternal::ofstream os2;
-        os2.open(filepath + ".out", ios_base::app);
-        os2 << "dummy2" << endl;
-        os2.close();
-
-        IceUtilInternal::ifstream is3;
-        is3.open(filepath + ".out");
-        getline(is3, str);
-        test(str == "dummy");
-        getline(is3, str);
-        test(str == "dummy2");
-        is3.close();
-
-        test(IceUtilInternal::unlink(filepath + ".out") == 0);
-        
-        IceUtilInternal::unlink(filepath);
-        
-        cout << "ok" << endl;
-    }
-#endif
     return EXIT_SUCCESS;
 }

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Evictor.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/IceUtil.h>
 
 using namespace std;
 using namespace IceUtil;

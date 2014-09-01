@@ -20,7 +20,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 LINKWITH	= /MANIFEST /MANIFESTUAC:"level='requireAdministrator' uiAccess='false'" $(LIBS)
 

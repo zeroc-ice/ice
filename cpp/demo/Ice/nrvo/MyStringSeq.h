@@ -10,7 +10,8 @@
 #ifndef MY_STRING_SEQ
 #define MY_STRING_SEQ
 
-#include <IceUtil/Config.h>
+#include <IceUtil/IceUtil.h>
+
 #include <vector>
 #include <string>
 

@@ -19,7 +19,6 @@ SUBDIRS		= condvar \
                   ctrlCHandler \
 		  timer \
 		  priority \
-		  fileLock \
 		  sha1
 
 $(EVERYTHING)::

@@ -10,7 +10,7 @@
 #ifndef STRING_CONVERTER_I_H
 #define STRING_CONVERTER_I_H
 
-#include <IceUtil/StringConverter.h>
+#include <IceUtil/IceUtil.h>
 
 namespace Demo
 {

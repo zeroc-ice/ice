@@ -10,7 +10,7 @@
 #include <FilesystemI.h>
 #include <IdentityFileEntryMap.h>
 #include <IdentityDirectoryEntryMap.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
 
 using namespace std;

@@ -9,8 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <IceUtil/FileUtil.h>
-#include <IceUtil/ArgVector.h>
+#include <fstream>
 
 using namespace std;
 
@@ -137,7 +136,6 @@ main(int argc, char* argv[])
         cerr << ex << endl;
         return EXIT_FAILURE;
     }
-
 
     return EXIT_SUCCESS;
 }

@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
-#include <IceUtil/FileUtil.h>
 #include <IceUtil/Thread.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -126,8 +125,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     {
         //
         // Test with empty file.
-        // 
-        IceUtilInternal::ofstream os((testDir + "/log1.txt"));
+        //
+        string path = testDir + "/log1.txt";
+        ofstream os(path.c_str());
         os.close();
 
         it = session->openServerLog("LogServer", testDir + "/log1.txt", -1);
@@ -155,8 +155,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     {
         //
         // Test with log file with one line with no EOL on last line.
-        // 
-        IceUtilInternal::ofstream os((testDir + "/log2.txt"));
+        //
+        string path = testDir + "/log2.txt";
+        ofstream os(path.c_str());
         os << "one line file with no EOL on last line";
         os.close();
 
@@ -194,7 +195,8 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
         //
         // Test with log file with one line with EOL on last line.
         // 
-        IceUtilInternal::ofstream os((testDir + "/log3.txt"));
+        string path = testDir + "/log3.txt";
+        ofstream os(path.c_str());
         os << "one line file with EOL on last line" << endl;
         os.close();
 
@@ -239,8 +241,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     {
         //
         // Test with log file with multiple lines
-        // 
-        IceUtilInternal::ofstream os((testDir + "/log4.txt"));
+        //
+        string path = testDir + "/log4.txt";
+        ofstream os(path.c_str());
         os << "line 1" << endl;
         os << "line 2" << endl;
         os << "line 3" << endl;
@@ -289,7 +292,8 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
 
     try
     {
-        IceUtilInternal::ofstream os((testDir + "/log1.txt").c_str(), ios_base::out | ios_base::trunc);
+        string path = testDir + "/log1.txt";
+        ofstream os(path.c_str(), ios_base::out | ios_base::trunc);
         os << flush;
 
         it = session->openServerLog("LogServer", testDir + "/log1.txt", -1);

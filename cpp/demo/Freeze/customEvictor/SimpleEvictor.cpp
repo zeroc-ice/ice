@@ -9,7 +9,7 @@
 
 #include <SimpleEvictor.h>
 #include <ItemI.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/IceUtil.h>
 
 using namespace std;
 using namespace IceUtil;

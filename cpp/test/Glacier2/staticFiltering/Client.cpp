@@ -7,14 +7,10 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Random.h>
 #include <Ice/Application.h>
 #include <Glacier2/Router.h>
 #include <Backend.h>
 #include <TestCommon.h>
-#include <set>
-
-#include <fstream>
 
 using namespace std;
 using namespace Ice;
