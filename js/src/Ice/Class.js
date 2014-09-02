@@ -7,52 +7,49 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
+var Ice = require("../Ice/ModuleRegistry").Ice;
+
+Ice.Class = function()
+{
+    var base;
+    var desc;
+    var constructor;
     
-    var Class = function()
+    if(arguments.length == 1)
     {
-        var base;
-        var desc;
-        var constructor;
-        
-        if(arguments.length == 1)
-        {
-            desc = arguments[0];
-        }
-        else if(arguments.length == 2)
-        {
-            base = arguments[0];
-            desc = arguments[1];
-        }
+        desc = arguments[0];
+    }
+    else if(arguments.length == 2)
+    {
+        base = arguments[0];
+        desc = arguments[1];
+    }
 
-        if(desc !== undefined)
+    if(desc !== undefined)
+    {
+        constructor = desc.__init__;
+        if(constructor)
         {
-            constructor = desc.__init__;
-            if(constructor)
-            {
-                delete desc.__init__;
-            }
+            delete desc.__init__;
         }
-        
-        var o = constructor || function(){};
-
-        if(base !== undefined)
-        {
-            o.prototype = new base();
-            o.prototype.constructor = o;
-        }
-
-        if(desc !== undefined)
-        {
-            for(var key in desc)
-            {
-                o.prototype[key] = desc[key];
-            }
-        }
-        return o;
-    };
+    }
     
-    Ice.Class = Class;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+    var o = constructor || function(){};
+
+    if(base !== undefined)
+    {
+        o.prototype = new base();
+        o.prototype.constructor = o;
+    }
+
+    if(desc !== undefined)
+    {
+        for(var key in desc)
+        {
+            o.prototype[key] = desc[key];
+        }
+    }
+    return o;
+};
+
+module.exports.Ice = Ice;

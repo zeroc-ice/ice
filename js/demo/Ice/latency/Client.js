@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-(function(){
-
-require("Ice");
-require("./Latency");
+var Ice = require("icejs").Ice;
+var Demo = require("./Latency").Demo;
 
 var communicator;
 
@@ -88,4 +86,4 @@ Ice.Promise.try(
         console.log(ex.toString());
         process.exit(1);
     });
-}());
+

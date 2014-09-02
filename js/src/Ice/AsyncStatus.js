@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    var AsyncStatus = {Queued: 0, Sent: 1};
-    Ice.AsyncStatus = AsyncStatus;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.AsyncStatus = {Queued: 0, Sent: 1};
+module.exports.Ice = Ice;

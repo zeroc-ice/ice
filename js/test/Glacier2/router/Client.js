@@ -7,17 +7,12 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    require("Glacier2/Glacier2");
-
-    var Ice = global.Ice;
-    
-    require("Callback");
-    var Test = global.Test;
+(function(module, require, exports)
+{
+    var Ice = require("Ice/Ice").Ice;
+    var Glacier2 = require("icejs").Glacier2;
+    var Test = require("Callback").Test;
     var Promise = Ice.Promise;
-    var Debug = Ice.Debug;
     
     var test = function(b)
     {
@@ -40,7 +35,7 @@
 
     CallbackReceiverI.prototype.callback = function(current)
     {
-        Debug.assert(!this._callback);
+        test(!this._callback);
         this._p.succeed();
     };
     
@@ -402,5 +397,8 @@
                     });
             });
     };
-    global.__test__ = run;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

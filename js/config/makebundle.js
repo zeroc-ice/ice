@@ -14,17 +14,19 @@ var esprima = require('esprima');
 var usage = function()
 {
     console.log("usage:");
-    console.log("" + process.argv[0] + " " + path.basename(process.argv[1]) + " <files>"); 
+    console.log("" + process.argv[0] + " " + path.basename(process.argv[1]) + "\"<modules>\" <files>"); 
 }
 
-if(process.argv.length < 3)
+if(process.argv.length < 4)
 {
     usage();
     process.exit(1);
 }
 
+var modules = process.argv[2].split(" ");
+
 var files = [];
-for(var i = 2; i < process.argv.length; ++i)
+for(var i = 3; i < process.argv.length; ++i)
 {
     files.push(process.argv[i]);
 }
@@ -132,33 +134,45 @@ Depends.prototype.sort = function()
 
 var Parser = {};
 
-Parser.traverse = function(object, depend, file)
+Parser.add = function(depend, file)
+{
+    if(file.indexOf("../Ice/") === 0 ||
+       file.indexOf("../IceGrid/")  === 0 ||
+       file.indexOf("../IceStorm/") === 0 ||
+       file.indexOf("../Glacier2/") === 0)
+    {
+        file = path.resolve(file);
+        if(depend.depends.indexOf(file) === -1)
+        {
+            depend.depends.push(file);
+        }
+    }    
+};
+
+Parser.transverse = function(object, depend, file)
 {
     for(key in object)
     {
         var value = object[key];
         if(value !== null && typeof value == "object") 
         {
-            Parser.traverse(value, depend, file);
+            Parser.transverse(value, depend, file);
 
             if(value.type === "CallExpression")
             {
                 if(value.callee.name === "require")
                 {
-                    var includedFile = value.arguments[0].value + ".js";
-                    if(includedFile.indexOf("Ice/") === 0 ||
-                       includedFile.indexOf("IceWS/") === 0 ||
-                       includedFile.indexOf("IceMX/") === 0 ||
-                       includedFile.indexOf("IceGrid/")  === 0 ||
-                       includedFile.indexOf("IceStorm/") === 0 ||
-                       includedFile.indexOf("Glacier2/") === 0)
-                    {
-                        includedFile = path.resolve("../" + includedFile);
-                        if(depend.depends.indexOf(includedFile) === -1)
-                        {
-                            depend.depends.push(includedFile);
-                        }
-                    }
+                    Parser.add(depend, value.arguments[0].value + ".js");
+                }
+                else if(value.callee.type == "MemberExpression" &&
+                        value.callee.property.name == "require" &&
+                        (value.callee.object.name == "__M" || 
+                        (value.callee.object.property && value.callee.object.property.name == "__M")))
+                {
+                    value.arguments[2].elements.forEach(
+                        function(arg){
+                            Parser.add(depend, arg.value + ".js");
+                        });
                 }
             }
         }
@@ -193,7 +207,7 @@ Parser.dir = function(base, depends)
                 var depend = { realpath: file, file: fullpath, depends: [] };
                 d.depends.push(depend);
                 var ast = esprima.parse(fs.readFileSync(file, 'utf-8'));
-                Parser.traverse(ast, depend, file);
+                Parser.transverse(ast, depend, file);
             }
             catch(e)
             {
@@ -210,45 +224,148 @@ d.depends = d.expand().sort();
 var file, i, length = d.depends.length, line;
 var optimize = process.env.OPTIMIZE && process.env.OPTIMIZE == "yes";
 
+//
+// Wrap the library in a closure to hold the private __Slice module.
+//
+var preamble =
+    "(function()\n" +
+    "{\n";
+    
+var epilogue =
+    "}());\n\n";
+    
+//
+// Wrap contents of each file in a closure to keep local variables local.
+//
+var modulePreamble =
+    "\n" +
+    "    (function()\n" +
+    "    {\n";
+    
+var moduleEpilogue =
+    "    }());\n";
+    
+process.stdout.write(preamble);
+
+modules.forEach(
+    function(m){
+        process.stdout.write("    var " + m + " = window." + m + " || {};\n");
+        if(m == "Ice")
+        {
+            process.stdout.write("    Ice.Slice = Ice.Slice || {};\n");
+        }
+    });
+process.stdout.write("    var Slice = Ice.Slice;");
+
 for(i = 0;  i < length; ++i)
 {
+    process.stdout.write(modulePreamble);
     file = d.depends[i].realpath;
     data = fs.readFileSync(file); 
     lines = data.toString().split("\n");
+    
     var skip = false;
+    var skipUntil = undefined;
+    var skipAuto = false;
+    
     for(j in lines)
     {
         line = lines[j].trim();
-        //
-        // Get rid of require statements, the bundle include all required files, 
-        // so require statements are not required.
-        //
-        if(line == "var require = typeof(module) !== \"undefined\" ? module.require : function(){};")
+        
+        if(line == "/* slice2js browser-bundle-skip */")
         {
+            skipAuto = true;
             continue;
         }
-        else if(line.match(/require\(".*"\);/))
+        if(line == "/* slice2js browser-bundle-skip-end */")
+        {
+            skipAuto = false;
+            continue;
+        }
+        else if(skipAuto)
         {
             continue;
         }
         
+        //
+        // Get rid of require statements, the bundle include all required files, 
+        // so require statements are not required.
+        //
+        if(line.match(/var .* require\(".*"\).*;/))
+        {
+            continue;
+        }
+        if(line.match(/__M\.require\(/))
+        {
+            if(line.lastIndexOf(";") === -1)
+            {
+                // skip until next semicolon
+                skip = true;
+                skipUntil = ";";
+            }
+            continue;
+        }
+        
+        //
+        // Get rid of assert statements for optimized builds.
+        //
         if(optimize && line.match(/Debug\.assert\(/))
         {
             if(line.lastIndexOf(";") === -1)
             {
                 // skip until next semicolon
                 skip = true;
+                skipUntil = ";";
             }
             continue;
         }
+        
+        //
+        // Get rid of __M.module statements, in browser top level modules are
+        // global.
+        //
+        if(line.match(/var .* = __M.module\(/))
+        {
+            if(line.lastIndexOf(";") === -1)
+            {
+                // skip until next semicolon
+                skip = true;
+                skipUntil = ";";
+            }
+            continue;
+        }
+        
         if(skip)
         {
-            if(line.lastIndexOf(";") !== -1)
+            if(line.lastIndexOf(skipUntil) !== -1)
             {
                 skip = false;
             }
             continue;
         }
-        process.stdout.write(lines[j] + "\n");
+        
+        var out = lines[j];
+        if(line.indexOf("module.exports.") === 0)
+        {
+            continue;
+        }
+        
+        if(line.indexOf("__M.type") !== -1)
+        {
+            out = out.replace(/__M\.type/g, "eval");
+        }
+
+        process.stdout.write("        " + out + "\n");
     }
+    process.stdout.write(moduleEpilogue);
 }
+process.stdout.write("\n");
+//
+// Now exports the modules to the global Window object.
+//
+modules.forEach(
+    function(m){
+        process.stdout.write("    window." + m + " = " + m + ";\n");
+    });
+
+process.stdout.write(epilogue);

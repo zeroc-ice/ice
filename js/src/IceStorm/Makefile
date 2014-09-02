@@ -11,6 +11,8 @@ top_srcdir	= ../..
 
 LIBNAME = IceStorm
 
+MODULES = $(LIBNAME)
+
 TARGETS	= $(call mklibtargets,$(LIBNAME))
 
 SLICES = $(SDIR)/IceStorm.ice \

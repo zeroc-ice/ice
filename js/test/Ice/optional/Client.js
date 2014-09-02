@@ -7,12 +7,11 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    var Ice = global.Ice;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
-    require("Test");
     var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
 
@@ -961,7 +960,6 @@
 
     var run = function(out, id)
     {
-        var Test = global.Test;
         return Promise.try(
             function()
             {
@@ -976,7 +974,10 @@
                     });
             });
     };
-    global.__clientAllTests__ = allTests;
-    global.__test__ = run;
-    global.__runServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__clientAllTests__ = allTests;
+    exports.__test__ = run;
+    exports.__runServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

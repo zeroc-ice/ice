@@ -7,47 +7,37 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    var Ice = global.Ice;
-
-    require("Test");
-    var Test = global.Test;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
     var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
 
     var allTests = function(out, communicator)
     {
-        var PreservedI = function()
+        var PreservedI = Ice.Class(Test.Preserved,
         {
-            ++PreservedI.counter;
-        };
-
-        PreservedI.prototype = new Test.Preserved();
-
-        PreservedI.prototype.constructor = PreservedI;
-
-        var  PreservedFactoryI = function()
-        {
-        };
-
-        PreservedFactoryI.prototype = new Ice.ObjectFactory();
-
-        PreservedFactoryI.prototype.constructor = PreservedFactoryI;
-
-        PreservedFactoryI.prototype.create = function(id)
-        {
-            if(id === Test.Preserved.ice_staticId())
+            __init__: function()
             {
-                return new PreservedI();
+                ++PreservedI.counter;
             }
-            return null;
-        };
+        });
 
-        PreservedFactoryI.prototype.destroy = function()
+        var PreservedFactoryI = Ice.Class(Ice.ObjectFactory,
         {
-        };
+            create: function(id)
+            {
+                if(id === Test.Preserved.ice_staticId())
+                {
+                    return new PreservedI();
+                }
+                return null;
+            },
+            destroy: function()
+            {
+            }
+        });
 
         var p = new Promise();
         var test = function(b)
@@ -875,6 +865,9 @@
             });
     };
 
-    global.__test__ = run;
-    global.__runServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+    exports.__runServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

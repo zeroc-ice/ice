@@ -7,13 +7,8 @@
 //
 // **********************************************************************
 
-(function(){
-
-require("Ice");
-require("./Callback");
-
-var Demo = global.Demo;
-var CallbackSenderPrx = Demo.CallbackSenderPrx;
+var Ice = require("icejs").Ice;
+var Demo = require("./Callback").Demo;
 
 //
 // Define a servant class that implements Demo.CallbackReceiver
@@ -60,7 +55,7 @@ Ice.Promise.try(
         //
         // Down-cast the proxy to the Demo.CallbackSender interface.
         //
-        return CallbackSenderPrx.checkedCast(proxy).then(
+        return Demo.CallbackSenderPrx.checkedCast(proxy).then(
             function(server)
             {
                 //
@@ -106,4 +101,3 @@ Ice.Promise.try(
             });
     });
 
-}());

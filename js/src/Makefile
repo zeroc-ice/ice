@@ -31,3 +31,7 @@ $(EVERYTHING_EXCEPT_ALL)::
                 ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
             fi; \
         done
+
+install:: all
+	$(call installdata,icejs.js,$(DESTDIR)$(install_moduledir))
+	$(call installdata,package.json,$(DESTDIR)$(install_moduledir))

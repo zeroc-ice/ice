@@ -6,13 +6,14 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+    
+var Ice = require("../Ice/ModuleRegistry").Ice;
+var __M = Ice.__M;
+var Slice = Ice.Slice;
 
-(function(global){
-    var Ice = global.Ice || {};
-    var Slice = global.Slice || {};
-    var ArrayUtil = {};
-
-    ArrayUtil.clone = function(arr)
+Ice.ArrayUtil =
+{
+    clone: function(arr)
     {
         if(arr === undefined)
         {
@@ -26,9 +27,8 @@
         {
             return arr.slice();
         }
-    };
-
-    ArrayUtil.equals = function(v1, v2, equalFn)
+    },
+    equals: function(v1, v2, equalFn)
     {
         var i, length;
         
@@ -59,9 +59,8 @@
         }
 
         return true;
-    };
-
-    ArrayUtil.shuffle = function(arr)
+    },
+    shuffle: function(arr)
     {
         for(var i = arr.length; i > 1; --i)
         {
@@ -70,9 +69,8 @@
             arr[i - 1] = arr[rand];
             arr[rand] = e;
         }
-    };
-
-    ArrayUtil.indexOf = function(arr, elem, equalFn)
+    },
+    indexOf: function(arr, elem, equalFn)
     {
         if(equalFn !== undefined && equalFn !== null)
         {
@@ -90,9 +88,8 @@
         }
 
         return -1;
-    };
-
-    ArrayUtil.filter = function(arr, includeFn, obj)
+    },
+    filter: function(arr, includeFn, obj)
     {
         obj = obj === undefined ? includeFn : obj;
         var result = [];
@@ -104,27 +101,24 @@
             }
         }
         return result;
-    };
-    
-    Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
-    {
-        var helper = null;
-        Object.defineProperty(module, name, 
-        {
-            get: function()
-                {
-                    if(helper === null)
-                    {
-                        /*jshint -W061 */
-                        helper = Ice.StreamHelpers.generateSeqHelper(eval(valueHelper), fixed, eval(elementType));
-                        /*jshint +W061 */
-                    }
-                    return helper;
-                }
-        });
-    };
+    }
+};
 
-    Ice.ArrayUtil = ArrayUtil;
-    global.Slice = Slice;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
+{
+    var helper = null;
+    Object.defineProperty(module, name, 
+    {
+        get: function()
+            {
+                if(helper === null)
+                {
+                    /*jshint -W061 */
+                    helper = Ice.StreamHelpers.generateSeqHelper(__M.type(valueHelper), fixed, __M.type(elementType));
+                    /*jshint +W061 */
+                }
+                return helper;
+            }
+    });
+};
+module.exports.Ice = Ice;

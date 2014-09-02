@@ -7,39 +7,29 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/Class");
-    require("Ice/Exception");
-    require("Ice/ExUtil");
-    require("Ice/Debug");
-    require("Ice/LocalException");
-    
-    var Ice = global.Ice || {};
-    
-    var ExUtil = Ice.ExUtil;
-    var Debug = Ice.Debug;
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Exception", "../Ice/Debug", "../Ice/LocalException"]);
 
-    var RetryException = Ice.Class(Error, {
-        __init__: function(ex)
+var RetryException = Ice.Class(Error, {
+    __init__: function(ex)
+    {
+        if(ex instanceof Ice.LocalException)
         {
-            if(ex instanceof Ice.LocalException)
-            {
-                this._ex = ex;
-            }
-            else
-            {
-                Debug.assert(ex instanceof RetryException);
-                this._ex = ex._ex;
-            }
+            this._ex = ex;
         }
-    });
-    
-    var prototype = RetryException.prototype;
-    
-    Object.defineProperty(prototype, "inner", {
-        get: function() { return this._ex; }
-    });
-    
-    Ice.RetryException = RetryException;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+        else
+        {
+            Ice.Debug.assert(ex instanceof RetryException);
+            this._ex = ex._ex;
+        }
+    }
+});
+
+var prototype = RetryException.prototype;
+
+Object.defineProperty(prototype, "inner", {
+    get: function() { return this._ex; }
+});
+
+Ice.RetryException = RetryException;
+module.exports.Ice = Ice;

@@ -7,21 +7,20 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    var Ice = global.Ice;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
-    require("Test");
-    require("../facets/Client");
-    var Test = global.Test;
+    var Client = require("../facets/Client");
+
+    var TestI = require("TestI");
+
     var Promise = Ice.Promise;
-
-    require("TestI");
-    var DI = global.DI;
-    var FI = global.FI;
-    var HI = global.HI;
-    var EmptyI = global.EmptyI;
+    var DI = TestI.DI;
+    var FI = TestI.FI;
+    var HI = TestI.HI;
+    var EmptyI = TestI.EmptyI;
 
     var allTests = function(out, communicator)
     {
@@ -126,7 +125,7 @@
                     function(conn)
                     {
                         conn.setAdapter(adapter);
-                        return __clientAllTests__(out, communicator);
+                        return Client.__clientAllTests__(out, communicator);
                     });
             }
         ).then(
@@ -158,7 +157,7 @@
                     function()
                     {
                         communicator = Ice.initialize(id);
-                        return global.Test.EchoPrx.checkedCast(
+                        return Test.EchoPrx.checkedCast(
                             communicator.stringToProxy("__echo:default -p 12010"));
                     }
                 ).then(
@@ -173,6 +172,9 @@
                     });
             });
     };
-    global.__test__ = run;
-    global.__runEchoServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+    exports.__runEchoServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

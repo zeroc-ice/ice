@@ -7,9 +7,12 @@
 //
 // **********************************************************************
 
-(function(){
-    require("Glacier2/PermissionsVerifier");
-    require("Glacier2/Router");
-    require("Glacier2/Session");
-    require("Glacier2/SSLInfo");
-}());
+var __M = require("../Ice/ModuleRegistry").Ice.__M;
+
+module.exports.Glacier2 = __M.require(module, "Glacier2",
+    [
+        "../Glacier2/PermissionsVerifier",
+        "../Glacier2/Router",
+        "../Glacier2/Session",
+        "../Glacier2/SSLInfo",
+    ]);

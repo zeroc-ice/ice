@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/Ice");
+(function(module, require, exports){   
+    var Ice = require("Ice/Ice").Ice;
 
     var write = function(msg)
     {
@@ -20,13 +20,12 @@
         this.write(msg + "\n");
     };
     
-    var run = function(module)
+    var run = function(require)
     {
         var id = new Ice.InitializationData();
         id.properties = Ice.createProperties(process.argv);
         
-        module.require("./Client");
-        var test = global.__test__;
+        var test = require("./Client").__test__;
         
         test({write: write, writeLine: writeLine}, id).exception(
             function(ex, r)
@@ -44,5 +43,8 @@
             });
     };
 
-    module.exports = run;
-}(typeof (global) === "undefined" ? window : global));
+    exports.run = run;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

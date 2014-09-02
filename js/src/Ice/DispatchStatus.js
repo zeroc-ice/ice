@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    var DispatchStatus = {DispatchOK: 0, DispatchUserException: 1, DispatchAsync: 2};
-    Ice.DispatchStatus = DispatchStatus;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.DispatchStatus = {DispatchOK: 0, DispatchUserException: 1, DispatchAsync: 2};
+module.exports.Ice = Ice;

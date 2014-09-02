@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-(function(){
-    
-require("Ice");
-require("./Hello");
+var Ice = require("icejs").Ice;
+var Demo = require("./Hello").Demo;
     
 var communicator;
  
@@ -55,4 +53,3 @@ Ice.Promise.try(
         console.log(ex.toString());
         process.exit(1);
     });
-}());

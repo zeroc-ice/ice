@@ -11,6 +11,8 @@ top_srcdir	= ../..
 
 LIBNAME = IceGrid
 
+MODULES = $(LIBNAME)
+
 TARGETS	= $(call mklibtargets,$(LIBNAME))
 
 SLICES = \

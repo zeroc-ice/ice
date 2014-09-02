@@ -7,17 +7,15 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
+    var TestAMD = require("TestAMD").TestAMD;
+    var MyDerivedClassI = require("MyDerivedClassI").MyDerivedClassI;
+    var AMDMyDerivedClassI = require("AMDMyDerivedClassI").AMDMyDerivedClassI;
+    var Client = require("../operations/Client.js");
 
-    require("Ice/Ice");
-    require("Test");
-    require("TestAMD");
-    require("MyDerivedClassI");
-    require("AMDMyDerivedClassI");
-    require("../operations/Client.js");
-
-    var Ice = global.Ice;
     var Promise = Ice.Promise;
 
     var allTests = function(out, communicator, amd)
@@ -38,7 +36,7 @@
                     function(conn)
                     {
                         conn.setAdapter(adapter);
-                        return __clientAllTests__(out, communicator, amd ? global.TestAMD : global.Test, true);
+                        return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test, true);
                     });
             });
     };
@@ -91,6 +89,9 @@
                     });
             });
     };
-    global.__test__ = run;
-    global.__runEchoServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+    exports.__runEchoServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

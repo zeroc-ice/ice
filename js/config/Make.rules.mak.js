@@ -65,7 +65,7 @@ bindir = $(top_srcdir)\bin
 libdir = $(top_srcdir)\lib
 
 install_libdir 	  = $(prefix)\lib
-install_moduledir = $(prefix)\node_modules
+install_moduledir = $(prefix)\node_modules\icejs
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak

@@ -7,13 +7,8 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    var TimeUtil = {};
-    TimeUtil.now = function()
-    {
-        return new Date().getTime();
-    };
-    Ice.TimeUtil = TimeUtil;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+module.exports.Ice = require("./Ice/Ice").Ice;
+module.exports.IceMX = require("./Ice/Ice").IceMX;
+module.exports.Glacier2 = require("./Glacier2/Glacier2").Glacier2;
+module.exports.IceGrid = require("./IceGrid/IceGrid").IceGrid;
+module.exports.IceStorm = require("./IceStorm/IceStorm").IceStorm;

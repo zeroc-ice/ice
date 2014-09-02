@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice;
-    var TestAMD = global.TestAMD;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var TestAMD = require("TestAMD").TestAMD;
 
     var Class = Ice.Class;
 
@@ -368,5 +369,8 @@
         }
     });
 
-    global.AMDInitialI = AMDInitialI;
-}(typeof (global) === "undefined" ? window : global));
+    exports.AMDInitialI = AMDInitialI;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

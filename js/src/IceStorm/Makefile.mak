@@ -11,6 +11,8 @@ top_srcdir	= ..\..
 
 LIBNAME = IceStorm
 
+MODULES = $(LIBNAME)
+
 GEN_SRCS = IceStorm.js \
 	   Metrics.js
 
@@ -31,4 +33,3 @@ install:: all
             mkdir "$(MODULEDIR)"
         @for %i in ( $(INSTALL_SRCS) ) do \
             copy %i "$(MODULEDIR)"
-        copy package.json "$(MODULEDIR)"

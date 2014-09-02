@@ -7,18 +7,14 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
+    var InitialI = require("InitialI").InitialI;
+    var Client = require("../inheritance/Client");
 
-    require("Ice/Ice");
-    require("Test");
-    require("InitialI");
-    require("../inheritance/Client");
-
-    var Ice = global.Ice;
     var Promise = Ice.Promise;
-    var Test = global.Test;
-    var InitialI = global.InitialI;
 
     var allTests = function(out, communicator)
     {
@@ -34,7 +30,7 @@
                             function(conn)
                             {
                                 conn.setAdapter(adapter);
-                                return __clientAllTests__(out, communicator);
+                                return Client.__clientAllTests__(out, communicator);
                             });
                     });
             });
@@ -70,6 +66,9 @@
                     });
             });
     };
-    global.__test__ = run;
-    global.__runEchoServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+    exports.__runEchoServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

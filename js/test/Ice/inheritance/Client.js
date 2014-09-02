@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    var Ice = global.Ice;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
-    require("Test");
-    var Test = global.Test;
     var Promise = Ice.Promise;
 
     var allTests = function(out, communicator)
@@ -295,7 +293,10 @@
                     });
             });
     };
-    global.__test__ = run;
-    global.__clientAllTests__ = allTests;
-    global.__runServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+    exports.__clientAllTests__ = allTests;
+    exports.__runServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

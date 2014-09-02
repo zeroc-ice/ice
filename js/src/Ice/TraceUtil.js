@@ -7,291 +7,326 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/Debug");
-    require("Ice/HashMap");
-    require("Ice/Protocol");
-    require("Ice/StringUtil");
-    require("Ice/Current");
-    require("Ice/Identity");
-    
-    var Ice = global.Ice || {};
-    
-    //
-    // Local aliases.
-    //
-    var Debug = Ice.Debug;
-    var HashMap = Ice.HashMap;
-    var Protocol = Ice.Protocol;
-    var StringUtil = Ice.StringUtil;
-    var OperationMode = Ice.OperationMode;
-    var Identity = Ice.Identity;
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, "Ice", 
+    [
+        "../Ice/Debug",
+        "../Ice/HashMap",
+        "../Ice/Protocol",
+        "../Ice/StringUtil",
+        "../Ice/Current",
+        "../Ice/Identity"
+    ]);
 
-    var TraceUtil = {};
+//
+// Local aliases.
+//
+var Debug = Ice.Debug;
+var HashMap = Ice.HashMap;
+var Protocol = Ice.Protocol;
+var StringUtil = Ice.StringUtil;
+var OperationMode = Ice.OperationMode;
+var Identity = Ice.Identity;
 
-    TraceUtil.traceSend = function(stream, logger, traceLevels)
+var TraceUtil = {};
+
+TraceUtil.traceSend = function(stream, logger, traceLevels)
+{
+    if(traceLevels.protocol >= 1)
     {
-        if(traceLevels.protocol >= 1)
-        {
-            var p = stream.pos;
-            stream.pos = 0;
-
-            var s = [];
-            var type = printMessage(s, stream);
-
-            logger.trace(traceLevels.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.join(""));
-
-            stream.pos = p;
-        }
-    };
-
-    TraceUtil.traceRecv = function(stream, logger, traceLevels)
-    {
-        if(traceLevels.protocol >= 1)
-        {
-            var p = stream.pos;
-            stream.pos = 0;
-
-            var s = [];
-            var type = printMessage(s, stream);
-
-            logger.trace(traceLevels.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.join(""));
-
-            stream.pos = p;
-        }
-    };
-
-    TraceUtil.trace = function(heading, stream, logger, traceLevels)
-    {
-        if(traceLevels.protocol >= 1)
-        {
-            var p = stream.pos;
-            stream.pos = 0;
-
-            var s = [];
-            s.push(heading);
-            printMessage(s, stream);
-
-            logger.trace(traceLevels.protocolCat, s.join(""));
-            stream.pos = p;
-        }
-    };
-
-    var slicingIds = new HashMap();
-
-    function traceSlicing(kind, typeId, slicingCat, logger)
-    {
-        if(!slicingIds.has(typeId))
-        {
-            var s = "unknown " + kind + " type `" + typeId + "'";
-            logger.trace(slicingCat, s);
-            slicingIds.set(typeId, 1);
-        }
-    }
-
-    TraceUtil.dumpStream = function(stream)
-    {
-        var pos = stream.pos;
+        var p = stream.pos;
         stream.pos = 0;
 
-        var data = stream.readBlob(stream.size());
-        TraceUtil.dumpOctets(data);
+        var s = [];
+        var type = printMessage(s, stream);
 
-        stream.pos = pos;
-    };
+        logger.trace(traceLevels.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.join(""));
 
-    TraceUtil.dumpOctets = function(data)
+        stream.pos = p;
+    }
+};
+
+TraceUtil.traceRecv = function(stream, logger, traceLevels)
+{
+    if(traceLevels.protocol >= 1)
     {
-        var inc = 8;
-        var buf = [];
+        var p = stream.pos;
+        stream.pos = 0;
 
-        for(var i = 0; i < data.length; i += inc)
+        var s = [];
+        var type = printMessage(s, stream);
+
+        logger.trace(traceLevels.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.join(""));
+
+        stream.pos = p;
+    }
+};
+
+TraceUtil.trace = function(heading, stream, logger, traceLevels)
+{
+    if(traceLevels.protocol >= 1)
+    {
+        var p = stream.pos;
+        stream.pos = 0;
+
+        var s = [];
+        s.push(heading);
+        printMessage(s, stream);
+
+        logger.trace(traceLevels.protocolCat, s.join(""));
+        stream.pos = p;
+    }
+};
+
+var slicingIds = new HashMap();
+
+function traceSlicing(kind, typeId, slicingCat, logger)
+{
+    if(!slicingIds.has(typeId))
+    {
+        var s = "unknown " + kind + " type `" + typeId + "'";
+        logger.trace(slicingCat, s);
+        slicingIds.set(typeId, 1);
+    }
+}
+
+TraceUtil.dumpStream = function(stream)
+{
+    var pos = stream.pos;
+    stream.pos = 0;
+
+    var data = stream.readBlob(stream.size());
+    TraceUtil.dumpOctets(data);
+
+    stream.pos = pos;
+};
+
+TraceUtil.dumpOctets = function(data)
+{
+    var inc = 8;
+    var buf = [];
+
+    for(var i = 0; i < data.length; i += inc)
+    {
+        var j;
+        for(j = i; j - i < inc; j++)
         {
-            var j;
-            for(j = i; j - i < inc; j++)
+            if(j < data.length)
             {
-                if(j < data.length)
+                var n = data[j];
+                if(n < 0)
                 {
-                    var n = data[j];
-                    if(n < 0)
-                    {
-                        n += 256;
-                    }
-                    var s;
-                    if(n < 10)
-                    {
-                        s = "  " + n;
-                    }
-                    else if(n < 100)
-                    {
-                        s = " " + n;
-                    }
-                    else
-                    {
-                        s = "" + n;
-                    }
-                    buf.push(s + " ");
+                    n += 256;
+                }
+                var s;
+                if(n < 10)
+                {
+                    s = "  " + n;
+                }
+                else if(n < 100)
+                {
+                    s = " " + n;
                 }
                 else
                 {
-                    buf.push("    ");
+                    s = "" + n;
                 }
+                buf.push(s + " ");
             }
-
-            buf.push('"');
-
-            for(j = i; j < data.length && j - i < inc; j++)
+            else
             {
-                if(data[j] >= 32 && data[j] < 127)
-                {
-                    buf.push(String.fromCharCode(data[j]));
-                }
-                else
-                {
-                    buf.push('.');
-                }
+                buf.push("    ");
             }
-
-            buf.push("\"\n");
         }
 
-        console.log(buf.join(""));
-    };
+        buf.push('"');
 
-    Ice.TraceUtil = TraceUtil;
-    global.Ice = Ice;
-    
-    function printIdentityFacetOperation(s, stream)
-    {
-        var identity = new Identity();
-        identity.__read(stream);
-        s.push("\nidentity = " + stream.instance.identityToString(identity));
-
-        var facet = Ice.StringSeqHelper.read(stream);
-        s.push("\nfacet = ");
-        if(facet.length > 0)
+        for(j = i; j < data.length && j - i < inc; j++)
         {
-            s.push(StringUtil.escapeString(facet[0], ""));
+            if(data[j] >= 32 && data[j] < 127)
+            {
+                buf.push(String.fromCharCode(data[j]));
+            }
+            else
+            {
+                buf.push('.');
+            }
         }
 
-        var operation = stream.readString();
-        s.push("\noperation = " + operation);
+        buf.push("\"\n");
     }
 
-    function printRequest(s, stream)
-    {
-        var requestId = stream.readInt();
-        s.push("\nrequest id = " + requestId);
-        if(requestId === 0)
-        {
-            s.push(" (oneway)");
-        }
+    console.log(buf.join(""));
+};
 
+Ice.TraceUtil = TraceUtil;
+module.exports.Ice = Ice;
+
+function printIdentityFacetOperation(s, stream)
+{
+    var identity = new Identity();
+    identity.__read(stream);
+    s.push("\nidentity = " + stream.instance.identityToString(identity));
+
+    var facet = Ice.StringSeqHelper.read(stream);
+    s.push("\nfacet = ");
+    if(facet.length > 0)
+    {
+        s.push(StringUtil.escapeString(facet[0], ""));
+    }
+
+    var operation = stream.readString();
+    s.push("\noperation = " + operation);
+}
+
+function printRequest(s, stream)
+{
+    var requestId = stream.readInt();
+    s.push("\nrequest id = " + requestId);
+    if(requestId === 0)
+    {
+        s.push(" (oneway)");
+    }
+
+    printRequestHeader(s, stream);
+}
+
+function printBatchRequest(s, stream)
+{
+    var batchRequestNum = stream.readInt();
+    s.push("\nnumber of requests = " + batchRequestNum);
+
+    for(var i = 0; i < batchRequestNum; ++i)
+    {
+        s.push("\nrequest #" + i + ':');
         printRequestHeader(s, stream);
     }
+}
 
-    function printBatchRequest(s, stream)
+function printReply(s, stream)
+{
+    var requestId = stream.readInt();
+    s.push("\nrequest id = " + requestId);
+
+    var replyStatus = stream.readByte();
+    s.push("\nreply status = " + replyStatus + ' ');
+
+    switch(replyStatus)
     {
-        var batchRequestNum = stream.readInt();
-        s.push("\nnumber of requests = " + batchRequestNum);
-
-        for(var i = 0; i < batchRequestNum; ++i)
-        {
-            s.push("\nrequest #" + i + ':');
-            printRequestHeader(s, stream);
-        }
+    case Protocol.replyOK:
+    {
+        s.push("(ok)");
+        break;
     }
 
-    function printReply(s, stream)
+    case Protocol.replyUserException:
     {
-        var requestId = stream.readInt();
-        s.push("\nrequest id = " + requestId);
+        s.push("(user exception)");
+        break;
+    }
 
-        var replyStatus = stream.readByte();
-        s.push("\nreply status = " + replyStatus + ' ');
-
+    case Protocol.replyObjectNotExist:
+    case Protocol.replyFacetNotExist:
+    case Protocol.replyOperationNotExist:
+    {
         switch(replyStatus)
         {
-        case Protocol.replyOK:
-        {
-            s.push("(ok)");
-            break;
-        }
-
-        case Protocol.replyUserException:
-        {
-            s.push("(user exception)");
-            break;
-        }
-
         case Protocol.replyObjectNotExist:
+        {
+            s.push("(object not exist)");
+            break;
+        }
+
         case Protocol.replyFacetNotExist:
+        {
+            s.push("(facet not exist)");
+            break;
+        }
+
         case Protocol.replyOperationNotExist:
         {
-            switch(replyStatus)
-            {
-            case Protocol.replyObjectNotExist:
-            {
-                s.push("(object not exist)");
-                break;
-            }
-
-            case Protocol.replyFacetNotExist:
-            {
-                s.push("(facet not exist)");
-                break;
-            }
-
-            case Protocol.replyOperationNotExist:
-            {
-                s.push("(operation not exist)");
-                break;
-            }
-
-            default:
-            {
-                Debug.assert(false);
-                break;
-            }
-            }
-
-            printIdentityFacetOperation(s, stream);
+            s.push("(operation not exist)");
             break;
         }
 
+        default:
+        {
+            Debug.assert(false);
+            break;
+        }
+        }
+
+        printIdentityFacetOperation(s, stream);
+        break;
+    }
+
+    case Protocol.replyUnknownException:
+    case Protocol.replyUnknownLocalException:
+    case Protocol.replyUnknownUserException:
+    {
+        switch(replyStatus)
+        {
         case Protocol.replyUnknownException:
+        {
+            s.push("(unknown exception)");
+            break;
+        }
+
         case Protocol.replyUnknownLocalException:
+        {
+            s.push("(unknown local exception)");
+            break;
+        }
+
         case Protocol.replyUnknownUserException:
         {
-            switch(replyStatus)
-            {
-            case Protocol.replyUnknownException:
-            {
-                s.push("(unknown exception)");
-                break;
-            }
+            s.push("(unknown user exception)");
+            break;
+        }
 
-            case Protocol.replyUnknownLocalException:
-            {
-                s.push("(unknown local exception)");
-                break;
-            }
+        default:
+        {
+            Debug.assert(false);
+            break;
+        }
+        }
 
-            case Protocol.replyUnknownUserException:
-            {
-                s.push("(unknown user exception)");
-                break;
-            }
+        var unknown = stream.readString();
+        s.push("\nunknown = " + unknown);
+        break;
+    }
 
-            default:
-            {
-                Debug.assert(false);
-                break;
-            }
-            }
+    default:
+    {
+        s.push("(unknown)");
+        break;
+    }
+    }
+}
 
-            var unknown = stream.readString();
-            s.push("\nunknown = " + unknown);
+function printRequestHeader(s, stream)
+{
+    printIdentityFacetOperation(s, stream);
+
+    var mode = stream.readByte();
+    s.push("\nmode = " + mode + ' ');
+    switch(OperationMode.valueOf(mode))
+    {
+        case OperationMode.Normal:
+        {
+            s.push("(normal)");
+            break;
+        }
+
+        case OperationMode.Nonmutating:
+        {
+            s.push("(nonmutating)");
+            break;
+        }
+
+        case OperationMode.Idempotent:
+        {
+            s.push("(idempotent)");
             break;
         }
 
@@ -300,175 +335,140 @@
             s.push("(unknown)");
             break;
         }
+    }
+
+    var sz = stream.readSize();
+    s.push("\ncontext = ");
+    while(sz-- > 0)
+    {
+        var key = stream.readString();
+        var value = stream.readString();
+        s.push(key + '/'+ value);
+        if(sz > 0)
+        {
+            s.push(", ");
         }
     }
 
-    function printRequestHeader(s, stream)
+    var ver = stream.skipEncaps();
+    if(!ver.equals(Protocol.Encoding_1_0))
     {
-        printIdentityFacetOperation(s, stream);
-
-        var mode = stream.readByte();
-        s.push("\nmode = " + mode + ' ');
-        switch(OperationMode.valueOf(mode))
-        {
-            case OperationMode.Normal:
-            {
-                s.push("(normal)");
-                break;
-            }
-
-            case OperationMode.Nonmutating:
-            {
-                s.push("(nonmutating)");
-                break;
-            }
-
-            case OperationMode.Idempotent:
-            {
-                s.push("(idempotent)");
-                break;
-            }
-
-            default:
-            {
-                s.push("(unknown)");
-                break;
-            }
-        }
-
-        var sz = stream.readSize();
-        s.push("\ncontext = ");
-        while(sz-- > 0)
-        {
-            var key = stream.readString();
-            var value = stream.readString();
-            s.push(key + '/'+ value);
-            if(sz > 0)
-            {
-                s.push(", ");
-            }
-        }
-
-        var ver = stream.skipEncaps();
-        if(!ver.equals(Protocol.Encoding_1_0))
-        {
-            s.push("\nencoding = ");
-            s.push(Ice.encodingVersionToString(ver));
-        }
+        s.push("\nencoding = ");
+        s.push(Ice.encodingVersionToString(ver));
     }
+}
 
-    function printHeader(s, stream)
+function printHeader(s, stream)
+{
+    stream.readByte();  // Don't bother printing the magic number
+    stream.readByte();
+    stream.readByte();
+    stream.readByte();
+
+//        var pMajor = stream.readByte();
+//        var pMinor = stream.readByte();
+//        s.push("\nprotocol version = " + pMajor + "." + pMinor);
+    stream.readByte(); // major
+    stream.readByte(); // minor
+
+//        var eMajor = stream.readByte();
+//        var eMinor = stream.readByte();
+//        s.push("\nencoding version = " + eMajor + "." + eMinor);
+    stream.readByte(); // major
+    stream.readByte(); // minor
+
+    var type = stream.readByte();
+
+    s.push("\nmessage type = " + type + " (" + getMessageTypeAsString(type) + ')');
+    var compress = stream.readByte();
+    s.push("\ncompression status = " + compress + ' ');
+    switch(compress)
     {
-        stream.readByte();  // Don't bother printing the magic number
-        stream.readByte();
-        stream.readByte();
-        stream.readByte();
-
-    //        var pMajor = stream.readByte();
-    //        var pMinor = stream.readByte();
-    //        s.push("\nprotocol version = " + pMajor + "." + pMinor);
-        stream.readByte(); // major
-        stream.readByte(); // minor
-
-    //        var eMajor = stream.readByte();
-    //        var eMinor = stream.readByte();
-    //        s.push("\nencoding version = " + eMajor + "." + eMinor);
-        stream.readByte(); // major
-        stream.readByte(); // minor
-
-        var type = stream.readByte();
-
-        s.push("\nmessage type = " + type + " (" + getMessageTypeAsString(type) + ')');
-        var compress = stream.readByte();
-        s.push("\ncompression status = " + compress + ' ');
-        switch(compress)
+        case 0:
         {
-            case 0:
-            {
-                s.push("(not compressed; do not compress response, if any)");
-                break;
-            }
-
-            case 1:
-            {
-                s.push("(not compressed; compress response, if any)");
-                break;
-            }
-
-            case 2:
-            {
-                s.push("(compressed; compress response, if any)");
-                break;
-            }
-
-            default:
-            {
-                s.push("(unknown)");
-                break;
-            }
-        }
-
-        var size = stream.readInt();
-        s.push("\nmessage size = " + size);
-        return type;
-    }
-
-    function printMessage(s, stream)
-    {
-        var type = printHeader(s, stream);
-
-        switch(type)
-        {
-        case Protocol.closeConnectionMsg:
-        case Protocol.validateConnectionMsg:
-        {
-            // We're done.
+            s.push("(not compressed; do not compress response, if any)");
             break;
         }
 
-        case Protocol.requestMsg:
+        case 1:
         {
-            printRequest(s, stream);
+            s.push("(not compressed; compress response, if any)");
             break;
         }
 
-        case Protocol.requestBatchMsg:
+        case 2:
         {
-            printBatchRequest(s, stream);
-            break;
-        }
-
-        case Protocol.replyMsg:
-        {
-            printReply(s, stream);
+            s.push("(compressed; compress response, if any)");
             break;
         }
 
         default:
         {
+            s.push("(unknown)");
             break;
         }
-        }
-
-        return type;
     }
 
-    function getMessageTypeAsString(type)
+    var size = stream.readInt();
+    s.push("\nmessage size = " + size);
+    return type;
+}
+
+function printMessage(s, stream)
+{
+    var type = printHeader(s, stream);
+
+    switch(type)
     {
-        switch(type)
-        {
-        case Protocol.requestMsg:
-            return "request";
-        case Protocol.requestBatchMsg:
-            return "batch request";
-        case Protocol.replyMsg:
-            return "reply";
-        case Protocol.closeConnectionMsg:
-            return "close connection";
-        case Protocol.validateConnectionMsg:
-            return  "validate connection";
-        default:
-            return "unknown";
-        }
+    case Protocol.closeConnectionMsg:
+    case Protocol.validateConnectionMsg:
+    {
+        // We're done.
+        break;
     }
-}(typeof (global) === "undefined" ? window : global));
+
+    case Protocol.requestMsg:
+    {
+        printRequest(s, stream);
+        break;
+    }
+
+    case Protocol.requestBatchMsg:
+    {
+        printBatchRequest(s, stream);
+        break;
+    }
+
+    case Protocol.replyMsg:
+    {
+        printReply(s, stream);
+        break;
+    }
+
+    default:
+    {
+        break;
+    }
+    }
+
+    return type;
+}
+
+function getMessageTypeAsString(type)
+{
+    switch(type)
+    {
+    case Protocol.requestMsg:
+        return "request";
+    case Protocol.requestBatchMsg:
+        return "batch request";
+    case Protocol.replyMsg:
+        return "reply";
+    case Protocol.closeConnectionMsg:
+        return "close connection";
+    case Protocol.validateConnectionMsg:
+        return  "validate connection";
+    default:
+        return "unknown";
+    }
+}

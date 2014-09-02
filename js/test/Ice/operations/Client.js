@@ -7,20 +7,16 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
-    require("Ice/Ice");
-    require("Test");
-    require("Twoways");
-    require("Oneways");
-    require("BatchOneways");
+    var Twoways = require("Twoways").Twoways;
+    var Oneways = require("Oneways").Oneways;
+    var BatchOneways = require("BatchOneways").BatchOneways;
 
-    var Ice = global.Ice;
     var Promise = Ice.Promise;
-    var Twoways = global.Twoways;
-    var Oneways = global.Oneways;
-    var BatchOneways = global.BatchOneways;
 
     var allTests = function(out, communicator, Test, bidir)
     {
@@ -85,7 +81,7 @@
                 //
                 id.properties.setProperty("Ice.MessageSizeMax", "100");
                 var c = Ice.initialize(id);
-                return allTests(out, c, global.Test, false).then(
+                return allTests(out, c, Test, false).then(
                     function(cl)
                     {
                         return cl.shutdown();
@@ -100,8 +96,10 @@
                     });
             });
     };
-    global.__test__ = run
-    global.__clientAllTests__ = allTests;
-    global.__runServer__ = true;
-
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run
+    exports.__clientAllTests__ = allTests;
+    exports.__runServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

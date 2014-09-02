@@ -72,7 +72,7 @@ private:
     {
     public:
 
-        RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>);
+        RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -86,6 +86,7 @@ private:
 
     private:
 
+        bool _allowIcePrefix;
         bool _seenClass;
         bool _seenCompactId;
         bool _seenOperation;

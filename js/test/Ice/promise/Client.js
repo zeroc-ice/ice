@@ -7,15 +7,9 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-
-    require("Ice/Ice");
-    require("Ice/Debug");
-
-    var Ice = global.Ice || {};
-
-    var Debug = Ice.Debug;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
     var Promise = Ice.Promise;
 
     var test = function(b)
@@ -904,5 +898,8 @@
         );
         return p;
     };
-    global.__test__ = run;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

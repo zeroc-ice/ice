@@ -11,6 +11,8 @@ top_srcdir	= ../..
 
 LIBNAME = Glacier2
 
+MODULES = $(LIBNAME)
+
 TARGETS	= $(call mklibtargets,$(LIBNAME))
 
 SLICES = $(SDIR)/Metrics.ice \

@@ -6,17 +6,12 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+    
 
-(function(global){
-    var Ice = global.Ice || {};
-    
-    var Address = function(host, port)
-    {
-        this.host = host;
-        this.port = port;
-    };
-    
-    Ice.Address = Address;
-    
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.Address = function(host, port)
+{
+    this.host = host;
+    this.port = port;
+};
+module.exports.Ice = Ice;

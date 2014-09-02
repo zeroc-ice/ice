@@ -7,13 +7,9 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-
-    require("Ice/Ice");
-
-    var Ice = global.Ice || {};
-
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
     var Promise = Ice.Promise;
     
     var test = function(b)
@@ -56,7 +52,7 @@
                     };
                 
                 var properties = Ice.createProperties();
-                if(require("fs") !== undefined)
+                if(typeof(require("fs").readFileSync) == "function")
                 {
                     //
                     // We are runing with NodeJS we load the properties file from the file system.
@@ -104,5 +100,8 @@
                 out.writeLine("ok");
             });
     };
-    global.__test__ = run;
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

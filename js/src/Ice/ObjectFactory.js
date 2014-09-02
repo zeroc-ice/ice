@@ -7,22 +7,15 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    
-    require("Ice/Class");
-    
-    var ObjectFactory = Ice.Class({
-        create: function(type)
-        {
-            throw new Error("not implemented");
-        },
-        destroy: function()
-        {
-            throw new Error("not implemented");
-        }
-    });
-    
-    Ice.ObjectFactory = ObjectFactory;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/Class").Ice;
+Ice.ObjectFactory = Ice.Class({
+    create: function(type)
+    {
+        throw new Error("not implemented");
+    },
+    destroy: function()
+    {
+        throw new Error("not implemented");
+    }
+});
+module.exports.Ice = Ice;

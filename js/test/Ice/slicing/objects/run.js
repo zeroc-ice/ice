@@ -7,4 +7,4 @@
 //
 // **********************************************************************
 
-require("../../../Common/Common")(module);
+require("../../../Common/Common").run(module.require);

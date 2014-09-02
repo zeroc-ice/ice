@@ -7,26 +7,20 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    var Ice = global.Ice;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
+    var TestAMD = require("TestAMD").TestAMD;
+    var InitialI = require("InitialI").InitialI;
+    var AMDInitialI = require("AMDInitialI").AMDInitialI;
+    var Client = require("../optional/Client");
 
     var Promise = Ice.Promise;
     var ArrayUtil = Ice.ArrayUtil;
 
-    require("Test");
-    require("TestAMD");
-
-    require("InitialI");
-    require("AMDInitialI");
-    require("../optional/Client");
-    var InitialI = global.InitialI;
-    var AMDInitialI = global.AMDInitialI;
-
     var allTests = function(out, communicator, amd)
     {
-        var Test = amd ? global.TestAMD : global.Test;
         var base;
         return Promise.try(
             function()
@@ -49,7 +43,7 @@
                     function(conn)
                     {
                         conn.setAdapter(adapter);
-                        return __clientAllTests__(out, communicator, Test);
+                        return Client.__clientAllTests__(out, communicator, amd ? TestAMD : Test);
                     });
             }
         );
@@ -87,7 +81,7 @@
             {
                 communicator = Ice.initialize(id);
                 var base = communicator.stringToProxy("__echo:default -p 12010");
-                return global.Test.EchoPrx.checkedCast(base);
+                return Test.EchoPrx.checkedCast(base);
             }
         ).then(
             function(prx)
@@ -100,7 +94,9 @@
                 return communicator.destroy();
             });
     };
-    global.__test__ = run;
-    global.__runEchoServer__ = true;
-}(typeof (global) === "undefined" ? window : global));
-
+    exports.__test__ = run;
+    exports.__runEchoServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

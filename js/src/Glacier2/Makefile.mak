@@ -11,6 +11,8 @@ top_srcdir	= ..\..
 
 LIBNAME = Glacier2
 
+MODULES = $(LIBNAME)
+
 GEN_SRCS = Metrics.js \
 	PermissionsVerifier.js \
 	PermissionsVerifierF.js \
@@ -36,4 +38,3 @@ install:: all
             mkdir "$(MODULEDIR)"
         @for %i in ( $(INSTALL_SRCS) ) do \
             copy %i "$(MODULEDIR)"
-        copy package.json "$(MODULEDIR)"

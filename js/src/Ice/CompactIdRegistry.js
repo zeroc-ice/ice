@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/HashMap");
-    var Ice = global.Ice || {};
-    Ice.CompactIdRegistry = new Ice.HashMap();
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/HashMap").Ice;
+Ice.CompactIdRegistry = new Ice.HashMap();
+module.exports.Ice = Ice;

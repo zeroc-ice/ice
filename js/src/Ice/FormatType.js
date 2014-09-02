@@ -7,12 +7,6 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/EnumBase");
-    
-    var Ice = global.Ice || {};
-    
-    Ice.FormatType  = Slice.defineEnum({'DefaultFormat':0, 'CompactFormat':1, 'SlicedFormat':2});
-    
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/EnumBase").Ice;
+Ice.FormatType  = Ice.Slice.defineEnum({'DefaultFormat':0, 'CompactFormat':1, 'SlicedFormat':2});
+module.exports.Ice = Ice;

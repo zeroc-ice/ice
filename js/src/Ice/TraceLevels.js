@@ -7,60 +7,56 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    
-    var TraceLevels = function(properties)
-    {
-        var networkCat = "Network";
-        var protocolCat = "Protocol";
-        var retryCat = "Retry";
-        var locationCat = "Locator";
-        var slicingCat = "Slicing";
+var Ice = require("../Ice/ModuleRegistry").Ice;
 
-        var keyBase = "Ice.Trace.";
+Ice.TraceLevels = function(properties)
+{
+    var networkCat = "Network";
+    var protocolCat = "Protocol";
+    var retryCat = "Retry";
+    var locationCat = "Locator";
+    var slicingCat = "Slicing";
 
-        var network = properties.getPropertyAsInt(keyBase + networkCat);
-        var protocol = properties.getPropertyAsInt(keyBase + protocolCat);
-        var retry = properties.getPropertyAsInt(keyBase + retryCat);
-        var location = properties.getPropertyAsInt(keyBase + locationCat);
-        var slicing = properties.getPropertyAsInt(keyBase + slicingCat);
-        properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
+    var keyBase = "Ice.Trace.";
 
-        return Object.create(null, {
-            'network': {
-                get: function() { return network; }
-            },
-            'networkCat': {
-                get: function() { return networkCat; }
-            },
-            'protocol': {
-                get: function() { return protocol; }
-            },
-            'protocolCat': {
-                get: function() { return protocolCat; }
-            },
-            'retry': {
-                get: function() { return retry; }
-            },
-            'retryCat': {
-                get: function() { return retryCat; }
-            },
-            'location': {
-                get: function() { return location; }
-            },
-            'locationCat': {
-                get: function() { return locationCat; }
-            },
-            'slicing': {
-                get: function() { return slicing; }
-            },
-            'slicingCat': {
-                get: function() { return slicingCat; }
-            }
-        });
-    };
+    var network = properties.getPropertyAsInt(keyBase + networkCat);
+    var protocol = properties.getPropertyAsInt(keyBase + protocolCat);
+    var retry = properties.getPropertyAsInt(keyBase + retryCat);
+    var location = properties.getPropertyAsInt(keyBase + locationCat);
+    var slicing = properties.getPropertyAsInt(keyBase + slicingCat);
+    properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
 
-    Ice.TraceLevels = TraceLevels;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+    return Object.create(null, {
+        'network': {
+            get: function() { return network; }
+        },
+        'networkCat': {
+            get: function() { return networkCat; }
+        },
+        'protocol': {
+            get: function() { return protocol; }
+        },
+        'protocolCat': {
+            get: function() { return protocolCat; }
+        },
+        'retry': {
+            get: function() { return retry; }
+        },
+        'retryCat': {
+            get: function() { return retryCat; }
+        },
+        'location': {
+            get: function() { return location; }
+        },
+        'locationCat': {
+            get: function() { return locationCat; }
+        },
+        'slicing': {
+            get: function() { return slicing; }
+        },
+        'slicingCat': {
+            get: function() { return slicingCat; }
+        }
+    });
+};
+module.exports.Ice = Ice;

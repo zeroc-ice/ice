@@ -7,17 +7,34 @@
 //
 // **********************************************************************
 
-var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.Debug =
+var __M =
 {
-    assert: function(b, msg)
+    module: function(name)
     {
-        if(!b)
+        var m =  window[name];
+        if(m === undefined)
         {
-            console.log(msg === undefined ? "assertion failed" : msg);
-            console.log(Error().stack);
-            process.exit(1);
+            m = {};
+            window[name] =  m;
         }
+        return m;
+    },
+    require: function(m, name)
+    {
+        return window[name];
     }
 };
+
+var Ice = __M.module("Ice");
+
+Ice.__ICE_NODEJS__ = false;
+
+Ice.__require = function()
+{
+    return window;
+}
+
+Ice.Slice = Ice.Slice || {};
+Ice.__M = __M;
+
 module.exports.Ice = Ice;

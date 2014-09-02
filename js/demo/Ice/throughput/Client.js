@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-(function(){
-
-require("Ice");
-require("./Throughput");
+var Ice = require("icejs").Ice;
+var Demo = require("./Throughput").Demo;
 
 function menu()
 {
@@ -394,4 +392,3 @@ Ice.Promise.try(
         console.log(ex.toString());
         process.exit(1);
     });
-}());

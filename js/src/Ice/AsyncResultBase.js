@@ -7,64 +7,58 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/Class");
-    require("Ice/Debug");
-    require("Ice/Promise");
-    require("Ice/Exception");
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, "Ice", ["../Ice/Class", "../Ice/Debug", "../Ice/Promise", "../Ice/Exception"]);
 
-    var Ice = global.Ice || {};
+var Promise = Ice.Promise;
 
-    var Promise = Ice.Promise;
-
-    var AsyncResultBase = Ice.Class(Promise, {
-        __init__: function(communicator, op, connection, proxy, adapter)
+var AsyncResultBase = Ice.Class(Promise, {
+    __init__: function(communicator, op, connection, proxy, adapter)
+    {
+        //
+        // AsyncResultBase can be constructed by a sub-type's prototype, in which case the
+        // arguments are undefined.
+        //
+        Promise.call(this);
+        if(communicator !== undefined)
         {
-            //
-            // AsyncResultBase can be constructed by a sub-type's prototype, in which case the
-            // arguments are undefined.
-            //
-            Promise.call(this);
-            if(communicator !== undefined)
-            {
-                this._communicator = communicator;
-                this._instance = communicator !== null ? communicator.instance : null;
-                this._operation = op;
-                this._connection = connection;
-                this._proxy = proxy;
-                this._adapter = adapter;
-            }
-        },
-        __invokeException: function(ex)
-        {
-            this.fail(ex);
+            this._communicator = communicator;
+            this._instance = communicator !== null ? communicator.instance : null;
+            this._operation = op;
+            this._connection = connection;
+            this._proxy = proxy;
+            this._adapter = adapter;
         }
-    });
-    
-    var prototype = AsyncResultBase.prototype;
-    var defineProperty = Object.defineProperty;
-    
-    defineProperty(prototype, "communicator", {
-        get: function() { return this._communicator; }
-    });
+    },
+    __invokeException: function(ex)
+    {
+        this.fail(ex);
+    }
+});
 
-    defineProperty(prototype, "connection", {
-        get: function() { return this._connection; }
-    });
+var prototype = AsyncResultBase.prototype;
+var defineProperty = Object.defineProperty;
 
-    defineProperty(prototype, "proxy", {
-        get: function() { return this._proxy; }
-    });
+defineProperty(prototype, "communicator", {
+    get: function() { return this._communicator; }
+});
 
-    defineProperty(prototype, "adapter", {
-        get: function() { return this._adapter; }
-    });
+defineProperty(prototype, "connection", {
+    get: function() { return this._connection; }
+});
 
-    defineProperty(prototype, "operation", {
-        get: function() { return this._operation; }
-    });
+defineProperty(prototype, "proxy", {
+    get: function() { return this._proxy; }
+});
 
-    Ice.AsyncResultBase = AsyncResultBase;
+defineProperty(prototype, "adapter", {
+    get: function() { return this._adapter; }
+});
 
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+defineProperty(prototype, "operation", {
+    get: function() { return this._operation; }
+});
+
+Ice.AsyncResultBase = AsyncResultBase;
+
+module.exports.Ice = Ice;

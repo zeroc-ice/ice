@@ -11,6 +11,8 @@ top_srcdir	= ..\..
 
 LIBNAME = IceGrid
 
+MODULES = $(LIBNAME)
+
 GEN_SRCS = \
 	Admin.js \
 	Descriptor.js \
@@ -40,4 +42,3 @@ install:: all
             mkdir "$(MODULEDIR)"
         @for %i in ( $(INSTALL_SRCS) ) do \
             copy %i "$(MODULEDIR)"
-        copy package.json "$(MODULEDIR)"

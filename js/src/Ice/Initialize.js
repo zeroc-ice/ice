@@ -7,98 +7,98 @@
 //
 // **********************************************************************
 
-(function(global){
-    require("Ice/Protocol");
-    require("Ice/LocalException");
-    require("Ice/Communicator");
-    require("Ice/Properties");
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.__M.require(module, "Ice", 
+    [
+        "../Ice/Protocol", 
+        "../Ice/LocalException", 
+        "../Ice/Communicator", 
+        "../Ice/Properties"
+    ]);
 
-    var Ice = global.Ice || {};
-    var Protocol = Ice.Protocol;
-        
-    //
-    // Ice.InitializationData
-    //
-    Ice.InitializationData = function()
+var Protocol = Ice.Protocol;
+    
+//
+// Ice.InitializationData
+//
+Ice.InitializationData = function()
+{
+    this.properties = null;
+    this.logger = null;
+};
+
+Ice.InitializationData.prototype.clone = function()
+{
+    var r = new Ice.InitializationData();
+    r.properties = this.properties;
+    r.logger = this.logger;
+    return r;
+};
+
+//
+// Ice.initialize()
+//
+Ice.initialize = function(arg1, arg2)
+{
+    var args = null;
+    var initData = null;
+
+    if(arg1 instanceof Array)
     {
-        this.properties = null;
-        this.logger = null;
-    };
-
-    Ice.InitializationData.prototype.clone = function()
+        args = arg1;
+    }
+    else if(arg1 instanceof Ice.InitializationData)
     {
-        var r = new Ice.InitializationData();
-        r.properties = this.properties;
-        r.logger = this.logger;
-        return r;
-    };
-
-    //
-    // Ice.initialize()
-    //
-    Ice.initialize = function(arg1, arg2)
+        initData = arg1;
+    }
+    else if(arg1 !== undefined && arg1 !== null)
     {
-        var args = null;
-        var initData = null;
+        throw new Ice.InitializationException("invalid argument to initialize");
+    }
 
-        if(arg1 instanceof Array)
+    if(arg2 !== undefined && arg2 !== null)
+    {
+        if(arg2 instanceof Ice.InitializationData && initData === null)
         {
-            args = arg1;
-        }
-        else if(arg1 instanceof Ice.InitializationData)
-        {
-            initData = arg1;
-        }
-        else if(arg1 !== undefined && arg1 !== null)
-        {
-            throw new Ice.InitializationException("invalid argument to initialize");
-        }
-
-        if(arg2 !== undefined && arg2 !== null)
-        {
-            if(arg2 instanceof Ice.InitializationData && initData === null)
-            {
-                initData = arg2;
-            }
-            else
-            {
-                throw new Ice.InitializationException("invalid argument to initialize");
-            }
-
-        }
-
-        if(initData === null)
-        {
-            initData = new Ice.InitializationData();
+            initData = arg2;
         }
         else
         {
-            initData = initData.clone();
+            throw new Ice.InitializationException("invalid argument to initialize");
         }
-        initData.properties = Ice.createProperties(args, initData.properties);
+    }
 
-        var result = new Ice.Communicator(initData);
-        result.finishSetup(null);
-        return result;
-    };
-
-    //
-    // Ice.createProperties()
-    //
-    Ice.createProperties = function(args, defaults)
+    if(initData === null)
     {
-        return new Ice.Properties(args, defaults);
-    };
-
-    Ice.currentProtocol = function()
+        initData = new Ice.InitializationData();
+    }
+    else
     {
-        return Protocol.currentProtocol.clone();
-    };
+        initData = initData.clone();
+    }
+    initData.properties = Ice.createProperties(args, initData.properties);
 
-    Ice.currentEncoding = function()
-    {
-        return Protocol.currentEncoding.clone();
-    };
-    
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+    var result = new Ice.Communicator(initData);
+    result.finishSetup(null);
+    return result;
+};
+
+//
+// Ice.createProperties()
+//
+Ice.createProperties = function(args, defaults)
+{
+    return new Ice.Properties(args, defaults);
+};
+
+Ice.currentProtocol = function()
+{
+    return Protocol.currentProtocol.clone();
+};
+
+Ice.currentEncoding = function()
+{
+    return Protocol.currentEncoding.clone();
+};
+
+module.exports.Ice = Ice;

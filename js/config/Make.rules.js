@@ -52,7 +52,7 @@ bindir = $(top_srcdir)/bin
 libdir = $(top_srcdir)/lib
 
 install_libdir 	  = $(prefix)/lib
-install_moduledir = $(prefix)/node_modules
+install_moduledir = $(prefix)/node_modules/icejs
 
 ifeq ($(OPTIMIZE),yes)
 mklibtargets	= $(libdir)/$(1).min.js $(libdir)/$(1).min.js.gz
@@ -77,8 +77,7 @@ installmodule	= if test ! -d $(1)/$(3) ; \
 		  for f in "$(2)"; \
 		  do \
 		      cp $$f $(1)/$(3); \
-		  done; \
-		  cp package.json $(1)/$(3)
+		  done;
 
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
@@ -126,13 +125,13 @@ index.html: $(GEN_SRCS) $(top_srcdir)/test/Common/index.html
 
 $(libdir)/$(LIBNAME).js $(libdir)/$(LIBNAME).js.gz: $(SRCS)
 	@rm -f $(libdir)/$(LIBNAME).js $(libdir)/$(LIBNAME).js.gz
-	$(NODE) $(top_srcdir)/config/makebundle.js $(SRCS) > $(libdir)/$(LIBNAME).js
+	$(NODE) $(top_srcdir)/config/makebundle.js "$(MODULES)" $(SRCS) > $(libdir)/$(LIBNAME).js
 	gzip -c9 $(libdir)/$(LIBNAME).js > $(libdir)/$(LIBNAME).js.gz
 
 ifeq ($(OPTIMIZE),yes)
 $(libdir)/$(LIBNAME).min.js $(libdir)/$(LIBNAME).min.js.gz: $(libdir)/$(LIBNAME).js
 	@rm -f $(libdir)/$(LIBNAME).min.js $(libdir)/$(LIBNAME).min.js.gz
-	$(NODE) $(top_srcdir)/config/makebundle.js $(SRCS) > $(libdir)/$(LIBNAME).tmp.js
+	$(NODE) $(top_srcdir)/config/makebundle.js "$(MODULES)" $(SRCS) > $(libdir)/$(LIBNAME).tmp.js
 	java -jar $(CLOSURE_PATH)/compiler.jar $(CLOSUREFLAGS) --js $(libdir)/$(LIBNAME).js --js_output_file $(libdir)/$(LIBNAME).min.js
 	gzip -c9 $(libdir)/$(LIBNAME).min.js > $(libdir)/$(LIBNAME).min.js.gz
 	rm -f $(libdir)/$(LIBNAME).tmp.js

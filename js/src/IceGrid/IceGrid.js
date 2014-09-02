@@ -7,15 +7,18 @@
 //
 // **********************************************************************
 
-(function(){
-    require("IceGrid/Admin");
-    require("IceGrid/Descriptor");
-    require("IceGrid/Exception");
-    require("IceGrid/FileParser");
-    require("IceGrid/Locator");
-    require("IceGrid/Observer");
-    require("IceGrid/Query");
-    require("IceGrid/Registry");
-    require("IceGrid/Session");
-    require("IceGrid/UserAccountMapper");
-}());
+var __M = require("../Ice/ModuleRegistry").Ice.__M;
+
+module.exports.IceGrid = __M.require(module, "IceGrid",
+    [
+        "../IceGrid/Admin",
+        "../IceGrid/Descriptor",
+        "../IceGrid/Exception",
+        "../IceGrid/FileParser",
+        "../IceGrid/Locator",
+        "../IceGrid/Observer",
+        "../IceGrid/Query",
+        "../IceGrid/Registry",
+        "../IceGrid/Session",
+        "../IceGrid/UserAccountMapper"
+    ]);

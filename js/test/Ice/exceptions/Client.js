@@ -7,12 +7,11 @@
 //
 // **********************************************************************
 
-(function(global){
-    var require = typeof(module) !== "undefined" ? module.require : function(){};
-    require("Ice/Ice");
-    require("Test");
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
-    var Ice = global.Ice;
     var Promise = Ice.Promise;
 
     var allTests = function(out, communicator, Test)
@@ -482,15 +481,17 @@
             {
                 id.properties.setProperty("Ice.MessageSizeMax", "10");
                 var c = Ice.initialize(id);
-                return allTests(out, c, global.Test).finally(
+                return allTests(out, c, Test).finally(
                     function()
                     {
                         return c.destroy();
                     });
             });
     };
-    global.__test__ = run;
-    global.__clientAllTests__ = allTests;
-    global.__runServer__ = true;
-
-}(typeof (global) === "undefined" ? window : global));
+    exports.__test__ = run;
+    exports.__clientAllTests__ = allTests;
+    exports.__runServer__ = true;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

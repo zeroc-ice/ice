@@ -7,28 +7,25 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    
-    var Property = function Property(pattern, deprecated, deprecatedBy)
-    {
-        this._pattern = pattern;
-        this._deprecated = deprecated;
-        this._deprecatedBy = deprecatedBy;
-    };
+var Property = function Property(pattern, deprecated, deprecatedBy)
+{
+    this._pattern = pattern;
+    this._deprecated = deprecated;
+    this._deprecatedBy = deprecatedBy;
+};
 
-    Object.defineProperty(Property.prototype, "pattern",{
-        get: function() { return this._pattern; }
-    });
+Object.defineProperty(Property.prototype, "pattern",{
+    get: function() { return this._pattern; }
+});
 
-    Object.defineProperty(Property.prototype, "deprecated",{
-        get: function() { return this._deprecated; }
-    });
+Object.defineProperty(Property.prototype, "deprecated",{
+    get: function() { return this._deprecated; }
+});
 
-    Object.defineProperty(Property.prototype, "deprecatedBy",{
-        get: function() { return this._deprecatedBy; }
-    });
+Object.defineProperty(Property.prototype, "deprecatedBy",{
+    get: function() { return this._deprecatedBy; }
+});
 
-    Ice.Property = Property;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.Property = Property;
+module.exports.Ice = Ice;

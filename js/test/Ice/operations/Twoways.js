@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
     var run = function(communicator, prx, Test, bidir)
     {
@@ -844,5 +846,9 @@
         return p;
     };
 
-    global.Twoways = { run: run };
-}(typeof (global) === "undefined" ? window : global));
+    exports.Twoways = { run: run };
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+

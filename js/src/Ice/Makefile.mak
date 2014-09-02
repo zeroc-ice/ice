@@ -11,6 +11,8 @@ top_srcdir	= ..\..
 
 LIBNAME = Ice
 
+MODULES = $(LIBNAME) IceMX
+
 GEN_SRCS = \
 	BuiltinSequences.js \
 	Connection.js \
@@ -103,12 +105,14 @@ COMMON_SRCS = \
 NODEJS_SRCS = \
 	Buffer.js \
 	Ice.js \
+	ModuleRegistry.js \
 	TcpEndpointFactory.js \
 	TcpEndpointI.js \
 	TcpTransceiver.js
 
 BROWSER_SRCS = \
 	browser\Buffer.js \
+	browser\ModuleRegistry.js \
 	browser\WSEndpoint.js \
 	browser\WSEndpointFactory.js \
 	browser\WSTransceiver.js
@@ -147,5 +151,4 @@ install:: all
 	    mkdir "$(MODULEDIR)"
 	@for %i in ( $(INSTALL_SRCS) ) do \
 	    copy %i "$(MODULEDIR)"
-	copy package.json "$(MODULEDIR)"
 

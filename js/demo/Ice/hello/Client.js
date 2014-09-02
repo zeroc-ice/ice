@@ -6,11 +6,9 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
-(function(){
     
-require("Ice");
-require("./Hello");
+var Ice = require("icejs").Ice;
+var Demo = require("./Hello").Demo;
 
 function menu()
 {
@@ -192,4 +190,3 @@ Ice.Promise.try(
         console.log(ex.toString());
         process.exit(1);
     });
-}());

@@ -7,17 +7,12 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    
-    var SocketOperation = 
-    {
-        None: 0,
-        Read: 1,
-        Write: 2,
-        Connect: 2 // Same as Write
-    };
-
-    Ice.SocketOperation = SocketOperation;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+var Ice = require("../Ice/ModuleRegistry").Ice;
+Ice.SocketOperation = 
+{
+    None: 0,
+    Read: 1,
+    Write: 2,
+    Connect: 2 // Same as Write
+};
+module.exports.Ice = Ice;

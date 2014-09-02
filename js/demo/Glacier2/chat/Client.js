@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-(function(){
-
-require("Ice");
-require("Glacier2");
-require("./Chat");
+var Ice = require("icejs").Ice;
+var Glacier2 = require("icejs").Glacier2;
+var Demo = require("./Chat").Demo;
 
 //
 // Servant that implements the ChatCallback interface,
@@ -269,5 +267,3 @@ var getline = function()
         });
     return p;
 };
-
-}());

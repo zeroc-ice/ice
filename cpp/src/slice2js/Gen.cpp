@@ -618,11 +618,16 @@ Slice::Gen::generate(const UnitPtr& p)
         return;
     }
 
-    _out << nl << "(function(global, r)";
+    _out.zeroIndent();
+    _out << nl << "/* slice2js browser-bundle-skip */";
+    _out.restoreIndent();
+    _out << nl << "(function(module, require, exports)";
     _out << sb;
-    _out << nl << "var require = typeof(r) === \"function\" ? r : function(){};";
-
-    RequireVisitor requireVisitor(_out, _includePaths);
+    _out.zeroIndent();
+    _out << nl << "/* slice2js browser-bundle-skip-end */";
+    _out.restoreIndent();
+    
+    RequireVisitor requireVisitor(_out, _includePaths, p->allowIcePrefix());
     p->visit(&requireVisitor, false);
     vector<string> seenModules = requireVisitor.writeRequires(p);
 
@@ -634,10 +639,17 @@ Slice::Gen::generate(const UnitPtr& p)
     //
     ExportVisitor exportVisitor(_out);
     p->visit(&exportVisitor, false);
-
+    
+    _out.zeroIndent();
+    _out << nl << "/* slice2js browser-bundle-skip */";
+    _out.restoreIndent();
     _out << eb;
-    _out << nl << "(typeof (global) === \"undefined\" ? window : global, "
-         << "typeof (require) === \"undefined\" ? undefined : require));";
+    _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
+         << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : window.Ice.__require,"
+         << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : window));";
+    _out.zeroIndent();
+    _out << nl << "/* slice2js browser-bundle-skip-end */";
+    _out.restoreIndent();
 }
 
 void
@@ -666,8 +678,10 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths)
-    : JsVisitor(out),
+Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths, 
+                                           bool allowIcePrefix) : 
+    JsVisitor(out),
+    _allowIcePrefix(allowIcePrefix),
     _seenClass(false),
     _seenCompactId(false),
     _seenOperation(false),
@@ -750,72 +764,156 @@ Slice::Gen::RequireVisitor::visitEnum(const EnumPtr& p)
     _seenEnum = true;
 }
 
+namespace
+{
+
+bool iceBuiltinModule(const string& name)
+{
+    return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "IceMX" || name == "IceStorm";
+}
+
+}
+
 vector<string>
 Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 {
     vector<string> seenModules;
 
-    //
-    // Generate require() statements for all of the run-time code needed by the generated code.
-    //
-    if(_seenClass || _seenObjectSeq || _seenObjectDict)
+    map<string, vector<string> > requires;
+    if(_allowIcePrefix)
     {
-        _out << nl << "require(\"Ice/Object\");";
-    }
-    if(_seenClass)
-    {
-        _out << nl << "require(\"Ice/ObjectPrx\");";
-    }
-    if(_seenOperation)
-    {
-        _out << nl << "require(\"Ice/Operation\");";
-    }
-    if(_seenStruct)
-    {
-        _out << nl << "require(\"Ice/Struct\");";
-    }
+        requires["Ice"] = vector<string>();
 
-    if(_seenLocalException || _seenUserException)
-    {
-        _out << nl << "require(\"Ice/Exception\");";
-    }
+        //
+        // Generate require() statements for all of the run-time code needed by the generated code.
+        //
+        if(_seenClass || _seenObjectSeq || _seenObjectDict)
+        {
+            requires["Ice"].push_back("Ice/Object");
+        }
+        if(_seenClass)
+        {
+            requires["Ice"].push_back("Ice/ObjectPrx");
+        }
+        if(_seenOperation)
+        {
+            requires["Ice"].push_back("Ice/Operation");
+        }
+        if(_seenStruct)
+        {
+            requires["Ice"].push_back("Ice/Struct");
+        }
 
-    if(_seenEnum)
-    {
-        _out << nl << "require(\"Ice/EnumBase\");";
-    }
+        if(_seenLocalException || _seenUserException)
+        {
+            requires["Ice"].push_back("Ice/Exception");
+        }
 
-    if(_seenCompactId)
+        if(_seenEnum)
+        {
+            requires["Ice"].push_back("Ice/EnumBase");
+        }
+
+        if(_seenCompactId)
+        {
+            requires["Ice"].push_back("Ice/CompactIdRegistry");
+        }
+        
+        requires["Ice"].push_back("Ice/Long");
+        requires["Ice"].push_back("Ice/HashMap");
+        requires["Ice"].push_back("Ice/HashUtil");
+        requires["Ice"].push_back("Ice/ArrayUtil");
+        requires["Ice"].push_back("Ice/StreamHelpers");
+    }
+    else
     {
-        _out << nl << "require(\"Ice/CompactIdRegistry\");";
+        requires["Ice"] = vector<string>();
+        requires["Ice"].push_back("icejs");
+        requires["IceMX"] = vector<string>();
+        requires["IceMX"].push_back("icejs");
     }
     
-    _out << nl << "require(\"Ice/Long\");";
-    _out << nl << "require(\"Ice/HashMap\");";
-    _out << nl << "require(\"Ice/HashUtil\");";
-    _out << nl << "require(\"Ice/ArrayUtil\");";
-    _out << nl << "require(\"Ice/StreamHelpers\");";
-    _out << nl;
-    _out << nl << "var Ice = global.Ice || {};";
-    seenModules.push_back("Ice");
-
     StringList includes = p->includeFiles();
     for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
     {
-        _out << nl << "require(\""  << changeInclude(*i, _includePaths) << "\");";
-
         set<string> modules = p->getTopLevelModules(*i);
         for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
         {
-            vector<string>::const_iterator k = find(seenModules.begin(), seenModules.end(), *j);
-            if(k == seenModules.end())
+            if(!_allowIcePrefix && iceBuiltinModule(*j))
             {
-                seenModules.push_back(*j);
-                _out << nl;
-                _out << nl << "var " << (*j) << " = global." << (*j) << " || {};";
+                if(requires.find(*j) == requires.end())
+                {
+                    requires[*j] = vector<string>();
+                    requires[*j].push_back("icejs");
+                }
+            }
+            else
+            {
+                if(requires.find(*j) == requires.end())
+                {
+                    requires[*j] = vector<string>();
+                }
+                requires[*j].push_back(changeInclude(*i, _includePaths));
             }
         }
     }
+    
+    _out.zeroIndent();
+    _out << nl << "/* slice2js browser-bundle-skip */";
+    _out.restoreIndent();
+    if(!_allowIcePrefix)
+    {
+        _out << nl << "var Ice = require(\"icejs\").Ice;";
+        _out << nl << "var IceMX = require(\"icejs\").IceMX;";
+        _out << nl << "var __M = Ice.__M;";
+    }
+    else
+    {
+        _out << nl << "var __M = require(\"../Ice/ModuleRegistry\").Ice.__M;";
+    }
+    
+    for(map<string, vector<string> >::const_iterator i = requires.begin(); i != requires.end(); ++i)
+    {
+        if(i->second.size() == 1)
+        {
+            _out << nl << "var " << i->first << " = require(\"";
+            if(_allowIcePrefix && iceBuiltinModule(i->first))
+            {
+                _out << "../";
+            }
+            _out << i->second[0] << "\")." << i->first << ";";
+        }
+        else
+        {
+            _out << nl << "var " << i->first << " = __M.require(module, \"" << i->first << "\", ";
+            _out << nl << "[";
+            _out.inc();
+            for(vector<string>::const_iterator j = i->second.begin(); j != i->second.end();)
+            {
+                _out << nl << '"';
+                if(_allowIcePrefix && iceBuiltinModule(i->first))
+                {
+                    _out << "../";
+                }
+                _out << *j << '"';
+                if(++j != i->second.end())
+                {
+                    _out << ",";
+                }
+            }
+            _out.dec();
+            _out << nl << "]);";
+            _out << nl;
+        }
+        seenModules.push_back(i->first);
+    }
+    
+    _out << nl << "var Slice = Ice.Slice;";
+    
+    _out.zeroIndent();
+    _out << nl << "/* slice2js browser-bundle-skip-end */";
+    _out.restoreIndent();
+    
     return seenModules;
 }
 
@@ -831,28 +929,35 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     //
     // For a top-level module we write the following:
     //
-    // var Foo = global.Foo || {};
+    // var Foo = __M.module("Foo");
     //
     // For an inner module we  write
     //
-    // Foo.Bar = Foo.Bar || {};
-    //
-
+    // Foo.Bar = __M.module("Foo.Bar");
+    //    
     const string scoped = getLocalScope(p->scoped());
     vector<string>::const_iterator i = find(_seenModules.begin(), _seenModules.end(), scoped);
     if(i == _seenModules.end())
     {
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip */";
+        _out.restoreIndent();
+
         _seenModules.push_back(scoped);
         const bool topLevel = UnitPtr::dynamicCast(p->container());
         if(topLevel)
         {
-            _out << nl << "var " << scoped << " = global." << scoped << " ||  {};";
+            _out << nl << "var " << scoped << " = __M.module(\"" << scoped << "\");";
         }
         else
         {
-            _out << nl << scoped << " = " << scoped << " || {};";
+            _out << nl << scoped << " = __M.module(\"" << scoped << "\");";
         }
-    }
+
+            _out.zeroIndent();
+            _out << nl << "/* slice2js browser-bundle-skip-end */";
+            _out.restoreIndent();
+    }    
     return true;
 }
 
@@ -1775,7 +1880,13 @@ Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
     {
         const string localScope = getLocalScope(p->scope());
         const string name = localScope.empty() ? fixId(p->name()) : localScope + "." + p->name();
-        _out << nl << "global." << name << " = " << name << ";";
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip */";
+        _out.restoreIndent();
+        _out << nl << "exports." << name << " = " << name << ";";
+        _out.zeroIndent();
+        _out << nl << "/* slice2js browser-bundle-skip-end */";
+        _out.restoreIndent();
     }
     return false;
 }

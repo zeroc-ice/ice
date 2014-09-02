@@ -7,23 +7,21 @@
 //
 // **********************************************************************
 
-(function(global){
-    //
-    // Exception utilities
-    //
+var Ice = require("../Ice/LocalException").Ice;
+    
+//
+// Local aliases.
+//
+var UnexpectedObjectException = Ice.UnexpectedObjectException;
+var MemoryLimitException = Ice.MemoryLimitException;
 
-    require("Ice/LocalException");
-    
-    var Ice = global.Ice || {};
-    
-    //
-    // Local aliases.
-    //
-    var UnexpectedObjectException = Ice.UnexpectedObjectException;
-    var MemoryLimitException = Ice.MemoryLimitException;
-    var ExUtil = {};
-    
-    ExUtil.toString = function(ex)
+//
+// Exception utilities
+//
+
+Ice.ExUtil =
+{
+    toString: function(ex)
     {
         if(!ex.stack)
         {
@@ -33,21 +31,17 @@
         {
             return ex.stack;
         }
-    };
-
-    ExUtil.throwUOE = function(expectedType, v)
+    },
+    throwUOE: function(expectedType, v)
     {
         var type = v.ice_id();
         throw new UnexpectedObjectException("expected element of type `" + expectedType + "' but received '" +
                                             type, type, expectedType);
-    };
-
-    ExUtil.throwMemoryLimitException = function(requested, maximum)
+    },
+    throwMemoryLimitException: function(requested, maximum)
     {
         throw new MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
-                                        " bytes (see Ice.MessageSizeMax)");
-    };
-
-    Ice.ExUtil = ExUtil;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+                                       " bytes (see Ice.MessageSizeMax)");
+    }
+};
+module.exports.Ice = Ice;

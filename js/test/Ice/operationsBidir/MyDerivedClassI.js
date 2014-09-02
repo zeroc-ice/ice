@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice;
-    var Test = global.Test;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
     var Class = Ice.Class;
 
@@ -286,5 +287,8 @@
         }
     });
 
-    global.MyDerivedClassI = MyDerivedClassI;
-}(typeof (global) === "undefined" ? window : global));
+    exports.MyDerivedClassI = MyDerivedClassI;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));

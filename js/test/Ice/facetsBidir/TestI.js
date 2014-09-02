@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice;
-    var Test = global.Test;
+(function(module, require, exports)
+{
+    var Ice = require("icejs").Ice;
+    var Test = require("Test").Test;
 
     var Class = Ice.Class;
 
@@ -32,11 +33,11 @@
         }
     });
 
-    global.DI = DI;
+    exports.DI = DI;
 
     var EmptyI = Class(Test.Empty, {});
 
-    global.EmptyI = EmptyI;
+    exports.EmptyI = EmptyI;
 
     var FI = Class(Test.F, {
         callE: function(current)
@@ -49,7 +50,7 @@
         }
     });
 
-    global.FI = FI;
+    exports.FI = FI;
 
     var HI = Class(Test.H, {
         callG: function(current)
@@ -66,5 +67,9 @@
         }
     });
 
-    global.HI = HI;
-}(typeof (global) === "undefined" ? window : global));
+    exports.HI = HI;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
+

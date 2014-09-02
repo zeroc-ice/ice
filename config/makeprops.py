@@ -53,9 +53,9 @@ struct Property
     const char* deprecatedBy;
 
     Property(const char* n, bool d, const char* b) :
-	pattern(n),
-	deprecated(d),
-	deprecatedBy(b)
+        pattern(n),
+        deprecated(d),
+        deprecatedBy(b)
     {
     }
 
@@ -116,18 +116,15 @@ namespace IceInternal
 """
 
 jsPreamble = commonPreamble + """
-(function(global){
-    var Ice = global.Ice || Ice;
-    require("Ice/Property");
-    var %(classname)s = {};
-    var Property = Ice.Property;
+var Ice = require("../Ice/Property").Ice;
+var %(classname)s = {};
+var Property = Ice.Property;
 """
 
 jsEpilogue = \
 """
-    Ice.%(classname)s = %(classname)s;
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+Ice.%(classname)s = %(classname)s;
+module.exports.Ice = Ice;
 """
 
 def usage():
@@ -544,23 +541,23 @@ class JSPropertyHandler(PropertyHandler):
     def startFiles(self):
         self.srcFile = file(self.className + ".js", "wb")
         self.srcFile.write(jsPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        self.srcFile.write("    /* jshint -W044*/\n\n");
+        self.srcFile.write("/* jshint -W044*/\n\n");
 
     def closeFiles(self):
-        self.srcFile.write("    /* jshint +W044*/\n\n");
-        self.srcFile.write("    %s.validProps =\n" % (self.className))
-        self.srcFile.write("    [\n")
+        self.srcFile.write("/* jshint +W044*/\n\n");
+        self.srcFile.write("%s.validProps =\n" % (self.className))
+        self.srcFile.write("[\n")
         for s in self.sections:
             if s in self.validSections:
-                self.srcFile.write("        %s.%sProps,\n" % (self.className, s))
-        self.srcFile.write("    ];\n\n")
+                self.srcFile.write("    %s.%sProps,\n" % (self.className, s))
+        self.srcFile.write("];\n\n")
         
-        self.srcFile.write("    %s.clPropNames =\n" % (self.className))
-        self.srcFile.write("    [\n")
+        self.srcFile.write("%s.clPropNames =\n" % (self.className))
+        self.srcFile.write("[\n")
         for s in self.cmdLineOptions:
             if s in self.validSections:
-                self.srcFile.write("        \"%s\",\n" % s)
-        self.srcFile.write("    ];\n")
+                self.srcFile.write("    \"%s\",\n" % s)
+        self.srcFile.write("];\n")
         
         self.srcFile.write(jsEpilogue % {'classname' : self.className});
         self.srcFile.close()
@@ -571,28 +568,28 @@ class JSPropertyHandler(PropertyHandler):
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("        new Property(\"/^%s\.%s/\", true, null),\n" % (self.currentSection, \
+            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, null),\n" % (self.currentSection, \
                     self.fix(propertyName)))
 
     def deprecatedImplWithReplacementImpl(self, propertyName, deprecatedBy):
         if self.currentSection in self.validSections:
-            self.srcFile.write("        new Property(\"/^%s\.%s/\", true, \"%s\"),\n" % \
+            self.srcFile.write("    new Property(\"/^%s\.%s/\", true, \"%s\"),\n" % \
                     (self.currentSection, self.fix(propertyName), deprecatedBy))
 
     def propertyImpl(self, propertyName):
         if self.currentSection in self.validSections:
-            self.srcFile.write("        new Property(\"/^%s\.%s/\", false, null),\n" % (self.currentSection, \
+            self.srcFile.write("    new Property(\"/^%s\.%s/\", false, null),\n" % (self.currentSection, \
                     self.fix(propertyName)))
 
     def newSection(self):
         if self.currentSection in self.validSections:
             self.skipSection = False
-            self.srcFile.write("    %s.%sProps =\n" % (self.className, self.currentSection));
-            self.srcFile.write("    [\n")
+            self.srcFile.write("%s.%sProps =\n" % (self.className, self.currentSection));
+            self.srcFile.write("[\n")
 
     def closeSection(self):
         if self.currentSection in self.validSections:
-            self.srcFile.write("    ];\n")
+            self.srcFile.write("];\n")
             self.srcFile.write("\n")
 
     def moveFiles(self, location):

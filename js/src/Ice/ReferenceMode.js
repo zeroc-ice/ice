@@ -7,24 +7,19 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice || {};
-    
-    //
-    // Using a separate module for these constants so that ObjectPrx does
-    // not need to include Reference.
-    //
-    var ReferenceMode = 
-    {
-        ModeTwoway: 0, 
-        ModeOneway: 1, 
-        ModeBatchOneway: 2, 
-        ModeDatagram: 3, 
-        ModeBatchDatagram: 4,
-        ModeLast: 4
-    };
+var Ice = require("../Ice/ModuleRegistry").Ice;
 
-    Ice.ReferenceMode = ReferenceMode;
-    
-    global.Ice = Ice;
-}(typeof (global) === "undefined" ? window : global));
+//
+// Using a separate module for these constants so that ObjectPrx does
+// not need to include Reference.
+//
+Ice.ReferenceMode = 
+{
+    ModeTwoway: 0, 
+    ModeOneway: 1, 
+    ModeBatchOneway: 2, 
+    ModeDatagram: 3, 
+    ModeBatchDatagram: 4,
+    ModeLast: 4
+};
+module.exports.Ice = Ice;

@@ -1,6 +1,13 @@
 {
-  "node": true,
-  "undef": true,
-  "globals": { "WebSocket" : false, "Ice" : false, "IceWS" : false, "Slice" : false, "window": false,
-               "escape" : false, "unescape": false}
+    "node": true,
+    "undef": true,
+    "evil": true,
+    "globals": 
+    {
+        "WebSocket" : false, 
+        "window": false, 
+        "navigator": false,
+        "escape" : false, 
+        "unescape": false
+    }
 }

@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-(function(global){
-    var Ice = global.Ice;
+(function(module, require, exports)
+{
+    var Ice = require("Ice/Ice").Ice;
+    var TestAMD = require("TestAMD").TestAMD;
 
     var Class = Ice.Class;
 
@@ -292,5 +294,8 @@
         }
     });
 
-    global.AMDMyDerivedClassI = AMDMyDerivedClassI;
-}(typeof (global) === "undefined" ? window : global));
+    exports.AMDMyDerivedClassI = AMDMyDerivedClassI;
+}
+(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : window.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : window));
