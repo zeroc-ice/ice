@@ -8,44 +8,41 @@
 // **********************************************************************
 
 #include <Ice/LoggerAdminI.h>
+#include <Ice/Initialize.h>
+#include <Ice/Communicator.h>
 #include <Ice/RemoteLogger.h>
 #include <Ice/Properties.h>
 #include <Ice/ObjectAdapter.h>
-#include <Ice/Communicator.h>
 #include <Ice/Connection.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 
 #include <set>
 
+using namespace Ice;
 using namespace std;
 
 namespace
 {
 
-class LoggerAdminI : public Ice::LoggerAdmin
+class LoggerAdminI : public LoggerAdmin
 {
 public:
 
-    LoggerAdminI(const string&, const Ice::PropertiesPtr&);
+    LoggerAdminI(const string&, const PropertiesPtr&);
     
-    virtual void attachRemoteLogger(const Ice::RemoteLoggerPrx&, const Ice::LogMessageTypeSeq&, 
-                                    const Ice::StringSeq&, Ice::Int, const Ice::Current&);
+    virtual void attachRemoteLogger(const RemoteLoggerPrx&, const LogMessageTypeSeq&, 
+                                    const StringSeq&, Int, const Current&);
     
-    virtual void detachRemoteLogger(const Ice::RemoteLoggerPrx&, const Ice::Current&);
+    virtual void detachRemoteLogger(const RemoteLoggerPrx&, const Current&);
     
-    virtual Ice::LogMessageSeq getLog(const Ice::LogMessageTypeSeq&, 
-                                      const Ice::StringSeq&, Ice::Int, string&,
-                                      const Ice::Current&);
+    virtual LogMessageSeq getLog(const LogMessageTypeSeq&, const StringSeq&, Int, string&, const Current&);
     
-    vector<Ice::RemoteLoggerPrx> log(const Ice::LogMessage&);
-    
-    void deadRemoteLogger(const Ice::RemoteLoggerPrx&,
-                          const Ice::LoggerPtr&, 
-                          const Ice::LocalException&, const string&);
-
-    void run(const Ice::LoggerPtr&);
     void destroy();
+
+    vector<RemoteLoggerPrx> log(const LogMessage&);
+    
+    void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, const LocalException&, const string&);
 
     const string& getFacetName() const
     {
@@ -57,29 +54,33 @@ public:
         return _traceLevel;
     }
 
+    const CallbackPtr& getRemoteCallCompleted() const
+    {
+        return _remoteCallCompleted;
+    }
+
 private:
    
-    bool removeRemoteLogger(const Ice::RemoteLoggerPrx&);
+    bool removeRemoteLogger(const RemoteLoggerPrx&);
     
-    void remoteCallCompleted(const Ice::AsyncResultPtr&);
+    void remoteCallCompleted(const AsyncResultPtr&);
 
     const string _facetName;
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-    list<Ice::LogMessage> _queue;
+    IceUtil::Mutex _mutex;
+    list<LogMessage> _queue;
     int _logCount; // non-trace messages
     const int _maxLogCount;
     int _traceCount;
     const int _maxTraceCount;
     const int _traceLevel;
-    IceUtil::Time _pingPeriod;
     
-    list<Ice::LogMessage>::iterator _oldestTrace;
-    list<Ice::LogMessage>::iterator _oldestLog;
+    list<LogMessage>::iterator _oldestTrace;
+    list<LogMessage>::iterator _oldestLog;
 
     struct ObjectIdentityCompare
     {
-        bool operator()(const Ice::RemoteLoggerPrx& lhs, const Ice::RemoteLoggerPrx& rhs)
+        bool operator()(const RemoteLoggerPrx& lhs, const RemoteLoggerPrx& rhs)
         {
             //
             // Caller should make sure that proxies are never null
@@ -92,17 +93,17 @@ private:
 
     struct Filters
     {
-        Filters(const Ice::LogMessageTypeSeq& m, const Ice::StringSeq& c) :
+        Filters(const LogMessageTypeSeq& m, const StringSeq& c) :
             messageTypes(m.begin(), m.end()),
             traceCategories(c.begin(), c.end())
         {
         }
         
-        const set<Ice::LogMessageType> messageTypes;
+        const set<LogMessageType> messageTypes;
         const set<string> traceCategories;
     };
 
-    typedef map<Ice::RemoteLoggerPrx, Filters, ObjectIdentityCompare> RemoteLoggerMap; 
+    typedef map<RemoteLoggerPrx, Filters, ObjectIdentityCompare> RemoteLoggerMap; 
 
     struct GetRemoteLoggerMapKey
     {
@@ -115,75 +116,63 @@ private:
     
     RemoteLoggerMap _remoteLoggerMap;
 
-    const Ice::CallbackPtr _remoteCallCompleted;
+    const CallbackPtr _remoteCallCompleted;
 
-    bool _destroyed;
-    bool _pingThreadStarted;
-    IceUtil::ThreadControl _pingThreadControl;
+    CommunicatorPtr _sendLogCommunicator;
 };
 typedef IceUtil::Handle<LoggerAdminI> LoggerAdminIPtr;
-
-
-class PingThread : public IceUtil::Thread
-{
-public:
-    PingThread(const LoggerAdminIPtr&, const Ice::LoggerPtr&);
-
-    virtual void run();
-
-private:
-
-    LoggerAdminIPtr _loggerAdmin;
-    Ice::LoggerPtr _logger;
-};
 
 
 class Job : public IceUtil::Shared
 {
 public:
     
-    Job(const vector<Ice::RemoteLoggerPrx>& r, const Ice::LogMessage& l) :
+    Job(const vector<RemoteLoggerPrx>& r, const LogMessage& l) :
         remoteLoggers(r),
         logMessage(l)
     {
     }
     
-    const vector<Ice::RemoteLoggerPrx> remoteLoggers;
-    const Ice::LogMessage logMessage;   
+    const vector<RemoteLoggerPrx> remoteLoggers;
+    const LogMessage logMessage;   
 };
 typedef IceUtil::Handle<Job> JobPtr;
 
 
-class LoggerAdminLoggerI : public Ice::LoggerAdminLogger
+class LoggerAdminLoggerI : public LoggerAdminLogger
 {
 public:
     
-    LoggerAdminLoggerI(const std::string&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+    LoggerAdminLoggerI(const std::string&, const PropertiesPtr&, const LoggerPtr&);
 
     virtual void print(const std::string&);
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
     virtual void error(const std::string&);
     virtual std::string getPrefix();
-    virtual Ice::LoggerPtr cloneWithPrefix(const std::string&);
+    virtual LoggerPtr cloneWithPrefix(const std::string&);
 
-    virtual void addAdminFacet(const Ice::CommunicatorPtr&);
+    virtual void addAdminFacet(const CommunicatorPtr&);
     virtual void destroy();
     
+    const LoggerPtr& getLocalLogger() const
+    {
+        return _localLogger;
+    }
+
     void run();
     
 private:
 
-    void log(const Ice::LogMessage&);
+    void log(const LogMessage&);
     
-    const Ice::LoggerPtr _localLogger;
+    const LoggerPtr _localLogger;
     const LoggerAdminIPtr _loggerAdmin;
      
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
 
     bool _destroyed;
-    bool _sendLogThreadStarted;
-    IceUtil::ThreadControl _sendLogThreadControl;
+    IceUtil::ThreadPtr _sendLogThread;
     std::deque<JobPtr> _jobQueue;   
 };
 typedef IceUtil::Handle<LoggerAdminLoggerI> LoggerAdminLoggerIPtr;
@@ -204,11 +193,15 @@ private:
 
 
 //
+// Helper functions
+//
+
+//
 // Filter out messages from in/out logMessages list
 //
 void 
-filterLogMessages(Ice::LogMessageSeq& logMessages, const set<Ice::LogMessageType>& messageTypes,
-                  const set<string>& traceCategories, Ice::Int messageMax)
+filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& messageTypes,
+                  const set<string>& traceCategories, Int messageMax)
 {
     if(messageMax == 0)
     {
@@ -222,13 +215,13 @@ filterLogMessages(Ice::LogMessageSeq& logMessages, const set<Ice::LogMessageType
     else if(!messageTypes.empty() || !traceCategories.empty() || messageMax > 0)
     {
         int count = 0;
-        Ice::LogMessageSeq::reverse_iterator p = logMessages.rbegin();
+        LogMessageSeq::reverse_iterator p = logMessages.rbegin();
         while(p != logMessages.rend())
         {
             bool keepIt = false;
             if(messageTypes.empty() || messageTypes.count(p->type) != 0)
             {
-                if(p->type != Ice::TraceMessage || traceCategories.empty() || 
+                if(p->type != TraceMessage || traceCategories.empty() || 
                    traceCategories.count(p->traceCategory) != 0)
                 {
                     keepIt = true;
@@ -255,78 +248,134 @@ filterLogMessages(Ice::LogMessageSeq& logMessages, const set<Ice::LogMessageType
                 // p.base() points to p "+1"; the erase invalidates p so we
                 // need to rebuild it
                 //
-                p = Ice::LogMessageSeq::reverse_iterator(logMessages.erase(p.base()));
+                p = LogMessageSeq::reverse_iterator(logMessages.erase(p.base()));
             }
         }
     }
     // else, don't need any filtering
 }
 
+//
+// Change this proxy's communicator, while keeping its invocation timeout
+//
+RemoteLoggerPrx
+changeCommunicator(const RemoteLoggerPrx& prx, const CommunicatorPtr& communicator)
+{
+    if(prx == 0)
+    {
+        return 0;
+    }
 
+    RemoteLoggerPrx result = RemoteLoggerPrx::uncheckedCast(communicator->stringToProxy(prx->ice_toString()));
+
+    return result->ice_invocationTimeout(prx->ice_getInvocationTimeout());
+}
+
+//
+// Copies a set of properties 
+//
+void
+copyProperties(const string& prefix, const PropertiesPtr& from, const PropertiesPtr& to)
+{
+    PropertyDict dict = from->getPropertiesForPrefix(prefix);
+    for(PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+    {
+        to->setProperty(p->first, p->second);
+    }
+}
+
+//
+// Create communicator used to send logs
+//
+CommunicatorPtr
+createSendLogCommunicator(const CommunicatorPtr& communicator, const LoggerPtr& logger)
+{
+    InitializationData initData;
+    initData.logger = logger;
+    initData.properties = createProperties();
+
+    PropertiesPtr mainProps = communicator->getProperties();
+
+    copyProperties("Ice.Default.Locator", mainProps, initData.properties);
+    copyProperties("Ice.Plugin.IceSSL", mainProps, initData.properties);
+    copyProperties("IceSSL.", mainProps, initData.properties);
+
+    StringSeq extraProps = mainProps->getPropertyAsList("Ice.Admin.Logger.Properties");
+    
+    if(!extraProps.empty())
+    {
+        for(vector<string>::iterator p = extraProps.begin(); p != extraProps.end(); ++p)
+        {
+            if(p->find("--") != 0)
+            {
+                *p = "--" + *p;
+            }
+        }
+        initData.properties->parseCommandLineOptions("", extraProps);
+    }
+    return initialize(initData);
+}
 
 //
 // LoggerAdminI
 //
 
-LoggerAdminI::LoggerAdminI(const string& name, const Ice::PropertiesPtr& props) :
+LoggerAdminI::LoggerAdminI(const string& name, const PropertiesPtr& props) :
     _facetName(name),
     _logCount(0),
     _maxLogCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100)),
     _traceCount(0),
     _maxTraceCount(props->getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepTraces", 100)),
     _traceLevel(props->getPropertyAsInt("Ice.Trace.Admin.Logger")),
-    _remoteCallCompleted(Ice::newCallback(this, &LoggerAdminI::remoteCallCompleted)),
-    _destroyed(false),
-    _pingThreadStarted(false)
+    _remoteCallCompleted(newCallback(this, &LoggerAdminI::remoteCallCompleted))
 {
-    int pingPeriod = props->getPropertyAsIntWithDefault("Ice.Admin.Logger.PingPeriod", 60);
-    if(pingPeriod < 10)
-    {
-        pingPeriod = 10;
-    }
-    _pingPeriod = IceUtil::Time::seconds(pingPeriod);
-
     _oldestLog = _queue.end();
     _oldestTrace = _queue.end();
 }
 
 void
-LoggerAdminI::attachRemoteLogger(const Ice::RemoteLoggerPrx& prx, 
-                                 const Ice::LogMessageTypeSeq& messageTypes, 
-                                 const Ice::StringSeq& categories,
-                                 Ice::Int messageMax, 
-                                 const Ice::Current& current)
+LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx, 
+                                 const LogMessageTypeSeq& messageTypes, 
+                                 const StringSeq& categories,
+                                 Int messageMax, 
+                                 const Current& current)
 {
-    if(prx == 0)
+    if(!prx)
     {
         return; // can't send this null RemoteLogger anything!
     }
-
-    Ice::RemoteLoggerPrx remoteLogger = prx->ice_oneway();
-    Filters filters(messageTypes, categories);
-
-    Ice::LogMessageSeq initLogMessages;
-    Ice::LoggerPtr logger = current.adapter->getCommunicator()->getLogger();
-
+    
+    LoggerAdminLoggerIPtr logger = LoggerAdminLoggerIPtr::dynamicCast(current.adapter->getCommunicator()->getLogger());
+    if(!logger)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
- 
-        if(_remoteLoggerMap.insert(make_pair(remoteLogger, filters)).second == false)
+        // Our logger is not installed - must be a bug
+        assert(0);
+        return;
+    }
+
+    RemoteLoggerPrx remoteLogger = prx->ice_twoway();
+    // TODO set invocation timeout
+
+    Filters filters(messageTypes, categories);
+    LogMessageSeq initLogMessages;
+    {
+        IceUtil::Mutex::Lock lock(_mutex);
+
+        if(!_sendLogCommunicator)
+        {
+            _sendLogCommunicator = 
+                createSendLogCommunicator(current.adapter->getCommunicator(), logger->getLocalLogger());
+        }
+        
+        if(!_remoteLoggerMap.insert(make_pair(changeCommunicator(remoteLogger, _sendLogCommunicator), filters)).second)
         {
             if(_traceLevel > 0)
             {
-                Ice::Trace trace(current.adapter->getCommunicator()->getLogger(), _facetName);
-                trace << "rejecting '" << remoteLogger << "' with RemoteLoggerAlreadyAttachedException";
+                Trace trace(logger, _facetName);
+                trace << "rejecting `" << remoteLogger << "' with RemoteLoggerAlreadyAttachedException";
             }
 
-            throw Ice::RemoteLoggerAlreadyAttachedException();
-        }
-
-        if(_pingThreadStarted == false)
-        {
-            IceUtil::ThreadPtr t = new PingThread(this, logger);
-            _pingThreadControl = t->start();
-            _pingThreadStarted = true;
+            throw RemoteLoggerAlreadyAttachedException();
         }
 
         if(messageMax != 0)
@@ -337,17 +386,17 @@ LoggerAdminI::attachRemoteLogger(const Ice::RemoteLoggerPrx& prx,
     
     if(_traceLevel > 0)
     {
-        Ice::Trace trace(logger, _facetName);
-        trace << "sending init to '" << remoteLogger->ice_twoway() << "'";
+        Trace trace(logger, _facetName);
+        trace << "attached `" << remoteLogger << "'";
     }
 
     filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
 
     try
     {
-        remoteLogger->ice_twoway()->begin_init(logger->getPrefix(), initLogMessages, _remoteCallCompleted, logger);
+        remoteLogger->begin_init(logger->getPrefix(), initLogMessages, _remoteCallCompleted, logger);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
         deadRemoteLogger(remoteLogger, logger, ex, "init");
         throw;
@@ -355,36 +404,38 @@ LoggerAdminI::attachRemoteLogger(const Ice::RemoteLoggerPrx& prx,
 }
     
 void
-LoggerAdminI::detachRemoteLogger(const Ice::RemoteLoggerPrx& remoteLogger, 
-                                 const Ice::Current& current)
+LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Current& current)
 {
     if(remoteLogger == 0)
     {
-        throw Ice::RemoteLoggerNotAttachedException();
+        throw RemoteLoggerNotAttachedException();
     }
 
+    //
+    // No need to convert the proxy as we only use its identity
+    //
     bool found = removeRemoteLogger(remoteLogger);
 
     if(!found)
     {
-        throw Ice::RemoteLoggerNotAttachedException();
+        throw RemoteLoggerNotAttachedException();
     }
 
     if(_traceLevel > 0)
     {
-        Ice::Trace trace(current.adapter->getCommunicator()->getLogger(), _facetName);
-        trace << "detached '" << remoteLogger << "'";
+        Trace trace(current.adapter->getCommunicator()->getLogger(), _facetName);
+        trace << "detached `" << remoteLogger << "'";
     }
 }
 
-Ice::LogMessageSeq 
-LoggerAdminI::getLog(const Ice::LogMessageTypeSeq& messageTypes, 
-                     const Ice::StringSeq& categories, 
-                     Ice::Int messageMax, string& prefix, const Ice::Current& current)
+LogMessageSeq 
+LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes, 
+                     const StringSeq& categories, 
+                     Int messageMax, string& prefix, const Current& current)
 {
-    Ice::LogMessageSeq logMessages;
+    LogMessageSeq logMessages;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+        IceUtil::Mutex::Lock lock(_mutex);
         
         if(messageMax != 0)
         {
@@ -392,7 +443,7 @@ LoggerAdminI::getLog(const Ice::LogMessageTypeSeq& messageTypes,
         }
     }
    
-    Ice::LoggerPtr logger = current.adapter->getCommunicator()->getLogger();
+    LoggerPtr logger = current.adapter->getCommunicator()->getLogger();
     prefix = logger->getPrefix();
     
     Filters filters(messageTypes, categories);
@@ -400,22 +451,33 @@ LoggerAdminI::getLog(const Ice::LogMessageTypeSeq& messageTypes,
     return logMessages;
 }
 
-vector<Ice::RemoteLoggerPrx>
-LoggerAdminI::log(const Ice::LogMessage& logMessage)
+void
+LoggerAdminI::destroy()
 {
-    vector<Ice::RemoteLoggerPrx> remoteLoggers;
+    IceUtil::Mutex::Lock lock(_mutex);
+    if(_sendLogCommunicator)
+    {
+        _sendLogCommunicator->destroy();
+        _sendLogCommunicator = 0;
+    }
+}
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+vector<RemoteLoggerPrx>
+LoggerAdminI::log(const LogMessage& logMessage)
+{
+    vector<RemoteLoggerPrx> remoteLoggers;
+
+    IceUtil::Mutex::Lock lock(_mutex);
 
     //
     // Put message in _queue
     //
-    if((logMessage.type != Ice::TraceMessage && _maxLogCount > 0) || 
-       (logMessage.type == Ice::TraceMessage && _maxTraceCount > 0)) 
+    if((logMessage.type != TraceMessage && _maxLogCount > 0) || 
+       (logMessage.type == TraceMessage && _maxTraceCount > 0)) 
     {
-        list<Ice::LogMessage>::iterator p = _queue.insert(_queue.end(), logMessage);
+        list<LogMessage>::iterator p = _queue.insert(_queue.end(), logMessage);
         
-        if(logMessage.type != Ice::TraceMessage)
+        if(logMessage.type != TraceMessage)
         {
             assert(_maxLogCount > 0);
             if(_logCount == _maxLogCount)
@@ -425,7 +487,7 @@ LoggerAdminI::log(const Ice::LogMessage& logMessage)
                 //
                 assert(_oldestLog != _queue.end());
                 _oldestLog = _queue.erase(_oldestLog);
-                while(_oldestLog != _queue.end() && _oldestLog->type == Ice::TraceMessage)
+                while(_oldestLog != _queue.end() && _oldestLog->type == TraceMessage)
                 {
                     _oldestLog++;
                 }
@@ -451,7 +513,7 @@ LoggerAdminI::log(const Ice::LogMessage& logMessage)
                 //
                 assert(_oldestTrace != _queue.end());
                 _oldestTrace = _queue.erase(_oldestTrace);
-                while(_oldestTrace != _queue.end() && _oldestTrace->type != Ice::TraceMessage)
+                while(_oldestTrace != _queue.end() && _oldestTrace->type != TraceMessage)
                 {
                     _oldestTrace++;
                 }
@@ -477,7 +539,7 @@ LoggerAdminI::log(const Ice::LogMessage& logMessage)
             
             if(filters.messageTypes.empty() || filters.messageTypes.count(logMessage.type) != 0)
             {
-                if(logMessage.type != Ice::TraceMessage || filters.traceCategories.empty() ||
+                if(logMessage.type != TraceMessage || filters.traceCategories.empty() ||
                    filters.traceCategories.count(logMessage.traceCategory) != 0) 
                 {
                     remoteLoggers.push_back(p->first);
@@ -489,109 +551,33 @@ LoggerAdminI::log(const Ice::LogMessage& logMessage)
 }
 
 void
-LoggerAdminI::deadRemoteLogger(const Ice::RemoteLoggerPrx& remoteLogger,
-                               const Ice::LoggerPtr& logger,
-                               const Ice::LocalException& ex,
+LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrx& remoteLogger,
+                               const LoggerPtr& logger,
+                               const LocalException& ex,
                                const string& operation)
 {
+    //
+    // No need to convert remoteLogger as we only use its identity
+    //
     if(removeRemoteLogger(remoteLogger))
     {
         if(_traceLevel > 0)
         {
-            Ice::Trace trace(logger, _facetName);
-            trace << operation << " on '" << remoteLogger << "' raised '" 
-                  << ex << "'; remote logger removed automatically";
+            Trace trace(logger, _facetName);
+            trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << ex;
         }
-    }
-}
-
-void
-LoggerAdminI::destroy()
-{
-    IceUtil::ThreadControl pingThreadControl;
-    bool joinThread = false;
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        
-        if(_pingThreadStarted)
-        {
-            joinThread = true;
-            pingThreadControl = _pingThreadControl;
-            _pingThreadStarted = false;
-            _destroyed = true;
-            _monitor.notifyAll();
-        }
-    }
-
-    if(joinThread)
-    {
-        pingThreadControl.join();
-    }
-}
-
-void
-LoggerAdminI::run(const Ice::LoggerPtr& logger)
-{
-    if(_traceLevel > 1)
-    {
-        Ice::Trace trace(logger, _facetName);
-        trace << "Ping thread started";
-    }
-
-    for(;;)
-    {
-        vector<Ice::RemoteLoggerPrx> remoteLoggers;
-        {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-            if(_destroyed)
-            {
-                break; // for(;;)
-            }
-
-            if(_monitor.timedWait(_pingPeriod) == false && !_destroyed)
-            {
-                transform(_remoteLoggerMap.begin(), _remoteLoggerMap.end(), back_inserter(remoteLoggers), 
-                          GetRemoteLoggerMapKey());
-            }
-        }
-        
-        for(vector<Ice::RemoteLoggerPrx>::const_iterator p = remoteLoggers.begin(); p != remoteLoggers.end(); ++p)
-        {
-            Ice::RemoteLoggerPrx remoteLogger = (*p)->ice_twoway();
-
-            if(_traceLevel > 1)
-            {
-                Ice::Trace trace(logger, _facetName);
-                trace << "sending ice_ping to '" << remoteLogger << "'";
-            }
-            
-            try
-            {
-                remoteLogger->begin_ice_ping(_remoteCallCompleted, logger);
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                deadRemoteLogger(remoteLogger, logger, ex, "ice_ping");
-            }
-        }
-    }        
-    
-    if(_traceLevel > 1)
-    {
-        Ice::Trace trace(logger, _facetName);
-        trace << "Ping thread completed";
     }
 }
 
 bool
-LoggerAdminI::removeRemoteLogger(const Ice::RemoteLoggerPrx& remoteLogger)
+LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrx& remoteLogger)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    IceUtil::Mutex::Lock lock(_mutex);
     return _remoteLoggerMap.erase(remoteLogger) > 0;
 }
 
 void
-LoggerAdminI::remoteCallCompleted(const Ice::AsyncResultPtr& r)
+LoggerAdminI::remoteCallCompleted(const AsyncResultPtr& r)
 {
     try 
     {
@@ -599,35 +585,19 @@ LoggerAdminI::remoteCallCompleted(const Ice::AsyncResultPtr& r)
 
         if(_traceLevel > 1)
         {
-            Ice::LoggerPtr logger = Ice::LoggerPtr::dynamicCast(r->getCookie());
-            Ice::Trace trace(logger, _facetName);
-            trace << r->getOperation() << " on '" << r->getProxy() << "' completed successfully";
+            LoggerPtr logger = LoggerPtr::dynamicCast(r->getCookie());
+            Trace trace(logger, _facetName);
+            trace << r->getOperation() << " on `" << r->getProxy() << "' completed successfully";
         }
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
-        deadRemoteLogger(Ice::RemoteLoggerPrx::uncheckedCast(r->getProxy()),
-                        Ice::LoggerPtr::dynamicCast(r->getCookie()),
-                        ex, r->getOperation());
+        deadRemoteLogger(RemoteLoggerPrx::uncheckedCast(r->getProxy()),
+                         LoggerPtr::dynamicCast(r->getCookie()),
+                         ex, r->getOperation());
     }
 }
 
-//
-// PingThread
-//
-PingThread::PingThread(
-    const LoggerAdminIPtr& loggerAdmin, const Ice::LoggerPtr& logger) :
-    IceUtil::Thread("Ice.RemoteLoggerPingThread"),
-    _loggerAdmin(loggerAdmin),
-    _logger(logger)
-{
-}
-
-void
-PingThread::run()
-{
-    _loggerAdmin->run(_logger);
-}
 
 
 //
@@ -635,12 +605,11 @@ PingThread::run()
 //
 
 LoggerAdminLoggerI::LoggerAdminLoggerI(const string& facetName, 
-                                       const Ice::PropertiesPtr& props, 
-                                       const Ice::LoggerPtr& localLogger) :
+                                       const PropertiesPtr& props, 
+                                       const LoggerPtr& localLogger) :
     _localLogger(localLogger),
     _loggerAdmin(new LoggerAdminI(facetName, props)),
-    _destroyed(false),
-    _sendLogThreadStarted(false)
+    _destroyed(false)
 {
     //
     // There is currently no way to have a null local logger
@@ -651,10 +620,7 @@ LoggerAdminLoggerI::LoggerAdminLoggerI(const string& facetName,
 void
 LoggerAdminLoggerI::print(const string& message)
 {
-   Ice::LogMessage logMessage = {Ice::PrintMessage, 
-                                 IceUtil::Time::now().toMicroSeconds(),
-                                 "",
-                                 message};
+   LogMessage logMessage = { PrintMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
    
     _localLogger->print(message);
     log(logMessage);
@@ -663,10 +629,7 @@ LoggerAdminLoggerI::print(const string& message)
 void
 LoggerAdminLoggerI::trace(const string& category, const string& message)
 {
-    Ice::LogMessage logMessage = {Ice::TraceMessage, 
-                                  IceUtil::Time::now().toMicroSeconds(),
-                                  category,
-                                  message};
+    LogMessage logMessage = { TraceMessage, IceUtil::Time::now().toMicroSeconds(), category, message };
     
     _localLogger->trace(category, message);
     log(logMessage);
@@ -675,11 +638,7 @@ LoggerAdminLoggerI::trace(const string& category, const string& message)
 void
 LoggerAdminLoggerI::warning(const string& message)
 {
-    Ice::LogMessage logMessage = {Ice::WarningMessage, 
-                                  IceUtil::Time::now().toMicroSeconds(),
-                                  "",
-                                  message};
-
+    LogMessage logMessage = { WarningMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
     
     _localLogger->warning(message);
     log(logMessage);
@@ -688,11 +647,7 @@ LoggerAdminLoggerI::warning(const string& message)
 void
 LoggerAdminLoggerI::error(const string& message)
 {
-    Ice::LogMessage logMessage = {Ice::ErrorMessage, 
-                                   IceUtil::Time::now().toMicroSeconds(),
-                                  "",
-                                  message};
-    
+    LogMessage logMessage = { ErrorMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
     
     _localLogger->error(message);
     log(logMessage);
@@ -704,69 +659,51 @@ LoggerAdminLoggerI::getPrefix()
     return _localLogger->getPrefix();
 }
 
-Ice::LoggerPtr
+LoggerPtr
 LoggerAdminLoggerI::cloneWithPrefix(const string& prefix)
 {
     return _localLogger->cloneWithPrefix(prefix);
 }
 
 void
-LoggerAdminLoggerI::addAdminFacet(const Ice::CommunicatorPtr& communicator)
+LoggerAdminLoggerI::addAdminFacet(const CommunicatorPtr& communicator)
 {
     communicator->addAdminFacet(_loggerAdmin, _loggerAdmin->getFacetName());
 }
 
 void 
-LoggerAdminLoggerI::log(const Ice::LogMessage& logMessage)
+LoggerAdminLoggerI::log(const LogMessage& logMessage)
 {
-
-    //
-    // We don't want to proceed if the SendLog thread is calling log.
-    //
-    bool proceed = false;
-    {
-        IceUtil::ThreadControl currentThread;
-
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        proceed = !_destroyed &&
-            (!_sendLogThreadStarted || (_sendLogThreadStarted && (currentThread != _sendLogThreadControl)));
-    }
-
-    if(proceed)
-    {
-        const vector<Ice::RemoteLoggerPrx> remoteLoggers = _loggerAdmin->log(logMessage); 
+    const vector<RemoteLoggerPrx> remoteLoggers = _loggerAdmin->log(logMessage); 
     
-        if(!remoteLoggers.empty())
+    if(!remoteLoggers.empty())
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+        
+        if(!_sendLogThread)
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-            
-            if(!_sendLogThreadStarted)
-            {
-                IceUtil::ThreadPtr t = new SendLogThread(this);
-                _sendLogThreadControl = t->start();
-                _sendLogThreadStarted = true;
-            }
-            _jobQueue.push_back(new Job(remoteLoggers, logMessage));
-            _monitor.notifyAll();
+            _sendLogThread = new SendLogThread(this);
+            _sendLogThread->start();
         }
+
+        _jobQueue.push_back(new Job(remoteLoggers, logMessage));
+        _monitor.notifyAll();
     }
 }
 
 void
 LoggerAdminLoggerI::destroy()
 {
-    _loggerAdmin->destroy();
-
     IceUtil::ThreadControl sendLogThreadControl;
     bool joinThread = false;
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
         
-        if(_sendLogThreadStarted)
+        if(_sendLogThread)
         {
             joinThread = true;
-            sendLogThreadControl = _sendLogThreadControl;
-            _sendLogThreadStarted = false;
+            sendLogThreadControl = _sendLogThread->getThreadControl();
+            _sendLogThread = 0;
             _destroyed = true;
             _monitor.notifyAll();
         }
@@ -776,6 +713,9 @@ LoggerAdminLoggerI::destroy()
     {
         sendLogThreadControl.join();
     }
+
+     // destroy sendLogCommunicator 
+    _loggerAdmin->destroy();
 }
 
 void
@@ -783,8 +723,8 @@ LoggerAdminLoggerI::run()
 {
     if(_loggerAdmin->getTraceLevel() > 1)
     {
-        Ice::Trace trace(_localLogger, _loggerAdmin->getFacetName());
-        trace << "Send log thread started";
+        Trace trace(_localLogger, _loggerAdmin->getFacetName());
+        trace << "send log thread started";
     }
 
     for(;;)
@@ -798,42 +738,38 @@ LoggerAdminLoggerI::run()
         {
             break; // for(;;)
         }
-        if(!_jobQueue.empty())
-        {
-            JobPtr job = _jobQueue.front();
-            _jobQueue.pop_front();
-            lock.release();
-            
-            for(vector<Ice::RemoteLoggerPrx>::const_iterator p = job->remoteLoggers.begin();
-                p != job->remoteLoggers.end(); ++p)
-            {
-                if(_loggerAdmin->getTraceLevel() > 1)
-                {
-                    Ice::Trace trace(_localLogger, _loggerAdmin->getFacetName());
-                    trace << "sending log message to '" << *p << "'";
-                }
 
-                try
-                {
-                    // We use a synchronous oneway call here
-                    // using twoway could generate additional log when receiving the response
-                    // from the client thread-pool thread; likewise, AMI could generate
-                    // extra logs from the client thread pool thread
-                    
-                    (*p)->log(job->logMessage);
-                }
-                catch(const Ice::LocalException& ex)
-                {
-                    _loggerAdmin->deadRemoteLogger(*p, _localLogger, ex, "log");
-                }
-            }  
-        }
+        assert(!_jobQueue.empty());
+        JobPtr job = _jobQueue.front();
+        _jobQueue.pop_front();
+        lock.release();
+        
+        for(vector<RemoteLoggerPrx>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
+        {
+            if(_loggerAdmin->getTraceLevel() > 1)
+            {
+                Trace trace(_localLogger, _loggerAdmin->getFacetName());
+                trace << "sending log message to `" << *p << "'";
+            }
+            
+            try
+            {
+                //
+                // *p is a proxy associated with the _sendLogCommunicator
+                //
+                (*p)->begin_log(job->logMessage, _loggerAdmin->getRemoteCallCompleted(), _localLogger);
+            }
+            catch(const LocalException& ex)
+            {
+                _loggerAdmin->deadRemoteLogger(*p, _localLogger, ex, "log");
+            }
+        }  
     }
 
     if(_loggerAdmin->getTraceLevel() > 1)
     {
-        Ice::Trace trace(_localLogger, _loggerAdmin->getFacetName());
-        trace << "Send log thread completed";
+        Trace trace(_localLogger, _loggerAdmin->getFacetName());
+        trace << "send log thread completed";
     }
 }
 
@@ -862,10 +798,10 @@ SendLogThread::run()
 namespace IceInternal
 {
 
-Ice::LoggerAdminLoggerPtr 
-createLoggerAdminLogger(const std::string& facetName, 
-                        const Ice::PropertiesPtr& props, 
-                        const Ice::LoggerPtr& localLogger)
+LoggerAdminLoggerPtr 
+createLoggerAdminLogger(const string& facetName, 
+                        const PropertiesPtr& props, 
+                        const LoggerPtr& localLogger)
 {
     return new LoggerAdminLoggerI(facetName, props, localLogger);
 }

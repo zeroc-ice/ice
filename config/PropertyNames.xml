@@ -320,7 +320,7 @@ generated from the section label.
         <property name="Admin.Logger" />
         <property name="Admin.Logger.KeepLogs" />
         <property name="Admin.Logger.KeepTraces" />
-        <property name="Admin.Logger.PingPeriod" />
+        <property name="Admin.Logger.Properties" />
         <property name="Admin.ServerId" />
         <property name="BackgroundLocatorCacheUpdates"/>
         <property name="BatchAutoFlush" />

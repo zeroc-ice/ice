@@ -201,11 +201,9 @@ interface LoggerAdmin
      * @throws RemoteLoggerAlreadyAttachedException Raised if this remote logger is already
      * attached to this admin object.
      *
-     * @throws InvalidRemoteLoggerException Raised if the provided remote logger is invalid.
-     *
      **/
-    void attachRemoteLogger(RemoteLogger* prx, 
-                            LogMessageTypeSeq messageTypes, StringSeq traceCategories, int messageMax) 
+    void attachRemoteLogger(RemoteLogger* prx, LogMessageTypeSeq messageTypes, StringSeq traceCategories,
+                            int messageMax) 
         throws RemoteLoggerAlreadyAttachedException;
 
     /**
@@ -218,11 +216,9 @@ interface LoggerAdmin
      * @throws RemoteLoggerNotAttachedException Raised if this remote logger is not
      * attached to this admin object.
      *
-     * @throws InvalidRemoteLoggerException Raised if the provided remote logger is invalid.
-     *
      **/
-   void detachRemoteLogger(RemoteLogger* prx) throws RemoteLoggerNotAttachedException;
-
+   void detachRemoteLogger(RemoteLogger* prx) 
+       throws RemoteLoggerNotAttachedException;
 
     /**
      *
@@ -243,9 +239,7 @@ interface LoggerAdmin
      * @return The Log messages.
      *
      **/
-    LogMessageSeq getLog(LogMessageTypeSeq messageTypes, StringSeq traceCategories, 
-                         int messageMax, out string prefix);
-
+    LogMessageSeq getLog(LogMessageTypeSeq messageTypes, StringSeq traceCategories, int messageMax, out string prefix);
 };
 
 };
