@@ -134,16 +134,15 @@ include $(top_srcdir)/config/Make.rules.js
 
 # Prevent generation of these files from .ice files
 Communicator.js:
-
+	
 Properties.js:
-
+	
 Logger.js:
-
+	
 ServantLocator.js:
-
+	
 ObjectFactory.js:
-
-
+	
 SLICE2JSFLAGS	:= $(SLICE2JSFLAGS) --ice -I$(slicedir)
 
 lint:: $(SRCS)

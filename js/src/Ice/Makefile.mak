@@ -131,16 +131,15 @@ INSTALL_SRCS	= $(NODEJS_SRCS) $(GEN_SRCS) $(COMMON_SRCS)
 
 # Prevent generation of these files from .ice files
 Communicator.js:
-
+	
 Properties.js:
-
+	
 Logger.js:
-
+	
 ServantLocator.js:
-
+	
 ObjectFactory.js:
-
-
+	
 SLICE2JSFLAGS	= $(SLICE2JSFLAGS) --ice -I"$(slicedir)"
 
 MODULEDIR	= $(install_moduledir)\$(LIBNAME)
