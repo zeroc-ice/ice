@@ -143,11 +143,16 @@ public class AllTests : TestCommon.TestApp
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-                // Ensure that the previous updates were committed, the setProperties call returns before
-                // notifying the callbacks so to ensure all the update callbacks have be notified we call
-                // a second time, this will block until all the notifications from the first update have
-                // completed.
-                _serverProps.setProperties(new Dictionary<string, string>());
+            }
+
+            // Ensure that the previous updates were committed, the setProperties call returns before
+            // notifying the callbacks so to ensure all the update callbacks have be notified we call
+            // a second time, this will block until all the notifications from the first update have
+            // completed.
+            _serverProps.setProperties(new Dictionary<string, string>());
+
+            lock(this)
+            {
                 _updated = false;
             }
         }
@@ -879,6 +884,9 @@ public class AllTests : TestCommon.TestApp
         Write("testing invocation metrics... ");
         Flush();
 
+        //
+        // Tests for twoway
+        //
         props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
         props["IceMX.Metrics.View.Map.Invocation.Map.Collocated.GroupBy"] = "id";
@@ -1061,6 +1069,54 @@ public class AllTests : TestCommon.TestApp
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op);
+
+        //
+        // Oneway tests
+        //
+        clearView(clientProps, serverProps, update);
+        props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+        props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+        
+        MetricsPrx metricsOneway = (MetricsPrx)metrics.ice_oneway();
+        metricsOneway.op();
+        metricsOneway.end_op(metricsOneway.begin_op());
+        metricsOneway.begin_op().whenCompleted(cb.response, cb.exception).waitForSent();
+
+        map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+        test(map.Count == 1);
+
+        im1 = (IceMX.InvocationMetrics)map["op"];
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(!collocated ? (im1.remotes.Length == 1) : (im1.collocated.Length == 1));
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
+        test(rim1.current <= 1 && rim1.total == 3 && rim1.failures == 0);
+        test(rim1.size == 63 && rim1.replySize == 0);
+
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway", 
+                      () => { invokeOp(metricsOneway); });
+
+        //
+        // Batch oneway tests
+        //
+        props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+        props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+        
+        MetricsPrx metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
+        metricsBatchOneway.op();
+        metricsBatchOneway.end_op(metricsBatchOneway.begin_op());
+        //metricsBatchOneway.begin_op().whenCompleted(cb.response, cb.exception).waitForSent();
+
+        map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+        test(map.Count == 1);
+
+        im1 = (IceMX.InvocationMetrics)map["op"];
+        test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        test(im1.remotes.Length == 0);
+
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway", 
+                      () => { invokeOp(metricsBatchOneway); }); 
 
         WriteLine("ok");
 

@@ -87,6 +87,12 @@ public class AllTests : TestCommon.TestApp
         BatchOneways.batchOneways(cl);
         BatchOneways.batchOneways(derivedProxy);
         WriteLine("ok");
+
+        Write("testing batch AMI oneway operations... ");
+        Flush();
+        BatchOnewaysAMI.batchOneways(cl);
+        BatchOnewaysAMI.batchOneways(derivedProxy);
+        WriteLine("ok");
 #if SILVERLIGHT
         cl.shutdown();
 #else

@@ -201,8 +201,8 @@ namespace Ice
         public void end_flushBatchRequests(AsyncResult result)
         {
             IceInternal.OutgoingAsyncBase outAsync = (IceInternal.OutgoingAsyncBase)result;
-            IceInternal.OutgoingAsyncBase.check__(outAsync, this, __flushBatchRequests_name);
-            outAsync.wait__();
+            IceInternal.OutgoingAsyncBase.check(outAsync, this, __flushBatchRequests_name);
+            outAsync.wait();
         }
 
         public Ice.ObjectPrx getAdmin()

@@ -43,7 +43,7 @@ public class DispatchObserverI
         }
     }
 
-    final MetricsUpdate<IceMX.DispatchMetrics> _userException = new MetricsUpdate<IceMX.DispatchMetrics>()
+    final private MetricsUpdate<IceMX.DispatchMetrics> _userException = new MetricsUpdate<IceMX.DispatchMetrics>()
     {
         @Override
         public void

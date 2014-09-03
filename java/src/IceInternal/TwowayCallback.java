@@ -26,4 +26,10 @@ public abstract class TwowayCallback extends CallbackBase implements Ice.TwowayC
     {
         sent(__result.sentSynchronously());
     }
+
+    @Override
+    public final boolean __hasSentCallback()
+    {
+        return true;
+    }
 };

@@ -67,7 +67,6 @@ SRCS		= Acceptor.cs \
 		  OpaqueEndpointI.cs \
 		  Optional.cs \
 		  Options.cs \
-		  Outgoing.cs \
 		  OutgoingAsync.cs \
 		  OutputBase.cs \
 		  Patcher.cs \

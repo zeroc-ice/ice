@@ -61,7 +61,8 @@ public:
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
-    virtual Ice::ConnectionIPtr getConnection(bool);
+    virtual Ice::ConnectionIPtr getConnection();
+    virtual Ice::ConnectionIPtr waitForConnection();
     
     void invokeRequest(Outgoing*);
     AsyncStatus invokeAsyncRequest(OutgoingAsync*);

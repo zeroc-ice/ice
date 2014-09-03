@@ -30,25 +30,14 @@ namespace IceInternal
             _connection.abortBatchRequest();
         }
 
-        public bool sendRequest(OutgoingMessageCallback @out)
-        {
-            // Finished if sent and no response
-            return @out.send(_connection, _compress, _response) && !_response;
-        }
-
         public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
         {
-            return outAsync.send__(_connection, _compress, _response, out sentCallback);
+            return outAsync.send(_connection, _compress, _response, out sentCallback);
         }
 
-        public void requestTimedOut(OutgoingMessageCallback @out)
+        public void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
         {
-            _connection.requestTimedOut(@out);
-        }
-
-        public void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
-        {
-            _connection.asyncRequestTimedOut(outAsync);
+            _connection.asyncRequestCanceled(outAsync, ex);
         }
 
         public Reference getReference()
@@ -56,7 +45,12 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI getConnection(bool wait)
+        public Ice.ConnectionI getConnection()
+        {
+            return _connection;
+        }
+
+        public Ice.ConnectionI waitForConnection()
         {
             return _connection;
         }

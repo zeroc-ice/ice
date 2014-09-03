@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class IncomingBase
+class IncomingBase
 {
     protected
     IncomingBase(Instance instance, ResponseHandler handler, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,

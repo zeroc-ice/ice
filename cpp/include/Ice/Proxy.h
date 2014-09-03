@@ -884,7 +884,7 @@ public:
     void __invoke(::IceInternal::Outgoing&) const;
     void __end(const ::Ice::AsyncResultPtr&, const std::string&) const;
 
-    ::IceInternal::RequestHandlerPtr __getRequestHandler(bool);
+    ::IceInternal::RequestHandlerPtr __getRequestHandler();
     void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
 
 protected:
@@ -893,7 +893,7 @@ protected:
     
 private:
 
-    ::IceInternal::RequestHandlerPtr createRequestHandler(bool);
+    ::IceInternal::RequestHandlerPtr createRequestHandler();
 
     bool ice_isA(const ::std::string&, const ::Ice::Context*);
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string&,

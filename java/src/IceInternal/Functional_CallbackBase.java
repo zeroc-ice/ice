@@ -37,6 +37,12 @@ public abstract class Functional_CallbackBase extends IceInternal.CallbackBase
     }
 
     @Override
+    public final boolean __hasSentCallback()
+    {
+        return __sentCb != null;
+    }
+
+    @Override
     public abstract void __completed(Ice.AsyncResult __result);
 
     protected final Functional_GenericCallback1<Ice.Exception> __exceptionCb;

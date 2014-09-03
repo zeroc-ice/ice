@@ -48,7 +48,6 @@ batchOneways(const Test::MyClassPrx& p)
     
     Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
     batch->ice_flushBatchRequests();
-    batch->end_ice_flushBatchRequests(batch->begin_ice_flushBatchRequests());
 
     int i;
 

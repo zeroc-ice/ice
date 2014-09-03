@@ -8,6 +8,7 @@
 # **********************************************************************
 
 import Ice, Test, Twoways, TwowaysAMI, TwowaysNewAMI, Oneways, OnewaysAMI, OnewaysNewAMI, BatchOneways, sys
+import BatchOnewaysAMI
 
 def test(b):
     if not b:
@@ -57,4 +58,10 @@ def allTests(communicator):
     BatchOneways.batchOneways(derived)
     print("ok")
     
+    sys.stdout.write("testing batch AMI oneway operations...  ")
+    sys.stdout.flush()
+    BatchOnewaysAMI.batchOneways(cl)
+    BatchOnewaysAMI.batchOneways(derived)
+    print("ok")
+
     return cl

@@ -128,6 +128,11 @@ public class AllTests
         BatchOneways.batchOneways(derived, out);
         out.println("ok");
 
+        out.print("testing batch AMI oneway operations... ");
+        out.flush();
+        BatchOnewaysAMI.batchOneways(cl, out);
+        BatchOnewaysAMI.batchOneways(derived, out);
+        out.println("ok");
         return cl;
     }
 }

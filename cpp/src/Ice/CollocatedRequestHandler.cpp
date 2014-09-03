@@ -561,7 +561,13 @@ CollocatedRequestHandler::invokeException(Int requestId, const LocalException& e
 }
 
 ConnectionIPtr
-CollocatedRequestHandler::getConnection(bool /*wait*/)
+CollocatedRequestHandler::getConnection()
+{
+    return 0;
+}
+
+ConnectionIPtr
+CollocatedRequestHandler::waitForConnection()
 {
     return 0;
 }

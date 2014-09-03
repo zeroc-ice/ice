@@ -32,20 +32,26 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
                 _sentSynchronously = true;
                 if((status & AsyncStatus.InvokeSentCallback) > 0)
                 {
-                    __invokeSent();
+                    invokeSent();
                 }
             }
             else
             {
                 synchronized(_monitor)
                 {
-                    if((_state & Done) == 0)
+                    if((_state & StateDone) == 0)
                     {
                         int invocationTimeout = handler.getReference().getInvocationTimeout();
                         if(invocationTimeout > 0)
                         {
-                            _future = _instance.timer().schedule(this, invocationTimeout,
-                                java.util.concurrent.TimeUnit.MILLISECONDS);
+                            _future = _instance.timer().schedule(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    timeout();
+                                }
+                            }, invocationTimeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                             _timeoutRequestHandler = handler;
                         }
                     }

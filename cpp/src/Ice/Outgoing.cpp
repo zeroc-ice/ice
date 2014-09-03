@@ -54,7 +54,7 @@ IceInternal::Outgoing::Outgoing(IceProxy::Ice::Object* proxy, const string& oper
             {
                 try
                 {
-                    _handler = proxy->__getRequestHandler(true);
+                    _handler = proxy->__getRequestHandler();
                     _handler->prepareBatchRequest(&_os);
                     break;
                 }
@@ -150,7 +150,7 @@ IceInternal::Outgoing::invoke()
             _exception.reset(0);
             _sent = false;
 
-            _handler = _proxy->__getRequestHandler(false);
+            _handler = _proxy->__getRequestHandler();
 
             if(_handler->sendRequest(this)) // Request sent and no response expected, we're done.
             {
@@ -542,7 +542,7 @@ IceInternal::BatchOutgoing::invoke()
     RequestHandlerPtr handler;
     try
     {
-        handler = _proxy->__getRequestHandler(false);
+        handler = _proxy->__getRequestHandler();
         if(handler->sendRequest(this))
         {
             return;

@@ -16,19 +16,14 @@ public interface RequestHandler
     void finishBatchRequest(BasicStream out);
     void abortBatchRequest();
 
-    boolean sendRequest(OutgoingMessageCallback out)
-        throws RetryException;
-
     int sendAsyncRequest(OutgoingAsyncMessageCallback out)
         throws RetryException;
 
-    boolean requestCanceled(OutgoingMessageCallback out, Ice.LocalException ex);
     boolean asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex);
 
     Reference getReference();
 
     Ice.ConnectionI getConnection();
     Ice.ConnectionI waitForConnection()
-        throws InterruptedException;
-
+        throws InterruptedException, RetryException;
 }

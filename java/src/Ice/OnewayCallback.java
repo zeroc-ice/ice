@@ -50,6 +50,12 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
     }
 
     @Override
+    public final boolean __hasSentCallback()
+    {
+        return true;
+    }
+
+    @Override
     public final void __completed(AsyncResult __result)
     {
         try

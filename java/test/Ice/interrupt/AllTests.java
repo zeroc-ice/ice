@@ -56,31 +56,7 @@ public class AllTests
             notify();
         }
 
-        public synchronized void checkResponse()
-        {
-            while(!_response)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-
-            _response = false;
-        }
-
-        public synchronized void response()
-        {
-            assert(!_response);
-            _response = true;
-            notify();
-        }
-
         private boolean _called = false;
-        private boolean _response = false;
     }
     
     private static void
@@ -89,6 +65,18 @@ public class AllTests
         if(!b)
         {
             throw new RuntimeException();
+        }
+    }
+    
+    private static void failIfNotInterrupted()
+    {
+        if(Thread.currentThread().isInterrupted())
+        {
+            Thread.interrupted();
+        }
+        else
+        {
+            test(false);
         }
     }
 
@@ -232,48 +220,52 @@ public class AllTests
                 test(false);
             }
 
-            //
-            // Test interrupt of waitForSent. Here hold the adapter and send a large payload. The
-            // thread is interrupted in 500ms which should result in a operation interrupted exception.
-            //
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
+            // This section of the test doesn't run when collocated.
+            if(p.ice_getConnection() != null)
+            {
+                //
+                // Test interrupt of waitForSent. Here hold the adapter and send a large payload. The
+                // thread is interrupted in 500ms which should result in a operation interrupted exception.
+                //
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run()
                     {
-                        Thread.sleep(500);
+                        try
+                        {
+                            Thread.sleep(500);
+                        }
+                        catch(InterruptedException e)
+                        {
+                            test(false);
+                        }
+                        mainThread.interrupt();
                     }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
+                });
 
-            testController.holdAdapter();
-            Ice.AsyncResult r = null;
-            try
-            {
-                // The sequence needs to be large enough to fill the write/recv buffers
-                byte[] seq = new byte[20000000];
-                r = p.begin_opWithPayload(seq);
+                testController.holdAdapter();
+                Ice.AsyncResult r = null;
+                try
+                {
+                    // The sequence needs to be large enough to fill the write/recv buffers
+                    byte[] seq = new byte[20000000];
+                    r = p.begin_opWithPayload(seq);
+                    r.waitForSent();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException ex)
+                {
+                    // Expected
+                }
+                //
+                // Resume the adapter.
+                //
+                testController.resumeAdapter();
+                
                 r.waitForSent();
-                test(false);
+                r.waitForCompleted();
+                p.end_opWithPayload(r);
             }
-            catch(Ice.OperationInterruptedException ex)
-            {
-                // Expected
-            }
-            //
-            // Resume the adapter.
-            //
-            testController.resumeAdapter();
-            
-            r.waitForSent();
-            r.waitForCompleted();
-            p.end_opWithPayload(r);
             
             //
             // The executor is all done.
@@ -297,7 +289,7 @@ public class AllTests
             try
             {
                 ic.destroy();
-                test(false);
+                failIfNotInterrupted();
             }
             catch(Ice.OperationInterruptedException ex)
             {

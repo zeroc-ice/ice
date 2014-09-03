@@ -33,7 +33,8 @@ COBJS		= Test.obj \
 		  OnewaysAMI.obj \
 		  TwowaysNewAMI.obj \
 		  OnewaysNewAMI.obj \
-		  BatchOneways.obj
+		  BatchOneways.obj \
+		  BatchOnewaysAMI.obj
 
 SOBJS		= Test.obj \
 		  TestI.obj \
@@ -54,6 +55,7 @@ COLOBJS		= Test.obj \
 		  TwowaysNewAMI.obj \
 		  OnewaysNewAMI.obj \
 		  BatchOneways.obj \
+		  BatchOnewaysAMI.obj
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \

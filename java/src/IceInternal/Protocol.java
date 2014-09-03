@@ -181,12 +181,6 @@ final public class Protocol
     }
 
     static public boolean
-    isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported)
-    {
-        return version.major == supported.major && version.minor <= supported.minor;
-    }
-
-    static public boolean
     isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported)
     {
         return version.major == supported.major && version.minor <= supported.minor;

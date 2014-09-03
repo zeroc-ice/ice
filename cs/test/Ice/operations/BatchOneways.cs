@@ -60,7 +60,6 @@ class BatchOneways
 
         Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
         batch.ice_flushBatchRequests();
-        batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
 
         for(int i = 0 ; i < 30 ; ++i)
         {
@@ -101,6 +100,7 @@ class BatchOneways
             catch(Ice.CloseConnectionException)
             {
             }
+            
             try
             {
                 batch2.ice_ping();

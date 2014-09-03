@@ -1413,8 +1413,8 @@ IceProxy::Ice::Object::ice_getConnection()
         RequestHandlerPtr handler;
         try
         {
-            handler = __getRequestHandler(false);
-            return handler->getConnection(true); // Wait for the connection to be established.
+            handler = __getRequestHandler();
+            return handler->waitForConnection(); // Wait for the connection to be established.
         }
         catch(const IceInternal::RetryException&)
         {
@@ -1453,7 +1453,7 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
     {
         try
         {
-            return __handler->getConnection(false);
+            return __handler->getConnection();
         }
         catch(const LocalException&)
         {
@@ -1668,7 +1668,7 @@ operator<<(ostream& os, const ::IceProxy::Ice::Object& p)
 }
 
 ::IceInternal::RequestHandlerPtr
-IceProxy::Ice::Object::__getRequestHandler(bool async)
+IceProxy::Ice::Object::__getRequestHandler()
 {
     if(_reference->getCacheConnection())
     {
@@ -1677,12 +1677,11 @@ IceProxy::Ice::Object::__getRequestHandler(bool async)
         {
             return _requestHandler;
         }
-        _requestHandler = createRequestHandler(true); // async = true to avoid blocking with the proxy mutex locked.
+        _requestHandler = createRequestHandler(); // async = true to avoid blocking with the proxy mutex locked.
         return _requestHandler;
     }
 
-    const Reference::Mode mode = _reference->getMode();
-    return createRequestHandler(async || mode == Reference::ModeBatchOneway || mode == Reference::ModeBatchDatagram);
+    return createRequestHandler();
 }
 
 void
@@ -1705,7 +1704,7 @@ IceProxy::Ice::Object::__setRequestHandler(const ::IceInternal::RequestHandlerPt
                 // update the request handler. See bug ICE-5489 for reasons why
                 // this can be useful.
                 //
-                if(previous->getConnection(false) == _requestHandler->getConnection(false))
+                if(previous->getConnection() == _requestHandler->getConnection())
                 {
                     _requestHandler = handler;
                 }
@@ -1725,7 +1724,7 @@ IceProxy::Ice::Object::__newInstance() const
 }
 
 RequestHandlerPtr
-IceProxy::Ice::Object::createRequestHandler(bool async)
+IceProxy::Ice::Object::createRequestHandler()
 {
     if(_reference->getCollocationOptimized())
     {
@@ -1736,15 +1735,8 @@ IceProxy::Ice::Object::createRequestHandler(bool async)
         }
     }
 
-    if(async)
-    {
-        ConnectRequestHandlerPtr handler = new ::IceInternal::ConnectRequestHandler(_reference, this);
-        return handler->connect();
-    }
-    else
-    {
-        return new ::IceInternal::ConnectionRequestHandler(_reference, this);
-    }
+    ConnectRequestHandlerPtr handler = new ::IceInternal::ConnectRequestHandler(_reference, this);
+    return handler->connect();
 }
 
 void

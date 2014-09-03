@@ -174,14 +174,6 @@ final class OpaqueEndpointI extends EndpointI
     }
 
     //
-    // Get the encoded endpoint.
-    //
-    public byte[] rawBytes()
-    {
-        return _rawBytes;
-    }
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
     // transceiver is created, this operation also returns a new

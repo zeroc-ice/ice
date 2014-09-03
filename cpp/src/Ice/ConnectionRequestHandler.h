@@ -34,7 +34,8 @@ public:
     virtual void requestTimedOut(OutgoingMessageCallback*);
     virtual void asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPtr&);
 
-    virtual Ice::ConnectionIPtr getConnection(bool);
+    virtual Ice::ConnectionIPtr getConnection();
+    virtual Ice::ConnectionIPtr waitForConnection();
 
 private:
 

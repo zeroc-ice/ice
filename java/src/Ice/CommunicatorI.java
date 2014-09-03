@@ -283,8 +283,9 @@ public final class CommunicatorI implements Communicator
     public void
     end_flushBatchRequests(AsyncResult r)
     {
-        AsyncResult.__check(r, this, __flushBatchRequests_name);
-        r.__wait();
+        IceInternal.AsyncResultI ri = (IceInternal.AsyncResultI)r;
+        IceInternal.AsyncResultI.check(ri, this, __flushBatchRequests_name);
+        ri.__wait();
     }
 
     @Override

@@ -22,6 +22,7 @@ socksProxy = False              # Use SOCKS proxy running on localhost
 iceHome = None                  # Binary distribution to use (None to use binaries from source distribution)
 x64 = False                     # Binary distribution is 64-bit
 cpp11 = False                   # Binary distribution is c++ 11
+extraArgs = []
 
 
 # Default java loader
@@ -293,6 +294,7 @@ def run(tests, root = False):
           --winrt                     Run server with configuration suited for WinRT client.
           --server                    Run only the server.
           --mx                        Enable IceMX when running the tests.
+          --arg=<property>            Append the given argument.
         """)
         sys.exit(2)
 
@@ -301,7 +303,7 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64",
-                                    "script", "env",
+                                    "script", "env", "arg=",
                                     "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
                                     "c++11"])
     except getopt.GetoptError:
@@ -352,6 +354,11 @@ def run(tests, root = False):
             start = int(a)
         elif o == "--script":
             script = True
+        elif o == '--arg':
+            arg += "--arg="
+            arg += '"'
+            arg += a
+            arg += '"'
         elif o == "--protocol":
             if a not in ( "ws", "wss", "ssl", "tcp"):
                 usage()
@@ -754,6 +761,7 @@ class DriverConfig:
     cpp11 = False
     serviceDir = None
     mx = False
+    extraArgs = []
 
     def __init__(self, type = None):
         global protocol
@@ -771,6 +779,7 @@ class DriverConfig:
         global compact
         global silverlight
         global mx
+        global extraArgs
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -788,6 +797,7 @@ class DriverConfig:
         self.compact = compact
         self.silverlight = silverlight
         self.mx = mx
+        self.extraArgs = extraArgs
 
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -885,6 +895,9 @@ def getCommandLineProperties(exe, config):
 
     if config.host != None and len(config.host) != 0:
         components.append("--Ice.Default.Host=%s" % config.host)
+
+    for arg in config.extraArgs:
+        components.append('--' + arg)
 
     #
     # Not very many tests actually require an option override, so not too worried
@@ -1716,6 +1729,7 @@ def processCmdLine():
           --winrt                     Run server with configuration suited for WinRT client.
           --server                    Run only the server.
           --mx                        Enable IceMX when running the tests.
+          --arg=<property>            Append the given argument.
         """)
         sys.exit(2)
 
@@ -1723,7 +1737,7 @@ def processCmdLine():
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                                "socks", "ice-home=", "x64", "cross=", "client-home=", "env", \
-                               "service-dir=", "appverifier", \
+                               "service-dir=", "appverifier", "arg=", \
                                "compact", "silverlight", "winrt", "server", "mx", "c++11"])
     except getopt.GetoptError:
         usage()
@@ -1814,6 +1828,8 @@ def processCmdLine():
             serverOnly = True
         elif o == "--server":
             serverOnly = True
+        elif o == '--arg':
+            extraArgs.append(a)
         elif o == "--mx":
             global mx
             mx = True

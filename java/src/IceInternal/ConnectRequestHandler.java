@@ -14,7 +14,7 @@ import Ice.ConnectionI;
 public class ConnectRequestHandler
     implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
-    static class Request
+    static private class Request
     {
         Request(BasicStream os)
         {
@@ -22,17 +22,11 @@ public class ConnectRequestHandler
             this.os.swap(os);
         }
 
-        Request(OutgoingMessageCallback out)
-        {
-            this.out = out;
-        }
-
         Request(OutgoingAsyncMessageCallback out)
         {
             this.outAsync = out;
         }
 
-        OutgoingMessageCallback out = null;
         OutgoingAsyncMessageCallback outAsync = null;
         BasicStream os = null;
     }
@@ -135,29 +129,6 @@ public class ConnectRequestHandler
     }
 
     @Override
-    public boolean
-    sendRequest(OutgoingMessageCallback out)
-        throws RetryException
-    {
-        synchronized(this)
-        {
-            try
-            {
-                if(!initialized())
-                {
-                    _requests.add(new Request(out));
-                    return false; // Not sent
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                throw new RetryException(ex);
-            }
-        }
-        return out.send(_connection, _compress, _response) && !_response; // Finished if sent and no response.
-    }
-
-    @Override
     public int
     sendAsyncRequest(OutgoingAsyncMessageCallback out)
         throws RetryException
@@ -177,37 +148,7 @@ public class ConnectRequestHandler
                 throw new RetryException(ex);
             }
         }
-        return out.__send(_connection, _compress, _response);
-    }
-
-    @Override
-    public boolean
-    requestCanceled(OutgoingMessageCallback out, Ice.LocalException ex)
-    {
-        synchronized(this)
-        {
-            if(_exception != null)
-            {
-                return false; // The request has been notified of a failure already.
-            }
-
-            if(!initialized())
-            {
-                java.util.Iterator<Request> it = _requests.iterator();
-                while(it.hasNext())
-                {
-                    Request request = it.next();
-                    if(request.out == out)
-                    {
-                        out.finished(ex);
-                        it.remove();
-                        return true;
-                    }
-                }
-                assert(false); // The request has to be queued if it timed out and we're not initialized yet.
-            }
-        }
-        return _connection.requestCanceled(out, ex);
+        return out.send(_connection, _compress, _response);
     }
 
     @Override
@@ -230,7 +171,7 @@ public class ConnectRequestHandler
                     if(request.outAsync == outAsync)
                     {
                         it.remove();
-                        outAsync.__dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
+                        outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
                         return true; // We're done
                     }
                 }
@@ -249,7 +190,8 @@ public class ConnectRequestHandler
 
     @Override
     synchronized public ConnectionI
-    getConnection() {
+    getConnection()
+    {
         if(_exception != null)
         {
             throw (Ice.LocalException)_exception.fillInStackTrace();
@@ -259,12 +201,17 @@ public class ConnectRequestHandler
             return _connection;
         }
     }
-
+    
     @Override
     synchronized public
     ConnectionI waitForConnection()
-        throws InterruptedException
+        throws InterruptedException, RetryException
     {
+        if(_exception != null)
+        {
+            throw new RetryException(_exception);
+        }
+
         //
         // Wait for the connection establishment to complete or fail.
         //
@@ -440,13 +387,9 @@ public class ConnectRequestHandler
             while(p.hasNext())
             {
                 Request request = p.next();
-                if(request.out != null)
+                if(request.outAsync != null)
                 {
-                    request.out.send(_connection, _compress, _response);
-                }
-                else if(request.outAsync != null)
-                {
-                    if((request.outAsync.__send(_connection, _compress, _response) &
+                    if((request.outAsync.send(_connection, _compress, _response) &
                         AsyncStatus.InvokeSentCallback) > 0)
                     {
                         sentCallbacks.add(request.outAsync);
@@ -485,14 +428,13 @@ public class ConnectRequestHandler
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
                 _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
+                {
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void
-                        run()
-                        {
-                            flushRequestsWithException();
-                        };
-                    });
+                        flushRequestsWithException();
+                    };
+                });
             }
         }
         catch(final Ice.LocalException ex)
@@ -502,32 +444,29 @@ public class ConnectRequestHandler
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
                 _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
+                {
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void
-                        run()
-                        {
-                            flushRequestsWithException();
-                        };
-                    });
+                        flushRequestsWithException();
+                    };
+                });
             }
         }
 
         if(!sentCallbacks.isEmpty())
         {
-            _reference.getInstance().clientThreadPool().dispatch(
-                new DispatchWorkItem(_connection)
+            _reference.getInstance().clientThreadPool().dispatch(new DispatchWorkItem(_connection)
+            {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void
-                    run()
+                    for(OutgoingAsyncMessageCallback callback : sentCallbacks)
                     {
-                        for(OutgoingAsyncMessageCallback callback : sentCallbacks)
-                        {
-                            callback.__invokeSent();
-                        }
-                    };
-                });
+                        callback.invokeSent();
+                    }
+                };
+            });
         }
 
         //
@@ -590,13 +529,9 @@ public class ConnectRequestHandler
     {
         for(Request request : _requests)
         {
-            if(request.out != null)
+            if(request.outAsync != null)
             {
-                request.out.finished(_exception);
-            }
-            else if(request.outAsync != null)
-            {
-                request.outAsync.__finished(_exception);
+                request.outAsync.finished(_exception);
             }
         }
         _requests.clear();

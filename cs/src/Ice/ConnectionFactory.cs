@@ -1656,7 +1656,7 @@ namespace IceInternal
                 {
                     Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, null, 
                                                                      _transceiver, null, _endpoint, _adapter);
-                    connection.start(null);
+                    connection.startAndWait();
                     _connections.Add(connection);
                 }
                 else
@@ -1672,7 +1672,6 @@ namespace IceInternal
                 //
                 // Clean up.
                 //
-
                 if(_transceiver != null)
                 {
                     try

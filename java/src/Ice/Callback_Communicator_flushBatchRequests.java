@@ -46,4 +46,10 @@ public abstract class Callback_Communicator_flushBatchRequests extends IceIntern
     {
         sent(__result.sentSynchronously());
     }
+
+    @Override
+    public final boolean __hasSentCallback()
+    {
+        return true;
+    }
 }

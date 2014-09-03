@@ -25,18 +25,18 @@ namespace IceInternal
             {
                 try
                 {
-                    _outAsync.invoke__(false);
+                    _outAsync.invoke(false);
                 }
                 catch(Ice.LocalException ex)
                 {
-                    _outAsync.invokeExceptionAsync__(ex);
+                    _outAsync.invokeExceptionAsync(ex);
                 }
             }
         }
 
         public void destroy()
         {
-            _outAsync.invokeExceptionAsync__(new Ice.CommunicatorDestroyedException());
+            _outAsync.invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
         }
 
         private RetryQueue _retryQueue;

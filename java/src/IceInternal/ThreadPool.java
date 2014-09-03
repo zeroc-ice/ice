@@ -389,12 +389,6 @@ public final class ThreadPool
         _selector.destroy();
     }
 
-    public String
-    prefix()
-    {
-        return _prefix;
-    }
-
     private void
     run(EventHandlerThread thread)
     {

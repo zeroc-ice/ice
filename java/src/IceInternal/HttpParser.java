@@ -20,7 +20,7 @@ final class HttpParser
         _state = State.Init;
     }
 
-    enum Type
+    private enum Type
     {
         Unknown,
         Request,
@@ -627,17 +627,6 @@ final class HttpParser
         return _state == State.Complete;
     }
 
-    Type type()
-    {
-        return _type;
-    }
-
-    String method()
-    {
-        assert(_type == Type.Request);
-        return _method.toString();
-    }
-
     String uri()
     {
         assert(_type == Type.Request);
@@ -675,11 +664,6 @@ final class HttpParser
         return null;
     }
 
-    java.util.Map<String, String> headers()
-    {
-        return _headers;
-    }
-
     private Type _type;
 
     private StringBuffer _method = new StringBuffer();
@@ -694,7 +678,7 @@ final class HttpParser
     private int _status;
     private String _reason;
 
-    enum State
+    private enum State
     {
         Init,
         Type,

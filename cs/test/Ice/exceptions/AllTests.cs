@@ -817,6 +817,7 @@ public class AllTests : TestCommon.TestApp
         Write("testing checked cast... ");
         Flush();
         ThrowerPrx thrower = ThrowerPrxHelper.checkedCast(@base);
+
         test(thrower != null);
         test(thrower.Equals(@base));
         WriteLine("ok");

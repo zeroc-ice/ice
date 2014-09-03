@@ -25,7 +25,8 @@ COBJS		= Test.o \
 		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
 		  OnewaysNewAMI.o \
-		  BatchOneways.o
+		  BatchOneways.o \
+		  BatchOnewaysAMI.o
 
 SOBJS		= Test.o \
 		  TestI.o \
@@ -45,7 +46,8 @@ COLOBJS		= Test.o \
 		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
 		  OnewaysNewAMI.o \
-		  BatchOneways.o
+		  BatchOneways.o \
+		  BatchOnewaysAMI.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \

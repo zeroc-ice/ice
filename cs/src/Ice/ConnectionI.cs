@@ -56,12 +56,43 @@ namespace Ice
 
                     if(!initialize(IceInternal.SocketOperation.None) || !validate(IceInternal.SocketOperation.None))
                     {
-                        if(callback != null)
-                        {
-                            _startCallback = callback;
-                            return;
-                        }
+                        _startCallback = callback;
+                        return;
+                    }
 
+                    //
+                    // We start out in holding state.
+                    //
+                    setState(StateHolding);
+                }
+            }
+            catch(LocalException ex)
+            {
+                exception(ex);
+                callback.connectionStartFailed(this, _exception);
+                return;
+            }
+
+            callback.connectionStartCompleted(this);
+        }
+
+        public void startAndWait()
+        {
+            try
+            {
+                lock(this)
+                {
+                    //
+                    // The connection might already be closed if the communicator was destroyed.
+                    //
+                    if(_state >= StateClosed)
+                    {
+                        Debug.Assert(_exception != null);
+                        throw _exception;
+                    }
+
+                    if(!initialize(IceInternal.SocketOperation.None) || !validate(IceInternal.SocketOperation.None))
+                    {
                         //
                         // Wait for the connection to be validated.
                         //
@@ -85,22 +116,9 @@ namespace Ice
             }
             catch(LocalException ex)
             {
-                exception(ex);
-                if(callback != null)
-                {
-                    callback.connectionStartFailed(this, _exception);
-                    return;
-                }
-                else
-                {
-                    waitUntilFinished();
-                    throw;
-                }
-            }
-
-            if(callback != null)
-            {
-                callback.connectionStartCompleted(this);
+                exception(ex);                
+                waitUntilFinished();
+                return;
             }
         }
 
@@ -176,7 +194,7 @@ namespace Ice
                     // requests to be retried, regardless of whether the
                     // server has processed them or not.
                     //
-                    while(_requests.Count != 0 || _asyncRequests.Count != 0)
+                    while(_asyncRequests.Count != 0)
                     {
                         System.Threading.Monitor.Wait(this);
                     }
@@ -341,7 +359,7 @@ namespace Ice
                 if(acm.close != ACMClose.CloseOff && now >= (_acmLastActivity + acm.timeout))
                 {
                     if(acm.close == ACMClose.CloseOnIdleForceful || 
-                       (acm.close != ACMClose.CloseOnIdle && (_requests.Count > 0 || _asyncRequests.Count > 0)))
+                       (acm.close != ACMClose.CloseOnIdle && (_asyncRequests.Count > 0)))
                     {
                         //
                         // Close the connection if we didn't receive a heartbeat in
@@ -351,7 +369,7 @@ namespace Ice
                     }
                     else if(acm.close != ACMClose.CloseOnInvocation && 
                             _dispatchCount == 0 && _batchStream.isEmpty()  && 
-                            _requests.Count == 0 && _asyncRequests.Count == 0)
+                            _asyncRequests.Count == 0)
                     {
                         //
                         // The connection is idle, close it.
@@ -359,82 +377,6 @@ namespace Ice
                         setState(StateClosing, new ConnectionTimeoutException());
                     }
                 }
-            }
-        }
-
-        public bool sendRequest(IceInternal.Outgoing og, bool compress, bool response)
-        {
-            IceInternal.BasicStream os = og.ostr();
-
-            lock(this)
-            {
-                if(_exception != null)
-                {
-                    //
-                    // If the connection is closed before we even have a chance
-                    // to send our request, we always try to send the request
-                    // again.
-                    //
-                    throw new IceInternal.RetryException(_exception);
-                }
-
-                Debug.Assert(_state > StateNotValidated);
-                Debug.Assert(_state < StateClosing);
-
-                //
-                // Ensure the message isn't bigger than what we can send with the
-                // transport.
-                //
-                _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
-
-                int requestId = 0;
-                if(response)
-                {
-                    //
-                    // Create a new unique request ID.
-                    //
-                    requestId = _nextRequestId++;
-                    if(requestId <= 0)
-                    {
-                        _nextRequestId = 1;
-                        requestId = _nextRequestId++;
-                    }
-
-                    //
-                    // Fill in the request ID.
-                    //
-                    os.pos(IceInternal.Protocol.headerSize);
-                    os.writeInt(requestId);
-                }
-
-                og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, 
-                                        os.size() - IceInternal.Protocol.headerSize - 4);
-
-                //
-                // Send the message. If it can't be sent without blocking the message is added
-                // to _sendStreams and it will be sent by the asynchronous I/O callback.
-                //
-                bool sent = false;
-                try
-                {
-                    sent = sendMessage(new OutgoingMessage(og, os, compress, requestId));
-                }
-                catch(LocalException ex)
-                {
-                    setState(StateClosed, ex);
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-
-                if(response)
-                {
-                    //
-                    // Add to the requests map.
-                    //
-                    _requests[requestId] = og;
-                }
-
-                return sent;
             }
         }
 
@@ -484,7 +426,7 @@ namespace Ice
                     os.writeInt(requestId);
                 }
 
-                og.attachRemoteObserver__(initConnectionInfo(), _endpoint, requestId, 
+                og.attachRemoteObserver(initConnectionInfo(), _endpoint, requestId, 
                                           os.size() - IceInternal.Protocol.headerSize - 4);
 
                 bool sent;
@@ -714,8 +656,7 @@ namespace Ice
 
         public void flushBatchRequests()
         {
-            IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(this, _instance, __flushBatchRequests_name);
-            @out.invoke();
+            end_flushBatchRequests(begin_flushBatchRequests());
         }
 
         public AsyncResult begin_flushBatchRequests()
@@ -731,8 +672,8 @@ namespace Ice
         public void end_flushBatchRequests(AsyncResult r)
         {
             IceInternal.OutgoingAsyncBase outAsync = (IceInternal.OutgoingAsyncBase)r;
-            IceInternal.OutgoingAsyncBase.check__(outAsync, this, __flushBatchRequests_name);
-            outAsync.wait__();
+            IceInternal.OutgoingAsyncBase.check(outAsync, this, __flushBatchRequests_name);
+            outAsync.wait();
         }
 
         private const string __flushBatchRequests_name = "flushBatchRequests";
@@ -750,73 +691,14 @@ namespace Ice
 
             try
             {
-                result.invoke__();
+                result.invoke();
             }
             catch(LocalException ex)
             {
-                result.invokeExceptionAsync__(ex);
+                result.invokeExceptionAsync(ex);
             }
 
             return result;
-        }
-
-        public bool flushBatchRequests(IceInternal.BatchOutgoing @out)
-        {
-            lock(this)
-            {
-                while(_batchStreamInUse && _exception == null)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                if(_exception != null)
-                {
-                    throw _exception;
-                }
-
-                if(_batchRequestNum == 0)
-                {
-                    @out.sent();
-                    return true;
-                }
-
-                //
-                // Fill in the number of requests in the batch.
-                //
-                _batchStream.pos(IceInternal.Protocol.headerSize);
-                _batchStream.writeInt(_batchRequestNum);
-
-                @out.attachRemoteObserver(initConnectionInfo(), _endpoint, 
-                                          _batchStream.size() - IceInternal.Protocol.headerSize);
-
-                _batchStream.swap(@out.ostr());
-
-                //
-                // Send the batch stream.
-                //
-                bool sent = false;
-                try
-                {
-                    OutgoingMessage message = new OutgoingMessage(@out, @out.ostr(), _batchRequestCompress, 0);
-                    sent = sendMessage(message);
-                }
-                catch(LocalException ex)
-                {
-                    setState(StateClosed, ex);
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-
-                //
-                // Reset the batch stream.
-                //
-                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
-                _batchRequestNum = 0;
-                _batchRequestCompress = false;
-                _batchMarker = 0;
-
-                return sent;
-            }
         }
 
         public bool flushAsyncBatchRequests(IceInternal.BatchOutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
@@ -835,7 +717,7 @@ namespace Ice
                 
                 if(_batchRequestNum == 0)
                 {
-                    sentCallback = outAsync.sent__();
+                    sentCallback = outAsync.sent();
                     return true;
                 }
 
@@ -845,7 +727,7 @@ namespace Ice
                 _batchStream.pos(IceInternal.Protocol.headerSize);
                 _batchStream.writeInt(_batchRequestNum);
 
-                outAsync.attachRemoteObserver__(initConnectionInfo(), _endpoint, 0, 
+                outAsync.attachRemoteObserver(initConnectionInfo(), _endpoint, 0, 
                                                 _batchStream.size() - IceInternal.Protocol.headerSize - 4);
 
                 _batchStream.swap(outAsync.ostr__);
@@ -928,52 +810,7 @@ namespace Ice
             }
         }
 
-        public void requestTimedOut(IceInternal.OutgoingMessageCallback @out)
-        {
-            lock(this)
-            {
-                LinkedListNode<OutgoingMessage> p;
-                for(p = _sendStreams.First; p != null; p = p.Next)
-                {
-                    OutgoingMessage o = p.Value;
-                    if(o.@out == @out)
-                    {
-                        if(o.requestId > 0)
-                        {
-                            _requests.Remove(o.requestId);
-                        }
-                
-                        //
-                        // If the request is being sent, don't remove it from the send streams, 
-                        // it will be removed once the sending is finished.
-                        //
-                        o.timedOut();
-                        if(p != _sendStreams.First)
-                        {
-                            _sendStreams.Remove(p);
-                        }
-                        @out.finished(new InvocationTimeoutException());
-                        return; // We're done.
-                    }
-                }
-
-                if(@out is IceInternal.Outgoing)
-                {
-                    IceInternal.Outgoing o = (IceInternal.Outgoing)@out;
-                    foreach(KeyValuePair<int, IceInternal.Outgoing> kvp in _requests)
-                    {
-                        if(kvp.Value == o)
-                        {
-                            o.finished(new InvocationTimeoutException());
-                            _requests.Remove(kvp.Key);
-                            return; // We're done.
-                        }
-                    }
-                }
-            }
-        }
-
-        public void asyncRequestTimedOut(IceInternal.OutgoingAsyncMessageCallback outAsync)
+        public void asyncRequestCanceled(IceInternal.OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
         {
             lock(this)
             {
@@ -997,7 +834,7 @@ namespace Ice
                         {
                             _sendStreams.Remove(p);
                         }
-                        outAsync.dispatchInvocationTimeout__(_threadPool, this);
+                        outAsync.dispatchInvocationCancel(ex, _threadPool, this);
                         return; // We're done.
                     }
                 }
@@ -1010,7 +847,7 @@ namespace Ice
                         if(kvp.Value == o)
                         {
                             _asyncRequests.Remove(kvp.Key);
-                            outAsync.dispatchInvocationTimeout__(_threadPool, this);
+                            outAsync.dispatchInvocationCancel(ex, _threadPool, this);
                             return; // We're done.
                         }
                     }
@@ -1495,10 +1332,10 @@ namespace Ice
                 //
                 IceInternal.ThreadPoolCurrent c = current;
                 _threadPool.dispatch(() =>
-                    {
-                        dispatch(startCB, sentCBs, info);
-                        msg.destroy(ref c);
-                    }, this);
+                {
+                    dispatch(startCB, sentCBs, info);
+                    msg.destroy(ref c);
+                }, this);
             }
         }
 
@@ -1525,11 +1362,11 @@ namespace Ice
                 {
                     if(m.sentCallback != null)
                     {
-                        m.outAsync.invokeSent__(m.sentCallback);
+                        m.outAsync.invokeSent(m.sentCallback);
                     }
                     if(m.receivedReply)
                     {
-                        ((IceInternal.OutgoingAsync)m.outAsync).finished__();
+                        ((IceInternal.OutgoingAsync)m.outAsync).finished();
                     }
                 }
                 ++count;
@@ -1541,7 +1378,7 @@ namespace Ice
             //
             if(info.outAsync != null)
             {
-                info.outAsync.finished__();
+                info.outAsync.finished();
                 ++count;
             }
 
@@ -1667,11 +1504,11 @@ namespace Ice
                     {
                         if(message.sent() && message.sentCallback != null)
                         {
-                            message.outAsync.invokeSent__(message.sentCallback);
+                            message.outAsync.invokeSent(message.sentCallback);
                         }
                         if(message.receivedReply)
                         {
-                            ((IceInternal.OutgoingAsync)message.outAsync).finished__();
+                            ((IceInternal.OutgoingAsync)message.outAsync).finished();
                         }
                         _sendStreams.RemoveFirst();
                     }
@@ -1682,28 +1519,15 @@ namespace Ice
                     m.finished(_exception);
                     if(m.requestId > 0) // Make sure finished isn't called twice.
                     {
-                        if(m.@out != null)
-                        {
-                            _requests.Remove(m.requestId);
-                        }
-                        else
-                        {
-                            _asyncRequests.Remove(m.requestId);
-                        }
+                        _asyncRequests.Remove(m.requestId);
                     }
                 }
                 _sendStreams.Clear();
             }
 
-            foreach(IceInternal.Outgoing o in _requests.Values)
-            {
-                o.finished(_exception);
-            }
-            _requests.Clear();
-
             foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values)
             {
-                o.finished__(_exception);
+                o.finished(_exception);
             }
             _asyncRequests.Clear();
 
@@ -2718,14 +2542,7 @@ namespace Ice
                     {
                         IceInternal.TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
-                        IceInternal.Outgoing og = null;
-                        if(_requests.TryGetValue(info.requestId, out og))
-                        {
-                            _requests.Remove(info.requestId);
-                            og.finished(info.stream);
-                            System.Threading.Monitor.PulseAll(this); // Notify threads blocked in close(false)
-                        }
-                        else if(_asyncRequests.TryGetValue(info.requestId, out info.outAsync))
+                        if(_asyncRequests.TryGetValue(info.requestId, out info.outAsync))
                         {
                             _asyncRequests.Remove(info.requestId);
 
@@ -3051,30 +2868,19 @@ namespace Ice
                 this.requestId = 0;
             }
 
-            internal OutgoingMessage(IceInternal.OutgoingMessageCallback @out, IceInternal.BasicStream stream,
+            internal OutgoingMessage(IceInternal.OutgoingAsyncMessageCallback outAsync, IceInternal.BasicStream stream,
                                      bool compress, int requestId)
             {
                 this.stream = stream;
                 this.compress = compress;
-                this.@out = @out;
-                this.requestId = requestId;
-                this.isSent = false;
-            }
-
-            internal OutgoingMessage(IceInternal.OutgoingAsyncMessageCallback @out, IceInternal.BasicStream stream,
-                                     bool compress, int requestId)
-            {
-                this.stream = stream;
-                this.compress = compress;
-                this.outAsync = @out;
+                this.outAsync = outAsync;
                 this.requestId = requestId;
                 this.isSent = false;
             }
 
             internal void timedOut()
             {
-                Debug.Assert((@out != null || outAsync != null));
-                @out = null;
+                Debug.Assert(outAsync != null);
                 outAsync = null;
             }
 
@@ -3092,31 +2898,22 @@ namespace Ice
 
             internal bool sent()
             {
-                if(@out != null)
+                if(outAsync != null)
                 {
-                    @out.sent();
-                }
-                else if(outAsync != null)
-                {
-                    sentCallback = outAsync.sent__();
+                    sentCallback = outAsync.sent();
                 }
                 return sentCallback != null || receivedReply;
             }
 
             internal void finished(LocalException ex)
             {
-                if(@out != null)
+                if(outAsync != null)
                 {
-                    @out.finished(ex);
-                }
-                else if(outAsync != null)
-                {
-                    outAsync.finished__(ex);
+                    outAsync.finished(ex);
                 }
             }
 
             internal IceInternal.BasicStream stream;
-            internal IceInternal.OutgoingMessageCallback @out;
             internal IceInternal.OutgoingAsyncMessageCallback outAsync;
             internal bool receivedReply;
             internal bool compress;
@@ -3160,7 +2957,6 @@ namespace Ice
 
         private int _nextRequestId;
 
-        private Dictionary<int, IceInternal.Outgoing> _requests = new Dictionary<int, IceInternal.Outgoing>();
         private Dictionary<int, IceInternal.OutgoingAsync> _asyncRequests =
             new Dictionary<int, IceInternal.OutgoingAsync>();
 

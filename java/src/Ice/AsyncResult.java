@@ -14,50 +14,29 @@ package Ice;
  * With this object, an application can obtain several attributes of the
  * invocation and discover its outcome.
  **/
-public class AsyncResult
+public interface AsyncResult
 {
-    protected AsyncResult(Communicator communicator, IceInternal.Instance instance, String op,
-                          IceInternal.CallbackBase del)
-    {
-        _communicator = communicator;
-        _instance = instance;
-        _operation = op;
-        _os = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding, false, false);
-        _state = 0;
-        _sentSynchronously = false;
-        _exception = null;
-        _callback = del;
-    }
 
     /**
      * Returns the communicator that sent the invocation.
      *
      * @return The communicator.
      **/
-    public Communicator getCommunicator()
-    {
-        return _communicator;
-    }
+    public Communicator getCommunicator();
 
     /**
      * Returns the connection that was used for the invocation.
      *
      * @return The connection.
      **/
-    public Connection getConnection()
-    {
-        return null;
-    }
+    public Connection getConnection();
 
     /**
      * Returns the proxy that was used to call the <code>begin_</code> method.
      *
      * @return The proxy.
      **/
-    public ObjectPrx getProxy()
-    {
-        return null;
-    }
+    public ObjectPrx getProxy();
 
     /**
      * Indicates whether the result of an invocation is available.
@@ -65,34 +44,12 @@ public class AsyncResult
      * @return True if the result is available, which means a call to the <code>end_</code>
      * method will not block. The method returns false if the result is not yet available.
      **/
-    public final boolean isCompleted()
-    {
-        synchronized(_monitor)
-        {
-            return (_state & Done) > 0;
-        }
-    }
+    public boolean isCompleted();
 
     /**
      * Blocks the caller until the result of the invocation is available.
      **/
-    public final void waitForCompleted()
-    {
-        synchronized(_monitor)
-        {
-            while((_state & Done) == 0)
-            {
-                try
-                {
-                    _monitor.wait();
-                }
-                catch(InterruptedException ex)
-                {
-                    throw new Ice.OperationInterruptedException();
-                }
-            }
-        }
-    }
+    public void waitForCompleted();
 
     /**
      * When you call the <code>begin_</code> method, the Ice run time attempts to
@@ -105,48 +62,17 @@ public class AsyncResult
      *
      * @return True if the request has been sent, or false if the request is queued.
      **/
-    public final boolean isSent()
-    {
-        synchronized(_monitor)
-        {
-            return (_state & Sent) > 0;
-        }
-    }
+    public boolean isSent();
 
     /**
      * Blocks the caller until the request has been written to the client-side transport.
      **/
-    public final void waitForSent()
-    {
-        synchronized(_monitor)
-        {
-            while((_state & Sent) == 0 && _exception == null)
-            {
-                try
-                {
-                    _monitor.wait();
-                }
-                catch(InterruptedException ex)
-                {
-                    throw new Ice.OperationInterruptedException();
-                }
-            }
-        }
-    }
+    public void waitForSent();
 
     /**
      * If the invocation failed with a local exception, throws the local exception.
      **/
-    public final void throwLocalException()
-    {
-        synchronized(_monitor)
-        {
-            if(_exception != null)
-            {
-                throw _exception;
-            }
-        }
-    }
+    public void throwLocalException();
 
     /**
      * This method returns true if a request was written to the client-side
@@ -157,385 +83,12 @@ public class AsyncResult
      * @return True if the request was sent without being queued, or false
      * otherwise.
      **/
-    public final boolean sentSynchronously()
-    {
-        return _sentSynchronously; // No lock needed, immutable once __send() is called
-    }
+    public boolean sentSynchronously();
 
     /**
      * Returns the name of the operation.
      *
      * @return The operation name.
      **/
-    public final String getOperation()
-    {
-        return _operation;
-    }
-
-    public final IceInternal.BasicStream __getOs()
-    {
-        return _os;
-    }
-
-    public IceInternal.BasicStream
-    __startReadParams()
-    {
-        _is.startReadEncaps();
-        return _is;
-    }
-
-    public void
-    __endReadParams()
-    {
-        _is.endReadEncaps();
-    }
-
-    public void
-    __readEmptyParams()
-    {
-        _is.skipEmptyEncaps(null);
-    }
-
-    public byte[]
-    __readParamEncaps()
-    {
-        return _is.readEncaps(null);
-    }
-
-    public final boolean __wait()
-    {
-        synchronized(_monitor)
-        {
-            if((_state & EndCalled) > 0)
-            {
-                throw new java.lang.IllegalArgumentException("end_ method called more than once");
-            }
-            _state |= EndCalled;
-            while((_state & Done) == 0)
-            {
-                try
-                {
-                    _monitor.wait();
-                }
-                catch(InterruptedException ex)
-                {
-                    //
-                    // Remove the EndCalled flag since it should be possible to
-                    // call end_* again on the AsyncResult.
-                    //
-                    _state &= ~EndCalled;
-                    throw new Ice.OperationInterruptedException();
-                }
-            }
-            if(_exception != null)
-            {
-                //throw (LocalException)_exception.fillInStackTrace();
-                throw _exception;
-            }
-            return (_state & OK) > 0;
-        }
-    }
-
-    public final void __throwUserException()
-        throws UserException
-    {
-        try
-        {
-            _is.startReadEncaps();
-            _is.throwException(null);
-        }
-        catch(UserException ex)
-        {
-            _is.endReadEncaps();
-            throw ex;
-        }
-    }
-
-    public final void __invokeExceptionAsync(final Ice.Exception ex)
-    {
-        //
-        // This is called when it's not safe to call the exception callback synchronously
-        // from this thread. Instead the exception callback is called asynchronously from
-        // the client thread pool.
-        //
-        try
-        {
-            _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
-                {
-                    @Override
-                    public void
-                    run()
-                    {
-                        __invokeException(ex);
-                    }
-                });
-        }
-        catch(CommunicatorDestroyedException exc)
-        {
-            throw exc; // CommunicatorDestroyedException is the only exception that can propagate directly.
-        }
-    }
-
-    public final void __invokeException(Ice.Exception ex)
-    {
-        synchronized(_monitor)
-        {
-            _state |= Done;
-            _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
-            _exception = ex;
-            _monitor.notifyAll();
-        }
-
-        __invokeCompleted();
-    }
-
-    protected final void __invokeSentInternal()
-    {
-        //
-        // Note: no need to change the _state here, specializations are responsible for
-        // changing the state.
-        //
-
-        if(_callback != null)
-        {
-            if(_instance.useApplicationClassLoader())
-            {
-                Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
-            }
-
-            try
-            {
-                _callback.__sent(this);
-            }
-            catch(RuntimeException ex)
-            {
-                __warning(ex);
-            }
-            catch(AssertionError exc)
-            {
-                __error(exc);
-            }
-            catch(OutOfMemoryError exc)
-            {
-                __error(exc);
-            }
-            finally
-            {
-                if(_instance.useApplicationClassLoader())
-                {
-                    Thread.currentThread().setContextClassLoader(null);
-                }
-            }
-        }
-
-        if(_observer != null)
-        {
-            Ice.ObjectPrx proxy = getProxy();
-            if(proxy == null || !proxy.ice_isTwoway())
-            {
-                _observer.detach();
-            }
-        }
-    }
-
-    public void
-    __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
-    {
-        if(_observer != null)
-        {
-            _childObserver = _observer.getRemoteObserver(info, endpt, requestId, size);
-            if(_childObserver != null)
-            {
-                _childObserver.attach();
-            }
-        }
-    }
-
-    public void __attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
-    {
-        if(_observer != null)
-        {
-            _childObserver = _observer.getCollocatedObserver(adapter,
-                                                              requestId,
-                                                              _os.size() - IceInternal.Protocol.headerSize - 4);
-            if(_childObserver != null)
-            {
-                _childObserver.attach();
-            }
-        }
-    }
-
-    public final void __invokeSentAsync()
-    {
-        //
-        // This is called when it's not safe to call the sent callback synchronously
-        // from this thread. Instead the exception callback is called asynchronously from
-        // the client thread pool.
-        //
-        try
-        {
-            _instance.clientThreadPool().dispatch(new IceInternal.DispatchWorkItem(_cachedConnection)
-                {
-                    @Override
-                    public void
-                    run()
-                    {
-                        __invokeSentInternal();
-                    }
-                });
-        }
-        catch(CommunicatorDestroyedException exc)
-        {
-        }
-    }
-
-    public static void __check(AsyncResult r, ObjectPrx prx, String operation)
-    {
-        __check(r, operation);
-        if(r.getProxy() != prx)
-        {
-            throw new IllegalArgumentException("Proxy for call to end_" + operation +
-                                               " does not match proxy that was used to call corresponding begin_" +
-                                               operation + " method");
-        }
-    }
-
-    public static void __check(AsyncResult r, Connection con, String operation)
-    {
-        __check(r, operation);
-        if(r.getConnection() != con)
-        {
-            throw new IllegalArgumentException("Connection for call to end_" + operation +
-                                               " does not match connection that was used to call corresponding begin_" +
-                                               operation + " method");
-        }
-    }
-
-    public static void __check(AsyncResult r, Communicator com, String operation)
-    {
-        __check(r, operation);
-        if(r.getCommunicator() != com)
-        {
-            throw new IllegalArgumentException("Communicator for call to end_" + operation +
-                                               " does not match communicator that was used to call corresponding " +
-                                               "begin_" + operation + " method");
-        }
-    }
-
-    protected static void __check(AsyncResult r, String operation)
-    {
-        if(r == null)
-        {
-            throw new IllegalArgumentException("AsyncResult == null");
-        }
-        else if(r.getOperation() != operation) // Do NOT use equals() here - we are comparing reference equality
-        {
-            throw new IllegalArgumentException("Incorrect operation for end_" + operation + " method: " +
-                                               r.getOperation());
-        }
-    }
-
-    protected final void __invokeCompleted()
-    {
-        //
-        // Note: no need to change the _state here, specializations are responsible for
-        // changing the state.
-        //
-
-        if(_callback != null)
-        {
-            if(_instance.useApplicationClassLoader())
-            {
-                Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
-            }
-
-            try
-            {
-                _callback.__completed(this);
-            }
-            catch(RuntimeException ex)
-            {
-                __warning(ex);
-            }
-            catch(AssertionError exc)
-            {
-                __error(exc);
-            }
-            catch(OutOfMemoryError exc)
-            {
-                __error(exc);
-            }
-            finally
-            {
-                if(_instance.useApplicationClassLoader())
-                {
-                    Thread.currentThread().setContextClassLoader(null);
-                }
-            }
-        }
-
-        if(_observer != null)
-        {
-            _observer.detach();
-            _observer = null;
-        }
-    }
-
-    protected void
-    __runTimerTask()
-    {
-        IceInternal.RequestHandler handler;
-        synchronized(_monitor)
-        {
-            handler = _timeoutRequestHandler;
-            _timeoutRequestHandler = null;
-        }
-
-        if(handler != null)
-        {
-            handler.asyncRequestCanceled((IceInternal.OutgoingAsyncMessageCallback)this,
-                            new Ice.InvocationTimeoutException());
-        }
-    }
-
-    protected final void __warning(RuntimeException ex)
-    {
-        if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-        {
-            String s = "exception raised by AMI callback:\n" + IceInternal.Ex.toString(ex);
-            _instance.initializationData().logger.warning(s);
-        }
-    }
-
-    protected final void __error(Error error)
-    {
-        String s = "error raised by AMI callback:\n" + IceInternal.Ex.toString(error);
-        _instance.initializationData().logger.error(s);
-    }
-
-    protected Communicator _communicator;
-    protected IceInternal.Instance _instance;
-    protected String _operation;
-    protected Ice.Connection _cachedConnection;
-
-    protected java.lang.Object _monitor = new java.lang.Object();
-    protected IceInternal.BasicStream _is;
-    protected IceInternal.BasicStream _os;
-
-    protected IceInternal.RequestHandler _timeoutRequestHandler;
-    protected java.util.concurrent.Future<?> _future;
-
-    protected static final byte OK = 0x1;
-    protected static final byte Done = 0x2;
-    protected static final byte Sent = 0x4;
-    protected static final byte EndCalled = 0x8;
-
-    protected byte _state;
-    protected boolean _sentSynchronously;
-    protected Ice.Exception _exception;
-
-    protected Ice.Instrumentation.InvocationObserver _observer;
-    protected Ice.Instrumentation.ChildInvocationObserver _childObserver;
-
-    private IceInternal.CallbackBase _callback;
+    public String getOperation();
 }

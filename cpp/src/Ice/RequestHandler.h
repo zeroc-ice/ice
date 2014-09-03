@@ -70,7 +70,8 @@ public:
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
-    virtual Ice::ConnectionIPtr getConnection(bool) = 0;
+    virtual Ice::ConnectionIPtr getConnection() = 0;
+    virtual Ice::ConnectionIPtr waitForConnection() = 0;
     
 protected:
 

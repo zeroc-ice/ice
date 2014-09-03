@@ -487,94 +487,6 @@ public final class Network
         }
     }
 
-    public static java.nio.channels.SocketChannel
-    doAccept(java.nio.channels.ServerSocketChannel fd, int timeout)
-    {
-        java.nio.channels.SocketChannel result = null;
-        while(result == null)
-        {
-            try
-            {
-                result = fd.accept();
-                if(result == null)
-                {
-                    java.nio.channels.Selector selector = java.nio.channels.Selector.open();
-
-                    try
-                    {
-                        while(true)
-                        {
-                            try
-                            {
-                                fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
-                                int n;
-                                if(timeout > 0)
-                                {
-                                    n = selector.select(timeout);
-                                }
-                                else if(timeout == 0)
-                                {
-                                    n = selector.selectNow();
-                                }
-                                else
-                                {
-                                    n = selector.select();
-                                }
-
-                                if(n == 0)
-                                {
-                                    throw new Ice.TimeoutException();
-                                }
-
-                                break;
-                            }
-                            catch(java.io.IOException ex)
-                            {
-                                if(interrupted(ex))
-                                {
-                                    continue;
-                                }
-                                throw new Ice.SocketException(ex);
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            selector.close();
-                        }
-                        catch(java.io.IOException ex)
-                        {
-                            // Ignore
-                        }
-                    }
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                if(interrupted(ex))
-                {
-                    continue;
-                }
-                throw new Ice.SocketException(ex);
-            }
-        }
-
-        try
-        {
-            java.net.Socket socket = result.socket();
-            socket.setTcpNoDelay(true);
-            socket.setKeepAlive(true);
-        }
-        catch(java.io.IOException ex)
-        {
-            throw new Ice.SocketException(ex);
-        }
-
-        return result;
-    }
-
     public static void
     setSendBufferSize(java.nio.channels.SocketChannel fd, int size)
     {
@@ -1184,22 +1096,6 @@ public final class Network
         {
             assert(false);
         }
-
-        return addressesToString(localAddr, localPort, remoteAddr, remotePort);
-    }
-
-    public static String
-    fdToString(java.net.Socket fd)
-    {
-        if(fd == null)
-        {
-            return "<closed>";
-        }
-
-        java.net.InetAddress localAddr = fd.getLocalAddress();
-        int localPort = fd.getLocalPort();
-        java.net.InetAddress remoteAddr = fd.getInetAddress();
-        int remotePort = fd.getPort();
 
         return addressesToString(localAddr, localPort, remoteAddr, remotePort);
     }

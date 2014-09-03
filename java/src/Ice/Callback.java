@@ -48,4 +48,10 @@ public abstract class Callback extends IceInternal.CallbackBase
     {
         sent(r);
     }
+
+    @Override
+    public final boolean __hasSentCallback()
+    {
+        return true;
+    }
 }

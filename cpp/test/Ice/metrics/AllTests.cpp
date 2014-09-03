@@ -130,19 +130,21 @@ public:
     void
     waitForUpdate()
     {
+        {
+            Lock sync(*this);
+            while(!_updated)
+            {
+                wait();
+            }
+        }
+        
+        // Ensure that the previous updates were committed, the setProperties call returns before
+        // notifying the callbacks so to ensure all the update callbacks have be notified we call
+        // a second time, this will block until all the notifications from the first update have
+        // completed.
+        _serverProps->setProperties(Ice::PropertyDict());
+
         Lock sync(*this);
-        while(!_updated)
-        {
-            wait();
-        }
-        if(_serverProps->ice_getConnection())
-        {
-            // Ensure that the previous updates were committed, the setProperties call returns before
-            // notifying the callbacks so to ensure all the update callbacks have be notified we call
-            // a second time, this will block until all the notifications from the first update have
-            // completed.
-            _serverProps->setProperties(Ice::PropertyDict());
-        }
         _updated = false;
     }
 
@@ -1079,6 +1081,52 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op);
+
+    //
+    // Tests with oneway
+    //
+    props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+    props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+    updateProps(clientProps, serverProps, update, props, "Invocation");
+
+    MetricsPrx metricsOneway = metrics->ice_oneway();
+    metricsOneway->op();
+    metricsOneway->end_op(metricsOneway->begin_op());
+    metricsOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
+    
+    map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
+    test(map.size() == 1);
+
+    im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["op"]);
+    test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
+    test(!collocated ? (im1->remotes.size() == 1) : (im1->collocated.size() == 1));
+    rim1 = IceMX::ChildInvocationMetricsPtr::dynamicCast(!collocated ? im1->remotes[0] : im1->collocated[0]);
+    test(rim1->current <= 1 && rim1->total == 3 && rim1->failures == 0);
+    test(rim1->size == 63 && rim1->replySize == 0);
+
+    testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway", InvokeOp(metricsOneway));
+
+    //
+    // Tests with batch oneway
+    //
+    props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+    props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+    updateProps(clientProps, serverProps, update, props, "Invocation");
+
+    MetricsPrx metricsBatchOneway = metrics->ice_batchOneway();
+    metricsBatchOneway->op();
+    //metricsBatchOneway->end_op(metricsOneway->begin_op());
+    //metricsBatchOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
+
+    map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
+    test(map.size() == 1);
+    
+    im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["op"]);
+    test(im1->current == 0 && im1->total == 1 && im1->failures == 0 && im1->retry == 0);
+    test(im1->remotes.size() == 0);
+
+    testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway", 
+                  InvokeOp(metricsBatchOneway));
 
     cout << "ok" << endl;
 

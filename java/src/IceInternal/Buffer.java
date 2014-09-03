@@ -21,7 +21,6 @@ public class Buffer
         this(maxCapacity, direct, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public
     Buffer(int maxCapacity, boolean direct, java.nio.ByteOrder order)
     {
         b = _emptyBuffer;
@@ -32,13 +31,11 @@ public class Buffer
         _order = order;
     }
 
-    public
     Buffer(byte[] data)
     {
         this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public
     Buffer(byte[] data, java.nio.ByteOrder order)
     {
         b = java.nio.ByteBuffer.wrap(data);
@@ -50,13 +47,11 @@ public class Buffer
         _order = order;
     }
 
-    public
     Buffer(java.nio.ByteBuffer data)
     {
         this(data, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
-    public
     Buffer(java.nio.ByteBuffer data, java.nio.ByteOrder order)
     {
         b = data;

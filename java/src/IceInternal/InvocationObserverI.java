@@ -205,10 +205,10 @@ public class InvocationObserverI
             delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);
         }
         return getObserver("Remote",
-                                                               new RemoteInvocationHelper(con, edpt, requestId, sz),
-                                                               RemoteMetrics.class,
-                                                               RemoteObserverI.class,
-                                                               delegate);
+                           new RemoteInvocationHelper(con, edpt, requestId, sz),
+                           RemoteMetrics.class,
+                           RemoteObserverI.class,
+                           delegate);
     }
 
     @Override
@@ -220,12 +220,11 @@ public class InvocationObserverI
         {
             delegate = _delegate.getCollocatedObserver(adapter, requestId, sz);
         }
-        return getObserver(
-            "Collocated",
-            new CollocatedInvocationHelper(adapter, requestId, sz),
-            CollocatedMetrics.class,
-            CollocatedObserverI.class,
-            delegate);
+        return getObserver("Collocated",
+                           new CollocatedInvocationHelper(adapter, requestId, sz),
+                           CollocatedMetrics.class,
+                           CollocatedObserverI.class,
+                           delegate);
     }
 
     final MetricsUpdate<InvocationMetrics> _incrementRetry = new MetricsUpdate<InvocationMetrics>()

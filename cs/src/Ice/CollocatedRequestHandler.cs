@@ -70,8 +70,7 @@ namespace IceInternal
             }
         }
 
-        public void
-        finishBatchRequest(BasicStream os)
+        public void finishBatchRequest(BasicStream os)
         {
             try
             {
@@ -96,11 +95,10 @@ namespace IceInternal
                                                              _batchAutoFlush);
                         stream.swap(_batchStream);
 
-                        _adapter.getThreadPool().dispatch(
-                            () =>
-                            {
-                                invokeAll(stream, 0, invokeNum, true);
-                            }, null);
+                        _adapter.getThreadPool().dispatch(() =>
+                        {
+                            invokeAll(stream, 0, invokeNum, true);
+                        }, null);
 
                         //
                         // Reset the batch.
@@ -141,8 +139,7 @@ namespace IceInternal
             }
         }
 
-        public void
-        abortBatchRequest()
+        public void abortBatchRequest()
         {
             lock(this)
             {
@@ -158,53 +155,12 @@ namespace IceInternal
             }
         }
 
-        public bool
-        sendRequest(OutgoingMessageCallback @out)
+        public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
         {
-            @out.invokeCollocated(this);
-            return !_response && _reference.getInvocationTimeout() == 0;
+            return outAsync.invokeCollocated(this, out sentCallback);
         }
 
-        public bool
-        sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
-        {
-            return outAsync.invokeCollocated__(this, out sentCallback);
-        }
-
-        public void
-        requestTimedOut(OutgoingMessageCallback @out)
-        {
-            lock(this)
-            {
-                int requestId;
-                if(_sendRequests.TryGetValue(@out, out requestId))
-                {
-                    if(requestId > 0)
-                    {
-                        _requests.Remove(requestId);
-                    }
-                    @out.finished(new Ice.InvocationTimeoutException());
-                    _sendRequests.Remove(@out);
-                }
-                else if(@out is Outgoing)
-                {
-                    Outgoing o = (Outgoing)@out;
-                    Debug.Assert(o != null);
-                    foreach(KeyValuePair<int, Outgoing> e in _requests)
-                    {
-                        if(e.Value == o)
-                        {
-                            o.finished(new Ice.InvocationTimeoutException());
-                            _requests.Remove(e.Key);
-                            return; // We're done.
-                        }
-                    }
-                }
-            }
-        }
-
-        public void
-        asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
+        public void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
         {
             lock(this)
             {
@@ -216,10 +172,9 @@ namespace IceInternal
                         _asyncRequests.Remove(requestId);
                     }
                     _sendAsyncRequests.Remove(outAsync);
-                    outAsync.dispatchInvocationTimeout__(_reference.getInstance().clientThreadPool(), null);
-                    return;
+                    outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
+                    return; // We're done
                 }
-
                 if(outAsync is OutgoingAsync)
                 {
                     OutgoingAsync o = (OutgoingAsync)outAsync;
@@ -229,66 +184,97 @@ namespace IceInternal
                         if(e.Value == o)
                         {
                             _asyncRequests.Remove(e.Key);
-                            outAsync.dispatchInvocationTimeout__(_reference.getInstance().clientThreadPool(), null);
-                            return;
+                            outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
+                            return; // We're done
                         }
                     }
                 }
             }
+        }
+
+        public void sendResponse(int requestId, BasicStream os, byte status)
+        {
+            OutgoingAsync outAsync = null;
+            lock(this)
+            {
+                Debug.Assert(_response);
+
+                os.pos(Protocol.replyHdr.Length + 4);
+
+                if(_traceLevels.protocol >= 1)
+                {
+                    fillInValue(os, 10, os.size());
+                    TraceUtil.traceRecv(os, _logger, _traceLevels);
+                }
+
+                if(_asyncRequests.TryGetValue(requestId, out outAsync))
+                {
+                    os.swap(outAsync.istr__);
+                    _asyncRequests.Remove(requestId);
+                }
+            }
+
+            if(outAsync != null)
+            {
+                outAsync.finished();
+            }
+            _adapter.decDirectCount();
         }
 
         public void
-        invokeRequest(Outgoing @out)
+        sendNoResponse()
         {
-            int requestId = 0;
-            if(_reference.getInvocationTimeout() > 0 || _response)
-            {
-                lock(this)
-                {
-                    if(_response)
-                    {
-                        requestId = ++_requestId;
-                        _requests.Add(requestId, @out);
-                    }
-                    if(_reference.getInvocationTimeout() > 0)
-                    {
-                        _sendRequests.Add(@out, requestId);
-                    }
-                }
-            }
-
-            @out.attachCollocatedObserver(_adapter, requestId);
-
-            if(_reference.getInvocationTimeout() > 0)
-            {
-                // Don't invoke from the user thread, invocation timeouts wouldn't work otherwise.
-                _adapter.getThreadPool().dispatch(
-                    () =>
-                    {
-                        if(sent(@out))
-                        {
-                            invokeAll(@out.ostr(), requestId, 1, false);
-                        }
-                    }, null);
-            }
-            else if(_dispatcher)
-            {
-                _adapter.getThreadPool().dispatchFromThisThread(
-                    () =>
-                    {
-                        @out.sent();
-                        invokeAll(@out.ostr(), requestId, 1, false);
-                    }, null);
-            }
-            else // Optimization: directly call invokeAll if there's no dispatcher.
-            {
-                @out.sent();
-                invokeAll(@out.ostr(), requestId, 1, false);
-            }
+            _adapter.decDirectCount();
         }
 
         public bool
-        invokeAsyncRequest(OutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
+        systemException(int requestId, Ice.SystemException ex)
+        {
+            handleException(requestId, ex);
+            _adapter.decDirectCount();
+            return true;
+        }
+        
+        public void
+        invokeException(int requestId, Ice.LocalException ex, int invokeNum)
+        {
+            if(requestId > 0)
+            {
+                OutgoingAsync outAsync = null;
+                lock(this)
+                {
+                    if(_asyncRequests.TryGetValue(requestId, out outAsync))
+                    {
+                        _asyncRequests.Remove(requestId);
+                    }
+                }
+                if(outAsync != null)
+                {
+                    outAsync.finished(ex);
+                }
+            }
+            _adapter.decDirectCount();
+        }
+
+        public Reference
+        getReference()
+        {
+            return _reference;
+        }
+
+        public Ice.ConnectionI
+        getConnection()
+        {
+            return null;
+        }
+
+        public Ice.ConnectionI
+        waitForConnection()
+        {
+            return null;
+        }
+
+        public void invokeAsyncRequest(OutgoingAsync outAsync, bool synchronous, out Ice.AsyncCallback sentCallback)
         {
             int requestId = 0;
             if(_reference.getInvocationTimeout() > 0 || _response)
@@ -307,92 +293,57 @@ namespace IceInternal
                 }
             }
 
-            outAsync.attachCollocatedObserver__(_adapter, requestId);
+            outAsync.attachCollocatedObserver(_adapter, requestId);
 
-            _adapter.getThreadPool().dispatch(
-                () =>
+            if(synchronous)
+            {
+                //
+                // Treat this collocated call as if it is a synchronous invocation.
+                //
+                if(_reference.getInvocationTimeout() > 0 || !_response)
+                {
+                    // Don't invoke from the user thread, invocation timeouts wouldn't work otherwise.
+                    _adapter.getThreadPool().dispatch(() =>
+                    {
+                        if(sentAsync(outAsync))
+                        {
+                            invokeAll(outAsync.ostr__, requestId, 1, false);
+                        }
+                    }, null);
+                }
+                else if(_dispatcher)
+                {
+                    _adapter.getThreadPool().dispatchFromThisThread(() =>
+                    {
+                        if(sentAsync(outAsync))
+                        {
+                            invokeAll(outAsync.ostr__, requestId, 1, false);
+                        }
+                    }, null);
+                }
+                else // Optimization: directly call invokeAll if there's no dispatcher.
+                {
+                    if(sentAsync(outAsync))
+                    {
+                        invokeAll(outAsync.ostr__, requestId, 1, false);
+                    }
+                }
+                sentCallback = null;
+            }
+            else
+            {
+                _adapter.getThreadPool().dispatch(() =>
                 {
                     if(sentAsync(outAsync))
                     {
                         invokeAll(outAsync.ostr__, requestId, 1, false);
                     }
                 }, null);
-            sentCallback = null;
-            return false;
-        }
-
-        public void
-        invokeBatchRequests(BatchOutgoing @out)
-        {
-            int invokeNum;
-            lock(this)
-            {
-                while(_batchStreamInUse)
-                {
-                    Monitor.Wait(this);
-                }
-
-                invokeNum = _batchRequestNum;
-
-                if(_batchRequestNum > 0)
-                {
-                    if(_reference.getInvocationTimeout() > 0)
-                    {
-                        _sendRequests.Add(@out, 0);
-                    }
-
-                    Debug.Assert(!_batchStream.isEmpty());
-                    _batchStream.swap(@out.ostr());
-
-                    //
-                    // Reset the batch stream.
-                    //
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding,
-                                                        _batchAutoFlush);
-                    _batchStream.swap(dummy);
-                    _batchRequestNum = 0;
-                    _batchMarker = 0;
-                }
-            }
-
-            @out.attachCollocatedObserver(_adapter, 0);
-
-            if(invokeNum > 0)
-            {
-                if(_reference.getInvocationTimeout() > 0)
-                {
-                    _adapter.getThreadPool().dispatch(
-                        () =>
-                        {
-                            if(sent(@out))
-                            {
-                                invokeAll(@out.ostr(), 0, invokeNum, true);
-                            }
-                        }, null);
-                }
-                else if(_dispatcher)
-                {
-                    _adapter.getThreadPool().dispatchFromThisThread(
-                        () =>
-                        {
-                            @out.sent();
-                            invokeAll(@out.ostr(), 0, invokeNum, true);
-                        }, null);
-                }
-                else // Optimization: directly call invokeAll if there's no dispatcher.
-                {
-                    @out.sent();
-                    invokeAll(@out.ostr(), 0, invokeNum, true);
-                }
-            }
-            else
-            {
-                @out.sent();
+                sentCallback = null;
             }
         }
 
-        public bool
-        invokeAsyncBatchRequests(BatchOutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
+        public bool invokeAsyncBatchRequests(BatchOutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
         {
             int invokeNum;
             lock(this)
@@ -424,142 +375,29 @@ namespace IceInternal
                 }
             }
 
-            outAsync.attachCollocatedObserver__(_adapter, 0);
+            outAsync.attachCollocatedObserver(_adapter, 0);
 
             if(invokeNum > 0)
             {
-                _adapter.getThreadPool().dispatch(
-                    () =>
+                _adapter.getThreadPool().dispatch(() =>
+                {
+                    if(sentAsync(outAsync))
                     {
-                        if(sentAsync(outAsync))
-                        {
-                            invokeAll(outAsync.ostr__, 0, invokeNum, true);
-                        }
-                    }, null);
+                        invokeAll(outAsync.ostr__, 0, invokeNum, true);
+                    }
+                }, null);
                 sentCallback = null;
                 return false;
             }
             else
             {
-                sentCallback = outAsync.sent__();
+                sentCallback = outAsync.sent();
                 return true;
             }
         }
 
-        public void
-        sendResponse(int requestId, BasicStream os, byte status)
-        {
-            OutgoingAsync outAsync = null;
-            lock(this)
-            {
-                Debug.Assert(_response);
 
-                os.pos(Protocol.replyHdr.Length + 4);
-
-                if(_traceLevels.protocol >= 1)
-                {
-                    fillInValue(os, 10, os.size());
-                    TraceUtil.traceRecv(os, _logger, _traceLevels);
-                }
-
-                Outgoing @out;
-                if(_requests.TryGetValue(requestId, out @out))
-                {
-                    @out.finished(os);
-                    _requests.Remove(requestId);
-                }
-                else
-                {
-                    if(_asyncRequests.TryGetValue(requestId, out outAsync))
-                    {
-                        os.swap(outAsync.istr__);
-                        _asyncRequests.Remove(requestId);
-                    }
-                }
-            }
-
-            if(outAsync != null)
-            {
-                outAsync.finished__();
-            }
-            _adapter.decDirectCount();
-        }
-
-        public void
-        sendNoResponse()
-        {
-            _adapter.decDirectCount();
-        }
-
-        public bool
-        systemException(int requestId, Ice.SystemException ex)
-        {
-            handleException(requestId, ex);
-            _adapter.decDirectCount();
-            return true;
-        }
-        
-        public void
-        invokeException(int requestId, Ice.LocalException ex, int invokeNum)
-        {
-            if(requestId > 0)
-            {
-                OutgoingAsync outAsync = null;
-                lock(this)
-                {
-                    Outgoing @out;
-                    if(_requests.TryGetValue(requestId, out @out))
-                    {
-                        _requests.Remove(requestId);
-                        @out.finished(ex);
-                    }
-                    else
-                    {
-                        if(_asyncRequests.TryGetValue(requestId, out outAsync))
-                        {
-                            _asyncRequests.Remove(requestId);
-                        }
-                    }
-                }
-                if(outAsync != null)
-                {
-                    outAsync.finished__(ex);
-                }
-            }
-            _adapter.decDirectCount();
-        }
-
-        public Reference
-        getReference()
-        {
-            return _reference;
-        }
-
-        public Ice.ConnectionI
-        getConnection(bool wait)
-        {
-            return null;
-        }
-
-        bool
-        sent(OutgoingMessageCallback @out)
-        {
-            if(_reference.getInvocationTimeout() > 0)
-            {
-                lock(this)
-                {
-                    if(!_sendRequests.Remove(@out))
-                    {
-                        return false; // The request timed-out.
-                    }
-                }
-            }
-            @out.sent();
-            return true;
-        }
-
-        bool
-        sentAsync(OutgoingAsyncMessageCallback outAsync)
+        private bool sentAsync(OutgoingAsyncMessageCallback outAsync)
         {
             if(_reference.getInvocationTimeout() > 0)
             {
@@ -571,16 +409,16 @@ namespace IceInternal
                     }
                 }
             }
-            Ice.AsyncCallback cb = outAsync.sent__();
+
+            Ice.AsyncCallback cb = outAsync.sent();
             if(cb != null)
             {
-                outAsync.invokeSent__(cb);
+                outAsync.invokeSent(cb);
             }
             return true;
         }
 
-        void
-        invokeAll(BasicStream os, int requestId, int invokeNum, bool batch)
+        private void invokeAll(BasicStream os, int requestId, int invokeNum, bool batch)
         {
             if(batch)
             {
@@ -643,24 +481,15 @@ namespace IceInternal
             OutgoingAsync outAsync = null;
             lock(this)
             {
-                Outgoing @out;
-                if(_requests.TryGetValue(requestId, out @out))
+                if(_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    @out.finished(ex);
-                    _requests.Remove(requestId);
-                }
-                else
-                {
-                    if(_asyncRequests.TryGetValue(requestId, out outAsync))
-                    {
-                        _asyncRequests.Remove(requestId);
-                    }
+                    _asyncRequests.Remove(requestId);
                 }
             }
 
             if(outAsync != null)
             {
-                outAsync.finished__(ex);
+                outAsync.finished(ex);
             }
         }
 
@@ -674,12 +503,8 @@ namespace IceInternal
 
         private int _requestId;
 
-        private Dictionary<OutgoingMessageCallback, int> _sendRequests =
-            new Dictionary<OutgoingMessageCallback, int>();
         private Dictionary<OutgoingAsyncMessageCallback, int> _sendAsyncRequests =
             new Dictionary<OutgoingAsyncMessageCallback, int>();
-
-        private Dictionary<int, Outgoing> _requests = new Dictionary<int, Outgoing>();
         private Dictionary<int, OutgoingAsync> _asyncRequests = new Dictionary<int, OutgoingAsync>();
 
         private BasicStream _batchStream;

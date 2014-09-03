@@ -81,7 +81,13 @@ ConnectionRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbac
 }
 
 Ice::ConnectionIPtr
-ConnectionRequestHandler::getConnection(bool /*wait*/)
+ConnectionRequestHandler::getConnection()
+{
+    return _connection;
+}
+
+Ice::ConnectionIPtr
+ConnectionRequestHandler::waitForConnection()
 {
     return _connection;
 }

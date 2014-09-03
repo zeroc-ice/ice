@@ -18,32 +18,33 @@ public interface OutgoingAsyncMessageCallback
     //
     // Called by the request handler to send the request over the connection.
     //
-    int __send(Ice.ConnectionI conection, boolean compress, boolean response)
+    int send(Ice.ConnectionI conection, boolean compress, boolean response)
         throws RetryException;
 
-    int __invokeCollocated(CollocatedRequestHandler handler);
+    int invokeCollocated(CollocatedRequestHandler handler);
 
     //
-    // Called by the connection when the message is confirmed sent. The connection is locked
-    // when this is called so this method can call the sent callback. Instead, this method
-    // returns true if there's a sent callback and false otherwise. If true is returned, the
-    // connection will call the __invokeSent() method bellow (which in turn should call the
-    // sent callback).
+    // Called by the connection when the message is confirmed sent. The
+    // connection is locked when this is called so this method can't call the
+    // sent callback. Instead, this method returns true if there's a sent
+    // callback and false otherwise. If true is returned, the connection will
+    // call the __invokeSent() method bellow (which in turn should call the sent
+    // callback).
     //
-    boolean __sent();
+    boolean sent();
 
     //
     // Called by the connection to call the user sent callback.
     //
-    void __invokeSent();
+    void invokeSent();
 
     //
     // Called by the connection when the request failed.
     //
-    void __finished(Ice.Exception ex);
+    void finished(Ice.Exception ex);
 
     //
     // Helper to dispatch the cancellation exception.
     //
-    void __dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection);
+    void dispatchInvocationCancel(Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection);
 }

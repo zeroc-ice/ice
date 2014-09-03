@@ -152,7 +152,6 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
     public static String
     ice_staticId()
     {
-    return Ice.ObjectImpl.ice_staticId();
+        return Ice.ObjectImpl.ice_staticId();
     }
-
 }

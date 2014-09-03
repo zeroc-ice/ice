@@ -13,6 +13,7 @@ public abstract class CallbackBase
 {
     public abstract void __completed(Ice.AsyncResult r);
     public abstract void __sent(Ice.AsyncResult r);
+    public abstract boolean __hasSentCallback();
 
     public static void check(boolean cb)
     {

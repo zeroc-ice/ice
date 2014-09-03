@@ -18,15 +18,13 @@ namespace IceInternal
         void finishBatchRequest(BasicStream @out);
         void abortBatchRequest();
 
-        bool sendRequest(OutgoingMessageCallback @out);
         bool sendAsyncRequest(OutgoingAsyncMessageCallback @out, out Ice.AsyncCallback cb);
 
-        void requestTimedOut(OutgoingMessageCallback @out);
-        // Must be called from the dispatcher thread.
-        void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync);
+        void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex);
 
         Reference getReference();
 
-        Ice.ConnectionI getConnection(bool wait);
+        Ice.ConnectionI getConnection();
+        Ice.ConnectionI waitForConnection();
     }
 }

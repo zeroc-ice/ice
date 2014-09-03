@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="ant/|test/**/lambda/*|test/android/|test/ejb/|test/Ice/translator/|test/Ice/translator/Test/" kind="src" path="src"/>
+	<classpathentry excluding="ant/|test/**/lambda/*|test/android/|test/ejb/|test/Ice/translator/|test/Ice/translator/Test/|test/Slice/generation/classes/test/Slice/generation/Test/" kind="src" path="src"/>
 	<classpathentry kind="src" path="generated"/>
 	<classpathentry kind="src" path="generated.test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

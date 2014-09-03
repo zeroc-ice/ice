@@ -22,3 +22,6 @@ import TestUtil
 
 print("tests with regular server.")
 TestUtil.clientServerTest()
+
+print("tests with collocated server.")
+TestUtil.collocatedTest()

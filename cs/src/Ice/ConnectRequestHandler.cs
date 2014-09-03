@@ -26,17 +26,11 @@ namespace IceInternal
                 this.os.swap(os);
             }
 
-            internal Request(OutgoingMessageCallback @out)
-            {
-                this.@out = @out;
-            }
-
             internal Request(OutgoingAsyncMessageCallback outAsync)
             {
                 this.outAsync = outAsync;
             }
 
-            internal OutgoingMessageCallback @out = null;
             internal OutgoingAsyncMessageCallback outAsync = null;
             internal BasicStream os = null;
             internal Ice.AsyncCallback sentCallback = null;
@@ -134,28 +128,6 @@ namespace IceInternal
             _connection.abortBatchRequest();
         }
 
-        public bool sendRequest(OutgoingMessageCallback @out)
-        {
-            lock(this)
-            {
-                try
-                {
-                    if(!initialized())
-                    {
-                        _requests.AddLast(new Request(@out));
-                        return false; // Not sent
-                    }
-                }
-                catch(Ice.LocalException ex)
-                {
-                    throw new RetryException(ex);
-                }
-            }
-
-            // Finished if sent and no response.
-            return @out.send(_connection, _compress, _response) && !_response;
-        }
-
         public bool sendAsyncRequest(OutgoingAsyncMessageCallback outAsync, out Ice.AsyncCallback sentCallback)
         {
             lock(this)
@@ -174,39 +146,10 @@ namespace IceInternal
                     throw new RetryException(ex);
                 }
             }
-            return outAsync.send__(_connection, _compress, _response, out sentCallback);
+            return outAsync.send(_connection, _compress, _response, out sentCallback);
         }
 
-        public void requestTimedOut(OutgoingMessageCallback @out)
-        {
-            lock(this)
-            {
-                if(_exception != null)
-                {
-                    return; // The request has been notified of a failure already.
-                }
-
-                if(!initialized())
-                {
-                    LinkedListNode<Request> p = _requests.First;
-                    while(p != null)
-                    {
-                        Request request = p.Value;
-                        if(request.@out == @out)
-                        {
-                            @out.finished(new Ice.InvocationTimeoutException());
-                            _requests.Remove(p);
-                            return;
-                        }
-                        p = p.Next;
-                    }
-                    Debug.Assert(false); // The request has to be queued if it timed out and we're not initialized yet.
-                }
-            }
-            _connection.requestTimedOut(@out);
-        }
-
-        public void asyncRequestTimedOut(OutgoingAsyncMessageCallback outAsync)
+        public void asyncRequestCanceled(OutgoingAsyncMessageCallback outAsync, Ice.LocalException ex)
         {
             lock(this)
             {
@@ -224,15 +167,15 @@ namespace IceInternal
                         if(request.outAsync == outAsync)
                         {
                             _requests.Remove(p);
-                            outAsync.dispatchInvocationTimeout__(_reference.getInstance().clientThreadPool(), null);
-                            return;
+                            outAsync.dispatchInvocationCancel(ex, _reference.getInstance().clientThreadPool(), null);
+                            return; // We're done
                         }
                         p = p.Next;
                     }
                     Debug.Assert(false); // The request has to be queued if it timed out and we're not initialized yet.
                 }
             }
-            _connection.asyncRequestTimedOut(outAsync);
+            _connection.asyncRequestCanceled(outAsync, ex);
         }
 
         public Reference getReference()
@@ -240,30 +183,37 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI getConnection(bool waitInit)
+        public Ice.ConnectionI getConnection()
         {
             lock(this)
             {
-                if(waitInit)
-                {
-                    //
-                    // Wait for the connection establishment to complete or fail.
-                    //
-                    while(!_initialized && _exception == null)
-                    {
-                        System.Threading.Monitor.Wait(this);
-                    }
-                }
-                
                 if(_exception != null)
                 {
                     throw _exception;
                 }
                 else
                 {
-                    Debug.Assert(!waitInit || _initialized);
                     return _connection;
                 }
+            }
+        }
+
+        public Ice.ConnectionI waitForConnection()
+        {
+            lock(this)
+            {
+                if(_exception != null)
+                {
+                    throw new RetryException(_exception);
+                }
+                //
+                // Wait for the connection establishment to complete or fail.
+                //
+                while(!_initialized && _exception == null)
+                {
+                    System.Threading.Monitor.Wait(this);
+                }
+                return getConnection();
             }
         }
 
@@ -315,11 +265,10 @@ namespace IceInternal
                 //
                 if(_requests.Count > 0)
                 {
-                    _reference.getInstance().clientThreadPool().dispatch(
-                        () =>
-                        {
-                            flushRequestsWithException();
-                        }, _connection);
+                    _reference.getInstance().clientThreadPool().dispatch(() =>
+                    {
+                        flushRequestsWithException();
+                    }, _connection);
                 }
 
                 System.Threading.Monitor.PulseAll(this);
@@ -404,13 +353,9 @@ namespace IceInternal
                 while(p != null)
                 {
                     Request request = p.Value;
-                    if(request.@out != null)
+                    if(request.outAsync != null)
                     {
-                        request.@out.send(_connection, _compress, _response);
-                    }
-                    else if(request.outAsync != null)
-                    {
-                        if(request.outAsync.send__(_connection, _compress, _response, out request.sentCallback))
+                        if(request.outAsync.send(_connection, _compress, _response, out request.sentCallback))
                         {
                             if(request.sentCallback != null)
                             {
@@ -452,11 +397,10 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
-                    _reference.getInstance().clientThreadPool().dispatch(
-                        () =>
-                        {
-                            flushRequestsWithException();
-                        }, _connection);
+                    _reference.getInstance().clientThreadPool().dispatch(() =>
+                    {
+                        flushRequestsWithException();
+                    }, _connection);
                 }
             }
             catch(Ice.LocalException ex)
@@ -465,28 +409,26 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
-                    _reference.getInstance().clientThreadPool().dispatch(
-                        () =>
-                        {
-                            flushRequestsWithException();
-                        }, _connection);
+                    _reference.getInstance().clientThreadPool().dispatch(() =>
+                    {
+                        flushRequestsWithException();
+                    }, _connection);
                 }
             }
 
             if(sentCallbacks.Count > 0)
             {
                 Instance instance = _reference.getInstance();
-                instance.clientThreadPool().dispatch(
-                    () =>
+                instance.clientThreadPool().dispatch(() =>
+                {
+                    foreach(Request r in sentCallbacks)
                     {
-                        foreach(Request r in sentCallbacks)
+                        if(r.outAsync != null)
                         {
-                            if(r.outAsync != null)
-                            {
-                                r.outAsync.invokeSent__(r.sentCallback);
-                            }
+                            r.outAsync.invokeSent(r.sentCallback);
                         }
-                    }, _connection);
+                    }
+                }, _connection);
             }
 
             //
@@ -521,13 +463,9 @@ namespace IceInternal
         {
             foreach(Request request in _requests)
             {
-                if(request.@out != null)
-                {            
-                    request.@out.finished(_exception);
-                }
-                else if(request.outAsync != null)
+                if(request.outAsync != null)
                 {
-                    request.outAsync.finished__(_exception);
+                    request.outAsync.finished(_exception);
                 }
             }
             _requests.Clear();

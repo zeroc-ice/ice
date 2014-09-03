@@ -26,7 +26,7 @@ public class ConnectionBatchOutgoingAsync extends BatchOutgoingAsync
             _sentSynchronously = true;
             if((status & AsyncStatus.InvokeSentCallback) > 0)
             {
-                __invokeSent();
+                invokeSent();
             }
         }
     }

@@ -25,11 +25,11 @@ class RetryTask implements Runnable
         {
             try
             {
-                _outAsync.__invoke(false);
+                _outAsync.invoke(false);
             }
             catch(Ice.LocalException ex)
             {
-                _outAsync.__invokeExceptionAsync(ex);
+                _outAsync.invokeExceptionAsync(ex);
             }
         }
     }
@@ -38,7 +38,7 @@ class RetryTask implements Runnable
     destroy()
     {
         _future.cancel(false);
-        _outAsync.__invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
+        _outAsync.invokeExceptionAsync(new Ice.CommunicatorDestroyedException());
     }
 
     public void setFuture(java.util.concurrent.Future<?> future)

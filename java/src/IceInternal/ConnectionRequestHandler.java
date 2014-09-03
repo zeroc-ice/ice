@@ -13,44 +13,31 @@ public class ConnectionRequestHandler implements RequestHandler
 {
     @Override
     public void
-    prepareBatchRequest(BasicStream out) throws RetryException {
+    prepareBatchRequest(BasicStream out)
+        throws RetryException
+    {
         _connection.prepareBatchRequest(out);
     }
 
     @Override
     public void
-    finishBatchRequest(BasicStream out) {
+    finishBatchRequest(BasicStream out)
+    {
         _connection.finishBatchRequest(out, _compress);
     }
 
     @Override
     public void
-    abortBatchRequest() {
+    abortBatchRequest()
+    {
         _connection.abortBatchRequest();
     }
 
     @Override
-    public boolean
-    sendRequest(OutgoingMessageCallback out)
-            throws RetryException {
-        //
-        // Finished if sent and no response.
-        //
-        return out.send(_connection, _compress, _response) && !_response;
-    }
-
-    @Override
-    public int
-    sendAsyncRequest(OutgoingAsyncMessageCallback out)
-            throws RetryException {
-        return out.__send(_connection, _compress, _response);
-    }
-
-    @Override
-    public boolean
-    requestCanceled(OutgoingMessageCallback out, Ice.LocalException ex)
+    public int sendAsyncRequest(OutgoingAsyncMessageCallback out)
+        throws RetryException
     {
-        return _connection.requestCanceled(out, ex);
+        return out.send(_connection, _compress, _response);
     }
 
     @Override

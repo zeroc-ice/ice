@@ -1,6 +1,5 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2014 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -2281,18 +2280,18 @@ public class AllTests
         {
             final Callback_Thrower_throwLocalExceptionI cb = new Callback_Thrower_throwLocalExceptionI();
             thrower.begin_throwLocalExceptionIdempotent(new Callback_Thrower_throwLocalExceptionIdempotent()
-                                                        {
-                                                            @Override
-                                                            public void response()
-                                                                {
-                                                                    cb.response();
-                                                                }
+            {
+                @Override
+                public void response()
+                {
+                    cb.response();
+                }
 
-                                                            @Override
-                                                            public void exception(Ice.LocalException exc)
-                                                                {
-                                                                    cb.exception(exc);
-                                                                }
+                @Override
+                public void exception(Ice.LocalException exc)
+                {
+                    cb.exception(exc);
+                }
                 });
             cb.check();
         }

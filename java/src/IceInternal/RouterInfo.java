@@ -133,24 +133,6 @@ public final class RouterInfo
         return setServerEndpoints(_router.getServerProxy());
     }
 
-    public void
-    addProxy(Ice.ObjectPrx proxy)
-    {
-        assert(proxy != null);
-        synchronized(this)
-        {
-            if(_identities.contains(proxy.ice_getIdentity()))
-            {
-                //
-                // Only add the proxy to the router if it's not already in our local map.
-                //
-                return;
-            }
-        }
-
-        addAndEvictProxies(proxy, _router.addProxies(new Ice.ObjectPrx[] { proxy }));
-    }
-
     public boolean
     addProxy(final Ice.ObjectPrx proxy, final AddProxyCallback callback)
     {

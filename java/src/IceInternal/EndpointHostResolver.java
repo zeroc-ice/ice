@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class EndpointHostResolver
+class EndpointHostResolver
 {
     EndpointHostResolver(Instance instance)
     {
@@ -31,8 +31,7 @@ public class EndpointHostResolver
         }
     }
 
-    public java.util.List<Connector> resolve(String host, int port, Ice.EndpointSelectionType selType,
-                                             IPEndpointI endpoint)
+    java.util.List<Connector> resolve(String host, int port, Ice.EndpointSelectionType selType, IPEndpointI endpoint)
     {
         //
         // Try to get the addresses without DNS lookup. If this doesn't
@@ -89,7 +88,7 @@ public class EndpointHostResolver
         return connectors;
     }
 
-    synchronized public void resolve(final String host, final int port, final Ice.EndpointSelectionType selType, final IPEndpointI endpoint,
+    synchronized void resolve(final String host, final int port, final Ice.EndpointSelectionType selType, final IPEndpointI endpoint,
             final EndpointI_connectors callback)
     {
         //
@@ -172,7 +171,7 @@ public class EndpointHostResolver
             });
     }
 
-    synchronized public void destroy()
+    synchronized void destroy()
     {
         assert(!_destroyed);
         _destroyed = true;
@@ -184,7 +183,7 @@ public class EndpointHostResolver
         _executor.shutdown();
     }
 
-    public void joinWithThread()
+    void joinWithThread()
         throws InterruptedException
     {
         // Wait for the executor to terminate.
@@ -201,7 +200,7 @@ public class EndpointHostResolver
         }
     }
 
-    synchronized public void updateObserver()
+    synchronized void updateObserver()
     {
         Ice.Instrumentation.CommunicatorObserver obsv = _instance.getObserver();
         if(obsv != null)

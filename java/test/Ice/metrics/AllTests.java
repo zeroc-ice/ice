@@ -143,17 +143,20 @@ public class AllTests
             _serverProps = serverProps;
         }
 
-        public synchronized void
+        public void
         waitForUpdate()
         {
-            while(!_updated)
+            synchronized(this)
             {
-                try
+                while(!_updated)
                 {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
+                    try
+                    {
+                        wait();
+                    }
+                    catch(InterruptedException ex)
+                    {
+                    }
                 }
             }
             // Ensure that the previous updates were committed, the setProperties call returns before
@@ -161,7 +164,10 @@ public class AllTests
             // a second time, this will block until all the notifications from the first update have
             // completed.
             _serverProps.setProperties(new java.util.HashMap<String, String>());
-            _updated = false;
+            synchronized(this)
+            {
+                _updated = false;
+            }
         }
 
         @Override
@@ -418,6 +424,12 @@ public class AllTests
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:default -p 12010"));
         boolean collocated = metrics.ice_getConnection() == null;
 
+        int threadCount = 3;
+        if(collocated && communicator.getProperties().getPropertyAsInt("Ice.BackgroundIO") > 0)
+        {
+            threadCount = 5;
+        }
+
         out.print("testing metrics admin facet checkedCast... ");
         out.flush();
         Ice.ObjectPrx admin = communicator.getAdmin();
@@ -449,7 +461,8 @@ public class AllTests
             test(view.get("Connection").length == 1 && view.get("Connection")[0].current == 1 &&
                  view.get("Connection")[0].total == 1);
         }
-        test(view.get("Thread").length == 1 && view.get("Thread")[0].current == 3 && view.get("Thread")[0].total == 3);
+        test(view.get("Thread").length == 1 && view.get("Thread")[0].current == threadCount && 
+             view.get("Thread")[0].total == threadCount);
         out.println("ok");
 
         out.print("testing group by id...");
@@ -465,7 +478,7 @@ public class AllTests
         metrics.ice_connectionId("Con1").ice_ping();
 
         view = clientMetrics.getMetricsView("View", timestamp);
-        test(view.get("Thread").length == 3);
+        test(view.get("Thread").length == threadCount);
         if(!collocated)
         {
             test(view.get("Connection").length == 2);
@@ -711,17 +724,20 @@ public class AllTests
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "Ice::ConnectTimeoutException", 2, out);
 
             Connect c = new Connect(metrics);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, 
+                          out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c,
+                          out);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
                           "tcp -h 127.0.0.1 -p 12010 -t 60000", c, out);
 
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c, out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c,
-                          out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", 
+                          c, out);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c,
                           out);
-            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c, out);
+            testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c,
+                          out);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c,
                           out);
             testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c,
@@ -921,6 +937,9 @@ public class AllTests
 
         Callback cb = new Callback();
 
+        //
+        // Twoway tests
+        //
         metrics.op();
         metrics.end_op(metrics.begin_op());
         metrics.begin_op(cb);
@@ -1095,6 +1114,54 @@ public class AllTests
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, out);
+
+        //
+        // Oneway tests
+        //
+        clearView(clientProps, serverProps, update);
+        props.put("IceMX.Metrics.View.Map.Invocation.GroupBy", "operation");
+        props.put("IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy", "localPort");
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+        
+        MetricsPrx metricsOneway = (MetricsPrx)metrics.ice_oneway();
+        metricsOneway.op();
+        metricsOneway.end_op(metricsOneway.begin_op());
+        metricsOneway.begin_op(cb).waitForSent();
+
+        map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
+        test(map.size() == 1);
+
+        im1 = (IceMX.InvocationMetrics)map.get("op");
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
+        test(!collocated ? (im1.remotes.length == 1) : (im1.collocated.length == 1));
+        rim1 = (IceMX.ChildInvocationMetrics)(!collocated ? im1.remotes[0] : im1.collocated[0]);
+        test(rim1.current <= 1 && rim1.total == 3 && rim1.failures == 0);
+        test(rim1.size == 63 && rim1.replySize == 0);
+
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway", new InvokeOp(metricsOneway),
+                      out);
+
+        //
+        // Batch oneway tests
+        //
+        props.put("IceMX.Metrics.View.Map.Invocation.GroupBy", "operation");
+        props.put("IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy", "localPort");
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+        
+        MetricsPrx metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
+        metricsBatchOneway.op();
+        metricsBatchOneway.end_op(metricsBatchOneway.begin_op());
+        //metricsBatchOneway.begin_op(cb).waitForSent();
+
+        map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
+        test(map.size() == 1);
+
+        im1 = (IceMX.InvocationMetrics)map.get("op");
+        test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        test(im1.remotes.length == 0);
+
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway", 
+                      new InvokeOp(metricsBatchOneway), out); 
 
         out.println("ok");
 

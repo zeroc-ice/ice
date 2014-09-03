@@ -287,25 +287,9 @@ ConnectRequestHandler::asyncRequestTimedOut(const OutgoingAsyncMessageCallbackPt
 }
 
 Ice::ConnectionIPtr
-ConnectRequestHandler::getConnection(bool waitInit)
+ConnectRequestHandler::getConnection()
 {
     Lock sync(*this);
-    if(waitInit)
-    {
-        if(_exception.get())
-        {
-            throw RetryException(*_exception.get());
-        }
-        
-        //
-        // Wait for the connection establishment to complete or fail.
-        //
-        while(!_initialized && !_exception.get())
-        {
-            wait();
-        }
-    }
-     
     if(_exception.get())
     {
         _exception->ice_throw();
@@ -313,9 +297,36 @@ ConnectRequestHandler::getConnection(bool waitInit)
     }
     else
     {
-        assert(!waitInit || _initialized);
         return _connection;
+    }     
+}
+
+Ice::ConnectionIPtr
+ConnectRequestHandler::waitForConnection()
+{
+    Lock sync(*this);
+    if(_exception.get())
+    {
+        throw RetryException(*_exception.get());
     }
+    
+    //
+    // Wait for the connection establishment to complete or fail.
+    //
+    while(!_initialized && !_exception.get())
+    {
+        wait();
+    }
+
+    if(_exception.get())
+    {
+        _exception->ice_throw();
+        return 0; // Keep the compiler happy.
+    }
+    else
+    {
+        return _connection;
+    }     
 }
 
 void

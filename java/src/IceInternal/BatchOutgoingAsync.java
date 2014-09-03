@@ -9,16 +9,16 @@
 
 package IceInternal;
 
-public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback, Runnable
+public class BatchOutgoingAsync extends AsyncResultI implements OutgoingAsyncMessageCallback
 {
-    public BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
+    BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
     {
         super(communicator, instance, operation, callback);
     }
 
     @Override
     public int
-    __send(Ice.ConnectionI connection, boolean compress, boolean response)
+    send(Ice.ConnectionI connection, boolean compress, boolean response)
     {
         _cachedConnection = connection;
         return connection.flushAsyncBatchRequests(this);
@@ -26,18 +26,18 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
 
     @Override
     public int
-    __invokeCollocated(CollocatedRequestHandler handler)
+    invokeCollocated(CollocatedRequestHandler handler)
     {
         return handler.invokeAsyncBatchRequests(this);
     }
 
     @Override
     public boolean
-    __sent()
+    sent()
     {
         synchronized(_monitor)
         {
-            _state |= Done | OK | Sent;
+            _state |= StateDone | StateOK | StateSent;
             //_os.resize(0, false); // Don't clear the buffer now, it's needed for the collocation optimization
             if(_childObserver != null)
             {
@@ -51,20 +51,30 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
                 _timeoutRequestHandler = null;
             }
             _monitor.notifyAll();
+
+            if(_callback == null || !_callback.__hasSentCallback())
+            {
+                if(_observer != null)
+                {
+                    _observer.detach();
+                    _observer = null;
+                }
+                return false;
+            }
             return true;
         }
     }
 
     @Override
     public void
-    __invokeSent()
+    invokeSent()
     {
-        __invokeSentInternal();
+        invokeSentInternal();
     }
 
     @Override
     public void
-    __finished(Ice.Exception exc)
+    finished(Ice.Exception exc)
     {
         synchronized(_monitor)
         {
@@ -81,29 +91,20 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
                 _timeoutRequestHandler = null;
             }
         }
-        __invokeException(exc);
+        invokeException(exc);
     }
 
     @Override
     public void
-    __dispatchInvocationCancel(final Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
+    dispatchInvocationCancel(final Ice.LocalException ex, ThreadPool threadPool, Ice.Connection connection)
     {
-        threadPool.dispatch(
-            new DispatchWorkItem(connection)
+        threadPool.dispatch(new DispatchWorkItem(connection)
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void
-                run()
-                {
-                    BatchOutgoingAsync.this.__finished(ex);
-                }
-            });
-    }
-
-    @Override
-    public void
-    run()
-    {
-        __runTimerTask();
+                BatchOutgoingAsync.this.finished(ex);
+            }
+        });
     }
 }

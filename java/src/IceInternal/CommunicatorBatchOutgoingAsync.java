@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
+public class CommunicatorBatchOutgoingAsync extends IceInternal.AsyncResultI
 {
     public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
                                           CallbackBase callback)
@@ -49,21 +49,21 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
 
             @Override
             public boolean
-            __sent()
+            sent()
             {
                 if(_childObserver != null)
                 {
                     _childObserver.detach();
                     _childObserver = null;
                 }
-                check(false);
+                doCheck(false);
                 return false;
             }
 
             // TODO: MJN: This is missing a test.
             @Override
             public void
-            __finished(Ice.Exception ex)
+            finished(Ice.Exception ex)
             {
                 if(_childObserver != null)
                 {
@@ -71,12 +71,12 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
                     _childObserver.detach();
                     _childObserver = null;
                 }
-                check(false);
+                doCheck(false);
             }
 
             @Override
             public void
-            __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
+            attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId, int size)
             {
                 if(CommunicatorBatchOutgoingAsync.this._observer != null)
                 {
@@ -105,17 +105,17 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
         }
         catch(Ice.LocalException ex)
         {
-            check(false);
+            doCheck(false);
             throw ex;
         }
     }
 
     public void ready()
     {
-        check(true);
+        doCheck(true);
     }
 
-    private void check(boolean userThread)
+    private void doCheck(boolean userThread)
     {
         synchronized(_monitor)
         {
@@ -124,21 +124,32 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             {
                 return;
             }
-            _state |= Done | OK | Sent;
+            _state |= StateDone | StateOK | StateSent;
             _os.resize(0, false); // Clear buffer now, instead of waiting for AsyncResult deallocation
             _monitor.notifyAll();
         }
 
-        //
-        // sentSynchronously_ is immutable here.
-        //
-        if(!_sentSynchronously || !userThread)
+        if(_callback == null || !_callback.__hasSentCallback())
         {
-            __invokeSentAsync();
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
+            }
         }
         else
         {
-            __invokeSentInternal();
+            //
+            // sentSynchronously_ is immutable here.
+            //
+            if(!_sentSynchronously || !userThread)
+            {
+                invokeSentAsync();
+            }
+            else
+            {
+                invokeSentInternal();
+            }
         }
     }
 

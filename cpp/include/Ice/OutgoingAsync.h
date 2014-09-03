@@ -112,7 +112,7 @@ public:
 
     bool __wait();
     void __throwUserException();
-    void __invokeExceptionAsync(const Exception&);
+    virtual void __invokeExceptionAsync(const Exception&);
 
     static void __check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
@@ -255,6 +255,7 @@ public:
     virtual bool __sent();
     virtual void __invokeSent();
     virtual void __finished(const Ice::Exception&);
+    virtual void __invokeExceptionAsync(const Ice::Exception&);
 
     void __finished();
     bool __invoke(bool);
