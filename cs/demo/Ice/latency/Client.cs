@@ -52,12 +52,9 @@ public class Client
                 Console.Error.WriteLine("ok");
             }
             
-            Console.Out.WriteLine("Press enter to start");
-            Console.Out.Flush();
-            String line = Console.In.ReadLine();
-
             DateTime tv1 = DateTime.Now;
-            int repetitions = 100000;            Console.Out.WriteLine("pinging server " + repetitions + " times (this may take a while)");
+            int repetitions = 100000;
+            Console.Out.WriteLine("pinging server " + repetitions + " times (this may take a while)");
             for (int i = 0; i < repetitions; i++)
             {
                 ping.ice_ping();
