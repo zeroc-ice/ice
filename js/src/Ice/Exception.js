@@ -51,17 +51,12 @@ var Exception = Class(Error, {
 Exception.captureStackTrace = function(object)
 {
     var stack = new Error().stack;
-
-    var formattedStack;
-
     //
     // In IE 10 and greater the stack will be filled once the Error is throw
     // we don't need to do anything.
     //
     if(stack !== undefined)
     {
-
-        var name =  object.ice_name ? object.ice_name().replace(/::/g, ".") : "";
         Object.defineProperty(object, "stack", {
             get: function(){
                 return stack;
