@@ -15,7 +15,6 @@ Ice.__M.require(module, "Ice",
         "../Ice/AsyncResultBase",
         "../Ice/ConnectionI",
         "../Ice/Debug",
-        "../Ice/ExUtil",
         "../Ice/HashMap",
         "../Ice/Promise",
         "../Ice/EndpointTypes",
@@ -29,7 +28,6 @@ var AsyncResultBase = Ice.AsyncResultBase;
 var ConnectionI = Ice.ConnectionI;
 var ConnectionReaper = Ice.ConnectionReaper;
 var Debug = Ice.Debug;
-var ExUtil = Ice.ExUtil;
 var HashMap = Ice.HashMap;
 var Promise = Ice.Promise;
 var EndpointSelectionType = Ice.EndpointSelectionType;
@@ -650,7 +648,7 @@ var OutgoingConnectionFactory = Class({
                     s.push(" and no more endpoints to try\n");
                 }
             }
-            s.push(ExUtil.toString(ex));
+            s.push(ex.toString());
             this._instance.initializationData().logger.trace(traceLevels.retryCat, s.join(""));
         }
     },
@@ -676,7 +674,7 @@ var OutgoingConnectionFactory = Class({
                     s.push(" and no more endpoints to try\n");
                 }
             }
-            s.push(ExUtil.toString(ex));
+            s.push(ex.toString());
             this._instance.initializationData().logger.trace(traceLevels.retryCat, s.join(""));
         }
     },

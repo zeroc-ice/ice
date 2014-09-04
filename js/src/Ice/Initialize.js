@@ -8,16 +8,18 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", 
+Ice.__M.require(module, "Ice",
     [
-        "../Ice/Protocol", 
-        "../Ice/LocalException", 
-        "../Ice/Communicator", 
+        "../Ice/Protocol",
+        "../Ice/LocalException",
+        "../Ice/Communicator",
         "../Ice/Properties"
     ]);
 
 var Protocol = Ice.Protocol;
-    
+
+Ice.Globals = {}
+
 //
 // Ice.InitializationData
 //

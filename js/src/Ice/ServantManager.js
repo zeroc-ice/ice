@@ -12,14 +12,12 @@ Ice.__M.require(module, "Ice",
     [
         "../Ice/Class",
         "../Ice/Debug",
-        "../Ice/ExUtil",
         "../Ice/HashMap",
         "../Ice/LocalException",
         "../Ice/StringUtil"
     ]);
 
 var Debug = Ice.Debug;
-var ExUtil = Ice.ExUtil;
 var HashMap = Ice.HashMap;
 var StringUtil = Ice.StringUtil;
 
@@ -286,7 +284,7 @@ var ServantManager = Ice.Class({
             catch(ex)
             {
                 var s = "exception during locator deactivation:\n" + "object adapter: `" + this._adapterName +
-                    "'\n" + "locator category: `" + e.key + "'\n" + ExUtil.toString(ex);
+                    "'\n" + "locator category: `" + e.key + "'\n" + ex.toString();
                 logger.error(s);
             }
         }

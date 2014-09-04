@@ -12,7 +12,6 @@ Ice.__M.require(module, "Ice",
     [
         "../Ice/Class",
         "../Ice/Debug",
-        "../Ice/ExUtil",
         "../Ice/HashMap",
         "../Ice/Promise",
         "../Ice/Protocol",
@@ -22,7 +21,6 @@ Ice.__M.require(module, "Ice",
     ]);
 
 var Debug = Ice.Debug;
-var ExUtil = Ice.ExUtil;
 var HashMap = Ice.HashMap;
 var Promise = Ice.Promise;
 var Protocol = Ice.Protocol;
@@ -276,7 +274,7 @@ var LocatorInfo = Class({
                         s.push(instance.identityToString(ref.getIdentity()));
                         s.push("\n");
                     }
-                    s.push("reason = " + ExUtil.toString(ex));
+                    s.push("reason = " + ex.toString());
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
                 }
                 throw ex;

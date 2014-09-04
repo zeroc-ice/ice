@@ -227,8 +227,8 @@ var EncapsDecoder = Class({
             }
             catch(ex)
             {
-                this._stream.instance.initializationData().logger.warning("exception raised by ice_postUnmarshal:\n" + 
-                                                                        ExUtil.toString(ex));
+                this._stream.instance.initializationData().logger.warning("exception raised by ice_postUnmarshal:\n" +
+									  ex.toString());
             }
         }
         else
@@ -256,7 +256,7 @@ var EncapsDecoder = Class({
                     catch(ex)
                     {
                         this._stream.instance.initializationData().logger.warning(
-                                                            "exception raised by ice_postUnmarshal:\n" + ExUtil.toString(ex));
+                                                            "exception raised by ice_postUnmarshal:\n" + ex.toString());
                     }
                 }
                 this._objectList = [];
@@ -1208,7 +1208,7 @@ var EncapsEncoder10 = Class(EncapsEncoder, {
                             catch(ex)
                             {
                                 self._stream.instance.initializationData().logger.warning(
-                                    "exception raised by ice_preMarshal:\n" + ExUtil.toString(ex));
+                                    "exception raised by ice_preMarshal:\n" + ex.toString());
                             }
 
                             key.__write(self._stream);
@@ -1551,7 +1551,7 @@ var EncapsEncoder11 = Class(EncapsEncoder, {
         catch(ex)
         {
             this._stream.instance.initializationData().logger.warning("exception raised by ice_preMarshal:\n" + 
-                                                                    ExUtil.toString(ex));
+                                                                      ex.toString());
         }
 
         this._stream.writeSize(1); // Object instance marker.

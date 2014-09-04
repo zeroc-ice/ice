@@ -12,7 +12,6 @@ Ice.__M.require(module, "Ice",
     [
         "../Ice/Class",
         "../Ice/Debug",
-        "../Ice/ExUtil",
         "../Ice/HashMap",
         "../Ice/ObjectPrx",
         "../Ice/StringUtil",
@@ -22,7 +21,6 @@ Ice.__M.require(module, "Ice",
     ]);
 
 var Debug = Ice.Debug;
-var ExUtil = Ice.ExUtil;
 var HashMap = Ice.HashMap;
 var ObjectPrx = Ice.ObjectPrx;
 var StringUtil = Ice.StringUtil;
@@ -174,7 +172,7 @@ var ProxyFactory = Ice.Class({
                 if(traceLevels.retry >= 1)
                 {
                     logger.trace(traceLevels.retryCat, "retrying operation call to add proxy to router\n" +
-                                                    ExUtil.toString(ex));
+                                                    ex.toString());
                 }
 
                 if(sleepInterval !== null)
@@ -266,8 +264,8 @@ var ProxyFactory = Ice.Class({
         {
             if(traceLevels.retry >= 1)
             {
-                logger.trace(traceLevels.retryCat, "cannot retry operation call because retry limit has been exceeded\n" +
-                            ExUtil.toString(ex));
+                logger.trace(traceLevels.retryCat,
+			     "cannot retry operation call because retry limit has been exceeded\n" + ex.toString());
             }
             throw ex;
         }
@@ -283,7 +281,7 @@ var ProxyFactory = Ice.Class({
             {
                 msg += " in " + interval + "ms";
             }
-            msg += " because of exception\n" + ExUtil.toString(ex);
+            msg += " because of exception\n" + ex.toString();
             logger.trace(traceLevels.retryCat, msg);
         }
 

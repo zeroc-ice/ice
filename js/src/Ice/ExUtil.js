@@ -8,7 +8,7 @@
 // **********************************************************************
 
 var Ice = require("../Ice/LocalException").Ice;
-    
+
 //
 // Local aliases.
 //
@@ -21,17 +21,6 @@ var MemoryLimitException = Ice.MemoryLimitException;
 
 Ice.ExUtil =
 {
-    toString: function(ex)
-    {
-        if(!ex.stack)
-        {
-            return ex.toString();
-        }
-        else
-        {
-            return ex.stack;
-        }
-    },
     throwUOE: function(expectedType, v)
     {
         var type = v.ice_id();

@@ -15,7 +15,6 @@ Ice.__M.require(module, "Ice",
         "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/HashUtil",
-        "../Ice/ExUtil",
         "../Ice/OpaqueEndpointI",
         "../Ice/Promise",
         "../Ice/Protocol",
@@ -35,7 +34,6 @@ var ArrayUtil = Ice.ArrayUtil;
 var Debug = Ice.Debug;
 var HashMap = Ice.HashMap;
 var HashUtil = Ice.HashUtil;
-var ExUtil = Ice.ExUtil;
 var OpaqueEndpointI = Ice.OpaqueEndpointI;
 var Promise = Ice.Promise;
 var Protocol = Ice.Protocol;
@@ -2123,10 +2121,9 @@ var RoutableReference = Class(Reference, {
                                     if(traceLevels.retry >= 2)
                                     {
                                         var s = "connection to cached endpoints failed\n" +
-                                            "removing endpoints from cache and trying one more time\n" +
-                                            ExUtil.toString(ex);
-                                        self.getInstance().initializationData().logger.trace(
-                                            traceLevels.retryCat, s);
+                                                "removing endpoints from cache and trying one more time\n" +
+                                                ex.toString();
+                                        self.getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
                                     }
                                     self.getConnectionNoRouterInfo(promise); // Retry.
                                     return;

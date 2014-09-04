@@ -1474,7 +1474,7 @@ var ConnectionI = Class({
         {
             if(ex instanceof Ice.LocalException)
             {
-                var msg = "unexpected connection exception:\n " + this._desc + "\n" + ExUtil.toString(ex);
+                var msg = "unexpected connection exception:\n " + this._desc + "\n" + ex.toString();
                 this._instance.initializationData().logger.error(msg);
             }
             else
@@ -2089,7 +2089,7 @@ var ConnectionI = Class({
     },
     warning: function(msg, ex)
     {
-        this._logger.warning(msg + ":\n" + this._desc + "\n" + ExUtil.toString(ex));
+        this._logger.warning(msg + ":\n" + this._desc + "\n" + ex.toString());
     },
     checkState: function()
     {

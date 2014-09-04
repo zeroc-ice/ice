@@ -27,18 +27,22 @@ var Exception = Class(Error, {
         var s = this.ice_name();
         for(var key in this)
         {
-            if(key == "stack" || key.indexOf("_") === 0)
+            if(key === "stack" || key.indexOf("_") === 0)
             {
                 continue;
             }
 
             var value = this[key];
-            if(typeof value == "function")
+            if(typeof value === "function")
             {
                 continue;
             }
 
             s += "\n    " + key + ": \"" + value + "\"";
+        }
+        if(Ice.Globals.printStackTraces === true && this.stack)
+        {
+            s += "\n" + this.stack;
         }
         return s;
     }
@@ -47,9 +51,9 @@ var Exception = Class(Error, {
 Exception.captureStackTrace = function(object)
 {
     var stack = new Error().stack;
-    
+
     var formattedStack;
-    
+
     //
     // In IE 10 and greater the stack will be filled once the Error is throw
     // we don't need to do anything.
@@ -138,7 +142,7 @@ var __writeImpl = function(obj, os, type)
 {
     //
     // The __writeImpl method is a recursive method that goes down the
-    // class hierarchy to marshal each slice of the class using the 
+    // class hierarchy to marshal each slice of the class using the
     // generated __writeMemberImpl method.
     //
 
@@ -160,7 +164,7 @@ var __readImpl = function(obj, is, type)
 {
     //
     // The __readImpl method is a recursive method that goes down the
-    // class hierarchy to marshal each slice of the class using the 
+    // class hierarchy to marshal each slice of the class using the
     // generated __readMemberImpl method.
     //
 
@@ -210,7 +214,7 @@ Slice.defineUserException = function(constructor, base, name, writeImpl, readImp
     {
         return name;
     };
-    
+
     ex.prototype.constructor = ex;
     ex.prototype.__mostDerivedType = function() { return ex; };
     if(preserved)

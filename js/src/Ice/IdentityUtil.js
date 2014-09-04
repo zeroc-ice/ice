@@ -8,9 +8,8 @@
 // **********************************************************************
 
 var Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, "Ice", ["../Ice/ExUtil", "../Ice/StringUtil", "../Ice/Identity", "../Ice/LocalException"]);
+Ice.__M.require(module, "Ice", [ "../Ice/StringUtil", "../Ice/Identity", "../Ice/LocalException"]);
 
-var ExUtil = Ice.ExUtil;
 var StringUtil = Ice.StringUtil;
 var Identity = Ice.Identity;
 var IdentityParseException = Ice.IdentityParseException;
@@ -72,7 +71,7 @@ Ice.stringToIdentity = function(s)
         catch(e)
         {
             var ex = new IdentityParseException();
-            ex.str = "invalid identity name `" + s + "': " + ExUtil.toString(e);
+            ex.str = "invalid identity name `" + s + "': " + ex.toString();
             throw ex;
         }
     }
@@ -85,7 +84,7 @@ Ice.stringToIdentity = function(s)
         catch(e)
         {
             var ex = new IdentityParseException();
-            ex.str = "invalid category in identity `" + s + "': " + ExUtil.toString(e);
+            ex.str = "invalid category in identity `" + s + "': " + ex.toString();
             throw ex;
         }
         if(slash + 1 < s.length)
@@ -97,7 +96,7 @@ Ice.stringToIdentity = function(s)
             catch(e)
             {
                 var ex = new IdentityParseException();
-                ex.str = "invalid name in identity `" + s + "': " + ExUtil.toString(e);
+                ex.str = "invalid name in identity `" + s + "': " + ex.toString();
                 throw ex;
             }
         }
