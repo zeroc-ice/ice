@@ -353,7 +353,6 @@ generated from the section label.
         <property name="LogFile" />
         <property name="LogStdErr.Convert"/>
         <property name="MessageSizeMax" />
-        <property name="MonitorConnections" />
         <property name="Nohup" />
         <property name="NullHandleAbort" />
         <property name="Override.CloseTimeout" />
