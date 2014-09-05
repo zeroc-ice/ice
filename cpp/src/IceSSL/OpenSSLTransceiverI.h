@@ -61,6 +61,7 @@ public:
 #endif
     virtual std::string protocol() const;
     virtual std::string toString() const;
+    virtual std::string toDetailedString() const;
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
